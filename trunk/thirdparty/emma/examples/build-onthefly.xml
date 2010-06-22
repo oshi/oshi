@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<!-- ============= build file for ANT v1.x [requires v1.4+] ========= -->
+
+<project name="EMMA demo (on-the-fly mode)" default="all" basedir="." >
+
+  <!-- the default target compiles and runs Main: -->
+  <target name="all" depends="compile, run" />
+
+
+  <!-- root directory for the example source code: --> 
+  <property name="src.dir" value="${basedir}/src" />
+
+  <!-- javac class output directory: -->
+  <property name="out.dir" value="${basedir}/out" />
+
+  <!-- output directory used for EMMA coverage reports: -->
+  <property name="coverage.dir" value="${basedir}/coverage" />
+
+  <!-- directory that contains emma.jar and emma_ant.jar: -->
+  <property name="emma.dir" value="${basedir}/../lib" />
+
+  <!-- path element used by EMMA taskdef below: -->
+  <path id="emma.lib" >
+    <pathelement location="${emma.dir}/emma.jar" />
+    <pathelement location="${emma.dir}/emma_ant.jar" />
+  </path>
+
+  <!-- this loads <emma> and <emmajava> custom tasks: -->
+  <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <target name="clean" description="resets this demo project to a clean state" >
+    <delete dir="${out.dir}" /> 
+    <delete dir="${coverage.dir}" /> 
+  </target>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <target name="init" >
+    <mkdir dir="${out.dir}" />
+    <path id="run.classpath" >
+      <pathelement location="${out.dir}" />
+    </path>
+  </target>
+
+  <target name="emma" description="turns on EMMA's on-the-fly instrumentation mode" >
+    <property name="emma.enabled" value="true" />
+    
+    <!-- this property, if overriden via -Demma.filter=<list of filter specs>
+         on ANT's command line, will set the coverage filter; by default,
+         all classes found in 'run.classpath' pathref will be instrumented:
+    -->
+    <property name="emma.filter" value="" />
+  </target>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <target name="compile" depends="init" description="compiles the example source code" >
+    <!-- compile using javac [debug="on" ensures rich(er) emma reporting]: -->
+    <javac debug="on" srcdir="${src.dir}" destdir="${out.dir}" />
+  </target>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <!-- if <emmajava> is disabled, it acts as a simple pass-through to
+       the original ANT <java> task: this is convenient, because it avoids
+       having to branch the build execution depending on whether you want
+       code coverage or not. Note that <emmajava> inherits all of <java>'s
+       attributes and nested elements.
+  -->
+  <target name="run" depends="init, compile" description="runs the examples" >
+    <emmajava enabled="${emma.enabled}" libclasspathref="emma.lib" 
+              fullmetadata="yes" filter="${emma.filter}" sourcepath="${src.dir}"
+              classname="Main"
+              classpathref="run.classpath"
+    >
+      <!-- regular <java> options are still available: -->
+      <arg value="somearg" />
+
+      <!-- <emmajava> option extensions [see the reference manual for
+           complete details]: -->
+      <txt outfile="${coverage.dir}/coverage.txt" />
+      <html outfile="${coverage.dir}/coverage.html"  />
+    </emmajava>
+  </target>
+
+</project>
+<!-- ========= END OF FILE ========================================== -->
+
+
+
