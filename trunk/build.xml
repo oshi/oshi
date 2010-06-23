@@ -2,6 +2,7 @@
 <project name="Oshi" basedir="." default="build">
   <target name="recurse">
     <ant dir="oshi-core" target="${ant.target}" />
+    <ant dir="artifacts" target="${ant.target}" />
   </target>
   <target name="build">
     <antcall target="recurse">
