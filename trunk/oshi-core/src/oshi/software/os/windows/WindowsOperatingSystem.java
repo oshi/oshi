@@ -7,11 +7,9 @@
  */
 package oshi.software.os.windows;
 
-import oshi.software.os.Kernel;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.software.os.windows.nt.OSVersionInfoEx;
-import oshi.software.os.windows.nt.WindowsNTKernel;
 
 /**
  * Microsoft Windows is a family of proprietary operating systems most commonly used on
@@ -22,12 +20,6 @@ public class WindowsOperatingSystem implements OperatingSystem {
 	
 	private OperatingSystemVersion _version = null;
 	
-	@Override
-	public Kernel getKernel() {
-		// TODO: add support for Windows 9x
-		return new WindowsNTKernel();
-	}
-
 	@Override
 	public OperatingSystemVersion getVersion() {
 		if (_version == null) {

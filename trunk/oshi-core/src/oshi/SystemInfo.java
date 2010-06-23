@@ -9,7 +9,9 @@ package oshi;
 
 import com.sun.jna.Platform;
 
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.software.os.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
@@ -17,7 +19,8 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo {
-	private OperatingSystem _os;
+	private OperatingSystem _os = null;
+	private HardwareAbstractionLayer _hardware = null;
 	
 	public OperatingSystem getOperatingSystem() {
 		if (_os == null) {
@@ -28,5 +31,16 @@ public class SystemInfo {
 			}
 		}
 		return _os;
+	}
+	
+	public HardwareAbstractionLayer getHardware() {
+		if (_hardware == null) {
+			if (Platform.isWindows()) {
+				_hardware = new WindowsHardwareAbstractionLayer();
+			} else {
+				throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
+			}
+		}
+		return _hardware;
 	}
 }

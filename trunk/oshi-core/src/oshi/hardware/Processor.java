@@ -14,5 +14,10 @@ package oshi.hardware;
  * @author dblock[at]dblock[dot]org
  */
 public interface Processor {
-
+	/**
+	 * Processor vendor.
+	 * @return
+	 *  String.
+	 */
+	String getVendor();
 }

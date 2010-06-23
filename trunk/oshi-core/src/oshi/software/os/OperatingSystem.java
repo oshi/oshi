@@ -15,7 +15,7 @@ package oshi.software.os;
 public interface OperatingSystem {
 	
 	/**
-	 * Operating systme family.
+	 * Operating system family.
 	 * @return
 	 *  String.
 	 */
@@ -34,11 +34,4 @@ public interface OperatingSystem {
 	 *  Version.
 	 */
 	OperatingSystemVersion getVersion();
-	
-	/**
-	 * The Kernel manages processes, memory, devices and system calls.
-	 * @return
-	 *  A Kernel object.
-	 */
-	Kernel getKernel();	
 }
