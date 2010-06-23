@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Libc.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">Libc.java</span></div><h1>Libc.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Structure;
+
+public interface Libc extends Library {
+
+<span class="nc" id="L29">	public static final Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;,</span>
+			Libc.class);
+
+<span class="nc" id="L32">	public static final class Sysinfo extends Structure {</span>
+		public NativeLong uptime; // Seconds since boot
+		// 1, 5, and 15 minute load averages
+<span class="nc" id="L35">		public NativeLong[] loads = new NativeLong[3];</span>
+		public NativeLong totalram; // Total usable main memory size
+		public NativeLong freeram; // Available memory size
+		public NativeLong sharedram; // Amount of shared memory
+		public NativeLong bufferram; // Memory used by buffers
+		public NativeLong totalswap; // Total swap space size
+		public NativeLong freeswap; // swap space still available
+		public short procs; // Number of current processes
+		public NativeLong totalhigh; // Total high memory size
+		public NativeLong freehigh; // Available high memory size
+		public int mem_unit; // Memory unit size in bytes
+<span class="nc" id="L46">		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+
+		@Override
+		protected List getFieldOrder() {
+<span class="nc" id="L50">			return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;,</span>
+					&quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;, &quot;totalswap&quot;,
+					&quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;,
+					&quot;_f&quot; });
+		}
+	}
+
+	int sysinfo(Sysinfo info);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

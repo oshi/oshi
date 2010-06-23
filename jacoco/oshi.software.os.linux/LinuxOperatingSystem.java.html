@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxOperatingSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxOperatingSystem.java</span></div><h1>LinuxOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Scanner;
+
+import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystemVersion;
+import oshi.software.os.linux.proc.OSVersionInfoEx;
+
+/**
+ * Linux is a family of free operating systems most commonly used on personal
+ * computers.
+ *
+ * @author alessandro[at]perucchi[dot]org
+ */
+<span class="nc" id="L33">public class LinuxOperatingSystem implements OperatingSystem {</span>
+
+<span class="nc" id="L35">	private OperatingSystemVersion _version = null;</span>
+<span class="nc" id="L36">	private String _family = null;</span>
+
+	public String getFamily() {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">		if (_family == null) {</span>
+			Scanner in;
+			try {
+<span class="nc" id="L42">				in = new Scanner(new FileReader(&quot;/etc/os-release&quot;));</span>
+<span class="nc" id="L43">			} catch (FileNotFoundException e) {</span>
+<span class="nc" id="L44">				return &quot;&quot;;</span>
+<span class="nc" id="L45">			}</span>
+<span class="nc" id="L46">			in.useDelimiter(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">			while (in.hasNext()) {</span>
+<span class="nc" id="L48">				String[] splittedLine = in.next().split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">				if (splittedLine[0].equals(&quot;NAME&quot;)) {</span>
+					// remove beginning and ending '&quot;' characters, etc from
+					// NAME=&quot;Ubuntu&quot;
+<span class="nc" id="L52">					_family = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
+<span class="nc" id="L53">					break;</span>
+				}
+<span class="nc" id="L55">			}</span>
+<span class="nc" id="L56">			in.close();</span>
+		}
+<span class="nc" id="L58">		return _family;</span>
+	}
+
+	public String getManufacturer() {
+<span class="nc" id="L62">		return &quot;GNU/Linux&quot;;</span>
+	}
+
+	public OperatingSystemVersion getVersion() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (_version == null) {</span>
+<span class="nc" id="L67">			_version = new OSVersionInfoEx();</span>
+		}
+<span class="nc" id="L69">		return _version;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L74">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L75">		sb.append(getManufacturer());</span>
+<span class="nc" id="L76">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L77">		sb.append(getFamily());</span>
+<span class="nc" id="L78">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L79">		sb.append(getVersion().toString());</span>
+<span class="nc" id="L80">		return sb.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

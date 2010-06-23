@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxPowerSource.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux.proc</a> &gt; <span class="el_source">LinuxPowerSource.java</span></div><h1>LinuxPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux.proc;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.hardware.PowerSource;
+import oshi.util.FileUtil;
+
+/**
+ * A Power Source
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public class LinuxPowerSource implements PowerSource {
+
+	private static final String PS_PATH = &quot;/sys/class/power_supply/&quot;;
+
+	private String name;
+
+	private double remainingCapacity;
+
+	private double timeRemaining;
+
+	public LinuxPowerSource(String name, double remainingCapacity,
+<span class="nc" id="L43">			double timeRemaining) {</span>
+<span class="nc" id="L44">		this.name = name;</span>
+<span class="nc" id="L45">		this.remainingCapacity = remainingCapacity;</span>
+<span class="nc" id="L46">		this.timeRemaining = timeRemaining;</span>
+<span class="nc" id="L47">	}</span>
+
+	public String getName() {
+<span class="nc" id="L50">		return name;</span>
+	}
+
+	public double getRemainingCapacity() {
+<span class="nc" id="L54">		return remainingCapacity;</span>
+	}
+
+	public double getTimeRemaining() {
+<span class="nc" id="L58">		return timeRemaining;</span>
+	}
+
+	/**
+	 * Battery Information
+	 */
+	public static PowerSource[] getPowerSources() {
+		// Get list of power source names
+<span class="nc" id="L66">		File f = new File(PS_PATH);</span>
+<span class="nc" id="L67">		String[] psNames = f.list();</span>
+		// Empty directory will give null rather than empty array, so fix
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (psNames == null)</span>
+<span class="nc" id="L70">			psNames = new String[0];</span>
+<span class="nc" id="L71">		List&lt;LinuxPowerSource&gt; psList = new ArrayList&lt;LinuxPowerSource&gt;(</span>
+				psNames.length);
+		// For each power source, output various info
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		for (String psName : psNames) {</span>
+			// Skip if name is ADP* (AC power supply)
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if (psName.startsWith(&quot;ADP&quot;))</span>
+<span class="nc" id="L77">				continue;</span>
+			// Skip if can't read uevent file
+			List&lt;String&gt; psInfo;
+			try {
+<span class="nc" id="L81">				psInfo = FileUtil.readFile(PS_PATH + psName + &quot;/uevent&quot;);</span>
+<span class="nc" id="L82">			} catch (IOException e) {</span>
+<span class="nc" id="L83">				continue;</span>
+<span class="nc" id="L84">			}</span>
+			// Initialize defaults
+<span class="nc" id="L86">			boolean isPresent = false;</span>
+<span class="nc" id="L87">			boolean isCharging = false;</span>
+<span class="nc" id="L88">			String name = &quot;Unknown&quot;;</span>
+<span class="nc" id="L89">			int energyNow = 0;</span>
+<span class="nc" id="L90">			int energyFull = 1;</span>
+<span class="nc" id="L91">			int powerNow = 1;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			for (String checkLine : psInfo) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">				if (checkLine.startsWith(&quot;POWER_SUPPLY_PRESENT&quot;)) {</span>
+					// Skip if not present
+<span class="nc" id="L95">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">					if (psSplit.length &gt; 1)</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">						isPresent = Integer.parseInt(psSplit[1]) &gt; 0;</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">					if (!isPresent)</span>
+<span class="nc" id="L99">						continue;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">				} else if (checkLine.startsWith(&quot;POWER_SUPPLY_NAME&quot;)) {</span>
+					// Name
+<span class="nc" id="L102">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">					if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L104">						name = psSplit[1];</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">				} else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_NOW&quot;)</span>
+						|| checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_NOW&quot;)) {
+					// Remaining Capacity = energyNow / energyFull
+<span class="nc" id="L108">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">					if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L110">						energyNow = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">				} else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_FULL&quot;)</span>
+						|| checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_FULL&quot;)) {
+<span class="nc" id="L113">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">					if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L115">						energyFull = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">				} else if (checkLine.startsWith(&quot;POWER_SUPPLY_STATUS&quot;)) {</span>
+					// Check if charging
+<span class="nc" id="L118">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">					if (psSplit.length &gt; 1 &amp;&amp; psSplit[1].equals(&quot;Charging&quot;))</span>
+<span class="nc" id="L120">						isCharging = true;</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">				} else if (checkLine.startsWith(&quot;POWER_SUPPLY_POWER_NOW&quot;)</span>
+						|| checkLine.startsWith(&quot;POWER_SUPPLY_CURRENT_NOW&quot;)) {
+					// Time Remaining = energyNow / powerNow (hours)
+<span class="nc" id="L124">					String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">					if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L126">						powerNow = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">					if (powerNow &lt;= 0)</span>
+<span class="nc" id="L128">						isCharging = true;</span>
+				}
+<span class="nc" id="L130">			}</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			psList.add(new LinuxPowerSource(name, (double) energyNow</span>
+					/ energyFull, isCharging ? -2d : 3600d * (double) energyNow
+					/ powerNow));
+		}
+
+<span class="nc" id="L136">		return psList.toArray(new LinuxPowerSource[psList.size()]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

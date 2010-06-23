@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxFileSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux.proc</a> &gt; <span class="el_source">LinuxFileSystem.java</span></div><h1>LinuxFileSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux.proc;
+
+import java.io.IOException;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.software.os.OSFileStore;
+
+/**
+ * The Mac File System contains {@link OSFileStore}s which are a storage pool,
+ * device, partition, volume, concrete file system or other implementation
+ * specific means of file storage. In Linux, these are found in the /proc/mount
+ * filesystem, excluding temporary and kernel mounts.
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L35">public class LinuxFileSystem {</span>
+	/**
+	 * Gets File System Information.
+	 * 
+	 * @return An array of {@link FileStore} objects representing mounted
+	 *         volumes. May return disconnected volumes with
+	 *         {@link OSFileStore#getTotalSpace()} = 0.
+	 */
+	public static OSFileStore[] getFileStores() {
+<span class="nc" id="L44">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;OSFileStore&gt;();</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		for (FileStore store : FileSystems.getDefault().getFileStores()) {</span>
+			// FileStore toString starts with path, then a space, then name in
+			// parentheses e.g., &quot;/ (/dev/sda1)&quot; and &quot;/proc (proc)&quot;
+<span class="nc" id="L48">			String path = store.toString().replace(&quot; (&quot; + store.name() + &quot;)&quot;,</span>
+					&quot;&quot;);
+			// Exclude special directories
+<span class="nc bnc" id="L51" title="All 10 branches missed.">			if (path.startsWith(&quot;/proc&quot;) || path.startsWith(&quot;/sys&quot;)</span>
+					|| path.startsWith(&quot;/run&quot;) || path.equals(&quot;/dev&quot;)
+					|| path.equals(&quot;/dev/pts&quot;))
+<span class="nc" id="L54">				continue;</span>
+<span class="nc" id="L55">			String name = store.name();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">			if (path.equals(&quot;/&quot;))</span>
+<span class="nc" id="L57">				name = &quot;/&quot;;</span>
+<span class="nc" id="L58">			String description = &quot;Mount Point&quot;;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">			if (store.name().startsWith(&quot;/dev&quot;))</span>
+<span class="nc" id="L60">				description = &quot;Local Disk&quot;;</span>
+			try {
+<span class="nc" id="L62">				fsList.add(new OSFileStore(name, description, store</span>
+						.getUsableSpace(), store.getTotalSpace()));
+<span class="nc" id="L64">			} catch (IOException e) {</span>
+				// get*Space() may fail for ejected CD-ROM, etc.
+<span class="nc" id="L66">				continue;</span>
+<span class="nc" id="L67">			}</span>
+<span class="nc" id="L68">		}</span>
+<span class="nc" id="L69">		return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

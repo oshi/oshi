@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Libc xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/oshi/software/os/linux/Libc.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/dblock/oshi)</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2015 The Oshi Project Team</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * alessandro[at]perucchi[dot]org</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * https://github.com/dblock/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> oshi.software.os.linux;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Library;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/software/os/linux/Libc.html">Libc</a> <strong class="jxr_keyword">extends</strong> Library {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/software/os/linux/Libc.html">Libc</a> INSTANCE = (Libc) Native.loadLibrary(<span class="jxr_string">"c"</span>,
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  			Libc.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/linux/Libc.html">Sysinfo</a> <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  		<strong class="jxr_keyword">public</strong> NativeLong uptime; <em class="jxr_comment">// Seconds since boot</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  		<em class="jxr_comment">// 1, 5, and 15 minute load averages</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  		<strong class="jxr_keyword">public</strong> NativeLong[] loads = <strong class="jxr_keyword">new</strong> NativeLong[3];
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  		<strong class="jxr_keyword">public</strong> NativeLong totalram; <em class="jxr_comment">// Total usable main memory size</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  		<strong class="jxr_keyword">public</strong> NativeLong freeram; <em class="jxr_comment">// Available memory size</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  		<strong class="jxr_keyword">public</strong> NativeLong sharedram; <em class="jxr_comment">// Amount of shared memory</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  		<strong class="jxr_keyword">public</strong> NativeLong bufferram; <em class="jxr_comment">// Memory used by buffers</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  		<strong class="jxr_keyword">public</strong> NativeLong totalswap; <em class="jxr_comment">// Total swap space size</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  		<strong class="jxr_keyword">public</strong> NativeLong freeswap; <em class="jxr_comment">// swap space still available</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  		<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> procs; <em class="jxr_comment">// Number of current processes</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  		<strong class="jxr_keyword">public</strong> NativeLong totalhigh; <em class="jxr_comment">// Total high memory size</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  		<strong class="jxr_keyword">public</strong> NativeLong freehigh; <em class="jxr_comment">// Available high memory size</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  		<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> mem_unit; <em class="jxr_comment">// Memory unit size in bytes</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  		<strong class="jxr_keyword">public</strong> byte[] _f = <strong class="jxr_keyword">new</strong> byte[8]; <em class="jxr_comment">// Won't be written for 64-bit systems</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  		@Override
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  		<strong class="jxr_keyword">protected</strong> List getFieldOrder() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  			<strong class="jxr_keyword">return</strong> Arrays.asList(<strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"uptime"</span>, <span class="jxr_string">"loads"</span>, <span class="jxr_string">"totalram"</span>,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  					<span class="jxr_string">"freeram"</span>, <span class="jxr_string">"sharedram"</span>, <span class="jxr_string">"bufferram"</span>, <span class="jxr_string">"totalswap"</span>,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  					<span class="jxr_string">"freeswap"</span>, <span class="jxr_string">"procs"</span>, <span class="jxr_string">"totalhigh"</span>, <span class="jxr_string">"freehigh"</span>, <span class="jxr_string">"mem_unit"</span>,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  					<span class="jxr_string">"_f"</span> });
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  		}
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  	}
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  	<strong class="jxr_keyword">int</strong> sysinfo(<a href="../../../../oshi/software/os/linux/Libc.html">Sysinfo</a> info);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+</body>
+</html>

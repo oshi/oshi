@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsHardwareAbstractionLayer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsHardwareAbstractionLayer.java</span></div><h1>WindowsHardwareAbstractionLayer.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Processor;
+import oshi.software.os.OSFileStore;
+import oshi.software.os.windows.nt.CentralProcessor;
+import oshi.software.os.windows.nt.GlobalMemory;
+import oshi.software.os.windows.nt.WindowsFileSystem;
+import oshi.software.os.windows.nt.WindowsPowerSource;
+
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.WinReg;
+
+<span class="fc" id="L35">public class WindowsHardwareAbstractionLayer implements</span>
+		HardwareAbstractionLayer {
+
+<span class="fc" id="L38">	private Processor[] _processors = null;</span>
+
+<span class="fc" id="L40">	private Memory _memory = null;</span>
+
+	public Memory getMemory() {
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">		if (_memory == null) {</span>
+<span class="fc" id="L44">			_memory = new GlobalMemory();</span>
+		}
+<span class="fc" id="L46">		return _memory;</span>
+	}
+
+	public Processor[] getProcessors() {
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		if (_processors == null) {</span>
+<span class="fc" id="L52">			final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
+<span class="fc" id="L53">			List&lt;Processor&gt; processors = new ArrayList&lt;Processor&gt;();</span>
+<span class="fc" id="L54">			String[] processorIds = Advapi32Util.registryGetKeys(</span>
+<span class="fc" id="L55">					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">			for (String processorId : processorIds) {</span>
+<span class="fc" id="L57">				String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorId;</span>
+<span class="fc" id="L58">				CentralProcessor cpu = new CentralProcessor();</span>
+<span class="fc" id="L59">				cpu.setIdentifier(Advapi32Util.registryGetStringValue(</span>
+<span class="fc" id="L60">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="fc" id="L61">						&quot;Identifier&quot;));</span>
+<span class="fc" id="L62">				cpu.setName(Advapi32Util.registryGetStringValue(</span>
+<span class="fc" id="L63">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="fc" id="L64">						&quot;ProcessorNameString&quot;));</span>
+<span class="fc" id="L65">				cpu.setVendor(Advapi32Util.registryGetStringValue(</span>
+<span class="fc" id="L66">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="fc" id="L67">						&quot;VendorIdentifier&quot;));</span>
+<span class="fc" id="L68">				processors.add(cpu);</span>
+			}
+<span class="fc" id="L70">			_processors = processors.toArray(new Processor[0]);</span>
+		}
+
+<span class="fc" id="L73">		return _processors;</span>
+	}
+
+	public PowerSource[] getPowerSources() {
+<span class="fc" id="L77">		return WindowsPowerSource.getPowerSources();</span>
+	}
+
+	public OSFileStore[] getFileStores() {
+<span class="fc" id="L81">		return WindowsFileSystem.getFileStores();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CentralProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows.nt</a> &gt; <span class="el_source">CentralProcessor.java</span></div><h1>CentralProcessor.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows.nt;
+
+import java.lang.management.ManagementFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.hardware.Processor;
+import oshi.util.ParseUtil;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.management.OperatingSystemMXBean;
+
+/**
+ * A CPU as defined in Windows registry.
+ * 
+ * @author dblock[at]dblock[dot]org
+ */
+@SuppressWarnings(&quot;restriction&quot;)
+public class CentralProcessor implements Processor {
+	private static final OperatingSystemMXBean OS_MXBEAN;
+	static {
+<span class="fc" id="L40">		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory</span>
+<span class="fc" id="L41">				.getOperatingSystemMXBean();</span>
+		// Initialize CPU usage
+<span class="fc" id="L43">		OS_MXBEAN.getSystemCpuLoad();</span>
+<span class="fc" id="L44">	}</span>
+
+	private String _vendor;
+	private String _name;
+	private String _identifier;
+	private Long _freq;
+
+<span class="fc" id="L51">	public CentralProcessor() {</span>
+
+<span class="fc" id="L53">	}</span>
+
+	/**
+	 * Vendor identifier, eg. GenuineIntel.
+	 * 
+	 * @return Processor vendor.
+	 */
+	public String getVendor() {
+<span class="nc" id="L61">		return _vendor;</span>
+	}
+
+	/**
+	 * Set processor vendor.
+	 * 
+	 * @param vendor
+	 *            Vendor.
+	 */
+	public void setVendor(String vendor) {
+<span class="fc" id="L71">		_vendor = vendor;</span>
+<span class="fc" id="L72">	}</span>
+
+	/**
+	 * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
+	 * 
+	 * @return Processor name.
+	 */
+	public String getName() {
+<span class="fc" id="L80">		return _name;</span>
+	}
+
+	/**
+	 * Set processor name.
+	 * 
+	 * @param name
+	 *            Name.
+	 */
+	public void setName(String name) {
+<span class="fc" id="L90">		_name = name;</span>
+<span class="fc" id="L91">	}</span>
+
+	/**
+	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+	 * 
+	 * @return Processor frequency or -1 if unknown.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public long getVendorFreq() {
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		if (_freq == null) {</span>
+<span class="fc" id="L103">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="fc" id="L104">			Matcher matcher = pattern.matcher(getName());</span>
+
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">			if (matcher.find()) {</span>
+<span class="fc" id="L107">				String unit = matcher.group(1);</span>
+<span class="fc" id="L108">				_freq = ParseUtil.parseHertz(unit);</span>
+<span class="fc" id="L109">			} else {</span>
+<span class="nc" id="L110">				_freq = -1L;</span>
+			}
+		}
+
+<span class="fc" id="L114">		return _freq.longValue();</span>
+	}
+
+	/**
+	 * Set vendor frequency.
+	 * 
+	 * @param frequency
+	 *            Frequency.
+	 */
+	public void setVendorFreq(long freq) {
+<span class="nc" id="L124">		_freq = Long.valueOf(freq);</span>
+<span class="nc" id="L125">	}</span>
+
+	/**
+	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
+	 * 
+	 * @return Processor identifier.
+	 */
+	public String getIdentifier() {
+<span class="nc" id="L133">		return _identifier;</span>
+	}
+
+	/**
+	 * Set processor identifier.
+	 * 
+	 * @param identifier
+	 *            Identifier.
+	 */
+	public void setIdentifier(String identifier) {
+<span class="fc" id="L143">		_identifier = identifier;</span>
+<span class="fc" id="L144">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isCpu64bit() {
+<span class="nc" id="L150">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setCpu64(boolean cpu64) {
+<span class="nc" id="L157">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getStepping() {
+<span class="nc" id="L164">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setStepping(String _stepping) {
+<span class="nc" id="L171">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getModel() {
+<span class="nc" id="L178">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setModel(String _model) {
+<span class="nc" id="L185">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getFamily() {
+<span class="nc" id="L192">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setFamily(String _family) {
+<span class="nc" id="L199">		throw new UnsupportedOperationException();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Deprecated
+	public float getLoad() {
+<span class="nc" id="L207">		long[] prevTicks = getCpuLoadTicks();</span>
+		try {
+<span class="nc" id="L209">			Thread.sleep(1000);</span>
+<span class="nc" id="L210">		} catch (InterruptedException e) {</span>
+			// Awake, O sleeper
+		}
+<span class="nc" id="L213">		long[] ticks = getCpuLoadTicks();</span>
+<span class="nc" id="L214">		long total = 0;</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		for (int i = 0; i &lt; ticks.length; i++) {</span>
+<span class="nc" id="L216">			total += (ticks[i] - prevTicks[i]);</span>
+		}
+<span class="nc" id="L218">		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];</span>
+<span class="nc bnc" id="L219" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0)</span>
+<span class="nc" id="L220">			return 100f * (total - idle) / total;</span>
+		else
+<span class="nc" id="L222">			return 0f;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getCpuLoadTicks() {
+		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
+		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
+		WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
+<span class="fc" id="L232">		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime,</span>
+				lpUserTime))
+			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());
+		// Array order is user,nice,kernel,idle
+		long[] ticks = new long[4];
+		ticks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+		ticks[1] = 0L; // Windows is not 'nice'
+		ticks[2] = lpKernelTime.toLong() - lpIdleTime.toLong();
+		ticks[3] = lpIdleTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+		return ticks;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemCPULoad() {
+<span class="fc" id="L248">		return OS_MXBEAN.getSystemCpuLoad();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemLoadAverage() {
+<span class="nc" id="L255">		return OS_MXBEAN.getSystemLoadAverage();</span>
+	}
+
+	public String toString() {
+<span class="nc" id="L259">		return getName();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

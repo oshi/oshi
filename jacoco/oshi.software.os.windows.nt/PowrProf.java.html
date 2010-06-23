@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PowrProf.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows.nt</a> &gt; <span class="el_source">PowrProf.java</span></div><h1>PowrProf.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows.nt;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+
+/**
+ * Power profile stats
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface PowrProf extends Library {
+<span class="fc" id="L34">	PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;,</span>
+			PowrProf.class);
+
+	public static int SYSTEM_BATTERY_STATE = 5;
+
+<span class="fc" id="L39">	public static class SystemBatteryState extends Structure {</span>
+		public byte acOnLine; // boolean
+		public byte batteryPresent; // boolean
+		public byte charging; // boolean
+		public byte discharging; // boolean
+<span class="fc" id="L44">		public byte[] spare1 = new byte[4]; // unused</span>
+		public int maxCapacity; // unsigned 32 bit
+		public int remainingCapacity; // unsigned 32 bit
+		public int rate; // signed 32 bit
+		public int estimatedTime; // signed 32 bit
+		public int defaultAlert1; // unsigned 32 bit
+		public int defaultAlert2; // unsigned 32 bit
+
+		@Override
+		protected List getFieldOrder() {
+<span class="fc" id="L54">			return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;,</span>
+					&quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;, &quot;maxCapacity&quot;,
+					&quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;,
+					&quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
+		}
+	}
+
+	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer,
+			NativeLong nInputBufferSize, Structure lpOutputBuffer,
+			NativeLong nOutputBufferSize);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

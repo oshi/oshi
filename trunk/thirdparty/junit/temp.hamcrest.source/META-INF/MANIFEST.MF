@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.6.5
-Created-By: 1.5.0_07-87 ("Apple Computer, Inc.")
-

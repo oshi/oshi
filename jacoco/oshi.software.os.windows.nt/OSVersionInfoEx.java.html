@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OSVersionInfoEx.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows.nt</a> &gt; <span class="el_source">OSVersionInfoEx.java</span></div><h1>OSVersionInfoEx.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows.nt;
+
+import oshi.software.os.OperatingSystemVersion;
+
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.OSVERSIONINFOEX;
+import com.sun.jna.platform.win32.WinReg;
+import com.sun.jna.platform.win32.WinUser;
+
+/**
+ * Contains operating system version information. The information includes major
+ * and minor version numbers, a build number, a platform identifier, and
+ * descriptive text about the operating system.
+ * 
+ * @author dblock[at]dblock[dot]org
+ */
+public class OSVersionInfoEx implements OperatingSystemVersion {
+	private OSVERSIONINFOEX _versionInfo;
+
+<span class="fc" id="L41">	public OSVersionInfoEx() {</span>
+<span class="fc" id="L42">		_versionInfo = new OSVERSIONINFOEX();</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">		if (!Kernel32.INSTANCE.GetVersionEx(_versionInfo)) {</span>
+<span class="nc" id="L44">			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());</span>
+		}
+<span class="fc" id="L46">	}</span>
+
+	/**
+	 * The major version number of the operating system.
+	 * 
+	 * @return The major version within the following supported operating
+	 *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
+	 *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
+	 *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
+	 *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
+	 *         Windows XP: 5.1 Windows 2000: 5.0
+	 */
+	public int getMajor() {
+<span class="fc" id="L59">		return _versionInfo.dwMajorVersion.intValue();</span>
+	}
+
+	/**
+	 * The minor version number of the operating system.
+	 * 
+	 * @return The minor version within the following supported operating
+	 *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
+	 *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
+	 *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
+	 *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
+	 *         Windows XP: 5.1 Windows 2000: 5.0
+	 */
+	public int getMinor() {
+<span class="fc" id="L73">		return _versionInfo.dwMinorVersion.intValue();</span>
+	}
+
+	/**
+	 * The build number of the operating system.
+	 * 
+	 * @return Build number.
+	 */
+	public int getBuildNumber() {
+<span class="nc" id="L82">		return _versionInfo.dwBuildNumber.intValue();</span>
+	}
+
+	/**
+	 * The operating system platform. This member can be VER_PLATFORM_WIN32_NT.
+	 * 
+	 * @return Platform ID.
+	 */
+	public int getPlatformId() {
+<span class="fc" id="L91">		return _versionInfo.dwPlatformId.intValue();</span>
+	}
+
+	/**
+	 * String, such as &quot;Service Pack 3&quot;, that indicates the latest Service Pack
+	 * installed on the system. If no Service Pack has been installed, the
+	 * string is empty.
+	 * 
+	 * @return Service pack.
+	 */
+	public String getServicePack() {
+<span class="nc" id="L102">		return Native.toString(_versionInfo.szCSDVersion);</span>
+	}
+
+	/**
+	 * A bit mask that identifies the product suites available on the system.
+	 * 
+	 * @return Suite mask.
+	 */
+	public int getSuiteMask() {
+<span class="nc" id="L111">		return _versionInfo.wSuiteMask.intValue();</span>
+	}
+
+	/**
+	 * Any additional information about the system.
+	 * 
+	 * @return Product type.
+	 */
+	public byte getProductType() {
+<span class="fc" id="L120">		return _versionInfo.wProductType;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L125">		String version = null;</span>
+
+		// see
+		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_NT) {</span>
+			// 8.1
+<span class="pc bpc" id="L131" title="3 of 6 branches missed.">			if (getMajor() == 6 &amp;&amp; getMinor() == 3</span>
+					&amp;&amp; getProductType() == WinNT.VER_NT_WORKSTATION) {
+<span class="fc" id="L133">				version = &quot;8.1&quot;;</span>
+			}
+			// Server 2008 R2
+<span class="nc bnc" id="L136" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 3</span>
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L138">				version = &quot;Server 2012 R2&quot;;</span>
+			}
+			// 8
+<span class="nc bnc" id="L141" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 2</span>
+					&amp;&amp; getProductType() == WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L143">				version = &quot;8&quot;;</span>
+			}
+			// Server 2008
+<span class="nc bnc" id="L146" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 2</span>
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L148">				version = &quot;Server 2012&quot;;</span>
+			}
+			// 7
+<span class="nc bnc" id="L151" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 1</span>
+					&amp;&amp; getProductType() == WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L153">				version = &quot;7&quot;;</span>
+			}
+			// Server 2008 R2
+<span class="nc bnc" id="L156" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 1</span>
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L158">				version = &quot;Server 2008 R2&quot;;</span>
+			}
+			// Server 2008
+<span class="nc bnc" id="L161" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 0</span>
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L163">				version = &quot;Server 2008&quot;;</span>
+			}
+			// Vista
+<span class="nc bnc" id="L166" title="All 6 branches missed.">			else if (getMajor() == 6 &amp;&amp; getMinor() == 0</span>
+					&amp;&amp; getProductType() == WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L168">				version = &quot;Vista&quot;;</span>
+			}
+			// Server 2003
+<span class="nc bnc" id="L171" title="All 8 branches missed.">			else if (getMajor() == 5</span>
+					&amp;&amp; getMinor() == 2
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION
+					&amp;&amp; User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0) {
+<span class="nc" id="L175">				version = &quot;Server 2003&quot;;</span>
+			}
+			// Server 2003 R2
+<span class="nc bnc" id="L178" title="All 8 branches missed.">			else if (getMajor() == 5</span>
+					&amp;&amp; getMinor() == 2
+					&amp;&amp; getProductType() != WinNT.VER_NT_WORKSTATION
+					&amp;&amp; User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0) {
+<span class="nc" id="L182">				version = &quot;Server 2003 R2&quot;;</span>
+			}
+			// XP 64 bit
+<span class="nc bnc" id="L185" title="All 6 branches missed.">			else if (getMajor() == 5 &amp;&amp; getMinor() == 2</span>
+					&amp;&amp; getProductType() == WinNT.VER_NT_WORKSTATION) {
+<span class="nc" id="L187">				version = &quot;XP&quot;;</span>
+			}
+			// XP 32 bit
+<span class="nc bnc" id="L190" title="All 4 branches missed.">			else if (getMajor() == 5 &amp;&amp; getMinor() == 1) {</span>
+<span class="nc" id="L191">				version = &quot;XP&quot;;</span>
+			}
+			// 2000
+<span class="nc bnc" id="L194" title="All 4 branches missed.">			else if (getMajor() == 5 &amp;&amp; getMinor() == 0) {</span>
+<span class="nc" id="L195">				version = &quot;2000&quot;;</span>
+			}
+			// Windows NT
+<span class="nc bnc" id="L198" title="All 2 branches missed.">			else if (getMajor() == 4) {</span>
+<span class="nc" id="L199">				version = &quot;NT 4&quot;;</span>
+
+<span class="nc bnc" id="L201" title="All 2 branches missed.">				if (&quot;Service Pack 6&quot;.equals(getServicePack())) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">					if (Advapi32Util</span>
+							.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE,
+									&quot;SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009&quot;)) {
+<span class="nc" id="L205">						return &quot;NT4 SP6a&quot;;</span>
+					}
+				}
+
+			} else {
+<span class="nc" id="L210">				throw new RuntimeException(&quot;Unsupported Windows NT version: &quot;</span>
+						+ _versionInfo.toString());
+			}
+
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">			if (_versionInfo.wServicePackMajor.intValue() &gt; 0) {</span>
+<span class="nc" id="L215">				version = version + &quot; SP&quot;</span>
+						+ _versionInfo.wServicePackMajor.intValue();
+			}
+
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		} else if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_WINDOWS) {</span>
+<span class="nc bnc" id="L220" title="All 4 branches missed.">			if (getMajor() == 4 &amp;&amp; getMinor() == 90) {</span>
+<span class="nc" id="L221">				version = &quot;ME&quot;;</span>
+<span class="nc bnc" id="L222" title="All 4 branches missed.">			} else if (getMajor() == 4 &amp;&amp; getMinor() == 10) {</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">				if (_versionInfo.szCSDVersion[1] == 'A') {</span>
+<span class="nc" id="L224">					version = &quot;98 SE&quot;;</span>
+				} else {
+<span class="nc" id="L226">					version = &quot;98&quot;;</span>
+				}
+<span class="nc bnc" id="L228" title="All 4 branches missed.">			} else if (getMajor() == 4 &amp;&amp; getMinor() == 0) {</span>
+<span class="nc bnc" id="L229" title="All 4 branches missed.">				if (_versionInfo.szCSDVersion[1] == 'C'</span>
+						|| _versionInfo.szCSDVersion[1] == 'B') {
+<span class="nc" id="L231">					version = &quot;95 OSR2&quot;;</span>
+				} else {
+<span class="nc" id="L233">					version = &quot;95&quot;;</span>
+				}
+			} else {
+<span class="nc" id="L236">				throw new RuntimeException(&quot;Unsupported Windows 9x version: &quot;</span>
+						+ _versionInfo.toString());
+			}
+		} else {
+<span class="nc" id="L240">			throw new RuntimeException(&quot;Unsupported Windows platform: &quot;</span>
+					+ _versionInfo.toString());
+		}
+
+<span class="fc" id="L244">		return version;</span>
+	}
+
+<span class="nc" id="L247">	public OSVersionInfoEx(OSVERSIONINFOEX versionInfo) {</span>
+<span class="nc" id="L248">		_versionInfo = versionInfo;</span>
+<span class="nc" id="L249">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacOperatingSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacOperatingSystem.java</span></div><h1>MacOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.mac;
+
+import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystemVersion;
+import oshi.software.os.mac.local.OSVersionInfoEx;
+
+/**
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
+ */
+
+<span class="nc" id="L28">public class MacOperatingSystem implements OperatingSystem {</span>
+	private String _family;
+
+<span class="nc" id="L31">	private OperatingSystemVersion _version = null;</span>
+
+	public OperatingSystemVersion getVersion() {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (_version == null) {</span>
+<span class="nc" id="L35">			_version = new OSVersionInfoEx();</span>
+		}
+<span class="nc" id="L37">		return _version;</span>
+	}
+
+	public String getFamily() {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		if (_family == null)</span>
+<span class="nc" id="L42">			_family = System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc" id="L43">		return _family;</span>
+	}
+
+	public String getManufacturer() {
+<span class="nc" id="L47">		return &quot;Apple&quot;;</span>
+	}
+
+	public String toString() {
+<span class="nc" id="L51">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L52">		sb.append(getManufacturer());</span>
+<span class="nc" id="L53">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L54">		sb.append(getFamily());</span>
+<span class="nc" id="L55">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L56">		sb.append(getVersion().toString());</span>
+<span class="nc" id="L57">		return sb.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

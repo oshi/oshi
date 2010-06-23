@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ParseUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ParseUtil.java</span></div><h1>ParseUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.util;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * String parsing utility.
+ * 
+ * @author alessio.fachechi[at]gmail[dot]com
+ */
+<span class="nc" id="L29">public abstract class ParseUtil {</span>
+
+	/**
+	 * Hertz related variables
+	 */
+	final private static String Hertz = &quot;Hz&quot;;
+	final private static String kiloHertz = &quot;k&quot; + Hertz;
+	final private static String megaHertz = &quot;M&quot; + Hertz;
+	final private static String gigaHertz = &quot;G&quot; + Hertz;
+	final private static String teraHertz = &quot;T&quot; + Hertz;
+	final private static String petaHertz = &quot;P&quot; + Hertz;
+	final private static Map&lt;String, Long&gt; multipliers;
+
+	static {
+<span class="fc" id="L43">		multipliers = new HashMap&lt;String, Long&gt;();</span>
+<span class="fc" id="L44">		multipliers.put(Hertz, 1L);</span>
+<span class="fc" id="L45">		multipliers.put(kiloHertz, 1000L);</span>
+<span class="fc" id="L46">		multipliers.put(megaHertz, 1000000L);</span>
+<span class="fc" id="L47">		multipliers.put(gigaHertz, 1000000000L);</span>
+<span class="fc" id="L48">		multipliers.put(teraHertz, 1000000000000L);</span>
+<span class="fc" id="L49">		multipliers.put(petaHertz, 1000000000000000L);</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * Parse hertz from a string, eg. &quot;2.00MHz&quot; in 2000000L.
+	 * 
+	 * @param hertz
+	 *            Hertz size.
+	 * @return {@link Long} Hertz value or -1 if not parsable.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public static long parseHertz(String hertz) {
+<span class="fc" id="L62">		Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
+<span class="fc" id="L63">		Matcher matcher = pattern.matcher(hertz.trim());</span>
+
+<span class="pc bpc" id="L65" title="2 of 4 branches missed.">		if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
+			try {
+<span class="fc" id="L67">				Double value = Double.valueOf(matcher.group(1));</span>
+<span class="fc" id="L68">				String unit = matcher.group(3);</span>
+
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">				if (multipliers.containsKey(unit)) {</span>
+<span class="fc" id="L71">					value = value * multipliers.get(unit);</span>
+<span class="fc" id="L72">					return value.longValue();</span>
+				}
+<span class="nc" id="L74">			} catch (NumberFormatException e) {</span>
+<span class="nc" id="L75">			}</span>
+		}
+
+<span class="nc" id="L78">		return -1L;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

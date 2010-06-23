@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FormatUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FormatUtil.java</span></div><h1>FormatUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.util;
+
+import java.math.BigDecimal;
+
+/**
+ * Formatting utility for appending units or converting between number types.
+ * 
+ * @author dblock[at]dblock[dot]org
+ */
+<span class="nc" id="L26">public abstract class FormatUtil {</span>
+
+	/**
+	 * Added these variable for easier reading Using the IEC Standard for naming
+	 * the units
+	 * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+	 */
+	final private static long kibiByte = 1024L;
+	final private static long mebiByte = kibiByte * kibiByte;
+	final private static long gibiByte = mebiByte * kibiByte;
+	final private static long tebiByte = gibiByte * kibiByte;
+	final private static long pebiByte = tebiByte * kibiByte;
+	final private static long exbiByte = pebiByte * kibiByte;
+
+	/**
+	 * Hertz related variables
+	 */
+	final private static long kiloHertz = 1000L;
+	final private static long megaHertz = kiloHertz * kiloHertz;
+	final private static long gigaHertz = megaHertz * kiloHertz;
+	final private static long teraHertz = gigaHertz * kiloHertz;
+	final private static long petaHertz = teraHertz * kiloHertz;
+	final private static long exaHertz = petaHertz * kiloHertz;
+
+	/**
+	 * Format bytes into a string to a rounded string representation. Using the
+	 * JEDEC representation for KB, MB and GB Using the IEC representation for
+	 * TiB and PiB
+	 * 
+	 * @param bytes
+	 *            Bytes.
+	 * @return Rounded string representation of the byte size.
+	 */
+	public static String formatBytes(long bytes) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">		if (bytes == 1) { // bytes</span>
+<span class="fc" id="L61">			return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		} else if (bytes &lt; kibiByte) { // bytes</span>
+<span class="fc" id="L63">			return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L64" title="All 4 branches covered.">		} else if (bytes &lt; mebiByte &amp;&amp; bytes % kibiByte == 0) { // KB</span>
+<span class="fc" id="L65">			return String.format(&quot;%.0f KB&quot;, (double) bytes / kibiByte);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		} else if (bytes &lt; mebiByte) { // KB</span>
+<span class="fc" id="L67">			return String.format(&quot;%.1f KB&quot;, (double) bytes / kibiByte);</span>
+<span class="pc bpc" id="L68" title="1 of 4 branches missed.">		} else if (bytes &lt; gibiByte &amp;&amp; bytes % mebiByte == 0) { // MB</span>
+<span class="nc" id="L69">			return String.format(&quot;%.0f MB&quot;, (double) bytes / mebiByte);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		} else if (bytes &lt; gibiByte) { // MB</span>
+<span class="fc" id="L71">			return String.format(&quot;%.1f MB&quot;, (double) bytes / mebiByte);</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">		} else if (bytes % gibiByte == 0 &amp;&amp; bytes &lt; tebiByte) { // GB</span>
+<span class="fc" id="L73">			return String.format(&quot;%.0f GB&quot;, (double) bytes / gibiByte);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		} else if (bytes &lt; tebiByte) { // GB</span>
+<span class="fc" id="L75">			return String.format(&quot;%.1f GB&quot;, (double) bytes / gibiByte);</span>
+<span class="pc bpc" id="L76" title="1 of 4 branches missed.">		} else if (bytes % tebiByte == 0 &amp;&amp; bytes &lt; pebiByte) { // TiB</span>
+<span class="fc" id="L77">			return String.format(&quot;%.0f TiB&quot;, (double) bytes / tebiByte);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		} else if (bytes &lt; pebiByte) { // TiB</span>
+<span class="fc" id="L79">			return String.format(&quot;%.1f TiB&quot;, (double) bytes / tebiByte);</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">		} else if (bytes % pebiByte == 0 &amp;&amp; bytes &lt; exbiByte) { // PiB</span>
+<span class="nc" id="L81">			return String.format(&quot;%.0f PiB&quot;, (double) bytes / pebiByte);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		} else if (bytes &lt; exbiByte) { // PiB</span>
+<span class="nc" id="L83">			return String.format(&quot;%.1f PiB&quot;, (double) bytes / pebiByte);</span>
+		} else {
+<span class="nc" id="L85">			return String.format(&quot;%d bytes&quot;, bytes);</span>
+		}
+	}
+
+	/**
+	 * Format hertz into a string to a rounded string representation.
+	 * 
+	 * @param hertz
+	 *            Hertz.
+	 * @return Rounded string representation of the hertz size.
+	 */
+	public static String formatHertz(long hertz) {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		if (hertz &lt; kiloHertz) { // Hz</span>
+<span class="fc" id="L98">			return String.format(&quot;%d Hz&quot;, hertz);</span>
+<span class="pc bpc" id="L99" title="1 of 4 branches missed.">		} else if (hertz &lt; megaHertz &amp;&amp; hertz % kiloHertz == 0) { // KHz</span>
+<span class="fc" id="L100">			return String.format(&quot;%.0f kHz&quot;, (double) hertz / kiloHertz);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		} else if (hertz &lt; megaHertz) {</span>
+<span class="nc" id="L102">			return String.format(&quot;%.1f kHz&quot;, (double) hertz / kiloHertz);</span>
+<span class="pc bpc" id="L103" title="1 of 4 branches missed.">		} else if (hertz &lt; gigaHertz &amp;&amp; hertz % megaHertz == 0) { // MHz</span>
+<span class="fc" id="L104">			return String.format(&quot;%.0f MHz&quot;, (double) hertz / megaHertz);</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		} else if (hertz &lt; gigaHertz) {</span>
+<span class="nc" id="L106">			return String.format(&quot;%.1f MHz&quot;, (double) hertz / megaHertz);</span>
+<span class="pc bpc" id="L107" title="1 of 4 branches missed.">		} else if (hertz &lt; teraHertz &amp;&amp; hertz % gigaHertz == 0) { // GHz</span>
+<span class="fc" id="L108">			return String.format(&quot;%.0f GHz&quot;, (double) hertz / gigaHertz);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		} else if (hertz &lt; teraHertz) {</span>
+<span class="nc" id="L110">			return String.format(&quot;%.1f GHz&quot;, (double) hertz / gigaHertz);</span>
+<span class="pc bpc" id="L111" title="2 of 4 branches missed.">		} else if (hertz &lt; petaHertz &amp;&amp; hertz % teraHertz == 0) { // THz</span>
+<span class="fc" id="L112">			return String.format(&quot;%.0f THz&quot;, (double) hertz / teraHertz);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		} else if (hertz &lt; petaHertz) {</span>
+<span class="nc" id="L114">			return String.format(&quot;%.1f THz&quot;, (double) hertz / teraHertz);</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">		} else if (hertz &lt; exaHertz &amp;&amp; hertz % petaHertz == 0) { // EHz</span>
+<span class="nc" id="L116">			return String.format(&quot;%.0f EHz&quot;, (double) hertz / petaHertz);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		} else if (hertz &lt; exaHertz) {</span>
+<span class="nc" id="L118">			return String.format(&quot;%.1f EHz&quot;, (double) hertz / petaHertz);</span>
+		} else {
+<span class="nc" id="L120">			return String.format(&quot;%d Hz&quot;, hertz);</span>
+		}
+	}
+
+	/**
+	 * Round to certain number of decimals
+	 *
+	 * @param d
+	 * @param decimalPlace
+	 * @return
+	 */
+	public static float round(float d, int decimalPlace) {
+<span class="fc" id="L132">		BigDecimal bd = new BigDecimal(Float.toString(d));</span>
+<span class="fc" id="L133">		bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);</span>
+<span class="fc" id="L134">		return bd.floatValue();</span>
+	}
+
+	/**
+	 * Convert unsigned int to signed long
+	 * 
+	 * @param x
+	 * @return long value of x unsigned
+	 */
+	public static long getUnsignedInt(int x) {
+<span class="nc" id="L144">		return x &amp; 0x00000000ffffffffL;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Kernel32.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows.nt</a> &gt; <span class="el_source">Kernel32.java</span></div><h1>Kernel32.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows.nt;
+
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.WinBase;
+
+/**
+ * Windows Kernel32
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
+<span class="nc" id="L28">	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary(&quot;Kernel32&quot;,</span>
+			Kernel32.class);
+
+	public static final long WIN32_TIME_OFFSET = (369L * 365L + 89L) * 24L * 3600L * 1000L;
+
+	// TODO: Submit this change to JNA Kernel32 class
+	/**
+	 * Retrieves system timing information. On a multiprocessor system, the
+	 * values returned are the sum of the designated times across all
+	 * processors.
+	 * 
+	 * Times are offset by {@link WIN32_TIME_OFFSET}.
+	 * 
+	 * @param lpIdleTime
+	 *            A pointer to a FILETIME structure that receives the amount of
+	 *            time that the system has been idle.
+	 * @param lpKernelTime
+	 *            A pointer to a FILETIME structure that receives the amount of
+	 *            time that the system has spent executing in Kernel mode
+	 *            (including all threads in all processes, on all processors).
+	 *            This time value also includes the amount of time the system
+	 *            has been idle.
+	 * @param lpUserTime
+	 *            A pointer to a FILETIME structure that receives the amount of
+	 *            time that the system has spent executing in User mode
+	 *            (including all threads in all processes, on all processors).
+	 * @return If the function succeeds, the return value is nonzero. If the
+	 *         function fails, the return value is zero and errno is set.
+	 */
+	public int GetSystemTimes(WinBase.FILETIME lpIdleTime,
+			WinBase.FILETIME lpKernelTime, WinBase.FILETIME lpUserTime);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

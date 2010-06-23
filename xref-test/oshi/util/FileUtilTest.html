@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FileUtilTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../testapidocs/oshi/util/FileUtilTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/dblock/oshi)</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2015 The Oshi Project Team</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * alessandro[at]perucchi[dot]org</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * https://github.com/dblock/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> oshi.util;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../oshi/util/FileUtilTest.html">FileUtilTest</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String THISCLASS = <span class="jxr_string">"src/test/java/oshi/util/FileUtilTest.java"</span>;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  	@Test
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testReadFile() {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  		List&lt;String&gt; thisFile = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  		<strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  			thisFile = FileUtil.readFile(THISCLASS);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  		} <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  			e.printStackTrace();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  		}
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  		<em class="jxr_comment">// Comment ONE line</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  		<strong class="jxr_keyword">int</strong> lineOne = 0;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  		<em class="jxr_comment">// Comment TWO line</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  		<strong class="jxr_keyword">int</strong> lineTwo = 0;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  		<strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; thisFile.size(); i++) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  			String line = thisFile.get(i);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  			<strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Comment ONE line"</span>))
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  				lineOne = i;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  			<strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Comment TWO line"</span>))
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  				lineTwo = i;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  		}
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  		assertEquals(2, lineTwo - lineOne);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  	}
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+</body>
+</html>

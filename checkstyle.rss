@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<rss version="0.91">
+  <channel>
+    <title>Operating System and Hardware Information - Checkstyle report</title>
+    <link>https://github.com/dblock/oshi</link>
+    <description>Operating System and Hardware Information - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2010 - 2015 com.github.dblock</copyright>
+    <item>
+      <title>File: 42,
+             Errors: 4120,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>https://github.com/dblock/oshi/checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/dblock/oshi/checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.proc.CentralProcessor.java">oshi/software/os/linux/proc/CentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  312
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.IOKit.java">oshi/software/os/mac/local/IOKit.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  36
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.GlobalMemory.java">oshi/software/os/windows/nt/GlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.CentralProcessor.java">oshi/software/os/windows/nt/CentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  269
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.WindowsPowerSource.java">oshi/software/os/windows/nt/WindowsPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  78
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.MacOperatingSystem.java">oshi/software/os/mac/MacOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  41
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.util.FileUtil.java">oshi/util/FileUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.WindowsHardwareAbstractionLayer.java">oshi/software/os/windows/WindowsHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  64
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.util.FormatUtil.java">oshi/util/FormatUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  192
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.WindowsOperatingSystem.java">oshi/software/os/windows/WindowsOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  36
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OperatingSystemVersion.java">oshi/software/os/OperatingSystemVersion.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.LinuxOperatingSystem.java">oshi/software/os/linux/LinuxOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  60
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.LinuxHardwareAbstractionLayer.java">oshi/software/os/linux/LinuxHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  103
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.MacHardwareAbstractionLayer.java">oshi/software/os/mac/MacHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  71
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.OSVersionInfoEx.java">oshi/software/os/windows/nt/OSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  285
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.SystemInfo.java">oshi/SystemInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  83
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.CentralProcessor.java">oshi/software/os/mac/local/CentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  395
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.PowerSource.java">oshi/hardware/PowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  29
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.CoreFoundation.java">oshi/software/os/mac/local/CoreFoundation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  66
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.util.ExecutingCommand.java">oshi/util/ExecutingCommand.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  79
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.proc.LinuxPowerSource.java">oshi/software/os/linux/proc/LinuxPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  151
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.Libc.java">oshi/software/os/linux/Libc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  70
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.WindowsFileSystem.java">oshi/software/os/windows/nt/WindowsFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.HardwareAbstractionLayer.java">oshi/hardware/HardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  41
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.MacFileSystem.java">oshi/software/os/mac/local/MacFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  57
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.Kernel32.java">oshi/software/os/windows/nt/Kernel32.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  53
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.Processor.java">oshi/hardware/Processor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  189
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.GlobalMemory.java">oshi/software/os/mac/local/GlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  52
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.OSVersionInfoEx.java">oshi/software/os/mac/local/OSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  158
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OperatingSystem.java">oshi/software/os/OperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.Memory.java">oshi/hardware/Memory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.OSNativeSystemInfo.java">oshi/software/os/windows/nt/OSNativeSystemInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  42
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OSFileStore.java">oshi/software/os/OSFileStore.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  136
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.PlatformEnum.java">oshi/PlatformEnum.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.MacPowerSource.java">oshi/software/os/mac/local/MacPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  124
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.proc.OSVersionInfoEx.java">oshi/software/os/linux/proc/OSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  100
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.proc.GlobalMemory.java">oshi/software/os/linux/proc/GlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  81
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.SystemB.java">oshi/software/os/mac/local/SystemB.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  341
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.linux.proc.LinuxFileSystem.java">oshi/software/os/linux/proc/LinuxFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  50
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.util.ParseUtil.java">oshi/util/ParseUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  81
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.nt.PowrProf.java">oshi/software/os/windows/nt/PowrProf.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  65
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.Process.java">oshi/software/os/Process.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+

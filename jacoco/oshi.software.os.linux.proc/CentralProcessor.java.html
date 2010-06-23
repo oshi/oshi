@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CentralProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux.proc</a> &gt; <span class="el_source">CentralProcessor.java</span></div><h1>CentralProcessor.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux.proc;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.hardware.Processor;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+
+import com.sun.management.OperatingSystemMXBean;
+
+/**
+ * A CPU as defined in Linux /proc.
+ * 
+ * @author alessandro[at]perucchi[dot]org
+ */
+@SuppressWarnings(&quot;restriction&quot;)
+<span class="nc" id="L37">public class CentralProcessor implements Processor {</span>
+	private static final OperatingSystemMXBean OS_MXBEAN;
+	static {
+<span class="nc" id="L40">		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory</span>
+<span class="nc" id="L41">				.getOperatingSystemMXBean();</span>
+		// Initialize CPU usage
+<span class="nc" id="L43">		OS_MXBEAN.getSystemCpuLoad();</span>
+<span class="nc" id="L44">	}</span>
+
+	private String _vendor;
+	private String _name;
+<span class="nc" id="L48">	private String _identifier = null;</span>
+	private String _stepping;
+	private String _model;
+	private String _family;
+<span class="nc" id="L52">	private Long _freq = null;</span>
+	private Boolean _cpu64;
+
+	/**
+	 * Vendor identifier, eg. GenuineIntel.
+	 * 
+	 * @return Processor vendor.
+	 */
+	public String getVendor() {
+<span class="nc" id="L61">		return _vendor;</span>
+	}
+
+	/**
+	 * Set processor vendor.
+	 * 
+	 * @param vendor
+	 *            Vendor.
+	 */
+	public void setVendor(String vendor) {
+<span class="nc" id="L71">		_vendor = vendor;</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
+	 * 
+	 * @return Processor name.
+	 */
+	public String getName() {
+<span class="nc" id="L80">		return _name;</span>
+	}
+
+	/**
+	 * Set processor name.
+	 * 
+	 * @param name
+	 *            Name.
+	 */
+	public void setName(String name) {
+<span class="nc" id="L90">		_name = name;</span>
+<span class="nc" id="L91">	}</span>
+
+	/**
+	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+	 * 
+	 * @return Processor frequency or -1 if unknown.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public long getVendorFreq() {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		if (_freq == null) {</span>
+<span class="nc" id="L103">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="nc" id="L104">			Matcher matcher = pattern.matcher(getName());</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			if (matcher.find()) {</span>
+<span class="nc" id="L107">				String unit = matcher.group(1);</span>
+<span class="nc" id="L108">				_freq = ParseUtil.parseHertz(unit);</span>
+<span class="nc" id="L109">			} else {</span>
+<span class="nc" id="L110">				_freq = -1L;</span>
+			}
+		}
+
+<span class="nc" id="L114">		return _freq.longValue();</span>
+	}
+
+	/**
+	 * Set vendor frequency.
+	 * 
+	 * @param frequency
+	 *            Frequency.
+	 */
+	public void setVendorFreq(long freq) {
+<span class="nc" id="L124">		_freq = Long.valueOf(freq);</span>
+<span class="nc" id="L125">	}</span>
+
+	/**
+	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
+	 * 
+	 * @return Processor identifier.
+	 */
+	public String getIdentifier() {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">		if (_identifier == null) {</span>
+<span class="nc" id="L134">			StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			if (getVendor().contentEquals(&quot;GenuineIntel&quot;))</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">				sb.append(isCpu64bit() ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
+			else
+<span class="nc" id="L138">				sb.append(getVendor());</span>
+<span class="nc" id="L139">			sb.append(&quot; Family &quot;);</span>
+<span class="nc" id="L140">			sb.append(getFamily());</span>
+<span class="nc" id="L141">			sb.append(&quot; Model &quot;);</span>
+<span class="nc" id="L142">			sb.append(getModel());</span>
+<span class="nc" id="L143">			sb.append(&quot; Stepping &quot;);</span>
+<span class="nc" id="L144">			sb.append(getStepping());</span>
+<span class="nc" id="L145">			_identifier = sb.toString();</span>
+		}
+<span class="nc" id="L147">		return _identifier;</span>
+	}
+
+	/**
+	 * Set processor identifier.
+	 * 
+	 * @param identifier
+	 *            Identifier.
+	 */
+	public void setIdentifier(String identifier) {
+<span class="nc" id="L157">		_identifier = identifier;</span>
+<span class="nc" id="L158">	}</span>
+
+	/**
+	 * Is CPU 64bit?
+	 * 
+	 * @return True if cpu is 64bit.
+	 */
+	public boolean isCpu64bit() {
+<span class="nc" id="L166">		return _cpu64.booleanValue();</span>
+	}
+
+	/**
+	 * Set flag is cpu is 64bit.
+	 * 
+	 * @param cpu64
+	 *            True if cpu is 64.
+	 */
+	public void setCpu64(boolean cpu64) {
+<span class="nc" id="L176">		_cpu64 = Boolean.valueOf(cpu64);</span>
+<span class="nc" id="L177">	}</span>
+
+	/**
+	 * @return the _stepping
+	 */
+	public String getStepping() {
+<span class="nc" id="L183">		return _stepping;</span>
+	}
+
+	/**
+	 * @param _stepping
+	 *            the _stepping to set
+	 */
+	public void setStepping(String _stepping) {
+<span class="nc" id="L191">		this._stepping = _stepping;</span>
+<span class="nc" id="L192">	}</span>
+
+	/**
+	 * @return the _model
+	 */
+	public String getModel() {
+<span class="nc" id="L198">		return _model;</span>
+	}
+
+	/**
+	 * @param _model
+	 *            the _model to set
+	 */
+	public void setModel(String _model) {
+<span class="nc" id="L206">		this._model = _model;</span>
+<span class="nc" id="L207">	}</span>
+
+	/**
+	 * @return the _family
+	 */
+	public String getFamily() {
+<span class="nc" id="L213">		return _family;</span>
+	}
+
+	/**
+	 * @param _family
+	 *            the _family to set
+	 */
+	public void setFamily(String _family) {
+<span class="nc" id="L221">		this._family = _family;</span>
+<span class="nc" id="L222">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Deprecated
+	public float getLoad() {
+<span class="nc" id="L229">		long[] prevTicks = getCpuLoadTicks();</span>
+		try {
+<span class="nc" id="L231">			Thread.sleep(1000);</span>
+<span class="nc" id="L232">		} catch (InterruptedException e) {</span>
+			// Awake, O sleeper
+		}
+<span class="nc" id="L235">		long[] ticks = getCpuLoadTicks();</span>
+<span class="nc" id="L236">		long total = 0;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		for (int i = 0; i &lt; ticks.length; i++) {</span>
+<span class="nc" id="L238">			total += (ticks[i] - prevTicks[i]);</span>
+		}
+<span class="nc" id="L240">		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];</span>
+<span class="nc bnc" id="L241" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0)</span>
+<span class="nc" id="L242">			return 100f * (total - idle) / total;</span>
+		else
+<span class="nc" id="L244">			return 0f;</span>
+	}
+
+	public long[] getCpuLoadTicks() {
+		// /proc/stat expected format
+		// first line is overall user,nice,system,idle, etc.
+		// cpu 3357 0 4313 1362393 ...
+		// TODO: per-processor subsequent lines for cpu0, cpu1, etc.
+<span class="nc" id="L252">		long[] ticks = new long[4];</span>
+<span class="nc" id="L253">		String tickStr = &quot;&quot;;</span>
+		try {
+<span class="nc" id="L255">			List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">			if (!procStat.isEmpty())</span>
+<span class="nc" id="L257">				tickStr = procStat.get(0);</span>
+<span class="nc" id="L258">		} catch (IOException e) {</span>
+<span class="nc" id="L259">			System.err.println(&quot;Problem with: /proc/stat&quot;);</span>
+<span class="nc" id="L260">			System.err.println(e.getMessage());</span>
+<span class="nc" id="L261">			return ticks;</span>
+		}
+<span class="nc" id="L263">		String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">		if (tickStr.length() &lt; 5)</span>
+<span class="nc" id="L265">			return ticks;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L267">			ticks[i] = Long.parseLong(tickArr[i + 1]);</span>
+		}
+<span class="nc" id="L269">		return ticks;</span>
+	}
+
+	public double getSystemCPULoad() {
+<span class="nc" id="L273">		return OS_MXBEAN.getSystemCpuLoad();</span>
+	}
+
+	public double getSystemLoadAverage() {
+<span class="nc" id="L277">		return OS_MXBEAN.getSystemLoadAverage();</span>
+	}
+
+	public String toString() {
+<span class="nc" id="L281">		return getName();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

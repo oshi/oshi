@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsOperatingSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOperatingSystem.java</span></div><h1>WindowsOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows;
+
+import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystemVersion;
+import oshi.software.os.windows.nt.OSVersionInfoEx;
+
+/**
+ * Microsoft Windows is a family of proprietary operating systems most commonly
+ * used on personal computers.
+ * 
+ * @author dblock[at]dblock[dot]org
+ */
+<span class="fc" id="L29">public class WindowsOperatingSystem implements OperatingSystem {</span>
+
+<span class="fc" id="L31">	private OperatingSystemVersion _version = null;</span>
+
+	public OperatingSystemVersion getVersion() {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (_version == null) {</span>
+<span class="fc" id="L35">			_version = new OSVersionInfoEx();</span>
+		}
+<span class="fc" id="L37">		return _version;</span>
+	}
+
+	public String getFamily() {
+<span class="fc" id="L41">		return &quot;Windows&quot;;</span>
+	}
+
+	public String getManufacturer() {
+<span class="fc" id="L45">		return &quot;Microsoft&quot;;</span>
+	}
+
+	public String toString() {
+<span class="fc" id="L49">		StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L50">		sb.append(getManufacturer());</span>
+<span class="fc" id="L51">		sb.append(&quot; &quot;);</span>
+<span class="fc" id="L52">		sb.append(getFamily());</span>
+<span class="fc" id="L53">		sb.append(&quot; &quot;);</span>
+<span class="fc" id="L54">		sb.append(getVersion().toString());</span>
+<span class="fc" id="L55">		return sb.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

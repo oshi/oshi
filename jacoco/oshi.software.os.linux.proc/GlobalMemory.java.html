@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GlobalMemory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux.proc</a> &gt; <span class="el_source">GlobalMemory.java</span></div><h1>GlobalMemory.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux.proc;
+
+import java.io.IOException;
+import java.util.List;
+
+import oshi.hardware.Memory;
+import oshi.software.os.linux.Libc;
+import oshi.software.os.linux.Libc.Sysinfo;
+import oshi.util.FileUtil;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+
+/**
+ * Memory obtained by /proc/meminfo and sysinfo.totalram
+ * 
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L36">public class GlobalMemory implements Memory {</span>
+
+<span class="nc" id="L38">	private long totalMemory = 0;</span>
+
+	public long getAvailable() {
+<span class="nc" id="L41">		long availableMemory = 0;</span>
+<span class="nc" id="L42">		List&lt;String&gt; memInfo = null;</span>
+		try {
+<span class="nc" id="L44">			memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
+<span class="nc" id="L45">		} catch (IOException e) {</span>
+<span class="nc" id="L46">			System.err.println(&quot;Problem with: /proc/meminfo&quot;);</span>
+<span class="nc" id="L47">			System.err.println(e.getMessage());</span>
+<span class="nc" id="L48">			return availableMemory;</span>
+<span class="nc" id="L49">		}</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		for (String checkLine : memInfo) {</span>
+			// If we have MemAvailable, it trumps all. See code in
+			// https://git.kernel.org/cgit/linux/kernel/git/torvalds/
+			// linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
+<span class="nc bnc" id="L54" title="All 2 branches missed.">			if (checkLine.startsWith(&quot;MemAvailable:&quot;)) {</span>
+<span class="nc" id="L55">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L56">				availableMemory = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L57">				break;</span>
+			} else
+			// Otherwise we combine MemFree + Active(file), Inactive(file), and
+			// SReclaimable. Free+cached is no longer appropriate. MemAvailable
+			// reduces these values using watermarks to estimate when swapping
+			// is prevented, omitted here for simplicity (assuming 0 swap).
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
+<span class="nc" id="L64">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L65">				availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
+<span class="nc" id="L67">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L68">				availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
+<span class="nc" id="L70">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L71">				availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
+<span class="nc" id="L73">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L74">				availableMemory += parseMeminfo(memorySplit);</span>
+			}
+<span class="nc" id="L76">		}</span>
+<span class="nc" id="L77">		return availableMemory;</span>
+	}
+
+	public long getTotal() {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if (totalMemory == 0) {</span>
+<span class="nc" id="L82">			Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">			if (0 != Libc.INSTANCE.sysinfo(info))</span>
+<span class="nc" id="L84">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L86">			totalMemory = info.totalram.longValue() * info.mem_unit;</span>
+		}
+<span class="nc" id="L88">		return totalMemory;</span>
+	}
+
+	private long parseMeminfo(String[] memorySplit) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L93">			return 0l;</span>
+		}
+<span class="nc" id="L95">		long memory = new Long(memorySplit[1]);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">		if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
+<span class="nc" id="L97">			memory *= 1024;</span>
+		}
+<span class="nc" id="L99">		return memory;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

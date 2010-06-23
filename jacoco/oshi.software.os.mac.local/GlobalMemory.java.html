@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GlobalMemory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac.local</a> &gt; <span class="el_source">GlobalMemory.java</span></div><h1>GlobalMemory.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.mac.local;
+
+import oshi.hardware.Memory;
+import oshi.software.os.mac.local.SystemB.VMStatistics;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+
+/**
+ * Memory obtained by host_statistics (vm_stat) and sysctl
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L33">public class GlobalMemory implements Memory {</span>
+
+<span class="nc" id="L35">	long totalMemory = 0;</span>
+
+	public long getAvailable() {
+<span class="nc" id="L38">		long availableMemory = 0;</span>
+<span class="nc" id="L39">		long pageSize = 4096;</span>
+
+<span class="nc" id="L41">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
+
+<span class="nc" id="L43">		LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize))</span>
+<span class="nc" id="L45">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L46">		pageSize = pPageSize.getValue();</span>
+
+<span class="nc" id="L48">		VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_statistics(machPort,</span>
+				SystemB.HOST_VM_INFO, vmStats,
+				new IntByReference(vmStats.size() / SystemB.INT_SIZE)))
+<span class="nc" id="L52">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L53">		availableMemory = (vmStats.free_count + vmStats.inactive_count)</span>
+				* pageSize;
+
+<span class="nc" id="L56">		return availableMemory;</span>
+	}
+
+	public long getTotal() {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (totalMemory == 0) {</span>
+<span class="nc" id="L61">			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };</span>
+<span class="nc" id="L62">			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,</span>
+					new IntByReference(SystemB.UINT64_SIZE), null, 0))
+<span class="nc" id="L65">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L67">			totalMemory = pMemSize.getLong(0);</span>
+		}
+<span class="nc" id="L69">		return totalMemory;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacHardwareAbstractionLayer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacHardwareAbstractionLayer.java</span></div><h1>MacHardwareAbstractionLayer.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.mac;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Processor;
+import oshi.software.os.OSFileStore;
+import oshi.software.os.mac.local.CentralProcessor;
+import oshi.software.os.mac.local.GlobalMemory;
+import oshi.software.os.mac.local.MacFileSystem;
+import oshi.software.os.mac.local.MacPowerSource;
+import oshi.software.os.mac.local.SystemB;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
+
+/**
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L41">public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+
+	private Processor[] _processors;
+
+	private Memory _memory;
+
+	private PowerSource[] _powerSources;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
+	 */
+	public Processor[] getProcessors() {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (_processors == null) {</span>
+<span class="nc" id="L56">			int nbCPU = 1;</span>
+<span class="nc" id="L57">			List&lt;Processor&gt; processors = new ArrayList&lt;Processor&gt;();</span>
+<span class="nc" id="L58">			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };</span>
+<span class="nc" id="L59">			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU,</span>
+<span class="nc" id="L61">					new IntByReference(SystemB.INT_SIZE), null, 0))</span>
+<span class="nc" id="L62">				throw new LastErrorException(&quot;Error code: &quot;</span>
+<span class="nc" id="L63">						+ Native.getLastError());</span>
+<span class="nc" id="L64">			nbCPU = pNbCPU.getInt(0);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			for (int i = 0; i &lt; nbCPU; i++)</span>
+<span class="nc" id="L66">				processors.add(new CentralProcessor());</span>
+
+<span class="nc" id="L68">			_processors = processors.toArray(new Processor[0]);</span>
+		}
+<span class="nc" id="L70">		return _processors;</span>
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
+	 */
+	public Memory getMemory() {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (_memory == null) {</span>
+<span class="nc" id="L80">			_memory = new GlobalMemory();</span>
+		}
+<span class="nc" id="L82">		return _memory;</span>
+	}
+
+	public PowerSource[] getPowerSources() {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (_powerSources == null) {</span>
+<span class="nc" id="L87">			_powerSources = MacPowerSource.getPowerSources();</span>
+		}
+<span class="nc" id="L89">		return _powerSources;</span>
+	}
+
+	public OSFileStore[] getFileStores() {
+<span class="nc" id="L93">		return MacFileSystem.getFileStores();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
