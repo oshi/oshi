@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oshi-core" default="build" basedir=".">
-	<property name="oshi.version" value="1.3" />
-	<property name="oshi.java.version" value="1.5" />
-	<property name="oshi.copyright" value="Daniel Doubrovkine" />
-	<property name="oshi.root" value="${basedir}" />
+    <property name="oshi.version" value="1.3" />
+    <property name="oshi.java.version" value="1.5" />
+    <property name="oshi.copyright" value="Daniel Doubrovkine" />
+    <property name="oshi.root" value="${basedir}" />
     <property name="oshi.build" value="${oshi.root}/build" />
     <property name="oshi.doc" value="${oshi.root}/doc" />
+    <property name="oshi.bin" value="${oshi.root}/bin" />
     <property name="oshi.lib" value="${oshi.root}/lib" />
     <property name="oshi.src" value="${oshi.root}/src" />
     <property name="oshi.cover" value="${oshi.root}/cover" />
@@ -13,113 +14,113 @@
     <property name="oshi.test.lib" value="${oshi.root}/lib-test" />
     <property name="oshi.test" value="${oshi.root}/test" />
     <property name="thirdparty.dir" location="${basedir}/../thirdparty" />
-	<!-- compile -->
+    <!-- compile -->
     <path id="jna.classpath">
-	    <fileset dir="${thirdparty.dir}/jna">
-	    	<include name="jna.jar" />
-	    	<include name="platform.jar" />
-	    </fileset>
+        <fileset dir="${thirdparty.dir}/jna">
+            <include name="jna.jar" />
+            <include name="platform.jar" />
+        </fileset>
     </path>
-    <path id="oshi.classpath">   	
-        <path refid="jna.classpath" />	
+    <path id="oshi.classpath">       
+        <path refid="jna.classpath" />    
     </path>
-	<macrodef name="compile">
-		<attribute name="optimize" />
-		<attribute name="debug" />
-		<sequential>
-	    	<delete dir="${oshi.lib}" />
-	        <mkdir dir="${oshi.lib}" />
-		    <javac target="${oshi.java.version}" srcdir="${oshi.src}" 
-		    	destdir="${oshi.lib}" 
-		    	optimize="@{optimize}" debug="@{debug}">
-				<classpath refid="oshi.classpath" />
-		        <include name="**/*.java" />
-			</javac>
-		</sequential>
+    <macrodef name="compile">
+        <attribute name="optimize" />
+        <attribute name="debug" />
+        <sequential>
+            <delete dir="${oshi.lib}" />
+            <mkdir dir="${oshi.lib}" />
+            <javac target="${oshi.java.version}" srcdir="${oshi.src}" 
+                destdir="${oshi.lib}" 
+                optimize="@{optimize}" debug="@{debug}">
+                <classpath refid="oshi.classpath" />
+                <include name="**/*.java" />
+            </javac>
+        </sequential>
     </macrodef>
-	<!-- test -->
+    <!-- test -->
     <path id="oshi.test.classpath">
-    	<pathelement location="${oshi.lib}" />
-        <path refid="oshi.classpath" />  	
-    	<fileset dir="${thirdparty.dir}/junit">
-    		<include name="*.jar" />
-    	</fileset>
-		<pathelement location="${oshi.test.lib}" />
-    	<path refid="emma.classpath" />
+        <pathelement location="${oshi.lib}" />
+        <path refid="oshi.classpath" />      
+        <fileset dir="${thirdparty.dir}/junit">
+            <include name="*.jar" />
+        </fileset>
+        <pathelement location="${oshi.test.lib}" />
+        <path refid="emma.classpath" />
     </path>
     <target name="compile-tests">
         <mkdir dir="${oshi.test.lib}" />
-	    <javac target="${oshi.java.version}" srcdir="${oshi.test.src}" 
-	    	destdir="${oshi.test.lib}" optimize="no" debug="yes">
-			<classpath refid="oshi.test.classpath" />
-	        <include name="**/*.java" />
-		</javac>
+        <javac target="${oshi.java.version}" srcdir="${oshi.test.src}" 
+            destdir="${oshi.test.lib}" optimize="no" debug="yes">
+            <classpath refid="oshi.test.classpath" />
+            <include name="**/*.java" />
+        </javac>
     </target>
-	<target name="test-report">
-    	<mkdir dir="${oshi.test}/report" />
-    	<junitreport todir="${oshi.test}/report">
-    		<fileset dir="${oshi.test}" includes="TEST-*.xml" />
-    		<report todir="${oshi.test}/report" />
-		</junitreport>
-		<echo message="See ${oshi.test}\report\index.html" />
-	</target>
+    <target name="test-report">
+        <mkdir dir="${oshi.test}/report" />
+        <junitreport todir="${oshi.test}/report">
+            <fileset dir="${oshi.test}" includes="TEST-*.xml" />
+            <report todir="${oshi.test}/report" />
+        </junitreport>
+        <echo message="See ${oshi.test}\report\index.html" />
+    </target>
     <target name="test" depends="compile-tests">
-    	<mkdir dir="${oshi.test}" />
-		<junit fork="true" newenvironment="true" failureproperty="tests.failed" 
-			haltonfailure="no" haltonerror="no" printsummary="on" 
-			errorproperty="tests.failed">
-	        <batchtest todir="${oshi.test}">
-				<fileset dir="${oshi.test.lib}" includes="**/*Tests.class" />
-			</batchtest>
-			<formatter type="xml" />
-    		<classpath refid="oshi.test.classpath" />
-			<jvmarg value="-Demma.coverage.out.file=${oshi.cover}/coverage.emma" /> 
+        <mkdir dir="${oshi.test}" />
+        <junit fork="true" newenvironment="true" failureproperty="tests.failed" 
+            haltonfailure="no" haltonerror="no" printsummary="on" 
+            errorproperty="tests.failed">
+            <batchtest todir="${oshi.test}">
+                <fileset dir="${oshi.test.lib}" includes="**/*Tests.class" />
+            </batchtest>
+            <formatter type="xml" />
+            <classpath refid="oshi.test.classpath" />
+            <jvmarg value="-Demma.coverage.out.file=${oshi.cover}/coverage.emma" /> 
         </junit>
-    	<antcall target="test-report" />
-    	<fail message="Unit Tests failed" if="tests.failed" />
+        <antcall target="test-report" />
+        <fail message="Unit Tests failed" if="tests.failed" />
     </target>
-	<!-- cover -->
-	<property name="emma.dir" value="${thirdparty.dir}/emma/lib" />
-	<path id="emma.classpath" >
-	    <fileset dir="${thirdparty.dir}/emma/lib">
-	    	<include name="emma.jar" />
-	    	<include name="emma_ant.jar" />
-	    </fileset>
-	</path>
-	<taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
-	<target name="instrument">
-		<echo message="Instrumenting ${oshi.lib}" />
-		<path id="build.classpath">     
-			<pathelement path="${oshi.lib}"/>   
-		</path> 
-		<emma>
-			<instr instrpathref="build.classpath" destdir="${oshi.cover}/lib" 
-				metadatafile="${oshi.cover}/metadata.emma" merge="true" />
-		</emma>
-		<copy todir="${oshi.lib}">
-			<fileset dir="${oshi.cover}/lib" includes="**/*" />
-		</copy>
-	</target>
-	<target name="cover-report">
-		<emma>   
-			<report sourcepath="${oshi.src}">   
-				<fileset dir="${oshi.cover}">   
-					<include name="*.emma" />   
-				</fileset>   
-				<html outfile="${oshi.cover}/coverage.html" />   
-			</report>   
-		</emma>   
-	</target>
-	<target name="cover">
-		<compile debug="yes" optimize="no"/>
-		<antcall target="instrument" />
-		<antcall target="test" />
-		<antcall target="cover-report" />
-	</target>
-	<!-- package -->
+    <!-- cover -->
+    <property name="emma.dir" value="${thirdparty.dir}/emma/lib" />
+    <path id="emma.classpath" >
+        <fileset dir="${thirdparty.dir}/emma/lib">
+            <include name="emma.jar" />
+            <include name="emma_ant.jar" />
+        </fileset>
+    </path>
+    <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
+    <target name="instrument">
+        <echo message="Instrumenting ${oshi.lib}" />
+        <path id="build.classpath">     
+            <pathelement path="${oshi.lib}"/>   
+        </path> 
+        <emma>
+            <instr instrpathref="build.classpath" destdir="${oshi.cover}/lib" 
+                metadatafile="${oshi.cover}/metadata.emma" merge="true" />
+        </emma>
+        <copy todir="${oshi.lib}">
+            <fileset dir="${oshi.cover}/lib" includes="**/*" />
+        </copy>
+    </target>
+    <target name="cover-report">
+        <emma>   
+            <report sourcepath="${oshi.src}">   
+                <fileset dir="${oshi.cover}">   
+                    <include name="*.emma" />   
+                </fileset>   
+                <html outfile="${oshi.cover}/coverage.html" />   
+            </report>   
+        </emma>   
+    </target>
+    <target name="cover">
+        <compile debug="yes" optimize="no"/>
+        <antcall target="instrument" />
+        <antcall target="test" />
+        <antcall target="cover-report" />
+    </target>
+    <!-- package -->
     <target name="jar">
-    	<delete dir="${oshi.build}" />
-    	<mkdir dir="${oshi.build}" />
+        <delete dir="${oshi.build}" />
+        <mkdir dir="${oshi.build}" />
         <jar jarfile="${oshi.build}/oshi-core.jar">
             <fileset dir="${oshi.lib}">
                 <include name="oshi/**/*.class" />
@@ -137,25 +138,26 @@
                 <attribute name="Version" value="${oshi.version}" />
                 <attribute name="Created-By" value="${oshi.copyright}" />
             </manifest>
-        </jar>    	
+        </jar>        
     </target>
-	<target name="doc">
-		<javadoc destdir="${oshi.doc}" sourcepath="${oshi.src}" 
-			classpathref="oshi.classpath" />
-	</target>
+    <target name="doc">
+        <javadoc destdir="${oshi.doc}" sourcepath="${oshi.src}" 
+            classpathref="oshi.classpath" />
+    </target>
     <target name="clean">
-    	<delete dir="${oshi.build}" />
-    	<delete dir="${oshi.lib}" />
-    	<delete dir="${oshi.test.lib}" />
-    	<delete dir="${oshi.doc}" />
-    	<delete dir="${oshi.cover}" />
-    	<delete dir="${oshi.test}" />
+        <delete dir="${oshi.build}" />
+        <delete dir="${oshi.bin}" />
+        <delete dir="${oshi.lib}" />
+        <delete dir="${oshi.test.lib}" />
+        <delete dir="${oshi.doc}" />
+        <delete dir="${oshi.cover}" />
+        <delete dir="${oshi.test}" />
     </target>
-	<target name="build">
-		<compile debug="no" optimize="yes"/>
-		<antcall target="jar" />
-		<antcall target="test" />
-		<antcall target="doc" />
-	</target>
-	<target name="clean-build" depends="clean,build" />
+    <target name="build">
+        <compile debug="no" optimize="yes"/>
+        <antcall target="jar" />
+        <antcall target="test" />
+        <antcall target="doc" />
+    </target>
+    <target name="clean-build" depends="clean,build" />
 </project>
