@@ -11,7 +11,7 @@ Download
 Where are we?
 -------------
 
-Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/ShowPost.aspx?id=112).
+Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Sample Output
 -------------
