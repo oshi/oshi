@@ -1,0 +1,11 @@
+# Output
+oshi-core/build
+oshi-core/lib
+oshi-core/lib-test
+oshi-core/test
+
+# RedCar Editor
+.redcar
+
+
+
