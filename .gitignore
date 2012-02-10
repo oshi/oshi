@@ -3,6 +3,7 @@ oshi-core/build
 oshi-core/lib
 oshi-core/lib-test
 oshi-core/test
+oshi-core/bin
 
 # RedCar Editor
 .redcar
