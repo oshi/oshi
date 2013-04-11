@@ -127,90 +127,90 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	public String toString() {
 		String version = null;
 		
-		if (_versionInfo.dwPlatformId.intValue() == WinNT.VER_PLATFORM_WIN32_NT) {
+		if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_NT) {
 			// 8
-			if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 2 
-					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
+			if (getMajor() == 6 
+					&& getMinor() == 2 
+					&& getProductType() == WinNT.VER_NT_WORKSTATION)
 			{
 				version = "8";
 			}
 			// Server 2008 R2
-			else if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 2
-					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 6 
+					&& getMinor() == 2
+					&& getProductType() != WinNT.VER_NT_WORKSTATION)
 			{
 				version = "Server 2012";
 			}
 			// 7
-			else if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 1 
-					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 6 
+					&& getMinor() == 1 
+					&& getProductType() == WinNT.VER_NT_WORKSTATION)
 			{
 				version = "7";
 			}
 			// Server 2008 R2
-			else if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 1 
-					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 6 
+					&& getMinor() == 1 
+					&& getProductType() != WinNT.VER_NT_WORKSTATION)
 			{
 				version = "Server 2008 R2";
 			}
 			// Server 2008
-			else if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 0 
-					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 6 
+					&& getMinor() == 0 
+					&& getProductType() != WinNT.VER_NT_WORKSTATION)
 			{
 				version = "Server 2008";
 			}
 			// Vista
-			else if (_versionInfo.dwMajorVersion.intValue() == 6 
-					&& _versionInfo.dwMinorVersion.intValue() == 0 
-					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 6 
+					&& getMinor() == 0 
+					&& getProductType() == WinNT.VER_NT_WORKSTATION)
 			{
 				version = "Vista";
 			}
 			// Server 2003
-			else if (_versionInfo.dwMajorVersion.intValue() == 5 
-					&& _versionInfo.dwMinorVersion.intValue() == 2 
-					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION 
+			else if (getMajor() == 5 
+					&& getMinor() == 2 
+					&& getProductType() != WinNT.VER_NT_WORKSTATION 
 					&& User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0)
 			{
 				version = "Server 2003";
 			}
 			// Server 2003 R2
-			else if (_versionInfo.dwMajorVersion.intValue() == 5 
-					&& _versionInfo.dwMinorVersion.intValue() == 2 
-					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION 
+			else if (getMajor() == 5 
+					&& getMinor() == 2 
+					&& getProductType() != WinNT.VER_NT_WORKSTATION 
 					&& User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0)
 			{
 				version = "Server 2003 R2";
 			}
 			// XP 64 bit
-			else if (_versionInfo.dwMajorVersion.intValue() == 5 
-					&& _versionInfo.dwMinorVersion.intValue() == 2 
-					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
+			else if (getMajor() == 5 
+					&& getMinor() == 2 
+					&& getProductType() == WinNT.VER_NT_WORKSTATION)
 			{
 				version = "XP";
 			}
 			// XP 32 bit
-			else if (_versionInfo.dwMajorVersion.intValue() == 5 
-					&& _versionInfo.dwMinorVersion.intValue() == 1 )
+			else if (getMajor() == 5 
+					&& getMinor() == 1 )
 			{
 				version = "XP";
 			}
 			// 2000
-			else if ( _versionInfo.dwMajorVersion.intValue() == 5 
-					&& _versionInfo.dwMinorVersion.intValue() == 0 )
+			else if ( getMajor() == 5 
+					&& getMinor() == 0 )
 			{
 				version = "2000";
 			}
 			// Windows NT
-			else if ( _versionInfo.dwMajorVersion.intValue() == 4 )
+			else if ( getMajor() == 4 )
 			{
 				version = "NT 4";
 				
-				if (Native.toString(_versionInfo.szCSDVersion) == "Service Pack 6") {
+				if (getServicePack() == "Service Pack 6") {
 					if (Advapi32Util.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE, 
 							"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
 						return "NT4 SP6a";
@@ -226,14 +226,14 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 				version = version + " SP" + _versionInfo.wServicePackMajor.intValue(); 
 			}
 			
-		} else if (_versionInfo.dwPlatformId.intValue() == WinNT.VER_PLATFORM_WIN32_WINDOWS) {
-			if (_versionInfo.dwMajorVersion.intValue() == 4 
-					&& _versionInfo.dwMinorVersion.intValue() == 90)
+		} else if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_WINDOWS) {
+			if (getMajor() == 4 
+					&& getMinor() == 90)
 			{
 				version = "ME";
 			}
-			else if (_versionInfo.dwMajorVersion.intValue() == 4 && 
-					_versionInfo.dwMinorVersion.intValue() == 10)
+			else if (getMajor() == 4 && 
+					getMinor() == 10)
 			{
 				if ( _versionInfo.szCSDVersion[1] == 'A' ) {
 					version = "98 SE";
@@ -241,8 +241,8 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 					version = "98";
 				}					
 			}
-			else if (_versionInfo.dwMajorVersion.intValue() == 4 
-					&& _versionInfo.dwMinorVersion.intValue() == 0)
+			else if (getMajor() == 4 
+					&& getMinor() == 0)
 			{
 				if ( _versionInfo.szCSDVersion[1] == 'C' || _versionInfo.szCSDVersion[1] == 'B' ) {
 					version = "95 OSR2";
@@ -260,7 +260,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		
 		return version;
 	}
-	
+
 	public OSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
 		_versionInfo = versionInfo;
 	}
