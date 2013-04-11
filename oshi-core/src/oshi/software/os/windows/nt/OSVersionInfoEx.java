@@ -39,6 +39,8 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * The major version number of the operating system.
 	 * @return
 	 *  The major version within the following supported operating systems.
+	 *  Windows 8: 6.2
+	 *  Windows Server 2012: 6.2
 	 *  Windows 7: 6.1
 	 *  Windows Server 2008 R2: 6.1
 	 *  Windows Server 2008: 6.0
@@ -58,6 +60,8 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * The minor version number of the operating system.
 	 * @return
 	 *  The minor version within the following supported operating systems.
+	 *  Windows 8: 6.2
+	 *  Windows Server 2012: 6.2
 	 *  Windows 7: 6.1
 	 *  Windows Server 2008 R2: 6.1
 	 *  Windows Server 2008: 6.0
@@ -124,8 +128,22 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		String version = null;
 		
 		if (_versionInfo.dwPlatformId.intValue() == WinNT.VER_PLATFORM_WIN32_NT) {
-			// 7
+			// 8
 			if (_versionInfo.dwMajorVersion.intValue() == 6 
+					&& _versionInfo.dwMinorVersion.intValue() == 2 
+					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
+			{
+				version = "8";
+			}
+			// Server 2008 R2
+			else if (_versionInfo.dwMajorVersion.intValue() == 6 
+					&& _versionInfo.dwMinorVersion.intValue() == 2
+					&& _versionInfo.wProductType != WinNT.VER_NT_WORKSTATION)
+			{
+				version = "Server 2012";
+			}
+			// 7
+			else if (_versionInfo.dwMajorVersion.intValue() == 6 
 					&& _versionInfo.dwMinorVersion.intValue() == 1 
 					&& _versionInfo.wProductType == WinNT.VER_NT_WORKSTATION)
 			{
