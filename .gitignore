@@ -6,9 +6,8 @@ oshi-core/test
 oshi-core/bin
 oshi-core/dist
 oshi-core/doc
+dist
 
-# RedCar Editor
-.redcar
 
 
 
