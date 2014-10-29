@@ -1,14 +1,2 @@
 # Output
-oshi-core/build
-oshi-core/lib
-oshi-core/lib-test
-oshi-core/test
-oshi-core/bin
-oshi-core/dist
-oshi-core/doc
-dist
-
-
-
-
 /target/
