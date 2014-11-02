@@ -1,3 +1,8 @@
+Next
+====
+
+* [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
+
 1.1 (10/13/2013)
 ================
 
