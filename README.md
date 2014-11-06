@@ -52,4 +52,4 @@ How is this different from ...
 License
 -------
 
-This project is licensed under the [Eclipse Public License 1.0](epl-v10.html).
+This project is licensed under the [Eclipse Public License 1.0](LICENSE.txt).
