@@ -18,14 +18,31 @@ Sample Output
 
 Here's sample test output:
 
-    Microsoft Windows 7
-    2 CPU(s):
-     Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
-     Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
-    Memory: 532.1 MB/2.0 GB
+```
+Microsoft Windows 7
+2 CPU(s):
+ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+Memory: 532.1 MB/2.0 GB
+```
+
+or for Linux:
+
+```
+GNU/Linux Fedora 20 (Heisenbug)
+8 CPU(s):
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+Memory: 21.0 GB/31.0 GB
+```
 
 How is this different from ...
 ------------------------------
 
 * [Sigar](http://www.hyperic.com/products/sigar): Sigar is GPL. Oshi is distributed under the MIT license. Oshi also uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed.
-
