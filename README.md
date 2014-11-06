@@ -1,6 +1,8 @@
 OSHI
 ====
 
+[![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
+
 Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, etc.
 
 Download
@@ -46,3 +48,8 @@ How is this different from ...
 ------------------------------
 
 * [Sigar](http://www.hyperic.com/products/sigar): Sigar is GPL. Oshi is distributed under the MIT license. Oshi also uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed.
+
+License
+-------
+
+This project is licensed under the [Eclipse Public License 1.0](epl-v10.html).
