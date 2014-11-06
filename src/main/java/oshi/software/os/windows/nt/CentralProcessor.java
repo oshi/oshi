@@ -27,7 +27,6 @@ public class CentralProcessor implements Processor {
 	 * @return
 	 *  Processor vendor. 
 	 */
-	@Override
 	public String getVendor() {
 		return _vendor;
 	}

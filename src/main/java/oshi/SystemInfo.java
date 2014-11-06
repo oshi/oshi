@@ -11,6 +11,8 @@ import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.software.os.linux.LinuxHardwareAbstractionLayer;
+import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
@@ -31,6 +33,8 @@ public class SystemInfo {
 		if (_os == null) {
 			if (Platform.isWindows()) {
 				_os = new WindowsOperatingSystem();
+			} else if (Platform.isLinux()) {
+				_os = new LinuxOperatingSystem();
 			} else {
 				throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
 			}
@@ -47,6 +51,8 @@ public class SystemInfo {
 		if (_hardware == null) {
 			if (Platform.isWindows()) {
 				_hardware = new WindowsHardwareAbstractionLayer();
+			} else if (Platform.isLinux()) {
+				_hardware = new LinuxHardwareAbstractionLayer();
 			} else {
 				throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
 			}

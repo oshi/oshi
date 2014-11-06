@@ -17,7 +17,6 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 	private Processor[] _processors = null;
 	private Memory _memory = null;
 	
-	@Override
 	public Memory getMemory() {
 		if (_memory == null) {
 			_memory = new GlobalMemory();
@@ -25,7 +24,6 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 		return _memory;
 	}
 
-	@Override
 	public Processor[] getProcessors() {
 		
 		if (_processors == null) {

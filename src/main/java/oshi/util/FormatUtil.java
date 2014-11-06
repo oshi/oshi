@@ -14,7 +14,20 @@ package oshi.util;
 public abstract class FormatUtil {
 
 	/**
+	 * Added these variable for easier reading
+	 * Using the IEC Standard for naming the units
+	 * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+	 */
+    final private static long kibiByte = 1024L;
+    final private static long mebiByte = kibiByte * kibiByte;
+    final private static long gibiByte = mebiByte * kibiByte;
+    final private static long tebiByte = gibiByte * kibiByte;
+    final private static long pebiByte = tebiByte * kibiByte;
+
+	/**
 	 * Format bytes into a string to a rounded string representation.
+	 * Using the JEDEC representation for KB, MB and GB
+	 * Using the IEC representation for TiB
 	 * @param bytes
 	 *  Bytes.
 	 * @return
@@ -23,24 +36,24 @@ public abstract class FormatUtil {
     public static String formatBytes(long bytes) {
 		if (bytes == 1) { // bytes
 			return String.format("%d byte", bytes);
-		} else if (bytes < 1024) { // bytes
+		} else if (bytes < kibiByte) { // bytes
 			return String.format("%d bytes", bytes);
-		} else if (bytes < 1048576 && bytes % 1024 == 0) { // Kb
-			return String.format("%.0f KB", (double) bytes / 1024);
-		} else if (bytes < 1048576) { // Kb
-			return String.format("%.1f KB", (double) bytes / 1024);
-		} else if (bytes % 1048576 == 0 && bytes < 1073741824) { // Mb
-			return String.format("%.0f MB", (double) bytes / 1048576);
-		} else if (bytes < 1073741824) { // Mb
-			return String.format("%.1f MB", (double) bytes / 1048576);
-		} else if (bytes % 1073741824 == 0 && bytes < 1099511627776L) { // GB
-			return String.format("%.0f GB", (double) bytes / 1073741824);
-		} else if (bytes < 1099511627776L ) {
-			return String.format("%.1f GB", (double) bytes / 1073741824);
-		} else if (bytes % 1099511627776L == 0 && bytes < 1125899906842624L) { // TB
-			return String.format("%.0f TB", (double) bytes / 1099511627776L);
-		} else if (bytes < 1125899906842624L ) {
-			return String.format("%.1f TB", (double) bytes / 1099511627776L);
+		} else if (bytes < mebiByte && bytes % kibiByte == 0) { // KB
+			return String.format("%.0f KB", (double) bytes / kibiByte);
+		} else if (bytes < mebiByte) { // KB
+			return String.format("%.1f KB", (double) bytes / kibiByte);
+		} else if (bytes < gibiByte && bytes % mebiByte == 0) { // MB
+			return String.format("%.0f MB", (double) bytes / mebiByte);
+		} else if (bytes < gibiByte) { // MB
+			return String.format("%.1f MB", (double) bytes / mebiByte);
+		} else if (bytes % gibiByte == 0 && bytes < tebiByte) { // GB
+			return String.format("%.0f GB", (double) bytes / gibiByte);
+		} else if (bytes < tebiByte ) {
+			return String.format("%.1f GB", (double) bytes / gibiByte);
+		} else if (bytes % tebiByte == 0 && bytes < pebiByte) { // TiB
+			return String.format("%.0f TiB", (double) bytes / tebiByte);
+		} else if (bytes < pebiByte ) {
+			return String.format("%.1f TiB", (double) bytes / tebiByte);
 		} else {
 			return String.format("%d bytes", bytes);
 		}

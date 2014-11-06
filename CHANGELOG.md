@@ -2,6 +2,7 @@ Next
 ====
 
 * [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
+* Add Linux Support - [@ptitvert](https://github.com/ptitvert).
 
 1.1 (10/13/2013)
 ================
