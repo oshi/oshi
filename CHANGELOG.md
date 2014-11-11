@@ -2,9 +2,9 @@ Next
 ====
 
 * [#5](https://github.com/dblock/oshi/pull/5): Added Linux support - [@ptitvert](https://github.com/ptitvert).
+* [#7](https://github.com/dblock/oshi/pull/7): Added Mac OS X Support - [@ptitvert](https://github.com/ptitvert).
 * [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * Added Travis-CI - [@dblock](https://github.com/dblock).
-* Added Mac OS X Support [@ptitvert](https://github.com/ptitvert).
 * Your contribution here.
 
 1.1 (10/13/2013)
