@@ -40,12 +40,21 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 				setVersion(splittedLine[1]);
 			}
 			if (splittedLine[0].equals("VERSION")) {
-				final String[] split = splittedLine[1].split("[()]");
-				if (split.length > 1) {
+				// Check basically if the code is between parenthesis or after
+				// the coma-space
+
+				// Basically, until now, that seems to be the standard to use
+				// parenthesis for the codename.
+				String[] split = splittedLine[1].split("[()]");
+				if (split.length <= 1)
+					// We are probably with Ubuntu, so need to get that part
+					// correctly.
+					split = splittedLine[1].split(", ");
+
+				if (split.length > 1)
 					setCodeName(split[1]);
-				} else {
+				else
 					setCodeName(splittedLine[1]);
-				}
 			}
 		}
 		in.close();
