@@ -5,12 +5,13 @@
  * Eclipse Public License (EPLv1)
  * http://oshi.codeplex.com/license
  */
-package oshi.software.os.linux.proc;
+package oshi.software.os.mac.local;
 
 import oshi.hardware.Processor;
+import oshi.util.ExecutingCommand;
 
 /**
- * A CPU as defined in Linux /proc.
+ * A CPU.
  * 
  * @author alessandro[at]perucchi[dot]org
  */
@@ -21,7 +22,7 @@ public class CentralProcessor implements Processor {
 	private String _stepping;
 	private String _model;
 	private String _family;
-	private boolean _cpu64;
+	private Boolean _cpu64;
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
@@ -29,6 +30,8 @@ public class CentralProcessor implements Processor {
 	 * @return Processor vendor.
 	 */
 	public String getVendor() {
+		if (_vendor==null)
+			_vendor=ExecutingCommand.getFirstAnswer("sysctl -n machdep.cpu.vendor");
 		return _vendor;
 	}
 
@@ -48,6 +51,8 @@ public class CentralProcessor implements Processor {
 	 * @return Processor name.
 	 */
 	public String getName() {
+		if (_name==null)
+			_name=ExecutingCommand.getFirstAnswer("sysctl -n machdep.cpu.brand_string");
 		return _name;
 	}
 
@@ -100,6 +105,10 @@ public class CentralProcessor implements Processor {
 	 * @return True if cpu is 64bit.
 	 */
 	public boolean isCpu64bit() {
+		if (_cpu64 == null) {
+			_cpu64 = ExecutingCommand.getFirstAnswer(
+					"sysctl -n hw.cpu64bit_capable").equals("1") ? true : false;
+		}
 		return _cpu64;
 	}
 
@@ -117,6 +126,9 @@ public class CentralProcessor implements Processor {
 	 * @return the _stepping
 	 */
 	public String getStepping() {
+		if (_stepping == null)
+			_stepping = ExecutingCommand
+					.getFirstAnswer("sysctl -n machdep.cpu.stepping");
 		return _stepping;
 	}
 
@@ -132,6 +144,11 @@ public class CentralProcessor implements Processor {
 	 * @return the _model
 	 */
 	public String getModel() {
+		if (_model == null) {
+			_model = ExecutingCommand
+					.getFirstAnswer("sysctl -n machdep.cpu.model");
+			;
+		}
 		return _model;
 	}
 
@@ -147,6 +164,10 @@ public class CentralProcessor implements Processor {
 	 * @return the _family
 	 */
 	public String getFamily() {
+		if (_family == null) {
+			_family = ExecutingCommand
+					.getFirstAnswer("sysctl -n machdep.cpu.family");
+		}
 		return _family;
 	}
 

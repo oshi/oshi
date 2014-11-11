@@ -12,6 +12,10 @@ import oshi.hardware.Processor;
 import oshi.software.os.linux.proc.CentralProcessor;
 import oshi.software.os.linux.proc.GlobalMemory;
 
+/**
+ * @author alessandro[at]perucchi[dot]org
+ */
+
 public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private static final String SEPARATOR = "\\s+:\\s";
