@@ -31,7 +31,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		if (_processors == null) {
 			List<Processor> processors = new ArrayList<Processor>();
 			int nbCPU = new Integer(
-					ExecutingCommand.getFirstAnswer("sysctl -n hw.availcpu"));
+					ExecutingCommand.getFirstAnswer("sysctl -n hw.logicalcpu"));
 			for (int i = 0; i < nbCPU; i++)
 				processors.add(new CentralProcessor());
 			
