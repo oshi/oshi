@@ -18,24 +18,13 @@ import oshi.software.os.linux.proc.OSVersionInfoEx;
 /**
  * Linux is a family of free operating systems most commonly used on personal
  * computers.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  */
 public class LinuxOperatingSystem implements OperatingSystem {
 
 	private OperatingSystemVersion _version = null;
 	private String _manufacturer = null;
-
-	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
-		}
-		return _version;
-	}
-
-	public String getManufacturer() {
-		return "GNU/Linux";
-	}
 
 	public String getFamily() {
 		if (_manufacturer == null) {
@@ -49,13 +38,26 @@ public class LinuxOperatingSystem implements OperatingSystem {
 			while (in.hasNext()) {
 				String[] splittedLine = in.next().split("=");
 				if (splittedLine[0].equals("NAME")) {
-					_manufacturer = splittedLine[1];
+					// remove beginning and ending '"' characters, etc from
+					// NAME="Ubuntu"
+					_manufacturer = splittedLine[1].replaceAll("^\"|\"$", "");
 					break;
 				}
 			}
 			in.close();
 		}
 		return _manufacturer;
+	}
+
+	public String getManufacturer() {
+		return "GNU/Linux";
+	}
+
+	public OperatingSystemVersion getVersion() {
+		if (_version == null) {
+			_version = new OSVersionInfoEx();
+		}
+		return _version;
 	}
 
 	@Override
