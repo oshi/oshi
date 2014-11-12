@@ -15,10 +15,45 @@ Where are we?
 
 Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
+Current supported platform
+--------------------------
+
+- Windows
+- Linux
+- Mac OS-X
+
+Current supported feature
+-------------------------
+
+### Operating Systems ###
+
+* Manufacturer
+  - GNU/Linux
+  - Microsoft
+  - Apple
+
+* Family
+  - Mac OS X
+  - Windows
+  - Linux Distribution (Fedora, Ubuntu, ...)
+
+* Version
+  - Version number
+  - Codename
+  - Build
+
+### Hardware ###
+
+* How much physical RAM
+* How much available RAM
+* How many CPUs (core * thread)
+
 Sample Output
 -------------
 
-Here's sample test output:
+Here's sample tests output:
+
+For Windows:
 
 ```
 Microsoft Windows 7
@@ -28,7 +63,7 @@ Microsoft Windows 7
 Memory: 532.1 MB/2.0 GB
 ```
 
-or for Linux:
+For Linux:
 
 ```
 GNU/Linux Fedora 20 (Heisenbug)
@@ -42,6 +77,18 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Memory: 21.0 GB/31.0 GB
+```
+
+For Mac OS X:
+
+```
+Apple Mac OS X 10.9.5 (Mavericks) build 13F34
+4 CPU(s):
+ Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+ Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+ Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+ Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+Memory: 17.3 MB/4 GB
 ```
 
 How is this different from ...

@@ -5,6 +5,7 @@ Next
 * [#7](https://github.com/dblock/oshi/pull/7): Added Mac OS X Support - [@ptitvert](https://github.com/ptitvert).
 * [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * Added Travis-CI - [@dblock](https://github.com/dblock).
+* Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * Your contribution here.
 
 1.1 (10/13/2013)

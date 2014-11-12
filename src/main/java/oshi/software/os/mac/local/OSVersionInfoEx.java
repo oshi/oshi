@@ -103,7 +103,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	@Override
 	public String toString() {
 		if (version == null) {
-			version = getCodeName() + " (" + getVersion() + ") build "
+			version = getVersion() + " (" + getCodeName() + ") build "
 					+ getBuildNumber();
 		}
 		return version;
