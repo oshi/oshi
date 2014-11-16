@@ -37,9 +37,14 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		while (in.hasNext()) {
 			String[] splittedLine = in.next().split("=");
 			if (splittedLine[0].equals("VERSION_ID")) {
-				setVersion(splittedLine[1]);
+				// remove beginning and ending '"' characters, etc from
+				// VERSION_ID="14.04"
+				setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
 			}
 			if (splittedLine[0].equals("VERSION")) {
+				// remove beginning and ending '"' characters
+				splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
+
 				// Check basically if the code is between parenthesis or after
 				// the coma-space
 
