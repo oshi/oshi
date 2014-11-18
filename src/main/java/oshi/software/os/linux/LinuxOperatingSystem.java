@@ -24,10 +24,10 @@ import oshi.software.os.linux.proc.OSVersionInfoEx;
 public class LinuxOperatingSystem implements OperatingSystem {
 
 	private OperatingSystemVersion _version = null;
-	private String _manufacturer = null;
+	private String _family = null;
 
 	public String getFamily() {
-		if (_manufacturer == null) {
+		if (_family == null) {
 			Scanner in;
 			try {
 				in = new Scanner(new FileReader("/etc/os-release"));
@@ -40,13 +40,13 @@ public class LinuxOperatingSystem implements OperatingSystem {
 				if (splittedLine[0].equals("NAME")) {
 					// remove beginning and ending '"' characters, etc from
 					// NAME="Ubuntu"
-					_manufacturer = splittedLine[1].replaceAll("^\"|\"$", "");
+					_family = splittedLine[1].replaceAll("^\"|\"$", "");
 					break;
 				}
 			}
 			in.close();
 		}
-		return _manufacturer;
+		return _family;
 	}
 
 	public String getManufacturer() {
