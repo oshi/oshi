@@ -127,15 +127,30 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
     public String toString() {
         String version = null;
 
+        // see http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_NT) {
-            // 8
+        	// 8.1
             if (getMajor() == 6
+                    && getMinor() == 3
+                    && getProductType() == WinNT.VER_NT_WORKSTATION)
+            {
+                version = "8.1";
+            }
+            // Server 2008 R2
+            else if (getMajor() == 6
+                    && getMinor() == 3
+                    && getProductType() != WinNT.VER_NT_WORKSTATION)
+            {
+                version = "Server 2012 R2";
+            }
+            // 8
+            else if (getMajor() == 6
                     && getMinor() == 2
                     && getProductType() == WinNT.VER_NT_WORKSTATION)
             {
                 version = "8";
             }
-            // Server 2008 R2
+            // Server 2008
             else if (getMajor() == 6
                     && getMinor() == 2
                     && getProductType() != WinNT.VER_NT_WORKSTATION)
