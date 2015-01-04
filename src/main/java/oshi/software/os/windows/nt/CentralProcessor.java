@@ -76,6 +76,38 @@ public class CentralProcessor implements Processor {
 		_identifier = identifier;
 	}
 
+	public boolean isCpu64bit() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setCpu64(boolean cpu64) {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getStepping() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setStepping(String _stepping) {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getModel() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setModel(String _model) {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getFamily() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setFamily(String _family) {
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	public String toString() {
 		return _name;

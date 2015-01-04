@@ -20,4 +20,76 @@ public interface Processor {
 	 *  String.
 	 */
 	String getVendor();
+
+	/**
+	 * Set processor vendor.
+	 * @param vendor Vendor.
+	 */
+	void setVendor(String vendor);
+
+	/**
+	 * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
+	 * @return Processor name.
+	 */
+	String getName();
+
+	/**
+	 * Set processor name.
+	 * @param name Name.
+	 */
+	void setName(String name);
+
+	/**
+	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
+	 * @return Processor identifier.
+	 */
+	String getIdentifier();
+
+	/**
+	 * Set processor identifier.
+	 * @param identifier Identifier.
+	 */
+	void setIdentifier(String identifier);
+
+	/**
+	 * Is CPU 64bit?
+	 * @return True if cpu is 64bit.
+	 */
+	boolean isCpu64bit();
+
+	/**
+	 * Set flag is cpu is 64bit.
+	 * @param cpu64 True if cpu is 64.
+	 */
+	void setCpu64(boolean cpu64);
+
+	/**
+	 * @return the _stepping
+	 */
+	String getStepping();
+
+	/**
+	 * @param _stepping the _stepping to set
+	 */
+	void setStepping(String _stepping);
+
+	/**
+	 * @return the _model
+	 */
+	String getModel();
+
+	/**
+	 * @param _model the _model to set
+	 */
+	void setModel(String _model);
+
+	/**
+	 * @return the _family
+	 */
+	String getFamily();
+
+	/**
+	 * @param _family the _family to set
+	 */
+	void setFamily(String _family);
 }
