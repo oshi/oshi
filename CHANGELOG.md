@@ -9,6 +9,10 @@ Next
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * Your contribution here.
 
+1.2 (2/1/2014)
+================
+* Added support for CPU load in OSX
+
 1.1 (10/13/2013)
 ================
 

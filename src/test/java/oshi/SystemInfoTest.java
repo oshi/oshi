@@ -50,7 +50,7 @@ public class SystemInfoTest {
     public void testCpuLoad() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        System.out.println(hal.getProcessorLoad());
+        assertTrue(hal.getProcessorLoad() >= 0 && hal.getProcessorLoad() <= 100);
     }
 
     public static void main(String[] args) {
@@ -71,7 +71,7 @@ public class SystemInfoTest {
                 + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
 
-        System.out.println("CPU:" + hal.getProcessorLoad());
+        System.out.println("CPU load: " + hal.getProcessorLoad() + "%");
     }
 
 }
