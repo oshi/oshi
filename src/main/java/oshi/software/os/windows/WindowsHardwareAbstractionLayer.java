@@ -11,6 +11,7 @@ import oshi.software.os.windows.nt.GlobalMemory;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
+import oshi.util.ExecutingCommand;
 
 public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
@@ -22,6 +23,13 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 			_memory = new GlobalMemory();
 		}
 		return _memory;
+	}
+
+	public float getProcessorLoad() {
+		throw new UnsupportedOperationException();
+
+		// this is from stack overflow. I don't have windows, so I can't test it.
+		// return Float.valueOf(ExecutingCommand.getFirstAnswer("wmic cpu get loadpercentage"));
 	}
 
 	public Processor[] getProcessors() {

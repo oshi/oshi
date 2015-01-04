@@ -17,10 +17,8 @@ public class ExecutingCommand {
 		Process p = null;
 		try {
 			p = Runtime.getRuntime().exec(cmdToRun);
-			p.waitFor();
+			//p.waitFor();
 		} catch (IOException e) {
-			return null;
-		} catch (InterruptedException e) {
 			return null;
 		}
 
@@ -35,6 +33,7 @@ public class ExecutingCommand {
 		} catch (IOException e) {
 			return null;
 		}
+		p.destroy();
 		return sa;
 	}
 	

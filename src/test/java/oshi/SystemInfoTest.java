@@ -46,6 +46,13 @@ public class SystemInfoTest {
         assertTrue(memory.getAvailable() <= memory.getTotal());
     }
 
+    @Test
+    public void testCpuLoad() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        System.out.println(hal.getProcessorLoad());
+    }
+
     public static void main(String[] args) {
         SystemInfo si = new SystemInfo();
         // software
@@ -63,6 +70,8 @@ public class SystemInfoTest {
         System.out.println("Memory: "
                 + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
+
+        System.out.println("CPU:" + hal.getProcessorLoad());
     }
 
 }
