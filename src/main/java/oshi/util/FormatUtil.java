@@ -7,6 +7,8 @@
  */
 package oshi.util;
 
+import java.math.BigDecimal;
+
 /**
  * String formatting utility.
  * @author dblock[at]dblock[dot]org
@@ -58,4 +60,17 @@ public abstract class FormatUtil {
 			return String.format("%d bytes", bytes);
 		}
     }
+
+	/**
+	 * Round to certain number of decimals
+	 *
+	 * @param d
+	 * @param decimalPlace
+	 * @return
+	 */
+	public static float round(float d, int decimalPlace) {
+		BigDecimal bd = new BigDecimal(Float.toString(d));
+		bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+		return bd.floatValue();
+	}
 }

@@ -47,7 +47,7 @@ Current supported feature
 * How much physical RAM
 * How much available RAM
 * How many CPUs (core * thread)
-* CPU load % (only OSX)
+* CPU load % (OSX and Linux)
 
 Sample Output
 -------------
