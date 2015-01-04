@@ -21,7 +21,7 @@ public class ExecutingCommand {
 		} catch (IOException e) {
 			return null;
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			return null;
 		}
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(

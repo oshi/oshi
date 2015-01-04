@@ -31,13 +31,11 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	}
 
 	public float getProcessorLoad() {
-		throw new UnsupportedOperationException();
 
 		// should be same as on Mac. Not tested.
-//		ArrayList<String> topResult = ExecutingCommand.runNative("top -l 1 -R -F -n1"); // cpu load is in [3]
-//		String[] idle = topResult.get(3).split(" "); // idle value is in [6]
-//		float load = 100 - Float.valueOf(idle[6].replace("%", ""));
-//		return load;
+		ArrayList<String> topResult = ExecutingCommand.runNative("top -l 1 -R -F -n1"); // cpu load is in [3]
+		String[] idle = topResult.get(3).split(" "); // idle value is in [6]
+		return 100 - Float.valueOf(idle[6].replace("%", ""));
 	}
 
 	public Processor[] getProcessors() {

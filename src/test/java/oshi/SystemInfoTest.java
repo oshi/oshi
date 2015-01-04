@@ -70,7 +70,7 @@ public class SystemInfoTest {
         System.out.println("Memory: "
                 + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
-
+        hal.getProcessors()[0].getVendor();
         System.out.println("CPU load: " + hal.getProcessorLoad() + "%");
     }
 

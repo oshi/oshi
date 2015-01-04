@@ -8,10 +8,8 @@ Next
 * Added Travis-CI - [@dblock](https://github.com/dblock).
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * Your contribution here.
+* Added support for CPU load in OSX [@kamenitxan](https://github.com/kamenitxan)
 
-1.2 (2/1/2014)
-================
-* Added support for CPU load in OSX
 
 1.1 (10/13/2013)
 ================
