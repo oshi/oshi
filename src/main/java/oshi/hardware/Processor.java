@@ -92,4 +92,10 @@ public interface Processor {
 	 * @param _family the _family to set
 	 */
 	void setFamily(String _family);
+
+	/**
+	 * Get total CPU load
+	 * @return CPU load in %
+	 */
+	float getLoad();
 }

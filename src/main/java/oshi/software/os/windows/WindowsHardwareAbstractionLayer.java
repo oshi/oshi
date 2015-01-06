@@ -25,13 +25,6 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 		return _memory;
 	}
 
-	public float getProcessorLoad() {
-		throw new UnsupportedOperationException();
-
-		// this is from stack overflow. I don't have windows, so I can't test it.
-		// return Float.valueOf(ExecutingCommand.getFirstAnswer("wmic cpu get loadpercentage"));
-	}
-
 	public Processor[] getProcessors() {
 		
 		if (_processors == null) {

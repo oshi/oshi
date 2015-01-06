@@ -8,6 +8,12 @@
 package oshi.software.os.linux.proc;
 
 import oshi.hardware.Processor;
+import oshi.util.FormatUtil;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -156,6 +162,31 @@ public class CentralProcessor implements Processor {
 	 */
 	public void setFamily(String _family) {
 		this._family = _family;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public float getLoad() {
+		Scanner in = null;
+		try {
+			in = new Scanner(new FileReader("/proc/stat"));
+		} catch (FileNotFoundException e) {
+			System.err.println("Problem with: /proc/stat");
+			System.err.println(e.getMessage());
+			return -1;
+		}
+		in.useDelimiter("\n");
+		String[] result = in.next().split(" ");
+		ArrayList<Float> loads = new ArrayList<Float>();
+		for (String load : result) {
+			if (load.matches("-?\\d+(\\.\\d+)?")) {
+				loads.add(Float.valueOf(load));
+			}
+		}
+		// ((Total-PrevTotal)-(Idle-PrevIdle))/(Total-PrevTotal) - see http://stackoverflow.com/a/23376195/4359897
+		float totalCpuLoad = (loads.get(0) + loads.get(2))*100 / (loads.get(0) + loads.get(2) + loads.get(3));
+		return FormatUtil.round(totalCpuLoad, 2);
 	}
 
 	@Override

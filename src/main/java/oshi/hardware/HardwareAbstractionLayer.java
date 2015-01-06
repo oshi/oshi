@@ -27,9 +27,4 @@ public interface HardwareAbstractionLayer {
 	 */
 	Memory getMemory();
 
-	/**
-	 * Get CPU load
-	 * @return CPU load in %
-	 */
-	float getProcessorLoad();
 }

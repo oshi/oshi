@@ -53,15 +53,4 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _memory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see oshi.hardware.HardwareAbstractionLayer#getProcessorLoad()
-	 */
-	public float getProcessorLoad() {
-		ArrayList<String> topResult = ExecutingCommand.runNative("top -l 1 -R -F -n1"); // cpu load is in [3]
-		String[] idle = topResult.get(3).split(" "); // idle value is in [6]
-		return 100 - Float.valueOf(idle[6].replace("%", ""));
-	}
-
 }
