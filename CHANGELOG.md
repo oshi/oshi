@@ -7,7 +7,7 @@ Next
 * [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * Added Travis-CI - [@dblock](https://github.com/dblock).
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
-* [#15](https://github.com/dblock/oshi/pull/15): Added support for CPU load in OSX and Linux [@kamenitxan](https://github.com/kamenitxan)
+* [#15](https://github.com/dblock/oshi/pull/15): Added support for CPU load on OSX and Linux - [@kamenitxan](https://github.com/kamenitxan).
 * Your contribution here.
 
 
