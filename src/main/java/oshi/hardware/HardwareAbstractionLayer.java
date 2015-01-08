@@ -26,4 +26,5 @@ public interface HardwareAbstractionLayer {
 	 *  A memory object.
 	 */
 	Memory getMemory();
+
 }

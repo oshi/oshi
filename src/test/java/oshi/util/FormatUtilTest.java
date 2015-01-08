@@ -36,4 +36,12 @@ public class FormatUtilTest {
         assertEquals(expected3, FormatUtil.formatBytes(2400000000L));
         assertEquals(expected4, FormatUtil.formatBytes(1099511627776L + 109951162777L));
     }
+
+    @Test
+    public void testRound() {
+        assertEquals(42.42, FormatUtil.round(42.423f, 2), 0.00001f);
+        assertEquals(42.43, FormatUtil.round(42.425f, 2), 0.00001f);
+        assertEquals(42.5, FormatUtil.round(42.499f, 2), 0.00001f);
+        assertEquals(42, FormatUtil.round(42, 2), 0.00001f);
+    }
 }

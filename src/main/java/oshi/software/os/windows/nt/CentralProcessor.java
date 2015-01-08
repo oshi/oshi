@@ -76,6 +76,72 @@ public class CentralProcessor implements Processor {
 		_identifier = identifier;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isCpu64bit() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setCpu64(boolean cpu64) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getStepping() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setStepping(String _stepping) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getModel() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setModel(String _model) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getFamily() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setFamily(String _family) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public float getLoad() {
+		throw new UnsupportedOperationException();
+
+		// this is from stack overflow. I don't have windows, so I can't test it.
+		// return Float.valueOf(ExecutingCommand.getFirstAnswer("wmic cpu get loadpercentage"));
+	}
+
 	@Override
 	public String toString() {
 		return _name;
