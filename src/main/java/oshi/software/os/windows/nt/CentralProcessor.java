@@ -8,6 +8,7 @@
 package oshi.software.os.windows.nt;
 
 import oshi.hardware.Processor;
+import oshi.util.ExecutingCommand;
 
 /**
  * A CPU as defined in Windows registry.
@@ -136,10 +137,16 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	public float getLoad() {
-		throw new UnsupportedOperationException();
-
-		// this is from stack overflow. I don't have windows, so I can't test it.
-		// return Float.valueOf(ExecutingCommand.getFirstAnswer("wmic cpu get loadpercentage"));
+		// this always return whole number value
+		String result = ExecutingCommand.getAnswerAt("wmic cpu get loadpercentage", 2);
+		int load = 0;
+		if (result != null && !result.isEmpty())
+			try {
+				load = Integer.valueOf(result.trim());
+			} catch(NumberFormatException e) {
+				System.err.println("Cannot parse load value: " + result.trim());
+			}
+		return load;
 	}
 
 	@Override
