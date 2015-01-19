@@ -137,16 +137,19 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	public float getLoad() {
-		// this always return whole number value
-		String result = ExecutingCommand.getAnswerAt("wmic cpu get loadpercentage", 2);
-		int load = 0;
-		if (result != null && !result.isEmpty())
-			try {
-				load = Integer.valueOf(result.trim());
-			} catch(NumberFormatException e) {
-				System.err.println("Cannot parse load value: " + result.trim());
-			}
-		return load;
+		// this always return whole number value on windows machines
+		String result = ExecutingCommand.getAnswerAt("wmic /locale:ms_409 cpu get loadpercentage", 2);
+
+		if (result == null || result.isEmpty()) {
+			throw new RuntimeException("CPU load could not be obtained from system");
+		}
+
+		try {
+			return Integer.valueOf(result.trim());
+		} catch (NumberFormatException e) {
+			System.err.println("Cannot parse CPU load value: " + result.trim());
+			throw new RuntimeException("Cannot parse load value: " + result.trim());
+		}
 	}
 
 	@Override
