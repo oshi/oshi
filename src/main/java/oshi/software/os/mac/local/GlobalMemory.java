@@ -20,23 +20,29 @@ public class GlobalMemory implements Memory {
 	private long totalMemory = 0;
 
 	public long getAvailable() {
-		long returnCurrentUsageMemory=0;
+		long returnCurrentUsageMemory = 0;
+		long pageSize = 4096;
 		for (String line : ExecutingCommand.runNative("vm_stat")) {
-			if (line.startsWith("Pages free:")) {
+			if (line.matches("\\D+(page size of \\d+ bytes)\\D+")) {
+				pageSize = new Long(line.replaceAll("\\D", ""));
+			} else if (line.startsWith("Pages free:")
+					|| line.startsWith("Pages speculative:")
+					|| line.startsWith("Pages inactive:")) {
 				String[] memorySplit = line.split(":\\s+");
-				returnCurrentUsageMemory+=new Long(memorySplit[1].replace(".",""));
-			} else if(line.startsWith("Pages speculative:")) {
-				String[] memorySplit = line.split(":\\s+");
-				returnCurrentUsageMemory+=new Long(memorySplit[1].replace(".",""));
+				if (memorySplit.length > 1) {
+					returnCurrentUsageMemory += new Long(
+							memorySplit[1].replace(".", ""));
+				}
 			}
 		}
-		returnCurrentUsageMemory=returnCurrentUsageMemory*4096;
+		returnCurrentUsageMemory *= pageSize;
 		return returnCurrentUsageMemory;
 	}
 
 	public long getTotal() {
 		if (totalMemory == 0) {
-			totalMemory=new Long(ExecutingCommand.getFirstAnswer("sysctl -n hw.memsize"));
+			totalMemory = new Long(
+					ExecutingCommand.getFirstAnswer("sysctl -n hw.memsize"));
 		}
 		return totalMemory;
 	}
