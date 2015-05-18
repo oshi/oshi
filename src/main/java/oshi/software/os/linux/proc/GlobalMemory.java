@@ -23,8 +23,8 @@ public class GlobalMemory implements Memory {
 	private long totalMemory = 0;
 
 	public long getAvailable() {
-		long returnCurrentUsageMemory=0;
-		Scanner in=null;
+		long returnCurrentUsageMemory = 0;
+		Scanner in = null;
 		try {
 			in = new Scanner(new FileReader("/proc/meminfo"));
 		} catch (FileNotFoundException e) {
@@ -33,15 +33,16 @@ public class GlobalMemory implements Memory {
 		in.useDelimiter("\n");
 		while (in.hasNext()) {
 			String checkLine = in.next();
-			if (checkLine.startsWith("MemFree:") || checkLine.startsWith("MemAvailable:")) {
+			if (checkLine.startsWith("MemAvailable:")) {
 				String[] memorySplit = checkLine.split("\\s+");
-				returnCurrentUsageMemory=new Long(memorySplit[1]);
-				if (memorySplit[2].equals("kB")) {
-					returnCurrentUsageMemory*=1024;
-				}
-				if (memorySplit[0].equals("MemAvailable:")) {
-					break;
-				}
+				returnCurrentUsageMemory = calcKB(memorySplit);
+				break;
+			} else if (checkLine.startsWith("MemFree:")) {
+				String[] memorySplit = checkLine.split("\\s+");
+				returnCurrentUsageMemory += calcKB(memorySplit);
+			} else if (checkLine.startsWith("Inactive:")) {
+				String[] memorySplit = checkLine.split("\\s+");
+				returnCurrentUsageMemory += calcKB(memorySplit);
 			}
 		}
 		in.close();
@@ -50,7 +51,7 @@ public class GlobalMemory implements Memory {
 
 	public long getTotal() {
 		if (totalMemory == 0) {
-			Scanner in=null;
+			Scanner in = null;
 			try {
 				in = new Scanner(new FileReader("/proc/meminfo"));
 			} catch (FileNotFoundException e) {
@@ -62,10 +63,7 @@ public class GlobalMemory implements Memory {
 				String checkLine = in.next();
 				if (checkLine.startsWith("MemTotal:")) {
 					String[] memorySplit = checkLine.split("\\s+");
-					totalMemory=new Long(memorySplit[1]);
-					if (memorySplit[2].equals("kB")) {
-						totalMemory*=1024;
-					}
+					totalMemory = calcKB(memorySplit);
 					break;
 				}
 			}
@@ -73,4 +71,13 @@ public class GlobalMemory implements Memory {
 		}
 		return totalMemory;
 	}
+
+	private long calcKB(String[] memorySplit) {
+		long memory = new Long(memorySplit[1]);
+		if (memorySplit[2].equals("kB")) {
+			memory *= 1024;
+		}
+		return memory;
+	}
+
 }
