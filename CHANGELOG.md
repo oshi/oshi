@@ -8,9 +8,7 @@ Next
 * Added Travis-CI - [@dblock](https://github.com/dblock).
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * [#15](https://github.com/dblock/oshi/pull/15), [#18](https://github.com/dblock/oshi/pull/18): Added support for CPU load - [@kamenitxan](https://github.com/kamenitxan), [@Sorceror](https://github.com/Sorceror).
-* Your contribution here.
-
-
+* [#24](https://github.com/dblock/oshi/pull/24) Updated Mac/Linux available memory to include inactive memory. [@dbwiddis](https://github.com/dbwiddis).
 
 1.1 (10/13/2013)
 ================
