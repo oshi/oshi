@@ -1,6 +1,8 @@
-/**
+/*
  * Copyright (c) Alessandro Perucchi, 2014
  * alessandro[at]perucchi[dot]org
+ * Daniel Widdis, 2015
+ * widdis[at]gmail[dot]com
  * All Rights Reserved
  * Eclipse Public License (EPLv1)
  * http://oshi.codeplex.com/license
@@ -8,14 +10,19 @@
 package oshi.software.os.mac.local;
 
 import oshi.hardware.Processor;
-import oshi.util.ExecutingCommand;
+import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
 
-import java.util.ArrayList;
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * A CPU.
  * 
  * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
 public class CentralProcessor implements Processor {
 	private String _vendor;
@@ -32,8 +39,20 @@ public class CentralProcessor implements Processor {
 	 * @return Processor vendor.
 	 */
 	public String getVendor() {
-		if (_vendor==null)
-			_vendor=ExecutingCommand.getFirstAnswer("sysctl -n machdep.cpu.vendor");
+		if (_vendor == null) {
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
+					SystemB.MACHDEP_CPU_VENDOR };
+			IntByReference size = new IntByReference();
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
+					0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			Pointer p = new Memory(size.getValue() + 1);
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_vendor = p.getString(0);
+		}
 		return _vendor;
 	}
 
@@ -53,8 +72,20 @@ public class CentralProcessor implements Processor {
 	 * @return Processor name.
 	 */
 	public String getName() {
-		if (_name==null)
-			_name=ExecutingCommand.getFirstAnswer("sysctl -n machdep.cpu.brand_string");
+		if (_name == null) {
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
+					SystemB.MACHDEP_CPU_BRAND_STRING };
+			IntByReference size = new IntByReference();
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
+					0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			Pointer p = new Memory(size.getValue() + 1);
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_name = p.getString(0);
+		}
 		return _name;
 	}
 
@@ -80,12 +111,9 @@ public class CentralProcessor implements Processor {
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
 			else
 				sb.append(getVendor());
-			sb.append(" Family ");
-			sb.append(getFamily());
-			sb.append(" Model ");
-			sb.append(getModel());
-			sb.append(" Stepping ");
-			sb.append(getStepping());
+			sb.append(" Family ").append(getFamily());
+			sb.append(" Model ").append(getModel());
+			sb.append(" Stepping ").append(getStepping());
 			_identifier = sb.toString();
 		}
 		return _identifier;
@@ -108,8 +136,13 @@ public class CentralProcessor implements Processor {
 	 */
 	public boolean isCpu64bit() {
 		if (_cpu64 == null) {
-			_cpu64 = ExecutingCommand.getFirstAnswer(
-					"sysctl -n hw.cpu64bit_capable").equals("1") ? true : false;
+			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };
+			IntByReference size = new IntByReference(SystemB.INT_SIZE);
+			Pointer p = new Memory(size.getValue());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_cpu64 = p.getInt(0) != 0;
 		}
 		return _cpu64;
 	}
@@ -128,18 +161,25 @@ public class CentralProcessor implements Processor {
 	 * @return the _stepping
 	 */
 	public String getStepping() {
-		if (_stepping == null)
-			_stepping = ExecutingCommand
-					.getFirstAnswer("sysctl -n machdep.cpu.stepping");
+		if (_stepping == null) {
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
+					SystemB.MACHDEP_CPU_STEPPING };
+			IntByReference size = new IntByReference(SystemB.INT_SIZE);
+			Pointer p = new Memory(size.getValue());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_stepping = Integer.toString(p.getInt(0));
+		}
 		return _stepping;
 	}
 
 	/**
-	 * @param _stepping
-	 *            the _stepping to set
+	 * @param stepping
+	 *            the stepping to set
 	 */
-	public void setStepping(String _stepping) {
-		this._stepping = _stepping;
+	public void setStepping(String stepping) {
+		_stepping = stepping;
 	}
 
 	/**
@@ -147,19 +187,24 @@ public class CentralProcessor implements Processor {
 	 */
 	public String getModel() {
 		if (_model == null) {
-			_model = ExecutingCommand
-					.getFirstAnswer("sysctl -n machdep.cpu.model");
-			;
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
+					SystemB.MACHDEP_CPU_MODEL };
+			IntByReference size = new IntByReference(SystemB.INT_SIZE);
+			Pointer p = new Memory(size.getValue());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_model = Integer.toString(p.getInt(0));
 		}
 		return _model;
 	}
 
 	/**
-	 * @param _model
-	 *            the _model to set
+	 * @param model
+	 *            the model to set
 	 */
-	public void setModel(String _model) {
-		this._model = _model;
+	public void setModel(String model) {
+		_model = model;
 	}
 
 	/**
@@ -167,32 +212,67 @@ public class CentralProcessor implements Processor {
 	 */
 	public String getFamily() {
 		if (_family == null) {
-			_family = ExecutingCommand
-					.getFirstAnswer("sysctl -n machdep.cpu.family");
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
+					SystemB.MACHDEP_CPU_FAMILY };
+			IntByReference size = new IntByReference(SystemB.INT_SIZE);
+			Pointer p = new Memory(size.getValue());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_family = Integer.toString(p.getInt(0));
 		}
 		return _family;
 	}
 
 	/**
-	 * @param _family
-	 *            the _family to set
+	 * @param family
+	 *            the family to set
 	 */
-	public void setFamily(String _family) {
-		this._family = _family;
+	public void setFamily(String family) {
+		_family = family;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public float getLoad() {
-		ArrayList<String> topResult = ExecutingCommand.runNative("top -l 1 -R -F -n1"); // cpu load is in [3]
-		String[] idle = topResult.get(3).split(" "); // idle value is in [6]
-		return 100 - Float.valueOf(idle[6].replace("%", ""));
+		int[] prevTicks = getCpuTicks();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// Awake, O sleeper
+		}
+		int[] ticks = getCpuTicks();
+
+		int total = 0;
+		for (int i = 0; i < SystemB.CPU_STATE_MAX; i++) {
+			total += (ticks[i] - prevTicks[i]);
+		}
+		int idle = ticks[SystemB.CPU_STATE_IDLE]
+				- prevTicks[SystemB.CPU_STATE_IDLE];
+		if (total > 0 && idle >= 0)
+			return 100f * (total - idle) / total;
+		else
+			return 0f;
+	}
+
+	private int[] getCpuTicks() {
+		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
+		int machPort = SystemB.INSTANCE.mach_host_self();
+		int[] ticks = new int[SystemB.CPU_STATE_MAX];
+		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
+		if (0 != SystemB.INSTANCE.host_statistics(machPort,
+				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(
+						cpuLoadInfo.size())))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		for (int i = 0; i < SystemB.CPU_STATE_MAX; i++) {
+			ticks[i] = cpuLoadInfo.cpu_ticks[i];
+		}
+		return ticks;
 	}
 
 	@Override
 	public String toString() {
 		return getName();
 	}
-
 }

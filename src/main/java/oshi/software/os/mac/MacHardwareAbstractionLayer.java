@@ -1,5 +1,11 @@
-/**
- * 
+/*
+ * Copyright (c) Alessandro Perucchi, 2014
+ * alessandro[at]perucchi[dot]org
+ * Daniel Widdis, 2015
+ * widdis[at]gmail[dot]com
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://oshi.codeplex.com/license
  */
 package oshi.software.os.mac;
 
@@ -11,12 +17,16 @@ import oshi.hardware.Memory;
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.CentralProcessor;
 import oshi.software.os.mac.local.GlobalMemory;
-import oshi.util.ExecutingCommand;
+import oshi.software.os.mac.local.SystemB;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
-
 public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Processor[] _processors;
@@ -29,16 +39,21 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	 */
 	public Processor[] getProcessors() {
 		if (_processors == null) {
+			int nbCPU = 1;
 			List<Processor> processors = new ArrayList<Processor>();
-			int nbCPU = new Integer(
-					ExecutingCommand.getFirstAnswer("sysctl -n hw.logicalcpu"));
+			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };
+			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU,
+					new IntByReference(SystemB.INT_SIZE), null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			nbCPU = pNbCPU.getInt(0);
 			for (int i = 0; i < nbCPU; i++)
 				processors.add(new CentralProcessor());
-			
+
 			_processors = processors.toArray(new Processor[0]);
 		}
 		return _processors;
-
 	}
 
 	/*
