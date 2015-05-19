@@ -98,7 +98,7 @@ CPU load: 70.59%
 How is this different from ...
 ------------------------------
 
-* [Sigar](http://sigar.hyperic.com): Sigar is licensed under Apache 2.0 license. Oshi is distributed under the MIT license. Oshi also uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed.
+* [Sigar](http://sigar.hyperic.com): Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license. Oshi also uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed.
 
 License
 -------
