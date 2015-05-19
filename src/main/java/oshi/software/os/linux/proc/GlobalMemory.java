@@ -14,7 +14,7 @@ import java.util.Scanner;
 import oshi.hardware.Memory;
 
 /**
- * Memory obtained by GlobalMemoryStatusEx.
+ * Memory obtained by /proc/meminfo.
  * 
  * @author alessandro[at]perucchi[dot]org
  */
@@ -23,8 +23,8 @@ public class GlobalMemory implements Memory {
 	private long totalMemory = 0;
 
 	public long getAvailable() {
-		long returnCurrentUsageMemory=0;
-		Scanner in=null;
+		long returnCurrentUsageMemory = 0;
+		Scanner in = null;
 		try {
 			in = new Scanner(new FileReader("/proc/meminfo"));
 		} catch (FileNotFoundException e) {
@@ -33,15 +33,16 @@ public class GlobalMemory implements Memory {
 		in.useDelimiter("\n");
 		while (in.hasNext()) {
 			String checkLine = in.next();
-			if (checkLine.startsWith("MemFree:") || checkLine.startsWith("MemAvailable:")) {
+			if (checkLine.startsWith("MemAvailable:")) {
 				String[] memorySplit = checkLine.split("\\s+");
-				returnCurrentUsageMemory=new Long(memorySplit[1]);
-				if (memorySplit[2].equals("kB")) {
-					returnCurrentUsageMemory*=1024;
-				}
-				if (memorySplit[0].equals("MemAvailable:")) {
-					break;
-				}
+				returnCurrentUsageMemory = parseMeminfo(memorySplit);
+				break;
+			} else if (checkLine.startsWith("MemFree:")) {
+				String[] memorySplit = checkLine.split("\\s+");
+				returnCurrentUsageMemory += parseMeminfo(memorySplit);
+			} else if (checkLine.startsWith("Inactive:")) {
+				String[] memorySplit = checkLine.split("\\s+");
+				returnCurrentUsageMemory += parseMeminfo(memorySplit);
 			}
 		}
 		in.close();
@@ -50,7 +51,7 @@ public class GlobalMemory implements Memory {
 
 	public long getTotal() {
 		if (totalMemory == 0) {
-			Scanner in=null;
+			Scanner in = null;
 			try {
 				in = new Scanner(new FileReader("/proc/meminfo"));
 			} catch (FileNotFoundException e) {
@@ -62,15 +63,23 @@ public class GlobalMemory implements Memory {
 				String checkLine = in.next();
 				if (checkLine.startsWith("MemTotal:")) {
 					String[] memorySplit = checkLine.split("\\s+");
-					totalMemory=new Long(memorySplit[1]);
-					if (memorySplit[2].equals("kB")) {
-						totalMemory*=1024;
-					}
+					totalMemory = parseMeminfo(memorySplit);
 					break;
 				}
 			}
 			in.close();
 		}
 		return totalMemory;
+	}
+
+	private long parseMeminfo(String[] memorySplit) {
+		if (memorySplit.length < 2) {
+			return 0l;
+		}
+		long memory = new Long(memorySplit[1]);
+		if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
+			memory *= 1024;
+		}
+		return memory;
 	}
 }
