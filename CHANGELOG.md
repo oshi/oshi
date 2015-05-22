@@ -9,6 +9,7 @@ Next
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * [#15](https://github.com/dblock/oshi/pull/15), [#18](https://github.com/dblock/oshi/pull/18): Added support for CPU load - [@kamenitxan](https://github.com/kamenitxan), [@Sorceror](https://github.com/Sorceror).
 * [#25](https://github.com/dblock/oshi/pull/25): Include inactive memory amount in GlobalMemory#getAvailable on Mac/Linux - [@dbwiddis](https://github.com/dbwiddis).
+* [#27](https://github.com/dblock/oshi/pull/27): Replace all Mac OS X command line parsing with JNA or System properties - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 

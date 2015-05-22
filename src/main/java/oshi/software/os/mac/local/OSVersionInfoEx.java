@@ -1,17 +1,32 @@
+/*
+ * Copyright (c) Alessandro Perucchi, 2014
+ * alessandro[at]perucchi[dot]org
+ * Daniel Widdis, 2015
+ * widdis[at]gmail[dot]com
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://oshi.codeplex.com/license
+ */
 package oshi.software.os.mac.local;
 
 import oshi.software.os.OperatingSystemVersion;
-import oshi.util.ExecutingCommand;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
 
 public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	private String _version = null;
 	private String _codeName = null;
-	private String version = null;
+	private String _versionStr = null;
 	private String _buildNumber = null;
 
 	public OSVersionInfoEx() {
@@ -21,19 +36,17 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return the _version
 	 */
 	public String getVersion() {
-		if (_version == null) {
-			_version = ExecutingCommand
-					.getFirstAnswer("sw_vers -productVersion");
-		}
+		if (_version == null)
+			_version = System.getProperty("os.version");
 		return _version;
 	}
 
 	/**
-	 * @param _version
-	 *            the _version to set
+	 * @param version
+	 *            the version to set
 	 */
-	public void setVersion(String _version) {
-		this._version = _version;
+	public void setVersion(String version) {
+		_version = version;
 	}
 
 	/**
@@ -42,57 +55,75 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	public String getCodeName() {
 		if (_codeName == null) {
 			if (getVersion() != null) {
-				if ("10.0".equals(getVersion())
-						|| getVersion().startsWith("10.0."))
-					_codeName = "Cheetah";
-				else if ("10.1".equals(getVersion())
-						|| getVersion().startsWith("10.1."))
-					_codeName = "Puma";
-				else if ("10.2".equals(getVersion())
-						|| getVersion().startsWith("10.2."))
-					_codeName = "Jaguar";
-				else if ("10.3".equals(getVersion())
-						|| getVersion().startsWith("10.3."))
-					_codeName = "Panther";
-				else if ("10.4".equals(getVersion())
-						|| getVersion().startsWith("10.4."))
-					_codeName = "Tiger";
-				else if ("10.5".equals(getVersion())
-						|| getVersion().startsWith("10.5."))
-					_codeName = "Leopard";
-				else if ("10.6".equals(getVersion())
-						|| getVersion().startsWith("10.6."))
-					_codeName = "Snow Leopard";
-				else if ("10.7".equals(getVersion())
-						|| getVersion().startsWith("10.7."))
-					_codeName = "Lion";
-				else if ("10.8".equals(getVersion())
-						|| getVersion().startsWith("10.8."))
-					_codeName = "Mountain Lion";
-				else if ("10.9".equals(getVersion())
-						|| getVersion().startsWith("10.9."))
-					_codeName = "Mavericks";
-				else if ("10.10".equals(getVersion())
-						|| getVersion().startsWith("10.10."))
-					_codeName = "Yosemite";
+				String[] versionSplit = getVersion().split("\\.");
+				if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
+					switch (Integer.parseInt(versionSplit[1])) {
+					case 0:
+						_codeName = "Cheetah";
+						break;
+					case 1:
+						_codeName = "Puma";
+						break;
+					case 2:
+						_codeName = "Jaguar";
+						break;
+					case 3:
+						_codeName = "Panther";
+						break;
+					case 4:
+						_codeName = "Tiger";
+						break;
+					case 5:
+						_codeName = "Leopard";
+						break;
+					case 6:
+						_codeName = "Snow Leopard";
+						break;
+					case 7:
+						_codeName = "Lion";
+						break;
+					case 8:
+						_codeName = "Mountain Lion";
+						break;
+					case 9:
+						_codeName = "Mavericks";
+						break;
+					case 10:
+						_codeName = "Yosemite";
+						break;
+					default:
+						_codeName = "";
+					}
+
+				} else
+					_codeName = "";
 			}
 		}
 		return _codeName;
 	}
 
 	/**
-	 * @param _codeName
-	 *            the _codeName to set
+	 * @param codeName
+	 *            the codeName to set
 	 */
-	public void setCodeName(String _codeName) {
-		this._codeName = _codeName;
+	public void setCodeName(String codeName) {
+		_codeName = codeName;
 	}
 
 	public String getBuildNumber() {
-		if (_buildNumber == null)
-			_buildNumber=ExecutingCommand
-					.getFirstAnswer("sw_vers -buildVersion");
-
+		if (_buildNumber == null) {
+			int[] mib = { SystemB.CTL_KERN, SystemB.KERN_OSVERSION };
+			IntByReference size = new IntByReference();
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
+					0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			Pointer p = new Memory(size.getValue() + 1);
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			_buildNumber = p.getString(0);
+		}
 		return _buildNumber;
 	}
 
@@ -102,11 +133,13 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	@Override
 	public String toString() {
-		if (version == null) {
-			version = getVersion() + " (" + getCodeName() + ") build "
-					+ getBuildNumber();
+		if (_versionStr == null) {
+			StringBuilder sb = new StringBuilder(getVersion());
+			if (getCodeName().length() > 0)
+				sb.append(" (").append(getCodeName()).append(")");
+			sb.append(" build ").append(getBuildNumber());
+			_versionStr = sb.toString();
 		}
-		return version;
+		return _versionStr;
 	}
-
 }

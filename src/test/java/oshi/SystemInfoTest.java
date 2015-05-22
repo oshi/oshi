@@ -4,8 +4,11 @@
  */
 package oshi;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.Processor;
@@ -18,59 +21,63 @@ import oshi.util.FormatUtil;
  */
 public class SystemInfoTest {
 
-    @Test
-    public void testGetVersion() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
-        assertNotNull(os);
-        OperatingSystemVersion version = os.getVersion();
-        assertNotNull(version);
-        assertTrue(os.toString().length() > 0);
-    }
+	@Test
+	public void testGetVersion() {
+		SystemInfo si = new SystemInfo();
+		OperatingSystem os = si.getOperatingSystem();
+		assertNotNull(os);
+		OperatingSystemVersion version = os.getVersion();
+		assertNotNull(version);
+		assertTrue(os.toString().length() > 0);
+	}
 
-    @Test
-    public void testGetProcessors() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors().length > 0);
-    }
+	@Test
+	public void testGetProcessors() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		assertTrue(hal.getProcessors().length > 0);
+	}
 
-    @Test
-    public void testGetMemory() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        Memory memory = hal.getMemory();
-        assertNotNull(memory);
-        assertTrue(memory.getTotal() > 0);
-        assertTrue(memory.getAvailable() >= 0);
-        assertTrue(memory.getAvailable() <= memory.getTotal());
-    }
+	@Test
+	public void testGetMemory() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		Memory memory = hal.getMemory();
+		assertNotNull(memory);
+		assertTrue(memory.getTotal() > 0);
+		assertTrue(memory.getAvailable() >= 0);
+		assertTrue(memory.getAvailable() <= memory.getTotal());
+	}
 
-    @Test
-    public void testCpuLoad() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors()[0].getLoad() >= 0 && hal.getProcessors()[0].getLoad() <= 100);
-    }
+	@Test
+	public void testCpuLoad() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		assertTrue(hal.getProcessors()[0].getLoad() >= 0
+				&& hal.getProcessors()[0].getLoad() <= 100);
+	}
 
-    public static void main(String[] args) {
-        SystemInfo si = new SystemInfo();
-        // software
-        // software: operating system
-        OperatingSystem os = si.getOperatingSystem();
-        System.out.println(os);
-        // hardware
-        HardwareAbstractionLayer hal = si.getHardware();
-        // hardware: processors
-        System.out.println(hal.getProcessors().length + " CPU(s):");
-        for (Processor cpu : hal.getProcessors()) {
-            System.out.println(" " + cpu);
-        }
-        // hardware: memory
-        System.out.println("Memory: "
-                + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
-                + FormatUtil.formatBytes(hal.getMemory().getTotal()));
-        System.out.println("CPU load: " + hal.getProcessors()[0].getLoad() + "%");
-    }
+	public static void main(String[] args) {
+		SystemInfo si = new SystemInfo();
+		// software
+		// software: operating system
+		OperatingSystem os = si.getOperatingSystem();
+		System.out.println(os);
 
+		// hardware
+		HardwareAbstractionLayer hal = si.getHardware();
+		// hardware: processors
+		System.out.println(hal.getProcessors().length + " CPU(s):");
+		for (Processor cpu : hal.getProcessors()) {
+			System.out.println(" " + cpu);
+		}
+		System.out.println("Identifier: "
+				+ hal.getProcessors()[0].getIdentifier());
+		// hardware: memory
+		System.out.println("Memory: "
+				+ FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
+				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
+		System.out.println("CPU load: " + hal.getProcessors()[0].getLoad()
+				+ "%");
+	}
 }
