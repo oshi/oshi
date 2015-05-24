@@ -7,13 +7,13 @@
  */
 package oshi.software.os.linux.proc;
 
-import oshi.hardware.Processor;
-import oshi.util.FormatUtil;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import oshi.hardware.Processor;
+import oshi.util.FormatUtil;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -184,8 +184,10 @@ public class CentralProcessor implements Processor {
 				loads.add(Float.valueOf(load));
 			}
 		}
-		// ((Total-PrevTotal)-(Idle-PrevIdle))/(Total-PrevTotal) - see http://stackoverflow.com/a/23376195/4359897
-		float totalCpuLoad = (loads.get(0) + loads.get(2))*100 / (loads.get(0) + loads.get(2) + loads.get(3));
+		// ((Total-PrevTotal)-(Idle-PrevIdle))/(Total-PrevTotal) - see
+		// http://stackoverflow.com/a/23376195/4359897
+		float totalCpuLoad = (loads.get(0) + loads.get(2)) * 100
+				/ (loads.get(0) + loads.get(2) + loads.get(3));
 		return FormatUtil.round(totalCpuLoad, 2);
 	}
 

@@ -12,18 +12,19 @@ import oshi.software.os.OperatingSystemVersion;
 import oshi.software.os.windows.nt.OSVersionInfoEx;
 
 /**
- * Microsoft Windows is a family of proprietary operating systems most commonly used on
- * personal computers.
+ * Microsoft Windows is a family of proprietary operating systems most commonly
+ * used on personal computers.
+ * 
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsOperatingSystem implements OperatingSystem {
-	
+
 	private OperatingSystemVersion _version = null;
-	
+
 	public OperatingSystemVersion getVersion() {
 		if (_version == null) {
 			_version = new OSVersionInfoEx();
-		}		
+		}
 		return _version;
 	}
 
@@ -34,7 +35,7 @@ public class WindowsOperatingSystem implements OperatingSystem {
 	public String getManufacturer() {
 		return "Microsoft";
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getManufacturer());

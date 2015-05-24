@@ -61,11 +61,12 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("flags\t")) {
-					String[] flags=toBeAnalyzed.split(SEPARATOR)[1].split(" ");
-					boolean found=false;
-					for (String flag: flags) {
+					String[] flags = toBeAnalyzed.split(SEPARATOR)[1]
+							.split(" ");
+					boolean found = false;
+					for (String flag : flags) {
 						if (flag.equalsIgnoreCase("LM")) {
-							found=true;
+							found = true;
 							break;
 						}
 					}
@@ -74,7 +75,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 				}
 				if (toBeAnalyzed.startsWith("cpu family\t")) {
 					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+																		// name
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("model\t")) {
@@ -84,7 +85,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 				}
 				if (toBeAnalyzed.startsWith("stepping\t")) {
 					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+																		// name
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("vendor_id")) {

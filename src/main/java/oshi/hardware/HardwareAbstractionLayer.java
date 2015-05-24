@@ -9,21 +9,22 @@ package oshi.hardware;
 
 /**
  * A hardware abstraction layer.
+ * 
  * @author dblock[at]dblock[dot]org
  */
 public interface HardwareAbstractionLayer {
 
 	/**
 	 * Get CPUs.
-	 * @return
-	 *  An array of Processor objects.
+	 * 
+	 * @return An array of Processor objects.
 	 */
 	Processor[] getProcessors();
-	
+
 	/**
 	 * Get Memory information.
-	 * @return
-	 *  A memory object.
+	 * 
+	 * @return A memory object.
 	 */
 	Memory getMemory();
 
