@@ -178,6 +178,7 @@ public class CentralProcessor implements Processor {
 		}
 		in.useDelimiter("\n");
 		String[] result = in.next().split(" ");
+		in.close();
 		ArrayList<Float> loads = new ArrayList<Float>();
 		for (String load : result) {
 			if (load.matches("-?\\d+(\\.\\d+)?")) {
