@@ -23,6 +23,8 @@ import com.sun.jna.ptr.LongByReference;
  */
 public class GlobalMemory implements Memory {
 
+	long totalMemory = 0;
+
 	public long getAvailable() {
 		long availableMemory = 0;
 		long pageSize = 4096;
@@ -46,13 +48,15 @@ public class GlobalMemory implements Memory {
 	}
 
 	public long getTotal() {
-		long totalMemory = 0;
-		int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };
-		Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
-		if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,
-				new IntByReference(SystemB.UINT64_SIZE), null, 0))
-			throw new LastErrorException("Error code: " + Native.getLastError());
-		totalMemory = pMemSize.getLong(0);
+		if (totalMemory == 0) {
+			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };
+			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,
+					new IntByReference(SystemB.UINT64_SIZE), null, 0))
+				throw new LastErrorException("Error code: "
+						+ Native.getLastError());
+			totalMemory = pMemSize.getLong(0);
+		}
 		return totalMemory;
 	}
 }
