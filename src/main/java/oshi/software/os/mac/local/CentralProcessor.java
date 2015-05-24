@@ -11,12 +11,16 @@ package oshi.software.os.mac.local;
 
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
+import oshi.util.ParseUtil;
 
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A CPU.
@@ -31,6 +35,7 @@ public class CentralProcessor implements Processor {
 	private String _stepping;
 	private String _model;
 	private String _family;
+	private Long _freq = null;
 	private Boolean _cpu64;
 
 	/**
@@ -100,6 +105,40 @@ public class CentralProcessor implements Processor {
 	}
 
 	/**
+	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+	 * 
+	 * @return Processor frequency or -1 if unknown.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public long getVendorFreq() {
+		if (_freq == null) {
+			Pattern pattern = Pattern.compile("@ (.*)$");
+			Matcher matcher = pattern.matcher(getName());
+
+			if (matcher.find()) {
+				String unit = matcher.group(1);
+				_freq = ParseUtil.parseHertz(unit);
+			} else {
+				_freq = -1L;
+			}
+		}
+
+		return _freq.longValue();
+	}
+
+	/**
+	 * Set vendor frequency.
+	 * 
+	 * @param frequency
+	 *            Frequency.
+	 */
+	public void setVendorFreq(long freq) {
+		_freq = Long.valueOf(freq);
+	}
+
+	/**
 	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
 	 * 
 	 * @return Processor identifier.
@@ -144,7 +183,7 @@ public class CentralProcessor implements Processor {
 						+ Native.getLastError());
 			_cpu64 = p.getInt(0) != 0;
 		}
-		return _cpu64;
+		return _cpu64.booleanValue();
 	}
 
 	/**
@@ -154,7 +193,7 @@ public class CentralProcessor implements Processor {
 	 *            True if cpu is 64.
 	 */
 	public void setCpu64(boolean cpu64) {
-		_cpu64 = cpu64;
+		_cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**

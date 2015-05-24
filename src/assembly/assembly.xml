@@ -14,9 +14,9 @@
     </dependencySets>
     <files>
         <file>
-            <source>${project.basedir}/epl-v10.html</source>
+            <source>${project.basedir}/LICENSE.txt</source>
             <outputDirectory>/</outputDirectory>
-            <destName>license.html</destName>
+            <destName>license.txt</destName>
         </file>
     </files>
     <fileSets>

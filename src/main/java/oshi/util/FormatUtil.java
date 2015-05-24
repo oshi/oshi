@@ -28,6 +28,15 @@ public abstract class FormatUtil {
 	final private static long pebiByte = tebiByte * kibiByte;
 
 	/**
+	 * Hertz related variables
+	 */
+	final private static long kiloHertz = 1000L;
+	final private static long megaHertz = kiloHertz * kiloHertz;
+	final private static long gigaHertz = megaHertz * kiloHertz;
+	final private static long teraHertz = gigaHertz * kiloHertz;
+	final private static long petaHertz = teraHertz * kiloHertz;
+
+	/**
 	 * Format bytes into a string to a rounded string representation. Using the
 	 * JEDEC representation for KB, MB and GB Using the IEC representation for
 	 * TiB
@@ -59,6 +68,37 @@ public abstract class FormatUtil {
 			return String.format("%.1f TiB", (double) bytes / tebiByte);
 		} else {
 			return String.format("%d bytes", bytes);
+		}
+	}
+
+	/**
+	 * Format hertz into a string to a rounded string representation.
+	 * 
+	 * @param hertz
+	 *            Hertz.
+	 * @return Rounded string representation of the hertz size.
+	 */
+	public static String formatHertz(long hertz) {
+		if (hertz < kiloHertz ) { // Hz
+			return String.format("%d Hz", hertz);
+		} else if (hertz < megaHertz && hertz % kiloHertz == 0) { // KHz
+			return String.format("%.0f kHz", (double) hertz / kiloHertz);
+		} else if (hertz < megaHertz) {
+			return String.format("%.1f kHz", (double) hertz / kiloHertz);
+		} else if (hertz < gigaHertz && hertz % megaHertz == 0) { // MHz
+			return String.format("%.0f MHz", (double) hertz / megaHertz);
+		} else if (hertz < gigaHertz) {
+			return String.format("%.1f MHz", (double) hertz / megaHertz);
+		} else if (hertz < teraHertz && hertz % gigaHertz == 0) { // GHz
+			return String.format("%.0f GHz", (double) hertz / gigaHertz);
+		} else if (hertz < teraHertz) {
+			return String.format("%.1f GHz", (double) hertz / gigaHertz);
+		} else if (hertz < petaHertz && hertz % teraHertz == 0) { // THz
+			return String.format("%.0f THz", (double) hertz / teraHertz);
+		} else if (hertz < petaHertz) {
+			return String.format("%.1f THz", (double) hertz / teraHertz);
+		} else {
+			return String.format("%d Hz", hertz);
 		}
 	}
 

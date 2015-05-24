@@ -11,9 +11,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -27,7 +30,8 @@ public class CentralProcessor implements Processor {
 	private String _stepping;
 	private String _model;
 	private String _family;
-	private boolean _cpu64;
+	private Long _freq = null;
+	private Boolean _cpu64;
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
@@ -65,6 +69,40 @@ public class CentralProcessor implements Processor {
 	 */
 	public void setName(String name) {
 		_name = name;
+	}
+
+	/**
+	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+	 * 
+	 * @return Processor frequency or -1 if unknown.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public long getVendorFreq() {
+		if (_freq == null) {
+			Pattern pattern = Pattern.compile("@ (.*)$");
+			Matcher matcher = pattern.matcher(getName());
+
+			if (matcher.find()) {
+				String unit = matcher.group(1);
+				_freq = ParseUtil.parseHertz(unit);
+			} else {
+				_freq = -1L;
+			}
+		}
+
+		return _freq.longValue();
+	}
+
+	/**
+	 * Set vendor frequency.
+	 * 
+	 * @param frequency
+	 *            Frequency.
+	 */
+	public void setVendorFreq(long freq) {
+		_freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -106,7 +144,7 @@ public class CentralProcessor implements Processor {
 	 * @return True if cpu is 64bit.
 	 */
 	public boolean isCpu64bit() {
-		return _cpu64;
+		return _cpu64.booleanValue();
 	}
 
 	/**
@@ -116,7 +154,7 @@ public class CentralProcessor implements Processor {
 	 *            True if cpu is 64.
 	 */
 	public void setCpu64(boolean cpu64) {
-		_cpu64 = cpu64;
+		_cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**

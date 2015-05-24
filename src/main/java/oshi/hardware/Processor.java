@@ -44,6 +44,18 @@ public interface Processor {
 	 *            Name.
 	 */
 	void setName(String name);
+	
+	/**
+	 * Vendor frequency (in Hz).
+	 * @return Processor frequency.
+	 */
+	long getVendorFreq();
+	
+	/**
+	 * Set processor vendor frequency (in Hz).
+	 * @param freq Frequency.
+	 */
+	void setVendorFreq(long freq);
 
 	/**
 	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.

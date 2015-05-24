@@ -57,6 +57,14 @@ public class SystemInfoTest {
 		assertTrue(hal.getProcessors()[0].getLoad() >= 0
 				&& hal.getProcessors()[0].getLoad() <= 100);
 	}
+    
+    @Test
+    public void testCpuVendorFreq() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+		assertTrue(hal.getProcessors()[0].getVendorFreq() == -1
+				|| hal.getProcessors()[0].getVendorFreq() > 0);
+    }
 
 	@Test
 	public void testPowerSource() {
