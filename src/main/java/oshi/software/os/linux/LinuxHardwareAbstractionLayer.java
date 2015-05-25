@@ -1,16 +1,15 @@
 package oshi.software.os.linux;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.Processor;
 import oshi.software.os.linux.proc.CentralProcessor;
 import oshi.software.os.linux.proc.GlobalMemory;
+import oshi.util.FileUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -33,18 +32,16 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 		if (_processors == null) {
 			List<Processor> processors = new ArrayList<Processor>();
-			Scanner in = null;
+			List<String> cpuInfo = null;
 			try {
-				in = new Scanner(new FileReader("/proc/cpuinfo"));
-			} catch (FileNotFoundException e) {
+				cpuInfo = FileUtil.readFile("/proc/cpuinfo");
+			} catch (IOException e) {
 				System.err.println("Problem with: /proc/cpuinfo");
 				System.err.println(e.getMessage());
 				return null;
 			}
-			in.useDelimiter("\n");
 			CentralProcessor cpu = null;
-			while (in.hasNext()) {
-				String toBeAnalyzed = in.next();
+			for (String toBeAnalyzed : cpuInfo) {
 				if (toBeAnalyzed.equals("")) {
 					if (cpu != null) {
 						processors.add(cpu);
@@ -61,11 +58,12 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("flags\t")) {
-					String[] flags=toBeAnalyzed.split(SEPARATOR)[1].split(" ");
-					boolean found=false;
-					for (String flag: flags) {
+					String[] flags = toBeAnalyzed.split(SEPARATOR)[1]
+							.split(" ");
+					boolean found = false;
+					for (String flag : flags) {
 						if (flag.equalsIgnoreCase("LM")) {
-							found=true;
+							found = true;
 							break;
 						}
 					}
@@ -74,7 +72,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 				}
 				if (toBeAnalyzed.startsWith("cpu family\t")) {
 					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+																		// name
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("model\t")) {
@@ -84,7 +82,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 				}
 				if (toBeAnalyzed.startsWith("stepping\t")) {
 					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+																		// name
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("vendor_id")) {
@@ -92,7 +90,6 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 			}
-			in.close();
 			if (cpu != null) {
 				processors.add(cpu);
 			}

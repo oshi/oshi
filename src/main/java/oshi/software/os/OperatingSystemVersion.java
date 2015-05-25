@@ -9,8 +9,9 @@ package oshi.software.os;
 
 /**
  * Version of an operating system.
+ * 
  * @author dblock[at]dblock[dot]org
  */
 public interface OperatingSystemVersion {
-	
+
 }
