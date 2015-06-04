@@ -28,4 +28,10 @@ public interface HardwareAbstractionLayer {
 	 */
 	Memory getMemory();
 
+	/**
+	 * Get Power Source information.
+	 * 
+	 * @return An array of PowerSource objects.
+	 */
+	PowerSource[] getPowerSources();
 }

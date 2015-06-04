@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -57,6 +58,22 @@ public class SystemInfoTest {
 				&& hal.getProcessors()[0].getLoad() <= 100);
 	}
 
+	@Test
+	public void testPowerSource() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		if (hal.getPowerSources().length > 1) {
+			assertTrue(hal.getPowerSources()[0].getRemainingCapacity() >= 0
+					&& hal.getPowerSources()[0].getRemainingCapacity() <= 1);
+			double epsilon = 1E-6;
+			assertTrue(hal.getPowerSources()[0].getTimeRemaining() > 0
+					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining()
+							- -1) < epsilon
+					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining()
+							- -2) < epsilon);
+		}
+	}
+
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();
 		// software
@@ -79,5 +96,25 @@ public class SystemInfoTest {
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
 		System.out.println("CPU load: " + hal.getProcessors()[0].getLoad()
 				+ "%");
+		// hardware: power
+		StringBuilder sb = new StringBuilder("Power: ");
+		if (hal.getPowerSources().length == 0) {
+			sb.append("Unknown");
+		} else {
+			double timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
+			if (timeRemaining < -1d)
+				sb.append("Charging");
+			else if (timeRemaining < 0d)
+				sb.append("Calculating time remaining");
+			else
+				sb.append(String.format("%d:%02d remaining",
+						(int) (timeRemaining / 3600),
+						(int) (timeRemaining / 60) % 60));
+		}
+		for (PowerSource pSource : hal.getPowerSources()) {
+			sb.append(String.format("%n %s @ %.1f%%", pSource.getName(),
+					pSource.getRemainingCapacity() * 100d));
+		}
+		System.out.println(sb.toString());
 	}
 }

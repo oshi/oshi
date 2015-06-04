@@ -1,9 +1,11 @@
 package oshi.util;
 
+import static org.junit.Assert.assertEquals;
+
 import java.text.DecimalFormatSymbols;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class FormatUtilTest {
 
@@ -45,5 +47,11 @@ public class FormatUtilTest {
 		assertEquals(42.43, FormatUtil.round(42.425f, 2), 0.00001f);
 		assertEquals(42.5, FormatUtil.round(42.499f, 2), 0.00001f);
 		assertEquals(42, FormatUtil.round(42, 2), 0.00001f);
+	}
+
+	@Test
+	public void testUnsignedInt() {
+		assertEquals(FormatUtil.getUnsignedInt(Integer.MIN_VALUE),
+				(long) Integer.MAX_VALUE + 1L);
 	}
 }

@@ -14,9 +14,11 @@ import java.util.List;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.CentralProcessor;
 import oshi.software.os.mac.local.GlobalMemory;
+import oshi.software.os.mac.local.MacPowerSource;
 import oshi.software.os.mac.local.SystemB;
 
 import com.sun.jna.LastErrorException;
@@ -31,6 +33,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Processor[] _processors;
 	private Memory _memory;
+	private PowerSource[] _powerSources;
 
 	/*
 	 * (non-Javadoc)
@@ -66,6 +69,14 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			_memory = new GlobalMemory();
 		}
 		return _memory;
+	}
+
+	@Override
+	public PowerSource[] getPowerSources() {
+		if (_powerSources == null) {
+			_powerSources = MacPowerSource.getPowerSources();
+		}
+		return _powerSources;
 	}
 
 }
