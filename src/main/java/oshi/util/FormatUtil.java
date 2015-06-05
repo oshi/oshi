@@ -74,4 +74,14 @@ public abstract class FormatUtil {
 		bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
 		return bd.floatValue();
 	}
+
+	/**
+	 * Convert unsigned int to signed long
+	 * 
+	 * @param x
+	 * @return long value of x unsigned
+	 */
+	public static long getUnsignedInt(int x) {
+		return x & 0x00000000ffffffffL;
+	}
 }

@@ -5,13 +5,14 @@ import java.util.List;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.windows.nt.CentralProcessor;
 import oshi.software.os.windows.nt.GlobalMemory;
+import oshi.software.os.windows.nt.WindowsPowerSource;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
-import oshi.util.ExecutingCommand;
 
 public class WindowsHardwareAbstractionLayer implements
 		HardwareAbstractionLayer {
@@ -51,6 +52,11 @@ public class WindowsHardwareAbstractionLayer implements
 		}
 
 		return _processors;
+	}
+
+	@Override
+	public PowerSource[] getPowerSources() {
+		return WindowsPowerSource.getPowerSources();
 	}
 
 }

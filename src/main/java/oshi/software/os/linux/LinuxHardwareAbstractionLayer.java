@@ -6,9 +6,11 @@ import java.util.List;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
+import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.linux.proc.CentralProcessor;
 import oshi.software.os.linux.proc.GlobalMemory;
+import oshi.software.os.linux.proc.LinuxPowerSource;
 import oshi.util.FileUtil;
 
 /**
@@ -97,6 +99,11 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		}
 
 		return _processors;
+	}
+
+	@Override
+	public PowerSource[] getPowerSources() {
+		return LinuxPowerSource.getPowerSources();
 	}
 
 }
