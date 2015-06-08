@@ -21,10 +21,13 @@ import oshi.util.FileUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxPowerSource implements PowerSource {
+
 	private static final String PS_PATH = "/sys/class/power_supply/";
 
 	private String name;
+
 	private double remainingCapacity;
+
 	private double timeRemaining;
 
 	public LinuxPowerSource(String name, double remainingCapacity,
@@ -34,17 +37,14 @@ public class LinuxPowerSource implements PowerSource {
 		this.timeRemaining = timeRemaining;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
-	@Override
 	public double getRemainingCapacity() {
 		return remainingCapacity;
 	}
 
-	@Override
 	public double getTimeRemaining() {
 		return timeRemaining;
 	}

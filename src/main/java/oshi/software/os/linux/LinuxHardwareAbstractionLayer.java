@@ -20,7 +20,9 @@ import oshi.util.FileUtil;
 public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private static final String SEPARATOR = "\\s+:\\s";
+
 	private Processor[] _processors = null;
+
 	private Memory _memory = null;
 
 	public Memory getMemory() {
@@ -55,8 +57,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					cpu = new CentralProcessor();
 				}
 				if (toBeAnalyzed.startsWith("model name\t")) {
-					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("flags\t")) {
@@ -73,22 +74,19 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("cpu family\t")) {
-					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																		// name
+					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("model\t")) {
-					cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																	// name
+					cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("stepping\t")) {
-					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]); // model
-																		// name
+					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("vendor_id")) {
-					cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]); // vendor_id
+					cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
 					continue;
 				}
 			}
@@ -101,7 +99,6 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _processors;
 	}
 
-	@Override
 	public PowerSource[] getPowerSources() {
 		return LinuxPowerSource.getPowerSources();
 	}
