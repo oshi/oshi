@@ -19,8 +19,11 @@ import com.sun.jna.NativeLong;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource implements PowerSource {
+
 	private String name;
+
 	private double remainingCapacity;
+
 	private double timeRemaining;
 
 	public WindowsPowerSource(String name, double remainingCapacity,
@@ -30,17 +33,14 @@ public class WindowsPowerSource implements PowerSource {
 		this.timeRemaining = timeRemaining;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
-	@Override
 	public double getRemainingCapacity() {
 		return remainingCapacity;
 	}
 
-	@Override
 	public double getTimeRemaining() {
 		return timeRemaining;
 	}

@@ -18,6 +18,7 @@ public class WindowsHardwareAbstractionLayer implements
 		HardwareAbstractionLayer {
 
 	private Processor[] _processors = null;
+
 	private Memory _memory = null;
 
 	public Memory getMemory() {
@@ -54,7 +55,6 @@ public class WindowsHardwareAbstractionLayer implements
 		return _processors;
 	}
 
-	@Override
 	public PowerSource[] getPowerSources() {
 		return WindowsPowerSource.getPowerSources();
 	}

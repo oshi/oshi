@@ -14,8 +14,8 @@ public class FormatUtilTest {
 	@BeforeClass
 	public static void setUpClass() {
 		// use decimal separator according to current locale
-		DECIMAL_SEPARATOR = DecimalFormatSymbols.getInstance()
-				.getDecimalSeparator();
+		DecimalFormatSymbols syms = new DecimalFormatSymbols();
+		DECIMAL_SEPARATOR = syms.getDecimalSeparator();
 	}
 
 	@Test

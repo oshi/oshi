@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Daniel Widdis, 2015
  * widdis[at]gmail[dot]com
  * All Rights Reserved
@@ -7,10 +7,11 @@
  */
 package oshi.util;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,10 +22,24 @@ import java.util.List;
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
+
 	public static List<String> readFile(String filename) throws IOException {
-		File f = new File(filename);
-		byte[] bytes = Files.readAllBytes(f.toPath());
-		String s = new String(bytes, "UTF-8");
-		return Arrays.asList(s.split(System.getProperty("line.separator")));
+		List<String> result = new ArrayList<String>();
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(filename));
+			for (;;) {
+				String line = br.readLine();
+				if (line == null)
+					break;
+				result.add(line);
+			}
+		} catch (FileNotFoundException e) {
+			throw new IOException("Unable to read from " + filename);
+		} finally {
+			if (br != null)
+				br.close();
+		}
+		return result;
 	}
 }

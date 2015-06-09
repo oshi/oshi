@@ -25,8 +25,11 @@ import com.sun.jna.ptr.IntByReference;
  * @author widdis[at]gmail[dot]com
  */
 public class MacPowerSource implements PowerSource {
+
 	private String name;
+
 	private double remainingCapacity;
+
 	private double timeRemaining;
 
 	public MacPowerSource(String name, double remainingCapacity,
@@ -36,17 +39,14 @@ public class MacPowerSource implements PowerSource {
 		this.timeRemaining = timeRemaining;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
-	@Override
 	public double getRemainingCapacity() {
 		return remainingCapacity;
 	}
 
-	@Override
 	public double getTimeRemaining() {
 		return timeRemaining;
 	}

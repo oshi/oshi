@@ -32,7 +32,9 @@ import com.sun.jna.ptr.IntByReference;
 public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Processor[] _processors;
+
 	private Memory _memory;
+
 	private PowerSource[] _powerSources;
 
 	/*
@@ -71,7 +73,6 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _memory;
 	}
 
-	@Override
 	public PowerSource[] getPowerSources() {
 		if (_powerSources == null) {
 			_powerSources = MacPowerSource.getPowerSources();
