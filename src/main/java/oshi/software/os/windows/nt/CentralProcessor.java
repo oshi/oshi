@@ -7,8 +7,12 @@
  */
 package oshi.software.os.windows.nt;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import oshi.hardware.Processor;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * A CPU as defined in Windows registry.
@@ -19,6 +23,7 @@ public class CentralProcessor implements Processor {
 	private String _vendor;
 	private String _name;
 	private String _identifier;
+	private Long _freq;
 
 	public CentralProcessor() {
 
@@ -60,6 +65,40 @@ public class CentralProcessor implements Processor {
 	 */
 	public void setName(String name) {
 		_name = name;
+	}
+
+	/**
+	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+	 * 
+	 * @return Processor frequency or -1 if unknown.
+	 * 
+	 * @author alessio.fachechi[at]gmail[dot]com
+	 */
+	public long getVendorFreq() {
+		if (_freq == null) {
+			Pattern pattern = Pattern.compile("@ (.*)$");
+			Matcher matcher = pattern.matcher(getName());
+
+			if (matcher.find()) {
+				String unit = matcher.group(1);
+				_freq = ParseUtil.parseHertz(unit);
+			} else {
+				_freq = -1L;
+			}
+		}
+
+		return _freq.longValue();
+	}
+
+	/**
+	 * Set vendor frequency.
+	 * 
+	 * @param frequency
+	 *            Frequency.
+	 */
+	public void setVendorFreq(long freq) {
+		_freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -145,7 +184,7 @@ public class CentralProcessor implements Processor {
 		String result = ExecutingCommand.getAnswerAt(
 				"wmic /locale:ms_409 cpu get loadpercentage", 2);
 
-		if (result == null || result.isEmpty()) {
+		if (result == null || result.length() <= 0) {
 			throw new RuntimeException(
 					"CPU load could not be obtained from system");
 		}
