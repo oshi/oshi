@@ -1,6 +1,12 @@
 Next
 ====
 
+* Your contribution here.
+
+
+1.2 (6/13/2014)
+================
+
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
 * Added Travis-CI - [@dblock](https://github.com/dblock).
 * [#3](https://github.com/dblock/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
@@ -12,9 +18,6 @@ Next
 * [#27](https://github.com/dblock/oshi/pull/27): Replaced all Mac OS X command line parsing with JNA or System properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#30](https://github.com/dblock/oshi/pull/30): Added processor vendor frequency information - [@alessiofachechi](https://github.com/alessiofachechi).
 * [#32](https://github.com/dblock/oshi/pull/32): Added battery state information - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
-
-
 
 1.1 (10/13/2013)
 ================
