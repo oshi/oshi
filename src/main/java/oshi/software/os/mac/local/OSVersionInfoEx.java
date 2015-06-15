@@ -91,6 +91,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 					case 10:
 						_codeName = "Yosemite";
 						break;
+					case 11:
+						_codeName = "El Capitan";
+						break;
 					default:
 						_codeName = "";
 					}
