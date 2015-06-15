@@ -10,20 +10,32 @@ Download
 
 * [Oshi 1.2](https://github.com/dblock/oshi/releases/download/v1.2/oshi-1.2.zip)
 
+Maven 
+--------
+
+* To include Oshi in your Maven project, add the following dependency:
+```xml
+        <dependency>
+            <groupId>com.github.dblock</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>1.2</version>
+        </dependency>
+```
+
 Where are we?
 -------------
 
 Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
-Current supported platform
---------------------------
+Current supported platforms
+---------------------------
 
 - Windows
 - Linux
 - Mac OS-X
 
-Current supported feature
--------------------------
+Current supported features
+--------------------------
 
 ### Operating Systems ###
 
@@ -105,8 +117,12 @@ Power: 2:42 remaining
 How is this different from ...
 ------------------------------
 
-* [Sigar](http://sigar.hyperic.com): Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
-* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
+* [Sigar](http://sigar.hyperic.com): 
+	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
+	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
+	* Sigar appears to be no longer actively supported as-of 2010. Oshi is under active development as-of 2015.
+* [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
+	* Oshi provides significantly more information than the OperatingSystemMXBean
 
 License
 -------
