@@ -8,7 +8,8 @@ Releasing OSHI
 	* Increment major version (1.0) for API-breaking changes or additions
 	* Increment minor version (1.1) for substantive additions, bugfixes and changes that are backwards compatible
 	* Increment patch version (1.1.1) for minor bugfixes or changes that are backwards compatible
-	* Note this incrementing may have already been done if development is on a -SNAPSHOT release
+	* If incrementing was already been done on a -SNAPSHOT release, remove the -SNAPSHOT suffix
+	* Change the download link in [README.md](README.md) to point to the new version
 
 * Compile, package, and assemble
 	* `mvn package -P dist`
@@ -19,6 +20,10 @@ Releasing OSHI
 		* Put your repository credentials in your Maven settings.xml file
 		* Put your gpg certificate credentials in the settings.xml file
 		* See [this page](http://central.sonatype.org/pages/apache-maven.html) for a summary of steps
+* Update API
+	* `git checkout gh-pages`
+	* `cp -r target/apidocs ./apidocs`
+	* `git commit`
 
 ### Release
 
@@ -28,8 +33,5 @@ Releasing OSHI
 
 * On GitHub, [add a new release](https://github.com/dblock/oshi/releases/new).
 	* include the binary zipfile
-
-* Change the download link in [README.md](README.md) to point to the uploaded zipfile
-	* Commit as an amended commit
 	
 * As development progresses, update version in [pom.xml](pom.xml) using -SNAPSHOT appended to the new version
