@@ -1,70 +1,43 @@
 OSHI
 ====
-
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+[![Eclipse](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 
 Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
 
-Download
---------
-
-* [Oshi 1.2](https://github.com/dblock/oshi/releases/download/v1.2/oshi-1.2.zip)
-
-Maven 
---------
-
-* To include Oshi in your Maven project, add the following dependency:
-```xml
-        <dependency>
-            <groupId>com.github.dblock</groupId>
-            <artifactId>oshi-core</artifactId>
-            <version>1.2</version>
-        </dependency>
-```
+Essentials
+----------
+* [Download Oshi 1.2](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.2|jar)
+* [View the API](http://dblock.github.io/oshi/apidocs/)
 
 Where are we?
 -------------
-
 Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Current supported platforms
 ---------------------------
-
 - Windows
 - Linux
-- Mac OS-X
+- Mac OS X
 
 Current supported features
 --------------------------
 
 ### Operating Systems ###
-
-* Manufacturer
-  - GNU/Linux
-  - Microsoft
-  - Apple
-
-* Family
-  - Mac OS X
-  - Windows
-  - Linux Distribution (Fedora, Ubuntu, ...)
-
-* Version
-  - Version number
-  - Codename
-  - Build
+* Manufacturer (GNU/Linux, Microsoft, Apple)
+* OS (Linux Distribution, Windows, Mac OS X)
+* OS Version (Version number, Codename, Build)
 
 ### Hardware ###
-
 * How much physical RAM
-* How much available RAM
-* How many CPUs (core * thread)
+* How much available (free+reclaimable) RAM
+* How many Logical CPUs (core * thread)
 * CPU load %
 * Battery state (% capacity, time remaining)
 
 Sample Output
 -------------
-
 Here's sample tests output:
 
 For Windows:
@@ -74,6 +47,7 @@ Microsoft Windows 7
 2 CPU(s):
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 532.1 MB/2.0 GB
 CPU load: 70.59%
 Power: 2:42 remaining
@@ -93,6 +67,7 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 21.0 GB/31.0 GB
 CPU load: 70.59%
 Power: 2:42 remaining
@@ -108,6 +83,7 @@ Apple Mac OS X 10.9.5 (Mavericks) build 13F34
  Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
  Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
  Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 17.3 MB/4 GB
 CPU load: 70.59%
 Power: 2:42 remaining
@@ -126,5 +102,4 @@ How is this different from ...
 
 License
 -------
-
 This project is licensed under the [Eclipse Public License 1.0](LICENSE.txt).
