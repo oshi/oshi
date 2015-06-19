@@ -14,7 +14,7 @@
     </dependencySets>
     <files>
         <file>
-            <source>${project.basedir}/LICENSE.txt</source>
+            <source>${project.basedir}/LICENSE-EPL</source>
             <outputDirectory>/</outputDirectory>
             <destName>license.txt</destName>
         </file>
