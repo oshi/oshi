@@ -7,6 +7,9 @@
  */
 package oshi.software.os.mac.local;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -64,11 +67,20 @@ public interface SystemB extends Library {
 
 	public static class HostCpuLoadInfo extends Structure {
 		public int cpu_ticks[] = new int[CPU_STATE_MAX];
+
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "cpu_ticks" });
+		}
 	}
 
 	public static class HostLoadInfo extends Structure {
 		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE
 		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "avenrun", "mach_factor" });
+		}
 	}
 
 	public static class VMStatistics extends Structure {
@@ -88,6 +100,13 @@ public interface SystemB extends Library {
 		public int purges; // # of pages purged
 		// # of pages speculative (included in free_count)
 		public int speculative_count;
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count",
+					"wire_count", "zero_fill_count", "reactivations", "pageins",
+					"pageouts", "faults", "cow_faults", "lookups", "hits", "purgeable_count",
+					"purges", "speculative_count"});
+		}
 	}
 
 	public static class VMStatistics64 extends Structure {
@@ -122,6 +141,15 @@ public interface SystemB extends Library {
 		public int internal_page_count; // # of pages that are anonymous
 		// # of pages (uncompressed) held within the compressor.
 		public long total_uncompressed_pages_in_compressor;
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count",
+					"wire_count", "zero_fill_count", "reactivations", "pageins", "pageouts",
+					"faults", "cow_faults", "lookups", "hits", "purges", "purgeable_count",
+					"speculative_count", "decompressions", "compressions", "swapins",
+					"swapouts", "compressor_page_count", "throttled_count", "external_page_count",
+					"internal_page_count", "total_uncompressed_pages_in_compressor"});
+		}
 	}
 
 	int mach_host_self();

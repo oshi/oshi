@@ -7,6 +7,9 @@
  */
 package oshi.software.os.linux;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -32,6 +35,12 @@ public interface Libc extends Library {
 		public NativeLong freehigh; // Available high memory size
 		public int mem_unit; // Memory unit size in bytes
 		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "uptime", "loads", "totalram", "freeram",
+					"sharedram", "bufferram", "totalswap", "freeswap", "procs",
+					"totalhigh", "freehigh", "mem_unit", "_f"});
+		}
 	}
 
 	int sysinfo(Sysinfo info);

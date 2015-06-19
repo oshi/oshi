@@ -7,6 +7,9 @@
  */
 package oshi.software.os.windows.nt;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -36,6 +39,12 @@ public interface PowrProf extends Library {
 		public int estimatedTime; // signed 32 bit
 		public int defaultAlert1; // unsigned 32 bit
 		public int defaultAlert2; // unsigned 32 bit
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList(new String[] { "acOnLine", "batteryPresent", "charging",
+					"discharging", "spare1", "maxCapacity", "remainingCapacity",
+					"rate", "estimatedTime", "defaultAlert1", "defaultAlert2" });
+		}
 	}
 
 	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer,
