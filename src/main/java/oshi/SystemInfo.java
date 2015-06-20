@@ -28,7 +28,10 @@ import oshi.software.os.windows.WindowsOperatingSystem;
 import com.sun.jna.Platform;
 
 /**
- * Current system information.
+ * System information. This is the main entry point to Oshi. This object
+ * provides getters which instantiate the appropriate platform-specific
+ * implementations of {@link OperatingSystem} (software) and
+ * {@link HardwareAbstractionLayer} (hardware).
  * 
  * @author dblock[at]dblock[dot]org
  */
@@ -49,9 +52,10 @@ public class SystemInfo {
 	}
 
 	/**
-	 * Retrieves operating system information.
+	 * Creates a new instance of the appropriate platform-specific
+	 * {@link OperatingSystem}.
 	 * 
-	 * @return Operating system information.
+	 * @return A new instance of {@link OperatingSystem}.
 	 */
 	public OperatingSystem getOperatingSystem() {
 		if (_os == null) {
@@ -75,9 +79,10 @@ public class SystemInfo {
 	}
 
 	/**
-	 * Retrieves hardware information.
+	 * Creates a new instance of the appropriate platform-specific
+	 * {@link HardwareAbstractionLayer}.
 	 * 
-	 * @return Hardware abstraction layer.
+	 * @return A new instance of {@link HardwareAbstractionLayer}.
 	 */
 	public HardwareAbstractionLayer getHardware() {
 		if (_hardware == null) {

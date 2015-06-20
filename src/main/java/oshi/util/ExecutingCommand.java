@@ -22,10 +22,19 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
+ * A class for executing on the command line and returning the result of
+ * execution.
+ * 
  * @author alessandro[at]perucchi[dot]org
  */
-
 public class ExecutingCommand {
+	/**
+	 * Executes a command on the native command line and returns the result
+	 * 
+	 * @param cmdToRun
+	 *            Command to run
+	 * @return A list of Strings representing the result of the command
+	 */
 	public static ArrayList<String> runNative(String cmdToRun) {
 		Process p = null;
 		try {

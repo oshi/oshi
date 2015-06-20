@@ -16,31 +16,47 @@
  */
 package oshi.hardware;
 
+import oshi.software.os.OSFileStore;
+
 /**
- * A hardware abstraction layer.
+ * A hardware abstraction layer. Provides access to hardware items such as
+ * processors, memory, battery, and disks.
  * 
  * @author dblock[at]dblock[dot]org
  */
 public interface HardwareAbstractionLayer {
 
 	/**
-	 * Get CPUs.
+	 * Instantiates an array of {@link Processor} objects. This represents one
+	 * or more Logical CPUs.
 	 * 
-	 * @return An array of Processor objects.
+	 * @return An array of {@link Processor} objects.
 	 */
 	Processor[] getProcessors();
 
 	/**
-	 * Get Memory information.
+	 * Instantiates a {@link Memory} object.
 	 * 
 	 * @return A memory object.
 	 */
 	Memory getMemory();
 
 	/**
-	 * Get Power Source information.
+	 * Instantiates an array of {@link PowerSource} objects, representing
+	 * batteries, etc.
 	 * 
-	 * @return An array of PowerSource objects.
+	 * @return An array of PowerSource objects or an empty array if none are
+	 *         present.
 	 */
 	PowerSource[] getPowerSources();
+
+	/**
+	 * Instantiates an array of {@link OSFileStore} objects, representing a
+	 * storage pool, device, partition, volume, concrete file system or other
+	 * implementation specific means of file storage.
+	 * 
+	 * @return An array of OSFileStore objects or an empty array if none are
+	 *         present.
+	 */
+	OSFileStore[] getFileStores();
 }

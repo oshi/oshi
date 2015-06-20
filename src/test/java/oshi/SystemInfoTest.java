@@ -16,8 +16,14 @@
  */
 package oshi;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
 
 import org.junit.Test;
 
@@ -25,9 +31,12 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
+
+import com.sun.jna.Platform;
 
 /**
  * @author dblock[at]dblock[dot]org
@@ -94,6 +103,25 @@ public class SystemInfoTest {
 		}
 	}
 
+	@Test
+	public void testFileSystem() throws IOException {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		if (hal.getFileStores().length > 1) {
+			assertTrue(hal.getFileStores()[0].getName().length() > 0);
+			assertTrue(hal.getFileStores()[0].getTotalSpace() >= 0);
+			assertTrue(hal.getFileStores()[0].getUsableSpace() <= hal
+					.getFileStores()[0].getTotalSpace());
+		}
+		// Hack to extract path from FileStore.toString() is undocumented,
+		// this test will fail if toString format changes
+		if (Platform.isLinux()) {
+			FileStore store = Files.getFileStore((new File("/")).toPath());
+			assertEquals("/",
+					store.toString().replace(" (" + store.name() + ")", ""));
+		}
+	}
+
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();
 		// software
@@ -136,5 +164,17 @@ public class SystemInfoTest {
 					pSource.getRemainingCapacity() * 100d));
 		}
 		System.out.println(sb.toString());
+		// hardware: file system
+		System.out.println("File System:");
+		OSFileStore[] fsArray = hal.getFileStores();
+		for (OSFileStore fs : fsArray) {
+			long usable = fs.getUsableSpace();
+			long total = fs.getTotalSpace();
+			System.out.format(" %s (%s) %s of %s free (%.1f%%)%n",
+					fs.getName(), fs.getDescription().isEmpty() ? "file system"
+							: fs.getDescription(), FormatUtil
+							.formatBytes(usable), FormatUtil.formatBytes(fs
+							.getTotalSpace()), 100d * usable / total);
+		}
 	}
 }

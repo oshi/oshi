@@ -35,6 +35,7 @@ Current supported features
 * How many Logical CPUs (core * thread)
 * CPU load %
 * Battery state (% capacity, time remaining)
+* File stores (usable and total space)
 
 Sample Output
 -------------
@@ -52,6 +53,14 @@ Memory: 532.1 MB/2.0 GB
 CPU load: 70.59%
 Power: 2:42 remaining
  System Battery @ 97.0%
+File System:
+ Floppy Disk Drive (A:) (Floppy Disk Drive) 1.1 MB of 1.4 MB free (82.4%)
+ Local Disk (C:) (Local Disk) 27.3 GB of 64.0 GB free (42.7%)
+ D:\ (CD Drive) 0 bytes of 0 bytes free 
+ MobileBackups on 'psf' (W:) (Network Drive) 0 bytes of 697.5 GB free (0.0%)
+ MacData on 'psf' (X:) (Network Drive) 3.4 GB of 4.4 GB free (77.4%)
+ Home on 'psf' (Y:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
+ Host on 'psf' (Z:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
 ```
 
 For Linux:
@@ -72,22 +81,33 @@ Memory: 21.0 GB/31.0 GB
 CPU load: 70.59%
 Power: 2:42 remaining
  BAT0 @ 97.0%
+File System:
+ / (Local Disk) 52.8 GB of 60.9 GB free (86.7%)
+ Home (Mount Point) 134.5 GB of 697.5 GB free (19.3%)
+ MacData (Mount Point) 3.4 GB of 4.4 GB free (77.4%)
+ MobileBackups (Mount Point) 0 bytes of 697.5 GB free (0.0%)
 ```
 
 For Mac OS X:
 
 ```
-Apple Mac OS X 10.9.5 (Mavericks) build 13F34
+Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
 4 CPU(s):
- Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
- Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
- Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
- Intel(R) Core(TM) i7-2677M CPU @ 1.80GHz
+ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 17.3 MB/4 GB
 CPU load: 70.59%
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
+File System:
+ Data (Network Drive) 15.7 GB of 1.8 TiB free (0.8%)
+ MacData (Volume) 3.4 GB of 4.4 GB free (77.4%)
+ Macintosh HD (/) (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
+ MobileBackups (Network Drive) 0 bytes of 697.5 GB free (0.0%)
+ Time Machine Backups (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
 ```
 
 How is this different from ...

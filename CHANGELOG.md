@@ -1,6 +1,7 @@
 Next
 ====
 
+* [#50](https://github.com/dblock/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 
