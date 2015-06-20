@@ -102,4 +102,4 @@ How is this different from ...
 
 License
 -------
-This project is licensed under the [Eclipse Public License 1.0](LICENSE.txt).
+This project is licensed under the [Eclipse Public License 1.0](LICENSE_EPL).
