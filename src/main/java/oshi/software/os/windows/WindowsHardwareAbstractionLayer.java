@@ -23,8 +23,10 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.nt.CentralProcessor;
 import oshi.software.os.windows.nt.GlobalMemory;
+import oshi.software.os.windows.nt.WindowsFileSystem;
 import oshi.software.os.windows.nt.WindowsPowerSource;
 
 import com.sun.jna.platform.win32.Advapi32Util;
@@ -75,4 +77,7 @@ public class WindowsHardwareAbstractionLayer implements
 		return WindowsPowerSource.getPowerSources();
 	}
 
+	public OSFileStore[] getFileStores() {
+		return WindowsFileSystem.getFileStores();
+	}
 }

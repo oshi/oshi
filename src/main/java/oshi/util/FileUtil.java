@@ -16,11 +16,10 @@
  */
 package oshi.util;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -33,22 +32,6 @@ import java.util.List;
 public class FileUtil {
 
 	public static List<String> readFile(String filename) throws IOException {
-		List<String> result = new ArrayList<String>();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(filename));
-			for (;;) {
-				String line = br.readLine();
-				if (line == null)
-					break;
-				result.add(line);
-			}
-		} catch (FileNotFoundException e) {
-			throw new IOException("Unable to read from " + filename);
-		} finally {
-			if (br != null)
-				br.close();
-		}
-		return result;
+		return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
 	}
 }

@@ -23,8 +23,10 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.local.CentralProcessor;
 import oshi.software.os.mac.local.GlobalMemory;
+import oshi.software.os.mac.local.MacFileSystem;
 import oshi.software.os.mac.local.MacPowerSource;
 import oshi.software.os.mac.local.SystemB;
 
@@ -85,6 +87,10 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			_powerSources = MacPowerSource.getPowerSources();
 		}
 		return _powerSources;
+	}
+
+	public OSFileStore[] getFileStores() {
+		return MacFileSystem.getFileStores();
 	}
 
 }

@@ -19,7 +19,7 @@ package oshi.util;
 import java.math.BigDecimal;
 
 /**
- * String formatting utility.
+ * Formatting utility for appending units or converting between number types.
  * 
  * @author dblock[at]dblock[dot]org
  */
@@ -35,6 +35,7 @@ public abstract class FormatUtil {
 	final private static long gibiByte = mebiByte * kibiByte;
 	final private static long tebiByte = gibiByte * kibiByte;
 	final private static long pebiByte = tebiByte * kibiByte;
+	final private static long exbiByte = pebiByte * kibiByte;
 
 	/**
 	 * Hertz related variables
@@ -44,11 +45,12 @@ public abstract class FormatUtil {
 	final private static long gigaHertz = megaHertz * kiloHertz;
 	final private static long teraHertz = gigaHertz * kiloHertz;
 	final private static long petaHertz = teraHertz * kiloHertz;
+	final private static long exaHertz = petaHertz * kiloHertz;
 
 	/**
 	 * Format bytes into a string to a rounded string representation. Using the
 	 * JEDEC representation for KB, MB and GB Using the IEC representation for
-	 * TiB
+	 * TiB and PiB
 	 * 
 	 * @param bytes
 	 *            Bytes.
@@ -69,12 +71,16 @@ public abstract class FormatUtil {
 			return String.format("%.1f MB", (double) bytes / mebiByte);
 		} else if (bytes % gibiByte == 0 && bytes < tebiByte) { // GB
 			return String.format("%.0f GB", (double) bytes / gibiByte);
-		} else if (bytes < tebiByte) {
+		} else if (bytes < tebiByte) { // GB
 			return String.format("%.1f GB", (double) bytes / gibiByte);
 		} else if (bytes % tebiByte == 0 && bytes < pebiByte) { // TiB
 			return String.format("%.0f TiB", (double) bytes / tebiByte);
-		} else if (bytes < pebiByte) {
+		} else if (bytes < pebiByte) { // TiB
 			return String.format("%.1f TiB", (double) bytes / tebiByte);
+		} else if (bytes % pebiByte == 0 && bytes < exbiByte) { // PiB
+			return String.format("%.0f PiB", (double) bytes / pebiByte);
+		} else if (bytes < exbiByte) { // PiB
+			return String.format("%.1f PiB", (double) bytes / pebiByte);
 		} else {
 			return String.format("%d bytes", bytes);
 		}
@@ -106,6 +112,10 @@ public abstract class FormatUtil {
 			return String.format("%.0f THz", (double) hertz / teraHertz);
 		} else if (hertz < petaHertz) {
 			return String.format("%.1f THz", (double) hertz / teraHertz);
+		} else if (hertz < exaHertz && hertz % petaHertz == 0) { // EHz
+			return String.format("%.0f EHz", (double) hertz / petaHertz);
+		} else if (hertz < exaHertz) {
+			return String.format("%.1f EHz", (double) hertz / petaHertz);
 		} else {
 			return String.format("%d Hz", hertz);
 		}

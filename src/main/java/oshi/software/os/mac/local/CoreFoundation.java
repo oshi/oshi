@@ -23,7 +23,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 
 /**
- * Memory and CPU stats from vm_stat and sysctl
+ * CoreFoundation framework for power supply stats
  * 
  * @author widdis[at]gmail[dot]com
  */
