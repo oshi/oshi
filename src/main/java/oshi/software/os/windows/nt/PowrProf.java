@@ -1,9 +1,18 @@
-/*
- * Copyright (c) Daniel Widdis, 2015
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
- * All Rights Reserved
- * Eclipse Public License (EPLv1)
- * http://oshi.codeplex.com/license
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.windows.nt;
 
@@ -39,11 +48,13 @@ public interface PowrProf extends Library {
 		public int estimatedTime; // signed 32 bit
 		public int defaultAlert1; // unsigned 32 bit
 		public int defaultAlert2; // unsigned 32 bit
+
 		@Override
 		protected List getFieldOrder() {
-			return Arrays.asList(new String[] { "acOnLine", "batteryPresent", "charging",
-					"discharging", "spare1", "maxCapacity", "remainingCapacity",
-					"rate", "estimatedTime", "defaultAlert1", "defaultAlert2" });
+			return Arrays.asList(new String[] { "acOnLine", "batteryPresent",
+					"charging", "discharging", "spare1", "maxCapacity",
+					"remainingCapacity", "rate", "estimatedTime",
+					"defaultAlert1", "defaultAlert2" });
 		}
 	}
 
