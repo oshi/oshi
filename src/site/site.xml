@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="${project.name}" xmlns="http://maven.apache.org/DECORATION/1.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.4</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <topBarEnabled>true</topBarEnabled>
+            <sideBarEnabled>true</sideBarEnabled>
+        </fluidoSkin>
+    </custom>
+    <body>
+        <links>
+            <item name="oshi" href="http://github.com/oshi" />
+        </links>
+        <menu name="User guide">
+            <item href="README.html" name="README" />
+        </menu>
+        <menu ref="reports" />
+    </body>
+</project>
