@@ -1,9 +1,18 @@
-/*
- * Copyright (c) Daniel Widdis, 2015
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
- * All Rights Reserved
- * Eclipse Public License (EPLv1)
- * http://oshi.codeplex.com/license
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.linux;
 
@@ -35,11 +44,13 @@ public interface Libc extends Library {
 		public NativeLong freehigh; // Available high memory size
 		public int mem_unit; // Memory unit size in bytes
 		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems
+
 		@Override
 		protected List getFieldOrder() {
-			return Arrays.asList(new String[] { "uptime", "loads", "totalram", "freeram",
-					"sharedram", "bufferram", "totalswap", "freeswap", "procs",
-					"totalhigh", "freehigh", "mem_unit", "_f"});
+			return Arrays.asList(new String[] { "uptime", "loads", "totalram",
+					"freeram", "sharedram", "bufferram", "totalswap",
+					"freeswap", "procs", "totalhigh", "freehigh", "mem_unit",
+					"_f" });
 		}
 	}
 

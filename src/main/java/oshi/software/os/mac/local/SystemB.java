@@ -1,9 +1,18 @@
-/*
- * Copyright (c) Daniel Widdis, 2015
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
- * All Rights Reserved
- * Eclipse Public License (EPLv1)
- * http://oshi.codeplex.com/license
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.mac.local;
 
@@ -77,6 +86,7 @@ public interface SystemB extends Library {
 	public static class HostLoadInfo extends Structure {
 		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE
 		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
+
 		@Override
 		protected List getFieldOrder() {
 			return Arrays.asList(new String[] { "avenrun", "mach_factor" });
@@ -100,12 +110,14 @@ public interface SystemB extends Library {
 		public int purges; // # of pages purged
 		// # of pages speculative (included in free_count)
 		public int speculative_count;
+
 		@Override
 		protected List getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count",
-					"wire_count", "zero_fill_count", "reactivations", "pageins",
-					"pageouts", "faults", "cow_faults", "lookups", "hits", "purgeable_count",
-					"purges", "speculative_count"});
+			return Arrays.asList(new String[] { "free_count", "active_count",
+					"inactive_count", "wire_count", "zero_fill_count",
+					"reactivations", "pageins", "pageouts", "faults",
+					"cow_faults", "lookups", "hits", "purgeable_count",
+					"purges", "speculative_count" });
 		}
 	}
 
@@ -141,14 +153,18 @@ public interface SystemB extends Library {
 		public int internal_page_count; // # of pages that are anonymous
 		// # of pages (uncompressed) held within the compressor.
 		public long total_uncompressed_pages_in_compressor;
+
 		@Override
 		protected List getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count",
-					"wire_count", "zero_fill_count", "reactivations", "pageins", "pageouts",
-					"faults", "cow_faults", "lookups", "hits", "purges", "purgeable_count",
-					"speculative_count", "decompressions", "compressions", "swapins",
-					"swapouts", "compressor_page_count", "throttled_count", "external_page_count",
-					"internal_page_count", "total_uncompressed_pages_in_compressor"});
+			return Arrays.asList(new String[] { "free_count", "active_count",
+					"inactive_count", "wire_count", "zero_fill_count",
+					"reactivations", "pageins", "pageouts", "faults",
+					"cow_faults", "lookups", "hits", "purges",
+					"purgeable_count", "speculative_count", "decompressions",
+					"compressions", "swapins", "swapouts",
+					"compressor_page_count", "throttled_count",
+					"external_page_count", "internal_page_count",
+					"total_uncompressed_pages_in_compressor" });
 		}
 	}
 

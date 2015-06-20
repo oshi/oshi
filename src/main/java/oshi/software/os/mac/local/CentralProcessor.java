@@ -1,13 +1,23 @@
-/*
- * Copyright (c) Alessandro Perucchi, 2014
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
- * Daniel Widdis, 2015
  * widdis[at]gmail[dot]com
- * All Rights Reserved
- * Eclipse Public License (EPLv1)
- * http://oshi.codeplex.com/license
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.mac.local;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
@@ -18,9 +28,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A CPU.
