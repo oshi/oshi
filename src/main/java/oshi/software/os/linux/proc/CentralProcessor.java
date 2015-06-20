@@ -16,23 +16,33 @@
  */
 package oshi.software.os.linux.proc;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
-import oshi.util.FormatUtil;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+
+import com.sun.management.OperatingSystemMXBean;
 
 /**
  * A CPU as defined in Linux /proc.
  * 
  * @author alessandro[at]perucchi[dot]org
  */
+@SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final OperatingSystemMXBean OS_MXBEAN;
+	static {
+		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory
+				.getOperatingSystemMXBean();
+		// Initialize CPU usage
+		OS_MXBEAN.getSystemCpuLoad();
+	}
+
 	private String _vendor;
 	private String _name;
 	private String _identifier = null;
@@ -214,34 +224,60 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Deprecated
 	public float getLoad() {
-		Scanner in = null;
+		long[] prevTicks = getCpuLoadTicks();
 		try {
-			in = new Scanner(new FileReader("/proc/stat"));
-		} catch (FileNotFoundException e) {
-			System.err.println("Problem with: /proc/stat");
-			System.err.println(e.getMessage());
-			return -1;
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Awake, O sleeper
 		}
-		in.useDelimiter("\n");
-		String[] result = in.next().split(" ");
-		in.close();
-		ArrayList<Float> loads = new ArrayList<Float>();
-		for (String load : result) {
-			if (load.matches("-?\\d+(\\.\\d+)?")) {
-				loads.add(Float.valueOf(load));
-			}
+		long[] ticks = getCpuLoadTicks();
+		long total = 0;
+		for (int i = 0; i < ticks.length; i++) {
+			total += (ticks[i] - prevTicks[i]);
 		}
-		// ((Total-PrevTotal)-(Idle-PrevIdle))/(Total-PrevTotal) - see
-		// http://stackoverflow.com/a/23376195/4359897
-		float totalCpuLoad = (loads.get(0) + loads.get(2)) * 100
-				/ (loads.get(0) + loads.get(2) + loads.get(3));
-		return FormatUtil.round(totalCpuLoad, 2);
+		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
+		if (total > 0 && idle >= 0)
+			return 100f * (total - idle) / total;
+		else
+			return 0f;
 	}
 
-	@Override
+	public long[] getCpuLoadTicks() {
+		// /proc/stat expected format
+		// first line is overall user,nice,system,idle, etc.
+		// cpu 3357 0 4313 1362393 ...
+		// TODO: per-processor subsequent lines for cpu0, cpu1, etc.
+		long[] ticks = new long[4];
+		String tickStr = "";
+		try {
+			List<String> procStat = FileUtil.readFile("/proc/stat");
+			if (!procStat.isEmpty())
+				tickStr = procStat.get(0);
+		} catch (IOException e) {
+			System.err.println("Problem with: /proc/stat");
+			System.err.println(e.getMessage());
+			return ticks;
+		}
+		String[] tickArr = tickStr.split("\\s+");
+		if (tickStr.length() < 5)
+			return ticks;
+		for (int i = 0; i < 4; i++) {
+			ticks[i] = Long.parseLong(tickArr[i + 1]);
+		}
+		return ticks;
+	}
+
+	public double getSystemCPULoad() {
+		return OS_MXBEAN.getSystemCpuLoad();
+	}
+
+	public double getSystemLoadAverage() {
+		return OS_MXBEAN.getSystemLoadAverage();
+	}
+
 	public String toString() {
 		return getName();
 	}
-
 }

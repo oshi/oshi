@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -71,12 +72,37 @@ public class SystemInfoTest {
 		assertTrue(memory.getAvailable() <= memory.getTotal());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testCpuLoad() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
 		assertTrue(hal.getProcessors()[0].getLoad() >= 0
 				&& hal.getProcessors()[0].getLoad() <= 100);
+	}
+
+	@Test
+	public void testCpuLoadTicks() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		assertEquals(4, hal.getProcessors()[0].getCpuLoadTicks().length);
+	}
+
+	@Test
+	public void testSystemCpuLoad() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		double cpuLoad = hal.getProcessors()[0].getSystemCPULoad();
+		assertTrue(cpuLoad >= 0.0 && cpuLoad <= 1.0);
+	}
+
+	@Test
+	public void testSystemLoadAverage() {
+		if (Platform.isMac() || Platform.isLinux()) {
+			SystemInfo si = new SystemInfo();
+			HardwareAbstractionLayer hal = si.getHardware();
+			assertTrue(hal.getProcessors()[0].getSystemLoadAverage() >= 0.0);
+		}
 	}
 
 	@Test
@@ -122,6 +148,7 @@ public class SystemInfoTest {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();
 		// software
@@ -142,8 +169,35 @@ public class SystemInfoTest {
 		System.out.println("Memory: "
 				+ FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
-		System.out.println("CPU load: " + hal.getProcessors()[0].getLoad()
-				+ "%");
+		System.out.format("CPU load: %.1f%% (deprecated version)%n",
+				hal.getProcessors()[0].getLoad());
+		long[] prevTicks = hal.getProcessors()[0].getCpuLoadTicks();
+		System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
+		// Stall long enough for an accurate reading
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Don't wake me up!
+		}
+		long[] ticks = hal.getProcessors()[0].getCpuLoadTicks();
+		System.out.println("CPU ticks @ 1 sec:" + Arrays.toString(ticks));
+		long user = ticks[0] - prevTicks[0];
+		long nice = ticks[1] - prevTicks[1];
+		long sys = ticks[2] - prevTicks[2];
+		long idle = ticks[3] - prevTicks[3];
+		long totalCpu = user + nice + sys + idle;
+
+		System.out.format(
+				"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d
+						* user / totalCpu, 100d * nice / totalCpu, 100d * sys
+						/ totalCpu, 100d * idle / totalCpu);
+		System.out.format("CPU load: %.1f%%%n",
+				hal.getProcessors()[0].getSystemCPULoad() * 100);
+		double loadAverage = hal.getProcessors()[0].getSystemLoadAverage();
+		System.out
+				.println("CPU load average: "
+						+ (loadAverage < 0 ? "N/A" : String.format("%.2f",
+								loadAverage)));
 		// hardware: power
 		StringBuilder sb = new StringBuilder("Power: ");
 		if (hal.getPowerSources().length == 0) {

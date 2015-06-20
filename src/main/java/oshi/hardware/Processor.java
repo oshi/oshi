@@ -133,9 +133,65 @@ public interface Processor {
 	void setFamily(String _family);
 
 	/**
-	 * Get total CPU load
+	 * Get total CPU load. Incurs a 1 second sleep delay while counting
+	 * process/idle CPU ticks using {@link #getCpuLoadTicks()}.
 	 * 
 	 * @return CPU load in %
+	 * 
+	 * @deprecated As of release 1.3, replaced by {@link #getSystemCPULoad()}.
+	 *             Users may also manually calculate using
+	 *             {@link #getCpuLoadTicks()}.
 	 */
+	@Deprecated
 	float getLoad();
+
+	/**
+	 * Get CPU Load tick counters. Returns an array with four elements
+	 * representing clock ticks or milliseconds (platform dependent) spent in
+	 * User (0), Nice (1), System (2), and Idle (3) states. By measuring the
+	 * difference between ticks across a time interval, CPU load over that
+	 * interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	long[] getCpuLoadTicks();
+
+	/**
+	 * Returns the "recent cpu usage" for the whole system from the
+	 * {@link com.sun.management.OperatingSystemMXBean}. This value is a double
+	 * in the [0.0,1.0] interval. A value of 0.0 means that all CPUs were idle
+	 * during the recent period of time observed, while a value of 1.0 means
+	 * that all CPUs were actively running 100% of the time during the recent
+	 * period being observed. All values betweens 0.0 and 1.0 are possible
+	 * depending of the activities going on in the system. If the system recent
+	 * cpu usage is not available, the method returns a negative value.
+	 * 
+	 * Calling this method immediately upon instantiating the {@link Processor}
+	 * may give unreliable results.
+	 * 
+	 * @return the "recent cpu usage" for the whole system; a negative value if
+	 *         not available.
+	 */
+	@SuppressWarnings("restriction")
+	double getSystemCPULoad();
+
+	/**
+	 * Returns the system load average for the last minute from the
+	 * {@link java.lang.management.OperatingSystemMXBean}. The system load
+	 * average is the sum of the number of runnable entities queued to the
+	 * available processors and the number of runnable entities running on the
+	 * available processors averaged over a period of time. The way in which the
+	 * load average is calculated is operating system specific but is typically
+	 * a damped time-dependent average.
+	 * 
+	 * If the load average is not available, a negative value is returned.
+	 * 
+	 * This method is designed to provide a hint about the system load and may
+	 * be queried frequently. The load average may be unavailable on some
+	 * platform where it is expensive to implement this method.
+	 * 
+	 * @return the system load average; or a negative value if not available.
+	 */
+	double getSystemLoadAverage();
 }

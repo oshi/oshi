@@ -50,7 +50,11 @@ Microsoft Windows 7
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 532.1 MB/2.0 GB
-CPU load: 70.59%
+CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
+CPU ticks @ 1 sec:[26579060, 0, 21746695, 549740254]
+User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
+CPU load: 4.2%
+CPU load average: N/A
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
@@ -78,7 +82,11 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 21.0 GB/31.0 GB
-CPU load: 70.59%
+CPU ticks @ 0 sec:[952268, 13889, 187093, 106906198]
+CPU ticks @ 1 sec:[952276, 13889, 187094, 106906389]
+User: 4.0% Nice: 0.0% System: 0.5% Idle: 95.5%
+CPU load: 5.4%
+CPU load average: 0.43
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
@@ -99,7 +107,11 @@ Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 17.3 MB/4 GB
-CPU load: 70.59%
+CPU ticks @ 0 sec:[12056423, 0, 16937437, 225908843]
+CPU ticks @ 1 sec:[12056442, 0, 16937461, 225909605]
+User: 2.4% Nice: 0.0% System: 3.0% Idle: 94.7%
+CPU load: 6.2%
+CPU load average: 1.48
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:

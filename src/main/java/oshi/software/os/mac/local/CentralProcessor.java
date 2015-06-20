@@ -16,6 +16,7 @@
  */
 package oshi.software.os.mac.local;
 
+import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +29,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.management.OperatingSystemMXBean;
 
 /**
  * A CPU.
@@ -35,7 +37,16 @@ import com.sun.jna.ptr.IntByReference;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
+@SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final OperatingSystemMXBean OS_MXBEAN;
+	static {
+		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory
+				.getOperatingSystemMXBean();
+		// Initialize CPU usage
+		OS_MXBEAN.getSystemCpuLoad();
+	}
+
 	private String _vendor;
 	private String _name;
 	private String _identifier = null;
@@ -281,43 +292,60 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Deprecated
 	public float getLoad() {
-		int[] prevTicks = getCpuTicks();
+		long[] prevTicks = getCpuLoadTicks();
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// Awake, O sleeper
 		}
-		int[] ticks = getCpuTicks();
-
-		int total = 0;
-		for (int i = 0; i < SystemB.CPU_STATE_MAX; i++) {
+		long[] ticks = getCpuLoadTicks();
+		long total = 0;
+		for (int i = 0; i < ticks.length; i++) {
 			total += (ticks[i] - prevTicks[i]);
 		}
-		int idle = ticks[SystemB.CPU_STATE_IDLE]
-				- prevTicks[SystemB.CPU_STATE_IDLE];
+		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
 		if (total > 0 && idle >= 0)
 			return 100f * (total - idle) / total;
 		else
 			return 0f;
 	}
 
-	private int[] getCpuTicks() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getCpuLoadTicks() {
 		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
 		int machPort = SystemB.INSTANCE.mach_host_self();
-		int[] ticks = new int[SystemB.CPU_STATE_MAX];
+		long[] ticks = new long[SystemB.CPU_STATE_MAX];
 		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
 		if (0 != SystemB.INSTANCE.host_statistics(machPort,
 				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(
 						cpuLoadInfo.size())))
 			throw new LastErrorException("Error code: " + Native.getLastError());
-		for (int i = 0; i < SystemB.CPU_STATE_MAX; i++) {
-			ticks[i] = cpuLoadInfo.cpu_ticks[i];
-		}
+		// Switch order to match linux
+		ticks[0] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+		ticks[1] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+		ticks[2] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+		ticks[3] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
 		return ticks;
 	}
 
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemCPULoad() {
+		return OS_MXBEAN.getSystemCpuLoad();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemLoadAverage() {
+		return OS_MXBEAN.getSystemLoadAverage();
+	}
+
 	public String toString() {
 		return getName();
 	}
