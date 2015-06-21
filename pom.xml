@@ -593,9 +593,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                  <ignores>
-                    <ignore>com.sun.management.OperatingSystemMXBean</ignore>
-                  </ignores>
+                    <ignores>
+                        <ignore>com.sun.management.OperatingSystemMXBean</ignore>
+                    </ignores>
                 </configuration>
             </plugin>
             <plugin>

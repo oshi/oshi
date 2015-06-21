@@ -65,7 +65,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *            Vendor.
+	 *			Vendor.
 	 */
 	public void setVendor(String vendor) {
 		_vendor = vendor;
@@ -84,7 +84,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *            Name.
+	 *			Name.
 	 */
 	public void setName(String name) {
 		_name = name;
@@ -137,7 +137,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *            Identifier.
+	 *			Identifier.
 	 */
 	public void setIdentifier(String identifier) {
 		_identifier = identifier;

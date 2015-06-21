@@ -90,7 +90,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	/**
 	 * @param _codeName
-	 *            the _codeName to set
+	 *			the _codeName to set
 	 */
 	public void setCodeName(String _codeName) {
 		this._codeName = _codeName;
@@ -98,7 +98,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	/**
 	 * @param _version
-	 *            the _version to set
+	 *			the _version to set
 	 */
 	public void setVersion(String _version) {
 		this._version = _version;

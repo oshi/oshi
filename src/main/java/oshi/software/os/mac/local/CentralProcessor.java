@@ -83,7 +83,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *            Vendor.
+	 *			Vendor.
 	 */
 	public void setVendor(String vendor) {
 		_vendor = vendor;
@@ -116,7 +116,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *            Name.
+	 *			Name.
 	 */
 	public void setName(String name) {
 		_name = name;
@@ -180,7 +180,7 @@ public class CentralProcessor implements Processor {
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *            Identifier.
+	 *			Identifier.
 	 */
 	public void setIdentifier(String identifier) {
 		_identifier = identifier;
@@ -208,7 +208,7 @@ public class CentralProcessor implements Processor {
 	 * Set flag is cpu is 64bit.
 	 * 
 	 * @param cpu64
-	 *            True if cpu is 64.
+	 *			True if cpu is 64.
 	 */
 	public void setCpu64(boolean cpu64) {
 		_cpu64 = Boolean.valueOf(cpu64);
@@ -233,7 +233,7 @@ public class CentralProcessor implements Processor {
 
 	/**
 	 * @param stepping
-	 *            the stepping to set
+	 *			the stepping to set
 	 */
 	public void setStepping(String stepping) {
 		_stepping = stepping;
@@ -258,7 +258,7 @@ public class CentralProcessor implements Processor {
 
 	/**
 	 * @param model
-	 *            the model to set
+	 *			the model to set
 	 */
 	public void setModel(String model) {
 		_model = model;
@@ -283,7 +283,7 @@ public class CentralProcessor implements Processor {
 
 	/**
 	 * @param family
-	 *            the family to set
+	 *			the family to set
 	 */
 	public void setFamily(String family) {
 		_family = family;
