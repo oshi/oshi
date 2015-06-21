@@ -23,10 +23,17 @@ import java.text.DecimalFormatSymbols;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * The Class FormatUtilTest.
+ */
 public class FormatUtilTest {
 
+	/** The decimal separator. */
 	private static char DECIMAL_SEPARATOR;
 
+	/**
+     * Sets the up class.
+     */
 	@BeforeClass
 	public static void setUpClass() {
 		// use decimal separator according to current locale
@@ -34,6 +41,9 @@ public class FormatUtilTest {
 		DECIMAL_SEPARATOR = syms.getDecimalSeparator();
 	}
 
+	/**
+     * Test format bytes.
+     */
 	@Test
 	public void testFormatBytes() {
 		assertEquals("0 bytes", FormatUtil.formatBytes(0));
@@ -44,6 +54,9 @@ public class FormatUtilTest {
 		assertEquals("1 TiB", FormatUtil.formatBytes(1099511627776L));
 	}
 
+	/**
+     * Test format bytes with decimal separator.
+     */
 	@Test
 	public void testFormatBytesWithDecimalSeparator() {
 		String expected1 = "1" + DECIMAL_SEPARATOR + "3 KB";
@@ -57,6 +70,9 @@ public class FormatUtilTest {
 				FormatUtil.formatBytes(1099511627776L + 109951162777L));
 	}
 
+	/**
+     * Test format hertz.
+     */
 	@Test
 	public void testFormatHertz() {
 		assertEquals("0 Hz", FormatUtil.formatHertz(0));
@@ -69,6 +85,9 @@ public class FormatUtilTest {
 				FormatUtil.formatHertz(1000L * 1000L * 1000L * 1000L));
 	}
 
+	/**
+     * Test round.
+     */
 	@Test
 	public void testRound() {
 		assertEquals(42.42, FormatUtil.round(42.423f, 2), 0.00001f);

@@ -40,10 +40,15 @@ import oshi.util.FormatUtil;
 import com.sun.jna.Platform;
 
 /**
+ * The Class SystemInfoTest.
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfoTest {
 
+	/**
+     * Test get version.
+     */
 	@Test
 	public void testGetVersion() {
 		SystemInfo si = new SystemInfo();
@@ -54,6 +59,9 @@ public class SystemInfoTest {
 		assertTrue(os.toString().length() > 0);
 	}
 
+	/**
+     * Test get processors.
+     */
 	@Test
 	public void testGetProcessors() {
 		SystemInfo si = new SystemInfo();
@@ -61,6 +69,9 @@ public class SystemInfoTest {
 		assertTrue(hal.getProcessors().length > 0);
 	}
 
+	/**
+     * Test get memory.
+     */
 	@Test
 	public void testGetMemory() {
 		SystemInfo si = new SystemInfo();
@@ -72,6 +83,9 @@ public class SystemInfoTest {
 		assertTrue(memory.getAvailable() <= memory.getTotal());
 	}
 
+	/**
+     * Test cpu load.
+     */
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCpuLoad() {
@@ -81,6 +95,9 @@ public class SystemInfoTest {
 				&& hal.getProcessors()[0].getLoad() <= 100);
 	}
 
+	/**
+     * Test cpu load ticks.
+     */
 	@Test
 	public void testCpuLoadTicks() {
 		SystemInfo si = new SystemInfo();
@@ -88,6 +105,9 @@ public class SystemInfoTest {
 		assertEquals(4, hal.getProcessors()[0].getCpuLoadTicks().length);
 	}
 
+	/**
+     * Test system cpu load.
+     */
 	@Test
 	public void testSystemCpuLoad() {
 		SystemInfo si = new SystemInfo();
@@ -96,6 +116,9 @@ public class SystemInfoTest {
 		assertTrue(cpuLoad >= 0.0 && cpuLoad <= 1.0);
 	}
 
+	/**
+     * Test system load average.
+     */
 	@Test
 	public void testSystemLoadAverage() {
 		if (Platform.isMac() || Platform.isLinux()) {
@@ -105,6 +128,9 @@ public class SystemInfoTest {
 		}
 	}
 
+	/**
+     * Test cpu vendor freq.
+     */
 	@Test
 	public void testCpuVendorFreq() {
 		SystemInfo si = new SystemInfo();
@@ -113,6 +139,9 @@ public class SystemInfoTest {
 				|| hal.getProcessors()[0].getVendorFreq() > 0);
 	}
 
+	/**
+     * Test power source.
+     */
 	@Test
 	public void testPowerSource() {
 		SystemInfo si = new SystemInfo();
@@ -129,6 +158,12 @@ public class SystemInfoTest {
 		}
 	}
 
+	/**
+     * Test file system.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
 	@Test
 	public void testFileSystem() throws IOException {
 		SystemInfo si = new SystemInfo();
@@ -148,6 +183,12 @@ public class SystemInfoTest {
 		}
 	}
 
+	/**
+     * The main method.
+     *
+     * @param args
+     *            the arguments
+     */
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();

@@ -23,10 +23,17 @@ import java.util.List;
 
 import org.junit.Test;
 
+/**
+ * The Class FileUtilTest.
+ */
 public class FileUtilTest {
 
+	/** The thisclass. */
 	private static String THISCLASS = "src/test/java/oshi/util/FileUtilTest.java";
 
+	/**
+     * Test read file.
+     */
 	@Test
 	public void testReadFile() {
 		List<String> thisFile = null;
