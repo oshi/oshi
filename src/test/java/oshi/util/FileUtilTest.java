@@ -41,6 +41,7 @@ public class FileUtilTest {
 			thisFile = FileUtil.readFile(THISCLASS);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return;
 		}
 		// Comment ONE line
 		int lineOne = 0;
