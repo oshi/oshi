@@ -83,7 +83,7 @@ public class WindowsPowerSource implements PowerSource {
 
 			psArray[0] = new WindowsPowerSource(name,
 					(double) remainingCapacity / maxCapacity,
-					(double) estimatedTime);
+					estimatedTime);
 		}
 
 		return psArray;

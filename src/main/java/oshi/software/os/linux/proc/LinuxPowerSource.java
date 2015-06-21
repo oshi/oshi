@@ -132,7 +132,7 @@ public class LinuxPowerSource implements PowerSource {
 				}
 			}
 			psList.add(new LinuxPowerSource(name, (double) energyNow
-					/ energyFull, isCharging ? -2d : 3600d * (double) energyNow
+					/ energyFull, isCharging ? -2d : 3600d * energyNow
 					/ powerNow));
 		}
 

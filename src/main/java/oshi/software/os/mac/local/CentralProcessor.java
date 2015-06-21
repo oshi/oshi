@@ -342,10 +342,10 @@ public class CentralProcessor implements Processor {
 						cpuLoadInfo.size())))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		// Switch order to match linux
-		ticks[0] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-		ticks[1] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-		ticks[2] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-		ticks[3] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+		ticks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+		ticks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+		ticks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+		ticks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
 		return ticks;
 	}
 
