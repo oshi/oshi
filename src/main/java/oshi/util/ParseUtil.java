@@ -55,8 +55,6 @@ public abstract class ParseUtil {
 	 * @param hertz
 	 *            Hertz size.
 	 * @return {@link Long} Hertz value or -1 if not parsable.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
 	public static long parseHertz(String hertz) {
 		Pattern pattern = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");

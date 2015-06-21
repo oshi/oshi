@@ -32,6 +32,7 @@ import com.sun.management.OperatingSystemMXBean;
  * A CPU as defined in Linux /proc.
  * 
  * @author alessandro[at]perucchi[dot]org
+ * @author alessio.fachechi[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
@@ -95,8 +96,6 @@ public class CentralProcessor implements Processor {
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
 	public long getVendorFreq() {
 		if (_freq == null) {
@@ -117,8 +116,8 @@ public class CentralProcessor implements Processor {
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
-	 *            Frequency.
+	 * @param freq
+	 *			Frequency.
 	 */
 	public void setVendorFreq(long freq) {
 		_freq = Long.valueOf(freq);

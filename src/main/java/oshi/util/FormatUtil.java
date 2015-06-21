@@ -126,7 +126,7 @@ public abstract class FormatUtil {
 	 *
 	 * @param d
 	 * @param decimalPlace
-	 * @return
+	 * @return rounded result
 	 */
 	public static float round(float d, int decimalPlace) {
 		BigDecimal bd = new BigDecimal(Float.toString(d));
