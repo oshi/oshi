@@ -62,6 +62,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
 		if (_vendor == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
@@ -86,6 +87,7 @@ public class CentralProcessor implements Processor {
 	 * @param vendor
 	 *			Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
 		_vendor = vendor;
 	}
@@ -95,6 +97,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
 		if (_name == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
@@ -119,6 +122,7 @@ public class CentralProcessor implements Processor {
 	 * @param name
 	 *			Name.
 	 */
+	@Override
 	public void setName(String name) {
 		_name = name;
 	}
@@ -129,6 +133,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor frequency or -1 if unknown.
 	 */
+	@Override
 	public long getVendorFreq() {
 		if (_freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
@@ -151,6 +156,7 @@ public class CentralProcessor implements Processor {
 	 * @param freq
 	 *			Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
 		_freq = Long.valueOf(freq);
 	}
@@ -160,6 +166,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
 		if (_identifier == null) {
 			StringBuilder sb = new StringBuilder();
@@ -181,6 +188,7 @@ public class CentralProcessor implements Processor {
 	 * @param identifier
 	 *			Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
 		_identifier = identifier;
 	}
@@ -190,6 +198,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return True if cpu is 64bit.
 	 */
+	@Override
 	public boolean isCpu64bit() {
 		if (_cpu64 == null) {
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };
@@ -209,6 +218,7 @@ public class CentralProcessor implements Processor {
 	 * @param cpu64
 	 *			True if cpu is 64.
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
 		_cpu64 = Boolean.valueOf(cpu64);
 	}
@@ -216,6 +226,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * @return the _stepping
 	 */
+	@Override
 	public String getStepping() {
 		if (_stepping == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
@@ -234,6 +245,7 @@ public class CentralProcessor implements Processor {
 	 * @param stepping
 	 *			the stepping to set
 	 */
+	@Override
 	public void setStepping(String stepping) {
 		_stepping = stepping;
 	}
@@ -241,6 +253,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * @return the _model
 	 */
+	@Override
 	public String getModel() {
 		if (_model == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
@@ -259,6 +272,7 @@ public class CentralProcessor implements Processor {
 	 * @param model
 	 *			the model to set
 	 */
+	@Override
 	public void setModel(String model) {
 		_model = model;
 	}
@@ -266,6 +280,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * @return the _family
 	 */
+	@Override
 	public String getFamily() {
 		if (_family == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
@@ -284,6 +299,7 @@ public class CentralProcessor implements Processor {
 	 * @param family
 	 *			the family to set
 	 */
+	@Override
 	public void setFamily(String family) {
 		_family = family;
 	}
@@ -291,6 +307,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
 		long[] prevTicks = getCpuLoadTicks();
@@ -314,6 +331,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getCpuLoadTicks() {
 		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
 		int machPort = SystemB.INSTANCE.mach_host_self();
@@ -334,6 +352,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemCPULoad() {
 		return OS_MXBEAN.getSystemCpuLoad();
 	}
@@ -341,10 +360,12 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
 	}
 
+	@Override
 	public String toString() {
 		return getName();
 	}

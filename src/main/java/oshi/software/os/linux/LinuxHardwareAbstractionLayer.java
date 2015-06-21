@@ -43,6 +43,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Memory _memory = null;
 
+	@Override
 	public Memory getMemory() {
 		if (_memory == null) {
 			_memory = new GlobalMemory();
@@ -50,6 +51,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _memory;
 	}
 
+	@Override
 	public Processor[] getProcessors() {
 
 		if (_processors == null) {
@@ -117,10 +119,12 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _processors;
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
 		return LinuxPowerSource.getPowerSources();
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
 		return LinuxFileSystem.getFileStores();
 	}

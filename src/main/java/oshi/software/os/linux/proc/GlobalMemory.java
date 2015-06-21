@@ -37,6 +37,7 @@ public class GlobalMemory implements Memory {
 
 	private long totalMemory = 0;
 
+	@Override
 	public long getAvailable() {
 		long availableMemory = 0;
 		List<String> memInfo = null;
@@ -77,6 +78,7 @@ public class GlobalMemory implements Memory {
 		return availableMemory;
 	}
 
+	@Override
 	public long getTotal() {
 		if (totalMemory == 0) {
 			Sysinfo info = new Sysinfo();

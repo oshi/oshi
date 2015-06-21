@@ -58,6 +58,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
 		return _vendor;
 	}
@@ -68,6 +69,7 @@ public class CentralProcessor implements Processor {
 	 * @param vendor
 	 *			Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
 		_vendor = vendor;
 	}
@@ -77,6 +79,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
 		return _name;
 	}
@@ -87,6 +90,7 @@ public class CentralProcessor implements Processor {
 	 * @param name
 	 *			Name.
 	 */
+	@Override
 	public void setName(String name) {
 		_name = name;
 	}
@@ -97,6 +101,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor frequency or -1 if unknown.
 	 */
+	@Override
 	public long getVendorFreq() {
 		if (_freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
@@ -119,6 +124,7 @@ public class CentralProcessor implements Processor {
 	 * @param freq
 	 *			Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
 		_freq = Long.valueOf(freq);
 	}
@@ -128,6 +134,7 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
 		return _identifier;
 	}
@@ -138,6 +145,7 @@ public class CentralProcessor implements Processor {
 	 * @param identifier
 	 *			Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
 		_identifier = identifier;
 	}
@@ -145,6 +153,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isCpu64bit() {
 		throw new UnsupportedOperationException();
 	}
@@ -152,6 +161,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
 		throw new UnsupportedOperationException();
 	}
@@ -159,6 +169,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getStepping() {
 		throw new UnsupportedOperationException();
 	}
@@ -166,6 +177,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setStepping(String _stepping) {
 		throw new UnsupportedOperationException();
 	}
@@ -173,6 +185,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getModel() {
 		throw new UnsupportedOperationException();
 	}
@@ -180,6 +193,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setModel(String _model) {
 		throw new UnsupportedOperationException();
 	}
@@ -187,6 +201,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getFamily() {
 		throw new UnsupportedOperationException();
 	}
@@ -194,6 +209,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setFamily(String _family) {
 		throw new UnsupportedOperationException();
 	}
@@ -201,6 +217,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
 		long[] prevTicks = getCpuLoadTicks();
@@ -224,6 +241,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getCpuLoadTicks() {
 		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
@@ -243,6 +261,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemCPULoad() {
 		return OS_MXBEAN.getSystemCpuLoad();
 	}
@@ -250,10 +269,12 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
 	}
 
+	@Override
 	public String toString() {
 		return getName();
 	}

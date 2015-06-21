@@ -35,6 +35,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
 	private OperatingSystemVersion _version = null;
 	private String _family = null;
 
+	@Override
 	public String getFamily() {
 		if (_family == null) {
 			Scanner in;
@@ -58,10 +59,12 @@ public class LinuxOperatingSystem implements OperatingSystem {
 		return _family;
 	}
 
+	@Override
 	public String getManufacturer() {
 		return "GNU/Linux";
 	}
 
+	@Override
 	public OperatingSystemVersion getVersion() {
 		if (_version == null) {
 			_version = new OSVersionInfoEx();

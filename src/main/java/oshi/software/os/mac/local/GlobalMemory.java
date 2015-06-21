@@ -34,6 +34,7 @@ public class GlobalMemory implements Memory {
 
 	long totalMemory = 0;
 
+	@Override
 	public long getAvailable() {
 		long availableMemory = 0;
 		long pageSize = 4096;
@@ -56,6 +57,7 @@ public class GlobalMemory implements Memory {
 		return availableMemory;
 	}
 
+	@Override
 	public long getTotal() {
 		if (totalMemory == 0) {
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };

@@ -39,6 +39,7 @@ public class WindowsHardwareAbstractionLayer implements
 
 	private Memory _memory = null;
 
+	@Override
 	public Memory getMemory() {
 		if (_memory == null) {
 			_memory = new GlobalMemory();
@@ -46,6 +47,7 @@ public class WindowsHardwareAbstractionLayer implements
 		return _memory;
 	}
 
+	@Override
 	public Processor[] getProcessors() {
 
 		if (_processors == null) {
@@ -73,10 +75,12 @@ public class WindowsHardwareAbstractionLayer implements
 		return _processors;
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
 		return WindowsPowerSource.getPowerSources();
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
 		return WindowsFileSystem.getFileStores();
 	}

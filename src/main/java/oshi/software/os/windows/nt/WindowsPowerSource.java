@@ -42,14 +42,17 @@ public class WindowsPowerSource implements PowerSource {
 		this.timeRemaining = timeRemaining;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public double getRemainingCapacity() {
 		return remainingCapacity;
 	}
 
+	@Override
 	public double getTimeRemaining() {
 		return timeRemaining;
 	}

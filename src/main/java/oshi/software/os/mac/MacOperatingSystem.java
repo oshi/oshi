@@ -30,6 +30,7 @@ public class MacOperatingSystem implements OperatingSystem {
 
 	private OperatingSystemVersion _version = null;
 
+	@Override
 	public OperatingSystemVersion getVersion() {
 		if (_version == null) {
 			_version = new OSVersionInfoEx();
@@ -37,16 +38,19 @@ public class MacOperatingSystem implements OperatingSystem {
 		return _version;
 	}
 
+	@Override
 	public String getFamily() {
 		if (_family == null)
 			_family = System.getProperty("os.name");
 		return _family;
 	}
 
+	@Override
 	public String getManufacturer() {
 		return "Apple";
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getManufacturer());

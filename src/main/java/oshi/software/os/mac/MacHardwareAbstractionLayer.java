@@ -51,6 +51,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	 * 
 	 * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
 	 */
+	@Override
 	public Processor[] getProcessors() {
 		if (_processors == null) {
 			int nbCPU = 1;
@@ -75,6 +76,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	 * 
 	 * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
 	 */
+	@Override
 	public Memory getMemory() {
 		if (_memory == null) {
 			_memory = new GlobalMemory();
@@ -82,6 +84,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _memory;
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
 		if (_powerSources == null) {
 			_powerSources = MacPowerSource.getPowerSources();
@@ -89,6 +92,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		return _powerSources;
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
 		return MacFileSystem.getFileStores();
 	}

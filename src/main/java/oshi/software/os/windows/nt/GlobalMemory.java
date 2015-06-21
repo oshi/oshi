@@ -36,10 +36,12 @@ public class GlobalMemory implements Memory {
 		}
 	}
 
+	@Override
 	public long getAvailable() {
 		return _memory.ullAvailPhys.longValue();
 	}
 
+	@Override
 	public long getTotal() {
 		return _memory.ullTotalPhys.longValue();
 	}
