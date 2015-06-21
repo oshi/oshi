@@ -76,7 +76,7 @@ public class MacPowerSource implements PowerSource {
 		double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();
 
 		// For each power source, output various info
-		List<MacPowerSource> psList = new ArrayList<MacPowerSource>(
+		List<MacPowerSource> psList = new ArrayList<>(
 				powerSourcesCount);
 		for (int ps = 0; ps < powerSourcesCount; ps++) {
 			// Get the dictionary for that Power Source

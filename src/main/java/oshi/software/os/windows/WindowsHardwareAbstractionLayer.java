@@ -50,7 +50,7 @@ public class WindowsHardwareAbstractionLayer implements
 
 		if (_processors == null) {
 			final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
-			List<Processor> processors = new ArrayList<Processor>();
+			List<Processor> processors = new ArrayList<>();
 			String[] processorIds = Advapi32Util.registryGetKeys(
 					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
 			for (String processorId : processorIds) {

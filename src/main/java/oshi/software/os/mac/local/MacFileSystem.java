@@ -49,7 +49,7 @@ public class MacFileSystem {
 	 * @throws IOException
 	 */
 	public static OSFileStore[] getFileStores() {
-		List<OSFileStore> fsList = new ArrayList<OSFileStore>();
+		List<OSFileStore> fsList = new ArrayList<>();
 		FileSystemView fsv = FileSystemView.getFileSystemView();
 		// Mac file systems are mounted in /Volumes
 		File volumes = new File("/Volumes");

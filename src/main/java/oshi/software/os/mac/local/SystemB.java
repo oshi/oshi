@@ -78,7 +78,7 @@ public interface SystemB extends Library {
 		public int cpu_ticks[] = new int[CPU_STATE_MAX];
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "cpu_ticks" });
 		}
 	}
@@ -88,7 +88,7 @@ public interface SystemB extends Library {
 		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "avenrun", "mach_factor" });
 		}
 	}
@@ -112,7 +112,7 @@ public interface SystemB extends Library {
 		public int speculative_count;
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "free_count", "active_count",
 					"inactive_count", "wire_count", "zero_fill_count",
 					"reactivations", "pageins", "pageouts", "faults",
@@ -155,7 +155,7 @@ public interface SystemB extends Library {
 		public long total_uncompressed_pages_in_compressor;
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "free_count", "active_count",
 					"inactive_count", "wire_count", "zero_fill_count",
 					"reactivations", "pageins", "pageouts", "faults",

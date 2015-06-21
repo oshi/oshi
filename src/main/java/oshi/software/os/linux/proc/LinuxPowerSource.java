@@ -68,7 +68,7 @@ public class LinuxPowerSource implements PowerSource {
 		// Empty directory will give null rather than empty array, so fix
 		if (psNames == null)
 			psNames = new String[0];
-		List<LinuxPowerSource> psList = new ArrayList<LinuxPowerSource>(
+		List<LinuxPowerSource> psList = new ArrayList<>(
 				psNames.length);
 		// For each power source, output various info
 		for (String psName : psNames) {

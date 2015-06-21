@@ -41,7 +41,7 @@ public class LinuxFileSystem {
 	 *         {@link OSFileStore#getTotalSpace()} = 0.
 	 */
 	public static OSFileStore[] getFileStores() {
-		List<OSFileStore> fsList = new ArrayList<OSFileStore>();
+		List<OSFileStore> fsList = new ArrayList<>();
 		for (FileStore store : FileSystems.getDefault().getFileStores()) {
 			// FileStore toString starts with path, then a space, then name in
 			// parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"

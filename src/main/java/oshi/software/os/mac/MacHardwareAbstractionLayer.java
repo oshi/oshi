@@ -54,7 +54,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	public Processor[] getProcessors() {
 		if (_processors == null) {
 			int nbCPU = 1;
-			List<Processor> processors = new ArrayList<Processor>();
+			List<Processor> processors = new ArrayList<>();
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };
 			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU,

@@ -49,7 +49,7 @@ public class ExecutingCommand {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				p.getInputStream()));
 		String line = "";
-		ArrayList<String> sa = new ArrayList<String>();
+		ArrayList<String> sa = new ArrayList<>();
 		try {
 			while ((line = reader.readLine()) != null) {
 				sa.add(line);
