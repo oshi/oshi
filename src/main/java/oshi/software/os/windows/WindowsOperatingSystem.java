@@ -32,10 +32,10 @@ public class WindowsOperatingSystem implements OperatingSystem {
 
 	@Override
 	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
+		if (this._version == null) {
+			this._version = new OSVersionInfoEx();
 		}
-		return _version;
+		return this._version;
 	}
 
 	@Override

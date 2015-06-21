@@ -80,14 +80,14 @@ public class GlobalMemory implements Memory {
 
 	@Override
 	public long getTotal() {
-		if (totalMemory == 0) {
+		if (this.totalMemory == 0) {
 			Sysinfo info = new Sysinfo();
 			if (0 != Libc.INSTANCE.sysinfo(info))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			totalMemory = info.totalram.longValue() * info.mem_unit;
+			this.totalMemory = info.totalram.longValue() * info.mem_unit;
 		}
-		return totalMemory;
+		return this.totalMemory;
 	}
 
 	private long parseMeminfo(String[] memorySplit) {

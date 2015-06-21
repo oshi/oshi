@@ -78,14 +78,14 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return the _codeName
 	 */
 	public String getCodeName() {
-		return _codeName;
+		return this._codeName;
 	}
 
 	/**
 	 * @return the _version
 	 */
 	public String getVersion() {
-		return _version;
+		return this._version;
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		if (version == null) {
 			version = getVersion() + " (" + getCodeName() + ")";
 		}
-		return version;
+		return this.version;
 	}
 
 }

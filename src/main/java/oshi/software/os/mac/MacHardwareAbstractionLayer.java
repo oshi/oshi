@@ -53,7 +53,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	 */
 	@Override
 	public Processor[] getProcessors() {
-		if (_processors == null) {
+		if (this._processors == null) {
 			int nbCPU = 1;
 			List<Processor> processors = new ArrayList<>();
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };
@@ -66,9 +66,9 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			for (int i = 0; i < nbCPU; i++)
 				processors.add(new CentralProcessor());
 
-			_processors = processors.toArray(new Processor[0]);
+			this._processors = processors.toArray(new Processor[0]);
 		}
-		return _processors;
+		return this._processors;
 	}
 
 	/*
@@ -78,18 +78,18 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	 */
 	@Override
 	public Memory getMemory() {
-		if (_memory == null) {
-			_memory = new GlobalMemory();
+		if (this._memory == null) {
+			this._memory = new GlobalMemory();
 		}
-		return _memory;
+		return this._memory;
 	}
 
 	@Override
 	public PowerSource[] getPowerSources() {
-		if (_powerSources == null) {
-			_powerSources = MacPowerSource.getPowerSources();
+		if (this._powerSources == null) {
+			this._powerSources = MacPowerSource.getPowerSources();
 		}
-		return _powerSources;
+		return this._powerSources;
 	}
 
 	@Override

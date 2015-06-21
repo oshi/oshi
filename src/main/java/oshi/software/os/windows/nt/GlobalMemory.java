@@ -31,18 +31,18 @@ public class GlobalMemory implements Memory {
 	MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
 
 	public GlobalMemory() {
-		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(_memory)) {
+		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
 			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());
 		}
 	}
 
 	@Override
 	public long getAvailable() {
-		return _memory.ullAvailPhys.longValue();
+		return this._memory.ullAvailPhys.longValue();
 	}
 
 	@Override
 	public long getTotal() {
-		return _memory.ullTotalPhys.longValue();
+		return this._memory.ullTotalPhys.longValue();
 	}
 }

@@ -32,17 +32,17 @@ public class MacOperatingSystem implements OperatingSystem {
 
 	@Override
 	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
+		if (this._version == null) {
+			this._version = new OSVersionInfoEx();
 		}
-		return _version;
+		return this._version;
 	}
 
 	@Override
 	public String getFamily() {
-		if (_family == null)
-			_family = System.getProperty("os.name");
-		return _family;
+		if (this._family == null)
+			this._family = System.getProperty("os.name");
+		return this._family;
 	}
 
 	@Override

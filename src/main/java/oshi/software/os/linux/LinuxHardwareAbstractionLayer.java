@@ -45,10 +45,10 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	@Override
 	public Memory getMemory() {
-		if (_memory == null) {
-			_memory = new GlobalMemory();
+		if (this._memory == null) {
+			this._memory = new GlobalMemory();
 		}
-		return _memory;
+		return this._memory;
 	}
 
 	@Override
@@ -113,10 +113,10 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			if (cpu != null) {
 				processors.add(cpu);
 			}
-			_processors = processors.toArray(new Processor[0]);
+			this._processors = processors.toArray(new Processor[0]);
 		}
 
-		return _processors;
+		return this._processors;
 	}
 
 	@Override

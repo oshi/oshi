@@ -48,17 +48,17 @@ public class LinuxPowerSource implements PowerSource {
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public double getRemainingCapacity() {
-		return remainingCapacity;
+		return this.remainingCapacity;
 	}
 
 	@Override
 	public double getTimeRemaining() {
-		return timeRemaining;
+		return this.timeRemaining;
 	}
 
 	/**

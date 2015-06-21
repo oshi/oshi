@@ -56,7 +56,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
 			}
 			in.close();
 		}
-		return _family;
+		return this._family;
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
 		if (_version == null) {
 			_version = new OSVersionInfoEx();
 		}
-		return _version;
+		return this._version;
 	}
 
 	@Override

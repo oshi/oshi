@@ -43,9 +43,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return the _version
 	 */
 	public String getVersion() {
-		if (_version == null)
-			_version = System.getProperty("os.version");
-		return _version;
+		if (this._version == null)
+			this._version = System.getProperty("os.version");
+		return this._version;
 	}
 
 	/**
@@ -53,63 +53,63 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 *            the version to set
 	 */
 	public void setVersion(String version) {
-		_version = version;
+		this._version = version;
 	}
 
 	/**
 	 * @return the _codeName
 	 */
 	public String getCodeName() {
-		if (_codeName == null) {
+		if (this._codeName == null) {
 			if (getVersion() != null) {
 				String[] versionSplit = getVersion().split("\\.");
 				if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
 					switch (Integer.parseInt(versionSplit[1])) {
 					case 0:
-						_codeName = "Cheetah";
+						this._codeName = "Cheetah";
 						break;
 					case 1:
-						_codeName = "Puma";
+						this._codeName = "Puma";
 						break;
 					case 2:
-						_codeName = "Jaguar";
+						this._codeName = "Jaguar";
 						break;
 					case 3:
-						_codeName = "Panther";
+						this._codeName = "Panther";
 						break;
 					case 4:
-						_codeName = "Tiger";
+						this._codeName = "Tiger";
 						break;
 					case 5:
-						_codeName = "Leopard";
+						this._codeName = "Leopard";
 						break;
 					case 6:
-						_codeName = "Snow Leopard";
+						this._codeName = "Snow Leopard";
 						break;
 					case 7:
-						_codeName = "Lion";
+						this._codeName = "Lion";
 						break;
 					case 8:
-						_codeName = "Mountain Lion";
+						this._codeName = "Mountain Lion";
 						break;
 					case 9:
-						_codeName = "Mavericks";
+						this._codeName = "Mavericks";
 						break;
 					case 10:
-						_codeName = "Yosemite";
+						this._codeName = "Yosemite";
 						break;
 					case 11:
-						_codeName = "El Capitan";
+						this._codeName = "El Capitan";
 						break;
 					default:
-						_codeName = "";
+						this._codeName = "";
 					}
 
 				} else
-					_codeName = "";
+					this._codeName = "";
 			}
 		}
-		return _codeName;
+		return this._codeName;
 	}
 
 	/**
@@ -117,11 +117,11 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 *            the codeName to set
 	 */
 	public void setCodeName(String codeName) {
-		_codeName = codeName;
+		this._codeName = codeName;
 	}
 
 	public String getBuildNumber() {
-		if (_buildNumber == null) {
+		if (this._buildNumber == null) {
 			int[] mib = { SystemB.CTL_KERN, SystemB.KERN_OSVERSION };
 			IntByReference size = new IntByReference();
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
@@ -132,9 +132,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_buildNumber = p.getString(0);
+			this._buildNumber = p.getString(0);
 		}
-		return _buildNumber;
+		return this._buildNumber;
 	}
 
 	public void setBuildNumber(String buildNumber) {
@@ -143,13 +143,13 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	@Override
 	public String toString() {
-		if (_versionStr == null) {
+		if (this._versionStr == null) {
 			StringBuilder sb = new StringBuilder(getVersion());
 			if (getCodeName().length() > 0)
 				sb.append(" (").append(getCodeName()).append(")");
 			sb.append(" build ").append(getBuildNumber());
-			_versionStr = sb.toString();
+			this._versionStr = sb.toString();
 		}
-		return _versionStr;
+		return this._versionStr;
 	}
 }

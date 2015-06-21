@@ -41,16 +41,16 @@ public class WindowsHardwareAbstractionLayer implements
 
 	@Override
 	public Memory getMemory() {
-		if (_memory == null) {
-			_memory = new GlobalMemory();
+		if (this._memory == null) {
+			this._memory = new GlobalMemory();
 		}
-		return _memory;
+		return this._memory;
 	}
 
 	@Override
 	public Processor[] getProcessors() {
 
-		if (_processors == null) {
+		if (this._processors == null) {
 			final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
 			List<Processor> processors = new ArrayList<>();
 			String[] processorIds = Advapi32Util.registryGetKeys(
@@ -69,10 +69,10 @@ public class WindowsHardwareAbstractionLayer implements
 						"VendorIdentifier"));
 				processors.add(cpu);
 			}
-			_processors = processors.toArray(new Processor[0]);
+			this._processors = processors.toArray(new Processor[0]);
 		}
 
-		return _processors;
+		return this._processors;
 	}
 
 	@Override

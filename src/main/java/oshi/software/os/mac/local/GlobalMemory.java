@@ -59,15 +59,15 @@ public class GlobalMemory implements Memory {
 
 	@Override
 	public long getTotal() {
-		if (totalMemory == 0) {
+		if (this.totalMemory == 0) {
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };
 			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,
 					new IntByReference(SystemB.UINT64_SIZE), null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			totalMemory = pMemSize.getLong(0);
+			this.totalMemory = pMemSize.getLong(0);
 		}
-		return totalMemory;
+		return this.totalMemory;
 	}
 }

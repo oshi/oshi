@@ -60,7 +60,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getVendor() {
-		return _vendor;
+		return this._vendor;
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setVendor(String vendor) {
-		_vendor = vendor;
+		this._vendor = vendor;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getName() {
-		return _name;
+		return this._name;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setName(String name) {
-		_name = name;
+		this._name = name;
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long getVendorFreq() {
-		if (_freq == null) {
+		if (this._freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
@@ -115,7 +115,7 @@ public class CentralProcessor implements Processor {
 			}
 		}
 
-		return _freq.longValue();
+		return this._freq.longValue();
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setVendorFreq(long freq) {
-		_freq = Long.valueOf(freq);
+		this._freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getIdentifier() {
-		return _identifier;
+		return this._identifier;
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setIdentifier(String identifier) {
-		_identifier = identifier;
+		this._identifier = identifier;
 	}
 
 	/**

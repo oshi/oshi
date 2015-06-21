@@ -60,7 +60,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getVendor() {
-		return _vendor;
+		return this._vendor;
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setVendor(String vendor) {
-		_vendor = vendor;
+		this._vendor = vendor;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getName() {
-		return _name;
+		return this._name;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setName(String name) {
-		_name = name;
+		this._name = name;
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long getVendorFreq() {
-		if (_freq == null) {
+		if (this._freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
@@ -115,7 +115,7 @@ public class CentralProcessor implements Processor {
 			}
 		}
 
-		return _freq.longValue();
+		return this._freq.longValue();
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setVendorFreq(long freq) {
-		_freq = Long.valueOf(freq);
+		this._freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getIdentifier() {
-		if (_identifier == null) {
+		if (this._identifier == null) {
 			StringBuilder sb = new StringBuilder();
 			if (getVendor().contentEquals("GenuineIntel"))
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
@@ -148,9 +148,9 @@ public class CentralProcessor implements Processor {
 			sb.append(getModel());
 			sb.append(" Stepping ");
 			sb.append(getStepping());
-			_identifier = sb.toString();
+			this._identifier = sb.toString();
 		}
-		return _identifier;
+		return this._identifier;
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setIdentifier(String identifier) {
-		_identifier = identifier;
+		this._identifier = identifier;
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public boolean isCpu64bit() {
-		return _cpu64.booleanValue();
+		return this._cpu64.booleanValue();
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public void setCpu64(boolean cpu64) {
-		_cpu64 = Boolean.valueOf(cpu64);
+		this._cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getStepping() {
-		return _stepping;
+		return this._stepping;
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getModel() {
-		return _model;
+		return this._model;
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getFamily() {
-		return _family;
+		return this._family;
 	}
 
 	/**

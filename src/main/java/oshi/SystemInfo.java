@@ -42,13 +42,13 @@ public class SystemInfo {
 
 	{
 		if (Platform.isWindows())
-			currentPlatformEnum = PlatformEnum.WINDOWS;
+			this.currentPlatformEnum = PlatformEnum.WINDOWS;
 		else if (Platform.isLinux())
-			currentPlatformEnum = PlatformEnum.LINUX;
+			this.currentPlatformEnum = PlatformEnum.LINUX;
 		else if (Platform.isMac())
-			currentPlatformEnum = PlatformEnum.MACOSX;
+			this.currentPlatformEnum = PlatformEnum.MACOSX;
 		else
-			currentPlatformEnum = PlatformEnum.UNKNOWN;
+			this.currentPlatformEnum = PlatformEnum.UNKNOWN;
 	}
 
 	/**
@@ -58,24 +58,24 @@ public class SystemInfo {
 	 * @return A new instance of {@link OperatingSystem}.
 	 */
 	public OperatingSystem getOperatingSystem() {
-		if (_os == null) {
-			switch (currentPlatformEnum) {
+		if (this._os == null) {
+			switch (this.currentPlatformEnum) {
 
 			case WINDOWS:
-				_os = new WindowsOperatingSystem();
+				this._os = new WindowsOperatingSystem();
 				break;
 			case LINUX:
-				_os = new LinuxOperatingSystem();
+				this._os = new LinuxOperatingSystem();
 				break;
 			case MACOSX:
-				_os = new MacOperatingSystem();
+				this._os = new MacOperatingSystem();
 				break;
 			default:
 				throw new RuntimeException("Operating system not supported: "
 						+ Platform.getOSType());
 			}
 		}
-		return _os;
+		return this._os;
 	}
 
 	/**
@@ -85,23 +85,23 @@ public class SystemInfo {
 	 * @return A new instance of {@link HardwareAbstractionLayer}.
 	 */
 	public HardwareAbstractionLayer getHardware() {
-		if (_hardware == null) {
-			switch (currentPlatformEnum) {
+		if (this._hardware == null) {
+			switch (this.currentPlatformEnum) {
 
 			case WINDOWS:
-				_hardware = new WindowsHardwareAbstractionLayer();
+				this._hardware = new WindowsHardwareAbstractionLayer();
 				break;
 			case LINUX:
-				_hardware = new LinuxHardwareAbstractionLayer();
+				this._hardware = new LinuxHardwareAbstractionLayer();
 				break;
 			case MACOSX:
-				_hardware = new MacHardwareAbstractionLayer();
+				this._hardware = new MacHardwareAbstractionLayer();
 				break;
 			default:
 				throw new RuntimeException("Operating system not supported: "
 						+ Platform.getOSType());
 			}
 		}
-		return _hardware;
+		return this._hardware;
 	}
 }
