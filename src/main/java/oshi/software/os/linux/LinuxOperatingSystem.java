@@ -37,24 +37,21 @@ public class LinuxOperatingSystem implements OperatingSystem {
 
 	@Override
 	public String getFamily() {
-		if (_family == null) {
-			Scanner in;
-			try {
-				in = new Scanner(new FileReader("/etc/os-release"));
+		if (this._family == null) {
+			try (final Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
+				in.useDelimiter("\n");
+				while (in.hasNext()) {
+					String[] splittedLine = in.next().split("=");
+					if (splittedLine[0].equals("NAME")) {
+						// remove beginning and ending '"' characters, etc from
+						// NAME="Ubuntu"
+						this._family = splittedLine[1].replaceAll("^\"|\"$", "");
+						break;
+					}
+				}
 			} catch (FileNotFoundException e) {
 				return "";
 			}
-			in.useDelimiter("\n");
-			while (in.hasNext()) {
-				String[] splittedLine = in.next().split("=");
-				if (splittedLine[0].equals("NAME")) {
-					// remove beginning and ending '"' characters, etc from
-					// NAME="Ubuntu"
-					_family = splittedLine[1].replaceAll("^\"|\"$", "");
-					break;
-				}
-			}
-			in.close();
 		}
 		return this._family;
 	}

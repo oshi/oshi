@@ -36,42 +36,40 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	private String version = null;
 
 	public OSVersionInfoEx() {
-		Scanner in = null;
-		try {
-			in = new Scanner(new FileReader("/etc/os-release"));
+		try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
+			in.useDelimiter("\n");
+			while (in.hasNext()) {
+				String[] splittedLine = in.next().split("=");
+				if (splittedLine[0].equals("VERSION_ID")) {
+					// remove beginning and ending '"' characters, etc from
+					// VERSION_ID="14.04"
+					setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
+				}
+				if (splittedLine[0].equals("VERSION")) {
+					// remove beginning and ending '"' characters
+					splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
+
+					// Check basically if the code is between parenthesis or after
+					// the comma-space
+
+					// Basically, until now, that seems to be the standard to use
+					// parenthesis for the codename.
+					String[] split = splittedLine[1].split("[()]");
+					if (split.length <= 1)
+						// We are probably with Ubuntu, so need to get that part
+						// correctly.
+						split = splittedLine[1].split(", ");
+
+					if (split.length > 1) {
+						setCodeName(split[1]);
+					} else {
+						setCodeName(splittedLine[1]);
+					}
+				}
+			}
 		} catch (FileNotFoundException e) {
 			return;
 		}
-		in.useDelimiter("\n");
-		while (in.hasNext()) {
-			String[] splittedLine = in.next().split("=");
-			if (splittedLine[0].equals("VERSION_ID")) {
-				// remove beginning and ending '"' characters, etc from
-				// VERSION_ID="14.04"
-				setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
-			}
-			if (splittedLine[0].equals("VERSION")) {
-				// remove beginning and ending '"' characters
-				splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
-
-				// Check basically if the code is between parenthesis or after
-				// the coma-space
-
-				// Basically, until now, that seems to be the standard to use
-				// parenthesis for the codename.
-				String[] split = splittedLine[1].split("[()]");
-				if (split.length <= 1)
-					// We are probably with Ubuntu, so need to get that part
-					// correctly.
-					split = splittedLine[1].split(", ");
-
-				if (split.length > 1)
-					setCodeName(split[1]);
-				else
-					setCodeName(splittedLine[1]);
-			}
-		}
-		in.close();
 	}
 
 	/**
