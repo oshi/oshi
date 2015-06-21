@@ -66,8 +66,8 @@ public class LinuxOperatingSystem implements OperatingSystem {
 
 	@Override
 	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
+		if (this._version == null) {
+			this._version = new OSVersionInfoEx();
 		}
 		return this._version;
 	}

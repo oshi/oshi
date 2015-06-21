@@ -94,7 +94,7 @@ public class GlobalMemory implements Memory {
 		if (memorySplit.length < 2) {
 			return 0l;
 		}
-		long memory = new Long(memorySplit[1]);
+		long memory = new Long(memorySplit[1]).longValue();
 		if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
 			memory *= 1024;
 		}
