@@ -26,7 +26,6 @@ import oshi.util.ParseUtil;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;
-import com.sun.management.OperatingSystemMXBean;
 
 /**
  * A CPU as defined in Windows registry.
@@ -36,18 +35,30 @@ import com.sun.management.OperatingSystemMXBean;
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
-	private static final OperatingSystemMXBean OS_MXBEAN;
+	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
+			.getOperatingSystemMXBean();;
+	private static boolean sunMXBean;
 	static {
-		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory
-				.getOperatingSystemMXBean();
-		// Initialize CPU usage
-		OS_MXBEAN.getSystemCpuLoad();
+		try {
+			Class.forName("com.sun.management.OperatingSystemMXBean");
+			// Initialize CPU usage
+			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
+					.getSystemCpuLoad();
+			sunMXBean = true;
+		} catch (ClassNotFoundException e) {
+			sunMXBean = false;
+		}
 	}
+	// Maintain two sets of previous ticks to be used for calculating usage
+	// between them.
+	private static long[] prevTicks = new long[4];
+	private static long[] curTicks = getCurrentSystemCpuLoadTicks();
+	private static long tickTime = System.currentTimeMillis();
 
-	private String _vendor;
-	private String _name;
-	private String _identifier;
-	private Long _freq;
+	private String cpuVendor;
+	private String cpuName;
+	private String cpuIdentifier;
+	private Long cpuVendorFreq;
 
 	public CentralProcessor() {
 
@@ -60,18 +71,18 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getVendor() {
-		return this._vendor;
+		return this.cpuVendor;
 	}
 
 	/**
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *			Vendor.
+	 *            Vendor.
 	 */
 	@Override
 	public void setVendor(String vendor) {
-		this._vendor = vendor;
+		this.cpuVendor = vendor;
 	}
 
 	/**
@@ -81,18 +92,18 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getName() {
-		return this._name;
+		return this.cpuName;
 	}
 
 	/**
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *			Name.
+	 *            Name.
 	 */
 	@Override
 	public void setName(String name) {
-		this._name = name;
+		this.cpuName = name;
 	}
 
 	/**
@@ -103,30 +114,30 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long getVendorFreq() {
-		if (this._freq == null) {
+		if (this.cpuVendorFreq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
+				this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				this._freq = Long.valueOf(-1L);
+				this.cpuVendorFreq = Long.valueOf(-1L);
 			}
 		}
 
-		return this._freq.longValue();
+		return this.cpuVendorFreq.longValue();
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
 	 * @param freq
-	 *			Frequency.
+	 *            Frequency.
 	 */
 	@Override
 	public void setVendorFreq(long freq) {
-		this._freq = Long.valueOf(freq);
+		this.cpuVendorFreq = Long.valueOf(freq);
 	}
 
 	/**
@@ -136,18 +147,18 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getIdentifier() {
-		return this._identifier;
+		return this.cpuIdentifier;
 	}
 
 	/**
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *			Identifier.
+	 *            Identifier.
 	 */
 	@Override
 	public void setIdentifier(String identifier) {
-		this._identifier = identifier;
+		this.cpuIdentifier = identifier;
 	}
 
 	/**
@@ -178,7 +189,7 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStepping(String _stepping) {
+	public void setStepping(String stepping) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -194,7 +205,7 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setModel(String _model) {
+	public void setModel(String model) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -210,7 +221,7 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setFamily(String _family) {
+	public void setFamily(String family) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -218,20 +229,24 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Deprecated
 	public float getLoad() {
-		long[] prevTicks = getCpuLoadTicks();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// Awake, O sleeper
+		// Check if > ~ 0.95 seconds since last tick count.
+		long now = System.currentTimeMillis();
+		if (now - tickTime > 950) {
+			// Enough time has elapsed. Copy latest ticks to earlier position
+			System.arraycopy(curTicks, 0, prevTicks, 0, prevTicks.length);
+			// Calculate new latest values
+			curTicks = getCurrentSystemCpuLoadTicks();
+			tickTime = now;
 		}
-		long[] ticks = getCpuLoadTicks();
+		// Calculate total
 		long total = 0;
-		for (int i = 0; i < ticks.length; i++) {
-			total += (ticks[i] - prevTicks[i]);
+		for (int i = 0; i < curTicks.length; i++) {
+			total += (curTicks[i] - prevTicks[i]);
 		}
-		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
+		// Calculate idle from last field [3]
+		long idle = curTicks[3] - prevTicks[3];
+		// return
 		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
 		}
@@ -242,7 +257,21 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public long[] getCpuLoadTicks() {
+	public long[] getSystemCpuLoadTicks() {
+		return getCurrentSystemCpuLoadTicks();
+	}
+
+	/**
+	 * Gets system tick information from native call to GetSystemTimes().
+	 * Returns an array with four elements representing clock ticks or
+	 * milliseconds (platform dependent) spent in User (0), Nice (1), System
+	 * (2), and Idle (3) states. By measuring the difference between ticks
+	 * across a time interval, CPU load over that interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	private static long[] getCurrentSystemCpuLoadTicks() {
 		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
@@ -262,8 +291,12 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double getSystemCPULoad() {
-		return OS_MXBEAN.getSystemCpuLoad();
+	public double getSystemCpuLoad() {
+		if (sunMXBean) {
+			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
+					.getSystemCpuLoad();
+		}
+		return getLoad();
 	}
 
 	/**

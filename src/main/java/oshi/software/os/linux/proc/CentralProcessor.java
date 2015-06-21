@@ -26,8 +26,6 @@ import oshi.hardware.Processor;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
-import com.sun.management.OperatingSystemMXBean;
-
 /**
  * A CPU as defined in Linux /proc.
  * 
@@ -36,22 +34,34 @@ import com.sun.management.OperatingSystemMXBean;
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
-	private static final OperatingSystemMXBean OS_MXBEAN;
+	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
+			.getOperatingSystemMXBean();;
+	private static boolean sunMXBean;
 	static {
-		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory
-				.getOperatingSystemMXBean();
-		// Initialize CPU usage
-		OS_MXBEAN.getSystemCpuLoad();
+		try {
+			Class.forName("com.sun.management.OperatingSystemMXBean");
+			// Initialize CPU usage
+			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
+					.getSystemCpuLoad();
+			sunMXBean = true;
+		} catch (ClassNotFoundException e) {
+			sunMXBean = false;
+		}
 	}
+	// Maintain two sets of previous ticks to be used for calculating usage
+	// between them.
+	private static long[] prevTicks = new long[4];
+	private static long[] curTicks = getCurrentSystemCpuLoadTicks();
+	private static long tickTime = System.currentTimeMillis();
 
-	private String _vendor;
-	private String _name;
-	private String _identifier = null;
-	private String _stepping;
-	private String _model;
-	private String _family;
-	private Long _freq = null;
-	private Boolean _cpu64;
+	private String cpuVendor;
+	private String cpuName;
+	private String cpuIdentifier = null;
+	private String cpuStepping;
+	private String cpuModel;
+	private String cpuFamily;
+	private Long cpuVendorFreq = null;
+	private Boolean cpu64;
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
@@ -60,18 +70,18 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getVendor() {
-		return this._vendor;
+		return this.cpuVendor;
 	}
 
 	/**
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *			Vendor.
+	 *            Vendor.
 	 */
 	@Override
 	public void setVendor(String vendor) {
-		this._vendor = vendor;
+		this.cpuVendor = vendor;
 	}
 
 	/**
@@ -81,18 +91,18 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getName() {
-		return this._name;
+		return this.cpuName;
 	}
 
 	/**
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *			Name.
+	 *            Name.
 	 */
 	@Override
 	public void setName(String name) {
-		this._name = name;
+		this.cpuName = name;
 	}
 
 	/**
@@ -103,30 +113,30 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long getVendorFreq() {
-		if (this._freq == null) {
+		if (this.cpuVendorFreq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
+				this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				this._freq = Long.valueOf(-1L);
+				this.cpuVendorFreq = Long.valueOf(-1L);
 			}
 		}
 
-		return this._freq.longValue();
+		return this.cpuVendorFreq.longValue();
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
 	 * @param freq
-	 *			Frequency.
+	 *            Frequency.
 	 */
 	@Override
 	public void setVendorFreq(long freq) {
-		this._freq = Long.valueOf(freq);
+		this.cpuVendorFreq = Long.valueOf(freq);
 	}
 
 	/**
@@ -136,7 +146,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public String getIdentifier() {
-		if (this._identifier == null) {
+		if (this.cpuIdentifier == null) {
 			StringBuilder sb = new StringBuilder();
 			if (getVendor().contentEquals("GenuineIntel"))
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
@@ -148,20 +158,20 @@ public class CentralProcessor implements Processor {
 			sb.append(getModel());
 			sb.append(" Stepping ");
 			sb.append(getStepping());
-			this._identifier = sb.toString();
+			this.cpuIdentifier = sb.toString();
 		}
-		return this._identifier;
+		return this.cpuIdentifier;
 	}
 
 	/**
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *			Identifier.
+	 *            Identifier.
 	 */
 	@Override
 	public void setIdentifier(String identifier) {
-		this._identifier = identifier;
+		this.cpuIdentifier = identifier;
 	}
 
 	/**
@@ -171,97 +181,118 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public boolean isCpu64bit() {
-		return this._cpu64.booleanValue();
+		return this.cpu64.booleanValue();
 	}
 
 	/**
 	 * Set flag is cpu is 64bit.
 	 * 
 	 * @param cpu64
-	 *			True if cpu is 64.
+	 *            True if cpu is 64.
 	 */
 	@Override
 	public void setCpu64(boolean cpu64) {
-		this._cpu64 = Boolean.valueOf(cpu64);
+		this.cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**
-	 * @return the _stepping
+	 * @return the stepping
 	 */
 	@Override
 	public String getStepping() {
-		return this._stepping;
+		return this.cpuStepping;
 	}
 
 	/**
-	 * @param _stepping
-	 *			the _stepping to set
+	 * @param stepping
+	 *            the stepping to set
 	 */
 	@Override
-	public void setStepping(String _stepping) {
-		this._stepping = _stepping;
+	public void setStepping(String stepping) {
+		this.cpuStepping = stepping;
 	}
 
 	/**
-	 * @return the _model
+	 * @return the model
 	 */
 	@Override
 	public String getModel() {
-		return this._model;
+		return this.cpuModel;
 	}
 
 	/**
-	 * @param _model
-	 *			the _model to set
+	 * @param model
+	 *            the model to set
 	 */
 	@Override
-	public void setModel(String _model) {
-		this._model = _model;
+	public void setModel(String model) {
+		this.cpuModel = model;
 	}
 
 	/**
-	 * @return the _family
+	 * @return the family
 	 */
 	@Override
 	public String getFamily() {
-		return this._family;
+		return this.cpuFamily;
 	}
 
 	/**
-	 * @param _family
-	 *			the _family to set
+	 * @param family
+	 *            the family to set
 	 */
 	@Override
-	public void setFamily(String _family) {
-		this._family = _family;
+	public void setFamily(String family) {
+		this.cpuFamily = family;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Deprecated
 	public float getLoad() {
-		long[] prevTicks = getCpuLoadTicks();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// Awake, O sleeper
+		// Check if > ~ 0.95 seconds since last tick count.
+		long now = System.currentTimeMillis();
+		if (now - tickTime > 950) {
+			// Enough time has elapsed. Copy latest ticks to earlier position
+			System.arraycopy(curTicks, 0, prevTicks, 0, prevTicks.length);
+			// Calculate new latest values
+			curTicks = getCurrentSystemCpuLoadTicks();
+			tickTime = now;
 		}
-		long[] ticks = getCpuLoadTicks();
+		// Calculate total
 		long total = 0;
-		for (int i = 0; i < ticks.length; i++) {
-			total += (ticks[i] - prevTicks[i]);
+		for (int i = 0; i < curTicks.length; i++) {
+			total += (curTicks[i] - prevTicks[i]);
 		}
-		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
+		// Calculate idle from last field [3]
+		long idle = curTicks[3] - prevTicks[3];
+		// return
 		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
 		}
 		return 0f;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public long[] getCpuLoadTicks() {
+	public long[] getSystemCpuLoadTicks() {
+		return getCurrentSystemCpuLoadTicks();
+	}
+
+	/**
+	 * Gets system tick information from parsing /proc/stat. Returns an array
+	 * with four elements representing clock ticks or milliseconds (platform
+	 * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
+	 * By measuring the difference between ticks across a time interval, CPU
+	 * load over that interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	private static long[] getCurrentSystemCpuLoadTicks() {
 		// /proc/stat expected format
 		// first line is overall user,nice,system,idle, etc.
 		// cpu 3357 0 4313 1362393 ...
@@ -287,8 +318,12 @@ public class CentralProcessor implements Processor {
 	}
 
 	@Override
-	public double getSystemCPULoad() {
-		return OS_MXBEAN.getSystemCpuLoad();
+	public double getSystemCpuLoad() {
+		if (sunMXBean) {
+			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
+					.getSystemCpuLoad();
+		}
+		return getLoad();
 	}
 
 	@Override

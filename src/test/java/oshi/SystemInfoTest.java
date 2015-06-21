@@ -36,6 +36,7 @@ import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
+import oshi.util.Util;
 
 import com.sun.jna.Platform;
 
@@ -86,7 +87,6 @@ public class SystemInfoTest {
 	/**
 	 * Test cpu load.
 	 */
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testCpuLoad() {
 		SystemInfo si = new SystemInfo();
@@ -102,7 +102,7 @@ public class SystemInfoTest {
 	public void testCpuLoadTicks() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
-		assertEquals(4, hal.getProcessors()[0].getCpuLoadTicks().length);
+		assertEquals(4, hal.getProcessors()[0].getSystemCpuLoadTicks().length);
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class SystemInfoTest {
 	public void testSystemCpuLoad() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
-		double cpuLoad = hal.getProcessors()[0].getSystemCPULoad();
+		double cpuLoad = hal.getProcessors()[0].getSystemCpuLoad();
 		assertTrue(cpuLoad >= 0.0 && cpuLoad <= 1.0);
 	}
 
@@ -162,7 +162,7 @@ public class SystemInfoTest {
 	 * Test file system.
 	 *
 	 * @throws IOException
-	 *			 Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	@Test
 	public void testFileSystem() throws IOException {
@@ -187,9 +187,8 @@ public class SystemInfoTest {
 	 * The main method.
 	 *
 	 * @param args
-	 *			the arguments
+	 *            the arguments
 	 */
-	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();
 		// software
@@ -210,17 +209,11 @@ public class SystemInfoTest {
 		System.out.println("Memory: "
 				+ FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
-		System.out.format("CPU load: %.1f%% (deprecated version)%n",
-				hal.getProcessors()[0].getLoad());
-		long[] prevTicks = hal.getProcessors()[0].getCpuLoadTicks();
+		long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
 		System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
-		// Stall long enough for an accurate reading
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// Don't wake me up!
-		}
-		long[] ticks = hal.getProcessors()[0].getCpuLoadTicks();
+		// Wait a second...
+		Util.sleep(1000);
+		long[] ticks = hal.getProcessors()[0].getSystemCpuLoadTicks();
 		System.out.println("CPU ticks @ 1 sec:" + Arrays.toString(ticks));
 		long user = ticks[0] - prevTicks[0];
 		long nice = ticks[1] - prevTicks[1];
@@ -232,8 +225,10 @@ public class SystemInfoTest {
 				"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d
 						* user / totalCpu, 100d * nice / totalCpu, 100d * sys
 						/ totalCpu, 100d * idle / totalCpu);
-		System.out.format("CPU load: %.1f%%%n",
-				hal.getProcessors()[0].getSystemCPULoad() * 100);
+		System.out.format("CPU load: %.1f%% (counting ticks)%n",
+				hal.getProcessors()[0].getLoad());
+		System.out.format("CPU load: %.1f%% (OS MXBean)%n",
+				hal.getProcessors()[0].getSystemCpuLoad() * 100);
 		double loadAverage = hal.getProcessors()[0].getSystemLoadAverage();
 		System.out
 				.println("CPU load average: "
