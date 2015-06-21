@@ -10,6 +10,7 @@ Essentials
 ----------
 * [Download Oshi 1.2](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.2|jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
+* [View the Site](http://dblock.github.io/oshi/)
 
 Where are we?
 -------------
