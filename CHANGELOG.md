@@ -10,29 +10,7 @@ Next
 * See site page for individual commits going forwards as only major changes will be mentioned manually in change log.
 * Upgraded to java 7 base support
 * Upgraded JNA to 4.1.0
-* Bringing all lessons learned from waffle over to oshi in one go.
-  * Additionally raised to java 1.6.
-  * Assembly is now performed on all builds.
-  * Use sonatype parent
-  * Added inception year
-  * Added organization
-  * Require Maven 3.2.3 or better
-  * Added issues management
-  * Added ci management
-  * Added distribution for site pages to github gh pages
-  * Added copyright
-  * Added maven properties for java version (source and test side)
-  * Added maven build timestamp
-  * Set project and reporting encoding to UTF-8
-  * Added entire default plugin set to control the build level of each even if not otherwise used.  This is intended to override mavens hidden base parent
-  * Set incremental compilation at false due to maven bug and note the jira ticket
-  * Set site page to allow markdown usage in order to show readme
-  * Switch from legacy emma code coverage to jacoco code coverage
-  * Add all the various reports such as javadocs, checkstyles, findbugs, pmd, nvd scan for security, etc
-  * Add patch for git commit id for manifest along with jira to same issue
-  * Add build time, copyright, os informaton, compiler information to manifest for all resulting builds
-  * Remove rather manual pieces of release to nexus
-  * Keep gpg signing in case we need to use deploy when maven release plugin fails so we can get to sonatype regardless
+* Bringing all lessons learned from waffle over to oshi in one go for building project from source.
 
 1.2 (6/13/2014)
 ================
