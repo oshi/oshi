@@ -85,10 +85,10 @@ public class ExecutingCommand {
 	public static String getAnswerAt(String cmd2launch, int answerIdx) {
 		ArrayList<String> sa = ExecutingCommand.runNative(cmd2launch);
 
-		if (sa != null && answerIdx >= 0 && answerIdx < sa.size())
+		if (sa != null && answerIdx >= 0 && answerIdx < sa.size()) {
 			return sa.get(answerIdx);
-		else
-			return null;
+		}
+		return null;
 	}
 
 }

@@ -232,10 +232,10 @@ public class CentralProcessor implements Processor {
 			total += (ticks[i] - prevTicks[i]);
 		}
 		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
-		if (total > 0 && idle >= 0)
+		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
-		else
-			return 0f;
+		}
+		return 0f;
 	}
 
 	/**
