@@ -54,8 +54,8 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 	@Override
 	public Processor[] getProcessors() {
 
-		if (_processors == null) {
-			List<Processor> processors = new ArrayList<Processor>();
+		if (this._processors == null) {
+			List<Processor> processors = new ArrayList<>();
 			List<String> cpuInfo = null;
 			try {
 				cpuInfo = FileUtil.readFile("/proc/cpuinfo");

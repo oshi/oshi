@@ -109,9 +109,9 @@ public class CentralProcessor implements Processor {
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				_freq = ParseUtil.parseHertz(unit);
+				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				_freq = -1L;
+				this._freq = Long.valueOf(-1L);
 			}
 		}
 
