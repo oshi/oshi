@@ -50,7 +50,7 @@ public interface PowrProf extends Library {
 		public int defaultAlert2; // unsigned 32 bit
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "acOnLine", "batteryPresent",
 					"charging", "discharging", "spare1", "maxCapacity",
 					"remainingCapacity", "rate", "estimatedTime",

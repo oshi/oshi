@@ -36,7 +36,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 	 * values returned are the sum of the designated times across all
 	 * processors.
 	 * 
-	 * Times are offset by {@link WIN32_TIME_OFFSET}.
+	 * Times are offset by {@value #WIN32_TIME_OFFSET}.
 	 * 
 	 * @param lpIdleTime
 	 *            A pointer to a FILETIME structure that receives the amount of

@@ -36,6 +36,7 @@ import com.sun.management.OperatingSystemMXBean;
  * 
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
+ * @author alessio.fachechi[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
@@ -61,8 +62,9 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
-		if (_vendor == null) {
+		if (this._vendor == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
 					SystemB.MACHDEP_CPU_VENDOR };
 			IntByReference size = new IntByReference();
@@ -74,19 +76,20 @@ public class CentralProcessor implements Processor {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_vendor = p.getString(0);
+			this._vendor = p.getString(0);
 		}
-		return _vendor;
+		return this._vendor;
 	}
 
 	/**
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *            Vendor.
+	 *			Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
-		_vendor = vendor;
+		this._vendor = vendor;
 	}
 
 	/**
@@ -94,8 +97,9 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
-		if (_name == null) {
+		if (this._name == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
 					SystemB.MACHDEP_CPU_BRAND_STRING };
 			IntByReference size = new IntByReference();
@@ -107,19 +111,20 @@ public class CentralProcessor implements Processor {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_name = p.getString(0);
+			this._name = p.getString(0);
 		}
-		return _name;
+		return this._name;
 	}
 
 	/**
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *            Name.
+	 *			Name.
 	 */
+	@Override
 	public void setName(String name) {
-		_name = name;
+		this._name = name;
 	}
 
 	/**
@@ -127,33 +132,33 @@ public class CentralProcessor implements Processor {
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
+	@Override
 	public long getVendorFreq() {
-		if (_freq == null) {
+		if (this._freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				_freq = ParseUtil.parseHertz(unit);
+				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				_freq = -1L;
+				this._freq = Long.valueOf(-1L);
 			}
 		}
 
-		return _freq.longValue();
+		return this._freq.longValue();
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
-	 *            Frequency.
+	 * @param freq
+	 *			Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
-		_freq = Long.valueOf(freq);
+		this._freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -161,8 +166,9 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
-		if (_identifier == null) {
+		if (this._identifier == null) {
 			StringBuilder sb = new StringBuilder();
 			if (getVendor().contentEquals("GenuineIntel"))
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
@@ -171,19 +177,20 @@ public class CentralProcessor implements Processor {
 			sb.append(" Family ").append(getFamily());
 			sb.append(" Model ").append(getModel());
 			sb.append(" Stepping ").append(getStepping());
-			_identifier = sb.toString();
+			this._identifier = sb.toString();
 		}
-		return _identifier;
+		return this._identifier;
 	}
 
 	/**
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *            Identifier.
+	 *			Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
-		_identifier = identifier;
+		this._identifier = identifier;
 	}
 
 	/**
@@ -191,34 +198,37 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return True if cpu is 64bit.
 	 */
+	@Override
 	public boolean isCpu64bit() {
-		if (_cpu64 == null) {
+		if (this._cpu64 == null) {
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_cpu64 = p.getInt(0) != 0;
+			this._cpu64 = p.getInt(0) != 0;
 		}
-		return _cpu64.booleanValue();
+		return this._cpu64.booleanValue();
 	}
 
 	/**
 	 * Set flag is cpu is 64bit.
 	 * 
 	 * @param cpu64
-	 *            True if cpu is 64.
+	 *			True if cpu is 64.
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
-		_cpu64 = Boolean.valueOf(cpu64);
+		this._cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**
 	 * @return the _stepping
 	 */
+	@Override
 	public String getStepping() {
-		if (_stepping == null) {
+		if (this._stepping == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
 					SystemB.MACHDEP_CPU_STEPPING };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
@@ -226,24 +236,26 @@ public class CentralProcessor implements Processor {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_stepping = Integer.toString(p.getInt(0));
+			this._stepping = Integer.toString(p.getInt(0));
 		}
-		return _stepping;
+		return this._stepping;
 	}
 
 	/**
 	 * @param stepping
-	 *            the stepping to set
+	 *			the stepping to set
 	 */
+	@Override
 	public void setStepping(String stepping) {
-		_stepping = stepping;
+		this._stepping = stepping;
 	}
 
 	/**
 	 * @return the _model
 	 */
+	@Override
 	public String getModel() {
-		if (_model == null) {
+		if (this._model == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
 					SystemB.MACHDEP_CPU_MODEL };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
@@ -251,24 +263,26 @@ public class CentralProcessor implements Processor {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_model = Integer.toString(p.getInt(0));
+			this._model = Integer.toString(p.getInt(0));
 		}
-		return _model;
+		return this._model;
 	}
 
 	/**
 	 * @param model
-	 *            the model to set
+	 *			the model to set
 	 */
+	@Override
 	public void setModel(String model) {
-		_model = model;
+		this._model = model;
 	}
 
 	/**
 	 * @return the _family
 	 */
+	@Override
 	public String getFamily() {
-		if (_family == null) {
+		if (this._family == null) {
 			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
 					SystemB.MACHDEP_CPU_FAMILY };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
@@ -276,22 +290,24 @@ public class CentralProcessor implements Processor {
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			_family = Integer.toString(p.getInt(0));
+			this._family = Integer.toString(p.getInt(0));
 		}
-		return _family;
+		return this._family;
 	}
 
 	/**
 	 * @param family
-	 *            the family to set
+	 *			the family to set
 	 */
+	@Override
 	public void setFamily(String family) {
-		_family = family;
+		this._family = family;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
 		long[] prevTicks = getCpuLoadTicks();
@@ -306,15 +322,16 @@ public class CentralProcessor implements Processor {
 			total += (ticks[i] - prevTicks[i]);
 		}
 		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
-		if (total > 0 && idle >= 0)
+		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
-		else
-			return 0f;
+		}
+		return 0f;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getCpuLoadTicks() {
 		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
 		int machPort = SystemB.INSTANCE.mach_host_self();
@@ -325,16 +342,17 @@ public class CentralProcessor implements Processor {
 						cpuLoadInfo.size())))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		// Switch order to match linux
-		ticks[0] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-		ticks[1] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-		ticks[2] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-		ticks[3] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+		ticks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+		ticks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+		ticks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+		ticks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
 		return ticks;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemCPULoad() {
 		return OS_MXBEAN.getSystemCpuLoad();
 	}
@@ -342,10 +360,12 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
 	}
 
+	@Override
 	public String toString() {
 		return getName();
 	}

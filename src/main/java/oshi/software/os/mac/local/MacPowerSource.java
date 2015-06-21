@@ -48,16 +48,19 @@ public class MacPowerSource implements PowerSource {
 		this.timeRemaining = timeRemaining;
 	}
 
+	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
+	@Override
 	public double getRemainingCapacity() {
-		return remainingCapacity;
+		return this.remainingCapacity;
 	}
 
+	@Override
 	public double getTimeRemaining() {
-		return timeRemaining;
+		return this.timeRemaining;
 	}
 
 	/**
@@ -76,7 +79,7 @@ public class MacPowerSource implements PowerSource {
 		double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();
 
 		// For each power source, output various info
-		List<MacPowerSource> psList = new ArrayList<MacPowerSource>(
+		List<MacPowerSource> psList = new ArrayList<>(
 				powerSourcesCount);
 		for (int ps = 0; ps < powerSourcesCount; ps++) {
 			// Get the dictionary for that Power Source

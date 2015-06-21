@@ -40,12 +40,15 @@ public interface CoreFoundation extends Library {
 	void CFRelease(CFTypeRef blob);
 
 	public class CFTypeRef extends PointerType {
+		// TODO Build this out
 	}
 
 	public class CFArrayRef extends PointerType {
+		// TODO Build this out
 	}
 
 	public class CFDictionaryRef extends PointerType {
+		// TODO Build this out
 	}
 
 	public class CFStringRef extends PointerType {

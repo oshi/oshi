@@ -43,17 +43,19 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Memory _memory = null;
 
+	@Override
 	public Memory getMemory() {
-		if (_memory == null) {
-			_memory = new GlobalMemory();
+		if (this._memory == null) {
+			this._memory = new GlobalMemory();
 		}
-		return _memory;
+		return this._memory;
 	}
 
+	@Override
 	public Processor[] getProcessors() {
 
-		if (_processors == null) {
-			List<Processor> processors = new ArrayList<Processor>();
+		if (this._processors == null) {
+			List<Processor> processors = new ArrayList<>();
 			List<String> cpuInfo = null;
 			try {
 				cpuInfo = FileUtil.readFile("/proc/cpuinfo");
@@ -111,16 +113,18 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			if (cpu != null) {
 				processors.add(cpu);
 			}
-			_processors = processors.toArray(new Processor[0]);
+			this._processors = processors.toArray(new Processor[0]);
 		}
 
-		return _processors;
+		return this._processors;
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
 		return LinuxPowerSource.getPowerSources();
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
 		return LinuxFileSystem.getFileStores();
 	}

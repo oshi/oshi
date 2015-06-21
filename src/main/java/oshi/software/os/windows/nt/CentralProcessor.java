@@ -32,6 +32,7 @@ import com.sun.management.OperatingSystemMXBean;
  * A CPU as defined in Windows registry.
  * 
  * @author dblock[at]dblock[dot]org
+ * @author alessio.fachechi[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
@@ -57,18 +58,20 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
-		return _vendor;
+		return this._vendor;
 	}
 
 	/**
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *            Vendor.
+	 *			Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
-		_vendor = vendor;
+		this._vendor = vendor;
 	}
 
 	/**
@@ -76,18 +79,20 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
-		return _name;
+		return this._name;
 	}
 
 	/**
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *            Name.
+	 *			Name.
 	 */
+	@Override
 	public void setName(String name) {
-		_name = name;
+		this._name = name;
 	}
 
 	/**
@@ -95,33 +100,33 @@ public class CentralProcessor implements Processor {
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
+	@Override
 	public long getVendorFreq() {
-		if (_freq == null) {
+		if (this._freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				_freq = ParseUtil.parseHertz(unit);
+				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				_freq = -1L;
+				this._freq = Long.valueOf(-1L);
 			}
 		}
 
-		return _freq.longValue();
+		return this._freq.longValue();
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
-	 *            Frequency.
+	 * @param freq
+	 *			Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
-		_freq = Long.valueOf(freq);
+		this._freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -129,23 +134,26 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
-		return _identifier;
+		return this._identifier;
 	}
 
 	/**
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *            Identifier.
+	 *			Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
-		_identifier = identifier;
+		this._identifier = identifier;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isCpu64bit() {
 		throw new UnsupportedOperationException();
 	}
@@ -153,6 +161,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
 		throw new UnsupportedOperationException();
 	}
@@ -160,6 +169,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getStepping() {
 		throw new UnsupportedOperationException();
 	}
@@ -167,6 +177,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setStepping(String _stepping) {
 		throw new UnsupportedOperationException();
 	}
@@ -174,6 +185,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getModel() {
 		throw new UnsupportedOperationException();
 	}
@@ -181,6 +193,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setModel(String _model) {
 		throw new UnsupportedOperationException();
 	}
@@ -188,6 +201,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getFamily() {
 		throw new UnsupportedOperationException();
 	}
@@ -195,6 +209,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setFamily(String _family) {
 		throw new UnsupportedOperationException();
 	}
@@ -202,6 +217,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
 		long[] prevTicks = getCpuLoadTicks();
@@ -216,15 +232,16 @@ public class CentralProcessor implements Processor {
 			total += (ticks[i] - prevTicks[i]);
 		}
 		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
-		if (total > 0 && idle >= 0)
+		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
-		else
-			return 0f;
+		}
+		return 0f;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getCpuLoadTicks() {
 		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
@@ -244,6 +261,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemCPULoad() {
 		return OS_MXBEAN.getSystemCpuLoad();
 	}
@@ -251,10 +269,12 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
 	}
 
+	@Override
 	public String toString() {
 		return getName();
 	}

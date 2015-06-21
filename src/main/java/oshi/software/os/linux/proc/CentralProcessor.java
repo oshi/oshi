@@ -32,6 +32,7 @@ import com.sun.management.OperatingSystemMXBean;
  * A CPU as defined in Linux /proc.
  * 
  * @author alessandro[at]perucchi[dot]org
+ * @author alessio.fachechi[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
@@ -57,18 +58,20 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
-		return _vendor;
+		return this._vendor;
 	}
 
 	/**
 	 * Set processor vendor.
 	 * 
 	 * @param vendor
-	 *            Vendor.
+	 *			Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
-		_vendor = vendor;
+		this._vendor = vendor;
 	}
 
 	/**
@@ -76,18 +79,20 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
-		return _name;
+		return this._name;
 	}
 
 	/**
 	 * Set processor name.
 	 * 
 	 * @param name
-	 *            Name.
+	 *			Name.
 	 */
+	@Override
 	public void setName(String name) {
-		_name = name;
+		this._name = name;
 	}
 
 	/**
@@ -95,33 +100,33 @@ public class CentralProcessor implements Processor {
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
+	@Override
 	public long getVendorFreq() {
-		if (_freq == null) {
+		if (this._freq == null) {
 			Pattern pattern = Pattern.compile("@ (.*)$");
 			Matcher matcher = pattern.matcher(getName());
 
 			if (matcher.find()) {
 				String unit = matcher.group(1);
-				_freq = ParseUtil.parseHertz(unit);
+				this._freq = Long.valueOf(ParseUtil.parseHertz(unit));
 			} else {
-				_freq = -1L;
+				this._freq = Long.valueOf(-1L);
 			}
 		}
 
-		return _freq.longValue();
+		return this._freq.longValue();
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
-	 *            Frequency.
+	 * @param freq
+	 *			Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
-		_freq = Long.valueOf(freq);
+		this._freq = Long.valueOf(freq);
 	}
 
 	/**
@@ -129,8 +134,9 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
-		if (_identifier == null) {
+		if (this._identifier == null) {
 			StringBuilder sb = new StringBuilder();
 			if (getVendor().contentEquals("GenuineIntel"))
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
@@ -142,19 +148,20 @@ public class CentralProcessor implements Processor {
 			sb.append(getModel());
 			sb.append(" Stepping ");
 			sb.append(getStepping());
-			_identifier = sb.toString();
+			this._identifier = sb.toString();
 		}
-		return _identifier;
+		return this._identifier;
 	}
 
 	/**
 	 * Set processor identifier.
 	 * 
 	 * @param identifier
-	 *            Identifier.
+	 *			Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
-		_identifier = identifier;
+		this._identifier = identifier;
 	}
 
 	/**
@@ -162,31 +169,35 @@ public class CentralProcessor implements Processor {
 	 * 
 	 * @return True if cpu is 64bit.
 	 */
+	@Override
 	public boolean isCpu64bit() {
-		return _cpu64.booleanValue();
+		return this._cpu64.booleanValue();
 	}
 
 	/**
 	 * Set flag is cpu is 64bit.
 	 * 
 	 * @param cpu64
-	 *            True if cpu is 64.
+	 *			True if cpu is 64.
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
-		_cpu64 = Boolean.valueOf(cpu64);
+		this._cpu64 = Boolean.valueOf(cpu64);
 	}
 
 	/**
 	 * @return the _stepping
 	 */
+	@Override
 	public String getStepping() {
-		return _stepping;
+		return this._stepping;
 	}
 
 	/**
 	 * @param _stepping
-	 *            the _stepping to set
+	 *			the _stepping to set
 	 */
+	@Override
 	public void setStepping(String _stepping) {
 		this._stepping = _stepping;
 	}
@@ -194,14 +205,16 @@ public class CentralProcessor implements Processor {
 	/**
 	 * @return the _model
 	 */
+	@Override
 	public String getModel() {
-		return _model;
+		return this._model;
 	}
 
 	/**
 	 * @param _model
-	 *            the _model to set
+	 *			the _model to set
 	 */
+	@Override
 	public void setModel(String _model) {
 		this._model = _model;
 	}
@@ -209,14 +222,16 @@ public class CentralProcessor implements Processor {
 	/**
 	 * @return the _family
 	 */
+	@Override
 	public String getFamily() {
-		return _family;
+		return this._family;
 	}
 
 	/**
 	 * @param _family
-	 *            the _family to set
+	 *			the _family to set
 	 */
+	@Override
 	public void setFamily(String _family) {
 		this._family = _family;
 	}
@@ -224,6 +239,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
 		long[] prevTicks = getCpuLoadTicks();
@@ -238,12 +254,13 @@ public class CentralProcessor implements Processor {
 			total += (ticks[i] - prevTicks[i]);
 		}
 		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
-		if (total > 0 && idle >= 0)
+		if (total > 0 && idle >= 0) {
 			return 100f * (total - idle) / total;
-		else
-			return 0f;
+		}
+		return 0f;
 	}
 
+	@Override
 	public long[] getCpuLoadTicks() {
 		// /proc/stat expected format
 		// first line is overall user,nice,system,idle, etc.
@@ -269,14 +286,17 @@ public class CentralProcessor implements Processor {
 		return ticks;
 	}
 
+	@Override
 	public double getSystemCPULoad() {
 		return OS_MXBEAN.getSystemCpuLoad();
 	}
 
+	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
 	}
 
+	@Override
 	public String toString() {
 		return getName();
 	}

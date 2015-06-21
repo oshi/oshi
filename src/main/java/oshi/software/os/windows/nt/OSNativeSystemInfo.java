@@ -46,11 +46,11 @@ public class OSNativeSystemInfo {
 			// no WOW64 support
 		}
 
-		_si = si;
+		this._si = si;
 	}
 
 	public OSNativeSystemInfo(SYSTEM_INFO si) {
-		_si = si;
+		this._si = si;
 	}
 
 	/**
@@ -59,6 +59,6 @@ public class OSNativeSystemInfo {
 	 * @return Integer.
 	 */
 	public int getNumberOfProcessors() {
-		return _si.dwNumberOfProcessors.intValue();
+		return this._si.dwNumberOfProcessors.intValue();
 	}
 }

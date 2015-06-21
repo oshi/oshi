@@ -47,8 +47,8 @@ import com.sun.jna.Platform;
 public class SystemInfoTest {
 
 	/**
-     * Test get version.
-     */
+	 * Test get version.
+	 */
 	@Test
 	public void testGetVersion() {
 		SystemInfo si = new SystemInfo();
@@ -60,8 +60,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test get processors.
-     */
+	 * Test get processors.
+	 */
 	@Test
 	public void testGetProcessors() {
 		SystemInfo si = new SystemInfo();
@@ -70,8 +70,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test get memory.
-     */
+	 * Test get memory.
+	 */
 	@Test
 	public void testGetMemory() {
 		SystemInfo si = new SystemInfo();
@@ -84,8 +84,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test cpu load.
-     */
+	 * Test cpu load.
+	 */
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCpuLoad() {
@@ -96,8 +96,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test cpu load ticks.
-     */
+	 * Test cpu load ticks.
+	 */
 	@Test
 	public void testCpuLoadTicks() {
 		SystemInfo si = new SystemInfo();
@@ -106,8 +106,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test system cpu load.
-     */
+	 * Test system cpu load.
+	 */
 	@Test
 	public void testSystemCpuLoad() {
 		SystemInfo si = new SystemInfo();
@@ -117,8 +117,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test system load average.
-     */
+	 * Test system load average.
+	 */
 	@Test
 	public void testSystemLoadAverage() {
 		if (Platform.isMac() || Platform.isLinux()) {
@@ -129,8 +129,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test cpu vendor freq.
-     */
+	 * Test cpu vendor freq.
+	 */
 	@Test
 	public void testCpuVendorFreq() {
 		SystemInfo si = new SystemInfo();
@@ -140,8 +140,8 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test power source.
-     */
+	 * Test power source.
+	 */
 	@Test
 	public void testPowerSource() {
 		SystemInfo si = new SystemInfo();
@@ -159,11 +159,11 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * Test file system.
-     *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
+	 * Test file system.
+	 *
+	 * @throws IOException
+	 *			 Signals that an I/O exception has occurred.
+	 */
 	@Test
 	public void testFileSystem() throws IOException {
 		SystemInfo si = new SystemInfo();
@@ -184,11 +184,11 @@ public class SystemInfoTest {
 	}
 
 	/**
-     * The main method.
-     *
-     * @param args
-     *            the arguments
-     */
+	 * The main method.
+	 *
+	 * @param args
+	 *			the arguments
+	 */
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		SystemInfo si = new SystemInfo();

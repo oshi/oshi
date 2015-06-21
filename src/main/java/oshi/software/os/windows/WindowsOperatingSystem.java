@@ -30,21 +30,25 @@ public class WindowsOperatingSystem implements OperatingSystem {
 
 	private OperatingSystemVersion _version = null;
 
+	@Override
 	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
+		if (this._version == null) {
+			this._version = new OSVersionInfoEx();
 		}
-		return _version;
+		return this._version;
 	}
 
+	@Override
 	public String getFamily() {
 		return "Windows";
 	}
 
+	@Override
 	public String getManufacturer() {
 		return "Microsoft";
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getManufacturer());

@@ -37,6 +37,7 @@ public class GlobalMemory implements Memory {
 
 	private long totalMemory = 0;
 
+	@Override
 	public long getAvailable() {
 		long availableMemory = 0;
 		List<String> memInfo = null;
@@ -77,22 +78,23 @@ public class GlobalMemory implements Memory {
 		return availableMemory;
 	}
 
+	@Override
 	public long getTotal() {
-		if (totalMemory == 0) {
+		if (this.totalMemory == 0) {
 			Sysinfo info = new Sysinfo();
 			if (0 != Libc.INSTANCE.sysinfo(info))
 				throw new LastErrorException("Error code: "
 						+ Native.getLastError());
-			totalMemory = info.totalram.longValue() * info.mem_unit;
+			this.totalMemory = info.totalram.longValue() * info.mem_unit;
 		}
-		return totalMemory;
+		return this.totalMemory;
 	}
 
 	private long parseMeminfo(String[] memorySplit) {
 		if (memorySplit.length < 2) {
 			return 0l;
 		}
-		long memory = new Long(memorySplit[1]);
+		long memory = new Long(memorySplit[1]).longValue();
 		if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
 			memory *= 1024;
 		}

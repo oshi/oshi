@@ -46,7 +46,7 @@ public interface Libc extends Library {
 		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList(new String[] { "uptime", "loads", "totalram",
 					"freeram", "sharedram", "bufferram", "totalswap",
 					"freeswap", "procs", "totalhigh", "freehigh", "mem_unit",

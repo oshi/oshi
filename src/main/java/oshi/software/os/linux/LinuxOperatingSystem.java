@@ -35,38 +35,38 @@ public class LinuxOperatingSystem implements OperatingSystem {
 	private OperatingSystemVersion _version = null;
 	private String _family = null;
 
+	@Override
 	public String getFamily() {
-		if (_family == null) {
-			Scanner in;
-			try {
-				in = new Scanner(new FileReader("/etc/os-release"));
+		if (this._family == null) {
+			try (final Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
+				in.useDelimiter("\n");
+				while (in.hasNext()) {
+					String[] splittedLine = in.next().split("=");
+					if (splittedLine[0].equals("NAME")) {
+						// remove beginning and ending '"' characters, etc from
+						// NAME="Ubuntu"
+						this._family = splittedLine[1].replaceAll("^\"|\"$", "");
+						break;
+					}
+				}
 			} catch (FileNotFoundException e) {
 				return "";
 			}
-			in.useDelimiter("\n");
-			while (in.hasNext()) {
-				String[] splittedLine = in.next().split("=");
-				if (splittedLine[0].equals("NAME")) {
-					// remove beginning and ending '"' characters, etc from
-					// NAME="Ubuntu"
-					_family = splittedLine[1].replaceAll("^\"|\"$", "");
-					break;
-				}
-			}
-			in.close();
 		}
-		return _family;
+		return this._family;
 	}
 
+	@Override
 	public String getManufacturer() {
 		return "GNU/Linux";
 	}
 
+	@Override
 	public OperatingSystemVersion getVersion() {
-		if (_version == null) {
-			_version = new OSVersionInfoEx();
+		if (this._version == null) {
+			this._version = new OSVersionInfoEx();
 		}
-		return _version;
+		return this._version;
 	}
 
 	@Override

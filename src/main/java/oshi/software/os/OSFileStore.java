@@ -54,7 +54,7 @@ public class OSFileStore {
 	 * @return The file system name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class OSFileStore {
 	 * @return The file system description
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class OSFileStore {
 	 * @return Usable space on the drive (in bytes)
 	 */
 	public long getUsableSpace() {
-		return usableSpace;
+		return this.usableSpace;
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class OSFileStore {
 	 * @return Total capacity of the drive (in bytes)
 	 */
 	public long getTotalSpace() {
-		return totalSpace;
+		return this.totalSpace;
 	}
 
 	/**
