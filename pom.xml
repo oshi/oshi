@@ -828,6 +828,14 @@
                                     <pluginExecutions>
                                         <pluginExecution>
                                             <pluginExecutionFilter>
+                                                <groupId>com.mycila</groupId>
+                                                <artifactId>license-maven-plugin</artifactId>
+                                                <versionRange>[2.11,)]</versionRange>
+                                                <goals>
+                                                    <goal>compile</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <pluginExecutionFilter>
                                                 <groupId>org.jacoco</groupId>
                                                 <artifactId>jacoco-maven-plugin</artifactId>
                                                 <versionRange>[0.7.5.201505241946,)</versionRange>
