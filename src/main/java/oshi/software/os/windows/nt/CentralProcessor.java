@@ -16,19 +16,33 @@
  */
 package oshi.software.os.windows.nt;
 
+import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
-import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.management.OperatingSystemMXBean;
 
 /**
  * A CPU as defined in Windows registry.
  * 
  * @author dblock[at]dblock[dot]org
  */
+@SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final OperatingSystemMXBean OS_MXBEAN;
+	static {
+		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory
+				.getOperatingSystemMXBean();
+		// Initialize CPU usage
+		OS_MXBEAN.getSystemCpuLoad();
+	}
+
 	private String _vendor;
 	private String _name;
 	private String _identifier;
@@ -188,27 +202,60 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Deprecated
 	public float getLoad() {
-		// this always return whole number value on windows machines
-		String result = ExecutingCommand.getAnswerAt(
-				"wmic /locale:ms_409 cpu get loadpercentage", 2);
-
-		if (result == null || result.length() <= 0) {
-			throw new RuntimeException(
-					"CPU load could not be obtained from system");
-		}
-
+		long[] prevTicks = getCpuLoadTicks();
 		try {
-			return Integer.valueOf(result.trim());
-		} catch (NumberFormatException e) {
-			System.err.println("Cannot parse CPU load value: " + result.trim());
-			throw new RuntimeException("Cannot parse load value: "
-					+ result.trim());
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Awake, O sleeper
 		}
+		long[] ticks = getCpuLoadTicks();
+		long total = 0;
+		for (int i = 0; i < ticks.length; i++) {
+			total += (ticks[i] - prevTicks[i]);
+		}
+		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];
+		if (total > 0 && idle >= 0)
+			return 100f * (total - idle) / total;
+		else
+			return 0f;
 	}
 
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getCpuLoadTicks() {
+		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
+		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
+		WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
+		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime,
+				lpUserTime))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		// Array order is user,nice,kernel,idle
+		long[] ticks = new long[4];
+		ticks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+		ticks[1] = 0L; // Windows is not 'nice'
+		ticks[2] = lpKernelTime.toLong() - lpIdleTime.toLong();
+		ticks[3] = lpIdleTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+		return ticks;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemCPULoad() {
+		return OS_MXBEAN.getSystemCpuLoad();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getSystemLoadAverage() {
+		return OS_MXBEAN.getSystemLoadAverage();
+	}
+
 	public String toString() {
-		return _name;
+		return getName();
 	}
 }
