@@ -832,7 +832,7 @@
                                                 <artifactId>license-maven-plugin</artifactId>
                                                 <versionRange>[2.11,)</versionRange>
                                                 <goals>
-                                                    <goal>compile</goal>
+                                                    <goal>format</goal>
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
