@@ -14,7 +14,7 @@ Essentials
 
 Where are we?
 -------------
-Oshi is a very young project. We'd like *you* to contribute a *nix port. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. We'd like *you* to contribute ports and help imiplement more methods. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Current supported platforms
 ---------------------------
@@ -31,10 +31,9 @@ Current supported features
 * OS Version (Version number, Codename, Build)
 
 ### Hardware ###
-* How much physical RAM
-* How much available (free+reclaimable) RAM
+* How much physical/available (free+reclaimable) RAM
 * How many Logical CPUs (core * thread)
-* CPU load %
+* CPU load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 
@@ -54,7 +53,8 @@ Memory: 532.1 MB/2.0 GB
 CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
 CPU ticks @ 1 sec:[26579060, 0, 21746695, 549740254]
 User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
-CPU load: 4.2%
+CPU load: 3.3% (counting ticks)
+CPU load: 3.2% (OS MXBean)
 CPU load average: N/A
 Power: 2:42 remaining
  System Battery @ 97.0%
@@ -83,11 +83,12 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 21.0 GB/31.0 GB
-CPU ticks @ 0 sec:[952268, 13889, 187093, 106906198]
-CPU ticks @ 1 sec:[952276, 13889, 187094, 106906389]
-User: 4.0% Nice: 0.0% System: 0.5% Idle: 95.5%
-CPU load: 5.4%
-CPU load average: 0.43
+CPU ticks @ 0 sec:[967282, 15484, 195343, 124216619]
+CPU ticks @ 1 sec:[967308, 15484, 195346, 124216790]
+User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
+CPU load: 14.5% (counting ticks)
+CPU load: 14.3% (OS MXBean)
+CPU load average: 1.13
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
@@ -108,10 +109,11 @@ Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 17.3 MB/4 GB
-CPU ticks @ 0 sec:[12056423, 0, 16937437, 225908843]
-CPU ticks @ 1 sec:[12056442, 0, 16937461, 225909605]
-User: 2.4% Nice: 0.0% System: 3.0% Idle: 94.7%
-CPU load: 6.2%
+CPU ticks @ 0 sec:[15973594, 0, 21796209, 286595204]
+CPU ticks @ 1 sec:[15973619, 0, 21796271, 286595920]
+User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
+CPU load: 11.3% (counting ticks)
+CPU load: 11.4% (OS MXBean)
 CPU load average: 1.48
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
@@ -131,6 +133,8 @@ How is this different from ...
 	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
 	* Sigar appears to be no longer actively supported as-of 2010. Oshi is under active development as-of 2015.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
+	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
+	* The MXBean has very few methods that address system-wide statistics.
 	* Oshi provides significantly more information than the OperatingSystemMXBean
 
 License
