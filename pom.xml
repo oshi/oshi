@@ -830,11 +830,16 @@
                                             <pluginExecutionFilter>
                                                 <groupId>com.mycila</groupId>
                                                 <artifactId>license-maven-plugin</artifactId>
-                                                <versionRange>[2.11,)]</versionRange>
+                                                <versionRange>[2.11,)</versionRange>
                                                 <goals>
                                                     <goal>compile</goal>
                                                 </goals>
                                             </pluginExecutionFilter>
+                                            <action>
+                                                <ignore />
+                                            </action>
+                                        </pluginExecution>
+                                        <pluginExecution>
                                             <pluginExecutionFilter>
                                                 <groupId>org.jacoco</groupId>
                                                 <artifactId>jacoco-maven-plugin</artifactId>
