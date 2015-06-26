@@ -1,9 +1,3 @@
-Next
-====
-
-* [#50](https://github.com/dblock/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).
-* [#51](https://github.com/dblock/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 1.3 (in-progress)
 -----------------
@@ -11,6 +5,10 @@ Next
 * Upgraded to java 7 base support
 * Upgraded JNA to 4.1.0
 * Bringing all lessons learned from waffle over to oshi in one go for building project from source.
+* [#50](https://github.com/dblock/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).
+* [#51](https://github.com/dblock/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
+* [#62](https://github.com/dblock/oshi/pull/62): Added Per-Processor CPU Load and Ticks - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here.
 
 1.2 (6/13/2014)
 ================

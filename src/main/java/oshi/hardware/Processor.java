@@ -25,6 +25,14 @@ package oshi.hardware;
  */
 public interface Processor {
 	/**
+	 * Gets the processor number of this object, passed as an arg in the
+	 * constructor.
+	 * 
+	 * @return The processor number
+	 */
+	int getProcessorNumber();
+
+	/**
 	 * Processor vendor.
 	 * 
 	 * @return String.
@@ -142,10 +150,32 @@ public interface Processor {
 	 * previous two calls. If at least a second has elapsed, it will return the
 	 * average CPU load for the interval and update the "last called" times.
 	 * 
+	 * This method is intended to be used for periodic polling at intervals of 1
+	 * second or longer.
+	 * 
 	 * @return CPU load in %
 	 * 
+	 * @deprecated Replaced in 1.3 by {@link #getSystemCpuLoadBetweenTicks()}
 	 */
+	@Deprecated
 	float getLoad();
+
+	/**
+	 * Returns the "recent cpu usage" for the whole system by counting ticks
+	 * from {@link #getSystemCpuLoadTicks()} between successive calls of this
+	 * method, with a minimum interval slightly less than 1 second.
+	 * 
+	 * If less than one second has elapsed since the last call of this method,
+	 * it will return a calculation based on the tick counts and times of the
+	 * previous two calls. If at least a second has elapsed, it will return the
+	 * average CPU load for the interval and update the "last called" times.
+	 * 
+	 * This method is intended to be used for periodic polling at intervals of 1
+	 * second or longer.
+	 * 
+	 * @return CPU load between 0 and 1 (100%)
+	 */
+	double getSystemCpuLoadBetweenTicks();
 
 	/**
 	 * Get System-wide CPU Load tick counters. Returns an array with four
@@ -174,7 +204,7 @@ public interface Processor {
 	 * may give unreliable results.
 	 * 
 	 * If a user is not running the Oracle JVM, this method will default to the
-	 * behavior and return value of {@link #getLoad()}.
+	 * behavior and return value of {@link #getSystemCpuLoadBetweenTicks()}.
 	 * 
 	 * @return the "recent cpu usage" for the whole system; a negative value if
 	 *         not available.
@@ -200,4 +230,35 @@ public interface Processor {
 	 * @return the system load average; or a negative value if not available.
 	 */
 	double getSystemLoadAverage();
+
+	/**
+	 * Returns the "recent cpu usage" for this processor by counting ticks for
+	 * this processor from {@link #getProcessorCpuLoadTicks()} between
+	 * successive calls of this method, with a minimum interval slightly less
+	 * than 1 second.
+	 * 
+	 * If less than one second has elapsed since the last call of this method,
+	 * it will return a calculation based on the tick counts and times of the
+	 * previous two calls. If at least a second has elapsed, it will return the
+	 * average CPU load for the interval and update the "last called" times.
+	 * 
+	 * This method is intended to be used for periodic polling (iterating over
+	 * all processors) at intervals of 1 second or longer.
+	 * 
+	 * @return CPU load between 0 and 1 (100%)
+	 */
+
+	double getProcessorCpuLoadBetweenTicks();
+
+	/**
+	 * Get this Processor's CPU Load tick counters. Returns an array with four
+	 * elements representing clock ticks or milliseconds (platform dependent)
+	 * spent in User (0), Nice (1), System (2), and Idle (3) states. By
+	 * measuring the difference between ticks across a time interval, CPU load
+	 * over that interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	long[] getProcessorCpuLoadTicks();
 }

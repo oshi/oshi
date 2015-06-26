@@ -65,6 +65,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 				return null;
 			}
 			CentralProcessor cpu = null;
+			int numCPU = 0;
 			for (String toBeAnalyzed : cpuInfo) {
 				if (toBeAnalyzed.equals("")) {
 					if (cpu != null) {
@@ -74,7 +75,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 				if (cpu == null) {
-					cpu = new CentralProcessor();
+					cpu = new CentralProcessor(numCPU++);
 				}
 				if (toBeAnalyzed.startsWith("model name\t")) {
 					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);

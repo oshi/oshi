@@ -25,6 +25,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Memory and CPU stats from vm_stat and sysctl
@@ -44,6 +45,8 @@ public interface SystemB extends Library {
 	static int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
 	static int HOST_EXTMOD_INFO64 = 5;// External modification stats
 	static int HOST_EXPIRED_TASK_INFO = 6; // Statistics for expired tasks
+
+	static int PROCESSOR_CPU_LOAD_INFO = 2;
 
 	// sysctl()
 	static int CTL_KERN = 1; // "high kernel": proc, limits
@@ -75,7 +78,7 @@ public interface SystemB extends Library {
 	static int INT_SIZE = Native.getNativeSize(int.class);
 
 	public static class HostCpuLoadInfo extends Structure {
-		public int cpu_ticks[] = new int[CPU_STATE_MAX];
+		public int[] cpu_ticks = new int[CPU_STATE_MAX];
 
 		@Override
 		protected List<String> getFieldOrder() {
@@ -177,6 +180,9 @@ public interface SystemB extends Library {
 
 	int host_statistics64(int machPort, int hostStat, Object stats,
 			IntByReference count);
+
+	int host_processor_info(int machPort, int flavor, IntByReference procCount,
+			PointerByReference procInfo, IntByReference procInfoCount);
 
 	int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp,
 			Pointer newp, int newlen);
