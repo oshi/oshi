@@ -31,9 +31,11 @@ import oshi.util.ParseUtil;
  * 
  * @author alessandro[at]perucchi[dot]org
  * @author alessio.fachechi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	// Determine whether MXBean supports Oracle JVM methods
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();;
 	private static boolean sunMXBean;
@@ -50,10 +52,42 @@ public class CentralProcessor implements Processor {
 	}
 	// Maintain two sets of previous ticks to be used for calculating usage
 	// between them.
-	private static long[] prevTicks = new long[4];
-	private static long[] curTicks = getCurrentSystemCpuLoadTicks();
+	// System ticks (static)
 	private static long tickTime = System.currentTimeMillis();
+	private static long[] prevTicks = new long[4];
+	private static long[] curTicks = new long[4];
+	static {
+		updateSystemTicks();
+		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+	}
 
+	// Maintain similar arrays for per-processor ticks (class variables)
+	private long procTickTime = System.currentTimeMillis();
+	private long[] prevProcTicks = new long[4];
+	private long[] curProcTicks = new long[4];
+
+	// Initialize numCPU
+	private static int numCPU = 0;
+	static {
+		try {
+			List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
+			for (String cpu : procCpu) {
+				if (cpu.startsWith("core id")) {
+					numCPU++;
+				}
+			}
+		} catch (IOException e) {
+			System.err.println("Problem with: /proc/cpuinfo");
+			System.err.println(e.getMessage());
+		}
+	}
+	// Set up array to maintain current ticks for rapid reference. This array
+	// will be updated in place and used as a cache to avoid rereading file
+	// while iterating processors
+	private static long[][] allProcessorTicks = new long[numCPU][4];
+	private static long allProcTickTime = 0;
+
+	private int processorNumber;
 	private String cpuVendor;
 	private String cpuName;
 	private String cpuIdentifier = null;
@@ -62,6 +96,29 @@ public class CentralProcessor implements Processor {
 	private String cpuFamily;
 	private Long cpuVendorFreq = null;
 	private Boolean cpu64;
+
+	/**
+	 * Create a Processor with the given number
+	 * 
+	 * @param procNo
+	 */
+	public CentralProcessor(int procNo) {
+		if (procNo >= numCPU)
+			throw new IllegalArgumentException("Processor number (" + procNo
+					+ ") must be less than the number of CPUs: " + numCPU);
+		this.processorNumber = procNo;
+		updateProcessorTicks();
+		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,
+				0, curProcTicks.length);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getProcessorNumber() {
+		return processorNumber;
+	}
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
@@ -250,14 +307,24 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public float getLoad() {
+		// TODO Remove in 2.0
+		return (float) getSystemCpuLoadBetweenTicks() * 100;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
-		if (now - tickTime > 950) {
-			// Enough time has elapsed. Copy latest ticks to earlier position
-			System.arraycopy(curTicks, 0, prevTicks, 0, prevTicks.length);
-			// Calculate new latest values
-			curTicks = getCurrentSystemCpuLoadTicks();
+		boolean update = (now - tickTime > 950);
+		if (update) {
+			// Enough time has elapsed.
+			// Update latest
+			updateSystemTicks();
 			tickTime = now;
 		}
 		// Calculate total
@@ -267,11 +334,17 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curTicks[3] - prevTicks[3];
+
+		// Copy latest ticks to earlier position for next call
+		if (update) {
+			System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+		}
+
 		// return
 		if (total > 0 && idle >= 0) {
-			return 100f * (total - idle) / total;
+			return (double) (total - idle) / total;
 		}
-		return 0f;
+		return 0d;
 	}
 
 	/**
@@ -279,25 +352,27 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long[] getSystemCpuLoadTicks() {
-		return getCurrentSystemCpuLoadTicks();
+		updateSystemTicks();
+		// Make a copy
+		long[] ticks = new long[curTicks.length];
+		System.arraycopy(curTicks, 0, ticks, 0, curTicks.length);
+		return ticks;
 	}
 
 	/**
-	 * Gets system tick information from parsing /proc/stat. Returns an array
-	 * with four elements representing clock ticks or milliseconds (platform
-	 * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
-	 * By measuring the difference between ticks across a time interval, CPU
-	 * load over that interval may be calculated.
+	 * Updates system tick information from parsing /proc/stat. Array with four
+	 * elements representing clock ticks or milliseconds (platform dependent)
+	 * spent in User (0), Nice (1), System (2), and Idle (3) states. By
+	 * measuring the difference between ticks across a time interval, CPU load
+	 * over that interval may be calculated.
 	 * 
 	 * @return An array of 4 long values representing time spent in User,
 	 *         Nice(if applicable), System, and Idle states.
 	 */
-	private static long[] getCurrentSystemCpuLoadTicks() {
+	private static void updateSystemTicks() {
 		// /proc/stat expected format
 		// first line is overall user,nice,system,idle, etc.
 		// cpu 3357 0 4313 1362393 ...
-		// TODO: per-processor subsequent lines for cpu0, cpu1, etc.
-		long[] ticks = new long[4];
 		String tickStr = "";
 		try {
 			List<String> procStat = FileUtil.readFile("/proc/stat");
@@ -306,29 +381,109 @@ public class CentralProcessor implements Processor {
 		} catch (IOException e) {
 			System.err.println("Problem with: /proc/stat");
 			System.err.println(e.getMessage());
-			return ticks;
+			return;
 		}
 		String[] tickArr = tickStr.split("\\s+");
-		if (tickStr.length() < 5)
-			return ticks;
+		if (tickArr.length < 5)
+			return;
 		for (int i = 0; i < 4; i++) {
-			ticks[i] = Long.parseLong(tickArr[i + 1]);
+			curTicks[i] = Long.parseLong(tickArr[i + 1]);
 		}
-		return ticks;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public double getSystemCpuLoad() {
 		if (sunMXBean) {
 			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
 					.getSystemCpuLoad();
 		}
-		return getLoad();
+		return getSystemCpuLoadBetweenTicks();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getProcessorCpuLoadBetweenTicks() {
+		// Check if > ~ 0.95 seconds since last tick count.
+		long now = System.currentTimeMillis();
+		if (now - procTickTime > 950) {
+			// Enough time has elapsed. Update array in place
+			updateProcessorTicks();
+			// Copy arrays in place
+			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,
+					curProcTicks.length);
+			System.arraycopy(allProcessorTicks[processorNumber], 0,
+					curProcTicks, 0, curProcTicks.length);
+			procTickTime = now;
+		}
+		long total = 0;
+		for (int i = 0; i < curProcTicks.length; i++) {
+			total += (curProcTicks[i] - prevProcTicks[i]);
+		}
+		// Calculate idle from last field [3]
+		long idle = curProcTicks[3] - prevProcTicks[3];
+		// update
+		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getProcessorCpuLoadTicks() {
+		updateProcessorTicks();
+		return allProcessorTicks[processorNumber];
+	}
+
+	/**
+	 * Updates the tick array for all processors if more than 100ms has elapsed
+	 * since the last update. This permits using the allProcessorTicks as a
+	 * cache when iterating over processors so that the /proc/stat file is only
+	 * read once
+	 */
+	private static void updateProcessorTicks() {
+		// Update no more frequently than 100ms so this is only triggered once
+		// during iteration over Processors
+		long now = System.currentTimeMillis();
+		if (now - allProcTickTime < 100)
+			return;
+
+		// /proc/stat expected format
+		// first line is overall user,nice,system,idle, etc.
+		// cpu 3357 0 4313 1362393 ...
+		// per-processor subsequent lines for cpu0, cpu1, etc.
+		try {
+			int cpu = 0;
+			List<String> procStat = FileUtil.readFile("/proc/stat");
+			for (String stat : procStat) {
+				if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
+					String[] tickArr = stat.split("\\s+");
+					if (tickArr.length < 5)
+						break;
+					for (int i = 0; i < 4; i++) {
+						allProcessorTicks[cpu][i] = Long
+								.parseLong(tickArr[i + 1]);
+					}
+					if (++cpu >= numCPU)
+						break;
+				}
+			}
+		} catch (IOException e) {
+			System.err.println("Problem with: /proc/stat");
+			System.err.println(e.getMessage());
+		}
+		allProcTickTime = now;
 	}
 
 	@Override

@@ -91,8 +91,8 @@ public class SystemInfoTest {
 	public void testCpuLoad() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
-		assertTrue(hal.getProcessors()[0].getLoad() >= 0
-				&& hal.getProcessors()[0].getLoad() <= 100);
+		assertTrue(hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() >= 0
+				&& hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() <= 1);
 	}
 
 	/**
@@ -103,6 +103,28 @@ public class SystemInfoTest {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
 		assertEquals(4, hal.getProcessors()[0].getSystemCpuLoadTicks().length);
+	}
+
+	/**
+	 * Test processor cpu load.
+	 */
+	@Test
+	public void testProcCpuLoad() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		assertTrue(hal.getProcessors()[0].getProcessorCpuLoadBetweenTicks() >= 0
+				&& hal.getProcessors()[0].getProcessorCpuLoadBetweenTicks() <= 1);
+	}
+
+	/**
+	 * Test processor cpu load ticks.
+	 */
+	@Test
+	public void testProcCpuLoadTicks() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		assertEquals(4,
+				hal.getProcessors()[0].getProcessorCpuLoadTicks().length);
 	}
 
 	/**
@@ -209,6 +231,7 @@ public class SystemInfoTest {
 		System.out.println("Memory: "
 				+ FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
+		// CPU
 		long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
 		System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
 		// Wait a second...
@@ -226,7 +249,7 @@ public class SystemInfoTest {
 						* user / totalCpu, 100d * nice / totalCpu, 100d * sys
 						/ totalCpu, 100d * idle / totalCpu);
 		System.out.format("CPU load: %.1f%% (counting ticks)%n",
-				hal.getProcessors()[0].getLoad());
+				hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() * 100);
 		System.out.format("CPU load: %.1f%% (OS MXBean)%n",
 				hal.getProcessors()[0].getSystemCpuLoad() * 100);
 		double loadAverage = hal.getProcessors()[0].getSystemLoadAverage();
@@ -234,6 +257,14 @@ public class SystemInfoTest {
 				.println("CPU load average: "
 						+ (loadAverage < 0 ? "N/A" : String.format("%.2f",
 								loadAverage)));
+		// per core CPU
+		StringBuilder procCpu = new StringBuilder("CPU load per processor:");
+		for (int cpu = 0; cpu < hal.getProcessors().length; cpu++) {
+			procCpu.append(String.format(
+					" %.1f%%",
+					hal.getProcessors()[cpu].getProcessorCpuLoadBetweenTicks() * 100));
+		}
+		System.out.println(procCpu.toString());
 		// hardware: power
 		StringBuilder sb = new StringBuilder("Power: ");
 		if (hal.getPowerSources().length == 0) {

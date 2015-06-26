@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 import com.sun.jna.LastErrorException;
@@ -29,13 +30,14 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * A CPU.
  * 
  * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
  * @author alessio.fachechi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
@@ -55,10 +57,37 @@ public class CentralProcessor implements Processor {
 	}
 	// Maintain two sets of previous ticks to be used for calculating usage
 	// between them.
-	private static long[] prevTicks = new long[4];
-	private static long[] curTicks = getCurrentSystemCpuLoadTicks();
+	// System ticks (static)
 	private static long tickTime = System.currentTimeMillis();
+	private static long[] prevTicks = new long[4];
+	private static long[] curTicks = new long[4];
+	static {
+		updateSystemTicks();
+		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+	}
 
+	// Maintain similar arrays for per-processor ticks (class variables)
+	private long procTickTime = System.currentTimeMillis();
+	private long[] prevProcTicks = new long[4];
+	private long[] curProcTicks = new long[4];
+
+	// Initialize numCPU
+	private static int numCPU = 0;
+	static {
+		IntByReference size = new IntByReference(SystemB.INT_SIZE);
+		Pointer p = new Memory(size.getValue());
+		if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null,
+				0))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		numCPU = p.getInt(0);
+	}
+	// Set up array to maintain current ticks for rapid reference. This array
+	// will be updated in place and used as a cache to avoid rereading file
+	// while iterating processors
+	private static long[][] allProcessorTicks = new long[numCPU][4];
+	private static long allProcTickTime = 0;
+
+	private int processorNumber;
 	private String cpuVendor;
 	private String cpuName;
 	private String cpuIdentifier = null;
@@ -67,6 +96,29 @@ public class CentralProcessor implements Processor {
 	private String cpuFamily;
 	private Long cpuVendorFreq = null;
 	private Boolean cpu64;
+
+	/**
+	 * Create a Processor with the given number
+	 * 
+	 * @param procNo
+	 */
+	public CentralProcessor(int procNo) {
+		if (procNo >= numCPU)
+			throw new IllegalArgumentException("Processor number (" + procNo
+					+ ") must be less than the number of CPUs: " + numCPU);
+		this.processorNumber = procNo;
+		updateProcessorTicks();
+		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,
+				0, curProcTicks.length);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getProcessorNumber() {
+		return processorNumber;
+	}
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
@@ -319,14 +371,24 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public float getLoad() {
+		// TODO Remove in 2.0
+		return (float) getSystemCpuLoadBetweenTicks() * 100;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
-		if (now - tickTime > 950) {
-			// Enough time has elapsed. Copy latest ticks to earlier position
-			System.arraycopy(curTicks, 0, prevTicks, 0, prevTicks.length);
-			// Calculate new latest values
-			curTicks = getCurrentSystemCpuLoadTicks();
+		boolean update = (now - tickTime > 950);
+		if (update) {
+			// Enough time has elapsed.
+			// Update latest
+			updateSystemTicks();
 			tickTime = now;
 		}
 		// Calculate total
@@ -336,11 +398,17 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curTicks[3] - prevTicks[3];
+
+		// Copy latest ticks to earlier position for next call
+		if (update) {
+			System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+		}
+
 		// return
 		if (total > 0 && idle >= 0) {
-			return 100f * (total - idle) / total;
+			return (double) (total - idle) / total;
 		}
-		return 0f;
+		return 0d;
 	}
 
 	/**
@@ -348,34 +416,35 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public long[] getSystemCpuLoadTicks() {
-		return getCurrentSystemCpuLoadTicks();
+		updateSystemTicks();
+		// Make a copy
+		long[] ticks = new long[curTicks.length];
+		System.arraycopy(curTicks, 0, ticks, 0, curTicks.length);
+		return ticks;
 	}
 
 	/**
-	 * Gets system tick information from native host_statistics query. Returns
-	 * an array with four elements representing clock ticks or milliseconds
-	 * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
-	 * (3) states. By measuring the difference between ticks across a time
-	 * interval, CPU load over that interval may be calculated.
+	 * Updates system tick information from native host_statistics query. Array
+	 * with four elements representing clock ticks or milliseconds (platform
+	 * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
+	 * By measuring the difference between ticks across a time interval, CPU
+	 * load over that interval may be calculated.
 	 * 
 	 * @return An array of 4 long values representing time spent in User,
 	 *         Nice(if applicable), System, and Idle states.
 	 */
-	private static long[] getCurrentSystemCpuLoadTicks() {
-		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
+	private static void updateSystemTicks() {
 		int machPort = SystemB.INSTANCE.mach_host_self();
-		long[] ticks = new long[SystemB.CPU_STATE_MAX];
 		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
 		if (0 != SystemB.INSTANCE.host_statistics(machPort,
 				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(
 						cpuLoadInfo.size())))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		// Switch order to match linux
-		ticks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-		ticks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-		ticks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-		ticks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
-		return ticks;
+		curTicks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+		curTicks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+		curTicks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+		curTicks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
 	}
 
 	/**
@@ -387,7 +456,7 @@ public class CentralProcessor implements Processor {
 			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
 					.getSystemCpuLoad();
 		}
-		return getLoad();
+		return getSystemCpuLoadBetweenTicks();
 	}
 
 	/**
@@ -396,6 +465,86 @@ public class CentralProcessor implements Processor {
 	@Override
 	public double getSystemLoadAverage() {
 		return OS_MXBEAN.getSystemLoadAverage();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getProcessorCpuLoadBetweenTicks() {
+		// Check if > ~ 0.95 seconds since last tick count.
+		long now = System.currentTimeMillis();
+		if (now - procTickTime > 950) {
+			// Enough time has elapsed. Update array in place
+			updateProcessorTicks();
+			// Copy arrays in place
+			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,
+					curProcTicks.length);
+			System.arraycopy(allProcessorTicks[processorNumber], 0,
+					curProcTicks, 0, curProcTicks.length);
+			procTickTime = now;
+		}
+		long total = 0;
+		for (int i = 0; i < curProcTicks.length; i++) {
+			total += (curProcTicks[i] - prevProcTicks[i]);
+		}
+		// Calculate idle from last field [3]
+		long idle = curProcTicks[3] - prevProcTicks[3];
+		// update
+		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getProcessorCpuLoadTicks() {
+		updateProcessorTicks();
+		return allProcessorTicks[processorNumber];
+	}
+
+	/**
+	 * Updates the tick array for all processors if more than 100ms has elapsed
+	 * since the last update. This permits using the allProcessorTicks as a
+	 * cache when iterating over processors so that the host_processor_info
+	 * query is only done once
+	 */
+	private static void updateProcessorTicks() {
+		// Update no more frequently than 100ms so this is only triggered once
+		// during iteration over Processors
+		long now = System.currentTimeMillis();
+		if (now - allProcTickTime < 100)
+			return;
+
+		int machPort = SystemB.INSTANCE.mach_host_self();
+
+		IntByReference procCount = new IntByReference();
+		PointerByReference procCpuLoadInfo = new PointerByReference();
+		IntByReference procInfoCount = new IntByReference();
+		if (0 != SystemB.INSTANCE.host_processor_info(machPort,
+				SystemB.PROCESSOR_CPU_LOAD_INFO, procCount, procCpuLoadInfo,
+				procInfoCount))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+
+		int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0,
+				procInfoCount.getValue());
+		for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
+			for (int j = 0; j < 4; j++) {
+				int offset = cpu * SystemB.CPU_STATE_MAX;
+				allProcessorTicks[cpu][0] = FormatUtil
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_USER]);
+				allProcessorTicks[cpu][1] = FormatUtil
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_NICE]);
+				allProcessorTicks[cpu][2] = FormatUtil
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_SYSTEM]);
+				allProcessorTicks[cpu][3] = FormatUtil
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_IDLE]);
+			}
+		}
+		allProcTickTime = now;
 	}
 
 	@Override

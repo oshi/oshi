@@ -56,6 +56,7 @@ User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
 CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
 CPU load average: N/A
+CPU load per processor: 3.8% 4.0%
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
@@ -89,6 +90,7 @@ User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
 CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
 CPU load average: 1.13
+CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
@@ -115,6 +117,7 @@ User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
 CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
 CPU load average: 1.48
+CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:

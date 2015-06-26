@@ -64,7 +64,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 						+ Native.getLastError());
 			nbCPU = pNbCPU.getInt(0);
 			for (int i = 0; i < nbCPU; i++)
-				processors.add(new CentralProcessor());
+				processors.add(new CentralProcessor(i));
 
 			this._processors = processors.toArray(new Processor[0]);
 		}
