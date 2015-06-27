@@ -1,5 +1,9 @@
 
-1.3 (in-progress)
+2.0 (in-progress)
+-----------------
+* Your contribution here.
+
+1.3 (6/27/2015)
 -----------------
 * See site page for individual commits going forwards as only major changes will be mentioned manually in change log.
 * Upgraded to java 7 base support
