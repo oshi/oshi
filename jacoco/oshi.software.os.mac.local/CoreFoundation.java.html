@@ -40,19 +40,22 @@ public interface CoreFoundation extends Library {
 	void CFRelease(CFTypeRef blob);
 
 <span class="nc" id="L42">	public class CFTypeRef extends PointerType {</span>
+		// TODO Build this out
 	}
 
-<span class="nc" id="L45">	public class CFArrayRef extends PointerType {</span>
+<span class="nc" id="L46">	public class CFArrayRef extends PointerType {</span>
+		// TODO Build this out
 	}
 
-<span class="nc" id="L48">	public class CFDictionaryRef extends PointerType {</span>
+<span class="nc" id="L50">	public class CFDictionaryRef extends PointerType {</span>
+		// TODO Build this out
 	}
 
-<span class="nc" id="L51">	public class CFStringRef extends PointerType {</span>
+<span class="nc" id="L54">	public class CFStringRef extends PointerType {</span>
 		public static CFStringRef toCFString(String s) {
-<span class="nc" id="L53">			final char[] chars = s.toCharArray();</span>
-<span class="nc" id="L54">			int length = chars.length;</span>
-<span class="nc" id="L55">			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null,</span>
+<span class="nc" id="L56">			final char[] chars = s.toCharArray();</span>
+<span class="nc" id="L57">			int length = chars.length;</span>
+<span class="nc" id="L58">			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null,</span>
 					chars, new NativeLong(length));
 		}
 	}

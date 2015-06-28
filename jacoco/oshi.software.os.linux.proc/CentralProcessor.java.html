@@ -26,39 +26,108 @@ import oshi.hardware.Processor;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
-import com.sun.management.OperatingSystemMXBean;
-
 /**
  * A CPU as defined in Linux /proc.
  * 
  * @author alessandro[at]perucchi[dot]org
+ * @author alessio.fachechi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings(&quot;restriction&quot;)
-<span class="nc" id="L37">public class CentralProcessor implements Processor {</span>
-	private static final OperatingSystemMXBean OS_MXBEAN;
+public class CentralProcessor implements Processor {
+	// Determine whether MXBean supports Oracle JVM methods
+<span class="nc" id="L39">	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory</span>
+			.getOperatingSystemMXBean();;
+	private static boolean sunMXBean;
 	static {
-<span class="nc" id="L40">		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory</span>
-<span class="nc" id="L41">				.getOperatingSystemMXBean();</span>
-		// Initialize CPU usage
-<span class="nc" id="L43">		OS_MXBEAN.getSystemCpuLoad();</span>
-<span class="nc" id="L44">	}</span>
+		try {
+<span class="nc" id="L44">			Class.forName(&quot;com.sun.management.OperatingSystemMXBean&quot;);</span>
+			// Initialize CPU usage
+<span class="nc" id="L46">			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)</span>
+					.getSystemCpuLoad();
+<span class="nc" id="L48">			sunMXBean = true;</span>
+<span class="nc" id="L49">		} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L50">			sunMXBean = false;</span>
+<span class="nc" id="L51">		}</span>
+	}
+	// Maintain two sets of previous ticks to be used for calculating usage
+	// between them.
+	// System ticks (static)
+<span class="nc" id="L56">	private static long tickTime = System.currentTimeMillis();</span>
+<span class="nc" id="L57">	private static long[] prevTicks = new long[4];</span>
+<span class="nc" id="L58">	private static long[] curTicks = new long[4];</span>
+	static {
+<span class="nc" id="L60">		updateSystemTicks();</span>
+<span class="nc" id="L61">		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
+	}
 
-	private String _vendor;
-	private String _name;
-<span class="nc" id="L48">	private String _identifier = null;</span>
-	private String _stepping;
-	private String _model;
-	private String _family;
-<span class="nc" id="L52">	private Long _freq = null;</span>
-	private Boolean _cpu64;
+	// Maintain similar arrays for per-processor ticks (class variables)
+<span class="nc" id="L65">	private long procTickTime = System.currentTimeMillis();</span>
+<span class="nc" id="L66">	private long[] prevProcTicks = new long[4];</span>
+<span class="nc" id="L67">	private long[] curProcTicks = new long[4];</span>
+
+	// Initialize numCPU
+<span class="nc" id="L70">	private static int numCPU = 0;</span>
+	static {
+		try {
+<span class="nc" id="L73">			List&lt;String&gt; procCpu = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			for (String cpu : procCpu) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">				if (cpu.startsWith(&quot;core id&quot;)) {</span>
+<span class="nc" id="L76">					numCPU++;</span>
+				}
+<span class="nc" id="L78">			}</span>
+<span class="nc" id="L79">		} catch (IOException e) {</span>
+<span class="nc" id="L80">			System.err.println(&quot;Problem with: /proc/cpuinfo&quot;);</span>
+<span class="nc" id="L81">			System.err.println(e.getMessage());</span>
+<span class="nc" id="L82">		}</span>
+	}
+	// Set up array to maintain current ticks for rapid reference. This array
+	// will be updated in place and used as a cache to avoid rereading file
+	// while iterating processors
+<span class="nc" id="L87">	private static long[][] allProcessorTicks = new long[numCPU][4];</span>
+<span class="nc" id="L88">	private static long allProcTickTime = 0;</span>
+
+	private int processorNumber;
+	private String cpuVendor;
+	private String cpuName;
+<span class="nc" id="L93">	private String cpuIdentifier = null;</span>
+	private String cpuStepping;
+	private String cpuModel;
+	private String cpuFamily;
+<span class="nc" id="L97">	private Long cpuVendorFreq = null;</span>
+	private Boolean cpu64;
+
+	/**
+	 * Create a Processor with the given number
+	 * 
+	 * @param procNo
+	 */
+<span class="nc" id="L105">	public CentralProcessor(int procNo) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		if (procNo &gt;= numCPU)</span>
+<span class="nc" id="L107">			throw new IllegalArgumentException(&quot;Processor number (&quot; + procNo</span>
+					+ &quot;) must be less than the number of CPUs: &quot; + numCPU);
+<span class="nc" id="L109">		this.processorNumber = procNo;</span>
+<span class="nc" id="L110">		updateProcessorTicks();</span>
+<span class="nc" id="L111">		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,</span>
+				0, curProcTicks.length);
+<span class="nc" id="L113">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getProcessorNumber() {
+<span class="nc" id="L120">		return processorNumber;</span>
+	}
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
-<span class="nc" id="L61">		return _vendor;</span>
+<span class="nc" id="L130">		return this.cpuVendor;</span>
 	}
 
 	/**
@@ -67,17 +136,19 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param vendor
 	 *            Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
-<span class="nc" id="L71">		_vendor = vendor;</span>
-<span class="nc" id="L72">	}</span>
+<span class="nc" id="L141">		this.cpuVendor = vendor;</span>
+<span class="nc" id="L142">	}</span>
 
 	/**
 	 * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
-<span class="nc" id="L80">		return _name;</span>
+<span class="nc" id="L151">		return this.cpuName;</span>
 	}
 
 	/**
@@ -86,65 +157,67 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param name
 	 *            Name.
 	 */
+	@Override
 	public void setName(String name) {
-<span class="nc" id="L90">		_name = name;</span>
-<span class="nc" id="L91">	}</span>
+<span class="nc" id="L162">		this.cpuName = name;</span>
+<span class="nc" id="L163">	}</span>
 
 	/**
 	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
+	@Override
 	public long getVendorFreq() {
-<span class="nc bnc" id="L102" title="All 2 branches missed.">		if (_freq == null) {</span>
-<span class="nc" id="L103">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
-<span class="nc" id="L104">			Matcher matcher = pattern.matcher(getName());</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		if (this.cpuVendorFreq == null) {</span>
+<span class="nc" id="L174">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="nc" id="L175">			Matcher matcher = pattern.matcher(getName());</span>
 
-<span class="nc bnc" id="L106" title="All 2 branches missed.">			if (matcher.find()) {</span>
-<span class="nc" id="L107">				String unit = matcher.group(1);</span>
-<span class="nc" id="L108">				_freq = ParseUtil.parseHertz(unit);</span>
-<span class="nc" id="L109">			} else {</span>
-<span class="nc" id="L110">				_freq = -1L;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">			if (matcher.find()) {</span>
+<span class="nc" id="L178">				String unit = matcher.group(1);</span>
+<span class="nc" id="L179">				this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));</span>
+<span class="nc" id="L180">			} else {</span>
+<span class="nc" id="L181">				this.cpuVendorFreq = Long.valueOf(-1L);</span>
 			}
 		}
 
-<span class="nc" id="L114">		return _freq.longValue();</span>
+<span class="nc" id="L185">		return this.cpuVendorFreq.longValue();</span>
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
+	 * @param freq
 	 *            Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
-<span class="nc" id="L124">		_freq = Long.valueOf(freq);</span>
-<span class="nc" id="L125">	}</span>
+<span class="nc" id="L196">		this.cpuVendorFreq = Long.valueOf(freq);</span>
+<span class="nc" id="L197">	}</span>
 
 	/**
 	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
-<span class="nc bnc" id="L133" title="All 2 branches missed.">		if (_identifier == null) {</span>
-<span class="nc" id="L134">			StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">			if (getVendor().contentEquals(&quot;GenuineIntel&quot;))</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">				sb.append(isCpu64bit() ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">		if (this.cpuIdentifier == null) {</span>
+<span class="nc" id="L207">			StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">			if (getVendor().contentEquals(&quot;GenuineIntel&quot;))</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">				sb.append(isCpu64bit() ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
 			else
-<span class="nc" id="L138">				sb.append(getVendor());</span>
-<span class="nc" id="L139">			sb.append(&quot; Family &quot;);</span>
-<span class="nc" id="L140">			sb.append(getFamily());</span>
-<span class="nc" id="L141">			sb.append(&quot; Model &quot;);</span>
-<span class="nc" id="L142">			sb.append(getModel());</span>
-<span class="nc" id="L143">			sb.append(&quot; Stepping &quot;);</span>
-<span class="nc" id="L144">			sb.append(getStepping());</span>
-<span class="nc" id="L145">			_identifier = sb.toString();</span>
+<span class="nc" id="L211">				sb.append(getVendor());</span>
+<span class="nc" id="L212">			sb.append(&quot; Family &quot;);</span>
+<span class="nc" id="L213">			sb.append(getFamily());</span>
+<span class="nc" id="L214">			sb.append(&quot; Model &quot;);</span>
+<span class="nc" id="L215">			sb.append(getModel());</span>
+<span class="nc" id="L216">			sb.append(&quot; Stepping &quot;);</span>
+<span class="nc" id="L217">			sb.append(getStepping());</span>
+<span class="nc" id="L218">			this.cpuIdentifier = sb.toString();</span>
 		}
-<span class="nc" id="L147">		return _identifier;</span>
+<span class="nc" id="L220">		return this.cpuIdentifier;</span>
 	}
 
 	/**
@@ -153,17 +226,19 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param identifier
 	 *            Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
-<span class="nc" id="L157">		_identifier = identifier;</span>
-<span class="nc" id="L158">	}</span>
+<span class="nc" id="L231">		this.cpuIdentifier = identifier;</span>
+<span class="nc" id="L232">	}</span>
 
 	/**
 	 * Is CPU 64bit?
 	 * 
 	 * @return True if cpu is 64bit.
 	 */
+	@Override
 	public boolean isCpu64bit() {
-<span class="nc" id="L166">		return _cpu64.booleanValue();</span>
+<span class="nc" id="L241">		return this.cpu64.booleanValue();</span>
 	}
 
 	/**
@@ -172,113 +247,248 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param cpu64
 	 *            True if cpu is 64.
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
-<span class="nc" id="L176">		_cpu64 = Boolean.valueOf(cpu64);</span>
-<span class="nc" id="L177">	}</span>
+<span class="nc" id="L252">		this.cpu64 = Boolean.valueOf(cpu64);</span>
+<span class="nc" id="L253">	}</span>
 
 	/**
-	 * @return the _stepping
+	 * @return the stepping
 	 */
+	@Override
 	public String getStepping() {
-<span class="nc" id="L183">		return _stepping;</span>
+<span class="nc" id="L260">		return this.cpuStepping;</span>
 	}
 
 	/**
-	 * @param _stepping
-	 *            the _stepping to set
+	 * @param stepping
+	 *            the stepping to set
 	 */
-	public void setStepping(String _stepping) {
-<span class="nc" id="L191">		this._stepping = _stepping;</span>
-<span class="nc" id="L192">	}</span>
+	@Override
+	public void setStepping(String stepping) {
+<span class="nc" id="L269">		this.cpuStepping = stepping;</span>
+<span class="nc" id="L270">	}</span>
 
 	/**
-	 * @return the _model
+	 * @return the model
 	 */
+	@Override
 	public String getModel() {
-<span class="nc" id="L198">		return _model;</span>
+<span class="nc" id="L277">		return this.cpuModel;</span>
 	}
 
 	/**
-	 * @param _model
-	 *            the _model to set
+	 * @param model
+	 *            the model to set
 	 */
-	public void setModel(String _model) {
-<span class="nc" id="L206">		this._model = _model;</span>
-<span class="nc" id="L207">	}</span>
+	@Override
+	public void setModel(String model) {
+<span class="nc" id="L286">		this.cpuModel = model;</span>
+<span class="nc" id="L287">	}</span>
 
 	/**
-	 * @return the _family
+	 * @return the family
 	 */
+	@Override
 	public String getFamily() {
-<span class="nc" id="L213">		return _family;</span>
+<span class="nc" id="L294">		return this.cpuFamily;</span>
 	}
 
 	/**
-	 * @param _family
-	 *            the _family to set
+	 * @param family
+	 *            the family to set
 	 */
-	public void setFamily(String _family) {
-<span class="nc" id="L221">		this._family = _family;</span>
-<span class="nc" id="L222">	}</span>
+	@Override
+	public void setFamily(String family) {
+<span class="nc" id="L303">		this.cpuFamily = family;</span>
+<span class="nc" id="L304">	}</span>
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
-<span class="nc" id="L229">		long[] prevTicks = getCpuLoadTicks();</span>
-		try {
-<span class="nc" id="L231">			Thread.sleep(1000);</span>
-<span class="nc" id="L232">		} catch (InterruptedException e) {</span>
-			// Awake, O sleeper
-		}
-<span class="nc" id="L235">		long[] ticks = getCpuLoadTicks();</span>
-<span class="nc" id="L236">		long total = 0;</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">		for (int i = 0; i &lt; ticks.length; i++) {</span>
-<span class="nc" id="L238">			total += (ticks[i] - prevTicks[i]);</span>
-		}
-<span class="nc" id="L240">		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];</span>
-<span class="nc bnc" id="L241" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0)</span>
-<span class="nc" id="L242">			return 100f * (total - idle) / total;</span>
-		else
-<span class="nc" id="L244">			return 0f;</span>
+		// TODO Remove in 2.0
+<span class="nc" id="L313">		return (float) getSystemCpuLoadBetweenTicks() * 100;</span>
 	}
 
-	public long[] getCpuLoadTicks() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getSystemCpuLoadBetweenTicks() {
+		// Check if &gt; ~ 0.95 seconds since last tick count.
+<span class="nc" id="L322">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">		boolean update = (now - tickTime &gt; 950);</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">		if (update) {</span>
+			// Enough time has elapsed.
+			// Update latest
+<span class="nc" id="L327">			updateSystemTicks();</span>
+<span class="nc" id="L328">			tickTime = now;</span>
+		}
+		// Calculate total
+<span class="nc" id="L331">		long total = 0;</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">		for (int i = 0; i &lt; curTicks.length; i++) {</span>
+<span class="nc" id="L333">			total += (curTicks[i] - prevTicks[i]);</span>
+		}
+		// Calculate idle from last field [3]
+<span class="nc" id="L336">		long idle = curTicks[3] - prevTicks[3];</span>
+
+		// Copy latest ticks to earlier position for next call
+<span class="nc bnc" id="L339" title="All 2 branches missed.">		if (update) {</span>
+<span class="nc" id="L340">			System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
+		}
+
+		// return
+<span class="nc bnc" id="L344" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0) {</span>
+<span class="nc" id="L345">			return (double) (total - idle) / total;</span>
+		}
+<span class="nc" id="L347">		return 0d;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long[] getSystemCpuLoadTicks() {
+<span class="nc" id="L355">		updateSystemTicks();</span>
+		// Make a copy
+<span class="nc" id="L357">		long[] ticks = new long[curTicks.length];</span>
+<span class="nc" id="L358">		System.arraycopy(curTicks, 0, ticks, 0, curTicks.length);</span>
+<span class="nc" id="L359">		return ticks;</span>
+	}
+
+	/**
+	 * Updates system tick information from parsing /proc/stat. Array with four
+	 * elements representing clock ticks or milliseconds (platform dependent)
+	 * spent in User (0), Nice (1), System (2), and Idle (3) states. By
+	 * measuring the difference between ticks across a time interval, CPU load
+	 * over that interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	private static void updateSystemTicks() {
 		// /proc/stat expected format
 		// first line is overall user,nice,system,idle, etc.
 		// cpu 3357 0 4313 1362393 ...
-		// TODO: per-processor subsequent lines for cpu0, cpu1, etc.
-<span class="nc" id="L252">		long[] ticks = new long[4];</span>
-<span class="nc" id="L253">		String tickStr = &quot;&quot;;</span>
+<span class="nc" id="L376">		String tickStr = &quot;&quot;;</span>
 		try {
-<span class="nc" id="L255">			List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L256" title="All 2 branches missed.">			if (!procStat.isEmpty())</span>
-<span class="nc" id="L257">				tickStr = procStat.get(0);</span>
-<span class="nc" id="L258">		} catch (IOException e) {</span>
-<span class="nc" id="L259">			System.err.println(&quot;Problem with: /proc/stat&quot;);</span>
-<span class="nc" id="L260">			System.err.println(e.getMessage());</span>
-<span class="nc" id="L261">			return ticks;</span>
+<span class="nc" id="L378">			List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">			if (!procStat.isEmpty())</span>
+<span class="nc" id="L380">				tickStr = procStat.get(0);</span>
+<span class="nc" id="L381">		} catch (IOException e) {</span>
+<span class="nc" id="L382">			System.err.println(&quot;Problem with: /proc/stat&quot;);</span>
+<span class="nc" id="L383">			System.err.println(e.getMessage());</span>
+<span class="nc" id="L384">			return;</span>
+<span class="nc" id="L385">		}</span>
+<span class="nc" id="L386">		String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		if (tickArr.length &lt; 5)</span>
+<span class="nc" id="L388">			return;</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">		for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L390">			curTicks[i] = Long.parseLong(tickArr[i + 1]);</span>
 		}
-<span class="nc" id="L263">		String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">		if (tickStr.length() &lt; 5)</span>
-<span class="nc" id="L265">			return ticks;</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">		for (int i = 0; i &lt; 4; i++) {</span>
-<span class="nc" id="L267">			ticks[i] = Long.parseLong(tickArr[i + 1]);</span>
+<span class="nc" id="L392">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getSystemCpuLoad() {
+<span class="nc bnc" id="L399" title="All 2 branches missed.">		if (sunMXBean) {</span>
+<span class="nc" id="L400">			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)</span>
+					.getSystemCpuLoad();
 		}
-<span class="nc" id="L269">		return ticks;</span>
+<span class="nc" id="L403">		return getSystemCpuLoadBetweenTicks();</span>
 	}
 
-	public double getSystemCPULoad() {
-<span class="nc" id="L273">		return OS_MXBEAN.getSystemCpuLoad();</span>
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public double getSystemLoadAverage() {
-<span class="nc" id="L277">		return OS_MXBEAN.getSystemLoadAverage();</span>
+<span class="nc" id="L411">		return OS_MXBEAN.getSystemLoadAverage();</span>
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getProcessorCpuLoadBetweenTicks() {
+		// Check if &gt; ~ 0.95 seconds since last tick count.
+<span class="nc" id="L420">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">		if (now - procTickTime &gt; 950) {</span>
+			// Enough time has elapsed. Update array in place
+<span class="nc" id="L423">			updateProcessorTicks();</span>
+			// Copy arrays in place
+<span class="nc" id="L425">			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,</span>
+					curProcTicks.length);
+<span class="nc" id="L427">			System.arraycopy(allProcessorTicks[processorNumber], 0,</span>
+					curProcTicks, 0, curProcTicks.length);
+<span class="nc" id="L429">			procTickTime = now;</span>
+		}
+<span class="nc" id="L431">		long total = 0;</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">		for (int i = 0; i &lt; curProcTicks.length; i++) {</span>
+<span class="nc" id="L433">			total += (curProcTicks[i] - prevProcTicks[i]);</span>
+		}
+		// Calculate idle from last field [3]
+<span class="nc" id="L436">		long idle = curProcTicks[3] - prevProcTicks[3];</span>
+		// update
+<span class="nc bnc" id="L438" title="All 4 branches missed.">		return (total &gt; 0 &amp;&amp; idle &gt;= 0) ? (double) (total - idle) / total : 0d;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getProcessorCpuLoadTicks() {
+<span class="nc" id="L445">		updateProcessorTicks();</span>
+<span class="nc" id="L446">		return allProcessorTicks[processorNumber];</span>
+	}
+
+	/**
+	 * Updates the tick array for all processors if more than 100ms has elapsed
+	 * since the last update. This permits using the allProcessorTicks as a
+	 * cache when iterating over processors so that the /proc/stat file is only
+	 * read once
+	 */
+	private static void updateProcessorTicks() {
+		// Update no more frequently than 100ms so this is only triggered once
+		// during iteration over Processors
+<span class="nc" id="L458">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">		if (now - allProcTickTime &lt; 100)</span>
+<span class="nc" id="L460">			return;</span>
+
+		// /proc/stat expected format
+		// first line is overall user,nice,system,idle, etc.
+		// cpu 3357 0 4313 1362393 ...
+		// per-processor subsequent lines for cpu0, cpu1, etc.
+		try {
+<span class="nc" id="L467">			int cpu = 0;</span>
+<span class="nc" id="L468">			List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L469" title="All 2 branches missed.">			for (String stat : procStat) {</span>
+<span class="nc bnc" id="L470" title="All 4 branches missed.">				if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
+<span class="nc" id="L471">					String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">					if (tickArr.length &lt; 5)</span>
+<span class="nc" id="L473">						break;</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">					for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L475">						allProcessorTicks[cpu][i] = Long</span>
+								.parseLong(tickArr[i + 1]);
+					}
+<span class="nc bnc" id="L478" title="All 2 branches missed.">					if (++cpu &gt;= numCPU)</span>
+<span class="nc" id="L479">						break;</span>
+				}
+<span class="nc" id="L481">			}</span>
+<span class="nc" id="L482">		} catch (IOException e) {</span>
+<span class="nc" id="L483">			System.err.println(&quot;Problem with: /proc/stat&quot;);</span>
+<span class="nc" id="L484">			System.err.println(e.getMessage());</span>
+<span class="nc" id="L485">		}</span>
+<span class="nc" id="L486">		allProcTickTime = now;</span>
+<span class="nc" id="L487">	}</span>
+
+	@Override
 	public String toString() {
-<span class="nc" id="L281">		return getName();</span>
+<span class="nc" id="L491">		return getName();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

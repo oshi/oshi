@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import oshi.hardware.Processor;
 import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 import com.sun.jna.LastErrorException;
@@ -29,54 +30,118 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.management.OperatingSystemMXBean;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * A CPU.
  * 
  * @author alessandro[at]perucchi[dot]org
+ * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings(&quot;restriction&quot;)
-<span class="nc" id="L41">public class CentralProcessor implements Processor {</span>
-	private static final OperatingSystemMXBean OS_MXBEAN;
+public class CentralProcessor implements Processor {
+<span class="nc" id="L44">	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory</span>
+			.getOperatingSystemMXBean();;
+	private static boolean sunMXBean;
 	static {
-<span class="nc" id="L44">		OS_MXBEAN = (com.sun.management.OperatingSystemMXBean) ManagementFactory</span>
-<span class="nc" id="L45">				.getOperatingSystemMXBean();</span>
-		// Initialize CPU usage
-<span class="nc" id="L47">		OS_MXBEAN.getSystemCpuLoad();</span>
-<span class="nc" id="L48">	}</span>
+		try {
+<span class="nc" id="L49">			Class.forName(&quot;com.sun.management.OperatingSystemMXBean&quot;);</span>
+			// Initialize CPU usage
+<span class="nc" id="L51">			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)</span>
+					.getSystemCpuLoad();
+<span class="nc" id="L53">			sunMXBean = true;</span>
+<span class="nc" id="L54">		} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L55">			sunMXBean = false;</span>
+<span class="nc" id="L56">		}</span>
+	}
+	// Maintain two sets of previous ticks to be used for calculating usage
+	// between them.
+	// System ticks (static)
+<span class="nc" id="L61">	private static long tickTime = System.currentTimeMillis();</span>
+<span class="nc" id="L62">	private static long[] prevTicks = new long[4];</span>
+<span class="nc" id="L63">	private static long[] curTicks = new long[4];</span>
+	static {
+<span class="nc" id="L65">		updateSystemTicks();</span>
+<span class="nc" id="L66">		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
+	}
 
-	private String _vendor;
-	private String _name;
-<span class="nc" id="L52">	private String _identifier = null;</span>
-	private String _stepping;
-	private String _model;
-	private String _family;
-<span class="nc" id="L56">	private Long _freq = null;</span>
-	private Boolean _cpu64;
+	// Maintain similar arrays for per-processor ticks (class variables)
+<span class="nc" id="L70">	private long procTickTime = System.currentTimeMillis();</span>
+<span class="nc" id="L71">	private long[] prevProcTicks = new long[4];</span>
+<span class="nc" id="L72">	private long[] curProcTicks = new long[4];</span>
+
+	// Initialize numCPU
+<span class="nc" id="L75">	private static int numCPU = 0;</span>
+	static {
+<span class="nc" id="L77">		IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="nc" id="L78">		Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.sysctlbyname(&quot;hw.logicalcpu&quot;, p, size, null,</span>
+				0))
+<span class="nc" id="L81">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L82">		numCPU = p.getInt(0);</span>
+	}
+	// Set up array to maintain current ticks for rapid reference. This array
+	// will be updated in place and used as a cache to avoid rereading file
+	// while iterating processors
+<span class="nc" id="L87">	private static long[][] allProcessorTicks = new long[numCPU][4];</span>
+<span class="nc" id="L88">	private static long allProcTickTime = 0;</span>
+
+	private int processorNumber;
+	private String cpuVendor;
+	private String cpuName;
+<span class="nc" id="L93">	private String cpuIdentifier = null;</span>
+	private String cpuStepping;
+	private String cpuModel;
+	private String cpuFamily;
+<span class="nc" id="L97">	private Long cpuVendorFreq = null;</span>
+	private Boolean cpu64;
+
+	/**
+	 * Create a Processor with the given number
+	 * 
+	 * @param procNo
+	 */
+<span class="nc" id="L105">	public CentralProcessor(int procNo) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		if (procNo &gt;= numCPU)</span>
+<span class="nc" id="L107">			throw new IllegalArgumentException(&quot;Processor number (&quot; + procNo</span>
+					+ &quot;) must be less than the number of CPUs: &quot; + numCPU);
+<span class="nc" id="L109">		this.processorNumber = procNo;</span>
+<span class="nc" id="L110">		updateProcessorTicks();</span>
+<span class="nc" id="L111">		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,</span>
+				0, curProcTicks.length);
+<span class="nc" id="L113">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getProcessorNumber() {
+<span class="nc" id="L120">		return processorNumber;</span>
+	}
 
 	/**
 	 * Vendor identifier, eg. GenuineIntel.
 	 * 
 	 * @return Processor vendor.
 	 */
+	@Override
 	public String getVendor() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">		if (_vendor == null) {</span>
-<span class="nc" id="L66">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
-<span class="nc" id="L67">					SystemB.MACHDEP_CPU_VENDOR };</span>
-<span class="nc" id="L68">			IntByReference size = new IntByReference();</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,</span>
-<span class="nc" id="L70">					0))</span>
-<span class="nc" id="L71">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L72">						+ Native.getLastError());</span>
-<span class="nc" id="L73">			Pointer p = new Memory(size.getValue() + 1);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L75">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L76">						+ Native.getLastError());</span>
-<span class="nc" id="L77">			_vendor = p.getString(0);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		if (this.cpuVendor == null) {</span>
+<span class="nc" id="L131">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
+					SystemB.MACHDEP_CPU_VENDOR };
+<span class="nc" id="L133">			IntByReference size = new IntByReference();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,</span>
+					0))
+<span class="nc" id="L136">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L138">			Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L140">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L142">			this.cpuVendor = p.getString(0);</span>
 		}
-<span class="nc" id="L79">		return _vendor;</span>
+<span class="nc" id="L144">		return this.cpuVendor;</span>
 	}
 
 	/**
@@ -85,31 +150,33 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param vendor
 	 *            Vendor.
 	 */
+	@Override
 	public void setVendor(String vendor) {
-<span class="nc" id="L89">		_vendor = vendor;</span>
-<span class="nc" id="L90">	}</span>
+<span class="nc" id="L155">		this.cpuVendor = vendor;</span>
+<span class="nc" id="L156">	}</span>
 
 	/**
 	 * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
 	 * 
 	 * @return Processor name.
 	 */
+	@Override
 	public String getName() {
-<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (_name == null) {</span>
-<span class="nc" id="L99">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
-<span class="nc" id="L100">					SystemB.MACHDEP_CPU_BRAND_STRING };</span>
-<span class="nc" id="L101">			IntByReference size = new IntByReference();</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,</span>
-<span class="nc" id="L103">					0))</span>
-<span class="nc" id="L104">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L105">						+ Native.getLastError());</span>
-<span class="nc" id="L106">			Pointer p = new Memory(size.getValue() + 1);</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L108">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L109">						+ Native.getLastError());</span>
-<span class="nc" id="L110">			_name = p.getString(0);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		if (this.cpuName == null) {</span>
+<span class="nc" id="L166">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
+					SystemB.MACHDEP_CPU_BRAND_STRING };
+<span class="nc" id="L168">			IntByReference size = new IntByReference();</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,</span>
+					0))
+<span class="nc" id="L171">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L173">			Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L175">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L177">			this.cpuName = p.getString(0);</span>
 		}
-<span class="nc" id="L112">		return _name;</span>
+<span class="nc" id="L179">		return this.cpuName;</span>
 	}
 
 	/**
@@ -118,62 +185,64 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param name
 	 *            Name.
 	 */
+	@Override
 	public void setName(String name) {
-<span class="nc" id="L122">		_name = name;</span>
-<span class="nc" id="L123">	}</span>
+<span class="nc" id="L190">		this.cpuName = name;</span>
+<span class="nc" id="L191">	}</span>
 
 	/**
 	 * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
 	 * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
 	 * 
 	 * @return Processor frequency or -1 if unknown.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
+	@Override
 	public long getVendorFreq() {
-<span class="nc bnc" id="L134" title="All 2 branches missed.">		if (_freq == null) {</span>
-<span class="nc" id="L135">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
-<span class="nc" id="L136">			Matcher matcher = pattern.matcher(getName());</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (this.cpuVendorFreq == null) {</span>
+<span class="nc" id="L202">			Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="nc" id="L203">			Matcher matcher = pattern.matcher(getName());</span>
 
-<span class="nc bnc" id="L138" title="All 2 branches missed.">			if (matcher.find()) {</span>
-<span class="nc" id="L139">				String unit = matcher.group(1);</span>
-<span class="nc" id="L140">				_freq = ParseUtil.parseHertz(unit);</span>
-<span class="nc" id="L141">			} else {</span>
-<span class="nc" id="L142">				_freq = -1L;</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">			if (matcher.find()) {</span>
+<span class="nc" id="L206">				String unit = matcher.group(1);</span>
+<span class="nc" id="L207">				this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));</span>
+<span class="nc" id="L208">			} else {</span>
+<span class="nc" id="L209">				this.cpuVendorFreq = Long.valueOf(-1L);</span>
 			}
 		}
 
-<span class="nc" id="L146">		return _freq.longValue();</span>
+<span class="nc" id="L213">		return this.cpuVendorFreq.longValue();</span>
 	}
 
 	/**
 	 * Set vendor frequency.
 	 * 
-	 * @param frequency
+	 * @param freq
 	 *            Frequency.
 	 */
+	@Override
 	public void setVendorFreq(long freq) {
-<span class="nc" id="L156">		_freq = Long.valueOf(freq);</span>
-<span class="nc" id="L157">	}</span>
+<span class="nc" id="L224">		this.cpuVendorFreq = Long.valueOf(freq);</span>
+<span class="nc" id="L225">	}</span>
 
 	/**
 	 * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
 	 * 
 	 * @return Processor identifier.
 	 */
+	@Override
 	public String getIdentifier() {
-<span class="nc bnc" id="L165" title="All 2 branches missed.">		if (_identifier == null) {</span>
-<span class="nc" id="L166">			StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">			if (getVendor().contentEquals(&quot;GenuineIntel&quot;))</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">				sb.append(isCpu64bit() ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (this.cpuIdentifier == null) {</span>
+<span class="nc" id="L235">			StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">			if (getVendor().contentEquals(&quot;GenuineIntel&quot;))</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">				sb.append(isCpu64bit() ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
 			else
-<span class="nc" id="L170">				sb.append(getVendor());</span>
-<span class="nc" id="L171">			sb.append(&quot; Family &quot;).append(getFamily());</span>
-<span class="nc" id="L172">			sb.append(&quot; Model &quot;).append(getModel());</span>
-<span class="nc" id="L173">			sb.append(&quot; Stepping &quot;).append(getStepping());</span>
-<span class="nc" id="L174">			_identifier = sb.toString();</span>
+<span class="nc" id="L239">				sb.append(getVendor());</span>
+<span class="nc" id="L240">			sb.append(&quot; Family &quot;).append(getFamily());</span>
+<span class="nc" id="L241">			sb.append(&quot; Model &quot;).append(getModel());</span>
+<span class="nc" id="L242">			sb.append(&quot; Stepping &quot;).append(getStepping());</span>
+<span class="nc" id="L243">			this.cpuIdentifier = sb.toString();</span>
 		}
-<span class="nc" id="L176">		return _identifier;</span>
+<span class="nc" id="L245">		return this.cpuIdentifier;</span>
 	}
 
 	/**
@@ -182,26 +251,28 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param identifier
 	 *            Identifier.
 	 */
+	@Override
 	public void setIdentifier(String identifier) {
-<span class="nc" id="L186">		_identifier = identifier;</span>
-<span class="nc" id="L187">	}</span>
+<span class="nc" id="L256">		this.cpuIdentifier = identifier;</span>
+<span class="nc" id="L257">	}</span>
 
 	/**
 	 * Is CPU 64bit?
 	 * 
 	 * @return True if cpu is 64bit.
 	 */
+	@Override
 	public boolean isCpu64bit() {
-<span class="nc bnc" id="L195" title="All 2 branches missed.">		if (_cpu64 == null) {</span>
-<span class="nc" id="L196">			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };</span>
-<span class="nc" id="L197">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
-<span class="nc" id="L198">			Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L200">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L201">						+ Native.getLastError());</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">			_cpu64 = p.getInt(0) != 0;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		if (this.cpu64 == null) {</span>
+<span class="nc" id="L267">			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };</span>
+<span class="nc" id="L268">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="nc" id="L269">			Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L271">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			this.cpu64 = p.getInt(0) != 0;</span>
 		}
-<span class="nc" id="L204">		return _cpu64.booleanValue();</span>
+<span class="nc" id="L275">		return this.cpu64.booleanValue();</span>
 	}
 
 	/**
@@ -210,144 +281,275 @@ import com.sun.management.OperatingSystemMXBean;
 	 * @param cpu64
 	 *            True if cpu is 64.
 	 */
+	@Override
 	public void setCpu64(boolean cpu64) {
-<span class="nc" id="L214">		_cpu64 = Boolean.valueOf(cpu64);</span>
-<span class="nc" id="L215">	}</span>
+<span class="nc" id="L286">		this.cpu64 = Boolean.valueOf(cpu64);</span>
+<span class="nc" id="L287">	}</span>
 
 	/**
-	 * @return the _stepping
+	 * @return the stepping
 	 */
+	@Override
 	public String getStepping() {
-<span class="nc bnc" id="L221" title="All 2 branches missed.">		if (_stepping == null) {</span>
-<span class="nc" id="L222">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
-<span class="nc" id="L223">					SystemB.MACHDEP_CPU_STEPPING };</span>
-<span class="nc" id="L224">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
-<span class="nc" id="L225">			Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L227">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L228">						+ Native.getLastError());</span>
-<span class="nc" id="L229">			_stepping = Integer.toString(p.getInt(0));</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">		if (this.cpuStepping == null) {</span>
+<span class="nc" id="L295">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
+					SystemB.MACHDEP_CPU_STEPPING };
+<span class="nc" id="L297">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="nc" id="L298">			Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L300">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L302">			this.cpuStepping = Integer.toString(p.getInt(0));</span>
 		}
-<span class="nc" id="L231">		return _stepping;</span>
+<span class="nc" id="L304">		return this.cpuStepping;</span>
 	}
 
 	/**
 	 * @param stepping
 	 *            the stepping to set
 	 */
+	@Override
 	public void setStepping(String stepping) {
-<span class="nc" id="L239">		_stepping = stepping;</span>
-<span class="nc" id="L240">	}</span>
+<span class="nc" id="L313">		this.cpuStepping = stepping;</span>
+<span class="nc" id="L314">	}</span>
 
 	/**
-	 * @return the _model
+	 * @return the model
 	 */
+	@Override
 	public String getModel() {
-<span class="nc bnc" id="L246" title="All 2 branches missed.">		if (_model == null) {</span>
-<span class="nc" id="L247">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
-<span class="nc" id="L248">					SystemB.MACHDEP_CPU_MODEL };</span>
-<span class="nc" id="L249">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
-<span class="nc" id="L250">			Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L251" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L252">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L253">						+ Native.getLastError());</span>
-<span class="nc" id="L254">			_model = Integer.toString(p.getInt(0));</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">		if (this.cpuModel == null) {</span>
+<span class="nc" id="L322">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
+					SystemB.MACHDEP_CPU_MODEL };
+<span class="nc" id="L324">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="nc" id="L325">			Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L327">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L329">			this.cpuModel = Integer.toString(p.getInt(0));</span>
 		}
-<span class="nc" id="L256">		return _model;</span>
+<span class="nc" id="L331">		return this.cpuModel;</span>
 	}
 
 	/**
 	 * @param model
 	 *            the model to set
 	 */
+	@Override
 	public void setModel(String model) {
-<span class="nc" id="L264">		_model = model;</span>
-<span class="nc" id="L265">	}</span>
+<span class="nc" id="L340">		this.cpuModel = model;</span>
+<span class="nc" id="L341">	}</span>
 
 	/**
-	 * @return the _family
+	 * @return the family
 	 */
+	@Override
 	public String getFamily() {
-<span class="nc bnc" id="L271" title="All 2 branches missed.">		if (_family == null) {</span>
-<span class="nc" id="L272">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
-<span class="nc" id="L273">					SystemB.MACHDEP_CPU_FAMILY };</span>
-<span class="nc" id="L274">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
-<span class="nc" id="L275">			Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L276" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L277">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L278">						+ Native.getLastError());</span>
-<span class="nc" id="L279">			_family = Integer.toString(p.getInt(0));</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">		if (this.cpuFamily == null) {</span>
+<span class="nc" id="L349">			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,</span>
+					SystemB.MACHDEP_CPU_FAMILY };
+<span class="nc" id="L351">			IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="nc" id="L352">			Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
+<span class="nc" id="L354">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L356">			this.cpuFamily = Integer.toString(p.getInt(0));</span>
 		}
-<span class="nc" id="L281">		return _family;</span>
+<span class="nc" id="L358">		return this.cpuFamily;</span>
 	}
 
 	/**
 	 * @param family
 	 *            the family to set
 	 */
+	@Override
 	public void setFamily(String family) {
-<span class="nc" id="L289">		_family = family;</span>
-<span class="nc" id="L290">	}</span>
+<span class="nc" id="L367">		this.cpuFamily = family;</span>
+<span class="nc" id="L368">	}</span>
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Deprecated
 	public float getLoad() {
-<span class="nc" id="L297">		long[] prevTicks = getCpuLoadTicks();</span>
-		try {
-<span class="nc" id="L299">			Thread.sleep(1000);</span>
-<span class="nc" id="L300">		} catch (InterruptedException e) {</span>
-			// Awake, O sleeper
-		}
-<span class="nc" id="L303">		long[] ticks = getCpuLoadTicks();</span>
-<span class="nc" id="L304">		long total = 0;</span>
-<span class="nc bnc" id="L305" title="All 2 branches missed.">		for (int i = 0; i &lt; ticks.length; i++) {</span>
-<span class="nc" id="L306">			total += (ticks[i] - prevTicks[i]);</span>
-		}
-<span class="nc" id="L308">		long idle = ticks[ticks.length - 1] - prevTicks[ticks.length - 1];</span>
-<span class="nc bnc" id="L309" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0)</span>
-<span class="nc" id="L310">			return 100f * (total - idle) / total;</span>
-		else
-<span class="nc" id="L312">			return 0f;</span>
+		// TODO Remove in 2.0
+<span class="nc" id="L377">		return (float) getSystemCpuLoadBetweenTicks() * 100;</span>
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public long[] getCpuLoadTicks() {
-		// TODO: Consider PROCESSOR_CPU_LOAD_INFO to get value per-core
-<span class="nc" id="L320">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
-<span class="nc" id="L321">		long[] ticks = new long[SystemB.CPU_STATE_MAX];</span>
-<span class="nc" id="L322">		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();</span>
-<span class="nc bnc" id="L323" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_statistics(machPort,</span>
-<span class="nc" id="L324">				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(</span>
-<span class="nc" id="L325">						cpuLoadInfo.size())))</span>
-<span class="nc" id="L326">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+	@Override
+	public double getSystemCpuLoadBetweenTicks() {
+		// Check if &gt; ~ 0.95 seconds since last tick count.
+<span class="nc" id="L386">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		boolean update = (now - tickTime &gt; 950);</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">		if (update) {</span>
+			// Enough time has elapsed.
+			// Update latest
+<span class="nc" id="L391">			updateSystemTicks();</span>
+<span class="nc" id="L392">			tickTime = now;</span>
+		}
+		// Calculate total
+<span class="nc" id="L395">		long total = 0;</span>
+<span class="nc bnc" id="L396" title="All 2 branches missed.">		for (int i = 0; i &lt; curTicks.length; i++) {</span>
+<span class="nc" id="L397">			total += (curTicks[i] - prevTicks[i]);</span>
+		}
+		// Calculate idle from last field [3]
+<span class="nc" id="L400">		long idle = curTicks[3] - prevTicks[3];</span>
+
+		// Copy latest ticks to earlier position for next call
+<span class="nc bnc" id="L403" title="All 2 branches missed.">		if (update) {</span>
+<span class="nc" id="L404">			System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
+		}
+
+		// return
+<span class="nc bnc" id="L408" title="All 4 branches missed.">		if (total &gt; 0 &amp;&amp; idle &gt;= 0) {</span>
+<span class="nc" id="L409">			return (double) (total - idle) / total;</span>
+		}
+<span class="nc" id="L411">		return 0d;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long[] getSystemCpuLoadTicks() {
+<span class="nc" id="L419">		updateSystemTicks();</span>
+		// Make a copy
+<span class="nc" id="L421">		long[] ticks = new long[curTicks.length];</span>
+<span class="nc" id="L422">		System.arraycopy(curTicks, 0, ticks, 0, curTicks.length);</span>
+<span class="nc" id="L423">		return ticks;</span>
+	}
+
+	/**
+	 * Updates system tick information from native host_statistics query. Array
+	 * with four elements representing clock ticks or milliseconds (platform
+	 * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
+	 * By measuring the difference between ticks across a time interval, CPU
+	 * load over that interval may be calculated.
+	 * 
+	 * @return An array of 4 long values representing time spent in User,
+	 *         Nice(if applicable), System, and Idle states.
+	 */
+	private static void updateSystemTicks() {
+<span class="nc" id="L437">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L438">		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_statistics(machPort,</span>
+				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(
+						cpuLoadInfo.size())))
+<span class="nc" id="L442">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
 		// Switch order to match linux
-<span class="nc" id="L328">		ticks[0] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];</span>
-<span class="nc" id="L329">		ticks[1] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];</span>
-<span class="nc" id="L330">		ticks[2] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];</span>
-<span class="nc" id="L331">		ticks[3] = (long) cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];</span>
-<span class="nc" id="L332">		return ticks;</span>
+<span class="nc" id="L444">		curTicks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];</span>
+<span class="nc" id="L445">		curTicks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];</span>
+<span class="nc" id="L446">		curTicks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];</span>
+<span class="nc" id="L447">		curTicks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];</span>
+<span class="nc" id="L448">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getSystemCpuLoad() {
+<span class="nc bnc" id="L455" title="All 2 branches missed.">		if (sunMXBean) {</span>
+<span class="nc" id="L456">			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)</span>
+					.getSystemCpuLoad();
+		}
+<span class="nc" id="L459">		return getSystemCpuLoadBetweenTicks();</span>
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public double getSystemCPULoad() {
-<span class="nc" id="L339">		return OS_MXBEAN.getSystemCpuLoad();</span>
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public double getSystemLoadAverage() {
-<span class="nc" id="L346">		return OS_MXBEAN.getSystemLoadAverage();</span>
+<span class="nc" id="L467">		return OS_MXBEAN.getSystemLoadAverage();</span>
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public double getProcessorCpuLoadBetweenTicks() {
+		// Check if &gt; ~ 0.95 seconds since last tick count.
+<span class="nc" id="L476">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">		if (now - procTickTime &gt; 950) {</span>
+			// Enough time has elapsed. Update array in place
+<span class="nc" id="L479">			updateProcessorTicks();</span>
+			// Copy arrays in place
+<span class="nc" id="L481">			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,</span>
+					curProcTicks.length);
+<span class="nc" id="L483">			System.arraycopy(allProcessorTicks[processorNumber], 0,</span>
+					curProcTicks, 0, curProcTicks.length);
+<span class="nc" id="L485">			procTickTime = now;</span>
+		}
+<span class="nc" id="L487">		long total = 0;</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">		for (int i = 0; i &lt; curProcTicks.length; i++) {</span>
+<span class="nc" id="L489">			total += (curProcTicks[i] - prevProcTicks[i]);</span>
+		}
+		// Calculate idle from last field [3]
+<span class="nc" id="L492">		long idle = curProcTicks[3] - prevProcTicks[3];</span>
+		// update
+<span class="nc bnc" id="L494" title="All 4 branches missed.">		return (total &gt; 0 &amp;&amp; idle &gt;= 0) ? (double) (total - idle) / total : 0d;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long[] getProcessorCpuLoadTicks() {
+<span class="nc" id="L501">		updateProcessorTicks();</span>
+<span class="nc" id="L502">		return allProcessorTicks[processorNumber];</span>
+	}
+
+	/**
+	 * Updates the tick array for all processors if more than 100ms has elapsed
+	 * since the last update. This permits using the allProcessorTicks as a
+	 * cache when iterating over processors so that the host_processor_info
+	 * query is only done once
+	 */
+	private static void updateProcessorTicks() {
+		// Update no more frequently than 100ms so this is only triggered once
+		// during iteration over Processors
+<span class="nc" id="L514">		long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">		if (now - allProcTickTime &lt; 100)</span>
+<span class="nc" id="L516">			return;</span>
+
+<span class="nc" id="L518">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
+
+<span class="nc" id="L520">		IntByReference procCount = new IntByReference();</span>
+<span class="nc" id="L521">		PointerByReference procCpuLoadInfo = new PointerByReference();</span>
+<span class="nc" id="L522">		IntByReference procInfoCount = new IntByReference();</span>
+<span class="nc bnc" id="L523" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_processor_info(machPort,</span>
+				SystemB.PROCESSOR_CPU_LOAD_INFO, procCount, procCpuLoadInfo,
+				procInfoCount))
+<span class="nc" id="L526">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+
+<span class="nc" id="L528">		int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0,</span>
+				procInfoCount.getValue());
+<span class="nc bnc" id="L530" title="All 2 branches missed.">		for (int cpu = 0; cpu &lt; procCount.getValue(); cpu++) {</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">			for (int j = 0; j &lt; 4; j++) {</span>
+<span class="nc" id="L532">				int offset = cpu * SystemB.CPU_STATE_MAX;</span>
+<span class="nc" id="L533">				allProcessorTicks[cpu][0] = FormatUtil</span>
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_USER]);
+<span class="nc" id="L536">				allProcessorTicks[cpu][1] = FormatUtil</span>
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_NICE]);
+<span class="nc" id="L539">				allProcessorTicks[cpu][2] = FormatUtil</span>
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_SYSTEM]);
+<span class="nc" id="L542">				allProcessorTicks[cpu][3] = FormatUtil</span>
+						.getUnsignedInt(cpuTicks[offset
+								+ SystemB.CPU_STATE_IDLE]);
+			}
+		}
+<span class="nc" id="L547">		allProcTickTime = now;</span>
+<span class="nc" id="L548">	}</span>
+
+	@Override
 	public String toString() {
-<span class="nc" id="L350">		return getName();</span>
+<span class="nc" id="L552">		return getName();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

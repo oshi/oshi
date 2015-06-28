@@ -39,46 +39,51 @@ import com.sun.jna.platform.win32.WinReg;
 
 <span class="fc" id="L40">	private Memory _memory = null;</span>
 
+	@Override
 	public Memory getMemory() {
-<span class="pc bpc" id="L43" title="1 of 2 branches missed.">		if (_memory == null) {</span>
-<span class="fc" id="L44">			_memory = new GlobalMemory();</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (this._memory == null) {</span>
+<span class="fc" id="L45">			this._memory = new GlobalMemory();</span>
 		}
-<span class="fc" id="L46">		return _memory;</span>
+<span class="fc" id="L47">		return this._memory;</span>
 	}
 
+	@Override
 	public Processor[] getProcessors() {
 
-<span class="fc bfc" id="L51" title="All 2 branches covered.">		if (_processors == null) {</span>
-<span class="fc" id="L52">			final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
-<span class="fc" id="L53">			List&lt;Processor&gt; processors = new ArrayList&lt;Processor&gt;();</span>
-<span class="fc" id="L54">			String[] processorIds = Advapi32Util.registryGetKeys(</span>
-<span class="fc" id="L55">					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
-<span class="fc bfc" id="L56" title="All 2 branches covered.">			for (String processorId : processorIds) {</span>
-<span class="fc" id="L57">				String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorId;</span>
-<span class="fc" id="L58">				CentralProcessor cpu = new CentralProcessor();</span>
-<span class="fc" id="L59">				cpu.setIdentifier(Advapi32Util.registryGetStringValue(</span>
-<span class="fc" id="L60">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-<span class="fc" id="L61">						&quot;Identifier&quot;));</span>
-<span class="fc" id="L62">				cpu.setName(Advapi32Util.registryGetStringValue(</span>
-<span class="fc" id="L63">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-<span class="fc" id="L64">						&quot;ProcessorNameString&quot;));</span>
-<span class="fc" id="L65">				cpu.setVendor(Advapi32Util.registryGetStringValue(</span>
-<span class="fc" id="L66">						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-<span class="fc" id="L67">						&quot;VendorIdentifier&quot;));</span>
-<span class="fc" id="L68">				processors.add(cpu);</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		if (this._processors == null) {</span>
+<span class="fc" id="L54">			final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
+<span class="fc" id="L55">			List&lt;Processor&gt; processors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L56">			String[] processorIds = Advapi32Util.registryGetKeys(</span>
+					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+<span class="fc" id="L58">			int numCPU = 0;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">			for (String processorId : processorIds) {</span>
+<span class="fc" id="L60">				String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorId;</span>
+<span class="fc" id="L61">				CentralProcessor cpu = new CentralProcessor(numCPU++);</span>
+<span class="fc" id="L62">				cpu.setIdentifier(Advapi32Util.registryGetStringValue(</span>
+						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+						&quot;Identifier&quot;));
+<span class="fc" id="L65">				cpu.setName(Advapi32Util.registryGetStringValue(</span>
+						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+						&quot;ProcessorNameString&quot;));
+<span class="fc" id="L68">				cpu.setVendor(Advapi32Util.registryGetStringValue(</span>
+						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+						&quot;VendorIdentifier&quot;));
+<span class="fc" id="L71">				processors.add(cpu);</span>
 			}
-<span class="fc" id="L70">			_processors = processors.toArray(new Processor[0]);</span>
+<span class="fc" id="L73">			this._processors = processors.toArray(new Processor[0]);</span>
 		}
 
-<span class="fc" id="L73">		return _processors;</span>
+<span class="fc" id="L76">		return this._processors;</span>
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
-<span class="fc" id="L77">		return WindowsPowerSource.getPowerSources();</span>
+<span class="fc" id="L81">		return WindowsPowerSource.getPowerSources();</span>
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
-<span class="fc" id="L81">		return WindowsFileSystem.getFileStores();</span>
+<span class="fc" id="L86">		return WindowsFileSystem.getFileStores();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

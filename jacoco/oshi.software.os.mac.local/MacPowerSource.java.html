@@ -48,16 +48,19 @@ public class MacPowerSource implements PowerSource {
 <span class="nc" id="L48">		this.timeRemaining = timeRemaining;</span>
 <span class="nc" id="L49">	}</span>
 
+	@Override
 	public String getName() {
-<span class="nc" id="L52">		return name;</span>
+<span class="nc" id="L53">		return this.name;</span>
 	}
 
+	@Override
 	public double getRemainingCapacity() {
-<span class="nc" id="L56">		return remainingCapacity;</span>
+<span class="nc" id="L58">		return this.remainingCapacity;</span>
 	}
 
+	@Override
 	public double getTimeRemaining() {
-<span class="nc" id="L60">		return timeRemaining;</span>
+<span class="nc" id="L63">		return this.timeRemaining;</span>
 	}
 
 	/**
@@ -65,69 +68,69 @@ public class MacPowerSource implements PowerSource {
 	 */
 	public static PowerSource[] getPowerSources() {
 		// Get the blob containing current power source state
-<span class="nc" id="L68">		CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();</span>
-<span class="nc" id="L69">		CFArrayRef powerSourcesList = IOKit.INSTANCE</span>
+<span class="nc" id="L71">		CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();</span>
+<span class="nc" id="L72">		CFArrayRef powerSourcesList = IOKit.INSTANCE</span>
 				.IOPSCopyPowerSourcesList(powerSourcesInfo);
-<span class="nc" id="L71">		int powerSourcesCount = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L74">		int powerSourcesCount = CoreFoundation.INSTANCE</span>
 				.CFArrayGetCount(powerSourcesList);
 
 		// Get time remaining
 		// -1 = unknown, -2 = unlimited
-<span class="nc" id="L76">		double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();</span>
+<span class="nc" id="L79">		double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();</span>
 
 		// For each power source, output various info
-<span class="nc" id="L79">		List&lt;MacPowerSource&gt; psList = new ArrayList&lt;MacPowerSource&gt;(</span>
+<span class="nc" id="L82">		List&lt;MacPowerSource&gt; psList = new ArrayList&lt;&gt;(</span>
 				powerSourcesCount);
-<span class="nc bnc" id="L81" title="All 2 branches missed.">		for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
 			// Get the dictionary for that Power Source
-<span class="nc" id="L83">			CFTypeRef powerSource = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L86">			CFTypeRef powerSource = CoreFoundation.INSTANCE</span>
 					.CFArrayGetValueAtIndex(powerSourcesList, ps);
-<span class="nc" id="L85">			CFDictionaryRef dictionary = IOKit.INSTANCE</span>
+<span class="nc" id="L88">			CFDictionaryRef dictionary = IOKit.INSTANCE</span>
 					.IOPSGetPowerSourceDescription(powerSourcesInfo,
 							powerSource);
 
 			// Get values from dictionary (See IOPSKeys.h)
 			// Skip if not present
-<span class="nc" id="L91">			boolean isPresent = false;</span>
-<span class="nc" id="L92">			Pointer isPresentRef = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L94">			boolean isPresent = false;</span>
+<span class="nc" id="L95">			Pointer isPresentRef = CoreFoundation.INSTANCE</span>
 					.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);
-<span class="nc bnc" id="L94" title="All 2 branches missed.">			if (isPresentRef != null)</span>
-<span class="nc" id="L95">				isPresent = CoreFoundation.INSTANCE</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">			if (isPresentRef != null)</span>
+<span class="nc" id="L98">				isPresent = CoreFoundation.INSTANCE</span>
 						.CFBooleanGetValue(isPresentRef);
-<span class="nc bnc" id="L97" title="All 2 branches missed.">			if (!isPresent)</span>
-<span class="nc" id="L98">				continue;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">			if (!isPresent)</span>
+<span class="nc" id="L101">				continue;</span>
 
 			// Name
-<span class="nc" id="L101">			Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(</span>
+<span class="nc" id="L104">			Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(</span>
 					dictionary, IOKit.IOPS_NAME_KEY);
-<span class="nc" id="L103">			long length = CoreFoundation.INSTANCE.CFStringGetLength(name);</span>
-<span class="nc" id="L104">			long maxSize = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L106">			long length = CoreFoundation.INSTANCE.CFStringGetLength(name);</span>
+<span class="nc" id="L107">			long maxSize = CoreFoundation.INSTANCE</span>
 					.CFStringGetMaximumSizeForEncoding(length,
 							CoreFoundation.UTF_8);
-<span class="nc" id="L107">			Pointer nameBuf = new Memory(maxSize);</span>
-<span class="nc" id="L108">			CoreFoundation.INSTANCE.CFStringGetCString(name, nameBuf, maxSize,</span>
+<span class="nc" id="L110">			Pointer nameBuf = new Memory(maxSize);</span>
+<span class="nc" id="L111">			CoreFoundation.INSTANCE.CFStringGetCString(name, nameBuf, maxSize,</span>
 					CoreFoundation.UTF_8);
 
 			// Remaining Capacity = current / max
-<span class="nc" id="L112">			IntByReference currentCapacity = new IntByReference();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(</span>
+<span class="nc" id="L115">			IntByReference currentCapacity = new IntByReference();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(</span>
 					dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,
 					currentCapacity))
-<span class="nc" id="L116">				currentCapacity = new IntByReference(0);</span>
-<span class="nc" id="L117">			IntByReference maxCapacity = new IntByReference();</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(</span>
+<span class="nc" id="L119">				currentCapacity = new IntByReference(0);</span>
+<span class="nc" id="L120">			IntByReference maxCapacity = new IntByReference();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(</span>
 					dictionary, IOKit.IOPS_MAX_CAPACITY_KEY, maxCapacity))
-<span class="nc" id="L120">				maxCapacity = new IntByReference(1);</span>
+<span class="nc" id="L123">				maxCapacity = new IntByReference(1);</span>
 
 			// Add to list
-<span class="nc bnc" id="L123" title="All 2 branches missed.">			psList.add(new MacPowerSource(nameBuf != null ? nameBuf</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			psList.add(new MacPowerSource(nameBuf != null ? nameBuf</span>
 					.getString(0) : &quot;Unknown&quot;, (double) currentCapacity
 					.getValue() / maxCapacity.getValue(), timeRemaining));
 		}
 		// Release the blob
-<span class="nc" id="L128">		CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);</span>
+<span class="nc" id="L131">		CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);</span>
 
-<span class="nc" id="L130">		return psList.toArray(new MacPowerSource[psList.size()]);</span>
+<span class="nc" id="L133">		return psList.toArray(new MacPowerSource[psList.size()]);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

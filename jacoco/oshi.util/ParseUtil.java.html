@@ -55,27 +55,25 @@ import java.util.regex.Pattern;
 	 * @param hertz
 	 *            Hertz size.
 	 * @return {@link Long} Hertz value or -1 if not parsable.
-	 * 
-	 * @author alessio.fachechi[at]gmail[dot]com
 	 */
 	public static long parseHertz(String hertz) {
-<span class="fc" id="L62">		Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
-<span class="fc" id="L63">		Matcher matcher = pattern.matcher(hertz.trim());</span>
+<span class="fc" id="L60">		Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
+<span class="fc" id="L61">		Matcher matcher = pattern.matcher(hertz.trim());</span>
 
-<span class="pc bpc" id="L65" title="2 of 4 branches missed.">		if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">		if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
 			try {
-<span class="fc" id="L67">				Double value = Double.valueOf(matcher.group(1));</span>
-<span class="fc" id="L68">				String unit = matcher.group(3);</span>
+<span class="fc" id="L65">				Double value = Double.valueOf(matcher.group(1));</span>
+<span class="fc" id="L66">				String unit = matcher.group(3);</span>
 
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">				if (multipliers.containsKey(unit)) {</span>
-<span class="fc" id="L71">					value = value * multipliers.get(unit);</span>
-<span class="fc" id="L72">					return value.longValue();</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">				if (multipliers.containsKey(unit)) {</span>
+<span class="fc" id="L69">					value = value * multipliers.get(unit);</span>
+<span class="fc" id="L70">					return value.longValue();</span>
 				}
-<span class="nc" id="L74">			} catch (NumberFormatException e) {</span>
-<span class="nc" id="L75">			}</span>
+<span class="nc" id="L72">			} catch (NumberFormatException e) {</span>
+<span class="nc" id="L73">			}</span>
 		}
 
-<span class="nc" id="L78">		return -1L;</span>
+<span class="nc" id="L76">		return -1L;</span>
 	}
 
 }

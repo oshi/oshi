@@ -25,6 +25,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Memory and CPU stats from vm_stat and sysctl
@@ -33,7 +34,7 @@ import com.sun.jna.ptr.LongByReference;
  */
 public interface SystemB extends Library {
 	// TODO: Submit this class to JNA
-<span class="nc" id="L36">	SystemB INSTANCE = (SystemB) Native.loadLibrary(&quot;System&quot;, SystemB.class);</span>
+<span class="nc" id="L37">	SystemB INSTANCE = (SystemB) Native.loadLibrary(&quot;System&quot;, SystemB.class);</span>
 
 	// host_statistics()
 	static int HOST_LOAD_INFO = 1;// System loading stats
@@ -44,6 +45,8 @@ public interface SystemB extends Library {
 	static int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
 	static int HOST_EXTMOD_INFO64 = 5;// External modification stats
 	static int HOST_EXPIRED_TASK_INFO = 6; // Statistics for expired tasks
+
+	static int PROCESSOR_CPU_LOAD_INFO = 2;
 
 	// sysctl()
 	static int CTL_KERN = 1; // &quot;high kernel&quot;: proc, limits
@@ -71,29 +74,29 @@ public interface SystemB extends Library {
 	static int CPU_STATE_NICE = 3;
 
 	// Data size
-<span class="nc" id="L74">	static int UINT64_SIZE = Native.getNativeSize(long.class);</span>
-<span class="nc" id="L75">	static int INT_SIZE = Native.getNativeSize(int.class);</span>
+<span class="nc" id="L77">	static int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L78">	static int INT_SIZE = Native.getNativeSize(int.class);</span>
 
-<span class="nc" id="L77">	public static class HostCpuLoadInfo extends Structure {</span>
-<span class="nc" id="L78">		public int cpu_ticks[] = new int[CPU_STATE_MAX];</span>
+<span class="nc" id="L80">	public static class HostCpuLoadInfo extends Structure {</span>
+<span class="nc" id="L81">		public int[] cpu_ticks = new int[CPU_STATE_MAX];</span>
 
 		@Override
-		protected List getFieldOrder() {
-<span class="nc" id="L82">			return Arrays.asList(new String[] { &quot;cpu_ticks&quot; });</span>
+		protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L85">			return Arrays.asList(new String[] { &quot;cpu_ticks&quot; });</span>
 		}
 	}
 
-<span class="nc" id="L86">	public static class HostLoadInfo extends Structure {</span>
-<span class="nc" id="L87">		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE</span>
-<span class="nc" id="L88">		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE</span>
+<span class="nc" id="L89">	public static class HostLoadInfo extends Structure {</span>
+<span class="nc" id="L90">		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE</span>
+<span class="nc" id="L91">		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE</span>
 
 		@Override
-		protected List getFieldOrder() {
-<span class="nc" id="L92">			return Arrays.asList(new String[] { &quot;avenrun&quot;, &quot;mach_factor&quot; });</span>
+		protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L95">			return Arrays.asList(new String[] { &quot;avenrun&quot;, &quot;mach_factor&quot; });</span>
 		}
 	}
 
-<span class="nc" id="L96">	public static class VMStatistics extends Structure {</span>
+<span class="nc" id="L99">	public static class VMStatistics extends Structure {</span>
 		public int free_count; // # of pages free
 		public int active_count; // # of pages active
 		public int inactive_count; // # of pages inactive
@@ -112,8 +115,8 @@ public interface SystemB extends Library {
 		public int speculative_count;
 
 		@Override
-		protected List getFieldOrder() {
-<span class="nc" id="L116">			return Arrays.asList(new String[] { &quot;free_count&quot;, &quot;active_count&quot;,</span>
+		protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L119">			return Arrays.asList(new String[] { &quot;free_count&quot;, &quot;active_count&quot;,</span>
 					&quot;inactive_count&quot;, &quot;wire_count&quot;, &quot;zero_fill_count&quot;,
 					&quot;reactivations&quot;, &quot;pageins&quot;, &quot;pageouts&quot;, &quot;faults&quot;,
 					&quot;cow_faults&quot;, &quot;lookups&quot;, &quot;hits&quot;, &quot;purgeable_count&quot;,
@@ -121,7 +124,7 @@ public interface SystemB extends Library {
 		}
 	}
 
-<span class="nc" id="L124">	public static class VMStatistics64 extends Structure {</span>
+<span class="nc" id="L127">	public static class VMStatistics64 extends Structure {</span>
 		public int free_count; // # of pages free
 		public int active_count; // # of pages active
 		public int inactive_count; // # of pages inactive
@@ -155,8 +158,8 @@ public interface SystemB extends Library {
 		public long total_uncompressed_pages_in_compressor;
 
 		@Override
-		protected List getFieldOrder() {
-<span class="nc" id="L159">			return Arrays.asList(new String[] { &quot;free_count&quot;, &quot;active_count&quot;,</span>
+		protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L162">			return Arrays.asList(new String[] { &quot;free_count&quot;, &quot;active_count&quot;,</span>
 					&quot;inactive_count&quot;, &quot;wire_count&quot;, &quot;zero_fill_count&quot;,
 					&quot;reactivations&quot;, &quot;pageins&quot;, &quot;pageouts&quot;, &quot;faults&quot;,
 					&quot;cow_faults&quot;, &quot;lookups&quot;, &quot;hits&quot;, &quot;purges&quot;,
@@ -177,6 +180,9 @@ public interface SystemB extends Library {
 
 	int host_statistics64(int machPort, int hostStat, Object stats,
 			IntByReference count);
+
+	int host_processor_info(int machPort, int flavor, IntByReference procCount,
+			PointerByReference procInfo, IntByReference procInfoCount);
 
 	int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp,
 			Pointer newp, int newlen);

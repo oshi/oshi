@@ -43,86 +43,91 @@ import oshi.util.FileUtil;
 
 <span class="nc" id="L44">	private Memory _memory = null;</span>
 
+	@Override
 	public Memory getMemory() {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (_memory == null) {</span>
-<span class="nc" id="L48">			_memory = new GlobalMemory();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (this._memory == null) {</span>
+<span class="nc" id="L49">			this._memory = new GlobalMemory();</span>
 		}
-<span class="nc" id="L50">		return _memory;</span>
+<span class="nc" id="L51">		return this._memory;</span>
 	}
 
+	@Override
 	public Processor[] getProcessors() {
 
-<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (_processors == null) {</span>
-<span class="nc" id="L56">			List&lt;Processor&gt; processors = new ArrayList&lt;Processor&gt;();</span>
-<span class="nc" id="L57">			List&lt;String&gt; cpuInfo = null;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (this._processors == null) {</span>
+<span class="nc" id="L58">			List&lt;Processor&gt; processors = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L59">			List&lt;String&gt; cpuInfo = null;</span>
 			try {
-<span class="nc" id="L59">				cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
-<span class="nc" id="L60">			} catch (IOException e) {</span>
-<span class="nc" id="L61">				System.err.println(&quot;Problem with: /proc/cpuinfo&quot;);</span>
-<span class="nc" id="L62">				System.err.println(e.getMessage());</span>
-<span class="nc" id="L63">				return null;</span>
-			}
-<span class="nc" id="L65">			CentralProcessor cpu = null;</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">			for (String toBeAnalyzed : cpuInfo) {</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">				if (toBeAnalyzed.equals(&quot;&quot;)) {</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">					if (cpu != null) {</span>
-<span class="nc" id="L69">						processors.add(cpu);</span>
+<span class="nc" id="L61">				cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
+<span class="nc" id="L62">			} catch (IOException e) {</span>
+<span class="nc" id="L63">				System.err.println(&quot;Problem with: /proc/cpuinfo&quot;);</span>
+<span class="nc" id="L64">				System.err.println(e.getMessage());</span>
+<span class="nc" id="L65">				return null;</span>
+<span class="nc" id="L66">			}</span>
+<span class="nc" id="L67">			CentralProcessor cpu = null;</span>
+<span class="nc" id="L68">			int numCPU = 0;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			for (String toBeAnalyzed : cpuInfo) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">				if (toBeAnalyzed.equals(&quot;&quot;)) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">					if (cpu != null) {</span>
+<span class="nc" id="L72">						processors.add(cpu);</span>
 					}
-<span class="nc" id="L71">					cpu = null;</span>
-<span class="nc" id="L72">					continue;</span>
+<span class="nc" id="L74">					cpu = null;</span>
+<span class="nc" id="L75">					continue;</span>
 				}
-<span class="nc bnc" id="L74" title="All 2 branches missed.">				if (cpu == null) {</span>
-<span class="nc" id="L75">					cpu = new CentralProcessor();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">				if (cpu == null) {</span>
+<span class="nc" id="L78">					cpu = new CentralProcessor(numCPU++);</span>
 				}
-<span class="nc bnc" id="L77" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;model name\t&quot;)) {</span>
-<span class="nc" id="L78">					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-<span class="nc" id="L79">					continue;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;model name\t&quot;)) {</span>
+<span class="nc" id="L81">					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L82">					continue;</span>
 				}
-<span class="nc bnc" id="L81" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;flags\t&quot;)) {</span>
-<span class="nc" id="L82">					String[] flags = toBeAnalyzed.split(SEPARATOR)[1]</span>
-<span class="nc" id="L83">							.split(&quot; &quot;);</span>
-<span class="nc" id="L84">					boolean found = false;</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">					for (String flag : flags) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">						if (flag.equalsIgnoreCase(&quot;LM&quot;)) {</span>
-<span class="nc" id="L87">							found = true;</span>
-<span class="nc" id="L88">							break;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;flags\t&quot;)) {</span>
+<span class="nc" id="L85">					String[] flags = toBeAnalyzed.split(SEPARATOR)[1]</span>
+							.split(&quot; &quot;);
+<span class="nc" id="L87">					boolean found = false;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">					for (String flag : flags) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">						if (flag.equalsIgnoreCase(&quot;LM&quot;)) {</span>
+<span class="nc" id="L90">							found = true;</span>
+<span class="nc" id="L91">							break;</span>
 						}
 					}
-<span class="nc" id="L91">					cpu.setCpu64(found);</span>
-<span class="nc" id="L92">					continue;</span>
+<span class="nc" id="L94">					cpu.setCpu64(found);</span>
+<span class="nc" id="L95">					continue;</span>
 				}
-<span class="nc bnc" id="L94" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;cpu family\t&quot;)) {</span>
-<span class="nc" id="L95">					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-<span class="nc" id="L96">					continue;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;cpu family\t&quot;)) {</span>
+<span class="nc" id="L98">					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L99">					continue;</span>
 				}
-<span class="nc bnc" id="L98" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;model\t&quot;)) {</span>
-<span class="nc" id="L99">					cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-<span class="nc" id="L100">					continue;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;model\t&quot;)) {</span>
+<span class="nc" id="L102">					cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L103">					continue;</span>
 				}
-<span class="nc bnc" id="L102" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;stepping\t&quot;)) {</span>
-<span class="nc" id="L103">					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-<span class="nc" id="L104">					continue;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;stepping\t&quot;)) {</span>
+<span class="nc" id="L106">					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L107">					continue;</span>
 				}
-<span class="nc bnc" id="L106" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;vendor_id&quot;)) {</span>
-<span class="nc" id="L107">					cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-					continue;
+<span class="nc bnc" id="L109" title="All 2 branches missed.">				if (toBeAnalyzed.startsWith(&quot;vendor_id&quot;)) {</span>
+<span class="nc" id="L110">					cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L111">					continue;</span>
 				}
+<span class="nc" id="L113">			}</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">			if (cpu != null) {</span>
+<span class="nc" id="L115">				processors.add(cpu);</span>
 			}
-<span class="nc bnc" id="L111" title="All 2 branches missed.">			if (cpu != null) {</span>
-<span class="nc" id="L112">				processors.add(cpu);</span>
-			}
-<span class="nc" id="L114">			_processors = processors.toArray(new Processor[0]);</span>
+<span class="nc" id="L117">			this._processors = processors.toArray(new Processor[0]);</span>
 		}
 
-<span class="nc" id="L117">		return _processors;</span>
+<span class="nc" id="L120">		return this._processors;</span>
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
-<span class="nc" id="L121">		return LinuxPowerSource.getPowerSources();</span>
+<span class="nc" id="L125">		return LinuxPowerSource.getPowerSources();</span>
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
-<span class="nc" id="L125">		return LinuxFileSystem.getFileStores();</span>
+<span class="nc" id="L130">		return LinuxFileSystem.getFileStores();</span>
 	}
 
 }

@@ -51,23 +51,24 @@ import com.sun.jna.ptr.IntByReference;
 	 * 
 	 * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
 	 */
+	@Override
 	public Processor[] getProcessors() {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (_processors == null) {</span>
-<span class="nc" id="L56">			int nbCPU = 1;</span>
-<span class="nc" id="L57">			List&lt;Processor&gt; processors = new ArrayList&lt;Processor&gt;();</span>
-<span class="nc" id="L58">			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };</span>
-<span class="nc" id="L59">			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU,</span>
-<span class="nc" id="L61">					new IntByReference(SystemB.INT_SIZE), null, 0))</span>
-<span class="nc" id="L62">				throw new LastErrorException(&quot;Error code: &quot;</span>
-<span class="nc" id="L63">						+ Native.getLastError());</span>
-<span class="nc" id="L64">			nbCPU = pNbCPU.getInt(0);</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">			for (int i = 0; i &lt; nbCPU; i++)</span>
-<span class="nc" id="L66">				processors.add(new CentralProcessor());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if (this._processors == null) {</span>
+<span class="nc" id="L57">			int nbCPU = 1;</span>
+<span class="nc" id="L58">			List&lt;Processor&gt; processors = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L59">			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };</span>
+<span class="nc" id="L60">			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU,</span>
+					new IntByReference(SystemB.INT_SIZE), null, 0))
+<span class="nc" id="L63">				throw new LastErrorException(&quot;Error code: &quot;</span>
+						+ Native.getLastError());
+<span class="nc" id="L65">			nbCPU = pNbCPU.getInt(0);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			for (int i = 0; i &lt; nbCPU; i++)</span>
+<span class="nc" id="L67">				processors.add(new CentralProcessor(i));</span>
 
-<span class="nc" id="L68">			_processors = processors.toArray(new Processor[0]);</span>
+<span class="nc" id="L69">			this._processors = processors.toArray(new Processor[0]);</span>
 		}
-<span class="nc" id="L70">		return _processors;</span>
+<span class="nc" id="L71">		return this._processors;</span>
 	}
 
 	/*
@@ -75,22 +76,25 @@ import com.sun.jna.ptr.IntByReference;
 	 * 
 	 * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
 	 */
+	@Override
 	public Memory getMemory() {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (_memory == null) {</span>
-<span class="nc" id="L80">			_memory = new GlobalMemory();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if (this._memory == null) {</span>
+<span class="nc" id="L82">			this._memory = new GlobalMemory();</span>
 		}
-<span class="nc" id="L82">		return _memory;</span>
+<span class="nc" id="L84">		return this._memory;</span>
 	}
 
+	@Override
 	public PowerSource[] getPowerSources() {
-<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (_powerSources == null) {</span>
-<span class="nc" id="L87">			_powerSources = MacPowerSource.getPowerSources();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (this._powerSources == null) {</span>
+<span class="nc" id="L90">			this._powerSources = MacPowerSource.getPowerSources();</span>
 		}
-<span class="nc" id="L89">		return _powerSources;</span>
+<span class="nc" id="L92">		return this._powerSources;</span>
 	}
 
+	@Override
 	public OSFileStore[] getFileStores() {
-<span class="nc" id="L93">		return MacFileSystem.getFileStores();</span>
+<span class="nc" id="L97">		return MacFileSystem.getFileStores();</span>
 	}
 
 }

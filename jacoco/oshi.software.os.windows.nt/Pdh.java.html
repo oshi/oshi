@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Pdh.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows.nt</a> &gt; <span class="el_source">Pdh.java</span></div><h1>Pdh.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ * 
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.windows.nt;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Union;
+import com.sun.jna.WString;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+/**
+ * Windows Performance Data Helper
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface Pdh extends Library {
+<span class="fc" id="L37">	Pdh INSTANCE = (Pdh) Native.loadLibrary(&quot;Pdh&quot;, Pdh.class);</span>
+
+	// Counter return types
+	public static final int PDH_FMT_LONG = 0x00000100; // Native Long
+	public static final int PDH_FMT_DOUBLE = 0x00000200; // double
+	public static final int PDH_FMT_LARGE = 0x00000400; // 64 bit long
+	// These can be combined with above types with bitwise OR
+	public static final int PDH_FMT_NOSCALE = 0x00001000; // don't scale
+	public static final int PDH_FMT_1000 = 0x00002000; // multiply by 1000
+	public static final int PDH_FMT_NOCAP100 = 0x00008000; // don't cap at 100
+
+	/**
+	 * Union included in return value of {@link PdhFmtCounterValue}
+	 */
+<span class="fc" id="L51">	public static class ValueUnion extends Union {</span>
+		public int longValue;
+		public double doubleValue;
+		public long largeValue;
+		public String AnsiStringValue;
+		public WString WideStringValue;
+	}
+
+	/**
+	 * Holds the return value of a formatted data query.
+	 */
+<span class="fc" id="L62">	public static class PdhFmtCounterValue extends Structure {</span>
+		public int cStatus;
+		public ValueUnion value;
+
+		@Override
+		protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L68">			return Arrays.asList(new String[] { &quot;cStatus&quot;, &quot;value&quot; });</span>
+		}
+	}
+
+	/**
+	 * Creates a new query that is used to manage the collection of performance
+	 * data.
+	 * 
+	 * @param szDataSource
+	 *            Null-terminated string that specifies the name of the log file
+	 *            from which to retrieve performance data. If NULL, performance
+	 *            data is collected from a real-time data source.
+	 * @param dwUserData
+	 *            User-defined value to associate with this query.
+	 * @param phQuery
+	 *            Handle to the query. You use this handle in subsequent calls.
+	 * @return If the function succeeds, the return value is zero. If the
+	 *         function fails, the return value is a system error code or a PDH
+	 *         error code.
+	 */
+	int PdhOpenQuery(String szDataSource, IntByReference dwUserData,
+			PointerByReference phQuery);
+
+	/**
+	 * Adds the specified language-neutral counter to the query.
+	 * 
+	 * @param pointer
+	 *            Handle to the query to which you want to add the counter. This
+	 *            handle is returned by the {@link #PdhOpenQuery()} function.
+	 * @param counterPath
+	 *            Null-terminated string that contains the counter path.
+	 * @param dwUserData
+	 *            User-defined value.
+	 * @param phCounter
+	 *            Handle to the counter that was added to the query. You may
+	 *            need to reference this handle in subsequent calls.
+	 * @return If the function succeeds, the return value is zero. If the
+	 *         function fails, the return value is a system error code or a PDH
+	 *         error code.
+	 */
+	int PdhAddEnglishCounterA(Pointer pointer, String counterPath,
+			IntByReference dwUserData, PointerByReference phCounter);
+
+	/**
+	 * Collects the current raw data value for all counters in the specified
+	 * query and updates the status code of each counter.
+	 * 
+	 * @param pointer
+	 *            Handle of the query for which you want to collect data. The
+	 *            {@link #PdhOpenQuery()} function returns this handle.
+	 * @return If the function succeeds, the return value is nonzero. If the
+	 *         function fails, the return value is zero and errno is set.
+	 */
+	int PdhCollectQueryData(Pointer pointer);
+
+	/**
+	 * Computes a displayable value for the specified counter.
+	 * 
+	 * @param pointer
+	 *            Handle of the counter for which you want to compute a
+	 *            displayable value. The {@link #PdhAddEnglishCounter()}
+	 *            function returns this handle.
+	 * @param dwFormat
+	 *            Determines the data type of the formatted value.
+	 * @param lpdwType
+	 *            Receives the counter type. This parameter is optional.
+	 * @param pValue
+	 *            A {@link PdhFmtCounterValue} structure that receives the
+	 *            counter value.
+	 * @return If the function succeeds, the return value is zero. If the
+	 *         function fails, the return value is a system error code or a PDH
+	 *         error code.
+	 */
+	int PdhGetFormattedCounterValue(Pointer pointer, int dwFormat,
+			IntByReference lpdwType, PdhFmtCounterValue pValue);
+
+	/**
+	 * Closes all counters contained in the specified query, closes all handles
+	 * related to the query, and frees all memory associated with the query.
+	 * 
+	 * @param pointer
+	 *            Handle to the query to close. This handle is returned by the
+	 *            {@link #PdhOpenQuery()} function.
+	 * @return If the function succeeds, the return value is zero. If the
+	 *         function fails, the return value is a system error code or a PDH
+	 *         error code.
+	 */
+	int PdhCloseQuery(Pointer pointer);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -31,17 +31,19 @@ public class GlobalMemory implements Memory {
 <span class="fc" id="L31">	MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
 
 <span class="fc" id="L33">	public GlobalMemory() {</span>
-<span class="pc bpc" id="L34" title="1 of 2 branches missed.">		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(_memory)) {</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
 <span class="nc" id="L35">			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());</span>
 		}
 <span class="fc" id="L37">	}</span>
 
+	@Override
 	public long getAvailable() {
-<span class="fc" id="L40">		return _memory.ullAvailPhys.longValue();</span>
+<span class="fc" id="L41">		return this._memory.ullAvailPhys.longValue();</span>
 	}
 
+	@Override
 	public long getTotal() {
-<span class="fc" id="L44">		return _memory.ullTotalPhys.longValue();</span>
+<span class="fc" id="L46">		return this._memory.ullTotalPhys.longValue();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

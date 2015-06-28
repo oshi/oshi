@@ -45,7 +45,7 @@ import oshi.software.os.OSFileStore;
 		// than FileSystem.getDefalut().getFileStores()
 <span class="fc" id="L46">		File[] roots = File.listRoots();</span>
 <span class="fc" id="L47">		FileSystemView fsv = FileSystemView.getFileSystemView();</span>
-<span class="fc" id="L48">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;OSFileStore&gt;();</span>
+<span class="fc" id="L48">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 <span class="fc bfc" id="L49" title="All 2 branches covered.">		for (File f : roots) {</span>
 <span class="fc" id="L50">			fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv</span>
 					.getSystemTypeDescription(f), f.getUsableSpace(), f

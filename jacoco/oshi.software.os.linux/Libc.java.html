@@ -46,7 +46,7 @@ public interface Libc extends Library {
 <span class="nc" id="L46">		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
 
 		@Override
-		protected List getFieldOrder() {
+		protected List&lt;String&gt; getFieldOrder() {
 <span class="nc" id="L50">			return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;,</span>
 					&quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;, &quot;totalswap&quot;,
 					&quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;,

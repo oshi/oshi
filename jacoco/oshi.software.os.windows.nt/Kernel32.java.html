@@ -25,7 +25,7 @@ import com.sun.jna.platform.win32.WinBase;
  * @author widdis[at]gmail[dot]com
  */
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
-<span class="nc" id="L28">	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary(&quot;Kernel32&quot;,</span>
+<span class="fc" id="L28">	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary(&quot;Kernel32&quot;,</span>
 			Kernel32.class);
 
 	public static final long WIN32_TIME_OFFSET = (369L * 365L + 89L) * 24L * 3600L * 1000L;
@@ -36,7 +36,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 	 * values returned are the sum of the designated times across all
 	 * processors.
 	 * 
-	 * Times are offset by {@link WIN32_TIME_OFFSET}.
+	 * Times are offset by {@value #WIN32_TIME_OFFSET}.
 	 * 
 	 * @param lpIdleTime
 	 *            A pointer to a FILETIME structure that receives the amount of

@@ -30,31 +30,35 @@ import oshi.software.os.mac.local.OSVersionInfoEx;
 
 <span class="nc" id="L31">	private OperatingSystemVersion _version = null;</span>
 
+	@Override
 	public OperatingSystemVersion getVersion() {
-<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (_version == null) {</span>
-<span class="nc" id="L35">			_version = new OSVersionInfoEx();</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if (this._version == null) {</span>
+<span class="nc" id="L36">			this._version = new OSVersionInfoEx();</span>
 		}
-<span class="nc" id="L37">		return _version;</span>
+<span class="nc" id="L38">		return this._version;</span>
 	}
 
+	@Override
 	public String getFamily() {
-<span class="nc bnc" id="L41" title="All 2 branches missed.">		if (_family == null)</span>
-<span class="nc" id="L42">			_family = System.getProperty(&quot;os.name&quot;);</span>
-<span class="nc" id="L43">		return _family;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		if (this._family == null)</span>
+<span class="nc" id="L44">			this._family = System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc" id="L45">		return this._family;</span>
 	}
 
+	@Override
 	public String getManufacturer() {
-<span class="nc" id="L47">		return &quot;Apple&quot;;</span>
+<span class="nc" id="L50">		return &quot;Apple&quot;;</span>
 	}
 
+	@Override
 	public String toString() {
-<span class="nc" id="L51">		StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L52">		sb.append(getManufacturer());</span>
-<span class="nc" id="L53">		sb.append(&quot; &quot;);</span>
-<span class="nc" id="L54">		sb.append(getFamily());</span>
-<span class="nc" id="L55">		sb.append(&quot; &quot;);</span>
-<span class="nc" id="L56">		sb.append(getVersion().toString());</span>
-<span class="nc" id="L57">		return sb.toString();</span>
+<span class="nc" id="L55">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L56">		sb.append(getManufacturer());</span>
+<span class="nc" id="L57">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L58">		sb.append(getFamily());</span>
+<span class="nc" id="L59">		sb.append(&quot; &quot;);</span>
+<span class="nc" id="L60">		sb.append(getVersion().toString());</span>
+<span class="nc" id="L61">		return sb.toString();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

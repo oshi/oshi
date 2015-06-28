@@ -46,11 +46,11 @@ public class OSNativeSystemInfo {
 			// no WOW64 support
 <span class="nc" id="L47">		}</span>
 
-<span class="nc" id="L49">		_si = si;</span>
+<span class="nc" id="L49">		this._si = si;</span>
 <span class="nc" id="L50">	}</span>
 
 <span class="nc" id="L52">	public OSNativeSystemInfo(SYSTEM_INFO si) {</span>
-<span class="nc" id="L53">		_si = si;</span>
+<span class="nc" id="L53">		this._si = si;</span>
 <span class="nc" id="L54">	}</span>
 
 	/**
@@ -59,7 +59,7 @@ public class OSNativeSystemInfo {
 	 * @return Integer.
 	 */
 	public int getNumberOfProcessors() {
-<span class="nc" id="L62">		return _si.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L62">		return this._si.dwNumberOfProcessors.intValue();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

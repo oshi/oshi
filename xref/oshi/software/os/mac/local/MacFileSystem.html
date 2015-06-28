@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">	 * @throws IOException</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">	 */</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  		List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;OSFileStore&gt;();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  		List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  		FileSystemView fsv = FileSystemView.getFileSystemView();
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  		<em class="jxr_comment">// Mac file systems are mounted in /Volumes</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  		File volumes = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/Volumes"</span>);

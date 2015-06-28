@@ -1,0 +1,10 @@
+oshi.hardware
+oshi
+oshi.software.os.linux
+oshi.software.os.linux.proc
+oshi.software.os.mac.local
+oshi.software.os.mac
+oshi.software.os
+oshi.software.os.windows.nt
+oshi.software.os.windows
+oshi.util

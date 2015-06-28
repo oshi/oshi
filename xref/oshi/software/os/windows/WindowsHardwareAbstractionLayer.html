@@ -47,48 +47,53 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  	<strong class="jxr_keyword">private</strong> <a href="../../../../oshi/hardware/Memory.html">Memory</a> _memory = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/Memory.html">Memory</a> getMemory() {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  		<strong class="jxr_keyword">if</strong> (_memory == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  			_memory = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/nt/GlobalMemory.html">GlobalMemory</a>();
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  		}
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  		<strong class="jxr_keyword">return</strong> _memory;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  	}
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/Processor.html">Processor</a>[] getProcessors() {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  		<strong class="jxr_keyword">if</strong> (_processors == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  			<strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor"</span>;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  			List&lt;Processor&gt; processors = <strong class="jxr_keyword">new</strong> ArrayList&lt;Processor&gt;();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  			String[] processorIds = Advapi32Util.registryGetKeys(
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  			<strong class="jxr_keyword">for</strong> (String processorId : processorIds) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  				String cpuRegistryPath = cpuRegistryRoot + <span class="jxr_string">"&#92;&#92;"</span> + processorId;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  				CentralProcessor cpu = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/nt/CentralProcessor.html">CentralProcessor</a>();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  				cpu.setIdentifier(Advapi32Util.registryGetStringValue(
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  						<span class="jxr_string">"Identifier"</span>));
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  				cpu.setName(Advapi32Util.registryGetStringValue(
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  	@Override
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/Memory.html">Memory</a> getMemory() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  		<strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._memory == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  			<strong class="jxr_keyword">this</strong>._memory = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/nt/GlobalMemory.html">GlobalMemory</a>();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  		}
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  		<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>._memory;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  	}
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  	@Override
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/Processor.html">Processor</a>[] getProcessors() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  		<strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>._processors == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  			<strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor"</span>;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  			List&lt;Processor&gt; processors = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  			String[] processorIds = Advapi32Util.registryGetKeys(
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  			<strong class="jxr_keyword">int</strong> numCPU = 0;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  			<strong class="jxr_keyword">for</strong> (String processorId : processorIds) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  				String cpuRegistryPath = cpuRegistryRoot + <span class="jxr_string">"&#92;&#92;"</span> + processorId;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  				CentralProcessor cpu = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/nt/CentralProcessor.html">CentralProcessor</a>(numCPU++);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  				cpu.setIdentifier(Advapi32Util.registryGetStringValue(
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  						<span class="jxr_string">"ProcessorNameString"</span>));
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  				cpu.setVendor(Advapi32Util.registryGetStringValue(
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  						<span class="jxr_string">"Identifier"</span>));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  				cpu.setName(Advapi32Util.registryGetStringValue(
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  						<span class="jxr_string">"VendorIdentifier"</span>));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  				processors.add(cpu);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  			}
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  			_processors = processors.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/Processor.html">Processor</a>[0]);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  		}
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  		<strong class="jxr_keyword">return</strong> _processors;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  	}
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  						<span class="jxr_string">"ProcessorNameString"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  				cpu.setVendor(Advapi32Util.registryGetStringValue(
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  						<span class="jxr_string">"VendorIdentifier"</span>));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  				processors.add(cpu);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  			}
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  			<strong class="jxr_keyword">this</strong>._processors = processors.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/Processor.html">Processor</a>[0]);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  		}
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/PowerSource.html">PowerSource</a>[] getPowerSources() {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  		<strong class="jxr_keyword">return</strong> WindowsPowerSource.getPowerSources();
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  	}
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  		<strong class="jxr_keyword">return</strong> WindowsFileSystem.getFileStores();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  		<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>._processors;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  	}
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  	@Override
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/PowerSource.html">PowerSource</a>[] getPowerSources() {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  		<strong class="jxr_keyword">return</strong> WindowsPowerSource.getPowerSources();
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  	}
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  	@Override
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  	<strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  		<strong class="jxr_keyword">return</strong> WindowsFileSystem.getFileStores();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  	}
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

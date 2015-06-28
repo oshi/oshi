@@ -42,13 +42,13 @@ import com.sun.jna.Platform;
 
 	{
 <span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (Platform.isWindows())</span>
-<span class="fc" id="L45">			currentPlatformEnum = PlatformEnum.WINDOWS;</span>
+<span class="fc" id="L45">			this.currentPlatformEnum = PlatformEnum.WINDOWS;</span>
 <span class="nc bnc" id="L46" title="All 2 branches missed.">		else if (Platform.isLinux())</span>
-<span class="nc" id="L47">			currentPlatformEnum = PlatformEnum.LINUX;</span>
+<span class="nc" id="L47">			this.currentPlatformEnum = PlatformEnum.LINUX;</span>
 <span class="nc bnc" id="L48" title="All 2 branches missed.">		else if (Platform.isMac())</span>
-<span class="nc" id="L49">			currentPlatformEnum = PlatformEnum.MACOSX;</span>
+<span class="nc" id="L49">			this.currentPlatformEnum = PlatformEnum.MACOSX;</span>
 		else
-<span class="nc" id="L51">			currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
+<span class="nc" id="L51">			this.currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
 <span class="fc" id="L52">	}</span>
 
 	/**
@@ -58,24 +58,24 @@ import com.sun.jna.Platform;
 	 * @return A new instance of {@link OperatingSystem}.
 	 */
 	public OperatingSystem getOperatingSystem() {
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (_os == null) {</span>
-<span class="pc bpc" id="L62" title="3 of 4 branches missed.">			switch (currentPlatformEnum) {</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (this._os == null) {</span>
+<span class="pc bpc" id="L62" title="3 of 4 branches missed.">			switch (this.currentPlatformEnum) {</span>
 
 			case WINDOWS:
-<span class="fc" id="L65">				_os = new WindowsOperatingSystem();</span>
+<span class="fc" id="L65">				this._os = new WindowsOperatingSystem();</span>
 <span class="fc" id="L66">				break;</span>
 			case LINUX:
-<span class="nc" id="L68">				_os = new LinuxOperatingSystem();</span>
+<span class="nc" id="L68">				this._os = new LinuxOperatingSystem();</span>
 <span class="nc" id="L69">				break;</span>
 			case MACOSX:
-<span class="nc" id="L71">				_os = new MacOperatingSystem();</span>
+<span class="nc" id="L71">				this._os = new MacOperatingSystem();</span>
 <span class="nc" id="L72">				break;</span>
 			default:
 <span class="nc" id="L74">				throw new RuntimeException(&quot;Operating system not supported: &quot;</span>
 						+ Platform.getOSType());
 			}
 		}
-<span class="fc" id="L78">		return _os;</span>
+<span class="fc" id="L78">		return this._os;</span>
 	}
 
 	/**
@@ -85,24 +85,24 @@ import com.sun.jna.Platform;
 	 * @return A new instance of {@link HardwareAbstractionLayer}.
 	 */
 	public HardwareAbstractionLayer getHardware() {
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">		if (_hardware == null) {</span>
-<span class="pc bpc" id="L89" title="3 of 4 branches missed.">			switch (currentPlatformEnum) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">		if (this._hardware == null) {</span>
+<span class="pc bpc" id="L89" title="3 of 4 branches missed.">			switch (this.currentPlatformEnum) {</span>
 
 			case WINDOWS:
-<span class="fc" id="L92">				_hardware = new WindowsHardwareAbstractionLayer();</span>
+<span class="fc" id="L92">				this._hardware = new WindowsHardwareAbstractionLayer();</span>
 <span class="fc" id="L93">				break;</span>
 			case LINUX:
-<span class="nc" id="L95">				_hardware = new LinuxHardwareAbstractionLayer();</span>
+<span class="nc" id="L95">				this._hardware = new LinuxHardwareAbstractionLayer();</span>
 <span class="nc" id="L96">				break;</span>
 			case MACOSX:
-<span class="nc" id="L98">				_hardware = new MacHardwareAbstractionLayer();</span>
+<span class="nc" id="L98">				this._hardware = new MacHardwareAbstractionLayer();</span>
 <span class="nc" id="L99">				break;</span>
 			default:
 <span class="nc" id="L101">				throw new RuntimeException(&quot;Operating system not supported: &quot;</span>
 						+ Platform.getOSType());
 			}
 		}
-<span class="fc" id="L105">		return _hardware;</span>
+<span class="fc" id="L105">		return this._hardware;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

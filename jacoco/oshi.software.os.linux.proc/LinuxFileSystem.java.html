@@ -41,7 +41,7 @@ import oshi.software.os.OSFileStore;
 	 *         {@link OSFileStore#getTotalSpace()} = 0.
 	 */
 	public static OSFileStore[] getFileStores() {
-<span class="nc" id="L44">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;OSFileStore&gt;();</span>
+<span class="nc" id="L44">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L45" title="All 2 branches missed.">		for (FileStore store : FileSystems.getDefault().getFileStores()) {</span>
 			// FileStore toString starts with path, then a space, then name in
 			// parentheses e.g., &quot;/ (/dev/sda1)&quot; and &quot;/proc (proc)&quot;
