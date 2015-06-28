@@ -48,6 +48,18 @@ import com.sun.jna.Platform;
 public class SystemInfoTest {
 
 	/**
+	 * Test get processor number.
+	 */
+	@Test
+	public void testGetProcessorNumber() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		for (int i = 0; i < hal.getProcessors().length; i++) {
+			assertEquals(i, hal.getProcessors()[i].getProcessorNumber());
+		}
+	}
+
+	/**
 	 * Test get version.
 	 */
 	@Test
