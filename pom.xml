@@ -48,7 +48,7 @@
         <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
         <url>https://github.com/dblock/oshi.git</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
     <issueManagement>
         <system>Github</system>
         <url>https://github.com/dblock/oshi/issues</url>
@@ -60,7 +60,7 @@
     <distributionManagement>
         <site>
             <id>gh-pages</id>
-            <name>Waffle GitHub Pages</name>
+            <name>GitHub Pages</name>
             <url>git:ssh://git@github.com/dblock/oshi.git?gh-pages#</url>
         </site>
     </distributionManagement>
