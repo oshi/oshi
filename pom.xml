@@ -60,7 +60,7 @@
     <distributionManagement>
         <site>
             <id>gh-pages</id>
-            <name>Waffle GitHub Pages</name>
+            <name>GitHub Pages</name>
             <url>git:ssh://git@github.com/dblock/oshi.git?gh-pages#</url>
         </site>
     </distributionManagement>
