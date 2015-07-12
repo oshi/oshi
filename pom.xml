@@ -48,7 +48,7 @@
         <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
         <url>https://github.com/dblock/oshi.git</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
     <issueManagement>
         <system>Github</system>
         <url>https://github.com/dblock/oshi/issues</url>
