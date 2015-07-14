@@ -25,8 +25,7 @@ import com.sun.jna.platform.win32.WinBase;
  * @author widdis[at]gmail[dot]com
  */
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
-	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("Kernel32",
-			Kernel32.class);
+	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("Kernel32", Kernel32.class);
 
 	public static final long WIN32_TIME_OFFSET = (369L * 365L + 89L) * 24L * 3600L * 1000L;
 
@@ -54,7 +53,6 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 	 * @return If the function succeeds, the return value is nonzero. If the
 	 *         function fails, the return value is zero and errno is set.
 	 */
-	public int GetSystemTimes(WinBase.FILETIME lpIdleTime,
-			WinBase.FILETIME lpKernelTime, WinBase.FILETIME lpUserTime);
+	public int GetSystemTimes(WinBase.FILETIME lpIdleTime, WinBase.FILETIME lpKernelTime, WinBase.FILETIME lpUserTime);
 
 }

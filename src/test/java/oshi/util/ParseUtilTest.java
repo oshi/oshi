@@ -26,8 +26,8 @@ import org.junit.Test;
 public class ParseUtilTest {
 
 	/**
-     * Test parse hertz.
-     */
+	 * Test parse hertz.
+	 */
 	@Test
 	public void testParseHertz() {
 		assertEquals(1L, ParseUtil.parseHertz("1Hz"));

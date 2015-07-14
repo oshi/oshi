@@ -40,8 +40,7 @@ public class OSFileStore {
 	 * @param usableSpace
 	 * @param totalSpace
 	 */
-	public OSFileStore(String name, String description, long usableSpace,
-			long totalSpace) {
+	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {
 		this.setName(name);
 		this.setDescription(description);
 		this.setUsableSpace(usableSpace);

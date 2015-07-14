@@ -116,11 +116,9 @@ public interface SystemB extends Library {
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count",
-					"inactive_count", "wire_count", "zero_fill_count",
-					"reactivations", "pageins", "pageouts", "faults",
-					"cow_faults", "lookups", "hits", "purgeable_count",
-					"purges", "speculative_count" });
+			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
+					"zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
+					"hits", "purgeable_count", "purges", "speculative_count" });
 		}
 	}
 
@@ -159,15 +157,11 @@ public interface SystemB extends Library {
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count",
-					"inactive_count", "wire_count", "zero_fill_count",
-					"reactivations", "pageins", "pageouts", "faults",
-					"cow_faults", "lookups", "hits", "purges",
-					"purgeable_count", "speculative_count", "decompressions",
-					"compressions", "swapins", "swapouts",
-					"compressor_page_count", "throttled_count",
-					"external_page_count", "internal_page_count",
-					"total_uncompressed_pages_in_compressor" });
+			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
+					"zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
+					"hits", "purges", "purgeable_count", "speculative_count", "decompressions", "compressions",
+					"swapins", "swapouts", "compressor_page_count", "throttled_count", "external_page_count",
+					"internal_page_count", "total_uncompressed_pages_in_compressor" });
 		}
 	}
 
@@ -175,18 +169,14 @@ public interface SystemB extends Library {
 
 	int host_page_size(int machPort, LongByReference pPageSize);
 
-	int host_statistics(int machPort, int hostStat, Object stats,
-			IntByReference count);
+	int host_statistics(int machPort, int hostStat, Object stats, IntByReference count);
 
-	int host_statistics64(int machPort, int hostStat, Object stats,
-			IntByReference count);
+	int host_statistics64(int machPort, int hostStat, Object stats, IntByReference count);
 
-	int host_processor_info(int machPort, int flavor, IntByReference procCount,
-			PointerByReference procInfo, IntByReference procInfoCount);
+	int host_processor_info(int machPort, int flavor, IntByReference procCount, PointerByReference procInfo,
+			IntByReference procInfoCount);
 
-	int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp,
-			Pointer newp, int newlen);
+	int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
 
-	int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp,
-			Pointer newp, int newlen);
+	int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
 }

@@ -39,23 +39,25 @@ public class CentralProcessor implements Processor {
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();;
 	private static boolean sunMXBean;
+
 	static {
 		try {
 			Class.forName("com.sun.management.OperatingSystemMXBean");
 			// Initialize CPU usage
-			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
 		}
 	}
+
 	// Maintain two sets of previous ticks to be used for calculating usage
 	// between them.
 	// System ticks (static)
 	private static long tickTime = System.currentTimeMillis();
 	private static long[] prevTicks = new long[4];
 	private static long[] curTicks = new long[4];
+
 	static {
 		updateSystemTicks();
 		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
@@ -68,6 +70,7 @@ public class CentralProcessor implements Processor {
 
 	// Initialize numCPU
 	private static int numCPU = 0;
+
 	static {
 		try {
 			List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
@@ -81,6 +84,7 @@ public class CentralProcessor implements Processor {
 			System.err.println(e.getMessage());
 		}
 	}
+
 	// Set up array to maintain current ticks for rapid reference. This array
 	// will be updated in place and used as a cache to avoid rereading file
 	// while iterating processors
@@ -104,12 +108,11 @@ public class CentralProcessor implements Processor {
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException("Processor number (" + procNo
-					+ ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException(
+					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
-		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,
-				0, curProcTicks.length);
+		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 	}
 
 	/**
@@ -397,8 +400,7 @@ public class CentralProcessor implements Processor {
 	@Override
 	public double getSystemCpuLoad() {
 		if (sunMXBean) {
-			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 		}
 		return getSystemCpuLoadBetweenTicks();
 	}
@@ -422,10 +424,8 @@ public class CentralProcessor implements Processor {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
 			// Copy arrays in place
-			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,
-					curProcTicks.length);
-			System.arraycopy(allProcessorTicks[processorNumber], 0,
-					curProcTicks, 0, curProcTicks.length);
+			System.arraycopy(curProcTicks, 0, prevProcTicks, 0, curProcTicks.length);
+			System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 			procTickTime = now;
 		}
 		long total = 0;
@@ -472,8 +472,7 @@ public class CentralProcessor implements Processor {
 					if (tickArr.length < 5)
 						break;
 					for (int i = 0; i < 4; i++) {
-						allProcessorTicks[cpu][i] = Long
-								.parseLong(tickArr[i + 1]);
+						allProcessorTicks[cpu][i] = Long.parseLong(tickArr[i + 1]);
 					}
 					if (++cpu >= numCPU)
 						break;

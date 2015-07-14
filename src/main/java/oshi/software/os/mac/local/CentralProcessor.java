@@ -44,23 +44,25 @@ public class CentralProcessor implements Processor {
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();;
 	private static boolean sunMXBean;
+
 	static {
 		try {
 			Class.forName("com.sun.management.OperatingSystemMXBean");
 			// Initialize CPU usage
-			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
 		}
 	}
+
 	// Maintain two sets of previous ticks to be used for calculating usage
 	// between them.
 	// System ticks (static)
 	private static long tickTime = System.currentTimeMillis();
 	private static long[] prevTicks = new long[4];
 	private static long[] curTicks = new long[4];
+
 	static {
 		updateSystemTicks();
 		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
@@ -73,14 +75,15 @@ public class CentralProcessor implements Processor {
 
 	// Initialize numCPU
 	private static int numCPU = 0;
+
 	static {
 		IntByReference size = new IntByReference(SystemB.INT_SIZE);
 		Pointer p = new Memory(size.getValue());
-		if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null,
-				0))
+		if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		numCPU = p.getInt(0);
 	}
+
 	// Set up array to maintain current ticks for rapid reference. This array
 	// will be updated in place and used as a cache to avoid rereading file
 	// while iterating processors
@@ -104,12 +107,11 @@ public class CentralProcessor implements Processor {
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException("Processor number (" + procNo
-					+ ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException(
+					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
-		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,
-				0, curProcTicks.length);
+		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 	}
 
 	/**
@@ -128,17 +130,13 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getVendor() {
 		if (this.cpuVendor == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
-					SystemB.MACHDEP_CPU_VENDOR };
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_VENDOR };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
-					0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuVendor = p.getString(0);
 		}
 		return this.cpuVendor;
@@ -163,17 +161,13 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getName() {
 		if (this.cpuName == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
-					SystemB.MACHDEP_CPU_BRAND_STRING };
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_BRAND_STRING };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
-					0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuName = p.getString(0);
 		}
 		return this.cpuName;
@@ -268,8 +262,7 @@ public class CentralProcessor implements Processor {
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpu64 = p.getInt(0) != 0;
 		}
 		return this.cpu64.booleanValue();
@@ -292,13 +285,11 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getStepping() {
 		if (this.cpuStepping == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
-					SystemB.MACHDEP_CPU_STEPPING };
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_STEPPING };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuStepping = Integer.toString(p.getInt(0));
 		}
 		return this.cpuStepping;
@@ -319,13 +310,11 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getModel() {
 		if (this.cpuModel == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
-					SystemB.MACHDEP_CPU_MODEL };
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_MODEL };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuModel = Integer.toString(p.getInt(0));
 		}
 		return this.cpuModel;
@@ -346,13 +335,11 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getFamily() {
 		if (this.cpuFamily == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU,
-					SystemB.MACHDEP_CPU_FAMILY };
+			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_FAMILY };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuFamily = Integer.toString(p.getInt(0));
 		}
 		return this.cpuFamily;
@@ -436,9 +423,8 @@ public class CentralProcessor implements Processor {
 	private static void updateSystemTicks() {
 		int machPort = SystemB.INSTANCE.mach_host_self();
 		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
-		if (0 != SystemB.INSTANCE.host_statistics(machPort,
-				SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, new IntByReference(
-						cpuLoadInfo.size())))
+		if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
+				new IntByReference(cpuLoadInfo.size())))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		// Switch order to match linux
 		curTicks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
@@ -453,8 +439,7 @@ public class CentralProcessor implements Processor {
 	@Override
 	public double getSystemCpuLoad() {
 		if (sunMXBean) {
-			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 		}
 		return getSystemCpuLoadBetweenTicks();
 	}
@@ -478,10 +463,8 @@ public class CentralProcessor implements Processor {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
 			// Copy arrays in place
-			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,
-					curProcTicks.length);
-			System.arraycopy(allProcessorTicks[processorNumber], 0,
-					curProcTicks, 0, curProcTicks.length);
+			System.arraycopy(curProcTicks, 0, prevProcTicks, 0, curProcTicks.length);
+			System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 			procTickTime = now;
 		}
 		long total = 0;
@@ -520,28 +503,18 @@ public class CentralProcessor implements Processor {
 		IntByReference procCount = new IntByReference();
 		PointerByReference procCpuLoadInfo = new PointerByReference();
 		IntByReference procInfoCount = new IntByReference();
-		if (0 != SystemB.INSTANCE.host_processor_info(machPort,
-				SystemB.PROCESSOR_CPU_LOAD_INFO, procCount, procCpuLoadInfo,
-				procInfoCount))
+		if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+				procCpuLoadInfo, procInfoCount))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 
-		int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0,
-				procInfoCount.getValue());
+		int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
 		for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
 			for (int j = 0; j < 4; j++) {
 				int offset = cpu * SystemB.CPU_STATE_MAX;
-				allProcessorTicks[cpu][0] = FormatUtil
-						.getUnsignedInt(cpuTicks[offset
-								+ SystemB.CPU_STATE_USER]);
-				allProcessorTicks[cpu][1] = FormatUtil
-						.getUnsignedInt(cpuTicks[offset
-								+ SystemB.CPU_STATE_NICE]);
-				allProcessorTicks[cpu][2] = FormatUtil
-						.getUnsignedInt(cpuTicks[offset
-								+ SystemB.CPU_STATE_SYSTEM]);
-				allProcessorTicks[cpu][3] = FormatUtil
-						.getUnsignedInt(cpuTicks[offset
-								+ SystemB.CPU_STATE_IDLE]);
+				allProcessorTicks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+				allProcessorTicks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+				allProcessorTicks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+				allProcessorTicks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
 			}
 		}
 		allProcTickTime = now;

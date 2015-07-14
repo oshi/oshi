@@ -31,8 +31,7 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-	PowrProf INSTANCE = (PowrProf) Native.loadLibrary("PowrProf",
-			PowrProf.class);
+	PowrProf INSTANCE = (PowrProf) Native.loadLibrary("PowrProf", PowrProf.class);
 
 	public static int SYSTEM_BATTERY_STATE = 5;
 
@@ -51,14 +50,11 @@ public interface PowrProf extends Library {
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "acOnLine", "batteryPresent",
-					"charging", "discharging", "spare1", "maxCapacity",
-					"remainingCapacity", "rate", "estimatedTime",
-					"defaultAlert1", "defaultAlert2" });
+			return Arrays.asList(new String[] { "acOnLine", "batteryPresent", "charging", "discharging", "spare1",
+					"maxCapacity", "remainingCapacity", "rate", "estimatedTime", "defaultAlert1", "defaultAlert2" });
 		}
 	}
 
-	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer,
-			NativeLong nInputBufferSize, Structure lpOutputBuffer,
-			NativeLong nOutputBufferSize);
+	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
+			Structure lpOutputBuffer, NativeLong nOutputBufferSize);
 }

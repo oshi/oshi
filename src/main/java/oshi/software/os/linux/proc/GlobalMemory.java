@@ -57,11 +57,14 @@ public class GlobalMemory implements Memory {
 				availableMemory = parseMeminfo(memorySplit);
 				break;
 			} else
-			// Otherwise we combine MemFree + Active(file), Inactive(file), and
-			// SReclaimable. Free+cached is no longer appropriate. MemAvailable
-			// reduces these values using watermarks to estimate when swapping
-			// is prevented, omitted here for simplicity (assuming 0 swap).
-			if (checkLine.startsWith("MemFree:")) {
+				// Otherwise we combine MemFree + Active(file), Inactive(file),
+				// and
+				// SReclaimable. Free+cached is no longer appropriate.
+				// MemAvailable
+				// reduces these values using watermarks to estimate when
+				// swapping
+				// is prevented, omitted here for simplicity (assuming 0 swap).
+				if (checkLine.startsWith("MemFree:")) {
 				String[] memorySplit = checkLine.split("\\s+");
 				availableMemory += parseMeminfo(memorySplit);
 			} else if (checkLine.startsWith("Active(file):")) {
@@ -83,8 +86,7 @@ public class GlobalMemory implements Memory {
 		if (this.totalMemory == 0) {
 			Sysinfo info = new Sysinfo();
 			if (0 != Libc.INSTANCE.sysinfo(info))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.totalMemory = info.totalram.longValue() * info.mem_unit;
 		}
 		return this.totalMemory;

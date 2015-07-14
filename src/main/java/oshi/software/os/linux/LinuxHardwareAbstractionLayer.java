@@ -82,8 +82,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 					continue;
 				}
 				if (toBeAnalyzed.startsWith("flags\t")) {
-					String[] flags = toBeAnalyzed.split(SEPARATOR)[1]
-							.split(" ");
+					String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(" ");
 					boolean found = false;
 					for (String flag : flags) {
 						if (flag.equalsIgnoreCase("LM")) {

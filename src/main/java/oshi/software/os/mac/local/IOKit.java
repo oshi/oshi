@@ -32,14 +32,10 @@ import com.sun.jna.Native;
 public interface IOKit extends Library {
 	IOKit INSTANCE = (IOKit) Native.loadLibrary("IOKit", IOKit.class);
 
-	public static final CFStringRef IOPS_NAME_KEY = CFStringRef
-			.toCFString("Name");
-	public static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef
-			.toCFString("Is Present");
-	public static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef
-			.toCFString("Current Capacity");
-	public static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef
-			.toCFString("Max Capacity");
+	public static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
+	public static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString("Is Present");
+	public static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString("Current Capacity");
+	public static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString("Max Capacity");
 
 	CFTypeRef IOPSCopyPowerSourcesInfo();
 

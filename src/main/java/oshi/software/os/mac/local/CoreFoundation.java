@@ -28,8 +28,7 @@ import com.sun.jna.PointerType;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-	CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(
-			"CoreFoundation", CoreFoundation.class);
+	CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary("CoreFoundation", CoreFoundation.class);
 
 	public static final int UTF_8 = 0x08000100;
 
@@ -55,21 +54,17 @@ public interface CoreFoundation extends Library {
 		public static CFStringRef toCFString(String s) {
 			final char[] chars = s.toCharArray();
 			int length = chars.length;
-			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null,
-					chars, new NativeLong(length));
+			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));
 		}
 	}
 
-	CFStringRef CFStringCreateWithCharacters(Object object, char[] chars,
-			NativeLong length);
+	CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
-	boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary,
-			CFStringRef key, PointerType value);
+	boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
 
 	Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
-	boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize,
-			int encoding);
+	boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize, int encoding);
 
 	long CFStringGetLength(Pointer str);
 

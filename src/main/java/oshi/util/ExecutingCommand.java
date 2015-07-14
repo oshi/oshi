@@ -32,7 +32,7 @@ public class ExecutingCommand {
 	 * Executes a command on the native command line and returns the result
 	 * 
 	 * @param cmdToRun
-	 *			Command to run
+	 *            Command to run
 	 * @return A list of Strings representing the result of the command
 	 */
 	public static ArrayList<String> runNative(String cmdToRun) {
@@ -46,8 +46,7 @@ public class ExecutingCommand {
 			return null;
 		}
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				p.getInputStream()));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String line = "";
 		ArrayList<String> sa = new ArrayList<>();
 		try {
@@ -64,7 +63,7 @@ public class ExecutingCommand {
 	 * Return first line of response for selected command
 	 * 
 	 * @param cmd2launch
-	 *			String command to be launched
+	 *            String command to be launched
 	 * @return String or null
 	 */
 	public static String getFirstAnswer(String cmd2launch) {
@@ -76,11 +75,11 @@ public class ExecutingCommand {
 	 * command
 	 * 
 	 * @param cmd2launch
-	 *			String command to be launched
+	 *            String command to be launched
 	 * @param answerIdx
-	 *			int index of line in response of the command
+	 *            int index of line in response of the command
 	 * @return String whole line in response or null if invalid index or running
-	 *		 of command fails
+	 *         of command fails
 	 */
 	public static String getAnswerAt(String cmd2launch, int answerIdx) {
 		ArrayList<String> sa = ExecutingCommand.runNative(cmd2launch);

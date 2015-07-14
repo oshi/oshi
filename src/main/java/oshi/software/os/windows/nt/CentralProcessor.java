@@ -43,23 +43,25 @@ public class CentralProcessor implements Processor {
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();
 	private static boolean sunMXBean;
+
 	static {
 		try {
 			Class.forName("com.sun.management.OperatingSystemMXBean");
 			// Initialize CPU usage
-			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
 		}
 	}
+
 	// Maintain two sets of previous ticks to be used for calculating usage
 	// between them.
 	// System ticks (static)
 	private static long tickTime = System.currentTimeMillis();
 	private static long[] prevTicks = new long[4];
 	private static long[] curTicks = new long[4];
+
 	static {
 		updateSystemTicks();
 		System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
@@ -75,6 +77,7 @@ public class CentralProcessor implements Processor {
 	private static PointerByReference phQuery = new PointerByReference();
 	private static final IntByReference zero = new IntByReference(0);
 	private static final int numCPU;
+
 	static {
 		// Get number of processors
 		SYSTEM_INFO sysinfo = new SYSTEM_INFO();
@@ -84,8 +87,7 @@ public class CentralProcessor implements Processor {
 		// Set up query for this processor
 		int ret = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
 		if (ret != 0)
-			throw new LastErrorException("Cannot open PDH query. Error code: "
-					+ String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot open PDH query. Error code: " + String.format("0x%08X", ret));
 
 		// Set up hook to close the query on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -95,9 +97,11 @@ public class CentralProcessor implements Processor {
 			}
 		});
 	}
+
 	// Set up a counter for each processor
 	private static PointerByReference[] phUserCounters = new PointerByReference[numCPU];
 	private static PointerByReference[] phIdleCounters = new PointerByReference[numCPU];
+
 	static {
 		for (int p = 0; p < numCPU; p++) {
 			// Options are (only need 2 to calculate all)
@@ -106,33 +110,25 @@ public class CentralProcessor implements Processor {
 			// "\Processor(0)\% privileged time" (subset of processor)
 			// "\Processor(0)\% user time" (other subset of processor)
 			// Note need to make \ = \\ for Java Strings and %% for format
-			String counterPath = String.format("\\Processor(%d)\\%% user time",
-					p);
+			String counterPath = String.format("\\Processor(%d)\\%% user time", p);
 			phUserCounters[p] = new PointerByReference();
-			int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(),
-					counterPath, zero, phUserCounters[p]);
+			int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero, phUserCounters[p]);
 			if (ret != 0)
-				throw new LastErrorException(
-						"Cannot add PDH Counter for % user time for processor "
-								+ p + ". Error code: "
-								+ String.format("0x%08X", ret));
+				throw new LastErrorException("Cannot add PDH Counter for % user time for processor " + p
+						+ ". Error code: " + String.format("0x%08X", ret));
 			counterPath = String.format("\\Processor(%d)\\%% idle time", p);
 			phIdleCounters[p] = new PointerByReference();
-			ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(),
-					counterPath, zero, phIdleCounters[p]);
+			ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero, phIdleCounters[p]);
 			if (ret != 0)
-				throw new LastErrorException(
-						"Cannot add PDH Counter for % idle time for processor "
-								+ p + ". Error code: "
-								+ String.format("0x%08X", ret));
+				throw new LastErrorException("Cannot add PDH Counter for % idle time for processor " + p
+						+ ". Error code: " + String.format("0x%08X", ret));
 		}
 		// Initialize by collecting data the first time
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
 		if (ret != 0)
-			throw new LastErrorException(
-					"Cannot collect PDH query data. Error code: "
-							+ String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot collect PDH query data. Error code: " + String.format("0x%08X", ret));
 	}
+
 	// Set up array to maintain current ticks for rapid reference. This array
 	// will be updated in place and used to increment ticks based on processor
 	// data helper which only gives % between reads
@@ -152,12 +148,11 @@ public class CentralProcessor implements Processor {
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException("Processor number (" + procNo
-					+ ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException(
+					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
-		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks,
-				0, curProcTicks.length);
+		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 	}
 
 	/**
@@ -396,8 +391,7 @@ public class CentralProcessor implements Processor {
 		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime,
-				lpUserTime))
+		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime))
 			throw new LastErrorException("Error code: " + Native.getLastError());
 		// Array order is user,nice,kernel,idle
 		curTicks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
@@ -412,8 +406,7 @@ public class CentralProcessor implements Processor {
 	@Override
 	public double getSystemCpuLoad() {
 		if (sunMXBean) {
-			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN)
-					.getSystemCpuLoad();
+			return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 		}
 		return getSystemCpuLoadBetweenTicks();
 	}
@@ -438,10 +431,8 @@ public class CentralProcessor implements Processor {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
 			// Copy arrays in place
-			System.arraycopy(curProcTicks, 0, prevProcTicks, 0,
-					curProcTicks.length);
-			System.arraycopy(allProcessorTicks[processorNumber], 0,
-					curProcTicks, 0, curProcTicks.length);
+			System.arraycopy(curProcTicks, 0, prevProcTicks, 0, curProcTicks.length);
+			System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
 			procTickTime = now;
 		}
 		long total = 0;
@@ -478,29 +469,23 @@ public class CentralProcessor implements Processor {
 		// This call updates all process counters to % used since last call
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
 		if (ret != 0)
-			throw new LastErrorException(
-					"Cannot collect PDH query data. Error code: "
-							+ String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot collect PDH query data. Error code: " + String.format("0x%08X", ret));
 		// Multiply % usage times elapsed MS to recreate ticks, then increment
 		long elapsed = now - allProcTickTime;
 		for (int cpu = 0; cpu < numCPU; cpu++) {
 			PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(
-					phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-							| Pdh.PDH_FMT_1000, null, phUserCounterValue);
+			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(),
+					Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phUserCounterValue);
 			if (ret != 0)
 				throw new LastErrorException(
-						"Cannot get PDH User % counter value. Error code: "
-								+ String.format("0x%08X", ret));
+						"Cannot get PDH User % counter value. Error code: " + String.format("0x%08X", ret));
 
 			PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(
-					phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-							| Pdh.PDH_FMT_1000, null, phIdleCounterValue);
+			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(),
+					Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
 			if (ret != 0)
 				throw new LastErrorException(
-						"Cannot get PDH Idle % counter value. Error code: "
-								+ String.format("0x%08X", ret));
+						"Cannot get PDH Idle % counter value. Error code: " + String.format("0x%08X", ret));
 
 			// Returns results in 1000's of percent, e.g. 5% is 5000
 			// Multiply by elapsed to get total ms and Divide by 100 * 1000

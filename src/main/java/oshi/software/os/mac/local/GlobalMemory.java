@@ -47,12 +47,10 @@ public class GlobalMemory implements Memory {
 		pageSize = pPageSize.getValue();
 
 		VMStatistics vmStats = new VMStatistics();
-		if (0 != SystemB.INSTANCE.host_statistics(machPort,
-				SystemB.HOST_VM_INFO, vmStats,
+		if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,
 				new IntByReference(vmStats.size() / SystemB.INT_SIZE)))
 			throw new LastErrorException("Error code: " + Native.getLastError());
-		availableMemory = (vmStats.free_count + vmStats.inactive_count)
-				* pageSize;
+		availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;
 
 		return availableMemory;
 	}
@@ -62,10 +60,9 @@ public class GlobalMemory implements Memory {
 		if (this.totalMemory == 0) {
 			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };
 			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,
-					new IntByReference(SystemB.UINT64_SIZE), null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize, new IntByReference(SystemB.UINT64_SIZE), null,
+					0))
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.totalMemory = pMemSize.getLong(0);
 		}
 		return this.totalMemory;

@@ -85,8 +85,7 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhOpenQuery(String szDataSource, IntByReference dwUserData,
-			PointerByReference phQuery);
+	int PdhOpenQuery(String szDataSource, IntByReference dwUserData, PointerByReference phQuery);
 
 	/**
 	 * Adds the specified language-neutral counter to the query.
@@ -105,8 +104,8 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhAddEnglishCounterA(Pointer pointer, String counterPath,
-			IntByReference dwUserData, PointerByReference phCounter);
+	int PdhAddEnglishCounterA(Pointer pointer, String counterPath, IntByReference dwUserData,
+			PointerByReference phCounter);
 
 	/**
 	 * Collects the current raw data value for all counters in the specified
@@ -138,8 +137,7 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhGetFormattedCounterValue(Pointer pointer, int dwFormat,
-			IntByReference lpdwType, PdhFmtCounterValue pValue);
+	int PdhGetFormattedCounterValue(Pointer pointer, int dwFormat, IntByReference lpdwType, PdhFmtCounterValue pValue);
 
 	/**
 	 * Closes all counters contained in the specified query, closes all handles

@@ -71,8 +71,7 @@ public class SystemInfo {
 				this._os = new MacOperatingSystem();
 				break;
 			default:
-				throw new RuntimeException("Operating system not supported: "
-						+ Platform.getOSType());
+				throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
 			}
 		}
 		return this._os;
@@ -98,8 +97,7 @@ public class SystemInfo {
 				this._hardware = new MacHardwareAbstractionLayer();
 				break;
 			default:
-				throw new RuntimeException("Operating system not supported: "
-						+ Platform.getOSType());
+				throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
 			}
 		}
 		return this._hardware;
