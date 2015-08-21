@@ -45,11 +45,9 @@ public class LinuxFileSystem {
 		for (FileStore store : FileSystems.getDefault().getFileStores()) {
 			// FileStore toString starts with path, then a space, then name in
 			// parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
-			String path = store.toString().replace(" (" + store.name() + ")",
-					"");
+			String path = store.toString().replace(" (" + store.name() + ")", "");
 			// Exclude special directories
-			if (path.startsWith("/proc") || path.startsWith("/sys")
-					|| path.startsWith("/run") || path.equals("/dev")
+			if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run") || path.equals("/dev")
 					|| path.equals("/dev/pts"))
 				continue;
 			String name = store.name();
@@ -59,8 +57,7 @@ public class LinuxFileSystem {
 			if (store.name().startsWith("/dev"))
 				description = "Local Disk";
 			try {
-				fsList.add(new OSFileStore(name, description, store
-						.getUsableSpace(), store.getTotalSpace()));
+				fsList.add(new OSFileStore(name, description, store.getUsableSpace(), store.getTotalSpace()));
 			} catch (IOException e) {
 				// get*Space() may fail for ejected CD-ROM, etc.
 				continue;

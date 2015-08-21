@@ -32,8 +32,8 @@ public class FormatUtilTest {
 	private static char DECIMAL_SEPARATOR;
 
 	/**
-     * Sets the up class.
-     */
+	 * Sets the up class.
+	 */
 	@BeforeClass
 	public static void setUpClass() {
 		// use decimal separator according to current locale
@@ -42,8 +42,8 @@ public class FormatUtilTest {
 	}
 
 	/**
-     * Test format bytes.
-     */
+	 * Test format bytes.
+	 */
 	@Test
 	public void testFormatBytes() {
 		assertEquals("0 bytes", FormatUtil.formatBytes(0));
@@ -55,8 +55,8 @@ public class FormatUtilTest {
 	}
 
 	/**
-     * Test format bytes with decimal separator.
-     */
+	 * Test format bytes with decimal separator.
+	 */
 	@Test
 	public void testFormatBytesWithDecimalSeparator() {
 		String expected1 = "1" + DECIMAL_SEPARATOR + "3 KB";
@@ -66,13 +66,12 @@ public class FormatUtilTest {
 		assertEquals(expected1, FormatUtil.formatBytes(1340));
 		assertEquals(expected2, FormatUtil.formatBytes(2400016));
 		assertEquals(expected3, FormatUtil.formatBytes(2400000000L));
-		assertEquals(expected4,
-				FormatUtil.formatBytes(1099511627776L + 109951162777L));
+		assertEquals(expected4, FormatUtil.formatBytes(1099511627776L + 109951162777L));
 	}
 
 	/**
-     * Test format hertz.
-     */
+	 * Test format hertz.
+	 */
 	@Test
 	public void testFormatHertz() {
 		assertEquals("0 Hz", FormatUtil.formatHertz(0));
@@ -81,13 +80,12 @@ public class FormatUtilTest {
 		assertEquals("1 kHz", FormatUtil.formatHertz(1000));
 		assertEquals("1 MHz", FormatUtil.formatHertz(1000 * 1000));
 		assertEquals("1 GHz", FormatUtil.formatHertz(1000 * 1000 * 1000));
-		assertEquals("1 THz",
-				FormatUtil.formatHertz(1000L * 1000L * 1000L * 1000L));
+		assertEquals("1 THz", FormatUtil.formatHertz(1000L * 1000L * 1000L * 1000L));
 	}
 
 	/**
-     * Test round.
-     */
+	 * Test round.
+	 */
 	@Test
 	public void testRound() {
 		assertEquals(42.42, FormatUtil.round(42.423f, 2), 0.00001f);

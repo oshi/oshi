@@ -128,62 +128,49 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
 		if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_NT) {
 			// 8.1
-			if (getMajor() == 6 && getMinor() == 3
-					&& getProductType() == WinNT.VER_NT_WORKSTATION) {
+			if (getMajor() == 6 && getMinor() == 3 && getProductType() == WinNT.VER_NT_WORKSTATION) {
 				version = "8.1";
 			}
 			// Server 2008 R2
-			else if (getMajor() == 6 && getMinor() == 3
-					&& getProductType() != WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 3 && getProductType() != WinNT.VER_NT_WORKSTATION) {
 				version = "Server 2012 R2";
 			}
 			// 8
-			else if (getMajor() == 6 && getMinor() == 2
-					&& getProductType() == WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 2 && getProductType() == WinNT.VER_NT_WORKSTATION) {
 				version = "8";
 			}
 			// Server 2008
-			else if (getMajor() == 6 && getMinor() == 2
-					&& getProductType() != WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 2 && getProductType() != WinNT.VER_NT_WORKSTATION) {
 				version = "Server 2012";
 			}
 			// 7
-			else if (getMajor() == 6 && getMinor() == 1
-					&& getProductType() == WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 1 && getProductType() == WinNT.VER_NT_WORKSTATION) {
 				version = "7";
 			}
 			// Server 2008 R2
-			else if (getMajor() == 6 && getMinor() == 1
-					&& getProductType() != WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 1 && getProductType() != WinNT.VER_NT_WORKSTATION) {
 				version = "Server 2008 R2";
 			}
 			// Server 2008
-			else if (getMajor() == 6 && getMinor() == 0
-					&& getProductType() != WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 0 && getProductType() != WinNT.VER_NT_WORKSTATION) {
 				version = "Server 2008";
 			}
 			// Vista
-			else if (getMajor() == 6 && getMinor() == 0
-					&& getProductType() == WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 6 && getMinor() == 0 && getProductType() == WinNT.VER_NT_WORKSTATION) {
 				version = "Vista";
 			}
 			// Server 2003
-			else if (getMajor() == 5
-					&& getMinor() == 2
-					&& getProductType() != WinNT.VER_NT_WORKSTATION
+			else if (getMajor() == 5 && getMinor() == 2 && getProductType() != WinNT.VER_NT_WORKSTATION
 					&& User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0) {
 				version = "Server 2003";
 			}
 			// Server 2003 R2
-			else if (getMajor() == 5
-					&& getMinor() == 2
-					&& getProductType() != WinNT.VER_NT_WORKSTATION
+			else if (getMajor() == 5 && getMinor() == 2 && getProductType() != WinNT.VER_NT_WORKSTATION
 					&& User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0) {
 				version = "Server 2003 R2";
 			}
 			// XP 64 bit
-			else if (getMajor() == 5 && getMinor() == 2
-					&& getProductType() == WinNT.VER_NT_WORKSTATION) {
+			else if (getMajor() == 5 && getMinor() == 2 && getProductType() == WinNT.VER_NT_WORKSTATION) {
 				version = "XP";
 			}
 			// XP 32 bit
@@ -199,21 +186,18 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 				version = "NT 4";
 
 				if ("Service Pack 6".equals(getServicePack())) {
-					if (Advapi32Util
-							.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE,
-									"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
+					if (Advapi32Util.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE,
+							"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
 						return "NT4 SP6a";
 					}
 				}
 
 			} else {
-				throw new RuntimeException("Unsupported Windows NT version: "
-						+ this._versionInfo.toString());
+				throw new RuntimeException("Unsupported Windows NT version: " + this._versionInfo.toString());
 			}
 
 			if (this._versionInfo.wServicePackMajor.intValue() > 0) {
-				version = version + " SP"
-						+ this._versionInfo.wServicePackMajor.intValue();
+				version = version + " SP" + this._versionInfo.wServicePackMajor.intValue();
 			}
 
 		} else if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_WINDOWS) {
@@ -226,19 +210,16 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 					version = "98";
 				}
 			} else if (getMajor() == 4 && getMinor() == 0) {
-				if (this._versionInfo.szCSDVersion[1] == 'C'
-						|| this._versionInfo.szCSDVersion[1] == 'B') {
+				if (this._versionInfo.szCSDVersion[1] == 'C' || this._versionInfo.szCSDVersion[1] == 'B') {
 					version = "95 OSR2";
 				} else {
 					version = "95";
 				}
 			} else {
-				throw new RuntimeException("Unsupported Windows 9x version: "
-						+ this._versionInfo.toString());
+				throw new RuntimeException("Unsupported Windows 9x version: " + this._versionInfo.toString());
 			}
 		} else {
-			throw new RuntimeException("Unsupported Windows platform: "
-					+ this._versionInfo.toString());
+			throw new RuntimeException("Unsupported Windows platform: " + this._versionInfo.toString());
 		}
 
 		return version;

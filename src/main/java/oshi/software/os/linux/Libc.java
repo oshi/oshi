@@ -26,8 +26,7 @@ import com.sun.jna.Structure;
 
 public interface Libc extends Library {
 
-	public static final Libc INSTANCE = (Libc) Native.loadLibrary("c",
-			Libc.class);
+	public static final Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
 
 	public static final class Sysinfo extends Structure {
 		public NativeLong uptime; // Seconds since boot
@@ -47,10 +46,8 @@ public interface Libc extends Library {
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "uptime", "loads", "totalram",
-					"freeram", "sharedram", "bufferram", "totalswap",
-					"freeswap", "procs", "totalhigh", "freehigh", "mem_unit",
-					"_f" });
+			return Arrays.asList(new String[] { "uptime", "loads", "totalram", "freeram", "sharedram", "bufferram",
+					"totalswap", "freeswap", "procs", "totalhigh", "freehigh", "mem_unit", "_f" });
 		}
 	}
 

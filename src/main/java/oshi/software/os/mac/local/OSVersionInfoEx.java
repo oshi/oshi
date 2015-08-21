@@ -124,14 +124,11 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		if (this._buildNumber == null) {
 			int[] mib = { SystemB.CTL_KERN, SystemB.KERN_OSVERSION };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,
-					0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
 			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
-				throw new LastErrorException("Error code: "
-						+ Native.getLastError());
+				throw new LastErrorException("Error code: " + Native.getLastError());
 			this._buildNumber = p.getString(0);
 		}
 		return this._buildNumber;

@@ -135,8 +135,7 @@ public class SystemInfoTest {
 	public void testProcCpuLoadTicks() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
-		assertEquals(4,
-				hal.getProcessors()[0].getProcessorCpuLoadTicks().length);
+		assertEquals(4, hal.getProcessors()[0].getProcessorCpuLoadTicks().length);
 	}
 
 	/**
@@ -169,8 +168,7 @@ public class SystemInfoTest {
 	public void testCpuVendorFreq() {
 		SystemInfo si = new SystemInfo();
 		HardwareAbstractionLayer hal = si.getHardware();
-		assertTrue(hal.getProcessors()[0].getVendorFreq() == -1
-				|| hal.getProcessors()[0].getVendorFreq() > 0);
+		assertTrue(hal.getProcessors()[0].getVendorFreq() == -1 || hal.getProcessors()[0].getVendorFreq() > 0);
 	}
 
 	/**
@@ -185,10 +183,8 @@ public class SystemInfoTest {
 					&& hal.getPowerSources()[0].getRemainingCapacity() <= 1);
 			double epsilon = 1E-6;
 			assertTrue(hal.getPowerSources()[0].getTimeRemaining() > 0
-					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining()
-							- -1) < epsilon
-					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining()
-							- -2) < epsilon);
+					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining() - -1) < epsilon
+					|| Math.abs(hal.getPowerSources()[0].getTimeRemaining() - -2) < epsilon);
 		}
 	}
 
@@ -205,15 +201,13 @@ public class SystemInfoTest {
 		if (hal.getFileStores().length > 1) {
 			assertTrue(hal.getFileStores()[0].getName().length() > 0);
 			assertTrue(hal.getFileStores()[0].getTotalSpace() >= 0);
-			assertTrue(hal.getFileStores()[0].getUsableSpace() <= hal
-					.getFileStores()[0].getTotalSpace());
+			assertTrue(hal.getFileStores()[0].getUsableSpace() <= hal.getFileStores()[0].getTotalSpace());
 		}
 		// Hack to extract path from FileStore.toString() is undocumented,
 		// this test will fail if toString format changes
 		if (Platform.isLinux()) {
 			FileStore store = Files.getFileStore((new File("/")).toPath());
-			assertEquals("/",
-					store.toString().replace(" (" + store.name() + ")", ""));
+			assertEquals("/", store.toString().replace(" (" + store.name() + ")", ""));
 		}
 	}
 
@@ -237,11 +231,9 @@ public class SystemInfoTest {
 		for (Processor cpu : hal.getProcessors()) {
 			System.out.println(" " + cpu);
 		}
-		System.out.println("Identifier: "
-				+ hal.getProcessors()[0].getIdentifier());
+		System.out.println("Identifier: " + hal.getProcessors()[0].getIdentifier());
 		// hardware: memory
-		System.out.println("Memory: "
-				+ FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
+		System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
 		// CPU
 		long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
@@ -256,25 +248,17 @@ public class SystemInfoTest {
 		long idle = ticks[3] - prevTicks[3];
 		long totalCpu = user + nice + sys + idle;
 
-		System.out.format(
-				"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d
-						* user / totalCpu, 100d * nice / totalCpu, 100d * sys
-						/ totalCpu, 100d * idle / totalCpu);
+		System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu,
+				100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
 		System.out.format("CPU load: %.1f%% (counting ticks)%n",
 				hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() * 100);
-		System.out.format("CPU load: %.1f%% (OS MXBean)%n",
-				hal.getProcessors()[0].getSystemCpuLoad() * 100);
+		System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessors()[0].getSystemCpuLoad() * 100);
 		double loadAverage = hal.getProcessors()[0].getSystemLoadAverage();
-		System.out
-				.println("CPU load average: "
-						+ (loadAverage < 0 ? "N/A" : String.format("%.2f",
-								loadAverage)));
+		System.out.println("CPU load average: " + (loadAverage < 0 ? "N/A" : String.format("%.2f", loadAverage)));
 		// per core CPU
 		StringBuilder procCpu = new StringBuilder("CPU load per processor:");
 		for (int cpu = 0; cpu < hal.getProcessors().length; cpu++) {
-			procCpu.append(String.format(
-					" %.1f%%",
-					hal.getProcessors()[cpu].getProcessorCpuLoadBetweenTicks() * 100));
+			procCpu.append(String.format(" %.1f%%", hal.getProcessors()[cpu].getProcessorCpuLoadBetweenTicks() * 100));
 		}
 		System.out.println(procCpu.toString());
 		// hardware: power
@@ -288,13 +272,11 @@ public class SystemInfoTest {
 			else if (timeRemaining < 0d)
 				sb.append("Calculating time remaining");
 			else
-				sb.append(String.format("%d:%02d remaining",
-						(int) (timeRemaining / 3600),
+				sb.append(String.format("%d:%02d remaining", (int) (timeRemaining / 3600),
 						(int) (timeRemaining / 60) % 60));
 		}
 		for (PowerSource pSource : hal.getPowerSources()) {
-			sb.append(String.format("%n %s @ %.1f%%", pSource.getName(),
-					pSource.getRemainingCapacity() * 100d));
+			sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
 		}
 		System.out.println(sb.toString());
 		// hardware: file system
@@ -303,11 +285,9 @@ public class SystemInfoTest {
 		for (OSFileStore fs : fsArray) {
 			long usable = fs.getUsableSpace();
 			long total = fs.getTotalSpace();
-			System.out.format(" %s (%s) %s of %s free (%.1f%%)%n",
-					fs.getName(), fs.getDescription().isEmpty() ? "file system"
-							: fs.getDescription(), FormatUtil
-							.formatBytes(usable), FormatUtil.formatBytes(fs
-							.getTotalSpace()), 100d * usable / total);
+			System.out.format(" %s (%s) %s of %s free (%.1f%%)%n", fs.getName(),
+					fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
+					FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
 		}
 	}
 }

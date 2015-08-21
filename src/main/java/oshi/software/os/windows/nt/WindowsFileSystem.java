@@ -47,9 +47,8 @@ public class WindowsFileSystem {
 		FileSystemView fsv = FileSystemView.getFileSystemView();
 		List<OSFileStore> fsList = new ArrayList<>();
 		for (File f : roots) {
-			fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv
-					.getSystemTypeDescription(f), f.getUsableSpace(), f
-					.getTotalSpace()));
+			fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f.getUsableSpace(),
+					f.getTotalSpace()));
 		}
 		return fsList.toArray(new OSFileStore[fsList.size()]);
 	}

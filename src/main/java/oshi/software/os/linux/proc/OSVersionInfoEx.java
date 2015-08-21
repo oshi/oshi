@@ -49,10 +49,12 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 					// remove beginning and ending '"' characters
 					splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
 
-					// Check basically if the code is between parenthesis or after
+					// Check basically if the code is between parenthesis or
+					// after
 					// the comma-space
 
-					// Basically, until now, that seems to be the standard to use
+					// Basically, until now, that seems to be the standard to
+					// use
 					// parenthesis for the codename.
 					String[] split = splittedLine[1].split("[()]");
 					if (split.length <= 1)
@@ -88,7 +90,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	/**
 	 * @param _codeName
-	 *			the _codeName to set
+	 *            the _codeName to set
 	 */
 	public void setCodeName(String _codeName) {
 		this._codeName = _codeName;
@@ -96,7 +98,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	/**
 	 * @param _version
-	 *			the _version to set
+	 *            the _version to set
 	 */
 	public void setVersion(String _version) {
 		this._version = _version;

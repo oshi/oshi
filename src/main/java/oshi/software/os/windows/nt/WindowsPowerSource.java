@@ -35,8 +35,7 @@ public class WindowsPowerSource implements PowerSource {
 
 	private double timeRemaining;
 
-	public WindowsPowerSource(String name, double remainingCapacity,
-			double timeRemaining) {
+	public WindowsPowerSource(String name, double remainingCapacity, double timeRemaining) {
 		this.name = name;
 		this.remainingCapacity = remainingCapacity;
 		this.timeRemaining = timeRemaining;
@@ -66,24 +65,17 @@ public class WindowsPowerSource implements PowerSource {
 		WindowsPowerSource[] psArray = new WindowsPowerSource[1];
 		// Get structure
 		SystemBatteryState batteryState = new SystemBatteryState();
-		if (0 != PowrProf.INSTANCE.CallNtPowerInformation(
-				PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),
-				batteryState, new NativeLong(batteryState.size()))
-				|| batteryState.batteryPresent == 0) {
+		if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),
+				batteryState, new NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {
 			psArray[0] = new WindowsPowerSource("Unknown", 0d, -1d);
 		} else {
 			int estimatedTime = -2; // -1 = unknown, -2 = unlimited
-			if (batteryState.acOnLine == 0 && batteryState.charging == 0
-					&& batteryState.discharging > 0)
+			if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0)
 				estimatedTime = batteryState.estimatedTime;
-			long maxCapacity = FormatUtil
-					.getUnsignedInt(batteryState.maxCapacity);
-			long remainingCapacity = FormatUtil
-					.getUnsignedInt(batteryState.remainingCapacity);
+			long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
+			long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
 
-			psArray[0] = new WindowsPowerSource(name,
-					(double) remainingCapacity / maxCapacity,
-					estimatedTime);
+			psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
 		}
 
 		return psArray;

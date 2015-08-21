@@ -32,8 +32,7 @@ import oshi.software.os.windows.nt.WindowsPowerSource;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 
-public class WindowsHardwareAbstractionLayer implements
-		HardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private Processor[] _processors = null;
 
@@ -53,20 +52,16 @@ public class WindowsHardwareAbstractionLayer implements
 		if (this._processors == null) {
 			final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
 			List<Processor> processors = new ArrayList<>();
-			String[] processorIds = Advapi32Util.registryGetKeys(
-					WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+			String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
 			int numCPU = 0;
 			for (String processorId : processorIds) {
 				String cpuRegistryPath = cpuRegistryRoot + "\\" + processorId;
 				CentralProcessor cpu = new CentralProcessor(numCPU++);
-				cpu.setIdentifier(Advapi32Util.registryGetStringValue(
-						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-						"Identifier"));
-				cpu.setName(Advapi32Util.registryGetStringValue(
-						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+				cpu.setIdentifier(
+						Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
+				cpu.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
 						"ProcessorNameString"));
-				cpu.setVendor(Advapi32Util.registryGetStringValue(
-						WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+				cpu.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
 						"VendorIdentifier"));
 				processors.add(cpu);
 			}

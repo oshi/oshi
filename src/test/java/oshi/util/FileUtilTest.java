@@ -32,8 +32,8 @@ public class FileUtilTest {
 	private static String THISCLASS = "src/test/java/oshi/util/FileUtilTest.java";
 
 	/**
-     * Test read file.
-     */
+	 * Test read file.
+	 */
 	@Test
 	public void testReadFile() {
 		List<String> thisFile = null;

@@ -66,14 +66,12 @@ public class MacFileSystem {
 					FileStore fs = Files.getFileStore(f.toPath());
 					if (localDisk.matcher(fs.name()).matches())
 						description = "Local Disk";
-					if (fs.name().startsWith("localhost:")
-							|| fs.name().startsWith("//"))
+					if (fs.name().startsWith("localhost:") || fs.name().startsWith("//"))
 						description = "Network Drive";
 				} catch (IOException e) {
 					continue;
 				}
-				fsList.add(new OSFileStore(name, description, f
-						.getUsableSpace(), f.getTotalSpace()));
+				fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));
 			}
 		return fsList.toArray(new OSFileStore[fsList.size()]);
 	}
