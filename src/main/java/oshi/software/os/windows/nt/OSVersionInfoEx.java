@@ -159,7 +159,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
                 version = "NT 4";
                 if ("Service Pack 6".equals(getServicePack())) {
                     if (Advapi32Util.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
-                        version = "NT4 SP6a";
+                        return "NT4 SP6a";
                     }
                 }
 
