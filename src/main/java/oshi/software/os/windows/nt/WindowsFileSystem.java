@@ -19,7 +19,9 @@ package oshi.software.os.windows.nt;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileSystemView;
 
 import oshi.software.os.OSFileStore;
@@ -43,13 +45,30 @@ public class WindowsFileSystem {
 	public static OSFileStore[] getFileStores() {
 		// File.listRoots() has more information for Windows
 		// than FileSystem.getDefalut().getFileStores()
-		File[] roots = File.listRoots();
-		FileSystemView fsv = FileSystemView.getFileSystemView();
-		List<OSFileStore> fsList = new ArrayList<>();
-		for (File f : roots) {
-			fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f.getUsableSpace(),
-					f.getTotalSpace()));
+		final File[] roots = File.listRoots();
+		// Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
+		// problems
+		SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
+			@Override
+			public List<OSFileStore> doInBackground() {
+				FileSystemView fsv = FileSystemView.getFileSystemView();
+				List<OSFileStore> fsList = new ArrayList<>();
+				for (File f : roots) {
+					fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f
+							.getUsableSpace(), f.getTotalSpace()));
+				}
+				return fsList;
+			}
+		};
+		worker.execute();
+		List<OSFileStore> fs = new ArrayList<OSFileStore>();
+		try {
+			// TODO: Consider a timeout version of this method that passes
+			// timeout parameters which are used in this get()
+			fs = worker.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 		}
-		return fsList.toArray(new OSFileStore[fsList.size()]);
+		return fs.toArray(new OSFileStore[fs.size()]);
 	}
 }
