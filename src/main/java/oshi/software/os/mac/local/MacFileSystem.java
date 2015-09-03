@@ -46,7 +46,6 @@ public class MacFileSystem {
 	 * @return An array of {@link OSFileStore} objects representing mounted
 	 *         volumes. May return disconnected volumes with
 	 *         {@link OSFileStore#getTotalSpace()} = 0.
-	 * @throws IOException
 	 */
 	public static OSFileStore[] getFileStores() {
 		List<OSFileStore> fsList = new ArrayList<>();

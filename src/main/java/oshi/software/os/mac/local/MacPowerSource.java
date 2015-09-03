@@ -19,14 +19,14 @@ package oshi.software.os.mac.local;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
 import oshi.hardware.PowerSource;
 import oshi.software.os.mac.local.CoreFoundation.CFArrayRef;
 import oshi.software.os.mac.local.CoreFoundation.CFDictionaryRef;
 import oshi.software.os.mac.local.CoreFoundation.CFTypeRef;
-
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 
 /**
  * A Power Source
@@ -63,7 +63,9 @@ public class MacPowerSource implements PowerSource {
 	}
 
 	/**
-	 * Battery Information
+	 * Gets Battery Information
+	 * 
+	 * @return An array of PowerSource objects representing batteries, etc.
 	 */
 	public static PowerSource[] getPowerSources() {
 		// Get the blob containing current power source state
@@ -109,8 +111,8 @@ public class MacPowerSource implements PowerSource {
 				maxCapacity = new IntByReference(1);
 
 			// Add to list
-			psList.add(new MacPowerSource(nameBuf != null ? nameBuf.getString(0) : "Unknown",
-					(double) currentCapacity.getValue() / maxCapacity.getValue(), timeRemaining));
+			psList.add(new MacPowerSource(nameBuf != null ? nameBuf.getString(0) : "Unknown", (double) currentCapacity
+					.getValue() / maxCapacity.getValue(), timeRemaining));
 		}
 		// Release the blob
 		CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);

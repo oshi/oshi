@@ -61,7 +61,9 @@ public class LinuxPowerSource implements PowerSource {
 	}
 
 	/**
-	 * Battery Information
+	 * Gets Battery Information
+	 * 
+	 * @return An array of PowerSource objects representing batteries, etc.
 	 */
 	public static PowerSource[] getPowerSources() {
 		// Get list of power source names
@@ -129,8 +131,8 @@ public class LinuxPowerSource implements PowerSource {
 						isCharging = true;
 				}
 			}
-			psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
-					isCharging ? -2d : 3600d * energyNow / powerNow));
+			psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull, isCharging ? -2d : 3600d * energyNow
+					/ powerNow));
 		}
 
 		return psList.toArray(new LinuxPowerSource[psList.size()]);
