@@ -8,7 +8,7 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 
 Essentials
 ----------
-* [Download Oshi 1.3](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.3|jar)
+* [Download Oshi 1.4](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.4|jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
