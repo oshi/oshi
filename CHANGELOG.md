@@ -1,7 +1,10 @@
 
 1.4 (in-progress)
 ================
+* [#71](https://github.com/dblock/oshi/pull/71), [#72](https://github.com/dblock/oshi/pull/72): Added support for Windows 10 & Windows Server 2016 - [@laurent-r](https://github.com/laurent-r).
 * [#75](https://github.com/dblock/oshi/pull/75): Added uptime information - [@dbwiddis](https://github.com/dbwiddis).
+* [#76](https://github.com/dblock/oshi/pull/76): Better linux CPU processor counting - [@dbwiddis](https://github.com/dbwiddis).
+* [#78](https://github.com/dblock/oshi/pull/78): Execute FileSystemView on Swing's Event Dispatch Thread - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 1.3 (6/27/2015)
@@ -9,7 +12,7 @@
 * See site page for individual commits going forwards as only major changes will be mentioned manually in change log.
 * Upgraded to java 7 base support
 * Upgraded JNA to 4.1.0
-* Bringing all lessons learned from waffle over to oshi in one go for building project from source.
+* Brought over lessons learned from [waffle](https://github.com/dblock/waffle) for building project from source.
 * [#50](https://github.com/dblock/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).
 * [#51](https://github.com/dblock/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
 * [#62](https://github.com/dblock/oshi/pull/62): Added Per-Processor CPU Load and Ticks - [@dbwiddis](https://github.com/dbwiddis).
