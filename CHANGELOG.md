@@ -1,6 +1,7 @@
 
 1.4 (in-progress)
 ================
+* [#75](https://github.com/dblock/oshi/pull/75): Added uptime information - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 1.3 (6/27/2015)

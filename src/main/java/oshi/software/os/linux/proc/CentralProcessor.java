@@ -22,7 +22,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+
 import oshi.hardware.Processor;
+import oshi.software.os.linux.Libc;
+import oshi.software.os.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -108,8 +113,8 @@ public class CentralProcessor implements Processor {
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException(
-					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException("Processor number (" + procNo
+					+ ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
@@ -483,6 +488,16 @@ public class CentralProcessor implements Processor {
 			System.err.println(e.getMessage());
 		}
 		allProcTickTime = now;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getSystemUptime() {
+		Sysinfo info = new Sysinfo();
+		if (0 != Libc.INSTANCE.sysinfo(info))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		return info.uptime.longValue();
 	}
 
 	@Override

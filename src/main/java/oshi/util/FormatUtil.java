@@ -17,6 +17,7 @@
 package oshi.util;
 
 import java.math.BigDecimal;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -122,6 +123,24 @@ public abstract class FormatUtil {
 	}
 
 	/**
+	 * Formats an elapsed time in seconds as days, hh:mm:ss
+	 * 
+	 * @param secs
+	 * @return A string representation of elapsed time
+	 */
+	public static String formatElapsedSecs(long secs) {
+		long eTime = secs;
+		final long days = TimeUnit.SECONDS.toDays(eTime);
+		eTime -= TimeUnit.DAYS.toSeconds(days);
+		final long hr = TimeUnit.SECONDS.toHours(eTime);
+		eTime -= TimeUnit.HOURS.toSeconds(hr);
+		final long min = TimeUnit.SECONDS.toMinutes(eTime);
+		eTime -= TimeUnit.MINUTES.toSeconds(min);
+		final long sec = eTime;
+		return String.format("%d days, %02d:%02d:%02d", days, hr, min, sec);
+	}
+
+	/**
 	 * Round to certain number of decimals
 	 *
 	 * @param d
@@ -143,4 +162,5 @@ public abstract class FormatUtil {
 	public static long getUnsignedInt(int x) {
 		return x & 0x00000000ffffffffL;
 	}
+
 }
