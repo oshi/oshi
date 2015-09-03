@@ -8,7 +8,7 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 
 Essentials
 ----------
-* [Download Oshi 1.3](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.3|jar)
+* [Download Oshi 1.4](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.4|jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
@@ -50,6 +50,7 @@ Microsoft Windows 7
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 532.1 MB/2.0 GB
+Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
 CPU ticks @ 1 sec:[26579060, 0, 21746695, 549740254]
 User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
@@ -84,6 +85,7 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 21.0 GB/31.0 GB
+Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[967282, 15484, 195343, 124216619]
 CPU ticks @ 1 sec:[967308, 15484, 195346, 124216790]
 User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
@@ -111,6 +113,7 @@ Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Memory: 17.3 MB/4 GB
+Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[15973594, 0, 21796209, 286595204]
 CPU ticks @ 1 sec:[15973619, 0, 21796271, 286595920]
 User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
