@@ -84,6 +84,16 @@ public class FormatUtilTest {
 	}
 
 	/**
+	 * Test format elapsed secs
+	 */
+	public void testFormatElapsedSecs() {
+		assertEquals("0 days, 00:00:00", FormatUtil.formatElapsedSecs(0));
+		assertEquals("0 days, 03:25:45", FormatUtil.formatElapsedSecs(12345));
+		assertEquals("1 days, 10:17:36", FormatUtil.formatElapsedSecs(123456));
+		assertEquals("14 days, 06:56:07", FormatUtil.formatElapsedSecs(1234567));
+	}
+
+	/**
 	 * Test round.
 	 */
 	@Test

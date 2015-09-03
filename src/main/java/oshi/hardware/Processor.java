@@ -261,4 +261,11 @@ public interface Processor {
 	 *         Nice(if applicable), System, and Idle states.
 	 */
 	long[] getProcessorCpuLoadTicks();
+
+	/**
+	 * Get the System uptime (time since boot).
+	 * 
+	 * @return Number of seconds since boot.
+	 */
+	long getSystemUptime();
 }

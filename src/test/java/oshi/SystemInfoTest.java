@@ -28,6 +28,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.sun.jna.Platform;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
@@ -37,8 +39,6 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
-
-import com.sun.jna.Platform;
 
 /**
  * The Class SystemInfoTest.
@@ -212,6 +212,17 @@ public class SystemInfoTest {
 	}
 
 	/**
+	 * Test system uptime.
+	 */
+	@Test
+	public void testSystemUptime() {
+		SystemInfo si = new SystemInfo();
+		HardwareAbstractionLayer hal = si.getHardware();
+		long uptime = hal.getProcessors()[0].getSystemUptime();
+		assertTrue(uptime >= 0);
+	}
+
+	/**
 	 * The main method.
 	 *
 	 * @param args
@@ -235,6 +246,8 @@ public class SystemInfoTest {
 		// hardware: memory
 		System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
+		// uptime
+		System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessors()[0].getSystemUptime()));
 		// CPU
 		long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
 		System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
@@ -248,8 +261,8 @@ public class SystemInfoTest {
 		long idle = ticks[3] - prevTicks[3];
 		long totalCpu = user + nice + sys + idle;
 
-		System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu,
-				100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
+		System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu, 100d
+				* nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
 		System.out.format("CPU load: %.1f%% (counting ticks)%n",
 				hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() * 100);
 		System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessors()[0].getSystemCpuLoad() * 100);
@@ -281,13 +294,14 @@ public class SystemInfoTest {
 		System.out.println(sb.toString());
 		// hardware: file system
 		System.out.println("File System:");
+
 		OSFileStore[] fsArray = hal.getFileStores();
 		for (OSFileStore fs : fsArray) {
 			long usable = fs.getUsableSpace();
 			long total = fs.getTotalSpace();
 			System.out.format(" %s (%s) %s of %s free (%.1f%%)%n", fs.getName(),
-					fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
-					FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
+					fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
+					FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
 		}
 	}
 }
