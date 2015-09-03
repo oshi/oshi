@@ -80,7 +80,7 @@ public class CentralProcessor implements Processor {
 		try {
 			List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
 			for (String cpu : procCpu) {
-				if (cpu.startsWith("core id")) {
+				if (cpu.startsWith("processor")) {
 					numCPU++;
 				}
 			}
@@ -88,6 +88,9 @@ public class CentralProcessor implements Processor {
 			System.err.println("Problem with: /proc/cpuinfo");
 			System.err.println(e.getMessage());
 		}
+		// Force at least one processor
+		if (numCPU < 1)
+			numCPU = 1;
 	}
 
 	// Set up array to maintain current ticks for rapid reference. This array
