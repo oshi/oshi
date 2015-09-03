@@ -16,59 +16,55 @@
  */
 package oshi.software.os.mac.local;
 
-import oshi.hardware.Memory;
-import oshi.software.os.mac.local.SystemB.VMStatistics;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import oshi.hardware.Memory;
+import oshi.software.os.mac.local.SystemB.VMStatistics;
+
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L33">public class GlobalMemory implements Memory {</span>
+<span class="fc" id="L33">public class GlobalMemory implements Memory {</span>
 
-<span class="nc" id="L35">	long totalMemory = 0;</span>
+<span class="fc" id="L35">	long totalMemory = 0;</span>
 
 	@Override
 	public long getAvailable() {
-<span class="nc" id="L39">		long availableMemory = 0;</span>
-<span class="nc" id="L40">		long pageSize = 4096;</span>
+<span class="fc" id="L39">		long availableMemory = 0;</span>
+<span class="fc" id="L40">		long pageSize = 4096;</span>
 
-<span class="nc" id="L42">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="fc" id="L42">		int machPort = SystemB.INSTANCE.mach_host_self();</span>
 
-<span class="nc" id="L44">		LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize))</span>
+<span class="fc" id="L44">		LongByReference pPageSize = new LongByReference();</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">		if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize))</span>
 <span class="nc" id="L46">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L47">		pageSize = pPageSize.getValue();</span>
+<span class="fc" id="L47">		pageSize = pPageSize.getValue();</span>
 
-<span class="nc" id="L49">		VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (0 != SystemB.INSTANCE.host_statistics(machPort,</span>
-				SystemB.HOST_VM_INFO, vmStats,
-				new IntByReference(vmStats.size() / SystemB.INT_SIZE)))
-<span class="nc" id="L53">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L54">		availableMemory = (vmStats.free_count + vmStats.inactive_count)</span>
-				* pageSize;
+<span class="fc" id="L49">		VMStatistics vmStats = new VMStatistics();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="fc" id="L51">				new IntByReference(vmStats.size() / SystemB.INT_SIZE)))</span>
+<span class="nc" id="L52">			throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="fc" id="L53">		availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
 
-<span class="nc" id="L57">		return availableMemory;</span>
+<span class="fc" id="L55">		return availableMemory;</span>
 	}
 
 	@Override
 	public long getTotal() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">		if (this.totalMemory == 0) {</span>
-<span class="nc" id="L63">			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };</span>
-<span class="nc" id="L64">			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize,</span>
-					new IntByReference(SystemB.UINT64_SIZE), null, 0))
-<span class="nc" id="L67">				throw new LastErrorException(&quot;Error code: &quot;</span>
-						+ Native.getLastError());
-<span class="nc" id="L69">			this.totalMemory = pMemSize.getLong(0);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">		if (this.totalMemory == 0) {</span>
+<span class="fc" id="L61">			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctlbyname(&quot;hw.memsize&quot;, pMemSize, new IntByReference(SystemB.UINT64_SIZE),</span>
+					null, 0))
+<span class="nc" id="L64">				throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="fc" id="L65">			this.totalMemory = pMemSize.getLong(0);</span>
 		}
-<span class="nc" id="L71">		return this.totalMemory;</span>
+<span class="fc" id="L67">		return this.totalMemory;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

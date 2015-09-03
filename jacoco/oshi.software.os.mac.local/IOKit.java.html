@@ -30,16 +30,12 @@ import com.sun.jna.Native;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-<span class="nc" id="L33">	IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="fc" id="L33">	IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
 
-<span class="nc" id="L35">	public static final CFStringRef IOPS_NAME_KEY = CFStringRef</span>
-			.toCFString(&quot;Name&quot;);
-<span class="nc" id="L37">	public static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef</span>
-			.toCFString(&quot;Is Present&quot;);
-<span class="nc" id="L39">	public static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef</span>
-			.toCFString(&quot;Current Capacity&quot;);
-<span class="nc" id="L41">	public static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef</span>
-			.toCFString(&quot;Max Capacity&quot;);
+<span class="fc" id="L35">	public static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
+<span class="fc" id="L36">	public static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
+<span class="fc" id="L37">	public static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
+<span class="fc" id="L38">	public static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
 
 	CFTypeRef IOPSCopyPowerSourcesInfo();
 

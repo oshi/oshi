@@ -31,17 +31,16 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-<span class="fc" id="L34">	PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;,</span>
-			PowrProf.class);
+<span class="nc" id="L34">	PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
 
 	public static int SYSTEM_BATTERY_STATE = 5;
 
-<span class="fc" id="L39">	public static class SystemBatteryState extends Structure {</span>
+<span class="nc" id="L38">	public static class SystemBatteryState extends Structure {</span>
 		public byte acOnLine; // boolean
 		public byte batteryPresent; // boolean
 		public byte charging; // boolean
 		public byte discharging; // boolean
-<span class="fc" id="L44">		public byte[] spare1 = new byte[4]; // unused</span>
+<span class="nc" id="L43">		public byte[] spare1 = new byte[4]; // unused</span>
 		public int maxCapacity; // unsigned 32 bit
 		public int remainingCapacity; // unsigned 32 bit
 		public int rate; // signed 32 bit
@@ -51,15 +50,12 @@ public interface PowrProf extends Library {
 
 		@Override
 		protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L54">			return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;,</span>
-					&quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;, &quot;maxCapacity&quot;,
-					&quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;,
-					&quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
+<span class="nc" id="L53">			return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
+					&quot;maxCapacity&quot;, &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
 		}
 	}
 
-	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer,
-			NativeLong nInputBufferSize, Structure lpOutputBuffer,
-			NativeLong nOutputBufferSize);
+	int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
+			Structure lpOutputBuffer, NativeLong nOutputBufferSize);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

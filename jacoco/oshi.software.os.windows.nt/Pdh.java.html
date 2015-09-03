@@ -34,7 +34,7 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface Pdh extends Library {
-<span class="fc" id="L37">	Pdh INSTANCE = (Pdh) Native.loadLibrary(&quot;Pdh&quot;, Pdh.class);</span>
+<span class="nc" id="L37">	Pdh INSTANCE = (Pdh) Native.loadLibrary(&quot;Pdh&quot;, Pdh.class);</span>
 
 	// Counter return types
 	public static final int PDH_FMT_LONG = 0x00000100; // Native Long
@@ -48,7 +48,7 @@ public interface Pdh extends Library {
 	/**
 	 * Union included in return value of {@link PdhFmtCounterValue}
 	 */
-<span class="fc" id="L51">	public static class ValueUnion extends Union {</span>
+<span class="nc" id="L51">	public static class ValueUnion extends Union {</span>
 		public int longValue;
 		public double doubleValue;
 		public long largeValue;
@@ -59,13 +59,13 @@ public interface Pdh extends Library {
 	/**
 	 * Holds the return value of a formatted data query.
 	 */
-<span class="fc" id="L62">	public static class PdhFmtCounterValue extends Structure {</span>
+<span class="nc" id="L62">	public static class PdhFmtCounterValue extends Structure {</span>
 		public int cStatus;
 		public ValueUnion value;
 
 		@Override
 		protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L68">			return Arrays.asList(new String[] { &quot;cStatus&quot;, &quot;value&quot; });</span>
+<span class="nc" id="L68">			return Arrays.asList(new String[] { &quot;cStatus&quot;, &quot;value&quot; });</span>
 		}
 	}
 
@@ -85,15 +85,16 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhOpenQuery(String szDataSource, IntByReference dwUserData,
-			PointerByReference phQuery);
+	int PdhOpenQuery(String szDataSource, IntByReference dwUserData, PointerByReference phQuery);
 
 	/**
 	 * Adds the specified language-neutral counter to the query.
 	 * 
 	 * @param pointer
 	 *            Handle to the query to which you want to add the counter. This
-	 *            handle is returned by the {@link #PdhOpenQuery()} function.
+	 *            handle is returned by the
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function.
 	 * @param counterPath
 	 *            Null-terminated string that contains the counter path.
 	 * @param dwUserData
@@ -105,8 +106,8 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhAddEnglishCounterA(Pointer pointer, String counterPath,
-			IntByReference dwUserData, PointerByReference phCounter);
+	int PdhAddEnglishCounterA(Pointer pointer, String counterPath, IntByReference dwUserData,
+			PointerByReference phCounter);
 
 	/**
 	 * Collects the current raw data value for all counters in the specified
@@ -114,7 +115,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle of the query for which you want to collect data. The
-	 *            {@link #PdhOpenQuery()} function returns this handle.
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function returns this handle.
 	 * @return If the function succeeds, the return value is nonzero. If the
 	 *         function fails, the return value is zero and errno is set.
 	 */
@@ -125,7 +127,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle of the counter for which you want to compute a
-	 *            displayable value. The {@link #PdhAddEnglishCounter()}
+	 *            displayable value. The
+	 *            {@link #PdhAddEnglishCounterA(Pointer, String, IntByReference, PointerByReference)}
 	 *            function returns this handle.
 	 * @param dwFormat
 	 *            Determines the data type of the formatted value.
@@ -138,8 +141,7 @@ public interface Pdh extends Library {
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.
 	 */
-	int PdhGetFormattedCounterValue(Pointer pointer, int dwFormat,
-			IntByReference lpdwType, PdhFmtCounterValue pValue);
+	int PdhGetFormattedCounterValue(Pointer pointer, int dwFormat, IntByReference lpdwType, PdhFmtCounterValue pValue);
 
 	/**
 	 * Closes all counters contained in the specified query, closes all handles
@@ -147,7 +149,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle to the query to close. This handle is returned by the
-	 *            {@link #PdhOpenQuery()} function.
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function.
 	 * @return If the function succeeds, the return value is zero. If the
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.

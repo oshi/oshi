@@ -26,13 +26,12 @@ import com.sun.jna.Structure;
 
 public interface Libc extends Library {
 
-<span class="nc" id="L29">	public static final Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;,</span>
-			Libc.class);
+<span class="nc" id="L29">	public static final Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
 
-<span class="nc" id="L32">	public static final class Sysinfo extends Structure {</span>
+<span class="nc" id="L31">	public static final class Sysinfo extends Structure {</span>
 		public NativeLong uptime; // Seconds since boot
 		// 1, 5, and 15 minute load averages
-<span class="nc" id="L35">		public NativeLong[] loads = new NativeLong[3];</span>
+<span class="nc" id="L34">		public NativeLong[] loads = new NativeLong[3];</span>
 		public NativeLong totalram; // Total usable main memory size
 		public NativeLong freeram; // Available memory size
 		public NativeLong sharedram; // Amount of shared memory
@@ -43,14 +42,12 @@ public interface Libc extends Library {
 		public NativeLong totalhigh; // Total high memory size
 		public NativeLong freehigh; // Available high memory size
 		public int mem_unit; // Memory unit size in bytes
-<span class="nc" id="L46">		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+<span class="nc" id="L45">		public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
 
 		@Override
 		protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L50">			return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;,</span>
-					&quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;, &quot;totalswap&quot;,
-					&quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;,
-					&quot;_f&quot; });
+<span class="nc" id="L49">			return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
+					&quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; });
 		}
 	}
 

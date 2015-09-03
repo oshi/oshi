@@ -36,17 +36,20 @@ public class OSFileStore {
 	 * Creates a {@link OSFileStore} with the specified parameters.
 	 * 
 	 * @param name
+	 *            Name of the filestore
 	 * @param description
+	 *            Description of the file store
 	 * @param usableSpace
+	 *            Available/usable bytes
 	 * @param totalSpace
+	 *            Total bytes
 	 */
-	public OSFileStore(String name, String description, long usableSpace,
-<span class="fc" id="L44">			long totalSpace) {</span>
-<span class="fc" id="L45">		this.setName(name);</span>
-<span class="fc" id="L46">		this.setDescription(description);</span>
-<span class="fc" id="L47">		this.setUsableSpace(usableSpace);</span>
-<span class="fc" id="L48">		this.setTotalSpace(totalSpace);</span>
-<span class="fc" id="L49">	}</span>
+<span class="fc" id="L47">	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {</span>
+<span class="fc" id="L48">		this.setName(name);</span>
+<span class="fc" id="L49">		this.setDescription(description);</span>
+<span class="fc" id="L50">		this.setUsableSpace(usableSpace);</span>
+<span class="fc" id="L51">		this.setTotalSpace(totalSpace);</span>
+<span class="fc" id="L52">	}</span>
 
 	/**
 	 * Name of the File System
@@ -54,7 +57,7 @@ public class OSFileStore {
 	 * @return The file system name
 	 */
 	public String getName() {
-<span class="fc" id="L57">		return this.name;</span>
+<span class="fc" id="L60">		return this.name;</span>
 	}
 
 	/**
@@ -64,8 +67,8 @@ public class OSFileStore {
 	 *            The name
 	 */
 	public void setName(String name) {
-<span class="fc" id="L67">		this.name = name;</span>
-<span class="fc" id="L68">	}</span>
+<span class="fc" id="L70">		this.name = name;</span>
+<span class="fc" id="L71">	}</span>
 
 	/**
 	 * Description of the File System
@@ -73,7 +76,7 @@ public class OSFileStore {
 	 * @return The file system description
 	 */
 	public String getDescription() {
-<span class="nc" id="L76">		return this.description;</span>
+<span class="nc" id="L79">		return this.description;</span>
 	}
 
 	/**
@@ -83,8 +86,8 @@ public class OSFileStore {
 	 *            The description
 	 */
 	public void setDescription(String description) {
-<span class="fc" id="L86">		this.description = description;</span>
-<span class="fc" id="L87">	}</span>
+<span class="fc" id="L89">		this.description = description;</span>
+<span class="fc" id="L90">	}</span>
 
 	/**
 	 * Usable space on the drive.
@@ -92,7 +95,7 @@ public class OSFileStore {
 	 * @return Usable space on the drive (in bytes)
 	 */
 	public long getUsableSpace() {
-<span class="fc" id="L95">		return this.usableSpace;</span>
+<span class="fc" id="L98">		return this.usableSpace;</span>
 	}
 
 	/**
@@ -102,8 +105,8 @@ public class OSFileStore {
 	 *            Bytes of writable space.
 	 */
 	public void setUsableSpace(long usableSpace) {
-<span class="fc" id="L105">		this.usableSpace = usableSpace;</span>
-<span class="fc" id="L106">	}</span>
+<span class="fc" id="L108">		this.usableSpace = usableSpace;</span>
+<span class="fc" id="L109">	}</span>
 
 	/**
 	 * Total space/capacity of the drive.
@@ -111,7 +114,7 @@ public class OSFileStore {
 	 * @return Total capacity of the drive (in bytes)
 	 */
 	public long getTotalSpace() {
-<span class="fc" id="L114">		return this.totalSpace;</span>
+<span class="fc" id="L117">		return this.totalSpace;</span>
 	}
 
 	/**
@@ -121,7 +124,7 @@ public class OSFileStore {
 	 *            Bytes of total space.
 	 */
 	public void setTotalSpace(long totalSpace) {
-<span class="fc" id="L124">		this.totalSpace = totalSpace;</span>
-<span class="fc" id="L125">	}</span>
+<span class="fc" id="L127">		this.totalSpace = totalSpace;</span>
+<span class="fc" id="L128">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

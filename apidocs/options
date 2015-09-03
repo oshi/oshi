@@ -1,24 +1,24 @@
 -classpath
-'C:/Users/Jeremy/Documents/GitHub/oshi/target/checkout/target/classes;C:/Users/Jeremy/.m2/repository/net/java/dev/jna/jna-platform/4.1.0/jna-platform-4.1.0.jar;C:/Users/Jeremy/.m2/repository/net/java/dev/jna/jna/4.1.0/jna-4.1.0.jar'
+'/Users/danielwiddis/git/oshi/target/checkout/target/classes:/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna/4.1.0/jna-4.1.0.jar:/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna-platform/4.1.0/jna-platform-4.1.0.jar'
 -encoding
 'UTF-8'
 -protected
 -sourcepath
-'C:/Users/Jeremy/Documents/GitHub/oshi/target/checkout/src/main/java;C:/Users/Jeremy/Documents/GitHub/oshi/target/checkout/target/generated-sources/annotations'
+'/Users/danielwiddis/git/oshi/target/checkout/src/main/java:/Users/danielwiddis/git/oshi/target/checkout/target/generated-sources/annotations'
 -author
 -bottom
 'Copyright &#169; 2010-2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All Rights Reserved.'
 -charset
 'UTF-8'
 -d
-'C:/Users/Jeremy/Documents/GitHub/oshi/target/checkout/target/site/apidocs'
+'/Users/danielwiddis/git/oshi/target/checkout/target/site/apidocs'
 -docencoding
 'UTF-8'
 -doctitle
-'Operating System and Hardware Information 1.3 API'
+'Operating System and Hardware Information 1.4 API'
 -link
 'http://java.sun.com/javase/6/docs/api'
 -use
 -version
 -windowtitle
-'Operating System and Hardware Information 1.3 API'
+'Operating System and Hardware Information 1.4 API'

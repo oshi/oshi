@@ -28,8 +28,7 @@ import com.sun.jna.PointerType;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-<span class="nc" id="L31">	CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(</span>
-			&quot;CoreFoundation&quot;, CoreFoundation.class);
+<span class="fc" id="L31">	CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
 	public static final int UTF_8 = 0x08000100;
 
@@ -39,37 +38,33 @@ public interface CoreFoundation extends Library {
 
 	void CFRelease(CFTypeRef blob);
 
-<span class="nc" id="L42">	public class CFTypeRef extends PointerType {</span>
+<span class="fc" id="L41">	public class CFTypeRef extends PointerType {</span>
 		// TODO Build this out
 	}
 
-<span class="nc" id="L46">	public class CFArrayRef extends PointerType {</span>
+<span class="fc" id="L45">	public class CFArrayRef extends PointerType {</span>
 		// TODO Build this out
 	}
 
-<span class="nc" id="L50">	public class CFDictionaryRef extends PointerType {</span>
+<span class="fc" id="L49">	public class CFDictionaryRef extends PointerType {</span>
 		// TODO Build this out
 	}
 
-<span class="nc" id="L54">	public class CFStringRef extends PointerType {</span>
+<span class="fc" id="L53">	public class CFStringRef extends PointerType {</span>
 		public static CFStringRef toCFString(String s) {
-<span class="nc" id="L56">			final char[] chars = s.toCharArray();</span>
-<span class="nc" id="L57">			int length = chars.length;</span>
-<span class="nc" id="L58">			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null,</span>
-					chars, new NativeLong(length));
+<span class="fc" id="L55">			final char[] chars = s.toCharArray();</span>
+<span class="fc" id="L56">			int length = chars.length;</span>
+<span class="fc" id="L57">			return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
 		}
 	}
 
-	CFStringRef CFStringCreateWithCharacters(Object object, char[] chars,
-			NativeLong length);
+	CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
-	boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary,
-			CFStringRef key, PointerType value);
+	boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
 
 	Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
-	boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize,
-			int encoding);
+	boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize, int encoding);
 
 	long CFStringGetLength(Pointer str);
 

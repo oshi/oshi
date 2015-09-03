@@ -19,7 +19,9 @@ package oshi.software.os.windows.nt;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileSystemView;
 
 import oshi.software.os.OSFileStore;
@@ -32,7 +34,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L35">public class WindowsFileSystem {</span>
+<span class="nc" id="L37">public class WindowsFileSystem {</span>
 	/**
 	 * Gets File System Information.
 	 * 
@@ -43,15 +45,31 @@ import oshi.software.os.OSFileStore;
 	public static OSFileStore[] getFileStores() {
 		// File.listRoots() has more information for Windows
 		// than FileSystem.getDefalut().getFileStores()
-<span class="fc" id="L46">		File[] roots = File.listRoots();</span>
-<span class="fc" id="L47">		FileSystemView fsv = FileSystemView.getFileSystemView();</span>
-<span class="fc" id="L48">		List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">		for (File f : roots) {</span>
-<span class="fc" id="L50">			fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv</span>
-					.getSystemTypeDescription(f), f.getUsableSpace(), f
-					.getTotalSpace()));
-		}
-<span class="fc" id="L54">		return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L48">		final File[] roots = File.listRoots();</span>
+		// Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
+		// problems
+<span class="nc" id="L51">		SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt; worker = new SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt;() {</span>
+			@Override
+			public List&lt;OSFileStore&gt; doInBackground() {
+<span class="nc" id="L54">				FileSystemView fsv = FileSystemView.getFileSystemView();</span>
+<span class="nc" id="L55">				List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">				for (File f : roots) {</span>
+<span class="nc" id="L57">					fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f</span>
+<span class="nc" id="L58">							.getUsableSpace(), f.getTotalSpace()));</span>
+				}
+<span class="nc" id="L60">				return fsList;</span>
+			}
+		};
+<span class="nc" id="L63">		worker.execute();</span>
+<span class="nc" id="L64">		List&lt;OSFileStore&gt; fs = new ArrayList&lt;OSFileStore&gt;();</span>
+		try {
+			// TODO: Consider a timeout version of this method that passes
+			// timeout parameters which are used in this get()
+<span class="nc" id="L68">			fs = worker.get();</span>
+<span class="nc" id="L69">		} catch (InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L70">			e.printStackTrace();</span>
+<span class="nc" id="L71">		}</span>
+<span class="nc" id="L72">		return fs.toArray(new OSFileStore[fs.size()]);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

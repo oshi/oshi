@@ -269,7 +269,14 @@
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">	 *         Nice(if applicable), System, and Idle states.</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">	 */</em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> 	<strong class="jxr_keyword">long</strong>[] getProcessorCpuLoadTicks();
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> 	<em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">	 * Get the System uptime (time since boot).</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">	 * </em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">	 * @return Number of seconds since boot.</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">	 */</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> 	<strong class="jxr_keyword">long</strong> getSystemUptime();
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

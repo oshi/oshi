@@ -32,7 +32,7 @@ import java.util.ArrayList;
 	 * Executes a command on the native command line and returns the result
 	 * 
 	 * @param cmdToRun
-	 *			Command to run
+	 *            Command to run
 	 * @return A list of Strings representing the result of the command
 	 */
 	public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
@@ -46,29 +46,28 @@ import java.util.ArrayList;
 <span class="nc" id="L46">			return null;</span>
 <span class="nc" id="L47">		}</span>
 
-<span class="nc" id="L49">		BufferedReader reader = new BufferedReader(new InputStreamReader(</span>
-				p.getInputStream()));
-<span class="nc" id="L51">		String line = &quot;&quot;;</span>
-<span class="nc" id="L52">		ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L49">		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));</span>
+<span class="nc" id="L50">		String line = &quot;&quot;;</span>
+<span class="nc" id="L51">		ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
 		try {
-<span class="nc bnc" id="L54" title="All 2 branches missed.">			while ((line = reader.readLine()) != null) {</span>
-<span class="nc" id="L55">				sa.add(line);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">			while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L54">				sa.add(line);</span>
 			}
-<span class="nc" id="L57">		} catch (IOException e) {</span>
-<span class="nc" id="L58">			return null;</span>
-<span class="nc" id="L59">		}</span>
-<span class="nc" id="L60">		return sa;</span>
+<span class="nc" id="L56">		} catch (IOException e) {</span>
+<span class="nc" id="L57">			return null;</span>
+<span class="nc" id="L58">		}</span>
+<span class="nc" id="L59">		return sa;</span>
 	}
 
 	/**
 	 * Return first line of response for selected command
 	 * 
 	 * @param cmd2launch
-	 *			String command to be launched
+	 *            String command to be launched
 	 * @return String or null
 	 */
 	public static String getFirstAnswer(String cmd2launch) {
-<span class="nc" id="L71">		return getAnswerAt(cmd2launch, 0);</span>
+<span class="nc" id="L70">		return getAnswerAt(cmd2launch, 0);</span>
 	}
 
 	/**
@@ -76,19 +75,19 @@ import java.util.ArrayList;
 	 * command
 	 * 
 	 * @param cmd2launch
-	 *			String command to be launched
+	 *            String command to be launched
 	 * @param answerIdx
-	 *			int index of line in response of the command
+	 *            int index of line in response of the command
 	 * @return String whole line in response or null if invalid index or running
-	 *		 of command fails
+	 *         of command fails
 	 */
 	public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="nc" id="L86">		ArrayList&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="nc" id="L85">		ArrayList&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="nc bnc" id="L88" title="All 6 branches missed.">		if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="nc" id="L89">			return sa.get(answerIdx);</span>
+<span class="nc bnc" id="L87" title="All 6 branches missed.">		if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="nc" id="L88">			return sa.get(answerIdx);</span>
 		}
-<span class="nc" id="L91">		return null;</span>
+<span class="nc" id="L90">		return null;</span>
 	}
 
 }

@@ -16,13 +16,13 @@
  */
 package oshi.software.os.mac.local;
 
-import oshi.software.os.OperatingSystemVersion;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+
+import oshi.software.os.OperatingSystemVersion;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -31,21 +31,21 @@ import com.sun.jna.ptr.IntByReference;
 
 public class OSVersionInfoEx implements OperatingSystemVersion {
 
-<span class="nc" id="L34">	private String _version = null;</span>
-<span class="nc" id="L35">	private String _codeName = null;</span>
-<span class="nc" id="L36">	private String _versionStr = null;</span>
-<span class="nc" id="L37">	private String _buildNumber = null;</span>
+<span class="fc" id="L34">	private String _version = null;</span>
+<span class="fc" id="L35">	private String _codeName = null;</span>
+<span class="fc" id="L36">	private String _versionStr = null;</span>
+<span class="fc" id="L37">	private String _buildNumber = null;</span>
 
-<span class="nc" id="L39">	public OSVersionInfoEx() {</span>
-<span class="nc" id="L40">	}</span>
+<span class="fc" id="L39">	public OSVersionInfoEx() {</span>
+<span class="fc" id="L40">	}</span>
 
 	/**
 	 * @return the _version
 	 */
 	public String getVersion() {
-<span class="nc bnc" id="L46" title="All 2 branches missed.">		if (this._version == null)</span>
-<span class="nc" id="L47">			this._version = System.getProperty(&quot;os.version&quot;);</span>
-<span class="nc" id="L48">		return this._version;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">		if (this._version == null)</span>
+<span class="fc" id="L47">			this._version = System.getProperty(&quot;os.version&quot;);</span>
+<span class="fc" id="L48">		return this._version;</span>
 	}
 
 	/**
@@ -60,11 +60,11 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return the _codeName
 	 */
 	public String getCodeName() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (this._codeName == null) {</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">			if (getVersion() != null) {</span>
-<span class="nc" id="L65">				String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
-<span class="nc bnc" id="L66" title="All 4 branches missed.">				if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
-<span class="nc bnc" id="L67" title="All 13 branches missed.">					switch (Integer.parseInt(versionSplit[1])) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		if (this._codeName == null) {</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">			if (getVersion() != null) {</span>
+<span class="fc" id="L65">				String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">				if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+<span class="pc bpc" id="L67" title="12 of 13 branches missed.">					switch (Integer.parseInt(versionSplit[1])) {</span>
 					case 0:
 <span class="nc" id="L69">						this._codeName = &quot;Cheetah&quot;;</span>
 <span class="nc" id="L70">						break;</span>
@@ -96,8 +96,8 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 <span class="nc" id="L96">						this._codeName = &quot;Mavericks&quot;;</span>
 <span class="nc" id="L97">						break;</span>
 					case 10:
-<span class="nc" id="L99">						this._codeName = &quot;Yosemite&quot;;</span>
-<span class="nc" id="L100">						break;</span>
+<span class="fc" id="L99">						this._codeName = &quot;Yosemite&quot;;</span>
+<span class="fc" id="L100">						break;</span>
 					case 11:
 <span class="nc" id="L102">						this._codeName = &quot;El Capitan&quot;;</span>
 <span class="nc" id="L103">						break;</span>
@@ -109,7 +109,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 <span class="nc" id="L109">					this._codeName = &quot;&quot;;</span>
 			}
 		}
-<span class="nc" id="L112">		return this._codeName;</span>
+<span class="fc" id="L112">		return this._codeName;</span>
 	}
 
 	/**
@@ -121,36 +121,32 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 <span class="nc" id="L121">	}</span>
 
 	public String getBuildNumber() {
-<span class="nc bnc" id="L124" title="All 2 branches missed.">		if (this._buildNumber == null) {</span>
-<span class="nc" id="L125">			int[] mib = { SystemB.CTL_KERN, SystemB.KERN_OSVERSION };</span>
-<span class="nc" id="L126">			IntByReference size = new IntByReference();</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null,</span>
-					0))
-<span class="nc" id="L129">				throw new LastErrorException(&quot;Error code: &quot;</span>
-						+ Native.getLastError());
-<span class="nc" id="L131">			Pointer p = new Memory(size.getValue() + 1);</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))</span>
-<span class="nc" id="L133">				throw new LastErrorException(&quot;Error code: &quot;</span>
-						+ Native.getLastError());
-<span class="nc" id="L135">			this._buildNumber = p.getString(0);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if (this._buildNumber == null) {</span>
+<span class="fc" id="L125">			IntByReference size = new IntByReference();</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, null, size, null, 0))</span>
+<span class="nc" id="L127">				throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="fc" id="L128">			Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">			if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, p, size, null, 0))</span>
+<span class="nc" id="L130">				throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="fc" id="L131">			this._buildNumber = p.getString(0);</span>
 		}
-<span class="nc" id="L137">		return this._buildNumber;</span>
+<span class="fc" id="L133">		return this._buildNumber;</span>
 	}
 
 	public void setBuildNumber(String buildNumber) {
-<span class="nc" id="L141">		this._buildNumber = buildNumber;</span>
-<span class="nc" id="L142">	}</span>
+<span class="nc" id="L137">		this._buildNumber = buildNumber;</span>
+<span class="nc" id="L138">	}</span>
 
 	@Override
 	public String toString() {
-<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (this._versionStr == null) {</span>
-<span class="nc" id="L147">			StringBuilder sb = new StringBuilder(getVersion());</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">			if (getCodeName().length() &gt; 0)</span>
-<span class="nc" id="L149">				sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
-<span class="nc" id="L150">			sb.append(&quot; build &quot;).append(getBuildNumber());</span>
-<span class="nc" id="L151">			this._versionStr = sb.toString();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">		if (this._versionStr == null) {</span>
+<span class="fc" id="L143">			StringBuilder sb = new StringBuilder(getVersion());</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">			if (getCodeName().length() &gt; 0)</span>
+<span class="fc" id="L145">				sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
+<span class="fc" id="L146">			sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="fc" id="L147">			this._versionStr = sb.toString();</span>
 		}
-<span class="nc" id="L153">		return this._versionStr;</span>
+<span class="fc" id="L149">		return this._versionStr;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

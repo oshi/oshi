@@ -57,48 +57,50 @@ import com.sun.jna.Native;
 <span class="nc" id="L57">				availableMemory = parseMeminfo(memorySplit);</span>
 <span class="nc" id="L58">				break;</span>
 			} else
-			// Otherwise we combine MemFree + Active(file), Inactive(file), and
-			// SReclaimable. Free+cached is no longer appropriate. MemAvailable
-			// reduces these values using watermarks to estimate when swapping
-			// is prevented, omitted here for simplicity (assuming 0 swap).
-<span class="nc bnc" id="L64" title="All 2 branches missed.">			if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
-<span class="nc" id="L65">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L66">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
+				// Otherwise we combine MemFree + Active(file), Inactive(file),
+				// and
+				// SReclaimable. Free+cached is no longer appropriate.
+				// MemAvailable
+				// reduces these values using watermarks to estimate when
+				// swapping
+				// is prevented, omitted here for simplicity (assuming 0 swap).
+<span class="nc bnc" id="L67" title="All 2 branches missed.">				if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
 <span class="nc" id="L68">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
 <span class="nc" id="L69">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
 <span class="nc" id="L71">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
 <span class="nc" id="L72">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
 <span class="nc" id="L74">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
 <span class="nc" id="L75">				availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
+<span class="nc" id="L77">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L78">				availableMemory += parseMeminfo(memorySplit);</span>
 			}
-<span class="nc" id="L77">		}</span>
-<span class="nc" id="L78">		return availableMemory;</span>
+<span class="nc" id="L80">		}</span>
+<span class="nc" id="L81">		return availableMemory;</span>
 	}
 
 	@Override
 	public long getTotal() {
-<span class="nc bnc" id="L83" title="All 2 branches missed.">		if (this.totalMemory == 0) {</span>
-<span class="nc" id="L84">			Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">			if (0 != Libc.INSTANCE.sysinfo(info))</span>
-<span class="nc" id="L86">				throw new LastErrorException(&quot;Error code: &quot;</span>
-						+ Native.getLastError());
-<span class="nc" id="L88">			this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (this.totalMemory == 0) {</span>
+<span class="nc" id="L87">			Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">			if (0 != Libc.INSTANCE.sysinfo(info))</span>
+<span class="nc" id="L89">				throw new LastErrorException(&quot;Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L90">			this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
 		}
-<span class="nc" id="L90">		return this.totalMemory;</span>
+<span class="nc" id="L92">		return this.totalMemory;</span>
 	}
 
 	private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">		if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L95">			return 0l;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L97">			return 0l;</span>
 		}
-<span class="nc" id="L97">		long memory = new Long(memorySplit[1]).longValue();</span>
-<span class="nc bnc" id="L98" title="All 4 branches missed.">		if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
-<span class="nc" id="L99">			memory *= 1024;</span>
+<span class="nc" id="L99">		long memory = new Long(memorySplit[1]).longValue();</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">		if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
+<span class="nc" id="L101">			memory *= 1024;</span>
 		}
-<span class="nc" id="L101">		return memory;</span>
+<span class="nc" id="L103">		return memory;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

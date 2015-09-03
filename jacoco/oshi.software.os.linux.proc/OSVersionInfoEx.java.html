@@ -49,65 +49,67 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 					// remove beginning and ending '&quot;' characters
 <span class="nc" id="L50">					splittedLine[1] = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
 
-					// Check basically if the code is between parenthesis or after
+					// Check basically if the code is between parenthesis or
+					// after
 					// the comma-space
 
-					// Basically, until now, that seems to be the standard to use
+					// Basically, until now, that seems to be the standard to
+					// use
 					// parenthesis for the codename.
-<span class="nc" id="L57">					String[] split = splittedLine[1].split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">					if (split.length &lt;= 1)</span>
+<span class="nc" id="L59">					String[] split = splittedLine[1].split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">					if (split.length &lt;= 1)</span>
 						// We are probably with Ubuntu, so need to get that part
 						// correctly.
-<span class="nc" id="L61">						split = splittedLine[1].split(&quot;, &quot;);</span>
+<span class="nc" id="L63">						split = splittedLine[1].split(&quot;, &quot;);</span>
 
-<span class="nc bnc" id="L63" title="All 2 branches missed.">					if (split.length &gt; 1) {</span>
-<span class="nc" id="L64">						setCodeName(split[1]);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">					if (split.length &gt; 1) {</span>
+<span class="nc" id="L66">						setCodeName(split[1]);</span>
 					} else {
-<span class="nc" id="L66">						setCodeName(splittedLine[1]);</span>
+<span class="nc" id="L68">						setCodeName(splittedLine[1]);</span>
 					}
 				}
-<span class="nc" id="L69">			}</span>
-<span class="nc bnc" id="L70" title="All 8 branches missed.">		} catch (FileNotFoundException e) {</span>
-<span class="nc" id="L71">			return;</span>
-<span class="nc" id="L72">		}</span>
-<span class="nc" id="L73">	}</span>
+<span class="nc" id="L71">			}</span>
+<span class="nc bnc" id="L72" title="All 8 branches missed.">		} catch (FileNotFoundException e) {</span>
+<span class="nc" id="L73">			return;</span>
+<span class="nc" id="L74">		}</span>
+<span class="nc" id="L75">	}</span>
 
 	/**
 	 * @return the _codeName
 	 */
 	public String getCodeName() {
-<span class="nc" id="L79">		return this._codeName;</span>
+<span class="nc" id="L81">		return this._codeName;</span>
 	}
 
 	/**
 	 * @return the _version
 	 */
 	public String getVersion() {
-<span class="nc" id="L86">		return this._version;</span>
+<span class="nc" id="L88">		return this._version;</span>
 	}
 
 	/**
 	 * @param _codeName
-	 *			the _codeName to set
+	 *            the _codeName to set
 	 */
 	public void setCodeName(String _codeName) {
-<span class="nc" id="L94">		this._codeName = _codeName;</span>
-<span class="nc" id="L95">	}</span>
+<span class="nc" id="L96">		this._codeName = _codeName;</span>
+<span class="nc" id="L97">	}</span>
 
 	/**
 	 * @param _version
-	 *			the _version to set
+	 *            the _version to set
 	 */
 	public void setVersion(String _version) {
-<span class="nc" id="L102">		this._version = _version;</span>
-<span class="nc" id="L103">	}</span>
+<span class="nc" id="L104">		this._version = _version;</span>
+<span class="nc" id="L105">	}</span>
 
 	@Override
 	public String toString() {
-<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (this.version == null) {</span>
-<span class="nc" id="L108">			this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (this.version == null) {</span>
+<span class="nc" id="L110">			this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;</span>
 		}
-<span class="nc" id="L110">		return this.version;</span>
+<span class="nc" id="L112">		return this.version;</span>
 	}
 
 }

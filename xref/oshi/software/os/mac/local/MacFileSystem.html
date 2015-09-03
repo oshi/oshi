@@ -54,38 +54,35 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">	 * @return An array of {@link OSFileStore} objects representing mounted</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">	 *         volumes. May return disconnected volumes with</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">	 *         {@link OSFileStore#getTotalSpace()} = 0.</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">	 * @throws IOException</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">	 */</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  		List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  		FileSystemView fsv = FileSystemView.getFileSystemView();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  		<em class="jxr_comment">// Mac file systems are mounted in /Volumes</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  		File volumes = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/Volumes"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  		<strong class="jxr_keyword">if</strong> (volumes != <strong class="jxr_keyword">null</strong> &amp;&amp; volumes.listFiles() != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  			<strong class="jxr_keyword">for</strong> (File f : volumes.listFiles()) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  				<em class="jxr_comment">// Everyone hates DS Store</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  				<strong class="jxr_keyword">if</strong> (f.getName().endsWith(<span class="jxr_string">".DS_Store"</span>))
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  					<strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  				String name = fsv.getSystemDisplayName(f);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  				String description = <span class="jxr_string">"Volume"</span>;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  				<strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  					<strong class="jxr_keyword">if</strong> (f.getCanonicalPath().equals(<span class="jxr_string">"/"</span>))
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  						name = name + <span class="jxr_string">" (/)"</span>;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  					FileStore fs = Files.getFileStore(f.toPath());
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  					<strong class="jxr_keyword">if</strong> (localDisk.matcher(fs.name()).matches())
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  						description = <span class="jxr_string">"Local Disk"</span>;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  					<strong class="jxr_keyword">if</strong> (fs.name().startsWith(<span class="jxr_string">"localhost:"</span>)
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  							|| fs.name().startsWith(<span class="jxr_string">"//"</span>))
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  						description = <span class="jxr_string">"Network Drive"</span>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  				} <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  					<strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  				}
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  				fsList.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>(name, description, f
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  						.getUsableSpace(), f.getTotalSpace()));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  			}
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  		<strong class="jxr_keyword">return</strong> fsList.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[fsList.size()]);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  	}
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">	 */</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  		List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  		FileSystemView fsv = FileSystemView.getFileSystemView();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  		<em class="jxr_comment">// Mac file systems are mounted in /Volumes</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  		File volumes = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/Volumes"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  		<strong class="jxr_keyword">if</strong> (volumes != <strong class="jxr_keyword">null</strong> &amp;&amp; volumes.listFiles() != <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  			<strong class="jxr_keyword">for</strong> (File f : volumes.listFiles()) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  				<em class="jxr_comment">// Everyone hates DS Store</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  				<strong class="jxr_keyword">if</strong> (f.getName().endsWith(<span class="jxr_string">".DS_Store"</span>))
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  					<strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  				String name = fsv.getSystemDisplayName(f);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  				String description = <span class="jxr_string">"Volume"</span>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  				<strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  					<strong class="jxr_keyword">if</strong> (f.getCanonicalPath().equals(<span class="jxr_string">"/"</span>))
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  						name = name + <span class="jxr_string">" (/)"</span>;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  					FileStore fs = Files.getFileStore(f.toPath());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  					<strong class="jxr_keyword">if</strong> (localDisk.matcher(fs.name()).matches())
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  						description = <span class="jxr_string">"Local Disk"</span>;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  					<strong class="jxr_keyword">if</strong> (fs.name().startsWith(<span class="jxr_string">"localhost:"</span>) || fs.name().startsWith(<span class="jxr_string">"//"</span>))
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  						description = <span class="jxr_string">"Network Drive"</span>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  				} <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  					<strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  				}
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  				fsList.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>(name, description, f.getUsableSpace(), f.getTotalSpace()));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  			}
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  		<strong class="jxr_keyword">return</strong> fsList.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[fsList.size()]);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  	}
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
