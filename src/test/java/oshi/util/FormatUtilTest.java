@@ -49,8 +49,8 @@ public class FormatUtilTest {
 		assertEquals("0 bytes", FormatUtil.formatBytes(0));
 		assertEquals("1 byte", FormatUtil.formatBytes(1));
 		assertEquals("532 bytes", FormatUtil.formatBytes(532));
-		assertEquals("1 KB", FormatUtil.formatBytes(1024));
-		assertEquals("1 GB", FormatUtil.formatBytes(1024 * 1024 * 1024));
+		assertEquals("1 KiB", FormatUtil.formatBytes(1024));
+		assertEquals("1 GiB", FormatUtil.formatBytes(1024 * 1024 * 1024));
 		assertEquals("1 TiB", FormatUtil.formatBytes(1099511627776L));
 	}
 
@@ -59,9 +59,9 @@ public class FormatUtilTest {
 	 */
 	@Test
 	public void testFormatBytesWithDecimalSeparator() {
-		String expected1 = "1" + DECIMAL_SEPARATOR + "3 KB";
-		String expected2 = "2" + DECIMAL_SEPARATOR + "3 MB";
-		String expected3 = "2" + DECIMAL_SEPARATOR + "2 GB";
+		String expected1 = "1" + DECIMAL_SEPARATOR + "3 KiB";
+		String expected2 = "2" + DECIMAL_SEPARATOR + "3 MiB";
+		String expected3 = "2" + DECIMAL_SEPARATOR + "2 GiB";
 		String expected4 = "1" + DECIMAL_SEPARATOR + "1 TiB";
 		assertEquals(expected1, FormatUtil.formatBytes(1340));
 		assertEquals(expected2, FormatUtil.formatBytes(2400016));

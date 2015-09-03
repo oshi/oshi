@@ -49,9 +49,9 @@ public abstract class FormatUtil {
 	final private static long exaHertz = petaHertz * kiloHertz;
 
 	/**
-	 * Format bytes into a string to a rounded string representation. Using the
-	 * JEDEC representation for KB, MB and GB Using the IEC representation for
-	 * TiB and PiB
+	 * Format bytes into a rounded string representation using IEC standard
+	 * (matches Mac/Linux). To match Windows displays for KB, MB and GB, users
+	 * can edit the returned string to display the (incorrect) JEDEC units.
 	 * 
 	 * @param bytes
 	 *            Bytes.
@@ -62,18 +62,18 @@ public abstract class FormatUtil {
 			return String.format("%d byte", bytes);
 		} else if (bytes < kibiByte) { // bytes
 			return String.format("%d bytes", bytes);
-		} else if (bytes < mebiByte && bytes % kibiByte == 0) { // KB
-			return String.format("%.0f KB", (double) bytes / kibiByte);
-		} else if (bytes < mebiByte) { // KB
-			return String.format("%.1f KB", (double) bytes / kibiByte);
-		} else if (bytes < gibiByte && bytes % mebiByte == 0) { // MB
-			return String.format("%.0f MB", (double) bytes / mebiByte);
-		} else if (bytes < gibiByte) { // MB
-			return String.format("%.1f MB", (double) bytes / mebiByte);
-		} else if (bytes % gibiByte == 0 && bytes < tebiByte) { // GB
-			return String.format("%.0f GB", (double) bytes / gibiByte);
-		} else if (bytes < tebiByte) { // GB
-			return String.format("%.1f GB", (double) bytes / gibiByte);
+		} else if (bytes < mebiByte && bytes % kibiByte == 0) { // KiB
+			return String.format("%.0f KiB", (double) bytes / kibiByte);
+		} else if (bytes < mebiByte) { // KiB
+			return String.format("%.1f KiB", (double) bytes / kibiByte);
+		} else if (bytes < gibiByte && bytes % mebiByte == 0) { // MiB
+			return String.format("%.0f MiB", (double) bytes / mebiByte);
+		} else if (bytes < gibiByte) { // MiB
+			return String.format("%.1f MiB", (double) bytes / mebiByte);
+		} else if (bytes % gibiByte == 0 && bytes < tebiByte) { // GiB
+			return String.format("%.0f GiB", (double) bytes / gibiByte);
+		} else if (bytes < tebiByte) { // GiB
+			return String.format("%.1f GiB", (double) bytes / gibiByte);
 		} else if (bytes % tebiByte == 0 && bytes < pebiByte) { // TiB
 			return String.format("%.0f TiB", (double) bytes / tebiByte);
 		} else if (bytes < pebiByte) { // TiB
