@@ -20,16 +20,16 @@ import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oshi.hardware.Processor;
-import oshi.software.os.windows.nt.Pdh.PdhFmtCounterValue;
-import oshi.util.ParseUtil;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.hardware.Processor;
+import oshi.software.os.windows.nt.Pdh.PdhFmtCounterValue;
+import oshi.util.ParseUtil;
 
 /**
  * A CPU as defined in Windows registry.
@@ -73,10 +73,13 @@ public class CentralProcessor implements Processor {
 	private long[] curProcTicks = new long[4];
 
 	// Initialize numCPU and open a Performance Data Helper Thread for
-	// monitoring each processor
+	// monitoring each processor ticks
 	private static PointerByReference phQuery = new PointerByReference();
 	private static final IntByReference zero = new IntByReference(0);
 	private static final int numCPU;
+	// Set up Performance Data Helper thread for uptime
+	private static PointerByReference uptimeQuery = new PointerByReference();
+	private static final IntByReference one = new IntByReference(1);
 
 	static {
 		// Get number of processors
@@ -84,8 +87,13 @@ public class CentralProcessor implements Processor {
 		Kernel32.INSTANCE.GetSystemInfo(sysinfo);
 		numCPU = sysinfo.dwNumberOfProcessors.intValue();
 
-		// Set up query for this processor
+		// Open tick query for this processor
 		int ret = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
+		if (ret != 0)
+			throw new LastErrorException("Cannot open PDH query. Error code: " + String.format("0x%08X", ret));
+
+		// Open uptime query for this processor
+		ret = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);
 		if (ret != 0)
 			throw new LastErrorException("Cannot open PDH query. Error code: " + String.format("0x%08X", ret));
 
@@ -94,6 +102,7 @@ public class CentralProcessor implements Processor {
 			@Override
 			public void run() {
 				Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());
+				Pdh.INSTANCE.PdhCloseQuery(uptimeQuery.getValue());
 			}
 		});
 	}
@@ -127,6 +136,19 @@ public class CentralProcessor implements Processor {
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
 		if (ret != 0)
 			throw new LastErrorException("Cannot collect PDH query data. Error code: " + String.format("0x%08X", ret));
+	}
+
+	// Set up counter for uptime
+	private static PointerByReference pUptime;
+
+	static {
+		// \System\System Up Time
+		String uptimePath = "\\System\\System Up Time";
+		pUptime = new PointerByReference();
+		int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, one, pUptime);
+		if (ret != 0)
+			throw new LastErrorException(
+					"Cannot add PDH Counter for uptime. Error code: " + String.format("0x%08X", ret));
 	}
 
 	// Set up array to maintain current ticks for rapid reference. This array
@@ -499,6 +521,24 @@ public class CentralProcessor implements Processor {
 			allProcessorTicks[cpu][3] += idle;
 		}
 		allProcTickTime = now;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getSystemUptime() {
+		int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());
+		if (ret != 0)
+			throw new LastErrorException(
+					"Cannot collect uptime query data. Error code: " + String.format("0x%08X", ret));
+
+		PdhFmtCounterValue uptimeCounterValue = new PdhFmtCounterValue();
+		ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pUptime.getValue(), Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);
+		if (ret != 0)
+			throw new LastErrorException(
+					"Cannot get PDH User % counter value. Error code: " + String.format("0x%08X", ret));
+
+		return uptimeCounterValue.value.largeValue;
 	}
 
 	@Override

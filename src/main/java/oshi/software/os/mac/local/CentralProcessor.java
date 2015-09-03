@@ -20,17 +20,17 @@ import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oshi.hardware.Processor;
-import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
-import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.hardware.Processor;
+import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
+import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A CPU.
@@ -107,8 +107,8 @@ public class CentralProcessor implements Processor {
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException(
-					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException("Processor number (" + procNo
+					+ ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
@@ -520,8 +520,27 @@ public class CentralProcessor implements Processor {
 		allProcTickTime = now;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getSystemUptime() {
+		IntByReference size = new IntByReference();
+		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", null, size, null, 0))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		// This should point to a 16-byte structure. If not, this code is valid
+		if (size.getValue() != 16)
+			throw new UnsupportedOperationException("sysctl kern.boottime should be 16 bytes but isn't.");
+		Pointer p = new Memory(size.getValue() + 1);
+		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", p, size, null, 0))
+			throw new LastErrorException("Error code: " + Native.getLastError());
+		// p now points to a 16-bit timeval structure for boot time.
+		// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
+		return System.currentTimeMillis() / 1000 - p.getLong(0);
+	}
+
 	@Override
 	public String toString() {
 		return getName();
 	}
+
 }
