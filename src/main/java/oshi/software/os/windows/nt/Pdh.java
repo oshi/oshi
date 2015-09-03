@@ -92,7 +92,9 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle to the query to which you want to add the counter. This
-	 *            handle is returned by the {@link #PdhOpenQuery()} function.
+	 *            handle is returned by the
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function.
 	 * @param counterPath
 	 *            Null-terminated string that contains the counter path.
 	 * @param dwUserData
@@ -113,7 +115,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle of the query for which you want to collect data. The
-	 *            {@link #PdhOpenQuery()} function returns this handle.
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function returns this handle.
 	 * @return If the function succeeds, the return value is nonzero. If the
 	 *         function fails, the return value is zero and errno is set.
 	 */
@@ -124,7 +127,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle of the counter for which you want to compute a
-	 *            displayable value. The {@link #PdhAddEnglishCounter()}
+	 *            displayable value. The
+	 *            {@link #PdhAddEnglishCounterA(Pointer, String, IntByReference, PointerByReference)}
 	 *            function returns this handle.
 	 * @param dwFormat
 	 *            Determines the data type of the formatted value.
@@ -145,7 +149,8 @@ public interface Pdh extends Library {
 	 * 
 	 * @param pointer
 	 *            Handle to the query to close. This handle is returned by the
-	 *            {@link #PdhOpenQuery()} function.
+	 *            {@link #PdhOpenQuery(String, IntByReference, PointerByReference)}
+	 *            function.
 	 * @return If the function succeeds, the return value is zero. If the
 	 *         function fails, the return value is a system error code or a PDH
 	 *         error code.

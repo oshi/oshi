@@ -147,8 +147,8 @@ public class CentralProcessor implements Processor {
 		pUptime = new PointerByReference();
 		int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, one, pUptime);
 		if (ret != 0)
-			throw new LastErrorException(
-					"Cannot add PDH Counter for uptime. Error code: " + String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot add PDH Counter for uptime. Error code: "
+					+ String.format("0x%08X", ret));
 	}
 
 	// Set up array to maintain current ticks for rapid reference. This array
@@ -167,11 +167,12 @@ public class CentralProcessor implements Processor {
 	 * Create a Processor with the given number
 	 * 
 	 * @param procNo
+	 *            The processor number
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
-			throw new IllegalArgumentException(
-					"Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
+			throw new IllegalArgumentException("Processor number (" + procNo
+					+ ") must be less than the number of CPUs: " + numCPU);
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
@@ -496,18 +497,18 @@ public class CentralProcessor implements Processor {
 		long elapsed = now - allProcTickTime;
 		for (int cpu = 0; cpu < numCPU; cpu++) {
 			PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(),
-					Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phUserCounterValue);
+			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
+					| Pdh.PDH_FMT_1000, null, phUserCounterValue);
 			if (ret != 0)
-				throw new LastErrorException(
-						"Cannot get PDH User % counter value. Error code: " + String.format("0x%08X", ret));
+				throw new LastErrorException("Cannot get PDH User % counter value. Error code: "
+						+ String.format("0x%08X", ret));
 
 			PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(),
-					Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
+			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
+					| Pdh.PDH_FMT_1000, null, phIdleCounterValue);
 			if (ret != 0)
-				throw new LastErrorException(
-						"Cannot get PDH Idle % counter value. Error code: " + String.format("0x%08X", ret));
+				throw new LastErrorException("Cannot get PDH Idle % counter value. Error code: "
+						+ String.format("0x%08X", ret));
 
 			// Returns results in 1000's of percent, e.g. 5% is 5000
 			// Multiply by elapsed to get total ms and Divide by 100 * 1000
@@ -529,14 +530,14 @@ public class CentralProcessor implements Processor {
 	public long getSystemUptime() {
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());
 		if (ret != 0)
-			throw new LastErrorException(
-					"Cannot collect uptime query data. Error code: " + String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot collect uptime query data. Error code: "
+					+ String.format("0x%08X", ret));
 
 		PdhFmtCounterValue uptimeCounterValue = new PdhFmtCounterValue();
 		ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pUptime.getValue(), Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);
 		if (ret != 0)
-			throw new LastErrorException(
-					"Cannot get PDH User % counter value. Error code: " + String.format("0x%08X", ret));
+			throw new LastErrorException("Cannot get PDH User % counter value. Error code: "
+					+ String.format("0x%08X", ret));
 
 		return uptimeCounterValue.value.largeValue;
 	}

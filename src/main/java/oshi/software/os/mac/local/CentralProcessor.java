@@ -104,6 +104,7 @@ public class CentralProcessor implements Processor {
 	 * Create a Processor with the given number
 	 * 
 	 * @param procNo
+	 *            The processor number
 	 */
 	public CentralProcessor(int procNo) {
 		if (procNo >= numCPU)
