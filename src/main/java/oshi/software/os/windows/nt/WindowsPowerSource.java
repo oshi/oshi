@@ -16,11 +16,11 @@
  */
 package oshi.software.os.windows.nt;
 
+import com.sun.jna.NativeLong;
+
 import oshi.hardware.PowerSource;
 import oshi.software.os.windows.nt.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
-
-import com.sun.jna.NativeLong;
 
 /**
  * A Power Source
@@ -57,7 +57,9 @@ public class WindowsPowerSource implements PowerSource {
 	}
 
 	/**
-	 * Battery Information
+	 * Gets Battery Information
+	 * 
+	 * @return An array of PowerSource objects representing batteries, etc.
 	 */
 	public static PowerSource[] getPowerSources() {
 		// Windows provides a single unnamed battery

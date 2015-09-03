@@ -126,6 +126,7 @@ public abstract class FormatUtil {
 	 * Formats an elapsed time in seconds as days, hh:mm:ss
 	 * 
 	 * @param secs
+	 *            Elapsed seconds
 	 * @return A string representation of elapsed time
 	 */
 	public static String formatElapsedSecs(long secs) {
@@ -144,7 +145,9 @@ public abstract class FormatUtil {
 	 * Round to certain number of decimals
 	 *
 	 * @param d
+	 *            Number to be rounded
 	 * @param decimalPlace
+	 *            Number of decimal places to round to
 	 * @return rounded result
 	 */
 	public static float round(float d, int decimalPlace) {
@@ -157,6 +160,7 @@ public abstract class FormatUtil {
 	 * Convert unsigned int to signed long
 	 * 
 	 * @param x
+	 *            Signed int representing an unsigned integer
 	 * @return long value of x unsigned
 	 */
 	public static long getUnsignedInt(int x) {

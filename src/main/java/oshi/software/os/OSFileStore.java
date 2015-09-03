@@ -36,9 +36,13 @@ public class OSFileStore {
 	 * Creates a {@link OSFileStore} with the specified parameters.
 	 * 
 	 * @param name
+	 *            Name of the filestore
 	 * @param description
+	 *            Description of the file store
 	 * @param usableSpace
+	 *            Available/usable bytes
 	 * @param totalSpace
+	 *            Total bytes
 	 */
 	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {
 		this.setName(name);
