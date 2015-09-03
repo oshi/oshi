@@ -16,13 +16,13 @@
  */
 package oshi.software.os.mac.local;
 
-import oshi.software.os.OperatingSystemVersion;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+
+import oshi.software.os.OperatingSystemVersion;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -122,12 +122,11 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 
 	public String getBuildNumber() {
 		if (this._buildNumber == null) {
-			int[] mib = { SystemB.CTL_KERN, SystemB.KERN_OSVERSION };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", null, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this._buildNumber = p.getString(0);
 		}

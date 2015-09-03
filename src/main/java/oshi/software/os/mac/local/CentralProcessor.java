@@ -130,12 +130,11 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getVendor() {
 		if (this.cpuVendor == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_VENDOR };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", null, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuVendor = p.getString(0);
 		}
@@ -161,12 +160,11 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getName() {
 		if (this.cpuName == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_BRAND_STRING };
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, null, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", null, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuName = p.getString(0);
 		}
@@ -258,10 +256,9 @@ public class CentralProcessor implements Processor {
 	@Override
 	public boolean isCpu64bit() {
 		if (this.cpu64 == null) {
-			int[] mib = { SystemB.CTL_HW, SystemB.HW_CPU64BIT_CAPABLE };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("hw.cpu64bit_capable", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpu64 = p.getInt(0) != 0;
 		}
@@ -285,10 +282,9 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getStepping() {
 		if (this.cpuStepping == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_STEPPING };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.stepping", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuStepping = Integer.toString(p.getInt(0));
 		}
@@ -310,10 +306,9 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getModel() {
 		if (this.cpuModel == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_MODEL };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.model", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuModel = Integer.toString(p.getInt(0));
 		}
@@ -335,10 +330,9 @@ public class CentralProcessor implements Processor {
 	@Override
 	public String getFamily() {
 		if (this.cpuFamily == null) {
-			int[] mib = { SystemB.CTL_MACHDEP, SystemB.MACHDEP_CPU, SystemB.MACHDEP_CPU_FAMILY };
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, p, size, null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.family", p, size, null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.cpuFamily = Integer.toString(p.getInt(0));
 		}
