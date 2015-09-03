@@ -4,7 +4,7 @@ Releasing OSHI
 ### Prepare
 
 * Make sure tests are green on [Travis CI](https://travis-ci.org/dblock/oshi).
-	* Confirm the appropriate version number in [pom.xml](pom.xml). The below process will remove the -SNAPSHOT suffix
+	* Choose an appropriate [version number](http://semver.org/) for the release
 	* Proactively change the download link in [README.md](README.md) to point to the new version
 	* Copy [README.md](README.md) to [src/site/markdown/README.md](src/site/markdown/README.md)
 	* Change "Next" or in-progress version in [CHANGELOG.md](CHANGELOG.md) to this new version.
@@ -22,10 +22,11 @@ Releasing OSHI
 	* This will suggest the next version, increment appropriately
 * `mvn release:perform`
 	* Takes a few minutes. You should have previously:
-		* Put your [repository credentials in your Maven settings.xml file](http://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication)
+		* Put your [repository credentials in your Maven settings.xml file](http://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication). Use the default sonatype-nexus-staging id.
 		* Put your [gpg certificate credentials in the settings.xml file](http://central.sonatype.org/pages/apache-maven.html#gpg-signed-components)
 	* This pushes the release to [Nexus](https://oss.sonatype.org/)
 	* This also pushes to [gh_pages](https://dblock.github.io/oshi)
+* Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](http://central.sonatype.org/pages/releasing-the-deployment.html).
 	
 * Add a title and release notes [to the tag](https://github.com/dblock/oshi/tags) on GitHub and publish the release to make it current.
 

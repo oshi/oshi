@@ -137,7 +137,7 @@ How is this different from ...
 * [Sigar](http://sigar.hyperic.com): 
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
-	* Sigar appears to be no longer actively supported as-of 2010. Oshi is under active development as-of 2015.
+	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2015.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
 	* The MXBean has very few methods that address system-wide statistics.

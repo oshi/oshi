@@ -57,8 +57,8 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 			for (String processorId : processorIds) {
 				String cpuRegistryPath = cpuRegistryRoot + "\\" + processorId;
 				CentralProcessor cpu = new CentralProcessor(numCPU++);
-				cpu.setIdentifier(
-						Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
+				cpu.setIdentifier(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+						"Identifier"));
 				cpu.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
 						"ProcessorNameString"));
 				cpu.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,

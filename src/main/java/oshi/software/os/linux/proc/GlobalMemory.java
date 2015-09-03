@@ -19,13 +19,13 @@ package oshi.software.os.linux.proc;
 import java.io.IOException;
 import java.util.List;
 
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+
 import oshi.hardware.Memory;
 import oshi.software.os.linux.Libc;
 import oshi.software.os.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
-
-import com.sun.jna.LastErrorException;
-import com.sun.jna.Native;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
@@ -57,14 +57,11 @@ public class GlobalMemory implements Memory {
 				availableMemory = parseMeminfo(memorySplit);
 				break;
 			} else
-				// Otherwise we combine MemFree + Active(file), Inactive(file),
-				// and
-				// SReclaimable. Free+cached is no longer appropriate.
-				// MemAvailable
-				// reduces these values using watermarks to estimate when
-				// swapping
-				// is prevented, omitted here for simplicity (assuming 0 swap).
-				if (checkLine.startsWith("MemFree:")) {
+			// Otherwise we combine MemFree + Active(file), Inactive(file), and
+			// Reclaimable. Free+cached is no longer appropriate. MemAvailable
+			// reduces these values using watermarks to estimate when swapping
+			// is prevented, omitted here for simplicity (assuming 0 swap).
+			if (checkLine.startsWith("MemFree:")) {
 				String[] memorySplit = checkLine.split("\\s+");
 				availableMemory += parseMeminfo(memorySplit);
 			} else if (checkLine.startsWith("Active(file):")) {
