@@ -19,6 +19,10 @@ package oshi.software.os.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
@@ -29,10 +33,6 @@ import oshi.software.os.mac.local.GlobalMemory;
 import oshi.software.os.mac.local.MacFileSystem;
 import oshi.software.os.mac.local.MacPowerSource;
 import oshi.software.os.mac.local.SystemB;
-
-import com.sun.jna.LastErrorException;
-import com.sun.jna.Native;
-import com.sun.jna.ptr.IntByReference;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -56,9 +56,9 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 		if (this._processors == null) {
 			int nbCPU = 1;
 			List<Processor> processors = new ArrayList<>();
-			int[] mib = { SystemB.CTL_HW, SystemB.HW_LOGICALCPU };
 			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pNbCPU, new IntByReference(SystemB.INT_SIZE), null, 0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", pNbCPU, new IntByReference(SystemB.INT_SIZE), null,
+					0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			nbCPU = pNbCPU.getInt(0);
 			for (int i = 0; i < nbCPU; i++)

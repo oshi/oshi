@@ -16,14 +16,14 @@
  */
 package oshi.software.os.mac.local;
 
-import oshi.hardware.Memory;
-import oshi.software.os.mac.local.SystemB.VMStatistics;
-
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+
+import oshi.hardware.Memory;
+import oshi.software.os.mac.local.SystemB.VMStatistics;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
@@ -58,10 +58,9 @@ public class GlobalMemory implements Memory {
 	@Override
 	public long getTotal() {
 		if (this.totalMemory == 0) {
-			int[] mib = { SystemB.CTL_HW, SystemB.HW_MEMSIZE };
 			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
-			if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, pMemSize, new IntByReference(SystemB.UINT64_SIZE), null,
-					0))
+			if (0 != SystemB.INSTANCE.sysctlbyname("hw.memsize", pMemSize, new IntByReference(SystemB.UINT64_SIZE),
+					null, 0))
 				throw new LastErrorException("Error code: " + Native.getLastError());
 			this.totalMemory = pMemSize.getLong(0);
 		}

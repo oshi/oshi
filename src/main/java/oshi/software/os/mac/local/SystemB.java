@@ -48,24 +48,6 @@ public interface SystemB extends Library {
 
 	static int PROCESSOR_CPU_LOAD_INFO = 2;
 
-	// sysctl()
-	static int CTL_KERN = 1; // "high kernel": proc, limits
-	static int KERN_OSVERSION = 65;
-
-	static int CTL_HW = 6; // generic cpu/io
-	static int HW_MEMSIZE = 24; // uint64_t: physical ram size
-	static int HW_LOGICALCPU = 103;
-	static int HW_LOGICALCPU_MAX = 104;
-	static int HW_CPU64BIT_CAPABLE = 107;
-
-	static int CTL_MACHDEP = 7; // machine dependent
-	static int MACHDEP_CPU = 102; // cpu
-	static int MACHDEP_CPU_VENDOR = 103;
-	static int MACHDEP_CPU_BRAND_STRING = 104;
-	static int MACHDEP_CPU_FAMILY = 105;
-	static int MACHDEP_CPU_MODEL = 106;
-	static int MACHDEP_CPU_STEPPING = 109;
-
 	// host_cpu_load_info()
 	static int CPU_STATE_MAX = 4;
 	static int CPU_STATE_USER = 0;
