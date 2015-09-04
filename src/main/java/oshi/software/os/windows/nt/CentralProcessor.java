@@ -361,7 +361,7 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double getSystemCpuLoadBetweenTicks() {
+	public synchronized double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
 		boolean update = (now - tickTime > 950);
