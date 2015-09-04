@@ -8,13 +8,15 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 
 Essentials
 ----------
-* [Download Oshi 1.4](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.4|jar)
+* [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
+* [Download Oshi 1.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=1.4&e=jar)
+* [Download Oshi 1.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=1.5-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
 Where are we?
 -------------
-Oshi is a young project. We'd like *you* to contribute ports and help imiplement more methods. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. We'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Current supported platforms
 ---------------------------
@@ -33,7 +35,7 @@ Current supported features
 ### Hardware ###
 * How much physical/available (free+reclaimable) RAM
 * How many Logical CPUs (core * thread)
-* CPU load % and tick counters
+* CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 
