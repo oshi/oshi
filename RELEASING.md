@@ -16,15 +16,17 @@ Releasing OSHI
 * See [this page](http://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
 * `mvn release:clean`
 	* Takes a few seconds
-* `mvn release:prepare`
+* `mvn -DdryRun=true release:prepare`
 	* Takes a few minutes
 	* This will ask for the version being released, removing -SNAPSHOT
 	* This will suggest the next version, increment appropriately
+	* Allows opportunity to find/fix any build errors
+* `mvn release:prepare`
 * `mvn release:perform`
 	* Takes a few minutes. You should have previously:
 		* Put your [repository credentials in your Maven settings.xml file](http://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication). Use the default sonatype-nexus-staging id.
 		* Put your [gpg certificate credentials in the settings.xml file](http://central.sonatype.org/pages/apache-maven.html#gpg-signed-components)
-	* This pushes the release to [Nexus](https://oss.sonatype.org/)
+	* This pushes the release to the [Nexus](https://oss.sonatype.org/) staging repository
 	* This also pushes to [gh_pages](https://dblock.github.io/oshi)
 * Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](http://central.sonatype.org/pages/releasing-the-deployment.html).
 	
