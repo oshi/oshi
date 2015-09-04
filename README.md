@@ -33,7 +33,7 @@ Current supported features
 ### Hardware ###
 * How much physical/available (free+reclaimable) RAM
 * How many Logical CPUs (core * thread)
-* CPU load % and tick counters
+* CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 
