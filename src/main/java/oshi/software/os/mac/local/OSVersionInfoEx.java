@@ -16,7 +16,9 @@
  */
 package oshi.software.os.mac.local;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -30,6 +32,7 @@ import oshi.software.os.OperatingSystemVersion;
  */
 
 public class OSVersionInfoEx implements OperatingSystemVersion {
+	private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
 
 	private String _version = null;
 	private String _codeName = null;
@@ -123,11 +126,15 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	public String getBuildNumber() {
 		if (this._buildNumber == null) {
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", null, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", null, size, null, 0)) {
+				LOG.error("Failed to get OS Version. Error code: " + Native.getLastError());
+				return "";
+			}
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", p, size, null, 0)) {
+				LOG.error("Failed to get OS Version. Error code: " + Native.getLastError());
+				return "";
+			}
 			this._buildNumber = p.getString(0);
 		}
 		return this._buildNumber;

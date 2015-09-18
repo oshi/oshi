@@ -1,5 +1,6 @@
 1.5 (in-progress)
 ================
+* [#87](https://github.com/dblock/oshi/pull/87): Added SLF4J logging, changed exception throwing to log errors to be robust to lack of permissions - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 1.4 (9/3/2015)

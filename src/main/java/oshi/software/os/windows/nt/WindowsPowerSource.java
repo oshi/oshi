@@ -16,6 +16,9 @@
  */
 package oshi.software.os.windows.nt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.NativeLong;
 
 import oshi.hardware.PowerSource;
@@ -28,6 +31,7 @@ import oshi.util.FormatUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource implements PowerSource {
+	private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
 	private String name;
 
@@ -39,6 +43,7 @@ public class WindowsPowerSource implements PowerSource {
 		this.name = name;
 		this.remainingCapacity = remainingCapacity;
 		this.timeRemaining = timeRemaining;
+		LOG.debug("Initialized WindowsPowerSource");
 	}
 
 	@Override

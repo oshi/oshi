@@ -27,6 +27,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Platform;
 
@@ -229,12 +231,18 @@ public class SystemInfoTest {
 	 *            the arguments
 	 */
 	public static void main(String[] args) {
+		// Options: ERROR > WARN > INFO > DEBUG > TRACE
+		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO");
+		Logger LOG = LoggerFactory.getLogger(SystemInfoTest.class);
+
+		LOG.info("Initializing System...");
 		SystemInfo si = new SystemInfo();
 		// software
 		// software: operating system
 		OperatingSystem os = si.getOperatingSystem();
 		System.out.println(os);
 
+		LOG.info("Initializing Hardware...");
 		// hardware
 		HardwareAbstractionLayer hal = si.getHardware();
 		// hardware: processors
@@ -243,12 +251,17 @@ public class SystemInfoTest {
 			System.out.println(" " + cpu);
 		}
 		System.out.println("Identifier: " + hal.getProcessors()[0].getIdentifier());
+
 		// hardware: memory
+		LOG.info("Checking Memory...");
 		System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
 				+ FormatUtil.formatBytes(hal.getMemory().getTotal()));
 		// uptime
+		LOG.info("Checking Uptime...");
 		System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessors()[0].getSystemUptime()));
+
 		// CPU
+		LOG.info("Checking CPU...");
 		long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
 		System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
 		// Wait a second...
@@ -274,7 +287,9 @@ public class SystemInfoTest {
 			procCpu.append(String.format(" %.1f%%", hal.getProcessors()[cpu].getProcessorCpuLoadBetweenTicks() * 100));
 		}
 		System.out.println(procCpu.toString());
+
 		// hardware: power
+		LOG.info("Checking Power sources...");
 		StringBuilder sb = new StringBuilder("Power: ");
 		if (hal.getPowerSources().length == 0) {
 			sb.append("Unknown");
@@ -292,7 +307,9 @@ public class SystemInfoTest {
 			sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
 		}
 		System.out.println(sb.toString());
+
 		// hardware: file system
+		LOG.info("Checking File System...");
 		System.out.println("File System:");
 
 		OSFileStore[] fsArray = hal.getFileStores();

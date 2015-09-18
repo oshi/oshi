@@ -20,7 +20,9 @@ import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
@@ -40,6 +42,8 @@ import oshi.util.ParseUtil;
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final Logger LOG = LoggerFactory.getLogger(CentralProcessor.class);
+
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();
 	private static boolean sunMXBean;
@@ -50,8 +54,10 @@ public class CentralProcessor implements Processor {
 			// Initialize CPU usage
 			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
+			LOG.debug("Oracle MXBean detected.");
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
+			LOG.debug("Oracle MXBean not detected.");
 		}
 	}
 
@@ -81,6 +87,12 @@ public class CentralProcessor implements Processor {
 	private static PointerByReference uptimeQuery = new PointerByReference();
 	private static final IntByReference one = new IntByReference(1);
 
+	// Return values from PDH methods, if nonzero signifies error
+	private static int pdhOpenTickQueryError = 0;
+	private static int pdhAddTickCounterError = 0;
+	private static int pdhOpenUptimeQueryError = 0;
+	private static int pdhAddUptimeCounterError = 0;
+
 	static {
 		// Get number of processors
 		SYSTEM_INFO sysinfo = new SYSTEM_INFO();
@@ -88,14 +100,15 @@ public class CentralProcessor implements Processor {
 		numCPU = sysinfo.dwNumberOfProcessors.intValue();
 
 		// Open tick query for this processor
-		int ret = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
-		if (ret != 0)
-			throw new LastErrorException("Cannot open PDH query. Error code: " + String.format("0x%08X", ret));
+		pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
+		if (pdhOpenTickQueryError != 0)
+			LOG.error("Failed to open PDH Tick Query. Error code: {}", String.format("0x%08X", pdhOpenTickQueryError));
 
 		// Open uptime query for this processor
-		ret = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);
-		if (ret != 0)
-			throw new LastErrorException("Cannot open PDH query. Error code: " + String.format("0x%08X", ret));
+		pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);
+		if (pdhOpenTickQueryError != 0)
+			LOG.error("Failed to open PDH Uptime Query. Error code: {}",
+					String.format("0x%08X", pdhOpenUptimeQueryError));
 
 		// Set up hook to close the query on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -112,43 +125,57 @@ public class CentralProcessor implements Processor {
 	private static PointerByReference[] phIdleCounters = new PointerByReference[numCPU];
 
 	static {
-		for (int p = 0; p < numCPU; p++) {
-			// Options are (only need 2 to calculate all)
-			// "\Processor(0)\% processor time"
-			// "\Processor(0)\% idle time" (1 - processor)
-			// "\Processor(0)\% privileged time" (subset of processor)
-			// "\Processor(0)\% user time" (other subset of processor)
-			// Note need to make \ = \\ for Java Strings and %% for format
-			String counterPath = String.format("\\Processor(%d)\\%% user time", p);
-			phUserCounters[p] = new PointerByReference();
-			int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero, phUserCounters[p]);
+		if (pdhOpenTickQueryError == 0) {
+			for (int p = 0; p < numCPU; p++) {
+				// Options are (only need 2 to calculate all)
+				// "\Processor(0)\% processor time"
+				// "\Processor(0)\% idle time" (1 - processor)
+				// "\Processor(0)\% privileged time" (subset of processor)
+				// "\Processor(0)\% user time" (other subset of processor)
+				// Note need to make \ = \\ for Java Strings and %% for format
+				String counterPath = String.format("\\Processor(%d)\\%% user time", p);
+				phUserCounters[p] = new PointerByReference();
+				// Open tick query for this processor
+				pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero,
+						phUserCounters[p]);
+				if (pdhAddTickCounterError != 0) {
+					LOG.error("Failed to add PDH User Tick Counter for processor {}. Error code: {}", p,
+							String.format("0x%08X", pdhAddTickCounterError));
+					break;
+				}
+				counterPath = String.format("\\Processor(%d)\\%% idle time", p);
+				phIdleCounters[p] = new PointerByReference();
+				pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero,
+						phIdleCounters[p]);
+				if (pdhAddTickCounterError != 0) {
+					LOG.error("Failed to add PDH Idle Tick Counter for processor {}. Error code: {}", p,
+							String.format("0x%08X", pdhAddTickCounterError));
+					break;
+				}
+			}
+
+			LOG.debug("Tick counter queries added.  Initializing with first query.");
+			// Initialize by collecting data the first time
+			int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
 			if (ret != 0)
-				throw new LastErrorException("Cannot add PDH Counter for % user time for processor " + p
-						+ ". Error code: " + String.format("0x%08X", ret));
-			counterPath = String.format("\\Processor(%d)\\%% idle time", p);
-			phIdleCounters[p] = new PointerByReference();
-			ret = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, zero, phIdleCounters[p]);
-			if (ret != 0)
-				throw new LastErrorException("Cannot add PDH Counter for % idle time for processor " + p
-						+ ". Error code: " + String.format("0x%08X", ret));
+				LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
 		}
-		// Initialize by collecting data the first time
-		int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-		if (ret != 0)
-			throw new LastErrorException("Cannot collect PDH query data. Error code: " + String.format("0x%08X", ret));
 	}
 
 	// Set up counter for uptime
 	private static PointerByReference pUptime;
 
 	static {
-		// \System\System Up Time
-		String uptimePath = "\\System\\System Up Time";
-		pUptime = new PointerByReference();
-		int ret = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, one, pUptime);
-		if (ret != 0)
-			throw new LastErrorException("Cannot add PDH Counter for uptime. Error code: "
-					+ String.format("0x%08X", ret));
+		if (pdhOpenUptimeQueryError == 0) {
+			// \System\System Up Time
+			String uptimePath = "\\System\\System Up Time";
+			pUptime = new PointerByReference();
+			pdhAddUptimeCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, one,
+					pUptime);
+			if (pdhAddUptimeCounterError != 0)
+				LOG.error("Failed to add PDH Uptime Counter. Error code: {}",
+						String.format("0x%08X", pdhAddUptimeCounterError));
+		}
 	}
 
 	// Set up array to maintain current ticks for rapid reference. This array
@@ -176,6 +203,7 @@ public class CentralProcessor implements Processor {
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
+		LOG.debug("Initialized Processor {}", procNo);
 	}
 
 	/**
@@ -364,12 +392,14 @@ public class CentralProcessor implements Processor {
 	public synchronized double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
 		boolean update = (now - tickTime > 950);
 		if (update) {
 			// Enough time has elapsed.
 			// Update latest
 			updateSystemTicks();
 			tickTime = now;
+			LOG.debug("System Ticks Updated");
 		}
 		// Calculate total
 		long total = 0;
@@ -378,6 +408,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curTicks[3] - prevTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
 		// Copy latest ticks to earlier position for next call
 		if (update) {
@@ -411,11 +442,14 @@ public class CentralProcessor implements Processor {
 	 * interval, CPU load over that interval may be calculated.
 	 */
 	private static void updateSystemTicks() {
+		LOG.trace("Updating System Ticks");
 		WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
 		WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+		if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
+			LOG.error("Failed to update system idle/kernel/user times. Error code: " + Native.getLastError());
+			return;
+		}
 		// Array order is user,nice,kernel,idle
 		curTicks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
 		curTicks[1] = 0L; // Windows is not 'nice'
@@ -450,6 +484,7 @@ public class CentralProcessor implements Processor {
 	public double getProcessorCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last processor tick time: {}", now, procTickTime);
 		if (now - procTickTime > 950) {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
@@ -464,6 +499,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curProcTicks[3] - prevProcTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 		// update
 		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
 	}
@@ -483,32 +519,42 @@ public class CentralProcessor implements Processor {
 	 * at once so we can't separate individual processors
 	 */
 	private void updateProcessorTicks() {
+		// Do nothing if we have PDH errors
+		if (pdhOpenTickQueryError != 0 || pdhAddTickCounterError != 0) {
+			LOG.warn("PDH Tick Counters not initialized. Processor ticks not updated.");
+			return;
+		}
 		// Update no more frequently than 100ms so this is only triggered once
 		// during iteration over Processors
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last all processor tick time: {}", now, allProcTickTime);
 		if (now - allProcTickTime < 100)
 			return;
 
 		// This call updates all process counters to % used since last call
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-		if (ret != 0)
-			throw new LastErrorException("Cannot collect PDH query data. Error code: " + String.format("0x%08X", ret));
+		if (ret != 0) {
+			LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
+			return;
+		}
 		// Multiply % usage times elapsed MS to recreate ticks, then increment
 		long elapsed = now - allProcTickTime;
 		for (int cpu = 0; cpu < numCPU; cpu++) {
 			PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
 			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
 					| Pdh.PDH_FMT_1000, null, phUserCounterValue);
-			if (ret != 0)
-				throw new LastErrorException("Cannot get PDH User % counter value. Error code: "
-						+ String.format("0x%08X", ret));
+			if (ret != 0) {
+				LOG.warn("Failed to get Uer Tick Counters. Error code: {}", String.format("0x%08X", ret));
+				return;
+			}
 
 			PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
 			ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
 					| Pdh.PDH_FMT_1000, null, phIdleCounterValue);
-			if (ret != 0)
-				throw new LastErrorException("Cannot get PDH Idle % counter value. Error code: "
-						+ String.format("0x%08X", ret));
+			if (ret != 0) {
+				LOG.warn("Failed to get idle Tick Counters. Error code: {}", String.format("0x%08X", ret));
+				return;
+			}
 
 			// Returns results in 1000's of percent, e.g. 5% is 5000
 			// Multiply by elapsed to get total ms and Divide by 100 * 1000
@@ -528,16 +574,24 @@ public class CentralProcessor implements Processor {
 	 * {@inheritDoc}
 	 */
 	public long getSystemUptime() {
+		// Return 0 if we have PDH errors
+		if (pdhOpenUptimeQueryError != 0 || pdhAddUptimeCounterError != 0) {
+			LOG.warn("Uptime Counters not initialized. Returning 0.");
+			return 0L;
+		}
+
 		int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());
-		if (ret != 0)
-			throw new LastErrorException("Cannot collect uptime query data. Error code: "
-					+ String.format("0x%08X", ret));
+		if (ret != 0) {
+			LOG.error("Failed to update Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+			return 0L;
+		}
 
 		PdhFmtCounterValue uptimeCounterValue = new PdhFmtCounterValue();
 		ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pUptime.getValue(), Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);
-		if (ret != 0)
-			throw new LastErrorException("Cannot get PDH User % counter value. Error code: "
-					+ String.format("0x%08X", ret));
+		if (ret != 0) {
+			LOG.error("Failed to get Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+			return 0L;
+		}
 
 		return uptimeCounterValue.value.largeValue;
 	}

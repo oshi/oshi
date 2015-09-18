@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Memory;
 import oshi.hardware.PowerSource;
@@ -36,6 +39,7 @@ import oshi.util.FileUtil;
  */
 
 public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
+	private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);
 
 	private static final String SEPARATOR = "\\s+:\\s";
 
@@ -60,8 +64,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			try {
 				cpuInfo = FileUtil.readFile("/proc/cpuinfo");
 			} catch (IOException e) {
-				System.err.println("Problem with: /proc/cpuinfo");
-				System.err.println(e.getMessage());
+				LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
 				return null;
 			}
 			CentralProcessor cpu = null;

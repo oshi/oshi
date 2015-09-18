@@ -20,7 +20,9 @@ import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -41,6 +43,8 @@ import oshi.util.ParseUtil;
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final Logger LOG = LoggerFactory.getLogger(CentralProcessor.class);
+
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();;
 	private static boolean sunMXBean;
@@ -51,8 +55,10 @@ public class CentralProcessor implements Processor {
 			// Initialize CPU usage
 			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
+			LOG.debug("Oracle MXBean detected.");
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
+			LOG.debug("Oracle MXBean not detected.");
 		}
 	}
 
@@ -79,9 +85,11 @@ public class CentralProcessor implements Processor {
 	static {
 		IntByReference size = new IntByReference(SystemB.INT_SIZE);
 		Pointer p = new Memory(size.getValue());
-		if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0))
-			throw new LastErrorException("Error code: " + Native.getLastError());
-		numCPU = p.getInt(0);
+		if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
+			LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
+			numCPU = 1;
+		} else
+			numCPU = p.getInt(0);
 	}
 
 	// Set up array to maintain current ticks for rapid reference. This array
@@ -113,6 +121,7 @@ public class CentralProcessor implements Processor {
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
+		LOG.debug("Initialized Processor {}", procNo);
 	}
 
 	/**
@@ -132,11 +141,15 @@ public class CentralProcessor implements Processor {
 	public String getVendor() {
 		if (this.cpuVendor == null) {
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", null, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", null, size, null, 0)) {
+				LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
+				return "";
+			}
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", p, size, null, 0)) {
+				LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
+				return "";
+			}
 			this.cpuVendor = p.getString(0);
 		}
 		return this.cpuVendor;
@@ -162,11 +175,15 @@ public class CentralProcessor implements Processor {
 	public String getName() {
 		if (this.cpuName == null) {
 			IntByReference size = new IntByReference();
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", null, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", null, size, null, 0)) {
+				LOG.error("Failed to get Name. Error code: " + Native.getLastError());
+				return "";
+			}
 			Pointer p = new Memory(size.getValue() + 1);
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", p, size, null, 0)) {
+				LOG.error("Failed to get Name. Error code: " + Native.getLastError());
+				return "";
+			}
 			this.cpuName = p.getString(0);
 		}
 		return this.cpuName;
@@ -259,8 +276,10 @@ public class CentralProcessor implements Processor {
 		if (this.cpu64 == null) {
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctlbyname("hw.cpu64bit_capable", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("hw.cpu64bit_capable", p, size, null, 0)) {
+				LOG.error("Failed to get 64Bit_capable. Error code: " + Native.getLastError());
+				return false;
+			}
 			this.cpu64 = p.getInt(0) != 0;
 		}
 		return this.cpu64.booleanValue();
@@ -285,8 +304,10 @@ public class CentralProcessor implements Processor {
 		if (this.cpuStepping == null) {
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.stepping", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.stepping", p, size, null, 0)) {
+				LOG.error("Failed to get Stepping. Error code: " + Native.getLastError());
+				return "";
+			}
 			this.cpuStepping = Integer.toString(p.getInt(0));
 		}
 		return this.cpuStepping;
@@ -309,8 +330,10 @@ public class CentralProcessor implements Processor {
 		if (this.cpuModel == null) {
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.model", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.model", p, size, null, 0)) {
+				LOG.error("Failed to get Model. Error code: " + Native.getLastError());
+				return "";
+			}
 			this.cpuModel = Integer.toString(p.getInt(0));
 		}
 		return this.cpuModel;
@@ -333,8 +356,10 @@ public class CentralProcessor implements Processor {
 		if (this.cpuFamily == null) {
 			IntByReference size = new IntByReference(SystemB.INT_SIZE);
 			Pointer p = new Memory(size.getValue());
-			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.family", p, size, null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.family", p, size, null, 0)) {
+				LOG.error("Failed to get Family. Error code: " + Native.getLastError());
+				return "";
+			}
 			this.cpuFamily = Integer.toString(p.getInt(0));
 		}
 		return this.cpuFamily;
@@ -366,6 +391,7 @@ public class CentralProcessor implements Processor {
 	public synchronized double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
 		boolean update = (now - tickTime > 950);
 		if (update) {
 			// Enough time has elapsed.
@@ -380,6 +406,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curTicks[3] - prevTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
 		// Copy latest ticks to earlier position for next call
 		if (update) {
@@ -416,11 +443,14 @@ public class CentralProcessor implements Processor {
 	 *         Nice(if applicable), System, and Idle states.
 	 */
 	private static void updateSystemTicks() {
+		LOG.trace("Updating System Ticks");
 		int machPort = SystemB.INSTANCE.mach_host_self();
 		HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
 		if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
-				new IntByReference(cpuLoadInfo.size())))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+				new IntByReference(cpuLoadInfo.size()))) {
+			LOG.error("Failed to get System CPU ticks. Error code: " + Native.getLastError());
+			return;
+		}
 		// Switch order to match linux
 		curTicks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
 		curTicks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
@@ -454,6 +484,7 @@ public class CentralProcessor implements Processor {
 	public double getProcessorCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last processor tick time: {}", now, procTickTime);
 		if (now - procTickTime > 950) {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
@@ -468,6 +499,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curProcTicks[3] - prevProcTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 		// update
 		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
 	}
@@ -490,6 +522,7 @@ public class CentralProcessor implements Processor {
 		// Update no more frequently than 100ms so this is only triggered once
 		// during iteration over Processors
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last all processor tick time: {}", now, allProcTickTime);
 		if (now - allProcTickTime < 100)
 			return;
 
@@ -499,8 +532,10 @@ public class CentralProcessor implements Processor {
 		PointerByReference procCpuLoadInfo = new PointerByReference();
 		IntByReference procInfoCount = new IntByReference();
 		if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-				procCpuLoadInfo, procInfoCount))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+				procCpuLoadInfo, procInfoCount)) {
+			LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
+			return;
+		}
 
 		int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
 		for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
@@ -520,14 +555,18 @@ public class CentralProcessor implements Processor {
 	 */
 	public long getSystemUptime() {
 		IntByReference size = new IntByReference();
-		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", null, size, null, 0))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", null, size, null, 0)) {
+			LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
+			return 0L;
+		}
 		// This should point to a 16-byte structure. If not, this code is valid
 		if (size.getValue() != 16)
 			throw new UnsupportedOperationException("sysctl kern.boottime should be 16 bytes but isn't.");
 		Pointer p = new Memory(size.getValue() + 1);
-		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", p, size, null, 0))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+		if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", p, size, null, 0)) {
+			LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
+			return 0L;
+		}
 		// p now points to a 16-bit timeval structure for boot time.
 		// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
 		return System.currentTimeMillis() / 1000 - p.getLong(0);

@@ -19,7 +19,9 @@ package oshi.software.os.linux.proc;
 import java.io.IOException;
 import java.util.List;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 
 import oshi.hardware.Memory;
@@ -34,6 +36,7 @@ import oshi.util.FileUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class GlobalMemory implements Memory {
+	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
 
 	private long totalMemory = 0;
 
@@ -44,8 +47,7 @@ public class GlobalMemory implements Memory {
 		try {
 			memInfo = FileUtil.readFile("/proc/meminfo");
 		} catch (IOException e) {
-			System.err.println("Problem with: /proc/meminfo");
-			System.err.println(e.getMessage());
+			LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
 			return availableMemory;
 		}
 		for (String checkLine : memInfo) {
@@ -82,8 +84,10 @@ public class GlobalMemory implements Memory {
 	public long getTotal() {
 		if (this.totalMemory == 0) {
 			Sysinfo info = new Sysinfo();
-			if (0 != Libc.INSTANCE.sysinfo(info))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+			if (0 != Libc.INSTANCE.sysinfo(info)) {
+				LOG.error("Failed to get total memory. Error code: " + Native.getLastError());
+				return 0L;
+			}
 			this.totalMemory = info.totalram.longValue() * info.mem_unit;
 		}
 		return this.totalMemory;

@@ -12,6 +12,6 @@
  * widdis[at]gmail[dot]com https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides interfaces and common objects for Software and OS
  */
 package oshi.software.os;

@@ -19,6 +19,9 @@ package oshi.software.os.mac.local;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -34,6 +37,7 @@ import oshi.software.os.mac.local.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public class MacPowerSource implements PowerSource {
+	private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
 
 	private String name;
 
@@ -45,6 +49,7 @@ public class MacPowerSource implements PowerSource {
 		this.name = name;
 		this.remainingCapacity = remainingCapacity;
 		this.timeRemaining = timeRemaining;
+		LOG.debug("Initialized MacPowerSource");
 	}
 
 	@Override

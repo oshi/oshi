@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 
 import oshi.hardware.Processor;
@@ -40,6 +42,8 @@ import oshi.util.ParseUtil;
  */
 @SuppressWarnings("restriction")
 public class CentralProcessor implements Processor {
+	private static final Logger LOG = LoggerFactory.getLogger(CentralProcessor.class);
+
 	// Determine whether MXBean supports Oracle JVM methods
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
 			.getOperatingSystemMXBean();;
@@ -51,8 +55,10 @@ public class CentralProcessor implements Processor {
 			// Initialize CPU usage
 			((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
 			sunMXBean = true;
+			LOG.debug("Oracle MXBean detected.");
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
+			LOG.debug("Oracle MXBean not detected.");
 		}
 	}
 
@@ -85,8 +91,7 @@ public class CentralProcessor implements Processor {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Problem with: /proc/cpuinfo");
-			System.err.println(e.getMessage());
+			LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
 		}
 		// Force at least one processor
 		if (numCPU < 1)
@@ -122,6 +127,7 @@ public class CentralProcessor implements Processor {
 		this.processorNumber = procNo;
 		updateProcessorTicks();
 		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
+		LOG.debug("Initialized Processor {}", procNo);
 	}
 
 	/**
@@ -332,6 +338,7 @@ public class CentralProcessor implements Processor {
 	public synchronized double getSystemCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
 		boolean update = (now - tickTime > 950);
 		if (update) {
 			// Enough time has elapsed.
@@ -346,6 +353,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curTicks[3] - prevTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
 		// Copy latest ticks to earlier position for next call
 		if (update) {
@@ -382,6 +390,7 @@ public class CentralProcessor implements Processor {
 	 *         Nice(if applicable), System, and Idle states.
 	 */
 	private static void updateSystemTicks() {
+		LOG.trace("Updating System Ticks");
 		// /proc/stat expected format
 		// first line is overall user,nice,system,idle, etc.
 		// cpu 3357 0 4313 1362393 ...
@@ -391,8 +400,7 @@ public class CentralProcessor implements Processor {
 			if (!procStat.isEmpty())
 				tickStr = procStat.get(0);
 		} catch (IOException e) {
-			System.err.println("Problem with: /proc/stat");
-			System.err.println(e.getMessage());
+			LOG.error("Problem with /proc/stat: {}", e.getMessage());
 			return;
 		}
 		String[] tickArr = tickStr.split("\\s+");
@@ -429,6 +437,7 @@ public class CentralProcessor implements Processor {
 	public double getProcessorCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last processor tick time: {}", now, procTickTime);
 		if (now - procTickTime > 950) {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
@@ -443,6 +452,7 @@ public class CentralProcessor implements Processor {
 		}
 		// Calculate idle from last field [3]
 		long idle = curProcTicks[3] - prevProcTicks[3];
+		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 		// update
 		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
 	}
@@ -465,6 +475,7 @@ public class CentralProcessor implements Processor {
 		// Update no more frequently than 100ms so this is only triggered once
 		// during iteration over Processors
 		long now = System.currentTimeMillis();
+		LOG.trace("Current time: {}  Last all processor tick time: {}", now, allProcTickTime);
 		if (now - allProcTickTime < 100)
 			return;
 
@@ -488,8 +499,7 @@ public class CentralProcessor implements Processor {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Problem with: /proc/stat");
-			System.err.println(e.getMessage());
+			LOG.error("Problem with /proc/stat: {}", e.getMessage());
 		}
 		allProcTickTime = now;
 	}
@@ -499,8 +509,10 @@ public class CentralProcessor implements Processor {
 	 */
 	public long getSystemUptime() {
 		Sysinfo info = new Sysinfo();
-		if (0 != Libc.INSTANCE.sysinfo(info))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+		if (0 != Libc.INSTANCE.sysinfo(info)) {
+			LOG.error("Failed to get system uptime. Error code: " + Native.getLastError());
+			return 0L;
+		}
 		return info.uptime.longValue();
 	}
 
