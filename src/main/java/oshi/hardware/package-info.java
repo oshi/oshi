@@ -12,6 +12,6 @@
  * widdis[at]gmail[dot]com https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides interfaces to hardware such as Memory, Power Sources, and Processor
  */
 package oshi.hardware;

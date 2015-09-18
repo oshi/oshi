@@ -16,6 +16,9 @@
  */
 package oshi.software.os;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
@@ -24,6 +27,8 @@ package oshi.software.os;
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore {
+	private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
+
 	private String name;
 
 	private String description;
@@ -49,6 +54,7 @@ public class OSFileStore {
 		this.setDescription(description);
 		this.setUsableSpace(usableSpace);
 		this.setTotalSpace(totalSpace);
+		LOG.debug("Initialized OSFileStore: {}", name);
 	}
 
 	/**

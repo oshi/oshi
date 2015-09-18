@@ -16,11 +16,13 @@
  */
 package oshi.software.os.windows.nt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.OSVERSIONINFOEX;
 import com.sun.jna.platform.win32.WinReg;
@@ -36,13 +38,17 @@ import oshi.software.os.OperatingSystemVersion;
  * @author dblock[at]dblock[dot]org
  */
 public class OSVersionInfoEx implements OperatingSystemVersion {
+	private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+
 	private OSVERSIONINFOEX _versionInfo;
 
 	public OSVersionInfoEx() {
 		this._versionInfo = new OSVERSIONINFOEX();
 		if (!Kernel32.INSTANCE.GetVersionEx(this._versionInfo)) {
-			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());
-		}
+			LOG.error("Failed to Initialize OSVersionInfoEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
+			this._versionInfo = null;
+		} else
+			LOG.debug("Initialized OSVersionInfoEx");
 	}
 
 	/**
@@ -56,6 +62,10 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 *         Windows XP: 5.1 Windows 2000: 5.0
 	 */
 	public int getMajor() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No version data available");
+			return 0;
+		}
 		return this._versionInfo.dwMajorVersion.intValue();
 	}
 
@@ -70,6 +80,10 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 *         Windows XP: 5.1 Windows 2000: 5.0
 	 */
 	public int getMinor() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No version data available");
+			return 0;
+		}
 		return this._versionInfo.dwMinorVersion.intValue();
 	}
 
@@ -79,6 +93,10 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return Build number.
 	 */
 	public int getBuildNumber() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No build number available");
+			return 0;
+		}
 		return this._versionInfo.dwBuildNumber.intValue();
 	}
 
@@ -88,6 +106,10 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return Platform ID.
 	 */
 	public int getPlatformId() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No platform id available");
+			return 0;
+		}
 		return this._versionInfo.dwPlatformId.intValue();
 	}
 
@@ -99,6 +121,10 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return Service pack.
 	 */
 	public String getServicePack() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No service pack data available");
+			return "";
+		}
 		return Native.toString(this._versionInfo.szCSDVersion);
 	}
 
@@ -108,6 +134,11 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return Suite mask.
 	 */
 	public int getSuiteMask() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No suite mask data available");
+			return 0;
+		}
+
 		return this._versionInfo.wSuiteMask.intValue();
 	}
 
@@ -117,11 +148,20 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return Product type.
 	 */
 	public byte getProductType() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No product type available");
+			return 0;
+		}
 		return this._versionInfo.wProductType;
 	}
 
 	@Override
 	public String toString() {
+		if (this._versionInfo == null) {
+			LOG.warn("OSVersionInfoEx not initialized. No version data available");
+			return "Unknown";
+		}
+
 		String version = null;
 
 		// see

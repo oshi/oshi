@@ -12,6 +12,6 @@
  * widdis[at]gmail[dot]com https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
  */
 package oshi;

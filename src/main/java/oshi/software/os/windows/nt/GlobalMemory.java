@@ -16,11 +16,13 @@
  */
 package oshi.software.os.windows.nt;
 
-import oshi.hardware.Memory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
+
+import oshi.hardware.Memory;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -28,21 +30,32 @@ import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
  * @author dblock[at]dblock[dot]org
  */
 public class GlobalMemory implements Memory {
-	MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
+	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
+
+	private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
 
 	public GlobalMemory() {
 		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());
+			LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
+			this._memory = null;
 		}
 	}
 
 	@Override
 	public long getAvailable() {
+		if (this._memory == null) {
+			LOG.warn("MemoryStatusEx not initialized. No available memoroy data available");
+			return 0L;
+		}
 		return this._memory.ullAvailPhys.longValue();
 	}
 
 	@Override
 	public long getTotal() {
+		if (this._memory == null) {
+			LOG.warn("MemoryStatusEx not initialized. No total memory data available");
+			return 0L;
+		}
 		return this._memory.ullTotalPhys.longValue();
 	}
 }

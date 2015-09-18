@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.PowerSource;
 import oshi.util.FileUtil;
 
@@ -30,6 +33,7 @@ import oshi.util.FileUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxPowerSource implements PowerSource {
+	private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
 
 	private static final String PS_PATH = "/sys/class/power_supply/";
 
@@ -43,6 +47,7 @@ public class LinuxPowerSource implements PowerSource {
 		this.name = name;
 		this.remainingCapacity = remainingCapacity;
 		this.timeRemaining = timeRemaining;
+		LOG.debug("Initialized LinuxPowerSource");
 	}
 
 	@Override

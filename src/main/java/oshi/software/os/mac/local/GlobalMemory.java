@@ -16,7 +16,9 @@
  */
 package oshi.software.os.mac.local;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -31,6 +33,7 @@ import oshi.software.os.mac.local.SystemB.VMStatistics;
  * @author widdis[at]gmail[dot]com
  */
 public class GlobalMemory implements Memory {
+	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
 
 	long totalMemory = 0;
 
@@ -42,14 +45,18 @@ public class GlobalMemory implements Memory {
 		int machPort = SystemB.INSTANCE.mach_host_self();
 
 		LongByReference pPageSize = new LongByReference();
-		if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+		if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize)) {
+			LOG.error("Failed to get host page size. Error code: " + Native.getLastError());
+			return 0L;
+		}
 		pageSize = pPageSize.getValue();
 
 		VMStatistics vmStats = new VMStatistics();
 		if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,
-				new IntByReference(vmStats.size() / SystemB.INT_SIZE)))
-			throw new LastErrorException("Error code: " + Native.getLastError());
+				new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+			LOG.error("Failed to get host VM info. Error code: " + Native.getLastError());
+			return 0L;
+		}
 		availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;
 
 		return availableMemory;
@@ -60,8 +67,10 @@ public class GlobalMemory implements Memory {
 		if (this.totalMemory == 0) {
 			Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
 			if (0 != SystemB.INSTANCE.sysctlbyname("hw.memsize", pMemSize, new IntByReference(SystemB.UINT64_SIZE),
-					null, 0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
+					null, 0)) {
+				LOG.error("Failed to get memory size. Error code: " + Native.getLastError());
+				return 0L;
+			}
 			this.totalMemory = pMemSize.getLong(0);
 		}
 		return this.totalMemory;

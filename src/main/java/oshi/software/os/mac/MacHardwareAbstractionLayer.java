@@ -19,7 +19,9 @@ package oshi.software.os.mac;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.LastErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 
@@ -39,6 +41,7 @@ import oshi.software.os.mac.local.SystemB;
  * @author widdis[at]gmail[dot]com
  */
 public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
+	private static final Logger LOG = LoggerFactory.getLogger(MacHardwareAbstractionLayer.class);
 
 	private Processor[] _processors;
 
@@ -58,9 +61,11 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 			List<Processor> processors = new ArrayList<>();
 			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
 			if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", pNbCPU, new IntByReference(SystemB.INT_SIZE), null,
-					0))
-				throw new LastErrorException("Error code: " + Native.getLastError());
-			nbCPU = pNbCPU.getInt(0);
+					0)) {
+				LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
+				nbCPU = 1;
+			} else
+				nbCPU = pNbCPU.getInt(0);
 			for (int i = 0; i < nbCPU; i++)
 				processors.add(new CentralProcessor(i));
 

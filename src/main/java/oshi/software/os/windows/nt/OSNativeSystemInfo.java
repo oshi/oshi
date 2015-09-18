@@ -16,6 +16,9 @@
  */
 package oshi.software.os.windows.nt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
@@ -27,6 +30,8 @@ import com.sun.jna.ptr.IntByReference;
  * @author dblock[at]dblock[dot]org
  */
 public class OSNativeSystemInfo {
+	private static final Logger LOG = LoggerFactory.getLogger(OSNativeSystemInfo.class);
+
 	private SYSTEM_INFO _si = null;
 
 	public OSNativeSystemInfo() {
@@ -47,6 +52,7 @@ public class OSNativeSystemInfo {
 		}
 
 		this._si = si;
+		LOG.debug("Initialized OSNativeSystemInfo");
 	}
 
 	public OSNativeSystemInfo(SYSTEM_INFO si) {

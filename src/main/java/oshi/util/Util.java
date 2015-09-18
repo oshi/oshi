@@ -16,12 +16,16 @@
  */
 package oshi.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * General utility methods
  * 
  * @author widdis[at]gmail[dot]com
  */
 public class Util {
+	private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
 	/**
 	 * Sleeps for the specified number of milliseconds
@@ -31,9 +35,10 @@ public class Util {
 	 */
 	public static void sleep(long ms) {
 		try {
+			LOG.trace("Sleeping for {} ms", ms);
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			// Awake, O sleeper
+			LOG.warn("Interrupted while sleeping for {} ms", ms);
 		}
 	}
 
@@ -49,7 +54,9 @@ public class Util {
 	 */
 	public static void sleepAfter(long startTime, long ms) {
 		long now = System.currentTimeMillis();
-		if (now < startTime + ms)
-			sleep(startTime + ms - now);
+		long until = startTime + ms;
+		LOG.trace("Sleeping until {}", until);
+		if (now < until)
+			sleep(until - now);
 	}
 }
