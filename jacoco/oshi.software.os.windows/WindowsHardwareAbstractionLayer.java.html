@@ -57,8 +57,8 @@ import com.sun.jna.platform.win32.WinReg;
 <span class="nc bnc" id="L57" title="All 2 branches missed.">			for (String processorId : processorIds) {</span>
 <span class="nc" id="L58">				String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorId;</span>
 <span class="nc" id="L59">				CentralProcessor cpu = new CentralProcessor(numCPU++);</span>
-<span class="nc" id="L60">				cpu.setIdentifier(</span>
-<span class="nc" id="L61">						Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;Identifier&quot;));</span>
+<span class="nc" id="L60">				cpu.setIdentifier(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+						&quot;Identifier&quot;));
 <span class="nc" id="L62">				cpu.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
 						&quot;ProcessorNameString&quot;));
 <span class="nc" id="L64">				cpu.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>

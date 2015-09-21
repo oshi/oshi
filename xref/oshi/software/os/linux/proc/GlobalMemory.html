@@ -27,90 +27,91 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Memory;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.Libc;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.Libc.Sysinfo;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.LastErrorException;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * Memory obtained by /proc/meminfo and sysinfo.totalram</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../oshi/software/os/linux/proc/GlobalMemory.html">GlobalMemory</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../oshi/hardware/Memory.html">Memory</a> {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> totalMemory = 0;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  	@Override
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAvailable() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  		<strong class="jxr_keyword">long</strong> availableMemory = 0;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  		List&lt;String&gt; memInfo = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  		<strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  			memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  		} <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  			System.err.println(<span class="jxr_string">"Problem with: /proc/meminfo"</span>);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  			System.err.println(e.getMessage());
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  			<strong class="jxr_keyword">return</strong> availableMemory;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  		}
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  		<strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  			<em class="jxr_comment">// If we have MemAvailable, it trumps all. See code in</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  			<em class="jxr_comment">// https://git.kernel.org/cgit/linux/kernel/git/torvalds/</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  			<em class="jxr_comment">// linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  			<strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"MemAvailable:"</span>)) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  				availableMemory = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  				<strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  			} <strong class="jxr_keyword">else</strong>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  				<em class="jxr_comment">// Otherwise we combine MemFree + Active(file), Inactive(file),</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  				<em class="jxr_comment">// and</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  				<em class="jxr_comment">// SReclaimable. Free+cached is no longer appropriate.</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  				<em class="jxr_comment">// MemAvailable</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  				<em class="jxr_comment">// reduces these values using watermarks to estimate when</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  				<em class="jxr_comment">// swapping</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  				<em class="jxr_comment">// is prevented, omitted here for simplicity (assuming 0 swap).</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  				<strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"MemFree:"</span>)) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  				availableMemory += parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"Active(file):"</span>)) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  				availableMemory += parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"Inactive(file):"</span>)) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  				availableMemory += parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"SReclaimable:"</span>)) {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  				availableMemory += parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  			}
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  		}
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  		<strong class="jxr_keyword">return</strong> availableMemory;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  	}
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  	@Override
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getTotal() {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  		<strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.totalMemory == 0) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  			Sysinfo info = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/linux/Libc.html">Sysinfo</a>();
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  			<strong class="jxr_keyword">if</strong> (0 != Libc.INSTANCE.sysinfo(info))
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  				<strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> LastErrorException(<span class="jxr_string">"Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  			<strong class="jxr_keyword">this</strong>.totalMemory = info.totalram.longValue() * info.mem_unit;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  		}
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  		<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.totalMemory;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  	}
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> parseMeminfo(String[] memorySplit) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  		<strong class="jxr_keyword">if</strong> (memorySplit.length &lt; 2) {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  			<strong class="jxr_keyword">return</strong> 0l;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  		}
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  		<strong class="jxr_keyword">long</strong> memory = <strong class="jxr_keyword">new</strong> Long(memorySplit[1]).longValue();
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 		<strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(<span class="jxr_string">"kB"</span>)) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> 			memory *= 1024;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 		}
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> 		<strong class="jxr_keyword">return</strong> memory;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> 	}
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> }
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Memory;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.Libc;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.Libc.Sysinfo;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * Memory obtained by /proc/meminfo and sysinfo.totalram</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../oshi/software/os/linux/proc/GlobalMemory.html">GlobalMemory</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../oshi/hardware/Memory.html">Memory</a> {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(GlobalMemory.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> totalMemory = 0;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  	@Override
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAvailable() {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  		<strong class="jxr_keyword">long</strong> availableMemory = 0;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  		List&lt;String&gt; memInfo = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  		<strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  			memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  		} <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  			LOG.error(<span class="jxr_string">"Problem with /proc/meminfo: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  			<strong class="jxr_keyword">return</strong> availableMemory;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  		}
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  		<strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  			<em class="jxr_comment">// If we have MemAvailable, it trumps all. See code in</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  			<em class="jxr_comment">// https://git.kernel.org/cgit/linux/kernel/git/torvalds/</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  			<em class="jxr_comment">// linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  			<strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"MemAvailable:"</span>)) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  				availableMemory = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  				<strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  			} <strong class="jxr_keyword">else</strong>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  			<em class="jxr_comment">// Otherwise we combine MemFree + Active(file), Inactive(file), and</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  			<em class="jxr_comment">// Reclaimable. Free+cached is no longer appropriate. MemAvailable</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  			<em class="jxr_comment">// reduces these values using watermarks to estimate when swapping</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  			<em class="jxr_comment">// is prevented, omitted here for simplicity (assuming 0 swap).</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  			<strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"MemFree:"</span>)) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  				availableMemory += parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"Active(file):"</span>)) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  				availableMemory += parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"Inactive(file):"</span>)) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  				availableMemory += parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  			} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"SReclaimable:"</span>)) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  				String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  				availableMemory += parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  			}
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  		}
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  		<strong class="jxr_keyword">return</strong> availableMemory;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  	}
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  	@Override
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  	<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getTotal() {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  		<strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.totalMemory == 0) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  			Sysinfo info = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/linux/Libc.html">Sysinfo</a>();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  			<strong class="jxr_keyword">if</strong> (0 != Libc.INSTANCE.sysinfo(info)) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  				LOG.error(<span class="jxr_string">"Failed to get total memory. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  				<strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  			}
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  			<strong class="jxr_keyword">this</strong>.totalMemory = info.totalram.longValue() * info.mem_unit;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  		}
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  		<strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.totalMemory;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  	}
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> parseMeminfo(String[] memorySplit) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  		<strong class="jxr_keyword">if</strong> (memorySplit.length &lt; 2) {
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  			<strong class="jxr_keyword">return</strong> 0l;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  		}
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 		<strong class="jxr_keyword">long</strong> memory = Long.valueOf(memorySplit[1]);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 		<strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(<span class="jxr_string">"kB"</span>)) {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 			memory *= 1024;
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 		}
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> 		<strong class="jxr_keyword">return</strong> memory;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 	}
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2015 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

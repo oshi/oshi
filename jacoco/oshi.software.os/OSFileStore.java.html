@@ -16,6 +16,9 @@
  */
 package oshi.software.os;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
@@ -24,6 +27,8 @@ package oshi.software.os;
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore {
+<span class="fc" id="L30">	private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
+
 	private String name;
 
 	private String description;
@@ -44,12 +49,13 @@ public class OSFileStore {
 	 * @param totalSpace
 	 *            Total bytes
 	 */
-<span class="fc" id="L47">	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {</span>
-<span class="fc" id="L48">		this.setName(name);</span>
-<span class="fc" id="L49">		this.setDescription(description);</span>
-<span class="fc" id="L50">		this.setUsableSpace(usableSpace);</span>
-<span class="fc" id="L51">		this.setTotalSpace(totalSpace);</span>
-<span class="fc" id="L52">	}</span>
+<span class="fc" id="L52">	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {</span>
+<span class="fc" id="L53">		this.setName(name);</span>
+<span class="fc" id="L54">		this.setDescription(description);</span>
+<span class="fc" id="L55">		this.setUsableSpace(usableSpace);</span>
+<span class="fc" id="L56">		this.setTotalSpace(totalSpace);</span>
+<span class="fc" id="L57">		LOG.debug(&quot;Initialized OSFileStore: {}&quot;, name);</span>
+<span class="fc" id="L58">	}</span>
 
 	/**
 	 * Name of the File System
@@ -57,7 +63,7 @@ public class OSFileStore {
 	 * @return The file system name
 	 */
 	public String getName() {
-<span class="fc" id="L60">		return this.name;</span>
+<span class="fc" id="L66">		return this.name;</span>
 	}
 
 	/**
@@ -67,8 +73,8 @@ public class OSFileStore {
 	 *            The name
 	 */
 	public void setName(String name) {
-<span class="fc" id="L70">		this.name = name;</span>
-<span class="fc" id="L71">	}</span>
+<span class="fc" id="L76">		this.name = name;</span>
+<span class="fc" id="L77">	}</span>
 
 	/**
 	 * Description of the File System
@@ -76,7 +82,7 @@ public class OSFileStore {
 	 * @return The file system description
 	 */
 	public String getDescription() {
-<span class="nc" id="L79">		return this.description;</span>
+<span class="nc" id="L85">		return this.description;</span>
 	}
 
 	/**
@@ -86,8 +92,8 @@ public class OSFileStore {
 	 *            The description
 	 */
 	public void setDescription(String description) {
-<span class="fc" id="L89">		this.description = description;</span>
-<span class="fc" id="L90">	}</span>
+<span class="fc" id="L95">		this.description = description;</span>
+<span class="fc" id="L96">	}</span>
 
 	/**
 	 * Usable space on the drive.
@@ -95,7 +101,7 @@ public class OSFileStore {
 	 * @return Usable space on the drive (in bytes)
 	 */
 	public long getUsableSpace() {
-<span class="fc" id="L98">		return this.usableSpace;</span>
+<span class="fc" id="L104">		return this.usableSpace;</span>
 	}
 
 	/**
@@ -105,8 +111,8 @@ public class OSFileStore {
 	 *            Bytes of writable space.
 	 */
 	public void setUsableSpace(long usableSpace) {
-<span class="fc" id="L108">		this.usableSpace = usableSpace;</span>
-<span class="fc" id="L109">	}</span>
+<span class="fc" id="L114">		this.usableSpace = usableSpace;</span>
+<span class="fc" id="L115">	}</span>
 
 	/**
 	 * Total space/capacity of the drive.
@@ -114,7 +120,7 @@ public class OSFileStore {
 	 * @return Total capacity of the drive (in bytes)
 	 */
 	public long getTotalSpace() {
-<span class="fc" id="L117">		return this.totalSpace;</span>
+<span class="fc" id="L123">		return this.totalSpace;</span>
 	}
 
 	/**
@@ -124,7 +130,7 @@ public class OSFileStore {
 	 *            Bytes of total space.
 	 */
 	public void setTotalSpace(long totalSpace) {
-<span class="fc" id="L127">		this.totalSpace = totalSpace;</span>
-<span class="fc" id="L128">	}</span>
+<span class="fc" id="L133">		this.totalSpace = totalSpace;</span>
+<span class="fc" id="L134">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

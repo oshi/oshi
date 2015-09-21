@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Util.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">Util.java</span></div><h1>Util.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
  * 
- * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * Copyright (c) 2010 - 2015 The Oshi Project Team 
  * 
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * dblock[at]dblock[dot]org
+ * dblock[at]dblock[dot]org 
  * alessandro[at]perucchi[dot]org
- * widdis[at]gmail[dot]com
+ * widdis[at]gmail[dot]com 
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * General utility methods
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L24">public class Util {</span>
+<span class="nc" id="L27">public class Util {</span>
+<span class="nc" id="L28">	private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
 
 	/**
 	 * Sleeps for the specified number of milliseconds
@@ -31,24 +35,29 @@ package oshi.util;
 	 */
 	public static void sleep(long ms) {
 		try {
-<span class="nc" id="L34">			Thread.sleep(ms);</span>
-<span class="nc" id="L35">		} catch (InterruptedException e) {</span>
-			// Awake, O sleeper
-<span class="nc" id="L37">		}</span>
-<span class="nc" id="L38">	}</span>
+<span class="nc" id="L38">			LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="nc" id="L39">			Thread.sleep(ms);</span>
+<span class="nc" id="L40">		} catch (InterruptedException e) {</span>
+<span class="nc" id="L41">			LOG.warn(&quot;Interrupted while sleeping for {} ms&quot;, ms);</span>
+<span class="nc" id="L42">		}</span>
+<span class="nc" id="L43">	}</span>
 
 	/**
 	 * Sleeps for the specified number of milliseconds after the given system
 	 * time in milliseconds. If that number of milliseconds has already elapsed,
 	 * does nothing.
 	 * 
+	 * @param startTime
+	 *            System time in milliseconds to sleep after
 	 * @param ms
 	 *            How long after startTime to sleep
 	 */
 	public static void sleepAfter(long startTime, long ms) {
-<span class="nc" id="L49">		long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (now &lt; startTime + ms)</span>
-<span class="nc" id="L51">			sleep(startTime + ms - now);</span>
-<span class="nc" id="L52">	}</span>
+<span class="nc" id="L56">		long now = System.currentTimeMillis();</span>
+<span class="nc" id="L57">		long until = startTime + ms;</span>
+<span class="nc" id="L58">		LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		if (now &lt; until)</span>
+<span class="nc" id="L60">			sleep(until - now);</span>
+<span class="nc" id="L61">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

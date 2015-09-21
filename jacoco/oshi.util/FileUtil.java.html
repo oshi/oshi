@@ -22,6 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Read an entire file at one time and return a list of Strings for each line.
  * Intended primarily for Linux /proc filesystem to avoid recalculating file
@@ -29,10 +32,12 @@ import java.util.List;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L32">public class FileUtil {</span>
+<span class="nc" id="L35">public class FileUtil {</span>
+<span class="fc" id="L36">	private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
 
 	public static List&lt;String&gt; readFile(String filename) throws IOException {
-<span class="fc" id="L35">		return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="fc" id="L39">		LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L40">		return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

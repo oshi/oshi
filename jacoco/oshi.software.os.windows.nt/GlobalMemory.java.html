@@ -16,11 +16,13 @@
  */
 package oshi.software.os.windows.nt;
 
-import oshi.hardware.Memory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
+
+import oshi.hardware.Memory;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -28,22 +30,33 @@ import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
  * @author dblock[at]dblock[dot]org
  */
 public class GlobalMemory implements Memory {
-<span class="nc" id="L31">	MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
+<span class="nc" id="L33">	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);</span>
 
-<span class="nc" id="L33">	public GlobalMemory() {</span>
-<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
-<span class="nc" id="L35">			throw new Win32Exception(Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L35">	private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
+
+<span class="nc" id="L37">	public GlobalMemory() {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
+<span class="nc" id="L39">			LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L40">			this._memory = null;</span>
 		}
-<span class="nc" id="L37">	}</span>
+<span class="nc" id="L42">	}</span>
 
 	@Override
 	public long getAvailable() {
-<span class="nc" id="L41">		return this._memory.ullAvailPhys.longValue();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		if (this._memory == null) {</span>
+<span class="nc" id="L47">			LOG.warn(&quot;MemoryStatusEx not initialized. No available memoroy data available&quot;);</span>
+<span class="nc" id="L48">			return 0L;</span>
+		}
+<span class="nc" id="L50">		return this._memory.ullAvailPhys.longValue();</span>
 	}
 
 	@Override
 	public long getTotal() {
-<span class="nc" id="L46">		return this._memory.ullTotalPhys.longValue();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (this._memory == null) {</span>
+<span class="nc" id="L56">			LOG.warn(&quot;MemoryStatusEx not initialized. No total memory data available&quot;);</span>
+<span class="nc" id="L57">			return 0L;</span>
+		}
+<span class="nc" id="L59">		return this._memory.ullTotalPhys.longValue();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
