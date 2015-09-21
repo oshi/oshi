@@ -1,20 +1,23 @@
 OSHI
 ====
-[![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
 [![Eclipse](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
+[![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
+[![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 
 Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
 
 Essentials
 ----------
-* [Download Oshi 1.4](http://search.maven.org/#artifactdetails|com.github.dblock|oshi-core|1.4|jar)
+* [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
+* [Download Oshi 1.5](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5&amp;e=jar)
+* [Download Oshi 1.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.6-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
 Where are we?
 -------------
-Oshi is a young project. We'd like *you* to contribute ports and help imiplement more methods. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. We'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Current supported platforms
 ---------------------------
@@ -33,7 +36,7 @@ Current supported features
 ### Hardware ###
 * How much physical/available (free+reclaimable) RAM
 * How many Logical CPUs (core * thread)
-* CPU load % and tick counters
+* CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 
@@ -137,7 +140,7 @@ How is this different from ...
 * [Sigar](http://sigar.hyperic.com): 
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
-	* Sigar appears to be no longer actively supported as-of 2010. Oshi is under active development as-of 2015.
+	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2015.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
 	* The MXBean has very few methods that address system-wide statistics.

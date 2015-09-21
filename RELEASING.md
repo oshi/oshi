@@ -16,6 +16,7 @@ Releasing OSHI
 * Choose an appropriate [version number](http://semver.org/) for the release
  	* Proactively change version numbers in the download links on [README.md](README.md).
 	* Copy [README.md](README.md) to [src/site/markdown/README.md](src/site/markdown/README.md)
+		* HTML-escape `&`, `<`, and `>` in any links in the site version
 	* Change "Next" or in-progress version in [CHANGELOG.md](CHANGELOG.md) to this new version.
 	* Move "Your contribution here." to a new empty "Next" section
 	* Commit changes as a "prep for x.x release"
@@ -30,6 +31,7 @@ Releasing OSHI
 	* This will ask for the version being released, removing -SNAPSHOT
 	* This will suggest the next version, increment appropriately
 	* Allows opportunity to find/fix any build errors
+	* May need to `git reset` afterwards if files changed
 * `mvn release:clean`
 * `mvn release:prepare`
 * `mvn release:perform`
