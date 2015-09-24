@@ -20,6 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -31,9 +34,11 @@ import oshi.software.os.OperatingSystemVersion;
  */
 public class OSVersionInfoEx implements OperatingSystemVersion {
 
-	private String _version = null;
-	private String _codeName = null;
-	private String version = null;
+	private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+
+	private String _version;
+	private String _codeName;
+	private String version;
 
 	public OSVersionInfoEx() {
 		try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
@@ -70,6 +75,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 				}
 			}
 		} catch (FileNotFoundException e) {
+			LOG.trace("", e);
 			return;
 		}
 	}
@@ -89,19 +95,19 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	}
 
 	/**
-	 * @param _codeName
+	 * @param value
 	 *            the _codeName to set
 	 */
-	public void setCodeName(String _codeName) {
-		this._codeName = _codeName;
+	public void setCodeName(String value) {
+		this._codeName = value;
 	}
 
 	/**
-	 * @param _version
+	 * @param value
 	 *            the _version to set
 	 */
-	public void setVersion(String _version) {
-		this._version = _version;
+	public void setVersion(String value) {
+		this._version = value;
 	}
 
 	@Override

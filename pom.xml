@@ -186,7 +186,7 @@
                         <dependency>
                             <groupId>org.apache.maven.wagon</groupId>
                             <artifactId>wagon-ssh</artifactId>
-                            <version>2.9</version>
+                            <version>2.10</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -259,7 +259,7 @@
                     <configuration>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
-                        <arguments>-Psonatype-oss-release</arguments>
+                        <arguments>-Prelease</arguments>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -675,7 +675,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.9</version>
+                <version>2.10</version>
             </extension>
         </extensions>
     </build>
@@ -898,7 +898,7 @@
                                             <pluginExecutionFilter>
                                                 <groupId>org.apache.maven.plugins</groupId>
                                                 <artifactId>maven-enforcer-plugin</artifactId>
-                                                <versionRange>[1.4,)</versionRange>
+                                                <versionRange>[1.4.1,)</versionRange>
                                                 <goals>
                                                     <goal>enforce</goal>
                                                 </goals>
@@ -964,26 +964,6 @@
         </profile>
         <profile>
             <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>sonatype-oss-release</id>
             <build>
                 <plugins>
                     <plugin>

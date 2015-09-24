@@ -20,6 +20,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class for executing on the command line and returning the result of
@@ -28,8 +32,11 @@ import java.util.ArrayList;
  * @author alessandro[at]perucchi[dot]org
  */
 public class ExecutingCommand {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
+
 	/**
-	 * Executes a command on the native command line and returns the result
+	 * Executes a command on the native command line and returns the result.
 	 * 
 	 * @param cmdToRun
 	 *            Command to run
@@ -41,8 +48,10 @@ public class ExecutingCommand {
 			p = Runtime.getRuntime().exec(cmdToRun);
 			p.waitFor();
 		} catch (IOException e) {
+			LOG.trace("", e);
 			return null;
 		} catch (InterruptedException e) {
+			LOG.trace("", e);
 			return null;
 		}
 
@@ -54,13 +63,14 @@ public class ExecutingCommand {
 				sa.add(line);
 			}
 		} catch (IOException e) {
+			LOG.trace("", e);
 			return null;
 		}
 		return sa;
 	}
 
 	/**
-	 * Return first line of response for selected command
+	 * Return first line of response for selected command.
 	 * 
 	 * @param cmd2launch
 	 *            String command to be launched
@@ -72,7 +82,7 @@ public class ExecutingCommand {
 
 	/**
 	 * Return response on selected line index (0-based) after running selected
-	 * command
+	 * command.
 	 * 
 	 * @param cmd2launch
 	 *            String command to be launched
@@ -82,7 +92,7 @@ public class ExecutingCommand {
 	 *         of command fails
 	 */
 	public static String getAnswerAt(String cmd2launch, int answerIdx) {
-		ArrayList<String> sa = ExecutingCommand.runNative(cmd2launch);
+		List<String> sa = ExecutingCommand.runNative(cmd2launch);
 
 		if (sa != null && answerIdx >= 0 && answerIdx < sa.size()) {
 			return sa.get(answerIdx);

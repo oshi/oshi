@@ -24,6 +24,9 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileSystemView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.OSFileStore;
 
 /**
@@ -35,6 +38,9 @@ import oshi.software.os.OSFileStore;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsFileSystem {
+
+	private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+
 	/**
 	 * Gets File System Information.
 	 * 
@@ -61,13 +67,13 @@ public class WindowsFileSystem {
 			}
 		};
 		worker.execute();
-		List<OSFileStore> fs = new ArrayList<OSFileStore>();
+		List<OSFileStore> fs = new ArrayList<>();
 		try {
 			// TODO: Consider a timeout version of this method that passes
 			// timeout parameters which are used in this get()
 			fs = worker.get();
 		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			LOG.error("", e);
 		}
 		return fs.toArray(new OSFileStore[fs.size()]);
 	}

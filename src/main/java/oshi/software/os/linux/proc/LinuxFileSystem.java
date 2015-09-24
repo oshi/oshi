@@ -22,6 +22,9 @@ import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.OSFileStore;
 
 /**
@@ -33,6 +36,9 @@ import oshi.software.os.OSFileStore;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxFileSystem {
+
+	private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
+
 	/**
 	 * Gets File System Information.
 	 * 
@@ -60,6 +66,7 @@ public class LinuxFileSystem {
 				fsList.add(new OSFileStore(name, description, store.getUsableSpace(), store.getTotalSpace()));
 			} catch (IOException e) {
 				// get*Space() may fail for ejected CD-ROM, etc.
+				LOG.trace("", e);
 				continue;
 			}
 		}

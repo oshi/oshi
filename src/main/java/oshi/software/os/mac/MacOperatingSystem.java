@@ -28,7 +28,7 @@ import oshi.software.os.mac.local.OSVersionInfoEx;
 public class MacOperatingSystem implements OperatingSystem {
 	private String _family;
 
-	private OperatingSystemVersion _version = null;
+	private OperatingSystemVersion _version;
 
 	@Override
 	public OperatingSystemVersion getVersion() {

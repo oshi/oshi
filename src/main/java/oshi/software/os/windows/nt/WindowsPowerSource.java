@@ -39,10 +39,10 @@ public class WindowsPowerSource implements PowerSource {
 
 	private double timeRemaining;
 
-	public WindowsPowerSource(String name, double remainingCapacity, double timeRemaining) {
-		this.name = name;
-		this.remainingCapacity = remainingCapacity;
-		this.timeRemaining = timeRemaining;
+	public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+		this.name = newName;
+		this.remainingCapacity = newRemainingCapacity;
+		this.timeRemaining = newTimeRemaining;
 		LOG.debug("Initialized WindowsPowerSource");
 	}
 
@@ -62,7 +62,7 @@ public class WindowsPowerSource implements PowerSource {
 	}
 
 	/**
-	 * Gets Battery Information
+	 * Gets Battery Information.
 	 * 
 	 * @return An array of PowerSource objects representing batteries, etc.
 	 */
@@ -77,8 +77,9 @@ public class WindowsPowerSource implements PowerSource {
 			psArray[0] = new WindowsPowerSource("Unknown", 0d, -1d);
 		} else {
 			int estimatedTime = -2; // -1 = unknown, -2 = unlimited
-			if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0)
+			if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {
 				estimatedTime = batteryState.estimatedTime;
+			}
 			long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
 			long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
 

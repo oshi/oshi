@@ -34,9 +34,9 @@ import com.sun.jna.platform.win32.WinReg;
 
 public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
-	private Processor[] _processors = null;
+	private Processor[] _processors;
 
-	private Memory _memory = null;
+	private Memory _memory;
 
 	@Override
 	public Memory getMemory() {

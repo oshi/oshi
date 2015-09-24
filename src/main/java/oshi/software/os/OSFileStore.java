@@ -40,21 +40,21 @@ public class OSFileStore {
 	/**
 	 * Creates a {@link OSFileStore} with the specified parameters.
 	 * 
-	 * @param name
+	 * @param newName
 	 *            Name of the filestore
-	 * @param description
+	 * @param newDescription
 	 *            Description of the file store
-	 * @param usableSpace
+	 * @param newUsableSpace
 	 *            Available/usable bytes
-	 * @param totalSpace
+	 * @param newTotalSpace
 	 *            Total bytes
 	 */
-	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {
-		this.setName(name);
-		this.setDescription(description);
-		this.setUsableSpace(usableSpace);
-		this.setTotalSpace(totalSpace);
-		LOG.debug("Initialized OSFileStore: {}", name);
+	public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+		this.setName(newName);
+		this.setDescription(newDescription);
+		this.setUsableSpace(newUsableSpace);
+		this.setTotalSpace(newTotalSpace);
+		LOG.debug("Initialized OSFileStore: {}", newName);
 	}
 
 	/**
@@ -69,11 +69,11 @@ public class OSFileStore {
 	/**
 	 * Sets the File System name
 	 * 
-	 * @param name
+	 * @param value
 	 *            The name
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String value) {
+		this.name = value;
 	}
 
 	/**
@@ -88,11 +88,11 @@ public class OSFileStore {
 	/**
 	 * Sets the File System description
 	 * 
-	 * @param description
+	 * @param value
 	 *            The description
 	 */
-	public void setDescription(String description) {
-		this.description = description;
+	public void setDescription(String value) {
+		this.description = value;
 	}
 
 	/**
@@ -107,11 +107,11 @@ public class OSFileStore {
 	/**
 	 * Sets usable space on the drive.
 	 * 
-	 * @param usableSpace
+	 * @param value
 	 *            Bytes of writable space.
 	 */
-	public void setUsableSpace(long usableSpace) {
-		this.usableSpace = usableSpace;
+	public void setUsableSpace(long value) {
+		this.usableSpace = value;
 	}
 
 	/**
@@ -126,10 +126,10 @@ public class OSFileStore {
 	/**
 	 * Sets the total space on the drive.
 	 * 
-	 * @param totalSpace
+	 * @param value
 	 *            Bytes of total space.
 	 */
-	public void setTotalSpace(long totalSpace) {
-		this.totalSpace = totalSpace;
+	public void setTotalSpace(long value) {
+		this.totalSpace = value;
 	}
 }

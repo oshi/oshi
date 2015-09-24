@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Read an entire file at one time and return a list of Strings for each line.
  * Intended primarily for Linux /proc filesystem to avoid recalculating file
- * contents on iterative reads
+ * contents on iterative reads.
  * 
  * @author widdis[at]gmail[dot]com
  */

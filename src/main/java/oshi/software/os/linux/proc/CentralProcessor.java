@@ -46,7 +46,7 @@ public class CentralProcessor implements Processor {
 
 	// Determine whether MXBean supports Oracle JVM methods
 	private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-			.getOperatingSystemMXBean();;
+			.getOperatingSystemMXBean();
 	private static boolean sunMXBean;
 
 	static {
@@ -59,6 +59,7 @@ public class CentralProcessor implements Processor {
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
 			LOG.debug("Oracle MXBean not detected.");
+			LOG.trace("", e);
 		}
 	}
 
@@ -107,11 +108,11 @@ public class CentralProcessor implements Processor {
 	private int processorNumber;
 	private String cpuVendor;
 	private String cpuName;
-	private String cpuIdentifier = null;
+	private String cpuIdentifier;
 	private String cpuStepping;
 	private String cpuModel;
 	private String cpuFamily;
-	private Long cpuVendorFreq = null;
+	private Long cpuVendorFreq;
 	private Boolean cpu64;
 
 	/**
@@ -121,12 +122,13 @@ public class CentralProcessor implements Processor {
 	 *            The processor number
 	 */
 	public CentralProcessor(int procNo) {
-		if (procNo >= numCPU)
+		if (procNo >= numCPU) {
 			throw new IllegalArgumentException("Processor number (" + procNo
 					+ ") must be less than the number of CPUs: " + numCPU);
+		}
 		this.processorNumber = procNo;
 		updateProcessorTicks();
-		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
+		System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
 		LOG.debug("Initialized Processor {}", procNo);
 	}
 
@@ -135,7 +137,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public int getProcessorNumber() {
-		return processorNumber;
+		return this.processorNumber;
 	}
 
 	/**
@@ -223,10 +225,11 @@ public class CentralProcessor implements Processor {
 	public String getIdentifier() {
 		if (this.cpuIdentifier == null) {
 			StringBuilder sb = new StringBuilder();
-			if (getVendor().contentEquals("GenuineIntel"))
+			if (getVendor().contentEquals("GenuineIntel")) {
 				sb.append(isCpu64bit() ? "Intel64" : "x86");
-			else
+			} else {
 				sb.append(getVendor());
+			}
 			sb.append(" Family ");
 			sb.append(getFamily());
 			sb.append(" Model ");
@@ -262,12 +265,12 @@ public class CentralProcessor implements Processor {
 	/**
 	 * Set flag is cpu is 64bit.
 	 * 
-	 * @param cpu64
+	 * @param value
 	 *            True if cpu is 64.
 	 */
 	@Override
-	public void setCpu64(boolean cpu64) {
-		this.cpu64 = Boolean.valueOf(cpu64);
+	public void setCpu64(boolean value) {
+		this.cpu64 = Boolean.valueOf(value);
 	}
 
 	/**
@@ -437,21 +440,21 @@ public class CentralProcessor implements Processor {
 	public double getProcessorCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
-		LOG.trace("Current time: {}  Last processor tick time: {}", now, procTickTime);
-		if (now - procTickTime > 950) {
+		LOG.trace("Current time: {}  Last processor tick time: {}", now, this.procTickTime);
+		if (now - this.procTickTime > 950) {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
 			// Copy arrays in place
-			System.arraycopy(curProcTicks, 0, prevProcTicks, 0, curProcTicks.length);
-			System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
-			procTickTime = now;
+			System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0, this.curProcTicks.length);
+			System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
+			this.procTickTime = now;
 		}
 		long total = 0;
-		for (int i = 0; i < curProcTicks.length; i++) {
-			total += (curProcTicks[i] - prevProcTicks[i]);
+		for (int i = 0; i < this.curProcTicks.length; i++) {
+			total += (this.curProcTicks[i] - this.prevProcTicks[i]);
 		}
 		// Calculate idle from last field [3]
-		long idle = curProcTicks[3] - prevProcTicks[3];
+		long idle = this.curProcTicks[3] - this.prevProcTicks[3];
 		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 		// update
 		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
@@ -460,9 +463,10 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getProcessorCpuLoadTicks() {
 		updateProcessorTicks();
-		return allProcessorTicks[processorNumber];
+		return allProcessorTicks[this.processorNumber];
 	}
 
 	/**
@@ -507,6 +511,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getSystemUptime() {
 		Sysinfo info = new Sysinfo();
 		if (0 != Libc.INSTANCE.sysinfo(info)) {

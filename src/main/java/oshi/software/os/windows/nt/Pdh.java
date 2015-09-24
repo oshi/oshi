@@ -37,18 +37,18 @@ public interface Pdh extends Library {
 	Pdh INSTANCE = (Pdh) Native.loadLibrary("Pdh", Pdh.class);
 
 	// Counter return types
-	public static final int PDH_FMT_LONG = 0x00000100; // Native Long
-	public static final int PDH_FMT_DOUBLE = 0x00000200; // double
-	public static final int PDH_FMT_LARGE = 0x00000400; // 64 bit long
+	static final int PDH_FMT_LONG = 0x00000100; // Native Long
+	static final int PDH_FMT_DOUBLE = 0x00000200; // double
+	static final int PDH_FMT_LARGE = 0x00000400; // 64 bit long
 	// These can be combined with above types with bitwise OR
-	public static final int PDH_FMT_NOSCALE = 0x00001000; // don't scale
-	public static final int PDH_FMT_1000 = 0x00002000; // multiply by 1000
-	public static final int PDH_FMT_NOCAP100 = 0x00008000; // don't cap at 100
+	static final int PDH_FMT_NOSCALE = 0x00001000; // don't scale
+	static final int PDH_FMT_1000 = 0x00002000; // multiply by 1000
+	static final int PDH_FMT_NOCAP100 = 0x00008000; // don't cap at 100
 
 	/**
 	 * Union included in return value of {@link PdhFmtCounterValue}
 	 */
-	public static class ValueUnion extends Union {
+	static class ValueUnion extends Union {
 		public int longValue;
 		public double doubleValue;
 		public long largeValue;
@@ -59,7 +59,7 @@ public interface Pdh extends Library {
 	/**
 	 * Holds the return value of a formatted data query.
 	 */
-	public static class PdhFmtCounterValue extends Structure {
+	static class PdhFmtCounterValue extends Structure {
 		public int cStatus;
 		public ValueUnion value;
 

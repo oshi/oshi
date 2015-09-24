@@ -34,10 +34,10 @@ import oshi.software.os.OperatingSystemVersion;
 public class OSVersionInfoEx implements OperatingSystemVersion {
 	private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
 
-	private String _version = null;
-	private String _codeName = null;
-	private String _versionStr = null;
-	private String _buildNumber = null;
+	private String _version;
+	private String _codeName;
+	private String _versionStr;
+	private String _buildNumber;
 
 	public OSVersionInfoEx() {
 	}
@@ -46,8 +46,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	 * @return the _version
 	 */
 	public String getVersion() {
-		if (this._version == null)
+		if (this._version == null) {
 			this._version = System.getProperty("os.version");
+		}
 		return this._version;
 	}
 
@@ -148,8 +149,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 	public String toString() {
 		if (this._versionStr == null) {
 			StringBuilder sb = new StringBuilder(getVersion());
-			if (getCodeName().length() > 0)
+			if (getCodeName().length() > 0) {
 				sb.append(" (").append(getCodeName()).append(")");
+			}
 			sb.append(" build ").append(getBuildNumber());
 			this._versionStr = sb.toString();
 		}

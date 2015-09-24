@@ -59,7 +59,7 @@ public interface SystemB extends Library {
 	static int UINT64_SIZE = Native.getNativeSize(long.class);
 	static int INT_SIZE = Native.getNativeSize(int.class);
 
-	public static class HostCpuLoadInfo extends Structure {
+	static class HostCpuLoadInfo extends Structure {
 		public int[] cpu_ticks = new int[CPU_STATE_MAX];
 
 		@Override
@@ -68,7 +68,7 @@ public interface SystemB extends Library {
 		}
 	}
 
-	public static class HostLoadInfo extends Structure {
+	static class HostLoadInfo extends Structure {
 		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE
 		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
 
@@ -78,7 +78,7 @@ public interface SystemB extends Library {
 		}
 	}
 
-	public static class VMStatistics extends Structure {
+	static class VMStatistics extends Structure {
 		public int free_count; // # of pages free
 		public int active_count; // # of pages active
 		public int inactive_count; // # of pages inactive
@@ -104,7 +104,7 @@ public interface SystemB extends Library {
 		}
 	}
 
-	public static class VMStatistics64 extends Structure {
+	static class VMStatistics64 extends Structure {
 		public int free_count; // # of pages free
 		public int active_count; // # of pages active
 		public int inactive_count; // # of pages inactive

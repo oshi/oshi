@@ -45,10 +45,10 @@ public class MacPowerSource implements PowerSource {
 
 	private double timeRemaining;
 
-	public MacPowerSource(String name, double remainingCapacity, double timeRemaining) {
-		this.name = name;
-		this.remainingCapacity = remainingCapacity;
-		this.timeRemaining = timeRemaining;
+	public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+		this.name = newName;
+		this.remainingCapacity = newRemainingCapacity;
+		this.timeRemaining = newTimeRemaining;
 		LOG.debug("Initialized MacPowerSource");
 	}
 
@@ -93,10 +93,12 @@ public class MacPowerSource implements PowerSource {
 			// Skip if not present
 			boolean isPresent = false;
 			Pointer isPresentRef = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);
-			if (isPresentRef != null)
+			if (isPresentRef != null) {
 				isPresent = CoreFoundation.INSTANCE.CFBooleanGetValue(isPresentRef);
-			if (!isPresent)
+			}
+			if (!isPresent) {
 				continue;
+			}
 
 			// Name
 			Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY);
@@ -108,15 +110,17 @@ public class MacPowerSource implements PowerSource {
 			// Remaining Capacity = current / max
 			IntByReference currentCapacity = new IntByReference();
 			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,
-					currentCapacity))
+					currentCapacity)) {
 				currentCapacity = new IntByReference(0);
+			}
 			IntByReference maxCapacity = new IntByReference();
 			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_MAX_CAPACITY_KEY,
-					maxCapacity))
+					maxCapacity)) {
 				maxCapacity = new IntByReference(1);
+			}
 
 			// Add to list
-			psList.add(new MacPowerSource(nameBuf != null ? nameBuf.getString(0) : "Unknown", (double) currentCapacity
+			psList.add(new MacPowerSource(nameBuf.getString(0), (double) currentCapacity
 					.getValue() / maxCapacity.getValue(), timeRemaining));
 		}
 		// Release the blob

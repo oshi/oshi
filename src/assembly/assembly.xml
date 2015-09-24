@@ -1,7 +1,7 @@
 <assembly
-	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
 	<id>oshi-assembly</id>
 	<formats>
 		<format>tar.gz</format>
@@ -10,27 +10,27 @@
 	</formats>
 	<dependencySets>
 		<dependencySet>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 		</dependencySet>
 	</dependencySets>
 	<files>
 		<file>
 			<source>${project.basedir}/LICENSE_EPL</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>license.txt</destName>
 		</file>
 	</files>
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}</directory>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>*.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>${project.build.directory}/site</directory>
-			<outputDirectory>/doc</outputDirectory>
+			<outputDirectory>doc</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>

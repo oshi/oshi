@@ -43,9 +43,9 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
 	private static final String SEPARATOR = "\\s+:\\s";
 
-	private Processor[] _processors = null;
+	private Processor[] _processors;
 
-	private Memory _memory = null;
+	private Memory _memory;
 
 	@Override
 	public Memory getMemory() {
