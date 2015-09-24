@@ -259,7 +259,7 @@
                     <configuration>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
-                        <arguments>-Psonatype-oss-release</arguments>
+                        <arguments>-Prelease</arguments>
                     </configuration>
                 </plugin>
                 <plugin>
