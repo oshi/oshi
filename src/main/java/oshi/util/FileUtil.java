@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
-	private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
-	public static List<String> readFile(String filename) throws IOException {
-		LOG.debug("Reading file {}", filename);
-		return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-	}
+    public static List<String> readFile(String filename) throws IOException {
+        LOG.debug("Reading file {}", filename);
+        return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+    }
 }

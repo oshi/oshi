@@ -27,17 +27,17 @@ package oshi.hardware;
  * @author dblock[at]dblock[dot]org
  */
 public interface Memory {
-	/**
-	 * Total memory.
-	 * 
-	 * @return Total number of bytes.
-	 */
-	long getTotal();
+    /**
+     * Total memory.
+     * 
+     * @return Total number of bytes.
+     */
+    long getTotal();
 
-	/**
-	 * Currently available.
-	 * 
-	 * @return Available number of bytes.
-	 */
-	long getAvailable();
+    /**
+     * Currently available.
+     * 
+     * @return Available number of bytes.
+     */
+    long getAvailable();
 }

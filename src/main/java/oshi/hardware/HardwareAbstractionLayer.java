@@ -26,37 +26,37 @@ import oshi.software.os.OSFileStore;
  */
 public interface HardwareAbstractionLayer {
 
-	/**
-	 * Instantiates an array of {@link Processor} objects. This represents one
-	 * or more Logical CPUs.
-	 * 
-	 * @return An array of {@link Processor} objects.
-	 */
-	Processor[] getProcessors();
+    /**
+     * Instantiates an array of {@link Processor} objects. This represents one
+     * or more Logical CPUs.
+     * 
+     * @return An array of {@link Processor} objects.
+     */
+    Processor[] getProcessors();
 
-	/**
-	 * Instantiates a {@link Memory} object.
-	 * 
-	 * @return A memory object.
-	 */
-	Memory getMemory();
+    /**
+     * Instantiates a {@link Memory} object.
+     * 
+     * @return A memory object.
+     */
+    Memory getMemory();
 
-	/**
-	 * Instantiates an array of {@link PowerSource} objects, representing
-	 * batteries, etc.
-	 * 
-	 * @return An array of PowerSource objects or an empty array if none are
-	 *         present.
-	 */
-	PowerSource[] getPowerSources();
+    /**
+     * Instantiates an array of {@link PowerSource} objects, representing
+     * batteries, etc.
+     * 
+     * @return An array of PowerSource objects or an empty array if none are
+     *         present.
+     */
+    PowerSource[] getPowerSources();
 
-	/**
-	 * Instantiates an array of {@link OSFileStore} objects, representing a
-	 * storage pool, device, partition, volume, concrete file system or other
-	 * implementation specific means of file storage.
-	 * 
-	 * @return An array of OSFileStore objects or an empty array if none are
-	 *         present.
-	 */
-	OSFileStore[] getFileStores();
+    /**
+     * Instantiates an array of {@link OSFileStore} objects, representing a
+     * storage pool, device, partition, volume, concrete file system or other
+     * implementation specific means of file storage.
+     * 
+     * @return An array of OSFileStore objects or an empty array if none are
+     *         present.
+     */
+    OSFileStore[] getFileStores();
 }

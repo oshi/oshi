@@ -30,32 +30,32 @@ import oshi.hardware.Memory;
  * @author dblock[at]dblock[dot]org
  */
 public class GlobalMemory implements Memory {
-	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
 
-	private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
+    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
 
-	public GlobalMemory() {
-		if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-			LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-			this._memory = null;
-		}
-	}
+    public GlobalMemory() {
+        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
+            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            this._memory = null;
+        }
+    }
 
-	@Override
-	public long getAvailable() {
-		if (this._memory == null) {
-			LOG.warn("MemoryStatusEx not initialized. No available memoroy data available");
-			return 0L;
-		}
-		return this._memory.ullAvailPhys.longValue();
-	}
+    @Override
+    public long getAvailable() {
+        if (this._memory == null) {
+            LOG.warn("MemoryStatusEx not initialized. No available memoroy data available");
+            return 0L;
+        }
+        return this._memory.ullAvailPhys.longValue();
+    }
 
-	@Override
-	public long getTotal() {
-		if (this._memory == null) {
-			LOG.warn("MemoryStatusEx not initialized. No total memory data available");
-			return 0L;
-		}
-		return this._memory.ullTotalPhys.longValue();
-	}
+    @Override
+    public long getTotal() {
+        if (this._memory == null) {
+            LOG.warn("MemoryStatusEx not initialized. No total memory data available");
+            return 0L;
+        }
+        return this._memory.ullTotalPhys.longValue();
+    }
 }

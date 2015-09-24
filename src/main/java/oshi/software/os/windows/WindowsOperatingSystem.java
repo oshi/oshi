@@ -28,34 +28,34 @@ import oshi.software.os.windows.nt.OSVersionInfoEx;
  */
 public class WindowsOperatingSystem implements OperatingSystem {
 
-	private OperatingSystemVersion _version;
+    private OperatingSystemVersion _version;
 
-	@Override
-	public OperatingSystemVersion getVersion() {
-		if (this._version == null) {
-			this._version = new OSVersionInfoEx();
-		}
-		return this._version;
-	}
+    @Override
+    public OperatingSystemVersion getVersion() {
+        if (this._version == null) {
+            this._version = new OSVersionInfoEx();
+        }
+        return this._version;
+    }
 
-	@Override
-	public String getFamily() {
-		return "Windows";
-	}
+    @Override
+    public String getFamily() {
+        return "Windows";
+    }
 
-	@Override
-	public String getManufacturer() {
-		return "Microsoft";
-	}
+    @Override
+    public String getManufacturer() {
+        return "Microsoft";
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(getManufacturer());
-		sb.append(" ");
-		sb.append(getFamily());
-		sb.append(" ");
-		sb.append(getVersion().toString());
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getManufacturer());
+        sb.append(" ");
+        sb.append(getFamily());
+        sb.append(" ");
+        sb.append(getVersion().toString());
+        return sb.toString();
+    }
 }

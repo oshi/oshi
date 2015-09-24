@@ -39,97 +39,97 @@ import oshi.util.FileUtil;
  */
 
 public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
-	private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);
 
-	private static final String SEPARATOR = "\\s+:\\s";
+    private static final String SEPARATOR = "\\s+:\\s";
 
-	private Processor[] _processors;
+    private Processor[] _processors;
 
-	private Memory _memory;
+    private Memory _memory;
 
-	@Override
-	public Memory getMemory() {
-		if (this._memory == null) {
-			this._memory = new GlobalMemory();
-		}
-		return this._memory;
-	}
+    @Override
+    public Memory getMemory() {
+        if (this._memory == null) {
+            this._memory = new GlobalMemory();
+        }
+        return this._memory;
+    }
 
-	@Override
-	public Processor[] getProcessors() {
+    @Override
+    public Processor[] getProcessors() {
 
-		if (this._processors == null) {
-			List<Processor> processors = new ArrayList<>();
-			List<String> cpuInfo = null;
-			try {
-				cpuInfo = FileUtil.readFile("/proc/cpuinfo");
-			} catch (IOException e) {
-				LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
-				return null;
-			}
-			CentralProcessor cpu = null;
-			int numCPU = 0;
-			for (String toBeAnalyzed : cpuInfo) {
-				if (toBeAnalyzed.equals("")) {
-					if (cpu != null) {
-						processors.add(cpu);
-					}
-					cpu = null;
-					continue;
-				}
-				if (cpu == null) {
-					cpu = new CentralProcessor(numCPU++);
-				}
-				if (toBeAnalyzed.startsWith("model name\t")) {
-					cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);
-					continue;
-				}
-				if (toBeAnalyzed.startsWith("flags\t")) {
-					String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(" ");
-					boolean found = false;
-					for (String flag : flags) {
-						if (flag.equalsIgnoreCase("LM")) {
-							found = true;
-							break;
-						}
-					}
-					cpu.setCpu64(found);
-					continue;
-				}
-				if (toBeAnalyzed.startsWith("cpu family\t")) {
-					cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
-					continue;
-				}
-				if (toBeAnalyzed.startsWith("model\t")) {
-					cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
-					continue;
-				}
-				if (toBeAnalyzed.startsWith("stepping\t")) {
-					cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
-					continue;
-				}
-				if (toBeAnalyzed.startsWith("vendor_id")) {
-					cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
-					continue;
-				}
-			}
-			if (cpu != null) {
-				processors.add(cpu);
-			}
-			this._processors = processors.toArray(new Processor[0]);
-		}
+        if (this._processors == null) {
+            List<Processor> processors = new ArrayList<>();
+            List<String> cpuInfo = null;
+            try {
+                cpuInfo = FileUtil.readFile("/proc/cpuinfo");
+            } catch (IOException e) {
+                LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
+                return null;
+            }
+            CentralProcessor cpu = null;
+            int numCPU = 0;
+            for (String toBeAnalyzed : cpuInfo) {
+                if (toBeAnalyzed.equals("")) {
+                    if (cpu != null) {
+                        processors.add(cpu);
+                    }
+                    cpu = null;
+                    continue;
+                }
+                if (cpu == null) {
+                    cpu = new CentralProcessor(numCPU++);
+                }
+                if (toBeAnalyzed.startsWith("model name\t")) {
+                    cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);
+                    continue;
+                }
+                if (toBeAnalyzed.startsWith("flags\t")) {
+                    String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(" ");
+                    boolean found = false;
+                    for (String flag : flags) {
+                        if (flag.equalsIgnoreCase("LM")) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    cpu.setCpu64(found);
+                    continue;
+                }
+                if (toBeAnalyzed.startsWith("cpu family\t")) {
+                    cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
+                    continue;
+                }
+                if (toBeAnalyzed.startsWith("model\t")) {
+                    cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
+                    continue;
+                }
+                if (toBeAnalyzed.startsWith("stepping\t")) {
+                    cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
+                    continue;
+                }
+                if (toBeAnalyzed.startsWith("vendor_id")) {
+                    cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
+                    continue;
+                }
+            }
+            if (cpu != null) {
+                processors.add(cpu);
+            }
+            this._processors = processors.toArray(new Processor[0]);
+        }
 
-		return this._processors;
-	}
+        return this._processors;
+    }
 
-	@Override
-	public PowerSource[] getPowerSources() {
-		return LinuxPowerSource.getPowerSources();
-	}
+    @Override
+    public PowerSource[] getPowerSources() {
+        return LinuxPowerSource.getPowerSources();
+    }
 
-	@Override
-	public OSFileStore[] getFileStores() {
-		return LinuxFileSystem.getFileStores();
-	}
+    @Override
+    public OSFileStore[] getFileStores() {
+        return LinuxFileSystem.getFileStores();
+    }
 
 }

@@ -30,42 +30,42 @@ import com.sun.jna.ptr.IntByReference;
  * @author dblock[at]dblock[dot]org
  */
 public class OSNativeSystemInfo {
-	private static final Logger LOG = LoggerFactory.getLogger(OSNativeSystemInfo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OSNativeSystemInfo.class);
 
-	private SYSTEM_INFO _si = null;
+    private SYSTEM_INFO _si = null;
 
-	public OSNativeSystemInfo() {
+    public OSNativeSystemInfo() {
 
-		SYSTEM_INFO si = new SYSTEM_INFO();
-		Kernel32.INSTANCE.GetSystemInfo(si);
+        SYSTEM_INFO si = new SYSTEM_INFO();
+        Kernel32.INSTANCE.GetSystemInfo(si);
 
-		try {
-			IntByReference isWow64 = new IntByReference();
-			HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
-			if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64)) {
-				if (isWow64.getValue() > 0) {
-					Kernel32.INSTANCE.GetNativeSystemInfo(si);
-				}
-			}
-		} catch (UnsatisfiedLinkError e) {
-			// no WOW64 support
-			LOG.trace("", e);
-		}
+        try {
+            IntByReference isWow64 = new IntByReference();
+            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
+            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64)) {
+                if (isWow64.getValue() > 0) {
+                    Kernel32.INSTANCE.GetNativeSystemInfo(si);
+                }
+            }
+        } catch (UnsatisfiedLinkError e) {
+            // no WOW64 support
+            LOG.trace("", e);
+        }
 
-		this._si = si;
-		LOG.debug("Initialized OSNativeSystemInfo");
-	}
+        this._si = si;
+        LOG.debug("Initialized OSNativeSystemInfo");
+    }
 
-	public OSNativeSystemInfo(SYSTEM_INFO si) {
-		this._si = si;
-	}
+    public OSNativeSystemInfo(SYSTEM_INFO si) {
+        this._si = si;
+    }
 
-	/**
-	 * Number of processors.
-	 * 
-	 * @return Integer.
-	 */
-	public int getNumberOfProcessors() {
-		return this._si.dwNumberOfProcessors.intValue();
-	}
+    /**
+     * Number of processors.
+     * 
+     * @return Integer.
+     */
+    public int getNumberOfProcessors() {
+        return this._si.dwNumberOfProcessors.intValue();
+    }
 }

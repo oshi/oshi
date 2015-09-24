@@ -34,88 +34,88 @@ import oshi.software.os.OperatingSystemVersion;
  */
 public class OSVersionInfoEx implements OperatingSystemVersion {
 
-	private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
 
-	private String _version;
-	private String _codeName;
-	private String version;
+    private String _version;
+    private String _codeName;
+    private String version;
 
-	public OSVersionInfoEx() {
-		try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
-			in.useDelimiter("\n");
-			while (in.hasNext()) {
-				String[] splittedLine = in.next().split("=");
-				if (splittedLine[0].equals("VERSION_ID")) {
-					// remove beginning and ending '"' characters, etc from
-					// VERSION_ID="14.04"
-					setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
-				}
-				if (splittedLine[0].equals("VERSION")) {
-					// remove beginning and ending '"' characters
-					splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
+    public OSVersionInfoEx() {
+        try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
+            in.useDelimiter("\n");
+            while (in.hasNext()) {
+                String[] splittedLine = in.next().split("=");
+                if (splittedLine[0].equals("VERSION_ID")) {
+                    // remove beginning and ending '"' characters, etc from
+                    // VERSION_ID="14.04"
+                    setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
+                }
+                if (splittedLine[0].equals("VERSION")) {
+                    // remove beginning and ending '"' characters
+                    splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
 
-					// Check basically if the code is between parenthesis or
-					// after
-					// the comma-space
+                    // Check basically if the code is between parenthesis or
+                    // after
+                    // the comma-space
 
-					// Basically, until now, that seems to be the standard to
-					// use
-					// parenthesis for the codename.
-					String[] split = splittedLine[1].split("[()]");
-					if (split.length <= 1)
-						// We are probably with Ubuntu, so need to get that part
-						// correctly.
-						split = splittedLine[1].split(", ");
+                    // Basically, until now, that seems to be the standard to
+                    // use
+                    // parenthesis for the codename.
+                    String[] split = splittedLine[1].split("[()]");
+                    if (split.length <= 1)
+                        // We are probably with Ubuntu, so need to get that part
+                        // correctly.
+                        split = splittedLine[1].split(", ");
 
-					if (split.length > 1) {
-						setCodeName(split[1]);
-					} else {
-						setCodeName(splittedLine[1]);
-					}
-				}
-			}
-		} catch (FileNotFoundException e) {
-			LOG.trace("", e);
-			return;
-		}
-	}
+                    if (split.length > 1) {
+                        setCodeName(split[1]);
+                    } else {
+                        setCodeName(splittedLine[1]);
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            LOG.trace("", e);
+            return;
+        }
+    }
 
-	/**
-	 * @return the _codeName
-	 */
-	public String getCodeName() {
-		return this._codeName;
-	}
+    /**
+     * @return the _codeName
+     */
+    public String getCodeName() {
+        return this._codeName;
+    }
 
-	/**
-	 * @return the _version
-	 */
-	public String getVersion() {
-		return this._version;
-	}
+    /**
+     * @return the _version
+     */
+    public String getVersion() {
+        return this._version;
+    }
 
-	/**
-	 * @param value
-	 *            the _codeName to set
-	 */
-	public void setCodeName(String value) {
-		this._codeName = value;
-	}
+    /**
+     * @param value
+     *            the _codeName to set
+     */
+    public void setCodeName(String value) {
+        this._codeName = value;
+    }
 
-	/**
-	 * @param value
-	 *            the _version to set
-	 */
-	public void setVersion(String value) {
-		this._version = value;
-	}
+    /**
+     * @param value
+     *            the _version to set
+     */
+    public void setVersion(String value) {
+        this._version = value;
+    }
 
-	@Override
-	public String toString() {
-		if (this.version == null) {
-			this.version = getVersion() + " (" + getCodeName() + ")";
-		}
-		return this.version;
-	}
+    @Override
+    public String toString() {
+        if (this.version == null) {
+            this.version = getVersion() + " (" + getCodeName() + ")";
+        }
+        return this.version;
+    }
 
 }
