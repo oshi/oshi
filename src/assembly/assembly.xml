@@ -10,27 +10,27 @@
 	</formats>
 	<dependencySets>
 		<dependencySet>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 		</dependencySet>
 	</dependencySets>
 	<files>
 		<file>
 			<source>${project.basedir}/LICENSE_EPL</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>license.txt</destName>
 		</file>
 	</files>
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}</directory>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>*.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>${project.build.directory}/site</directory>
-			<outputDirectory>/doc</outputDirectory>
+			<outputDirectory>doc</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>
