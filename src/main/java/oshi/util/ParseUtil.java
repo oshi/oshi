@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * String parsing utility.
  * 
@@ -28,8 +31,10 @@ import java.util.regex.Pattern;
  */
 public abstract class ParseUtil {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
+	
 	/**
-	 * Hertz related variables
+	 * Hertz related variables.
 	 */
 	final private static String Hertz = "Hz";
 	final private static String kiloHertz = "k" + Hertz;
@@ -40,7 +45,7 @@ public abstract class ParseUtil {
 	final private static Map<String, Long> multipliers;
 
 	static {
-		multipliers = new HashMap<String, Long>();
+		multipliers = new HashMap<>();
 		multipliers.put(Hertz, 1L);
 		multipliers.put(kiloHertz, 1000L);
 		multipliers.put(megaHertz, 1000000L);
@@ -70,6 +75,7 @@ public abstract class ParseUtil {
 					return value.longValue();
 				}
 			} catch (NumberFormatException e) {
+				LOG.trace("", e);
 			}
 		}
 

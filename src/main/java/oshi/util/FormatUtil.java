@@ -28,7 +28,7 @@ public abstract class FormatUtil {
 
 	/**
 	 * Added these variable for easier reading Using the IEC Standard for naming
-	 * the units
+	 * the units.
 	 * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
 	 */
 	final private static long kibiByte = 1024L;
@@ -123,7 +123,7 @@ public abstract class FormatUtil {
 	}
 
 	/**
-	 * Formats an elapsed time in seconds as days, hh:mm:ss
+	 * Formats an elapsed time in seconds as days, hh:mm:ss.
 	 * 
 	 * @param secs
 	 *            Elapsed seconds
@@ -142,7 +142,7 @@ public abstract class FormatUtil {
 	}
 
 	/**
-	 * Round to certain number of decimals
+	 * Round to certain number of decimals.
 	 *
 	 * @param d
 	 *            Number to be rounded
@@ -151,13 +151,13 @@ public abstract class FormatUtil {
 	 * @return rounded result
 	 */
 	public static float round(float d, int decimalPlace) {
-		BigDecimal bd = new BigDecimal(Float.toString(d));
-		bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+		final BigDecimal bd = new BigDecimal(Float.toString(d))
+				.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
 		return bd.floatValue();
 	}
 
 	/**
-	 * Convert unsigned int to signed long
+	 * Convert unsigned int to signed long.
 	 * 
 	 * @param x
 	 *            Signed int representing an unsigned integer

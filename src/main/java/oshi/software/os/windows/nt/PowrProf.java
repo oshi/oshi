@@ -33,9 +33,9 @@ import com.sun.jna.Structure;
 public interface PowrProf extends Library {
 	PowrProf INSTANCE = (PowrProf) Native.loadLibrary("PowrProf", PowrProf.class);
 
-	public static int SYSTEM_BATTERY_STATE = 5;
+	static int SYSTEM_BATTERY_STATE = 5;
 
-	public static class SystemBatteryState extends Structure {
+	static class SystemBatteryState extends Structure {
 		public byte acOnLine; // boolean
 		public byte batteryPresent; // boolean
 		public byte charging; // boolean

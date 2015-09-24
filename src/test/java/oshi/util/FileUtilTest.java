@@ -49,11 +49,13 @@ public class FileUtilTest {
 		int lineTwo = 0;
 		for (int i = 0; i < thisFile.size(); i++) {
 			String line = thisFile.get(i);
-			if (line.contains("Comment ONE line"))
+			if (line.contains("Comment ONE line")) {
 				lineOne = i;
-			if (line.contains("Comment TWO line"))
+			}
+			if (line.contains("Comment TWO line")) {
 				lineTwo = i;
+			}
 		}
-		assertEquals(2, lineTwo - lineOne);
+		assertEquals(3, lineTwo - lineOne);
 	}
 }

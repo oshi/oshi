@@ -30,14 +30,14 @@ public interface OperatingSystem {
 	 * 
 	 * @return String.
 	 */
-	public String getFamily();
+	String getFamily();
 
 	/**
 	 * Manufacturer.
 	 * 
 	 * @return String.
 	 */
-	public String getManufacturer();
+	String getManufacturer();
 
 	/**
 	 * Operating system version.

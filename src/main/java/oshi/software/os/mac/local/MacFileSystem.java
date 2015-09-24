@@ -26,6 +26,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.OSFileStore;
 
 /**
@@ -37,6 +40,9 @@ import oshi.software.os.OSFileStore;
  * @author widdis[at]gmail[dot]com
  */
 public class MacFileSystem {
+
+	private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
+	
 	// Regexp matcher for /dev/disk1 etc.
 	private static final Pattern localDisk = Pattern.compile("/dev/disk\\d");
 
@@ -52,22 +58,26 @@ public class MacFileSystem {
 		FileSystemView fsv = FileSystemView.getFileSystemView();
 		// Mac file systems are mounted in /Volumes
 		File volumes = new File("/Volumes");
-		if (volumes != null && volumes.listFiles() != null)
+		if (volumes.listFiles() != null)
 			for (File f : volumes.listFiles()) {
 				// Everyone hates DS Store
-				if (f.getName().endsWith(".DS_Store"))
+				if (f.getName().endsWith(".DS_Store")) {
 					continue;
+				}
 				String name = fsv.getSystemDisplayName(f);
 				String description = "Volume";
 				try {
 					if (f.getCanonicalPath().equals("/"))
 						name = name + " (/)";
 					FileStore fs = Files.getFileStore(f.toPath());
-					if (localDisk.matcher(fs.name()).matches())
+					if (localDisk.matcher(fs.name()).matches()) {
 						description = "Local Disk";
-					if (fs.name().startsWith("localhost:") || fs.name().startsWith("//"))
+					}
+					if (fs.name().startsWith("localhost:") || fs.name().startsWith("//")) {
 						description = "Network Drive";
+					}
 				} catch (IOException e) {
+					LOG.trace("", e);
 					continue;
 				}
 				fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));

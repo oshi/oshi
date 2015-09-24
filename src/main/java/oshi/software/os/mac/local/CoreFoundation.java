@@ -30,7 +30,7 @@ import com.sun.jna.PointerType;
 public interface CoreFoundation extends Library {
 	CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary("CoreFoundation", CoreFoundation.class);
 
-	public static final int UTF_8 = 0x08000100;
+	static final int UTF_8 = 0x08000100;
 
 	int CFArrayGetCount(CFArrayRef array);
 
@@ -38,19 +38,19 @@ public interface CoreFoundation extends Library {
 
 	void CFRelease(CFTypeRef blob);
 
-	public class CFTypeRef extends PointerType {
+	class CFTypeRef extends PointerType {
 		// TODO Build this out
 	}
 
-	public class CFArrayRef extends PointerType {
+	class CFArrayRef extends PointerType {
 		// TODO Build this out
 	}
 
-	public class CFDictionaryRef extends PointerType {
+	class CFDictionaryRef extends PointerType {
 		// TODO Build this out
 	}
 
-	public class CFStringRef extends PointerType {
+	class CFStringRef extends PointerType {
 		public static CFStringRef toCFString(String s) {
 			final char[] chars = s.toCharArray();
 			int length = chars.length;

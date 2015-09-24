@@ -20,6 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.software.os.linux.proc.OSVersionInfoEx;
@@ -32,8 +35,10 @@ import oshi.software.os.linux.proc.OSVersionInfoEx;
  */
 public class LinuxOperatingSystem implements OperatingSystem {
 
-	private OperatingSystemVersion _version = null;
-	private String _family = null;
+	private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
+
+	private OperatingSystemVersion _version;
+	private String _family;
 
 	@Override
 	public String getFamily() {
@@ -50,6 +55,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
 					}
 				}
 			} catch (FileNotFoundException e) {
+				LOG.trace("", e);
 				return "";
 			}
 		}

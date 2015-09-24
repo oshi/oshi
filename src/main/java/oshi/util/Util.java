@@ -28,7 +28,7 @@ public class Util {
 	private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
 	/**
-	 * Sleeps for the specified number of milliseconds
+	 * Sleeps for the specified number of milliseconds.
 	 * 
 	 * @param ms
 	 *            How long to sleep
@@ -38,6 +38,7 @@ public class Util {
 			LOG.trace("Sleeping for {} ms", ms);
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
+			LOG.trace("", e);
 			LOG.warn("Interrupted while sleeping for {} ms", ms);
 		}
 	}
@@ -56,7 +57,8 @@ public class Util {
 		long now = System.currentTimeMillis();
 		long until = startTime + ms;
 		LOG.trace("Sleeping until {}", until);
-		if (now < until)
+		if (now < until) {
 			sleep(until - now);
+		}
 	}
 }

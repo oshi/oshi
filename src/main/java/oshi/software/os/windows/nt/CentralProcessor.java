@@ -58,6 +58,7 @@ public class CentralProcessor implements Processor {
 		} catch (ClassNotFoundException e) {
 			sunMXBean = false;
 			LOG.debug("Oracle MXBean not detected.");
+			LOG.trace("", e);
 		}
 	}
 
@@ -80,11 +81,11 @@ public class CentralProcessor implements Processor {
 
 	// Initialize numCPU and open a Performance Data Helper Thread for
 	// monitoring each processor ticks
-	private static PointerByReference phQuery = new PointerByReference();
+	static PointerByReference phQuery = new PointerByReference();
 	private static final IntByReference zero = new IntByReference(0);
 	private static final int numCPU;
 	// Set up Performance Data Helper thread for uptime
-	private static PointerByReference uptimeQuery = new PointerByReference();
+	static PointerByReference uptimeQuery = new PointerByReference();
 	private static final IntByReference one = new IntByReference(1);
 
 	// Return values from PDH methods, if nonzero signifies error
@@ -101,14 +102,16 @@ public class CentralProcessor implements Processor {
 
 		// Open tick query for this processor
 		pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
-		if (pdhOpenTickQueryError != 0)
+		if (pdhOpenTickQueryError != 0) {
 			LOG.error("Failed to open PDH Tick Query. Error code: {}", String.format("0x%08X", pdhOpenTickQueryError));
+		}
 
 		// Open uptime query for this processor
 		pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);
-		if (pdhOpenTickQueryError != 0)
+		if (pdhOpenTickQueryError != 0) {
 			LOG.error("Failed to open PDH Uptime Query. Error code: {}",
 					String.format("0x%08X", pdhOpenUptimeQueryError));
+		}
 
 		// Set up hook to close the query on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -157,8 +160,9 @@ public class CentralProcessor implements Processor {
 			LOG.debug("Tick counter queries added.  Initializing with first query.");
 			// Initialize by collecting data the first time
 			int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-			if (ret != 0)
+			if (ret != 0) {
 				LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
+			}
 		}
 	}
 
@@ -172,9 +176,10 @@ public class CentralProcessor implements Processor {
 			pUptime = new PointerByReference();
 			pdhAddUptimeCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, one,
 					pUptime);
-			if (pdhAddUptimeCounterError != 0)
+			if (pdhAddUptimeCounterError != 0) {
 				LOG.error("Failed to add PDH Uptime Counter. Error code: {}",
 						String.format("0x%08X", pdhAddUptimeCounterError));
+			}
 		}
 	}
 
@@ -197,12 +202,13 @@ public class CentralProcessor implements Processor {
 	 *            The processor number
 	 */
 	public CentralProcessor(int procNo) {
-		if (procNo >= numCPU)
+		if (procNo >= numCPU) {
 			throw new IllegalArgumentException("Processor number (" + procNo
 					+ ") must be less than the number of CPUs: " + numCPU);
+		}
 		this.processorNumber = procNo;
 		updateProcessorTicks();
-		System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
+		System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
 		LOG.debug("Initialized Processor {}", procNo);
 	}
 
@@ -211,7 +217,7 @@ public class CentralProcessor implements Processor {
 	 */
 	@Override
 	public int getProcessorNumber() {
-		return processorNumber;
+		return this.processorNumber;
 	}
 
 	/**
@@ -484,21 +490,21 @@ public class CentralProcessor implements Processor {
 	public double getProcessorCpuLoadBetweenTicks() {
 		// Check if > ~ 0.95 seconds since last tick count.
 		long now = System.currentTimeMillis();
-		LOG.trace("Current time: {}  Last processor tick time: {}", now, procTickTime);
-		if (now - procTickTime > 950) {
+		LOG.trace("Current time: {}  Last processor tick time: {}", now, this.procTickTime);
+		if (now - this.procTickTime > 950) {
 			// Enough time has elapsed. Update array in place
 			updateProcessorTicks();
 			// Copy arrays in place
-			System.arraycopy(curProcTicks, 0, prevProcTicks, 0, curProcTicks.length);
-			System.arraycopy(allProcessorTicks[processorNumber], 0, curProcTicks, 0, curProcTicks.length);
-			procTickTime = now;
+			System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0, this.curProcTicks.length);
+			System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
+			this.procTickTime = now;
 		}
 		long total = 0;
-		for (int i = 0; i < curProcTicks.length; i++) {
-			total += (curProcTicks[i] - prevProcTicks[i]);
+		for (int i = 0; i < this.curProcTicks.length; i++) {
+			total += (this.curProcTicks[i] - this.prevProcTicks[i]);
 		}
 		// Calculate idle from last field [3]
-		long idle = curProcTicks[3] - prevProcTicks[3];
+		long idle = this.curProcTicks[3] - this.prevProcTicks[3];
 		LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 		// update
 		return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
@@ -507,9 +513,10 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long[] getProcessorCpuLoadTicks() {
 		updateProcessorTicks();
-		return allProcessorTicks[processorNumber];
+		return allProcessorTicks[this.processorNumber];
 	}
 
 	/**
@@ -573,6 +580,7 @@ public class CentralProcessor implements Processor {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getSystemUptime() {
 		// Return 0 if we have PDH errors
 		if (pdhOpenUptimeQueryError != 0 || pdhAddUptimeCounterError != 0) {

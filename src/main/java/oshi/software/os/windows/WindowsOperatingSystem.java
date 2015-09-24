@@ -28,7 +28,7 @@ import oshi.software.os.windows.nt.OSVersionInfoEx;
  */
 public class WindowsOperatingSystem implements OperatingSystem {
 
-	private OperatingSystemVersion _version = null;
+	private OperatingSystemVersion _version;
 
 	@Override
 	public OperatingSystemVersion getVersion() {

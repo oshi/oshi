@@ -49,6 +49,7 @@ public class OSNativeSystemInfo {
 			}
 		} catch (UnsatisfiedLinkError e) {
 			// no WOW64 support
+			LOG.trace("", e);
 		}
 
 		this._si = si;

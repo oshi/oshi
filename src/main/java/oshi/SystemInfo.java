@@ -41,14 +41,15 @@ public class SystemInfo {
 	private PlatformEnum currentPlatformEnum;
 
 	{
-		if (Platform.isWindows())
+		if (Platform.isWindows()) {
 			this.currentPlatformEnum = PlatformEnum.WINDOWS;
-		else if (Platform.isLinux())
+		} else if (Platform.isLinux()) {
 			this.currentPlatformEnum = PlatformEnum.LINUX;
-		else if (Platform.isMac())
+		} else if (Platform.isMac()) {
 			this.currentPlatformEnum = PlatformEnum.MACOSX;
-		else
+		} else {
 			this.currentPlatformEnum = PlatformEnum.UNKNOWN;
+		}
 	}
 
 	/**

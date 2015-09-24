@@ -43,10 +43,10 @@ public class LinuxPowerSource implements PowerSource {
 
 	private double timeRemaining;
 
-	public LinuxPowerSource(String name, double remainingCapacity, double timeRemaining) {
-		this.name = name;
-		this.remainingCapacity = remainingCapacity;
-		this.timeRemaining = timeRemaining;
+	public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+		this.name = newName;
+		this.remainingCapacity = newRemainingCapacity;
+		this.timeRemaining = newTimeRemaining;
 		LOG.debug("Initialized LinuxPowerSource");
 	}
 
@@ -88,6 +88,7 @@ public class LinuxPowerSource implements PowerSource {
 			try {
 				psInfo = FileUtil.readFile(PS_PATH + psName + "/uevent");
 			} catch (IOException e) {
+				LOG.trace("", e);
 				continue;
 			}
 			// Initialize defaults

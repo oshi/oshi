@@ -47,8 +47,9 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
 		if (!Kernel32.INSTANCE.GetVersionEx(this._versionInfo)) {
 			LOG.error("Failed to Initialize OSVersionInfoEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
 			this._versionInfo = null;
-		} else
+		} else {
 			LOG.debug("Initialized OSVersionInfoEx");
+		}
 	}
 
 	/**
