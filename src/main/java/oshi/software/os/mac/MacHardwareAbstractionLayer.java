@@ -41,63 +41,63 @@ import oshi.software.os.mac.local.SystemB;
  * @author widdis[at]gmail[dot]com
  */
 public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
-	private static final Logger LOG = LoggerFactory.getLogger(MacHardwareAbstractionLayer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacHardwareAbstractionLayer.class);
 
-	private Processor[] _processors;
+    private Processor[] _processors;
 
-	private Memory _memory;
+    private Memory _memory;
 
-	private PowerSource[] _powerSources;
+    private PowerSource[] _powerSources;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
-	 */
-	@Override
-	public Processor[] getProcessors() {
-		if (this._processors == null) {
-			int nbCPU = 1;
-			List<Processor> processors = new ArrayList<>();
-			com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
-			if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", pNbCPU, new IntByReference(SystemB.INT_SIZE), null,
-					0)) {
-				LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
-				nbCPU = 1;
-			} else
-				nbCPU = pNbCPU.getInt(0);
-			for (int i = 0; i < nbCPU; i++)
-				processors.add(new CentralProcessor(i));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
+     */
+    @Override
+    public Processor[] getProcessors() {
+        if (this._processors == null) {
+            int nbCPU = 1;
+            List<Processor> processors = new ArrayList<>();
+            com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
+            if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", pNbCPU, new IntByReference(SystemB.INT_SIZE), null,
+                    0)) {
+                LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
+                nbCPU = 1;
+            } else
+                nbCPU = pNbCPU.getInt(0);
+            for (int i = 0; i < nbCPU; i++)
+                processors.add(new CentralProcessor(i));
 
-			this._processors = processors.toArray(new Processor[0]);
-		}
-		return this._processors;
-	}
+            this._processors = processors.toArray(new Processor[0]);
+        }
+        return this._processors;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
-	 */
-	@Override
-	public Memory getMemory() {
-		if (this._memory == null) {
-			this._memory = new GlobalMemory();
-		}
-		return this._memory;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
+     */
+    @Override
+    public Memory getMemory() {
+        if (this._memory == null) {
+            this._memory = new GlobalMemory();
+        }
+        return this._memory;
+    }
 
-	@Override
-	public PowerSource[] getPowerSources() {
-		if (this._powerSources == null) {
-			this._powerSources = MacPowerSource.getPowerSources();
-		}
-		return this._powerSources;
-	}
+    @Override
+    public PowerSource[] getPowerSources() {
+        if (this._powerSources == null) {
+            this._powerSources = MacPowerSource.getPowerSources();
+        }
+        return this._powerSources;
+    }
 
-	@Override
-	public OSFileStore[] getFileStores() {
-		return MacFileSystem.getFileStores();
-	}
+    @Override
+    public OSFileStore[] getFileStores() {
+        return MacFileSystem.getFileStores();
+    }
 
 }

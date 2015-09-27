@@ -37,95 +37,95 @@ import oshi.software.os.mac.local.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public class MacPowerSource implements PowerSource {
-	private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
 
-	private String name;
+    private String name;
 
-	private double remainingCapacity;
+    private double remainingCapacity;
 
-	private double timeRemaining;
+    private double timeRemaining;
 
-	public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-		this.name = newName;
-		this.remainingCapacity = newRemainingCapacity;
-		this.timeRemaining = newTimeRemaining;
-		LOG.debug("Initialized MacPowerSource");
-	}
+    public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
+        LOG.debug("Initialized MacPowerSource");
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public double getRemainingCapacity() {
-		return this.remainingCapacity;
-	}
+    @Override
+    public double getRemainingCapacity() {
+        return this.remainingCapacity;
+    }
 
-	@Override
-	public double getTimeRemaining() {
-		return this.timeRemaining;
-	}
+    @Override
+    public double getTimeRemaining() {
+        return this.timeRemaining;
+    }
 
-	/**
-	 * Gets Battery Information
-	 * 
-	 * @return An array of PowerSource objects representing batteries, etc.
-	 */
-	public static PowerSource[] getPowerSources() {
-		// Get the blob containing current power source state
-		CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();
-		CFArrayRef powerSourcesList = IOKit.INSTANCE.IOPSCopyPowerSourcesList(powerSourcesInfo);
-		int powerSourcesCount = CoreFoundation.INSTANCE.CFArrayGetCount(powerSourcesList);
+    /**
+     * Gets Battery Information
+     * 
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static PowerSource[] getPowerSources() {
+        // Get the blob containing current power source state
+        CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();
+        CFArrayRef powerSourcesList = IOKit.INSTANCE.IOPSCopyPowerSourcesList(powerSourcesInfo);
+        int powerSourcesCount = CoreFoundation.INSTANCE.CFArrayGetCount(powerSourcesList);
 
-		// Get time remaining
-		// -1 = unknown, -2 = unlimited
-		double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();
+        // Get time remaining
+        // -1 = unknown, -2 = unlimited
+        double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();
 
-		// For each power source, output various info
-		List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
-		for (int ps = 0; ps < powerSourcesCount; ps++) {
-			// Get the dictionary for that Power Source
-			CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);
-			CFDictionaryRef dictionary = IOKit.INSTANCE.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
+        // For each power source, output various info
+        List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
+        for (int ps = 0; ps < powerSourcesCount; ps++) {
+            // Get the dictionary for that Power Source
+            CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);
+            CFDictionaryRef dictionary = IOKit.INSTANCE.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
 
-			// Get values from dictionary (See IOPSKeys.h)
-			// Skip if not present
-			boolean isPresent = false;
-			Pointer isPresentRef = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);
-			if (isPresentRef != null) {
-				isPresent = CoreFoundation.INSTANCE.CFBooleanGetValue(isPresentRef);
-			}
-			if (!isPresent) {
-				continue;
-			}
+            // Get values from dictionary (See IOPSKeys.h)
+            // Skip if not present
+            boolean isPresent = false;
+            Pointer isPresentRef = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);
+            if (isPresentRef != null) {
+                isPresent = CoreFoundation.INSTANCE.CFBooleanGetValue(isPresentRef);
+            }
+            if (!isPresent) {
+                continue;
+            }
 
-			// Name
-			Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY);
-			long length = CoreFoundation.INSTANCE.CFStringGetLength(name);
-			long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);
-			Pointer nameBuf = new Memory(maxSize);
-			CoreFoundation.INSTANCE.CFStringGetCString(name, nameBuf, maxSize, CoreFoundation.UTF_8);
+            // Name
+            Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY);
+            long length = CoreFoundation.INSTANCE.CFStringGetLength(name);
+            long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);
+            Pointer nameBuf = new Memory(maxSize);
+            CoreFoundation.INSTANCE.CFStringGetCString(name, nameBuf, maxSize, CoreFoundation.UTF_8);
 
-			// Remaining Capacity = current / max
-			IntByReference currentCapacity = new IntByReference();
-			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,
-					currentCapacity)) {
-				currentCapacity = new IntByReference(0);
-			}
-			IntByReference maxCapacity = new IntByReference();
-			if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_MAX_CAPACITY_KEY,
-					maxCapacity)) {
-				maxCapacity = new IntByReference(1);
-			}
+            // Remaining Capacity = current / max
+            IntByReference currentCapacity = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,
+                    currentCapacity)) {
+                currentCapacity = new IntByReference(0);
+            }
+            IntByReference maxCapacity = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_MAX_CAPACITY_KEY,
+                    maxCapacity)) {
+                maxCapacity = new IntByReference(1);
+            }
 
-			// Add to list
-			psList.add(new MacPowerSource(nameBuf.getString(0), (double) currentCapacity
-					.getValue() / maxCapacity.getValue(), timeRemaining));
-		}
-		// Release the blob
-		CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);
+            // Add to list
+            psList.add(new MacPowerSource(nameBuf.getString(0), (double) currentCapacity.getValue()
+                    / maxCapacity.getValue(), timeRemaining));
+        }
+        // Release the blob
+        CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);
 
-		return psList.toArray(new MacPowerSource[psList.size()]);
-	}
+        return psList.toArray(new MacPowerSource[psList.size()]);
+    }
 }

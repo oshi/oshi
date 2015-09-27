@@ -33,132 +33,132 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface SystemB extends Library {
-	// TODO: Submit this class to JNA
-	SystemB INSTANCE = (SystemB) Native.loadLibrary("System", SystemB.class);
+    // TODO: Submit this class to JNA
+    SystemB INSTANCE = (SystemB) Native.loadLibrary("System", SystemB.class);
 
-	// host_statistics()
-	static int HOST_LOAD_INFO = 1;// System loading stats
-	static int HOST_VM_INFO = 2; // Virtual memory stats
-	static int HOST_CPU_LOAD_INFO = 3;// CPU load stats
+    // host_statistics()
+    static int HOST_LOAD_INFO = 1;// System loading stats
+    static int HOST_VM_INFO = 2; // Virtual memory stats
+    static int HOST_CPU_LOAD_INFO = 3;// CPU load stats
 
-	// host_statistics64()
-	static int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
-	static int HOST_EXTMOD_INFO64 = 5;// External modification stats
-	static int HOST_EXPIRED_TASK_INFO = 6; // Statistics for expired tasks
+    // host_statistics64()
+    static int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
+    static int HOST_EXTMOD_INFO64 = 5;// External modification stats
+    static int HOST_EXPIRED_TASK_INFO = 6; // Statistics for expired tasks
 
-	static int PROCESSOR_CPU_LOAD_INFO = 2;
+    static int PROCESSOR_CPU_LOAD_INFO = 2;
 
-	// host_cpu_load_info()
-	static int CPU_STATE_MAX = 4;
-	static int CPU_STATE_USER = 0;
-	static int CPU_STATE_SYSTEM = 1;
-	static int CPU_STATE_IDLE = 2;
-	static int CPU_STATE_NICE = 3;
+    // host_cpu_load_info()
+    static int CPU_STATE_MAX = 4;
+    static int CPU_STATE_USER = 0;
+    static int CPU_STATE_SYSTEM = 1;
+    static int CPU_STATE_IDLE = 2;
+    static int CPU_STATE_NICE = 3;
 
-	// Data size
-	static int UINT64_SIZE = Native.getNativeSize(long.class);
-	static int INT_SIZE = Native.getNativeSize(int.class);
+    // Data size
+    static int UINT64_SIZE = Native.getNativeSize(long.class);
+    static int INT_SIZE = Native.getNativeSize(int.class);
 
-	static class HostCpuLoadInfo extends Structure {
-		public int[] cpu_ticks = new int[CPU_STATE_MAX];
+    static class HostCpuLoadInfo extends Structure {
+        public int[] cpu_ticks = new int[CPU_STATE_MAX];
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "cpu_ticks" });
-		}
-	}
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "cpu_ticks" });
+        }
+    }
 
-	static class HostLoadInfo extends Structure {
-		public int[] avenrun = new int[3]; // scaled by LOAD_SCALE
-		public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
+    static class HostLoadInfo extends Structure {
+        public int[] avenrun = new int[3]; // scaled by LOAD_SCALE
+        public int[] mach_factor = new int[3]; // scaled by LOAD_SCALE
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "avenrun", "mach_factor" });
-		}
-	}
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "avenrun", "mach_factor" });
+        }
+    }
 
-	static class VMStatistics extends Structure {
-		public int free_count; // # of pages free
-		public int active_count; // # of pages active
-		public int inactive_count; // # of pages inactive
-		public int wire_count; // # of pages wired down
-		public int zero_fill_count; // # of zero fill pages
-		public int reactivations; // # of pages reactivated
-		public int pageins; // # of pageins
-		public int pageouts; // # of pageouts
-		public int faults; // # of faults
-		public int cow_faults; // # of copy-on-writes
-		public int lookups; // object cache lookups
-		public int hits; // object cache hits
-		public int purgeable_count; // # of pages purgeable
-		public int purges; // # of pages purged
-		// # of pages speculative (included in free_count)
-		public int speculative_count;
+    static class VMStatistics extends Structure {
+        public int free_count; // # of pages free
+        public int active_count; // # of pages active
+        public int inactive_count; // # of pages inactive
+        public int wire_count; // # of pages wired down
+        public int zero_fill_count; // # of zero fill pages
+        public int reactivations; // # of pages reactivated
+        public int pageins; // # of pageins
+        public int pageouts; // # of pageouts
+        public int faults; // # of faults
+        public int cow_faults; // # of copy-on-writes
+        public int lookups; // object cache lookups
+        public int hits; // object cache hits
+        public int purgeable_count; // # of pages purgeable
+        public int purges; // # of pages purged
+        // # of pages speculative (included in free_count)
+        public int speculative_count;
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
-					"zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
-					"hits", "purgeable_count", "purges", "speculative_count" });
-		}
-	}
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
+                    "zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
+                    "hits", "purgeable_count", "purges", "speculative_count" });
+        }
+    }
 
-	static class VMStatistics64 extends Structure {
-		public int free_count; // # of pages free
-		public int active_count; // # of pages active
-		public int inactive_count; // # of pages inactive
-		public int wire_count; // # of pages wired down
-		public long zero_fill_count; // # of zero fill pages
-		public long reactivations; // # of pages reactivated
-		public long pageins; // # of pageins
-		public long pageouts; // # of pageouts
-		public long faults; // # of faults
-		public long cow_faults; // # of copy-on-writes
-		public long lookups; // object cache lookups
-		public long hits; // object cache hits
-		public long purges; // # of pages purged
-		public int purgeable_count; // # of pages purgeable
-		// # of pages speculative (included in free_count)
-		public int speculative_count;
-		public long decompressions; // # of pages decompressed
-		public long compressions; // # of pages compressed
-		// # of pages swapped in (via compression segments)
-		public long swapins;
-		// # of pages swapped out (via compression segments)
-		public long swapouts;
-		// # of pages used by the compressed pager to hold all the
-		// compressed data
-		public int compressor_page_count;
-		public int throttled_count; // # of pages throttled
-		// # of pages that are file-backed (non-swap)
-		public int external_page_count;
-		public int internal_page_count; // # of pages that are anonymous
-		// # of pages (uncompressed) held within the compressor.
-		public long total_uncompressed_pages_in_compressor;
+    static class VMStatistics64 extends Structure {
+        public int free_count; // # of pages free
+        public int active_count; // # of pages active
+        public int inactive_count; // # of pages inactive
+        public int wire_count; // # of pages wired down
+        public long zero_fill_count; // # of zero fill pages
+        public long reactivations; // # of pages reactivated
+        public long pageins; // # of pageins
+        public long pageouts; // # of pageouts
+        public long faults; // # of faults
+        public long cow_faults; // # of copy-on-writes
+        public long lookups; // object cache lookups
+        public long hits; // object cache hits
+        public long purges; // # of pages purged
+        public int purgeable_count; // # of pages purgeable
+        // # of pages speculative (included in free_count)
+        public int speculative_count;
+        public long decompressions; // # of pages decompressed
+        public long compressions; // # of pages compressed
+        // # of pages swapped in (via compression segments)
+        public long swapins;
+        // # of pages swapped out (via compression segments)
+        public long swapouts;
+        // # of pages used by the compressed pager to hold all the
+        // compressed data
+        public int compressor_page_count;
+        public int throttled_count; // # of pages throttled
+        // # of pages that are file-backed (non-swap)
+        public int external_page_count;
+        public int internal_page_count; // # of pages that are anonymous
+        // # of pages (uncompressed) held within the compressor.
+        public long total_uncompressed_pages_in_compressor;
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
-					"zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
-					"hits", "purges", "purgeable_count", "speculative_count", "decompressions", "compressions",
-					"swapins", "swapouts", "compressor_page_count", "throttled_count", "external_page_count",
-					"internal_page_count", "total_uncompressed_pages_in_compressor" });
-		}
-	}
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "free_count", "active_count", "inactive_count", "wire_count",
+                    "zero_fill_count", "reactivations", "pageins", "pageouts", "faults", "cow_faults", "lookups",
+                    "hits", "purges", "purgeable_count", "speculative_count", "decompressions", "compressions",
+                    "swapins", "swapouts", "compressor_page_count", "throttled_count", "external_page_count",
+                    "internal_page_count", "total_uncompressed_pages_in_compressor" });
+        }
+    }
 
-	int mach_host_self();
+    int mach_host_self();
 
-	int host_page_size(int machPort, LongByReference pPageSize);
+    int host_page_size(int machPort, LongByReference pPageSize);
 
-	int host_statistics(int machPort, int hostStat, Object stats, IntByReference count);
+    int host_statistics(int machPort, int hostStat, Object stats, IntByReference count);
 
-	int host_statistics64(int machPort, int hostStat, Object stats, IntByReference count);
+    int host_statistics64(int machPort, int hostStat, Object stats, IntByReference count);
 
-	int host_processor_info(int machPort, int flavor, IntByReference procCount, PointerByReference procInfo,
-			IntByReference procInfoCount);
+    int host_processor_info(int machPort, int flavor, IntByReference procCount, PointerByReference procInfo,
+            IntByReference procInfoCount);
 
-	int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
 
-	int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
 }

@@ -39,42 +39,42 @@ import oshi.software.os.OSFileStore;
  */
 public class WindowsFileSystem {
 
-	private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
 
-	/**
-	 * Gets File System Information.
-	 * 
-	 * @return An array of {@link OSFileStore} objects representing mounted
-	 *         volumes. May return disconnected volumes with
-	 *         {@link OSFileStore#getTotalSpace()} = 0.
-	 */
-	public static OSFileStore[] getFileStores() {
-		// File.listRoots() has more information for Windows
-		// than FileSystem.getDefalut().getFileStores()
-		final File[] roots = File.listRoots();
-		// Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
-		// problems
-		SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
-			@Override
-			public List<OSFileStore> doInBackground() {
-				FileSystemView fsv = FileSystemView.getFileSystemView();
-				List<OSFileStore> fsList = new ArrayList<>();
-				for (File f : roots) {
-					fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f
-							.getUsableSpace(), f.getTotalSpace()));
-				}
-				return fsList;
-			}
-		};
-		worker.execute();
-		List<OSFileStore> fs = new ArrayList<>();
-		try {
-			// TODO: Consider a timeout version of this method that passes
-			// timeout parameters which are used in this get()
-			fs = worker.get();
-		} catch (InterruptedException | ExecutionException e) {
-			LOG.error("", e);
-		}
-		return fs.toArray(new OSFileStore[fs.size()]);
-	}
+    /**
+     * Gets File System Information.
+     * 
+     * @return An array of {@link OSFileStore} objects representing mounted
+     *         volumes. May return disconnected volumes with
+     *         {@link OSFileStore#getTotalSpace()} = 0.
+     */
+    public static OSFileStore[] getFileStores() {
+        // File.listRoots() has more information for Windows
+        // than FileSystem.getDefalut().getFileStores()
+        final File[] roots = File.listRoots();
+        // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
+        // problems
+        SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
+            @Override
+            public List<OSFileStore> doInBackground() {
+                FileSystemView fsv = FileSystemView.getFileSystemView();
+                List<OSFileStore> fsList = new ArrayList<>();
+                for (File f : roots) {
+                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), f
+                            .getUsableSpace(), f.getTotalSpace()));
+                }
+                return fsList;
+            }
+        };
+        worker.execute();
+        List<OSFileStore> fs = new ArrayList<>();
+        try {
+            // TODO: Consider a timeout version of this method that passes
+            // timeout parameters which are used in this get()
+            fs = worker.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("", e);
+        }
+        return fs.toArray(new OSFileStore[fs.size()]);
+    }
 }

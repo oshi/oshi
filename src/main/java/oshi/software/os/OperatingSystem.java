@@ -25,24 +25,24 @@ package oshi.software.os;
  */
 public interface OperatingSystem {
 
-	/**
-	 * Operating system family.
-	 * 
-	 * @return String.
-	 */
-	String getFamily();
+    /**
+     * Operating system family.
+     * 
+     * @return String.
+     */
+    String getFamily();
 
-	/**
-	 * Manufacturer.
-	 * 
-	 * @return String.
-	 */
-	String getManufacturer();
+    /**
+     * Manufacturer.
+     * 
+     * @return String.
+     */
+    String getManufacturer();
 
-	/**
-	 * Operating system version.
-	 * 
-	 * @return Version.
-	 */
-	OperatingSystemVersion getVersion();
+    /**
+     * Operating system version.
+     * 
+     * @return Version.
+     */
+    OperatingSystemVersion getVersion();
 }

@@ -26,38 +26,38 @@ import oshi.software.os.mac.local.OSVersionInfoEx;
  */
 
 public class MacOperatingSystem implements OperatingSystem {
-	private String _family;
+    private String _family;
 
-	private OperatingSystemVersion _version;
+    private OperatingSystemVersion _version;
 
-	@Override
-	public OperatingSystemVersion getVersion() {
-		if (this._version == null) {
-			this._version = new OSVersionInfoEx();
-		}
-		return this._version;
-	}
+    @Override
+    public OperatingSystemVersion getVersion() {
+        if (this._version == null) {
+            this._version = new OSVersionInfoEx();
+        }
+        return this._version;
+    }
 
-	@Override
-	public String getFamily() {
-		if (this._family == null)
-			this._family = System.getProperty("os.name");
-		return this._family;
-	}
+    @Override
+    public String getFamily() {
+        if (this._family == null)
+            this._family = System.getProperty("os.name");
+        return this._family;
+    }
 
-	@Override
-	public String getManufacturer() {
-		return "Apple";
-	}
+    @Override
+    public String getManufacturer() {
+        return "Apple";
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(getManufacturer());
-		sb.append(" ");
-		sb.append(getFamily());
-		sb.append(" ");
-		sb.append(getVersion().toString());
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getManufacturer());
+        sb.append(" ");
+        sb.append(getFamily());
+        sb.append(" ");
+        sb.append(getVersion().toString());
+        return sb.toString();
+    }
 }

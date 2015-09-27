@@ -35,54 +35,54 @@ import oshi.software.os.linux.proc.OSVersionInfoEx;
  */
 public class LinuxOperatingSystem implements OperatingSystem {
 
-	private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
-	private OperatingSystemVersion _version;
-	private String _family;
+    private OperatingSystemVersion _version;
+    private String _family;
 
-	@Override
-	public String getFamily() {
-		if (this._family == null) {
-			try (final Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
-				in.useDelimiter("\n");
-				while (in.hasNext()) {
-					String[] splittedLine = in.next().split("=");
-					if (splittedLine[0].equals("NAME")) {
-						// remove beginning and ending '"' characters, etc from
-						// NAME="Ubuntu"
-						this._family = splittedLine[1].replaceAll("^\"|\"$", "");
-						break;
-					}
-				}
-			} catch (FileNotFoundException e) {
-				LOG.trace("", e);
-				return "";
-			}
-		}
-		return this._family;
-	}
+    @Override
+    public String getFamily() {
+        if (this._family == null) {
+            try (final Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
+                in.useDelimiter("\n");
+                while (in.hasNext()) {
+                    String[] splittedLine = in.next().split("=");
+                    if (splittedLine[0].equals("NAME")) {
+                        // remove beginning and ending '"' characters, etc from
+                        // NAME="Ubuntu"
+                        this._family = splittedLine[1].replaceAll("^\"|\"$", "");
+                        break;
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                LOG.trace("", e);
+                return "";
+            }
+        }
+        return this._family;
+    }
 
-	@Override
-	public String getManufacturer() {
-		return "GNU/Linux";
-	}
+    @Override
+    public String getManufacturer() {
+        return "GNU/Linux";
+    }
 
-	@Override
-	public OperatingSystemVersion getVersion() {
-		if (this._version == null) {
-			this._version = new OSVersionInfoEx();
-		}
-		return this._version;
-	}
+    @Override
+    public OperatingSystemVersion getVersion() {
+        if (this._version == null) {
+            this._version = new OSVersionInfoEx();
+        }
+        return this._version;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(getManufacturer());
-		sb.append(" ");
-		sb.append(getFamily());
-		sb.append(" ");
-		sb.append(getVersion().toString());
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getManufacturer());
+        sb.append(" ");
+        sb.append(getFamily());
+        sb.append(" ");
+        sb.append(getVersion().toString());
+        return sb.toString();
+    }
 }

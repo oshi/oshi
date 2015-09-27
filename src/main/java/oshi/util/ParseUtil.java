@@ -31,55 +31,55 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ParseUtil {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
-	
-	/**
-	 * Hertz related variables.
-	 */
-	final private static String Hertz = "Hz";
-	final private static String kiloHertz = "k" + Hertz;
-	final private static String megaHertz = "M" + Hertz;
-	final private static String gigaHertz = "G" + Hertz;
-	final private static String teraHertz = "T" + Hertz;
-	final private static String petaHertz = "P" + Hertz;
-	final private static Map<String, Long> multipliers;
+    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
-	static {
-		multipliers = new HashMap<>();
-		multipliers.put(Hertz, 1L);
-		multipliers.put(kiloHertz, 1000L);
-		multipliers.put(megaHertz, 1000000L);
-		multipliers.put(gigaHertz, 1000000000L);
-		multipliers.put(teraHertz, 1000000000000L);
-		multipliers.put(petaHertz, 1000000000000000L);
-	}
+    /**
+     * Hertz related variables.
+     */
+    final private static String Hertz = "Hz";
+    final private static String kiloHertz = "k" + Hertz;
+    final private static String megaHertz = "M" + Hertz;
+    final private static String gigaHertz = "G" + Hertz;
+    final private static String teraHertz = "T" + Hertz;
+    final private static String petaHertz = "P" + Hertz;
+    final private static Map<String, Long> multipliers;
 
-	/**
-	 * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
-	 * 
-	 * @param hertz
-	 *            Hertz size.
-	 * @return {@link Long} Hertz value or -1 if not parsable.
-	 */
-	public static long parseHertz(String hertz) {
-		Pattern pattern = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
-		Matcher matcher = pattern.matcher(hertz.trim());
+    static {
+        multipliers = new HashMap<>();
+        multipliers.put(Hertz, 1L);
+        multipliers.put(kiloHertz, 1000L);
+        multipliers.put(megaHertz, 1000000L);
+        multipliers.put(gigaHertz, 1000000000L);
+        multipliers.put(teraHertz, 1000000000000L);
+        multipliers.put(petaHertz, 1000000000000000L);
+    }
 
-		if (matcher.find() && (matcher.groupCount() == 3)) {
-			try {
-				Double value = Double.valueOf(matcher.group(1));
-				String unit = matcher.group(3);
+    /**
+     * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
+     * 
+     * @param hertz
+     *            Hertz size.
+     * @return {@link Long} Hertz value or -1 if not parsable.
+     */
+    public static long parseHertz(String hertz) {
+        Pattern pattern = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
+        Matcher matcher = pattern.matcher(hertz.trim());
 
-				if (multipliers.containsKey(unit)) {
-					value = value * multipliers.get(unit);
-					return value.longValue();
-				}
-			} catch (NumberFormatException e) {
-				LOG.trace("", e);
-			}
-		}
+        if (matcher.find() && (matcher.groupCount() == 3)) {
+            try {
+                Double value = Double.valueOf(matcher.group(1));
+                String unit = matcher.group(3);
 
-		return -1L;
-	}
+                if (multipliers.containsKey(unit)) {
+                    value = value * multipliers.get(unit);
+                    return value.longValue();
+                }
+            } catch (NumberFormatException e) {
+                LOG.trace("", e);
+            }
+        }
+
+        return -1L;
+    }
 
 }
