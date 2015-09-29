@@ -21,11 +21,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.Memory;
-import oshi.software.os.mac.local.SystemB.VMStatistics;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl

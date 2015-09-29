@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.HardwareAbstractionLayer;
@@ -34,7 +35,6 @@ import oshi.software.os.mac.local.CentralProcessor;
 import oshi.software.os.mac.local.GlobalMemory;
 import oshi.software.os.mac.local.MacFileSystem;
 import oshi.software.os.mac.local.MacPowerSource;
-import oshi.software.os.mac.local.SystemB;
 
 /**
  * @author alessandro[at]perucchi[dot]org
