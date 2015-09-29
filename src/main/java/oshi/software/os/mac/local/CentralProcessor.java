@@ -26,11 +26,12 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Processor;
-import oshi.software.os.mac.local.SystemB.HostCpuLoadInfo;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
@@ -534,7 +535,7 @@ public class CentralProcessor implements Processor {
         IntByReference procCount = new IntByReference();
         PointerByReference procCpuLoadInfo = new PointerByReference();
         IntByReference procInfoCount = new IntByReference();
-        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+        if (0 != SystemBLib.INSTANCE.host_processor_info(machPort, SystemBLib.PROCESSOR_CPU_LOAD_INFO, procCount,
                 procCpuLoadInfo, procInfoCount)) {
             LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
             return;
