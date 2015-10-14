@@ -46,11 +46,7 @@ public class ExecutingCommand {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRun);
-            p.waitFor();
         } catch (IOException e) {
-            LOG.trace("", e);
-            return null;
-        } catch (InterruptedException e) {
             LOG.trace("", e);
             return null;
         }
@@ -62,6 +58,10 @@ public class ExecutingCommand {
             while ((line = reader.readLine()) != null) {
                 sa.add(line);
             }
+            p.waitFor();
+        } catch (InterruptedException e) {
+            LOG.trace("", e);
+            return null;
         } catch (IOException e) {
             LOG.trace("", e);
             return null;
