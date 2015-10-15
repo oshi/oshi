@@ -268,4 +268,15 @@ public interface Processor {
      * @return Number of seconds since boot.
      */
     long getSystemUptime();
+
+    /**
+     * Get the System/BIOS/CPU Serial Number, if available. On Linux, this
+     * requires either root permissions, or installation of the HAL library
+     * (lshal command). If cpuid is installed this provides a fall back BIOS CPU
+     * id, but this ID is usually useless.
+     * 
+     * @return the System/BIOS/CPU Serial Number, if available, otherwise
+     *         returns "unknown"
+     */
+    String getSystemSerialNumber();
 }

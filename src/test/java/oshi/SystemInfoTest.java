@@ -225,6 +225,17 @@ public class SystemInfoTest {
     }
 
     /**
+     * Test serial number
+     */
+    @Test
+    public void testSerialNumber() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        String sn = hal.getProcessors()[0].getSystemSerialNumber();
+        assertTrue(sn.length() >= 0);
+    }
+
+    /**
      * The main method.
      *
      * @param args
@@ -251,6 +262,7 @@ public class SystemInfoTest {
             System.out.println(" " + cpu);
         }
         System.out.println("Identifier: " + hal.getProcessors()[0].getIdentifier());
+        System.out.println("Serial Num: " + hal.getProcessors()[0].getSystemSerialNumber());
 
         // hardware: memory
         LOG.info("Checking Memory...");

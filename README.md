@@ -54,6 +54,7 @@ Microsoft Windows 7
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
@@ -89,6 +90,7 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[967282, 15484, 195343, 124216619]
@@ -117,6 +119,7 @@ Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[15973594, 0, 21796209, 286595204]
