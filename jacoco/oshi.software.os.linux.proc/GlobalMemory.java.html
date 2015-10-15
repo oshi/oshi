@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GlobalMemory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux.proc</a> &gt; <span class="el_source">GlobalMemory.java</span></div><h1>GlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2015 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -28,80 +28,82 @@ import oshi.hardware.Memory;
 import oshi.software.os.linux.Libc;
 import oshi.software.os.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
-
+<span class="nc" id="L31"></span>
 /**
- * Memory obtained by /proc/meminfo and sysinfo.totalram
+<span class="nc" id="L33"> * Memory obtained by /proc/meminfo and sysinfo.totalram</span>
  * 
- * @author alessandro[at]perucchi[dot]org
+<span class="nc" id="L35"> * @author alessandro[at]perucchi[dot]org</span>
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L38">public class GlobalMemory implements Memory {</span>
-<span class="nc" id="L39">	private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);</span>
+public class GlobalMemory implements Memory {
+<span class="nc" id="L39"></span>
+<span class="nc" id="L40">  private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);</span>
 
-<span class="nc" id="L41">	private long totalMemory = 0;</span>
-
-	@Override
-	public long getAvailable() {
-<span class="nc" id="L45">		long availableMemory = 0;</span>
-<span class="nc" id="L46">		List&lt;String&gt; memInfo = null;</span>
-		try {
-<span class="nc" id="L48">			memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
-<span class="nc" id="L49">		} catch (IOException e) {</span>
-<span class="nc" id="L50">			LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L51">			return availableMemory;</span>
-<span class="nc" id="L52">		}</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">		for (String checkLine : memInfo) {</span>
-			// If we have MemAvailable, it trumps all. See code in
-			// https://git.kernel.org/cgit/linux/kernel/git/torvalds/
-			// linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
-<span class="nc bnc" id="L57" title="All 2 branches missed.">			if (checkLine.startsWith(&quot;MemAvailable:&quot;)) {</span>
-<span class="nc" id="L58">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L59">				availableMemory = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L60">				break;</span>
-			} else
-			// Otherwise we combine MemFree + Active(file), Inactive(file), and
-			// Reclaimable. Free+cached is no longer appropriate. MemAvailable
-			// reduces these values using watermarks to estimate when swapping
-			// is prevented, omitted here for simplicity (assuming 0 swap).
-<span class="nc bnc" id="L66" title="All 2 branches missed.">			if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
-<span class="nc" id="L67">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L68">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
-<span class="nc" id="L70">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L71">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
-<span class="nc" id="L73">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L74">				availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">			} else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
-<span class="nc" id="L76">				String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L77">				availableMemory += parseMeminfo(memorySplit);</span>
-			}
-<span class="nc" id="L79">		}</span>
-<span class="nc" id="L80">		return availableMemory;</span>
-	}
-
-	@Override
-	public long getTotal() {
-<span class="nc bnc" id="L85" title="All 2 branches missed.">		if (this.totalMemory == 0) {</span>
-<span class="nc" id="L86">			Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">			if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L88">				LOG.error(&quot;Failed to get total memory. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L89">				return 0L;</span>
-			}
-<span class="nc" id="L91">			this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
-		}
-<span class="nc" id="L93">		return this.totalMemory;</span>
-	}
-
-	private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L97" title="All 2 branches missed.">		if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L98">			return 0l;</span>
-		}
-<span class="nc" id="L100">		long memory = Long.valueOf(memorySplit[1]);</span>
-<span class="nc bnc" id="L101" title="All 4 branches missed.">		if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
-<span class="nc" id="L102">			memory *= 1024;</span>
-		}
-<span class="nc" id="L104">		return memory;</span>
-	}
+<span class="nc" id="L42">  private long totalMemory = 0;</span>
+<span class="nc" id="L43"></span>
+<span class="nc" id="L44">  @Override</span>
+<span class="nc" id="L45">  public long getAvailable() {</span>
+<span class="nc" id="L46">    long availableMemory = 0;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">    List&lt;String&gt; memInfo = null;</span>
+    try {
+      memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);
+    } catch (IOException e) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">      LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L52">      return availableMemory;</span>
+<span class="nc" id="L53">    }</span>
+<span class="nc" id="L54">    for (String checkLine : memInfo) {</span>
+      // If we have MemAvailable, it trumps all. See code in
+      // https://git.kernel.org/cgit/linux/kernel/git/torvalds/
+      // linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
+      if (checkLine.startsWith(&quot;MemAvailable:&quot;)) {
+        String[] memorySplit = checkLine.split(&quot;\\s+&quot;);
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        availableMemory = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L61">        break;</span>
+<span class="nc" id="L62">      } else</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">      // Otherwise we combine MemFree + Active(file), Inactive(file), and</span>
+<span class="nc" id="L64">      // Reclaimable. Free+cached is no longer appropriate. MemAvailable</span>
+<span class="nc" id="L65">      // reduces these values using watermarks to estimate when swapping</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">      // is prevented, omitted here for simplicity (assuming 0 swap).</span>
+<span class="nc" id="L67">      if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
+<span class="nc" id="L68">        String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc" id="L70">      } else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
+<span class="nc" id="L71">        String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+        availableMemory += parseMeminfo(memorySplit);
+<span class="nc" id="L73">      } else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
+<span class="nc" id="L74">        String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+        availableMemory += parseMeminfo(memorySplit);
+      } else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {
+        String[] memorySplit = checkLine.split(&quot;\\s+&quot;);
+        availableMemory += parseMeminfo(memorySplit);
+<span class="nc bnc" id="L79" title="All 2 branches missed.">      }</span>
+<span class="nc" id="L80">    }</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    return availableMemory;</span>
+<span class="nc" id="L82">  }</span>
+<span class="nc" id="L83"></span>
+<span class="nc" id="L84">  @Override</span>
+  public long getTotal() {
+<span class="nc" id="L86">    if (this.totalMemory == 0) {</span>
+      Sysinfo info = new Sysinfo();
+<span class="nc" id="L88">      if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
+        LOG.error(&quot;Failed to get total memory. Error code: &quot;
+            + Native.getLastError());
+        return 0L;
+<span class="nc bnc" id="L92" title="All 2 branches missed.">      }</span>
+<span class="nc" id="L93">      this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
+    }
+<span class="nc" id="L95">    return this.totalMemory;</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">  }</span>
+<span class="nc" id="L97"></span>
+  private long parseMeminfo(String[] memorySplit) {
+<span class="nc" id="L99">    if (memorySplit.length &lt; 2) {</span>
+      return 0l;
+    }
+    long memory = Long.valueOf(memorySplit[1]);
+    if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {
+      memory *= 1024;
+    }
+    return memory;
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

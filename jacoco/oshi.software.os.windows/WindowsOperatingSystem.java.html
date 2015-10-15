@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsOperatingSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOperatingSystem.java</span></div><h1>WindowsOperatingSystem.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2015 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -19,44 +19,44 @@ package oshi.software.os.windows;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.software.os.windows.nt.OSVersionInfoEx;
-
+<span class="nc" id="L22"></span>
 /**
  * Microsoft Windows is a family of proprietary operating systems most commonly
  * used on personal computers.
  * 
  * @author dblock[at]dblock[dot]org
- */
+<span class="nc bnc" id="L28" title="All 2 branches missed."> */</span>
 <span class="nc" id="L29">public class WindowsOperatingSystem implements OperatingSystem {</span>
 
-<span class="nc" id="L31">	private OperatingSystemVersion _version = null;</span>
+<span class="nc" id="L31">  private OperatingSystemVersion _version;</span>
 
-	@Override
-	public OperatingSystemVersion getVersion() {
-<span class="nc bnc" id="L35" title="All 2 branches missed.">		if (this._version == null) {</span>
-<span class="nc" id="L36">			this._version = new OSVersionInfoEx();</span>
-		}
-<span class="nc" id="L38">		return this._version;</span>
-	}
+  @Override
+  public OperatingSystemVersion getVersion() {
+    if (this._version == null) {
+<span class="nc" id="L36">      this._version = new OSVersionInfoEx();</span>
+    }
+    return this._version;
+  }
 
-	@Override
-	public String getFamily() {
-<span class="nc" id="L43">		return &quot;Windows&quot;;</span>
-	}
+<span class="nc" id="L41">  @Override</span>
+  public String getFamily() {
+    return &quot;Windows&quot;;
+  }
 
-	@Override
-	public String getManufacturer() {
-<span class="nc" id="L48">		return &quot;Microsoft&quot;;</span>
-	}
-
-	@Override
-	public String toString() {
-<span class="nc" id="L53">		StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L54">		sb.append(getManufacturer());</span>
-<span class="nc" id="L55">		sb.append(&quot; &quot;);</span>
-<span class="nc" id="L56">		sb.append(getFamily());</span>
-<span class="nc" id="L57">		sb.append(&quot; &quot;);</span>
-<span class="nc" id="L58">		sb.append(getVersion().toString());</span>
-<span class="nc" id="L59">		return sb.toString();</span>
-	}
+<span class="nc" id="L46">  @Override</span>
+<span class="nc" id="L47">  public String getManufacturer() {</span>
+<span class="nc" id="L48">    return &quot;Microsoft&quot;;</span>
+<span class="nc" id="L49">  }</span>
+<span class="nc" id="L50"></span>
+<span class="nc" id="L51">  @Override</span>
+<span class="nc" id="L52">  public String toString() {</span>
+    StringBuilder sb = new StringBuilder();
+    sb.append(getManufacturer());
+    sb.append(&quot; &quot;);
+    sb.append(getFamily());
+    sb.append(&quot; &quot;);
+    sb.append(getVersion().toString());
+    return sb.toString();
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

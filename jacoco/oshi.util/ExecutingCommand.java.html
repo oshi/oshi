@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ExecutingCommand.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ExecutingCommand.java</span></div><h1>ExecutingCommand.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2015 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -20,75 +20,87 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+<span class="nc" id="L27"></span>
 /**
- * A class for executing on the command line and returning the result of
- * execution.
+<span class="fc" id="L29"> * A class for executing on the command line and returning the result of</span>
+<span class="fc" id="L30"> * execution.</span>
  * 
  * @author alessandro[at]perucchi[dot]org
  */
-<span class="nc" id="L30">public class ExecutingCommand {</span>
-	/**
-	 * Executes a command on the native command line and returns the result
-	 * 
-	 * @param cmdToRun
-	 *            Command to run
-	 * @return A list of Strings representing the result of the command
-	 */
-	public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
-<span class="nc" id="L39">		Process p = null;</span>
-		try {
-<span class="nc" id="L41">			p = Runtime.getRuntime().exec(cmdToRun);</span>
-<span class="nc" id="L42">			p.waitFor();</span>
-<span class="nc" id="L43">		} catch (IOException e) {</span>
-<span class="nc" id="L44">			return null;</span>
-<span class="nc" id="L45">		} catch (InterruptedException e) {</span>
-<span class="nc" id="L46">			return null;</span>
-<span class="nc" id="L47">		}</span>
+public class ExecutingCommand {
 
-<span class="nc" id="L49">		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));</span>
-<span class="nc" id="L50">		String line = &quot;&quot;;</span>
-<span class="nc" id="L51">		ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-		try {
-<span class="nc bnc" id="L53" title="All 2 branches missed.">			while ((line = reader.readLine()) != null) {</span>
-<span class="nc" id="L54">				sa.add(line);</span>
-			}
-<span class="nc" id="L56">		} catch (IOException e) {</span>
-<span class="nc" id="L57">			return null;</span>
-<span class="nc" id="L58">		}</span>
-<span class="nc" id="L59">		return sa;</span>
-	}
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ExecutingCommand.class);
 
-	/**
-	 * Return first line of response for selected command
-	 * 
-	 * @param cmd2launch
-	 *            String command to be launched
-	 * @return String or null
-	 */
-	public static String getFirstAnswer(String cmd2launch) {
-<span class="nc" id="L70">		return getAnswerAt(cmd2launch, 0);</span>
-	}
+  /**
+<span class="fc" id="L40">   * Executes a command on the native command line and returns the result.</span>
+   * 
+<span class="fc" id="L42">   * @param cmdToRun</span>
+<span class="nc" id="L43">   *        Command to run</span>
+<span class="nc" id="L44">   * @return A list of Strings representing the result of the command</span>
+<span class="nc" id="L45">   */</span>
+<span class="fc" id="L46">  public static ArrayList&lt;String&gt; runNative(String cmdToRun) {</span>
+    Process p = null;
+<span class="fc" id="L48">    try {</span>
+<span class="fc" id="L49">      p = Runtime.getRuntime().exec(cmdToRun);</span>
+<span class="fc" id="L50">    } catch (IOException e) {</span>
+<span class="fc" id="L51">      LOG.trace(&quot;&quot;, e);</span>
+      return null;
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    }</span>
+<span class="fc" id="L54"></span>
+    BufferedReader reader = new BufferedReader(new InputStreamReader(
+<span class="fc" id="L56">        p.getInputStream()));</span>
+<span class="nc" id="L57">    String line = &quot;&quot;;</span>
+<span class="nc" id="L58">    ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L59">    try {</span>
+<span class="nc" id="L60">      while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L61">        sa.add(line);</span>
+<span class="nc" id="L62">      }</span>
+<span class="fc" id="L63">      p.waitFor();</span>
+<span class="fc" id="L64">    } catch (InterruptedException e) {</span>
+      LOG.trace(&quot;&quot;, e);
+      return null;
+    } catch (IOException e) {
+      LOG.trace(&quot;&quot;, e);
+      return null;
+    }
+    return sa;
+  }
 
-	/**
-	 * Return response on selected line index (0-based) after running selected
-	 * command
-	 * 
-	 * @param cmd2launch
-	 *            String command to be launched
-	 * @param answerIdx
-	 *            int index of line in response of the command
-	 * @return String whole line in response or null if invalid index or running
-	 *         of command fails
-	 */
-	public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="nc" id="L85">		ArrayList&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+  /**
+<span class="nc" id="L75">   * Return first line of response for selected command.</span>
+   * 
+   * @param cmd2launch
+   *        String command to be launched
+   * @return String or null
+   */
+  public static String getFirstAnswer(String cmd2launch) {
+    return getAnswerAt(cmd2launch, 0);
+  }
 
-<span class="nc bnc" id="L87" title="All 6 branches missed.">		if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="nc" id="L88">			return sa.get(answerIdx);</span>
-		}
-<span class="nc" id="L90">		return null;</span>
-	}
+  /**
+   * Return response on selected line index (0-based) after running selected
+   * command.
+   * 
+   * @param cmd2launch
+<span class="nc" id="L90">   *        String command to be launched</span>
+   * @param answerIdx
+<span class="nc bnc" id="L92" title="All 6 branches missed.">   *        int index of line in response of the command</span>
+<span class="nc" id="L93">   * @return String whole line in response or null if invalid index or running</span>
+   *         of command fails
+<span class="nc" id="L95">   */</span>
+  public static String getAnswerAt(String cmd2launch, int answerIdx) {
+    List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);
+
+    if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {
+      return sa.get(answerIdx);
+    }
+    return null;
+  }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

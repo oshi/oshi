@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OSFileStore.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSFileStore.java</span></div><h1>OSFileStore.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2015 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -21,116 +21,118 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
- * system or other implementation specific means of file storage. See subclasses
+<span class="fc" id="L24"> * system or other implementation specific means of file storage. See subclasses</span>
  * for definitions as they apply to specific platforms.
  * 
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore {
-<span class="fc" id="L30">	private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
 
-	private String name;
+  private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
-	private String description;
+  private String name;
 
-	private long usableSpace;
+  private String description;
 
-	private long totalSpace;
+  private long usableSpace;
 
-	/**
-	 * Creates a {@link OSFileStore} with the specified parameters.
-	 * 
-	 * @param name
-	 *            Name of the filestore
-	 * @param description
-	 *            Description of the file store
-	 * @param usableSpace
-	 *            Available/usable bytes
-	 * @param totalSpace
-	 *            Total bytes
-	 */
-<span class="fc" id="L52">	public OSFileStore(String name, String description, long usableSpace, long totalSpace) {</span>
-<span class="fc" id="L53">		this.setName(name);</span>
-<span class="fc" id="L54">		this.setDescription(description);</span>
-<span class="fc" id="L55">		this.setUsableSpace(usableSpace);</span>
-<span class="fc" id="L56">		this.setTotalSpace(totalSpace);</span>
-<span class="fc" id="L57">		LOG.debug(&quot;Initialized OSFileStore: {}&quot;, name);</span>
-<span class="fc" id="L58">	}</span>
+  private long totalSpace;
 
-	/**
-	 * Name of the File System
-	 * 
-	 * @return The file system name
-	 */
-	public String getName() {
-<span class="fc" id="L66">		return this.name;</span>
-	}
+  /**
+   * Creates a {@link OSFileStore} with the specified parameters.
+   * 
+   * @param newName
+   *        Name of the filestore
+   * @param newDescription
+<span class="fc" id="L47">   *        Description of the file store</span>
+<span class="fc" id="L48">   * @param newUsableSpace</span>
+<span class="fc" id="L49">   *        Available/usable bytes</span>
+<span class="fc" id="L50">   * @param newTotalSpace</span>
+<span class="fc" id="L51">   *        Total bytes</span>
+<span class="fc" id="L52">   */</span>
+<span class="fc" id="L53">  public OSFileStore(String newName, String newDescription,</span>
+      long newUsableSpace, long newTotalSpace) {
+    this.setName(newName);
+    this.setDescription(newDescription);
+    this.setUsableSpace(newUsableSpace);
+    this.setTotalSpace(newTotalSpace);
+    LOG.debug(&quot;Initialized OSFileStore: {}&quot;, newName);
+  }
+<span class="fc" id="L61"></span>
+  /**
+   * Name of the File System
+   * 
+   * @return The file system name
+   */
+  public String getName() {
+    return this.name;
+  }
 
-	/**
-	 * Sets the File System name
-	 * 
-	 * @param name
-	 *            The name
-	 */
-	public void setName(String name) {
-<span class="fc" id="L76">		this.name = name;</span>
-<span class="fc" id="L77">	}</span>
+<span class="fc" id="L71">  /**</span>
+<span class="fc" id="L72">   * Sets the File System name</span>
+   * 
+   * @param value
+   *        The name
+   */
+  public void setName(String value) {
+    this.name = value;
+  }
+<span class="nc" id="L80"></span>
+  /**
+   * Description of the File System
+   * 
+   * @return The file system description
+   */
+  public String getDescription() {
+    return this.description;
+  }
 
-	/**
-	 * Description of the File System
-	 * 
-	 * @return The file system description
-	 */
-	public String getDescription() {
-<span class="nc" id="L85">		return this.description;</span>
-	}
+<span class="fc" id="L90">  /**</span>
+<span class="fc" id="L91">   * Sets the File System description</span>
+   * 
+   * @param value
+   *        The description
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
+<span class="fc" id="L99"></span>
+  /**
+   * Usable space on the drive.
+   * 
+   * @return Usable space on the drive (in bytes)
+   */
+  public long getUsableSpace() {
+    return this.usableSpace;
+  }
 
-	/**
-	 * Sets the File System description
-	 * 
-	 * @param description
-	 *            The description
-	 */
-	public void setDescription(String description) {
-<span class="fc" id="L95">		this.description = description;</span>
-<span class="fc" id="L96">	}</span>
+<span class="fc" id="L109">  /**</span>
+<span class="fc" id="L110">   * Sets usable space on the drive.</span>
+   * 
+   * @param value
+   *        Bytes of writable space.
+   */
+  public void setUsableSpace(long value) {
+    this.usableSpace = value;
+  }
+<span class="fc" id="L118"></span>
+  /**
+   * Total space/capacity of the drive.
+   * 
+   * @return Total capacity of the drive (in bytes)
+   */
+  public long getTotalSpace() {
+    return this.totalSpace;
+  }
 
-	/**
-	 * Usable space on the drive.
-	 * 
-	 * @return Usable space on the drive (in bytes)
-	 */
-	public long getUsableSpace() {
-<span class="fc" id="L104">		return this.usableSpace;</span>
-	}
-
-	/**
-	 * Sets usable space on the drive.
-	 * 
-	 * @param usableSpace
-	 *            Bytes of writable space.
-	 */
-	public void setUsableSpace(long usableSpace) {
-<span class="fc" id="L114">		this.usableSpace = usableSpace;</span>
-<span class="fc" id="L115">	}</span>
-
-	/**
-	 * Total space/capacity of the drive.
-	 * 
-	 * @return Total capacity of the drive (in bytes)
-	 */
-	public long getTotalSpace() {
-<span class="fc" id="L123">		return this.totalSpace;</span>
-	}
-
-	/**
-	 * Sets the total space on the drive.
-	 * 
-	 * @param totalSpace
-	 *            Bytes of total space.
-	 */
-	public void setTotalSpace(long totalSpace) {
-<span class="fc" id="L133">		this.totalSpace = totalSpace;</span>
-<span class="fc" id="L134">	}</span>
+<span class="fc" id="L128">  /**</span>
+<span class="fc" id="L129">   * Sets the total space on the drive.</span>
+   * 
+   * @param value
+   *        Bytes of total space.
+   */
+  public void setTotalSpace(long value) {
+    this.totalSpace = value;
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
