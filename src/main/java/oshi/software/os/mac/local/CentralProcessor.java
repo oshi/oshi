@@ -17,6 +17,7 @@
 package oshi.software.os.mac.local;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +33,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Processor;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
@@ -575,6 +577,34 @@ public class CentralProcessor implements Processor {
         // p now points to a 16-bit timeval structure for boot time.
         // First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
         return System.currentTimeMillis() / 1000 - p.getLong(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSystemSerialNumber() {
+        String sn = null;
+        ArrayList<String> hwInfo = ExecutingCommand.runNative("system_profiler SPHardwareDataType");
+        // Mavericks and later
+        for (String checkLine : hwInfo) {
+            if (checkLine.contains("Serial Number (system)")) {
+                String[] snSplit = checkLine.split("\\s+");
+                sn = snSplit[snSplit.length - 1];
+                break;
+            }
+        }
+        // Panther and later
+        if (sn == null) {
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains("r (system)")) {
+                    String[] snSplit = checkLine.split("\\s+");
+                    sn = snSplit[snSplit.length - 1];
+                    break;
+                }
+            }
+        }
+        return (sn == null) ? "unknown" : sn;
     }
 
     @Override

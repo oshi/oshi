@@ -17,6 +17,7 @@
 package oshi.software.os.windows.nt;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Processor;
 import oshi.software.os.windows.nt.Pdh.PdhFmtCounterValue;
+import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
@@ -203,8 +205,8 @@ public class CentralProcessor implements Processor {
      */
     public CentralProcessor(int procNo) {
         if (procNo >= numCPU) {
-            throw new IllegalArgumentException("Processor number (" + procNo
-                    + ") must be less than the number of CPUs: " + numCPU);
+            throw new IllegalArgumentException(
+                    "Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
         }
         this.processorNumber = procNo;
         updateProcessorTicks();
@@ -496,7 +498,8 @@ public class CentralProcessor implements Processor {
             updateProcessorTicks();
             // Copy arrays in place
             System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0, this.curProcTicks.length);
-            System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
+            System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0,
+                    this.curProcTicks.length);
             this.procTickTime = now;
         }
         long total = 0;
@@ -548,16 +551,16 @@ public class CentralProcessor implements Processor {
         long elapsed = now - allProcTickTime;
         for (int cpu = 0; cpu < numCPU; cpu++) {
             PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-                    | Pdh.PDH_FMT_1000, null, phUserCounterValue);
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(),
+                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phUserCounterValue);
             if (ret != 0) {
                 LOG.warn("Failed to get Uer Tick Counters. Error code: {}", String.format("0x%08X", ret));
                 return;
             }
 
             PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-                    | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(),
+                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
             if (ret != 0) {
                 LOG.warn("Failed to get idle Tick Counters. Error code: {}", String.format("0x%08X", ret));
                 return;
@@ -602,6 +605,37 @@ public class CentralProcessor implements Processor {
         }
 
         return uptimeCounterValue.value.largeValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSystemSerialNumber() {
+        String sn = null;
+        // This should always work
+        ArrayList<String> hwInfo = ExecutingCommand.runNative("wmic bios get serialnumber");
+        for (String checkLine : hwInfo) {
+            if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
+                continue;
+            } else {
+                sn = checkLine.trim();
+                break;
+            }
+        }
+        // Just in case the above doesn't
+        if (sn == null || sn.length() == 0) {
+            hwInfo = ExecutingCommand.runNative("wmic csproduct get identifyingnumber");
+            for (String checkLine : hwInfo) {
+                if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
+                    continue;
+                } else {
+                    sn = checkLine.trim();
+                    break;
+                }
+            }
+        }
+        return (sn == null || sn.length() == 0) ? "unknown" : sn;
     }
 
     @Override

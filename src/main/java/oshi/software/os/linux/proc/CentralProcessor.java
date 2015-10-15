@@ -18,6 +18,7 @@ package oshi.software.os.linux.proc;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ import com.sun.jna.Native;
 import oshi.hardware.Processor;
 import oshi.software.os.linux.Libc;
 import oshi.software.os.linux.Libc.Sysinfo;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -519,6 +521,52 @@ public class CentralProcessor implements Processor {
             return 0L;
         }
         return info.uptime.longValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSystemSerialNumber() {
+        String sn = null;
+        // If root privileges this will work
+        ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
+        String marker = "Serial Number:";
+        if (hwInfo != null) {
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains(marker)) {
+                    sn = checkLine.split(marker)[1].trim();
+                    break;
+                }
+            }
+        }
+        // if lshal command available (HAL deprecated in newer linuxes)
+        if (sn == null) {
+            marker = "system.hardware.serial =";
+            hwInfo = ExecutingCommand.runNative("lshal");
+            if (hwInfo != null) {
+                for (String checkLine : hwInfo) {
+                    if (checkLine.contains(marker)) {
+                        sn = checkLine.split(marker)[1].trim();
+                        break;
+                    }
+                }
+            }
+        }
+        // if cpuid command available
+        if (sn == null) {
+            marker = "processor serial number:";
+            hwInfo = ExecutingCommand.runNative("cpuid");
+            if (hwInfo != null) {
+                for (String checkLine : hwInfo) {
+                    if (checkLine.contains(marker)) {
+                        sn = checkLine.split(marker)[1].trim();
+                        break;
+                    }
+                }
+            }
+        }
+        return (sn == null) ? "unknown" : sn;
     }
 
     @Override
