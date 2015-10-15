@@ -4,13 +4,15 @@ OSHI
 [![Eclipse](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+![](https://reposs.herokuapp.com/?path=dblock/oshi&amp;style=flat)
+[![This is a forkable respository](https://img.shields.io/badge/forkable-yes-brightgreen.svg)](https://basicallydan.github.io/forkability/?u=dblock&amp;r=oshi)
 
 Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
 
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 1.5](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5&amp;e=jar)
+* [Download Oshi 1.5.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5.1&amp;e=jar)
 * [Download Oshi 1.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.6-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
@@ -52,6 +54,7 @@ Microsoft Windows 7
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
@@ -87,6 +90,7 @@ GNU/Linux Fedora 20 (Heisenbug)
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[967282, 15484, 195343, 124216619]
@@ -115,6 +119,7 @@ Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
+Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB
 Uptime: 12 days, 11:00:17
 CPU ticks @ 0 sec:[15973594, 0, 21796209, 286595204]
