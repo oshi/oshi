@@ -270,13 +270,12 @@ public interface Processor {
     long getSystemUptime();
 
     /**
-     * Get the System/BIOS/CPU Serial Number, if available. On Linux, this
-     * requires either root permissions, or installation of the HAL library
-     * (lshal command). If cpuid is installed this provides a fall back BIOS CPU
-     * id, but this ID is usually useless.
+     * Get the System/CPU Serial Number, if available. On Linux, this requires
+     * either root permissions, or installation of the (deprecated) HAL library
+     * (lshal command).
      * 
-     * @return the System/BIOS/CPU Serial Number, if available, otherwise
-     *         returns "unknown"
+     * @return the System/CPU Serial Number, if available, otherwise returns
+     *         "unknown"
      */
     String getSystemSerialNumber();
 }

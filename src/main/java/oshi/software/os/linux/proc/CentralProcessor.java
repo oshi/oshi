@@ -547,20 +547,9 @@ public class CentralProcessor implements Processor {
             if (hwInfo != null) {
                 for (String checkLine : hwInfo) {
                     if (checkLine.contains(marker)) {
-                        sn = checkLine.split(marker)[1].trim();
-                        break;
-                    }
-                }
-            }
-        }
-        // if cpuid command available
-        if (sn == null) {
-            marker = "processor serial number:";
-            hwInfo = ExecutingCommand.runNative("cpuid");
-            if (hwInfo != null) {
-                for (String checkLine : hwInfo) {
-                    if (checkLine.contains(marker)) {
-                        sn = checkLine.split(marker)[1].trim();
+                        String[] temp = checkLine.split(marker)[1].split("'");
+                        // Format: '12345' (string)
+                        sn = temp.length > 0 ? temp[1] : null;
                         break;
                     }
                 }
