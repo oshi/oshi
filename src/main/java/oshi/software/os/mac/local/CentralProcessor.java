@@ -537,7 +537,7 @@ public class CentralProcessor implements Processor {
         IntByReference procCount = new IntByReference();
         PointerByReference procCpuLoadInfo = new PointerByReference();
         IntByReference procInfoCount = new IntByReference();
-        if (0 != SystemBLib.INSTANCE.host_processor_info(machPort, SystemBLib.PROCESSOR_CPU_LOAD_INFO, procCount,
+        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
                 procCpuLoadInfo, procInfoCount)) {
             LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
             return;

@@ -1,5 +1,6 @@
 1.6 (in-progress)
 ================
+* [#98](https://github.com/dblock/oshi/pull/98): Upgraded JNA to 4.2.1 - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 1.5.1 (10/15/2015)
