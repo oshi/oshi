@@ -278,4 +278,18 @@ public interface Processor {
      *         "unknown"
      */
     String getSystemSerialNumber();
+
+    /**
+     * Get the number of logical CPUs available for processing.
+     * 
+     * @return The number of logical CPUs available.
+     */
+    int getLogicalProcessorCount();
+
+    /**
+     * Get the number of physical CPUs/cores available for processing.
+     * 
+     * @return The number of physical CPUs available.
+     */
+    int getPhysicalProcessorCount();
 }

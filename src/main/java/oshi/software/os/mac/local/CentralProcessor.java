@@ -66,6 +66,28 @@ public class CentralProcessor implements Processor {
         }
     }
 
+    // Logical and Physical Processor Counts
+    private static final int logicalProcessorCount;
+    private static final int physicalProcessorCount;
+    static {
+        IntByReference size = new IntByReference(SystemB.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+
+        // Get number of logical processors
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of logical CPUs. Error code: " + Native.getLastError());
+            logicalProcessorCount = 1;
+        } else
+            logicalProcessorCount = p.getInt(0);
+
+        // Get number of physical processors
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.physicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of physical CPUs. Error code: " + Native.getLastError());
+            physicalProcessorCount = 1;
+        } else
+            physicalProcessorCount = p.getInt(0);
+    }
+
     // Maintain two sets of previous ticks to be used for calculating usage
     // between them.
     // System ticks (static)
@@ -83,23 +105,10 @@ public class CentralProcessor implements Processor {
     private long[] prevProcTicks = new long[4];
     private long[] curProcTicks = new long[4];
 
-    // Initialize numCPU
-    private static int numCPU = 0;
-
-    static {
-        IntByReference size = new IntByReference(SystemB.INT_SIZE);
-        Pointer p = new Memory(size.getValue());
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
-            LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
-            numCPU = 1;
-        } else
-            numCPU = p.getInt(0);
-    }
-
     // Set up array to maintain current ticks for rapid reference. This array
     // will be updated in place and used as a cache to avoid rereading file
     // while iterating processors
-    private static long[][] allProcessorTicks = new long[numCPU][4];
+    private static long[][] allProcessorTicks = new long[logicalProcessorCount][4];
     private static long allProcTickTime = 0;
 
     private int processorNumber;
@@ -119,9 +128,9 @@ public class CentralProcessor implements Processor {
      *            The processor number
      */
     public CentralProcessor(int procNo) {
-        if (procNo >= numCPU)
+        if (procNo >= logicalProcessorCount)
             throw new IllegalArgumentException("Processor number (" + procNo
-                    + ") must be less than the number of CPUs: " + numCPU);
+                    + ") must be less than the number of CPUs: " + logicalProcessorCount);
         this.processorNumber = procNo;
         updateProcessorTicks();
         System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
@@ -608,8 +617,17 @@ public class CentralProcessor implements Processor {
     }
 
     @Override
+    public int getLogicalProcessorCount() {
+        return logicalProcessorCount;
+    }
+
+    @Override
+    public int getPhysicalProcessorCount() {
+        return physicalProcessorCount;
+    }
+
+    @Override
     public String toString() {
         return getName();
     }
-
 }

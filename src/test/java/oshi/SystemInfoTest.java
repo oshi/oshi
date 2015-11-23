@@ -164,6 +164,19 @@ public class SystemInfoTest {
     }
 
     /**
+     * Test processor counts.
+     */
+    @Test
+    public void testProcessorCounts() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        assertTrue(hal.getProcessors()[0].getPhysicalProcessorCount() >= 1);
+        assertTrue(hal.getProcessors()[0].getLogicalProcessorCount() >= hal.getProcessors()[0]
+                .getPhysicalProcessorCount());
+        assertTrue(hal.getProcessors()[0].getLogicalProcessorCount() == hal.getProcessors().length);
+    }
+
+    /**
      * Test cpu vendor freq.
      */
     @Test
@@ -201,7 +214,6 @@ public class SystemInfoTest {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
         if (hal.getFileStores().length > 1) {
-            assertTrue(hal.getFileStores()[0].getName().length() > 0);
             assertTrue(hal.getFileStores()[0].getTotalSpace() >= 0);
             assertTrue(hal.getFileStores()[0].getUsableSpace() <= hal.getFileStores()[0].getTotalSpace());
         }
@@ -257,7 +269,8 @@ public class SystemInfoTest {
         // hardware
         HardwareAbstractionLayer hal = si.getHardware();
         // hardware: processors
-        System.out.println(hal.getProcessors().length + " CPU(s):");
+        System.out.println(hal.getProcessors()[0].getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(hal.getProcessors()[0].getLogicalProcessorCount() + " logical CPU(s):");
         for (Processor cpu : hal.getProcessors()) {
             System.out.println(" " + cpu);
         }

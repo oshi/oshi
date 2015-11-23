@@ -35,7 +35,7 @@ Current supported features
 
 ### Hardware ###
 * How much physical/available (free+reclaimable) RAM
-* How many Logical CPUs (core * thread)
+* How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
@@ -48,7 +48,8 @@ For Windows:
 
 ```
 Microsoft Windows 7
-2 CPU(s):
+1 physical CPU(s)
+2 logical CPU(s):
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
@@ -78,7 +79,8 @@ For Linux:
 
 ```
 GNU/Linux Fedora 20 (Heisenbug)
-8 CPU(s):
+4 physical CPU(s)
+8 logical CPU(s):
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
@@ -110,8 +112,9 @@ File System:
 For Mac OS X:
 
 ```
-Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
-4 CPU(s):
+Apple Mac OS X 10.11.1 (El Capitan) build 15B42
+2 physical CPU(s)
+4 logical CPU(s):
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
