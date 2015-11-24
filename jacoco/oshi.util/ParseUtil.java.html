@@ -86,7 +86,19 @@ public abstract class ParseUtil {
     }
 
     return -1L;
+<span class="fc" id="L89">  }</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered."></span>
+<span class="fc" id="L91">  /**</span>
+   * Parse the last element of a string to a value return {@link Integer} value
+<span class="fc" id="L93">   * or the given default if not parsable</span>
+   */
+  public static int parseString(String s, int i) {
+    String[] ss = s.split(&quot;\\s+&quot;);
+    if (ss.length &lt; 2) {
+      return i;
+    } else {
+      return Integer.valueOf(ss[ss.length - 1]);
+    }
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

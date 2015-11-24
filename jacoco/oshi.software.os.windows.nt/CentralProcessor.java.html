@@ -25,8 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -38,145 +41,158 @@ import oshi.util.ParseUtil;
 /**
  * A CPU as defined in Windows registry.
  * 
-<span class="nc" id="L41"> * @author dblock[at]dblock[dot]org</span>
-<span class="nc" id="L42"> * @author alessio.fachechi[at]gmail[dot]com</span>
+<span class="nc" id="L44"> * @author dblock[at]dblock[dot]org</span>
+<span class="nc" id="L45"> * @author alessio.fachechi[at]gmail[dot]com</span>
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L45">@SuppressWarnings(&quot;restriction&quot;)</span>
+<span class="nc" id="L48">@SuppressWarnings(&quot;restriction&quot;)</span>
 public class CentralProcessor implements Processor {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(CentralProcessor.class);
 
-<span class="nc" id="L51">  private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory</span>
+<span class="nc" id="L54">  private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory</span>
       .getOperatingSystemMXBean();
-<span class="nc" id="L53"></span>
-<span class="nc" id="L54">  private static boolean sunMXBean;</span>
-<span class="nc" id="L55"></span>
-<span class="nc" id="L56">  static {</span>
-<span class="nc" id="L57">    try {</span>
-<span class="nc" id="L58">      Class.forName(&quot;com.sun.management.OperatingSystemMXBean&quot;);</span>
-<span class="nc" id="L59">      // Initialize CPU usage</span>
-<span class="nc" id="L60">      ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();</span>
+<span class="nc" id="L56"></span>
+<span class="nc" id="L57">  private static boolean sunMXBean;</span>
+<span class="nc" id="L58"></span>
+<span class="nc" id="L59">  static {</span>
+<span class="nc" id="L60">    try {</span>
+<span class="nc" id="L61">      Class.forName(&quot;com.sun.management.OperatingSystemMXBean&quot;);</span>
+<span class="nc" id="L62">      // Initialize CPU usage</span>
+<span class="nc" id="L63">      ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();</span>
       sunMXBean = true;
       LOG.debug(&quot;Oracle MXBean detected.&quot;);
     } catch (ClassNotFoundException e) {
       sunMXBean = false;
       LOG.debug(&quot;Oracle MXBean not detected.&quot;);
-<span class="nc" id="L66">      LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L69">      LOG.trace(&quot;&quot;, e);</span>
     }
-<span class="nc" id="L68">  }</span>
+  }
+<span class="nc" id="L72"></span>
+<span class="nc" id="L73">  // Logical and Physical Processor Counts</span>
+<span class="nc" id="L74">  private static final int logicalProcessorCount;</span>
 
-<span class="nc" id="L70">  // Maintain two sets of previous ticks to be used for calculating usage</span>
+  private static int physicalProcessorCount = 0;
+  static {
+<span class="nc" id="L78">    // Get number of logical processors</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">    SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">    Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
+<span class="nc" id="L81">    logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
+
+    // Get number of physical processors
+    WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util
+        .getLogicalProcessorInformation();
+    for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+      if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+        physicalProcessorCount++;
+<span class="nc" id="L89">      }</span>
+    }
+<span class="nc" id="L91">  }</span>
+
+<span class="nc" id="L93">  // Maintain two sets of previous ticks to be used for calculating usage</span>
   // between them.
   // System ticks (static)
-<span class="nc" id="L73">  private static long tickTime = System.currentTimeMillis();</span>
-<span class="nc" id="L74"></span>
+<span class="nc" id="L96">  private static long tickTime = System.currentTimeMillis();</span>
+<span class="nc" id="L97"></span>
   private static long[] prevTicks = new long[4];
 
   private static long[] curTicks = new long[4];
-<span class="nc" id="L78"></span>
+<span class="nc" id="L101"></span>
   static {
-<span class="nc" id="L80">    updateSystemTicks();</span>
+<span class="nc" id="L103">    updateSystemTicks();</span>
     System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-<span class="nc" id="L82">  }</span>
+<span class="nc" id="L105">  }</span>
 
   // Maintain similar arrays for per-processor ticks (class variables)
   private long procTickTime = System.currentTimeMillis();
-<span class="nc" id="L86"></span>
+<span class="nc" id="L109"></span>
   private long[] prevProcTicks = new long[4];
-<span class="nc" id="L88"></span>
+<span class="nc" id="L111"></span>
   private long[] curProcTicks = new long[4];
 
-  // Initialize numCPU and open a Performance Data Helper Thread for
+<span class="nc" id="L114">  // Initialize numCPU and open a Performance Data Helper Thread for</span>
   // monitoring each processor ticks
-<span class="nc" id="L93">  static PointerByReference phQuery = new PointerByReference();</span>
+<span class="nc" id="L116">  static PointerByReference phQuery = new PointerByReference();</span>
 
-<span class="nc" id="L95">  private static final IntByReference zero = new IntByReference(0);</span>
-
-  private static final int numCPU;
-<span class="nc" id="L98"></span>
+  private static final IntByReference zero = new IntByReference(0);
+<span class="nc" id="L119"></span>
   // Set up Performance Data Helper thread for uptime
-<span class="nc" id="L100">  static PointerByReference uptimeQuery = new PointerByReference();</span>
+<span class="nc" id="L121">  static PointerByReference uptimeQuery = new PointerByReference();</span>
 
-<span class="nc" id="L102">  private static final IntByReference one = new IntByReference(1);</span>
+<span class="nc" id="L123">  private static final IntByReference one = new IntByReference(1);</span>
 
-<span class="nc" id="L104">  // Return values from PDH methods, if nonzero signifies error</span>
+<span class="nc" id="L125">  // Return values from PDH methods, if nonzero signifies error</span>
   private static int pdhOpenTickQueryError = 0;
 
   private static int pdhAddTickCounterError = 0;
-<span class="nc" id="L108"></span>
-<span class="nc" id="L109">  private static int pdhOpenUptimeQueryError = 0;</span>
-<span class="nc" id="L110"></span>
-  private static int pdhAddUptimeCounterError = 0;
+<span class="nc" id="L129"></span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">  private static int pdhOpenUptimeQueryError = 0;</span>
+<span class="nc" id="L131"></span>
+<span class="nc" id="L132">  private static int pdhAddUptimeCounterError = 0;</span>
 
-<span class="nc" id="L113">  static {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">    // Get number of processors</span>
-<span class="nc" id="L115">    SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L116">    Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
-    numCPU = sysinfo.dwNumberOfProcessors.intValue();
-
+  static {
     // Open tick query for this processor
-<span class="nc" id="L120">    pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">    if (pdhOpenTickQueryError != 0) {</span>
-<span class="nc" id="L122">      LOG.error(&quot;Failed to open PDH Tick Query. Error code: {}&quot;,</span>
-<span class="nc" id="L123">          String.format(&quot;0x%08X&quot;, pdhOpenTickQueryError));</span>
+<span class="nc" id="L136">    pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">    if (pdhOpenTickQueryError != 0) {</span>
+<span class="nc" id="L138">      LOG.error(&quot;Failed to open PDH Tick Query. Error code: {}&quot;,</span>
+<span class="nc" id="L139">          String.format(&quot;0x%08X&quot;, pdhOpenTickQueryError));</span>
     }
 
     // Open uptime query for this processor
-<span class="nc" id="L127">    pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);</span>
+<span class="nc" id="L143">    pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, one, uptimeQuery);</span>
     if (pdhOpenTickQueryError != 0) {
       LOG.error(&quot;Failed to open PDH Uptime Query. Error code: {}&quot;,
           String.format(&quot;0x%08X&quot;, pdhOpenUptimeQueryError));
-<span class="nc" id="L131">    }</span>
-<span class="nc" id="L132"></span>
-<span class="nc" id="L133">    // Set up hook to close the query on shutdown</span>
+<span class="nc" id="L147">    }</span>
+<span class="nc" id="L148"></span>
+<span class="nc" id="L149">    // Set up hook to close the query on shutdown</span>
     Runtime.getRuntime().addShutdownHook(new Thread() {
 
       @Override
       public void run() {
-<span class="nc" id="L138">        Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());</span>
+<span class="nc" id="L154">        Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());</span>
         Pdh.INSTANCE.PdhCloseQuery(uptimeQuery.getValue());
-<span class="nc" id="L140">      }</span>
+<span class="nc" id="L156">      }</span>
     });
   }
-<span class="nc bnc" id="L143" title="All 2 branches missed."></span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">  // Set up a counter for each processor</span>
-  private static PointerByReference[] phUserCounters = new PointerByReference[numCPU];
+<span class="nc bnc" id="L159" title="All 2 branches missed."></span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">  // Set up a counter for each processor</span>
+  private static PointerByReference[] phUserCounters = new PointerByReference[logicalProcessorCount];
 
-  private static PointerByReference[] phIdleCounters = new PointerByReference[numCPU];
+  private static PointerByReference[] phIdleCounters = new PointerByReference[logicalProcessorCount];
 
   static {
     if (pdhOpenTickQueryError == 0) {
-<span class="nc" id="L151">      for (int p = 0; p &lt; numCPU; p++) {</span>
-<span class="nc" id="L152">        // Options are (only need 2 to calculate all)</span>
+<span class="nc" id="L167">      for (int p = 0; p &lt; logicalProcessorCount; p++) {</span>
+<span class="nc" id="L168">        // Options are (only need 2 to calculate all)</span>
         // &quot;\Processor(0)\% processor time&quot;
-<span class="nc" id="L154">        // &quot;\Processor(0)\% idle time&quot; (1 - processor)</span>
-<span class="nc" id="L155">        // &quot;\Processor(0)\% privileged time&quot; (subset of processor)</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        // &quot;\Processor(0)\% user time&quot; (other subset of processor)</span>
-<span class="nc" id="L157">        // Note need to make \ = \\ for Java Strings and %% for format</span>
+<span class="nc" id="L170">        // &quot;\Processor(0)\% idle time&quot; (1 - processor)</span>
+<span class="nc" id="L171">        // &quot;\Processor(0)\% privileged time&quot; (subset of processor)</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        // &quot;\Processor(0)\% user time&quot; (other subset of processor)</span>
+<span class="nc" id="L173">        // Note need to make \ = \\ for Java Strings and %% for format</span>
         String counterPath = String.format(&quot;\\Processor(%d)\\%% user time&quot;, p);
-<span class="nc" id="L159">        phUserCounters[p] = new PointerByReference();</span>
-<span class="nc" id="L160">        // Open tick query for this processor</span>
+<span class="nc" id="L175">        phUserCounters[p] = new PointerByReference();</span>
+<span class="nc" id="L176">        // Open tick query for this processor</span>
         pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(
-<span class="nc" id="L162">            phQuery.getValue(), counterPath, zero, phUserCounters[p]);</span>
-<span class="nc" id="L163">        if (pdhAddTickCounterError != 0) {</span>
-<span class="nc" id="L164">          LOG.error(</span>
-<span class="nc" id="L165">              &quot;Failed to add PDH User Tick Counter for processor {}. Error code: {}&quot;,</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">              p, String.format(&quot;0x%08X&quot;, pdhAddTickCounterError));</span>
-<span class="nc" id="L167">          break;</span>
+<span class="nc" id="L178">            phQuery.getValue(), counterPath, zero, phUserCounters[p]);</span>
+<span class="nc" id="L179">        if (pdhAddTickCounterError != 0) {</span>
+<span class="nc" id="L180">          LOG.error(</span>
+<span class="nc" id="L181">              &quot;Failed to add PDH User Tick Counter for processor {}. Error code: {}&quot;,</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">              p, String.format(&quot;0x%08X&quot;, pdhAddTickCounterError));</span>
+<span class="nc" id="L183">          break;</span>
         }
-<span class="nc" id="L169">        counterPath = String.format(&quot;\\Processor(%d)\\%% idle time&quot;, p);</span>
-<span class="nc" id="L170">        phIdleCounters[p] = new PointerByReference();</span>
+<span class="nc" id="L185">        counterPath = String.format(&quot;\\Processor(%d)\\%% idle time&quot;, p);</span>
+<span class="nc" id="L186">        phIdleCounters[p] = new PointerByReference();</span>
         pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(
             phQuery.getValue(), counterPath, zero, phIdleCounters[p]);
         if (pdhAddTickCounterError != 0) {
-<span class="nc" id="L174">          LOG.error(</span>
+<span class="nc" id="L190">          LOG.error(</span>
               &quot;Failed to add PDH Idle Tick Counter for processor {}. Error code: {}&quot;,
-<span class="nc" id="L176">              p, String.format(&quot;0x%08X&quot;, pdhAddTickCounterError));</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">          break;</span>
-<span class="nc" id="L178">        }</span>
-<span class="nc" id="L179">      }</span>
+<span class="nc" id="L192">              p, String.format(&quot;0x%08X&quot;, pdhAddTickCounterError));</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">          break;</span>
+<span class="nc" id="L194">        }</span>
+<span class="nc" id="L195">      }</span>
 
       LOG.debug(&quot;Tick counter queries added.  Initializing with first query.&quot;);
       // Initialize by collecting data the first time
@@ -185,15 +201,15 @@ public class CentralProcessor implements Processor {
         LOG.warn(&quot;Failed to update Tick Counters. Error code: {}&quot;,
             String.format(&quot;0x%08X&quot;, ret));
       }
-<span class="nc bnc" id="L188" title="All 2 branches missed.">    }</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    }</span>
   }
-<span class="nc" id="L190"></span>
-<span class="nc" id="L191">  // Set up counter for uptime</span>
-<span class="nc" id="L192">  private static PointerByReference pUptime;</span>
-<span class="nc" id="L193"></span>
-<span class="nc bnc" id="L194" title="All 2 branches missed.">  static {</span>
-<span class="nc" id="L195">    if (pdhOpenUptimeQueryError == 0) {</span>
-<span class="nc" id="L196">      // \System\System Up Time</span>
+<span class="nc" id="L206"></span>
+<span class="nc" id="L207">  // Set up counter for uptime</span>
+<span class="nc" id="L208">  private static PointerByReference pUptime;</span>
+<span class="nc" id="L209"></span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">  static {</span>
+<span class="nc" id="L211">    if (pdhOpenUptimeQueryError == 0) {</span>
+<span class="nc" id="L212">      // \System\System Up Time</span>
       String uptimePath = &quot;\\System\\System Up Time&quot;;
       pUptime = new PointerByReference();
       pdhAddUptimeCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(
@@ -201,14 +217,14 @@ public class CentralProcessor implements Processor {
       if (pdhAddUptimeCounterError != 0) {
         LOG.error(&quot;Failed to add PDH Uptime Counter. Error code: {}&quot;,
             String.format(&quot;0x%08X&quot;, pdhAddUptimeCounterError));
-<span class="nc" id="L204">      }</span>
+<span class="nc" id="L220">      }</span>
     }
-<span class="nc" id="L206">  }</span>
+<span class="nc" id="L222">  }</span>
 
   // Set up array to maintain current ticks for rapid reference. This array
   // will be updated in place and used to increment ticks based on processor
   // data helper which only gives % between reads
-  private static long[][] allProcessorTicks = new long[numCPU][4];
+  private static long[][] allProcessorTicks = new long[logicalProcessorCount][4];
 
   private static long allProcTickTime = System.currentTimeMillis() - 100;
 
@@ -221,24 +237,24 @@ public class CentralProcessor implements Processor {
   private String cpuIdentifier;
 
   private Long cpuVendorFreq;
-<span class="nc" id="L224"></span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">  /**</span>
-<span class="nc" id="L226">   * Create a Processor with the given number</span>
+<span class="nc" id="L240"></span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">  /**</span>
+<span class="nc" id="L242">   * Create a Processor with the given number</span>
    * 
    * @param procNo
-<span class="nc" id="L229">   *        The processor number</span>
-<span class="nc" id="L230">   */</span>
-<span class="nc" id="L231">  public CentralProcessor(int procNo) {</span>
-    if (procNo &gt;= numCPU) {
-<span class="nc" id="L233">      throw new IllegalArgumentException(&quot;Processor number (&quot; + procNo</span>
-<span class="nc" id="L234">          + &quot;) must be less than the number of CPUs: &quot; + numCPU);</span>
+<span class="nc" id="L245">   *        The processor number</span>
+<span class="nc" id="L246">   */</span>
+<span class="nc" id="L247">  public CentralProcessor(int procNo) {</span>
+    if (procNo &gt;= logicalProcessorCount) {
+<span class="nc" id="L249">      throw new IllegalArgumentException(&quot;Processor number (&quot; + procNo</span>
+<span class="nc" id="L250">          + &quot;) must be less than the number of CPUs: &quot; + logicalProcessorCount);</span>
     }
     this.processorNumber = procNo;
     updateProcessorTicks();
     System.arraycopy(allProcessorTicks[this.processorNumber], 0,
         this.curProcTicks, 0, this.curProcTicks.length);
     LOG.debug(&quot;Initialized Processor {}&quot;, procNo);
-<span class="nc" id="L241">  }</span>
+<span class="nc" id="L257">  }</span>
 
   /**
    * {@inheritDoc}
@@ -248,7 +264,7 @@ public class CentralProcessor implements Processor {
     return this.processorNumber;
   }
 
-<span class="nc" id="L251">  /**</span>
+<span class="nc" id="L267">  /**</span>
    * Vendor identifier, eg. GenuineIntel.
    * 
    * @return Processor vendor.
@@ -259,8 +275,8 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc" id="L262">   * Set processor vendor.</span>
-<span class="nc" id="L263">   * </span>
+<span class="nc" id="L278">   * Set processor vendor.</span>
+<span class="nc" id="L279">   * </span>
    * @param vendor
    *        Vendor.
    */
@@ -269,7 +285,7 @@ public class CentralProcessor implements Processor {
     this.cpuVendor = vendor;
   }
 
-<span class="nc" id="L272">  /**</span>
+<span class="nc" id="L288">  /**</span>
    * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
    * 
    * @return Processor name.
@@ -280,8 +296,8 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc" id="L283">   * Set processor name.</span>
-<span class="nc" id="L284">   * </span>
+<span class="nc" id="L299">   * Set processor name.</span>
+<span class="nc" id="L300">   * </span>
    * @param name
    *        Name.
    */
@@ -291,19 +307,19 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc bnc" id="L294" title="All 2 branches missed.">   * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo</span>
-<span class="nc" id="L295">   * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.</span>
-<span class="nc" id="L296">   * </span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">   * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo</span>
+<span class="nc" id="L311">   * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.</span>
+<span class="nc" id="L312">   * </span>
    * @return Processor frequency or -1 if unknown.
-<span class="nc bnc" id="L298" title="All 2 branches missed.">   */</span>
-<span class="nc" id="L299">  @Override</span>
-<span class="nc" id="L300">  public long getVendorFreq() {</span>
-<span class="nc" id="L301">    if (this.cpuVendorFreq == null) {</span>
-<span class="nc" id="L302">      Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">   */</span>
+<span class="nc" id="L315">  @Override</span>
+<span class="nc" id="L316">  public long getVendorFreq() {</span>
+<span class="nc" id="L317">    if (this.cpuVendorFreq == null) {</span>
+<span class="nc" id="L318">      Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
       Matcher matcher = pattern.matcher(getName());
 
       if (matcher.find()) {
-<span class="nc" id="L306">        String unit = matcher.group(1);</span>
+<span class="nc" id="L322">        String unit = matcher.group(1);</span>
         this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
       } else {
         this.cpuVendorFreq = Long.valueOf(-1L);
@@ -314,8 +330,8 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc" id="L317">   * Set vendor frequency.</span>
-<span class="nc" id="L318">   * </span>
+<span class="nc" id="L333">   * Set vendor frequency.</span>
+<span class="nc" id="L334">   * </span>
    * @param freq
    *        Frequency.
    */
@@ -324,7 +340,7 @@ public class CentralProcessor implements Processor {
     this.cpuVendorFreq = Long.valueOf(freq);
   }
 
-<span class="nc" id="L327">  /**</span>
+<span class="nc" id="L343">  /**</span>
    * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
    * 
    * @return Processor identifier.
@@ -335,15 +351,15 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc" id="L338">   * Set processor identifier.</span>
-<span class="nc" id="L339">   * </span>
+<span class="nc" id="L354">   * Set processor identifier.</span>
+<span class="nc" id="L355">   * </span>
    * @param identifier
    *        Identifier.
    */
   @Override
   public void setIdentifier(String identifier) {
     this.cpuIdentifier = identifier;
-<span class="nc" id="L346">  }</span>
+<span class="nc" id="L362">  }</span>
 
   /**
    * {@inheritDoc}
@@ -351,7 +367,7 @@ public class CentralProcessor implements Processor {
   @Override
   public boolean isCpu64bit() {
     throw new UnsupportedOperationException();
-<span class="nc" id="L354">  }</span>
+<span class="nc" id="L370">  }</span>
 
   /**
    * {@inheritDoc}
@@ -359,7 +375,7 @@ public class CentralProcessor implements Processor {
   @Override
   public void setCpu64(boolean cpu64) {
     throw new UnsupportedOperationException();
-<span class="nc" id="L362">  }</span>
+<span class="nc" id="L378">  }</span>
 
   /**
    * {@inheritDoc}
@@ -367,7 +383,7 @@ public class CentralProcessor implements Processor {
   @Override
   public String getStepping() {
     throw new UnsupportedOperationException();
-<span class="nc" id="L370">  }</span>
+<span class="nc" id="L386">  }</span>
 
   /**
    * {@inheritDoc}
@@ -375,7 +391,7 @@ public class CentralProcessor implements Processor {
   @Override
   public void setStepping(String stepping) {
     throw new UnsupportedOperationException();
-<span class="nc" id="L378">  }</span>
+<span class="nc" id="L394">  }</span>
 
   /**
    * {@inheritDoc}
@@ -383,7 +399,7 @@ public class CentralProcessor implements Processor {
   @Override
   public String getModel() {
     throw new UnsupportedOperationException();
-<span class="nc" id="L386">  }</span>
+<span class="nc" id="L402">  }</span>
 
   /**
    * {@inheritDoc}
@@ -391,7 +407,7 @@ public class CentralProcessor implements Processor {
   @Override
   public void setModel(String model) {
     throw new UnsupportedOperationException();
-<span class="nc" id="L394">  }</span>
+<span class="nc" id="L410">  }</span>
 
   /**
    * {@inheritDoc}
@@ -399,7 +415,7 @@ public class CentralProcessor implements Processor {
   @Override
   public String getFamily() {
     throw new UnsupportedOperationException();
-<span class="nc" id="L402">  }</span>
+<span class="nc" id="L418">  }</span>
 
   /**
    * {@inheritDoc}
@@ -409,7 +425,7 @@ public class CentralProcessor implements Processor {
     throw new UnsupportedOperationException();
   }
 
-<span class="nc" id="L412">  /**</span>
+<span class="nc" id="L428">  /**</span>
    * {@inheritDoc}
    */
   @Override
@@ -418,35 +434,35 @@ public class CentralProcessor implements Processor {
     // TODO Remove in 2.0
     return (float) getSystemCpuLoadBetweenTicks() * 100;
   }
-<span class="nc" id="L421"></span>
-<span class="nc" id="L422">  /**</span>
-<span class="nc bnc" id="L423" title="All 2 branches missed.">   * {@inheritDoc}</span>
-<span class="nc bnc" id="L424" title="All 2 branches missed.">   */</span>
+<span class="nc" id="L437"></span>
+<span class="nc" id="L438">  /**</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">   * {@inheritDoc}</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">   */</span>
   @Override
   public synchronized double getSystemCpuLoadBetweenTicks() {
-<span class="nc" id="L427">    // Check if &gt; ~ 0.95 seconds since last tick count.</span>
-<span class="nc" id="L428">    long now = System.currentTimeMillis();</span>
-<span class="nc" id="L429">    LOG.trace(&quot;Current time: {}  Last tick time: {}&quot;, now, tickTime);</span>
+<span class="nc" id="L443">    // Check if &gt; ~ 0.95 seconds since last tick count.</span>
+<span class="nc" id="L444">    long now = System.currentTimeMillis();</span>
+<span class="nc" id="L445">    LOG.trace(&quot;Current time: {}  Last tick time: {}&quot;, now, tickTime);</span>
     boolean update = (now - tickTime &gt; 950);
     if (update) {
-<span class="nc" id="L432">      // Enough time has elapsed.</span>
-<span class="nc bnc" id="L433" title="All 2 branches missed.">      // Update latest</span>
-<span class="nc" id="L434">      updateSystemTicks();</span>
+<span class="nc" id="L448">      // Enough time has elapsed.</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">      // Update latest</span>
+<span class="nc" id="L450">      updateSystemTicks();</span>
       tickTime = now;
       LOG.debug(&quot;System Ticks Updated&quot;);
-<span class="nc" id="L437">    }</span>
-<span class="nc" id="L438">    // Calculate total</span>
+<span class="nc" id="L453">    }</span>
+<span class="nc" id="L454">    // Calculate total</span>
     long total = 0;
     for (int i = 0; i &lt; curTicks.length; i++) {
-<span class="nc bnc" id="L441" title="All 2 branches missed.">      total += (curTicks[i] - prevTicks[i]);</span>
-<span class="nc" id="L442">    }</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">      total += (curTicks[i] - prevTicks[i]);</span>
+<span class="nc" id="L458">    }</span>
     // Calculate idle from last field [3]
     long idle = curTicks[3] - prevTicks[3];
     LOG.trace(&quot;Total ticks: {}  Idle ticks: {}&quot;, total, idle);
-<span class="nc bnc" id="L446" title="All 4 branches missed."></span>
-<span class="nc" id="L447">    // Copy latest ticks to earlier position for next call</span>
+<span class="nc bnc" id="L462" title="All 4 branches missed."></span>
+<span class="nc" id="L463">    // Copy latest ticks to earlier position for next call</span>
     if (update) {
-<span class="nc" id="L449">      System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
+<span class="nc" id="L465">      System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);</span>
     }
 
     // return
@@ -454,11 +470,11 @@ public class CentralProcessor implements Processor {
       return (double) (total - idle) / total;
     }
     return 0d;
-<span class="nc" id="L457">  }</span>
+<span class="nc" id="L473">  }</span>
 
-<span class="nc" id="L459">  /**</span>
-<span class="nc" id="L460">   * {@inheritDoc}</span>
-<span class="nc" id="L461">   */</span>
+<span class="nc" id="L475">  /**</span>
+<span class="nc" id="L476">   * {@inheritDoc}</span>
+<span class="nc" id="L477">   */</span>
   @Override
   public long[] getSystemCpuLoadTicks() {
     updateSystemTicks();
@@ -469,33 +485,33 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc" id="L472">   * Updates system tick information from native call to GetSystemTimes(). Array</span>
-<span class="nc" id="L473">   * with four elements representing clock ticks or milliseconds (platform</span>
-<span class="nc" id="L474">   * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states. By</span>
-<span class="nc" id="L475">   * measuring the difference between ticks across a time interval, CPU load</span>
-<span class="nc bnc" id="L476" title="All 2 branches missed.">   * over that interval may be calculated.</span>
+<span class="nc" id="L488">   * Updates system tick information from native call to GetSystemTimes(). Array</span>
+<span class="nc" id="L489">   * with four elements representing clock ticks or milliseconds (platform</span>
+<span class="nc" id="L490">   * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states. By</span>
+<span class="nc" id="L491">   * measuring the difference between ticks across a time interval, CPU load</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">   * over that interval may be calculated.</span>
    */
-<span class="nc" id="L478">  private static void updateSystemTicks() {</span>
-<span class="nc" id="L479">    LOG.trace(&quot;Updating System Ticks&quot;);</span>
-<span class="nc" id="L480">    WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L494">  private static void updateSystemTicks() {</span>
+<span class="nc" id="L495">    LOG.trace(&quot;Updating System Ticks&quot;);</span>
+<span class="nc" id="L496">    WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
     WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
     WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-<span class="nc" id="L483">    if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime,</span>
-<span class="nc" id="L484">        lpUserTime)) {</span>
-<span class="nc" id="L485">      LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: &quot;</span>
-<span class="nc" id="L486">          + Native.getLastError());</span>
-<span class="nc" id="L487">      return;</span>
+<span class="nc" id="L499">    if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime,</span>
+<span class="nc" id="L500">        lpUserTime)) {</span>
+<span class="nc" id="L501">      LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: &quot;</span>
+<span class="nc" id="L502">          + Native.getLastError());</span>
+<span class="nc" id="L503">      return;</span>
     }
     // Array order is user,nice,kernel,idle
     curTicks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
     curTicks[1] = 0L; // Windows is not 'nice'
     curTicks[2] = lpKernelTime.toLong() - lpIdleTime.toLong();
     curTicks[3] = lpIdleTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
-<span class="nc bnc" id="L494" title="All 2 branches missed.">  }</span>
-<span class="nc" id="L495"></span>
-<span class="nc" id="L496">  /**</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">  }</span>
+<span class="nc" id="L511"></span>
+<span class="nc" id="L512">  /**</span>
    * {@inheritDoc}
-<span class="nc" id="L498">   */</span>
+<span class="nc" id="L514">   */</span>
   @Override
   public double getSystemCpuLoad() {
     if (sunMXBean) {
@@ -504,7 +520,7 @@ public class CentralProcessor implements Processor {
     }
     return getSystemCpuLoadBetweenTicks();
   }
-<span class="nc" id="L507"></span>
+<span class="nc" id="L523"></span>
   /**
    * {@inheritDoc}
    */
@@ -513,28 +529,28 @@ public class CentralProcessor implements Processor {
     // Expected to be -1 for Windows
     return OS_MXBEAN.getSystemLoadAverage();
   }
-<span class="nc" id="L516"></span>
-<span class="nc" id="L517">  /**</span>
-<span class="nc" id="L518">   * {@inheritDoc}</span>
-<span class="nc bnc" id="L519" title="All 2 branches missed.">   */</span>
+<span class="nc" id="L532"></span>
+<span class="nc" id="L533">  /**</span>
+<span class="nc" id="L534">   * {@inheritDoc}</span>
+<span class="nc bnc" id="L535" title="All 2 branches missed.">   */</span>
   @Override
-<span class="nc" id="L521">  public double getProcessorCpuLoadBetweenTicks() {</span>
+<span class="nc" id="L537">  public double getProcessorCpuLoadBetweenTicks() {</span>
     // Check if &gt; ~ 0.95 seconds since last tick count.
-<span class="nc" id="L523">    long now = System.currentTimeMillis();</span>
+<span class="nc" id="L539">    long now = System.currentTimeMillis();</span>
     LOG.trace(&quot;Current time: {}  Last processor tick time: {}&quot;, now,
-<span class="nc" id="L525">        this.procTickTime);</span>
+<span class="nc" id="L541">        this.procTickTime);</span>
     if (now - this.procTickTime &gt; 950) {
-<span class="nc" id="L527">      // Enough time has elapsed. Update array in place</span>
+<span class="nc" id="L543">      // Enough time has elapsed. Update array in place</span>
       updateProcessorTicks();
-<span class="nc" id="L529">      // Copy arrays in place</span>
-<span class="nc bnc" id="L530" title="All 2 branches missed.">      System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0,</span>
-<span class="nc" id="L531">          this.curProcTicks.length);</span>
+<span class="nc" id="L545">      // Copy arrays in place</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">      System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0,</span>
+<span class="nc" id="L547">          this.curProcTicks.length);</span>
       System.arraycopy(allProcessorTicks[this.processorNumber], 0,
           this.curProcTicks, 0, this.curProcTicks.length);
-<span class="nc" id="L534">      this.procTickTime = now;</span>
-<span class="nc" id="L535">    }</span>
+<span class="nc" id="L550">      this.procTickTime = now;</span>
+<span class="nc" id="L551">    }</span>
     long total = 0;
-<span class="nc bnc" id="L537" title="All 4 branches missed.">    for (int i = 0; i &lt; this.curProcTicks.length; i++) {</span>
+<span class="nc bnc" id="L553" title="All 4 branches missed.">    for (int i = 0; i &lt; this.curProcTicks.length; i++) {</span>
       total += (this.curProcTicks[i] - this.prevProcTicks[i]);
     }
     // Calculate idle from last field [3]
@@ -542,8 +558,8 @@ public class CentralProcessor implements Processor {
     LOG.trace(&quot;Total ticks: {}  Idle ticks: {}&quot;, total, idle);
     // update
     return (total &gt; 0 &amp;&amp; idle &gt;= 0) ? (double) (total - idle) / total : 0d;
-<span class="nc" id="L545">  }</span>
-<span class="nc" id="L546"></span>
+<span class="nc" id="L561">  }</span>
+<span class="nc" id="L562"></span>
   /**
    * {@inheritDoc}
    */
@@ -554,61 +570,61 @@ public class CentralProcessor implements Processor {
   }
 
   /**
-<span class="nc bnc" id="L557" title="All 4 branches missed.">   * Updates the tick array for all processors if more than 100ms has elapsed</span>
-<span class="nc" id="L558">   * since the last update. This permits using the allProcessorTicks as a cache</span>
-<span class="nc" id="L559">   * when iterating over processors since pdh query updates all counters at once</span>
+<span class="nc bnc" id="L573" title="All 4 branches missed.">   * Updates the tick array for all processors if more than 100ms has elapsed</span>
+<span class="nc" id="L574">   * since the last update. This permits using the allProcessorTicks as a cache</span>
+<span class="nc" id="L575">   * when iterating over processors since pdh query updates all counters at once</span>
    * so we can't separate individual processors
    */
   private void updateProcessorTicks() {
-<span class="nc" id="L563">    // Do nothing if we have PDH errors</span>
-<span class="nc" id="L564">    if (pdhOpenTickQueryError != 0 || pdhAddTickCounterError != 0) {</span>
-<span class="nc" id="L565">      LOG.warn(&quot;PDH Tick Counters not initialized. Processor ticks not updated.&quot;);</span>
-<span class="nc bnc" id="L566" title="All 2 branches missed.">      return;</span>
-<span class="nc" id="L567">    }</span>
+<span class="nc" id="L579">    // Do nothing if we have PDH errors</span>
+<span class="nc" id="L580">    if (pdhOpenTickQueryError != 0 || pdhAddTickCounterError != 0) {</span>
+<span class="nc" id="L581">      LOG.warn(&quot;PDH Tick Counters not initialized. Processor ticks not updated.&quot;);</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">      return;</span>
+<span class="nc" id="L583">    }</span>
     // Update no more frequently than 100ms so this is only triggered once
     // during iteration over Processors
-<span class="nc" id="L570">    long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L571" title="All 2 branches missed.">    LOG.trace(&quot;Current time: {}  Last all processor tick time: {}&quot;, now,</span>
-<span class="nc" id="L572">        allProcTickTime);</span>
-<span class="nc" id="L573">    if (now - allProcTickTime &lt; 100)</span>
-<span class="nc" id="L574">      return;</span>
+<span class="nc" id="L586">    long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">    LOG.trace(&quot;Current time: {}  Last all processor tick time: {}&quot;, now,</span>
+<span class="nc" id="L588">        allProcTickTime);</span>
+<span class="nc" id="L589">    if (now - allProcTickTime &lt; 100)</span>
+<span class="nc" id="L590">      return;</span>
 
     // This call updates all process counters to % used since last call
-<span class="nc" id="L577">    int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());</span>
-<span class="nc bnc" id="L578" title="All 2 branches missed.">    if (ret != 0) {</span>
-<span class="nc" id="L579">      LOG.warn(&quot;Failed to update Tick Counters. Error code: {}&quot;,</span>
-<span class="nc" id="L580">          String.format(&quot;0x%08X&quot;, ret));</span>
-<span class="nc" id="L581">      return;</span>
+<span class="nc" id="L593">    int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());</span>
+<span class="nc bnc" id="L594" title="All 2 branches missed.">    if (ret != 0) {</span>
+<span class="nc" id="L595">      LOG.warn(&quot;Failed to update Tick Counters. Error code: {}&quot;,</span>
+<span class="nc" id="L596">          String.format(&quot;0x%08X&quot;, ret));</span>
+<span class="nc" id="L597">      return;</span>
     }
-<span class="nc bnc" id="L583" title="All 2 branches missed.">    // Multiply % usage times elapsed MS to recreate ticks, then increment</span>
-<span class="nc" id="L584">    long elapsed = now - allProcTickTime;</span>
-<span class="nc" id="L585">    for (int cpu = 0; cpu &lt; numCPU; cpu++) {</span>
-<span class="nc" id="L586">      PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();</span>
+<span class="nc bnc" id="L599" title="All 2 branches missed.">    // Multiply % usage times elapsed MS to recreate ticks, then increment</span>
+<span class="nc" id="L600">    long elapsed = now - allProcTickTime;</span>
+<span class="nc" id="L601">    for (int cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L602">      PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();</span>
       ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(
           phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
-<span class="nc" id="L589">          null, phUserCounterValue);</span>
-<span class="nc" id="L590">      if (ret != 0) {</span>
-<span class="nc" id="L591">        LOG.warn(&quot;Failed to get Uer Tick Counters. Error code: {}&quot;,</span>
+<span class="nc" id="L605">          null, phUserCounterValue);</span>
+<span class="nc" id="L606">      if (ret != 0) {</span>
+<span class="nc" id="L607">        LOG.warn(&quot;Failed to get Uer Tick Counters. Error code: {}&quot;,</span>
             String.format(&quot;0x%08X&quot;, ret));
-<span class="nc bnc" id="L593" title="All 2 branches missed.">        return;</span>
-<span class="nc" id="L594">      }</span>
-<span class="nc" id="L595"></span>
-<span class="nc" id="L596">      PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();</span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">        return;</span>
+<span class="nc" id="L610">      }</span>
+<span class="nc" id="L611"></span>
+<span class="nc" id="L612">      PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();</span>
       ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(
           phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
           null, phIdleCounterValue);
       if (ret != 0) {
         LOG.warn(&quot;Failed to get idle Tick Counters. Error code: {}&quot;,
-<span class="nc" id="L602">            String.format(&quot;0x%08X&quot;, ret));</span>
-<span class="nc" id="L603">        return;</span>
+<span class="nc" id="L618">            String.format(&quot;0x%08X&quot;, ret));</span>
+<span class="nc" id="L619">        return;</span>
       }
-<span class="nc" id="L605"></span>
+<span class="nc" id="L621"></span>
       // Returns results in 1000's of percent, e.g. 5% is 5000
-<span class="nc" id="L607">      // Multiply by elapsed to get total ms and Divide by 100 * 1000</span>
-<span class="nc" id="L608">      // Putting division at end avoids need to cast division to double</span>
+<span class="nc" id="L623">      // Multiply by elapsed to get total ms and Divide by 100 * 1000</span>
+<span class="nc" id="L624">      // Putting division at end avoids need to cast division to double</span>
       long user = elapsed * phUserCounterValue.value.largeValue / 100000;
-<span class="nc" id="L610">      long idle = elapsed * phIdleCounterValue.value.largeValue / 100000;</span>
-<span class="nc" id="L611">      // Elasped is only since last read, so increment previous value</span>
+<span class="nc" id="L626">      long idle = elapsed * phIdleCounterValue.value.largeValue / 100000;</span>
+<span class="nc" id="L627">      // Elasped is only since last read, so increment previous value</span>
       allProcessorTicks[cpu][0] += user;
       // allProcessorTicks[cpu][1] is ignored, Windows is not nice
       allProcessorTicks[cpu][2] += (elapsed - user - idle); // u+i+sys=100%
@@ -616,28 +632,28 @@ public class CentralProcessor implements Processor {
     }
     allProcTickTime = now;
   }
-<span class="nc bnc" id="L619" title="All 4 branches missed."></span>
-<span class="nc" id="L620">  /**</span>
-<span class="nc" id="L621">   * {@inheritDoc}</span>
+<span class="nc bnc" id="L635" title="All 4 branches missed."></span>
+<span class="nc" id="L636">  /**</span>
+<span class="nc" id="L637">   * {@inheritDoc}</span>
    */
   @Override
-<span class="nc" id="L624">  public long getSystemUptime() {</span>
-<span class="nc bnc" id="L625" title="All 2 branches missed.">    // Return 0 if we have PDH errors</span>
-<span class="nc" id="L626">    if (pdhOpenUptimeQueryError != 0 || pdhAddUptimeCounterError != 0) {</span>
-<span class="nc" id="L627">      LOG.warn(&quot;Uptime Counters not initialized. Returning 0.&quot;);</span>
-<span class="nc" id="L628">      return 0L;</span>
+<span class="nc" id="L640">  public long getSystemUptime() {</span>
+<span class="nc bnc" id="L641" title="All 2 branches missed.">    // Return 0 if we have PDH errors</span>
+<span class="nc" id="L642">    if (pdhOpenUptimeQueryError != 0 || pdhAddUptimeCounterError != 0) {</span>
+<span class="nc" id="L643">      LOG.warn(&quot;Uptime Counters not initialized. Returning 0.&quot;);</span>
+<span class="nc" id="L644">      return 0L;</span>
     }
 
-<span class="nc" id="L631">    int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());</span>
-<span class="nc" id="L632">    if (ret != 0) {</span>
+<span class="nc" id="L647">    int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());</span>
+<span class="nc" id="L648">    if (ret != 0) {</span>
       LOG.error(&quot;Failed to update Uptime Counters. Error code: {}&quot;,
-<span class="nc bnc" id="L634" title="All 2 branches missed.">          String.format(&quot;0x%08X&quot;, ret));</span>
-<span class="nc" id="L635">      return 0L;</span>
-<span class="nc" id="L636">    }</span>
-<span class="nc" id="L637"></span>
+<span class="nc bnc" id="L650" title="All 2 branches missed.">          String.format(&quot;0x%08X&quot;, ret));</span>
+<span class="nc" id="L651">      return 0L;</span>
+<span class="nc" id="L652">    }</span>
+<span class="nc" id="L653"></span>
     PdhFmtCounterValue uptimeCounterValue = new PdhFmtCounterValue();
     ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pUptime.getValue(),
-<span class="nc" id="L640">        Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);</span>
+<span class="nc" id="L656">        Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);</span>
     if (ret != 0) {
       LOG.error(&quot;Failed to get Uptime Counters. Error code: {}&quot;,
           String.format(&quot;0x%08X&quot;, ret));
@@ -645,41 +661,51 @@ public class CentralProcessor implements Processor {
     }
 
     return uptimeCounterValue.value.largeValue;
-<span class="nc" id="L648">  }</span>
+<span class="nc" id="L664">  }</span>
 
-<span class="nc" id="L650">  /**</span>
-<span class="nc" id="L651">   * {@inheritDoc}</span>
-<span class="nc bnc" id="L652" title="All 2 branches missed.">   */</span>
-<span class="nc bnc" id="L653" title="All 2 branches missed.">  @Override</span>
-<span class="nc bnc" id="L654" title="All 2 branches missed.">  public String getSystemSerialNumber() {</span>
-<span class="nc" id="L655">    String sn = null;</span>
+<span class="nc" id="L666">  /**</span>
+<span class="nc" id="L667">   * {@inheritDoc}</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">   */</span>
+<span class="nc bnc" id="L669" title="All 2 branches missed.">  @Override</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">  public String getSystemSerialNumber() {</span>
+<span class="nc" id="L671">    String sn = null;</span>
     // This should always work
-<span class="nc" id="L657">    ArrayList&lt;String&gt; hwInfo = ExecutingCommand</span>
-<span class="nc" id="L658">        .runNative(&quot;wmic bios get serialnumber&quot;);</span>
+<span class="nc" id="L673">    ArrayList&lt;String&gt; hwInfo = ExecutingCommand</span>
+<span class="nc" id="L674">        .runNative(&quot;wmic bios get serialnumber&quot;);</span>
     for (String checkLine : hwInfo) {
       if (checkLine.length() == 0
           || checkLine.toLowerCase().contains(&quot;serialnumber&quot;)) {
-<span class="nc bnc" id="L662" title="All 4 branches missed.">        continue;</span>
-<span class="nc" id="L663">      } else {</span>
-<span class="nc" id="L664">        sn = checkLine.trim();</span>
-<span class="nc bnc" id="L665" title="All 2 branches missed.">        break;</span>
-<span class="nc bnc" id="L666" title="All 2 branches missed.">      }</span>
-<span class="nc bnc" id="L667" title="All 2 branches missed.">    }</span>
-<span class="nc" id="L668">    // Just in case the above doesn't</span>
+<span class="nc bnc" id="L678" title="All 4 branches missed.">        continue;</span>
+<span class="nc" id="L679">      } else {</span>
+<span class="nc" id="L680">        sn = checkLine.trim();</span>
+<span class="nc bnc" id="L681" title="All 2 branches missed.">        break;</span>
+<span class="nc bnc" id="L682" title="All 2 branches missed.">      }</span>
+<span class="nc bnc" id="L683" title="All 2 branches missed.">    }</span>
+<span class="nc" id="L684">    // Just in case the above doesn't</span>
     if (sn == null || sn.length() == 0) {
-<span class="nc" id="L670">      hwInfo = ExecutingCommand</span>
-<span class="nc" id="L671">          .runNative(&quot;wmic csproduct get identifyingnumber&quot;);</span>
+<span class="nc" id="L686">      hwInfo = ExecutingCommand</span>
+<span class="nc" id="L687">          .runNative(&quot;wmic csproduct get identifyingnumber&quot;);</span>
       for (String checkLine : hwInfo) {
         if (checkLine.length() == 0
             || checkLine.toLowerCase().contains(&quot;identifyingnumber&quot;)) {
-<span class="nc bnc" id="L675" title="All 4 branches missed.">          continue;</span>
+<span class="nc bnc" id="L691" title="All 4 branches missed.">          continue;</span>
         } else {
           sn = checkLine.trim();
           break;
         }
-<span class="nc" id="L680">      }</span>
+<span class="nc" id="L696">      }</span>
     }
     return (sn == null || sn.length() == 0) ? &quot;unknown&quot; : sn;
+  }
+
+<span class="nc" id="L701">  @Override</span>
+  public int getLogicalProcessorCount() {
+    return logicalProcessorCount;
+  }
+
+<span class="nc" id="L706">  @Override</span>
+  public int getPhysicalProcessorCount() {
+    return physicalProcessorCount;
   }
 
   @Override

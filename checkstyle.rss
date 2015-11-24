@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2015 com.github.dblock</copyright>
     <item>
-      <title>File: 54,
-             Errors: 966,
+      <title>File: 53,
+             Errors: 984,
              Warnings: 0,
              Infos: 0
       </title>
@@ -55,7 +55,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  32
                 </td>
               </tr>
                           <tr>
@@ -111,7 +111,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  37
                 </td>
               </tr>
                           <tr>
@@ -209,7 +209,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  107
+                  112
                 </td>
               </tr>
                           <tr>
@@ -279,7 +279,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  43
+                  45
                 </td>
               </tr>
                           <tr>
@@ -293,7 +293,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  100
+                  108
                 </td>
               </tr>
                           <tr>
@@ -322,20 +322,6 @@ under the License.
                 </td>
                 <td>
                   3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.mac.local.SystemBLib.java">oshi/software/os/mac/local/SystemBLib.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  8
                 </td>
               </tr>
                           <tr>
@@ -377,7 +363,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  99
+                  103
                 </td>
               </tr>
                           <tr>
@@ -699,7 +685,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  26
                 </td>
               </tr>
                           <tr>
@@ -755,7 +741,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  9
                 </td>
               </tr>
                           <tr>
@@ -769,7 +755,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  36
                 </td>
               </tr>
                           <tr>
