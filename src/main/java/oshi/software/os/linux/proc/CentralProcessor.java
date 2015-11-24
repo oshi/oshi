@@ -19,7 +19,9 @@ package oshi.software.os.linux.proc;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +67,74 @@ public class CentralProcessor implements Processor {
         }
     }
 
+    // Logical and Physical Processor Counts
+    private static int logicalProcessorCount = 0;
+    private static int physicalProcessorCount = 0;
+    static {
+        try {
+            List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
+            // Get number of logical processors
+            for (String cpu : procCpu) {
+                if (cpu.startsWith("processor")) {
+                    logicalProcessorCount++;
+                }
+            }
+            // Get number of physical processors
+            int siblings = 0;
+            int cpucores = 0;
+            int[] uniqueID = new int[2];
+            uniqueID[0] = -1;
+            uniqueID[1] = -1;
+
+            Set<String> ids = new HashSet<String>();
+
+            for (String cpu : procCpu) {
+                if (cpu.startsWith("siblings")) {
+                    // if siblings = 1, no hyperthreading
+                    siblings = ParseUtil.parseString(cpu, 1);
+                    if (siblings == 1) {
+                        physicalProcessorCount = logicalProcessorCount;
+                        break;
+                    }
+                }
+                if (cpu.startsWith("cpu cores")) {
+                    // if siblings > 1, ratio with cores
+                    cpucores = ParseUtil.parseString(cpu, 1);
+                    if (siblings > 1) {
+                        physicalProcessorCount = logicalProcessorCount * cpucores / siblings;
+                        break;
+                    }
+                }
+                // If siblings and cpu cores don't define it, count unique
+                // combinations of core id and physical id.
+                if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
+                    uniqueID[0] = ParseUtil.parseString(cpu, 0);
+                } else if (cpu.startsWith("physical id")) {
+                    uniqueID[1] = ParseUtil.parseString(cpu, 0);
+                }
+                if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
+                    ids.add(uniqueID[0] + " " + uniqueID[1]);
+                    uniqueID[0] = -1;
+                    uniqueID[1] = -1;
+                }
+            }
+            if (physicalProcessorCount == 0) {
+                physicalProcessorCount = ids.size();
+            }
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
+        }
+        // Force at least one processor
+        if (logicalProcessorCount < 1) {
+            LOG.error("Couldn't find logical processor count. Assuming 1.");
+            logicalProcessorCount = 1;
+        }
+        if (physicalProcessorCount < 1) {
+            LOG.error("Couldn't find physical processor count. Assuming 1.");
+            physicalProcessorCount = 1;
+        }
+    }
+
     // Maintain two sets of previous ticks to be used for calculating usage
     // between them.
     // System ticks (static)
@@ -82,29 +152,10 @@ public class CentralProcessor implements Processor {
     private long[] prevProcTicks = new long[4];
     private long[] curProcTicks = new long[4];
 
-    // Initialize numCPU
-    private static int numCPU = 0;
-
-    static {
-        try {
-            List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
-            for (String cpu : procCpu) {
-                if (cpu.startsWith("processor")) {
-                    numCPU++;
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
-        }
-        // Force at least one processor
-        if (numCPU < 1)
-            numCPU = 1;
-    }
-
     // Set up array to maintain current ticks for rapid reference. This array
     // will be updated in place and used as a cache to avoid rereading file
     // while iterating processors
-    private static long[][] allProcessorTicks = new long[numCPU][4];
+    private static long[][] allProcessorTicks = new long[logicalProcessorCount][4];
     private static long allProcTickTime = 0;
 
     private int processorNumber;
@@ -124,9 +175,9 @@ public class CentralProcessor implements Processor {
      *            The processor number
      */
     public CentralProcessor(int procNo) {
-        if (procNo >= numCPU) {
+        if (procNo >= logicalProcessorCount) {
             throw new IllegalArgumentException("Processor number (" + procNo
-                    + ") must be less than the number of CPUs: " + numCPU);
+                    + ") must be less than the number of CPUs: " + logicalProcessorCount);
         }
         this.processorNumber = procNo;
         updateProcessorTicks();
@@ -500,7 +551,7 @@ public class CentralProcessor implements Processor {
                     for (int i = 0; i < 4; i++) {
                         allProcessorTicks[cpu][i] = Long.parseLong(tickArr[i + 1]);
                     }
-                    if (++cpu >= numCPU)
+                    if (++cpu >= logicalProcessorCount)
                         break;
                 }
             }
@@ -556,6 +607,16 @@ public class CentralProcessor implements Processor {
             }
         }
         return (sn == null) ? "unknown" : sn;
+    }
+
+    @Override
+    public int getLogicalProcessorCount() {
+        return logicalProcessorCount;
+    }
+
+    @Override
+    public int getPhysicalProcessorCount() {
+        return physicalProcessorCount;
     }
 
     @Override

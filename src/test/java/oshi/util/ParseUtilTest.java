@@ -39,4 +39,12 @@ public class ParseUtilTest {
         assertEquals(1000000000000L, ParseUtil.parseHertz("1THz"));
     }
 
+    /**
+     * Test parse string.
+     */
+    @Test
+    public void testParseString() {
+        assertEquals(1, ParseUtil.parseString("foo : 1", 0));
+        assertEquals(2, ParseUtil.parseString("foo", 2));
+    }
 }

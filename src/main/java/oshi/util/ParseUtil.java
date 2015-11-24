@@ -82,4 +82,16 @@ public abstract class ParseUtil {
         return -1L;
     }
 
+    /**
+     * Parse the last element of a string to a value return {@link Integer}
+     * value or the given default if not parsable
+     */
+    public static int parseString(String s, int i) {
+        String[] ss = s.split("\\s+");
+        if (ss.length < 2) {
+            return i;
+        } else {
+            return Integer.valueOf(ss[ss.length - 1]);
+        }
+    }
 }

@@ -25,8 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -64,6 +67,24 @@ public class CentralProcessor implements Processor {
         }
     }
 
+    // Logical and Physical Processor Counts
+    private static final int logicalProcessorCount;
+    private static int physicalProcessorCount = 0;
+    static {
+        // Get number of logical processors
+        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
+        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
+        logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
+
+        // Get number of physical processors
+        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                physicalProcessorCount++;
+            }
+        }
+    }
+
     // Maintain two sets of previous ticks to be used for calculating usage
     // between them.
     // System ticks (static)
@@ -85,7 +106,7 @@ public class CentralProcessor implements Processor {
     // monitoring each processor ticks
     static PointerByReference phQuery = new PointerByReference();
     private static final IntByReference zero = new IntByReference(0);
-    private static final int numCPU;
+
     // Set up Performance Data Helper thread for uptime
     static PointerByReference uptimeQuery = new PointerByReference();
     private static final IntByReference one = new IntByReference(1);
@@ -97,11 +118,6 @@ public class CentralProcessor implements Processor {
     private static int pdhAddUptimeCounterError = 0;
 
     static {
-        // Get number of processors
-        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
-        numCPU = sysinfo.dwNumberOfProcessors.intValue();
-
         // Open tick query for this processor
         pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, zero, phQuery);
         if (pdhOpenTickQueryError != 0) {
@@ -126,12 +142,12 @@ public class CentralProcessor implements Processor {
     }
 
     // Set up a counter for each processor
-    private static PointerByReference[] phUserCounters = new PointerByReference[numCPU];
-    private static PointerByReference[] phIdleCounters = new PointerByReference[numCPU];
+    private static PointerByReference[] phUserCounters = new PointerByReference[logicalProcessorCount];
+    private static PointerByReference[] phIdleCounters = new PointerByReference[logicalProcessorCount];
 
     static {
         if (pdhOpenTickQueryError == 0) {
-            for (int p = 0; p < numCPU; p++) {
+            for (int p = 0; p < logicalProcessorCount; p++) {
                 // Options are (only need 2 to calculate all)
                 // "\Processor(0)\% processor time"
                 // "\Processor(0)\% idle time" (1 - processor)
@@ -188,7 +204,7 @@ public class CentralProcessor implements Processor {
     // Set up array to maintain current ticks for rapid reference. This array
     // will be updated in place and used to increment ticks based on processor
     // data helper which only gives % between reads
-    private static long[][] allProcessorTicks = new long[numCPU][4];
+    private static long[][] allProcessorTicks = new long[logicalProcessorCount][4];
     private static long allProcTickTime = System.currentTimeMillis() - 100;
 
     private int processorNumber;
@@ -204,9 +220,9 @@ public class CentralProcessor implements Processor {
      *            The processor number
      */
     public CentralProcessor(int procNo) {
-        if (procNo >= numCPU) {
-            throw new IllegalArgumentException(
-                    "Processor number (" + procNo + ") must be less than the number of CPUs: " + numCPU);
+        if (procNo >= logicalProcessorCount) {
+            throw new IllegalArgumentException("Processor number (" + procNo
+                    + ") must be less than the number of CPUs: " + logicalProcessorCount);
         }
         this.processorNumber = procNo;
         updateProcessorTicks();
@@ -498,8 +514,7 @@ public class CentralProcessor implements Processor {
             updateProcessorTicks();
             // Copy arrays in place
             System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0, this.curProcTicks.length);
-            System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0,
-                    this.curProcTicks.length);
+            System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
             this.procTickTime = now;
         }
         long total = 0;
@@ -549,18 +564,18 @@ public class CentralProcessor implements Processor {
         }
         // Multiply % usage times elapsed MS to recreate ticks, then increment
         long elapsed = now - allProcTickTime;
-        for (int cpu = 0; cpu < numCPU; cpu++) {
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
             PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(),
-                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phUserCounterValue);
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
+                    | Pdh.PDH_FMT_1000, null, phUserCounterValue);
             if (ret != 0) {
                 LOG.warn("Failed to get Uer Tick Counters. Error code: {}", String.format("0x%08X", ret));
                 return;
             }
 
             PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(),
-                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
+                    | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
             if (ret != 0) {
                 LOG.warn("Failed to get idle Tick Counters. Error code: {}", String.format("0x%08X", ret));
                 return;
@@ -636,6 +651,16 @@ public class CentralProcessor implements Processor {
             }
         }
         return (sn == null || sn.length() == 0) ? "unknown" : sn;
+    }
+
+    @Override
+    public int getLogicalProcessorCount() {
+        return logicalProcessorCount;
+    }
+
+    @Override
+    public int getPhysicalProcessorCount() {
+        return physicalProcessorCount;
     }
 
     @Override
