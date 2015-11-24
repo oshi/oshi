@@ -1,8 +1,11 @@
 1.6 (in-progress)
 ================
+* Your contribution here.
+
+1.5.2 (11/23/2015)
+================
 * [#98](https://github.com/dblock/oshi/pull/98): Upgraded JNA to 4.2.1 - [@dbwiddis](https://github.com/dbwiddis).
 * [#100](https://github.com/dblock/oshi/pull/100): Add physical and logical CPU counts - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 1.5.1 (10/15/2015)
 ================

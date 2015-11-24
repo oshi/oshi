@@ -4,15 +4,13 @@ OSHI
 [![Eclipse](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
-![](https://reposs.herokuapp.com/?path=dblock/oshi&amp;style=flat)
-[![This is a forkable respository](https://img.shields.io/badge/forkable-yes-brightgreen.svg)](https://basicallydan.github.io/forkability/?u=dblock&amp;r=oshi)
 
 Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
 
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 1.5.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5.1&amp;e=jar)
+* [Download Oshi 1.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5.2&amp;e=jar)
 * [Download Oshi 1.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.6-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
@@ -37,7 +35,7 @@ Current supported features
 
 ### Hardware ###
 * How much physical/available (free+reclaimable) RAM
-* How many Logical CPUs (core * thread)
+* How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
@@ -50,7 +48,8 @@ For Windows:
 
 ```
 Microsoft Windows 7
-2 CPU(s):
+1 physical CPU(s)
+2 logical CPU(s):
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
@@ -80,7 +79,8 @@ For Linux:
 
 ```
 GNU/Linux Fedora 20 (Heisenbug)
-8 CPU(s):
+4 physical CPU(s)
+8 logical CPU(s):
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
@@ -112,8 +112,9 @@ File System:
 For Mac OS X:
 
 ```
-Apple Mac OS X 10.10.4 (Yosemite) build 14E36b
-4 CPU(s):
+Apple Mac OS X 10.11.1 (El Capitan) build 15B42
+2 physical CPU(s)
+4 logical CPU(s):
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
