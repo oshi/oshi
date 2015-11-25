@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.linux.proc;
+package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.io.IOException;

@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.software.os.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +29,12 @@ import com.sun.jna.ptr.IntByReference;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class OSNativeSystemInfo {
-    private static final Logger LOG = LoggerFactory.getLogger(OSNativeSystemInfo.class);
+public class WindowsOSSystemInfo {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);
 
     private SYSTEM_INFO _si = null;
 
-    public OSNativeSystemInfo() {
+    public WindowsOSSystemInfo() {
 
         SYSTEM_INFO si = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(si);
@@ -56,7 +56,7 @@ public class OSNativeSystemInfo {
         LOG.debug("Initialized OSNativeSystemInfo");
     }
 
-    public OSNativeSystemInfo(SYSTEM_INFO si) {
+    public WindowsOSSystemInfo(SYSTEM_INFO si) {
         this._si = si;
     }
 

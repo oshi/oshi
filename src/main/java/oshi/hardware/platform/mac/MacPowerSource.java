@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.software.os.mac;
 
 import java.io.File;
 import java.io.IOException;

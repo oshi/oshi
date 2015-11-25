@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.software.os.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,12 @@ import oshi.software.os.OperatingSystemVersion;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class OSVersionInfoEx implements OperatingSystemVersion {
-    private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
     private OSVERSIONINFOEX _versionInfo;
 
-    public OSVersionInfoEx() {
+    public WindowsOSVersionInfoEx() {
         this._versionInfo = new OSVERSIONINFOEX();
         if (!Kernel32.INSTANCE.GetVersionEx(this._versionInfo)) {
             LOG.error("Failed to Initialize OSVersionInfoEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
@@ -239,7 +239,7 @@ public class OSVersionInfoEx implements OperatingSystemVersion {
         return version;
     }
 
-    public OSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
+    public WindowsOSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
         this._versionInfo = versionInfo;
     }
 }

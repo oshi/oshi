@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.software.os.windows;
 
 import java.io.File;
 import java.util.ArrayList;

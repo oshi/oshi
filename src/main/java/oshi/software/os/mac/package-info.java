@@ -9,12 +9,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
- * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides information about Software and OS on Mac OS X
  */
 package oshi.software.os.mac;

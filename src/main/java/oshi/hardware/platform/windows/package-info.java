@@ -9,12 +9,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
- * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides information about hardware such as Memory, Power Sources, and Processor on Windows systems
  */
-package oshi.software.os.windows.nt;
+package oshi.hardware.platform.windows;

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
@@ -91,11 +91,11 @@ public class SystemInfoTest {
     public void testGetMemory() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        Memory memory = hal.getMemory();
-        assertNotNull(memory);
-        assertTrue(memory.getTotal() > 0);
-        assertTrue(memory.getAvailable() >= 0);
-        assertTrue(memory.getAvailable() <= memory.getTotal());
+        GlobalMemory globalMemory = hal.getMemory();
+        assertNotNull(globalMemory);
+        assertTrue(globalMemory.getTotal() > 0);
+        assertTrue(globalMemory.getAvailable() >= 0);
+        assertTrue(globalMemory.getAvailable() <= globalMemory.getTotal());
     }
 
     /**

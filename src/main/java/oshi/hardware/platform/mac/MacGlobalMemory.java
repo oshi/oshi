@@ -14,11 +14,12 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.hardware.platform.mac;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
@@ -26,15 +27,15 @@ import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class GlobalMemory implements Memory {
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
+public class MacGlobalMemory implements GlobalMemory {
+    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
     long totalMemory = 0;
 
@@ -66,7 +67,7 @@ public class GlobalMemory implements Memory {
     @Override
     public long getTotal() {
         if (this.totalMemory == 0) {
-            Pointer pMemSize = new com.sun.jna.Memory(SystemB.UINT64_SIZE);
+            Pointer pMemSize = new Memory(SystemB.UINT64_SIZE);
             if (0 != SystemB.INSTANCE.sysctlbyname("hw.memsize", pMemSize, new IntByReference(SystemB.UINT64_SIZE),
                     null, 0)) {
                 LOG.error("Failed to get memory size. Error code: " + Native.getLastError());

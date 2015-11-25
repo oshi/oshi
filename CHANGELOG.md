@@ -1,5 +1,6 @@
-1.6 (in-progress)
+2.0 (in-progress)
 ================
+* [#101](https://github.com/dblock/oshi/pull/101): Refactored package structure for consistency - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 1.5.2 (11/23/2015)

@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.hardware.platform.mac;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -45,8 +45,8 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
-public class CentralProcessor implements Processor {
-    private static final Logger LOG = LoggerFactory.getLogger(CentralProcessor.class);
+public class MacCentralProcessor implements Processor {
+    private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
             .getOperatingSystemMXBean();
@@ -127,7 +127,7 @@ public class CentralProcessor implements Processor {
      * @param procNo
      *            The processor number
      */
-    public CentralProcessor(int procNo) {
+    public MacCentralProcessor(int procNo) {
         if (procNo >= logicalProcessorCount)
             throw new IllegalArgumentException("Processor number (" + procNo
                     + ") must be less than the number of CPUs: " + logicalProcessorCount);

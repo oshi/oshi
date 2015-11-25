@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.linux.proc;
+package oshi.hardware.platform.linux;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
@@ -35,8 +35,8 @@ import oshi.util.FileUtil;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-public class GlobalMemory implements Memory {
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
+public class LinuxGlobalMemory implements GlobalMemory {
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     private long totalMemory = 0;
 

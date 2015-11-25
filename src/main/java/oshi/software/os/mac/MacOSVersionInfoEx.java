@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.software.os.mac;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +32,15 @@ import oshi.software.os.OperatingSystemVersion;
  * @author widdis[at]gmail[dot]com
  */
 
-public class OSVersionInfoEx implements OperatingSystemVersion {
-    private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+public class MacOSVersionInfoEx implements OperatingSystemVersion {
+    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 
     private String _version;
     private String _codeName;
     private String _versionStr;
     private String _buildNumber;
 
-    public OSVersionInfoEx() {
+    public MacOSVersionInfoEx() {
     }
 
     /**

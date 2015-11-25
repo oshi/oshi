@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.hardware.platform.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,19 +22,19 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
 
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class GlobalMemory implements Memory {
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalMemory.class);
+public class WindowsGlobalMemory implements GlobalMemory {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
     private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
 
-    public GlobalMemory() {
+    public WindowsGlobalMemory() {
         if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
             LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
             this._memory = null;

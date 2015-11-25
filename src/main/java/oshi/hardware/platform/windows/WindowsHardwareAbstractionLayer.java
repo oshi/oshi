@@ -14,20 +14,17 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows;
+package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.windows.nt.CentralProcessor;
-import oshi.software.os.windows.nt.GlobalMemory;
-import oshi.software.os.windows.nt.WindowsFileSystem;
-import oshi.software.os.windows.nt.WindowsPowerSource;
+import oshi.software.os.windows.WindowsFileSystem;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
@@ -36,12 +33,12 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 
     private Processor[] _processors;
 
-    private Memory _memory;
+    private GlobalMemory _memory;
 
     @Override
-    public Memory getMemory() {
+    public GlobalMemory getMemory() {
         if (this._memory == null) {
-            this._memory = new GlobalMemory();
+            this._memory = new WindowsGlobalMemory();
         }
         return this._memory;
     }
@@ -56,7 +53,7 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
             int numCPU = 0;
             for (String processorId : processorIds) {
                 String cpuRegistryPath = cpuRegistryRoot + "\\" + processorId;
-                CentralProcessor cpu = new CentralProcessor(numCPU++);
+                WindowsCentralProcessor cpu = new WindowsCentralProcessor(numCPU++);
                 cpu.setIdentifier(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                         "Identifier"));
                 cpu.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,

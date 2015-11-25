@@ -26,7 +26,7 @@ package oshi.hardware;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface Memory {
+public interface GlobalMemory {
     /**
      * Total memory.
      * 

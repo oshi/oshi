@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.hardware.platform.windows;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
-public class CentralProcessor implements Processor {
-    private static final Logger LOG = LoggerFactory.getLogger(CentralProcessor.class);
+public class WindowsCentralProcessor implements Processor {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
     private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
             .getOperatingSystemMXBean();
@@ -221,7 +221,7 @@ public class CentralProcessor implements Processor {
      * @param procNo
      *            The processor number
      */
-    public CentralProcessor(int procNo) {
+    public WindowsCentralProcessor(int procNo) {
         if (procNo >= logicalProcessorCount) {
             throw new IllegalArgumentException("Processor number (" + procNo
                     + ") must be less than the number of CPUs: " + logicalProcessorCount);

@@ -18,7 +18,6 @@ package oshi.software.os.mac;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.mac.local.OSVersionInfoEx;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -33,7 +32,7 @@ public class MacOperatingSystem implements OperatingSystem {
     @Override
     public OperatingSystemVersion getVersion() {
         if (this._version == null) {
-            this._version = new OSVersionInfoEx();
+            this._version = new MacOSVersionInfoEx();
         }
         return this._version;
     }

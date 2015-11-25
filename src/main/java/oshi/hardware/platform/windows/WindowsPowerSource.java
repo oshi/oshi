@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.hardware.platform.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

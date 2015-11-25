@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac;
+package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +27,11 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.mac.local.CentralProcessor;
-import oshi.software.os.mac.local.GlobalMemory;
-import oshi.software.os.mac.local.MacFileSystem;
-import oshi.software.os.mac.local.MacPowerSource;
+import oshi.software.os.mac.MacFileSystem;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -45,7 +42,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private Processor[] _processors;
 
-    private Memory _memory;
+    private GlobalMemory _memory;
 
     private PowerSource[] _powerSources;
 
@@ -67,7 +64,7 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
             } else
                 nbCPU = pNbCPU.getInt(0);
             for (int i = 0; i < nbCPU; i++)
-                processors.add(new CentralProcessor(i));
+                processors.add(new MacCentralProcessor(i));
 
             this._processors = processors.toArray(new Processor[0]);
         }
@@ -80,9 +77,9 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
      * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
      */
     @Override
-    public Memory getMemory() {
+    public GlobalMemory getMemory() {
         if (this._memory == null) {
-            this._memory = new GlobalMemory();
+            this._memory = new MacGlobalMemory();
         }
         return this._memory;
     }

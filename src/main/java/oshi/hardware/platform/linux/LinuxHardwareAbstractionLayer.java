@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.linux;
+package oshi.hardware.platform.linux;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,14 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Memory;
+import oshi.hardware.GlobalMemory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.linux.proc.CentralProcessor;
-import oshi.software.os.linux.proc.GlobalMemory;
-import oshi.software.os.linux.proc.LinuxFileSystem;
-import oshi.software.os.linux.proc.LinuxPowerSource;
+import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
 
 /**
@@ -45,12 +42,12 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private Processor[] _processors;
 
-    private Memory _memory;
+    private GlobalMemory _memory;
 
     @Override
-    public Memory getMemory() {
+    public GlobalMemory getMemory() {
         if (this._memory == null) {
-            this._memory = new GlobalMemory();
+            this._memory = new LinuxGlobalMemory();
         }
         return this._memory;
     }
@@ -67,7 +64,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
                 LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
                 return null;
             }
-            CentralProcessor cpu = null;
+            LinuxCentralProcessor cpu = null;
             int numCPU = 0;
             for (String toBeAnalyzed : cpuInfo) {
                 if (toBeAnalyzed.equals("")) {
@@ -78,7 +75,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
                     continue;
                 }
                 if (cpu == null) {
-                    cpu = new CentralProcessor(numCPU++);
+                    cpu = new LinuxCentralProcessor(numCPU++);
                 }
                 if (toBeAnalyzed.startsWith("model name\t")) {
                     cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);

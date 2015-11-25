@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.linux.proc;
+package oshi.software.os.linux;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,15 +32,15 @@ import oshi.software.os.OperatingSystemVersion;
  *
  * @author alessandro[at]perucchi[dot]org
  */
-public class OSVersionInfoEx implements OperatingSystemVersion {
+public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OSVersionInfoEx.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);
 
     private String _version;
     private String _codeName;
     private String version;
 
-    public OSVersionInfoEx() {
+    public LinuxOSVersionInfoEx() {
         try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
             in.useDelimiter("\n");
             while (in.hasNext()) {
