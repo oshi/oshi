@@ -11,7 +11,7 @@ Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download Oshi 1.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=1.5.2&e=jar)
-* [Download Oshi 1.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=1.6-SNAPSHOT&e=jar)
+* [Download Oshi 2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.0-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 

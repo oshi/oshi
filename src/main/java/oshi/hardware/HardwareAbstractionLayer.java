@@ -35,11 +35,11 @@ public interface HardwareAbstractionLayer {
     Processor[] getProcessors();
 
     /**
-     * Instantiates a {@link Memory} object.
+     * Instantiates a {@link GlobalMemory} object.
      * 
      * @return A memory object.
      */
-    Memory getMemory();
+    GlobalMemory getMemory();
 
     /**
      * Instantiates an array of {@link PowerSource} objects, representing

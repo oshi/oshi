@@ -18,7 +18,6 @@ package oshi.software.os.windows;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.windows.nt.OSVersionInfoEx;
 
 /**
  * Microsoft Windows is a family of proprietary operating systems most commonly
@@ -33,7 +32,7 @@ public class WindowsOperatingSystem implements OperatingSystem {
     @Override
     public OperatingSystemVersion getVersion() {
         if (this._version == null) {
-            this._version = new OSVersionInfoEx();
+            this._version = new WindowsOSVersionInfoEx();
         }
         return this._version;
     }

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.linux.proc.OSVersionInfoEx;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -70,7 +69,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
     @Override
     public OperatingSystemVersion getVersion() {
         if (this._version == null) {
-            this._version = new OSVersionInfoEx();
+            this._version = new LinuxOSVersionInfoEx();
         }
         return this._version;
     }

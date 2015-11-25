@@ -12,6 +12,6 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides information about Software and OS on Linux
+ * Provides information about hardware such as Memory, Power Sources, and Processor on Mac systems
  */
-package oshi.software.os.linux;
+package oshi.hardware.platform.mac;

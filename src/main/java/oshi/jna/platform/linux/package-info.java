@@ -12,6 +12,6 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides information about Software and OS on Linux
+ * Provides extensions of JNA libraries for Linux
  */
-package oshi.software.os.linux;
+package oshi.jna.platform.linux;
