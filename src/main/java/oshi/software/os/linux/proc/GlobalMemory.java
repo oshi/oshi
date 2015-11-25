@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 
 import oshi.hardware.Memory;
-import oshi.software.os.linux.Libc;
-import oshi.software.os.linux.Libc.Sysinfo;
+import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
 
 /**

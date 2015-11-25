@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.windows.nt;
+package oshi.jna.platform.windows;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;

@@ -14,15 +14,15 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
-
-import oshi.software.os.mac.local.CoreFoundation.CFArrayRef;
-import oshi.software.os.mac.local.CoreFoundation.CFDictionaryRef;
-import oshi.software.os.mac.local.CoreFoundation.CFStringRef;
-import oshi.software.os.mac.local.CoreFoundation.CFTypeRef;
+package oshi.jna.platform.mac;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+
+import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
  * Power Supply stats

@@ -27,9 +27,11 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.PowerSource;
-import oshi.software.os.mac.local.CoreFoundation.CFArrayRef;
-import oshi.software.os.mac.local.CoreFoundation.CFDictionaryRef;
-import oshi.software.os.mac.local.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
  * A Power Source

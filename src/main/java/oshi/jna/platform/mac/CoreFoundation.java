@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac.local;
+package oshi.jna.platform.mac;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;

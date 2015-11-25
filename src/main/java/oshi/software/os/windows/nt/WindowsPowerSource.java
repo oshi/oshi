@@ -22,7 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.NativeLong;
 
 import oshi.hardware.PowerSource;
-import oshi.software.os.windows.nt.PowrProf.SystemBatteryState;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
 
 /**

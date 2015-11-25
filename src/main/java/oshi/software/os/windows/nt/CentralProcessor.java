@@ -34,7 +34,9 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Processor;
-import oshi.software.os.windows.nt.Pdh.PdhFmtCounterValue;
+import oshi.jna.platform.windows.Kernel32;
+import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 

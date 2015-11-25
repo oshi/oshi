@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.linux;
+package oshi.jna.platform.linux;
 
 import java.util.Arrays;
 import java.util.List;
