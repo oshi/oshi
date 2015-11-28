@@ -10,14 +10,14 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 1.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.5.2&amp;e=jar)
-* [Download Oshi 1.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=1.6-SNAPSHOT&amp;e=jar)
+* [Download Oshi 2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.0&amp;e=jar)
+* [Download Oshi 2.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.1-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
 Where are we?
 -------------
-Oshi is a young project. We'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
 
 Current supported platforms
 ---------------------------
@@ -48,10 +48,9 @@ For Windows:
 
 ```
 Microsoft Windows 7
-1 physical CPU(s)
-2 logical CPU(s):
- Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
- Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+ 1 physical CPU(s)
+ 2 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
@@ -79,16 +78,9 @@ For Linux:
 
 ```
 GNU/Linux Fedora 20 (Heisenbug)
-4 physical CPU(s)
-8 logical CPU(s):
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ 4 physical CPU(s)
+ 8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
@@ -113,12 +105,9 @@ For Mac OS X:
 
 ```
 Apple Mac OS X 10.11.1 (El Capitan) build 15B42
-2 physical CPU(s)
-4 logical CPU(s):
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+ 2 physical CPU(s)
+ 4 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB

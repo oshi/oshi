@@ -26,14 +26,10 @@ Releasing OSHI
 * See [this page](http://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
 * `mvn release:clean`
 	* Takes a few seconds
-* `mvn -DdryRun=true release:prepare`
+* `mvn release:prepare`
 	* Takes a few minutes
 	* This will ask for the version being released, removing -SNAPSHOT
 	* This will suggest the next version, increment appropriately
-	* Allows opportunity to find/fix any build errors
-	* May need to `git reset` afterwards if files changed
-* `mvn release:clean`
-* `mvn release:prepare`
 * `mvn release:perform`
 	* Takes a few minutes. 
 	* This pushes the release to the [Nexus](https://oss.sonatype.org/) staging repository

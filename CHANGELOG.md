@@ -1,8 +1,12 @@
-2.0 (in-progress)
+2.1 (in-progress)
+================
+* Your contribution here.
+
+2.0 (11/28/2015)
 ================
 * [#101](https://github.com/dblock/oshi/pull/101): Refactored package structure for consistency - [@dbwiddis](https://github.com/dbwiddis).
 * [#103](https://github.com/dblock/oshi/pull/103): Switched CentralProcessor to a single object for all processors - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* See [UPGRADING.md](UPGRADING.md) for more details.
 
 1.5.2 (11/23/2015)
 ================
