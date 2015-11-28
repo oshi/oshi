@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacOSVersionInfoEx.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacOSVersionInfoEx.java</span></div><h1>MacOSVersionInfoEx.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.mac;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.software.os.OperatingSystemVersion;
+
+<span class="fc" id="L30">/**</span>
+<span class="fc" id="L31"> * @author alessandro[at]perucchi[dot]org</span>
+ * @author widdis[at]gmail[dot]com
+ */
+
+public class MacOSVersionInfoEx implements OperatingSystemVersion {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MacOSVersionInfoEx.class);
+
+  private String _version;
+<span class="fc" id="L41"></span>
+<span class="fc" id="L42">  private String _codeName;</span>
+
+  private String _versionStr;
+
+  private String _buildNumber;
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">  public MacOSVersionInfoEx() {</span>
+<span class="fc" id="L49">  }</span>
+
+<span class="fc" id="L51">  /**</span>
+   * @return the _version
+   */
+  public String getVersion() {
+    if (this._version == null) {
+      this._version = System.getProperty(&quot;os.version&quot;);
+    }
+    return this._version;
+<span class="nc" id="L59">  }</span>
+<span class="nc" id="L60"></span>
+  /**
+   * @param version
+   *        the version to set
+   */
+  public void setVersion(String version) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    this._version = version;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">  }</span>
+<span class="fc" id="L68"></span>
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">  /**</span>
+<span class="pc bpc" id="L70" title="12 of 13 branches missed.">   * @return the _codeName</span>
+   */
+<span class="nc" id="L72">  public String getCodeName() {</span>
+<span class="nc" id="L73">    if (this._codeName == null) {</span>
+      if (getVersion() != null) {
+<span class="nc" id="L75">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="nc" id="L76">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+          switch (Integer.parseInt(versionSplit[1])) {
+<span class="nc" id="L78">            case 0:</span>
+<span class="nc" id="L79">              this._codeName = &quot;Cheetah&quot;;</span>
+              break;
+<span class="nc" id="L81">            case 1:</span>
+<span class="nc" id="L82">              this._codeName = &quot;Puma&quot;;</span>
+              break;
+<span class="nc" id="L84">            case 2:</span>
+<span class="nc" id="L85">              this._codeName = &quot;Jaguar&quot;;</span>
+              break;
+<span class="nc" id="L87">            case 3:</span>
+<span class="nc" id="L88">              this._codeName = &quot;Panther&quot;;</span>
+              break;
+<span class="nc" id="L90">            case 4:</span>
+<span class="nc" id="L91">              this._codeName = &quot;Tiger&quot;;</span>
+              break;
+<span class="nc" id="L93">            case 5:</span>
+<span class="nc" id="L94">              this._codeName = &quot;Leopard&quot;;</span>
+              break;
+<span class="nc" id="L96">            case 6:</span>
+<span class="nc" id="L97">              this._codeName = &quot;Snow Leopard&quot;;</span>
+              break;
+<span class="nc" id="L99">            case 7:</span>
+<span class="nc" id="L100">              this._codeName = &quot;Lion&quot;;</span>
+              break;
+<span class="nc" id="L102">            case 8:</span>
+<span class="nc" id="L103">              this._codeName = &quot;Mountain Lion&quot;;</span>
+              break;
+<span class="fc" id="L105">            case 9:</span>
+<span class="fc" id="L106">              this._codeName = &quot;Mavericks&quot;;</span>
+              break;
+<span class="nc" id="L108">            case 10:</span>
+              this._codeName = &quot;Yosemite&quot;;
+              break;
+            case 11:
+<span class="nc" id="L112">              this._codeName = &quot;El Capitan&quot;;</span>
+              break;
+            default:
+<span class="fc" id="L115">              this._codeName = &quot;&quot;;</span>
+          }
+
+        } else
+          this._codeName = &quot;&quot;;
+      }
+    }
+    return this._codeName;
+<span class="nc" id="L123">  }</span>
+<span class="nc" id="L124"></span>
+  /**
+   * @param codeName
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">   *        the codeName to set</span>
+<span class="fc" id="L128">   */</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">  public void setCodeName(String codeName) {</span>
+    this._codeName = codeName;
+<span class="nc" id="L131">  }</span>
+<span class="nc" id="L132"></span>
+<span class="nc" id="L133">  public String getBuildNumber() {</span>
+    if (this._buildNumber == null) {
+<span class="fc" id="L135">      IntByReference size = new IntByReference();</span>
+<span class="fc" id="L136">      if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, null, size,</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">          null, 0)) {</span>
+<span class="nc" id="L138">        LOG.error(&quot;Failed to get OS Version. Error code: &quot;</span>
+<span class="nc" id="L139">            + Native.getLastError());</span>
+<span class="nc" id="L140">        return &quot;&quot;;</span>
+      }
+<span class="fc" id="L142">      Pointer p = new Memory(size.getValue() + 1);</span>
+      if (0 != SystemB.INSTANCE
+<span class="fc" id="L144">          .sysctlbyname(&quot;kern.osversion&quot;, p, size, null, 0)) {</span>
+        LOG.error(&quot;Failed to get OS Version. Error code: &quot;
+            + Native.getLastError());
+        return &quot;&quot;;
+<span class="nc" id="L148">      }</span>
+<span class="nc" id="L149">      this._buildNumber = p.getString(0);</span>
+    }
+    return this._buildNumber;
+  }
+<span class="pc bpc" id="L153" title="1 of 2 branches missed."></span>
+<span class="fc" id="L154">  public void setBuildNumber(String buildNumber) {</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">    this._buildNumber = buildNumber;</span>
+<span class="fc" id="L156">  }</span>
+
+<span class="fc" id="L158">  @Override</span>
+<span class="fc" id="L159">  public String toString() {</span>
+    if (this._versionStr == null) {
+<span class="fc" id="L161">      StringBuilder sb = new StringBuilder(getVersion());</span>
+      if (getCodeName().length() &gt; 0) {
+        sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);
+      }
+      sb.append(&quot; build &quot;).append(getBuildNumber());
+      this._versionStr = sb.toString();
+    }
+    return this._versionStr;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

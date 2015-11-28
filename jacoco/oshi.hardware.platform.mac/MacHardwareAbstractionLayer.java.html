@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacHardwareAbstractionLayer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacHardwareAbstractionLayer.java</span></div><h1>MacHardwareAbstractionLayer.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.PowerSource;
+<span class="fc" id="L23">import oshi.software.os.OSFileStore;</span>
+import oshi.software.os.mac.MacFileSystem;
+
+/**
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
+ */
+public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
+
+  private CentralProcessor processor;
+
+  private GlobalMemory _memory;
+
+  private PowerSource[] _powerSources;
+<span class="fc bfc" id="L37" title="All 2 branches covered."></span>
+<span class="fc" id="L38">  /*</span>
+   * (non-Javadoc)
+<span class="fc" id="L40">   * @see oshi.hardware.HardwareAbstractionLayer#getProcessor()</span>
+   */
+  @Override
+  public CentralProcessor getProcessor() {
+    if (this.processor == null) {
+      this.processor = new MacCentralProcessor();
+    }
+    return this.processor;
+  }
+<span class="pc bpc" id="L49" title="1 of 2 branches missed."></span>
+<span class="fc" id="L50">  /*</span>
+   * (non-Javadoc)
+<span class="fc" id="L52">   * @see oshi.hardware.HardwareAbstractionLayer#getMemory()</span>
+   */
+  @Override
+  public GlobalMemory getMemory() {
+    if (this._memory == null) {
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">      this._memory = new MacGlobalMemory();</span>
+<span class="fc" id="L58">    }</span>
+    return this._memory;
+<span class="fc" id="L60">  }</span>
+
+  @Override
+  public PowerSource[] getPowerSources() {
+    if (this._powerSources == null) {
+<span class="fc" id="L65">      this._powerSources = MacPowerSource.getPowerSources();</span>
+    }
+    return this._powerSources;
+  }
+
+  @Override
+  public OSFileStore[] getFileStores() {
+    return MacFileSystem.getFileStores();
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

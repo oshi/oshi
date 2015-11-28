@@ -25,11 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.linux.proc.OSVersionInfoEx;
-<span class="nc" id="L29"></span>
+<span class="nc" id="L28"></span>
 /**
-<span class="nc" id="L31"> * Linux is a family of free operating systems most commonly used on personal</span>
-<span class="nc" id="L32"> * computers.</span>
+<span class="nc" id="L30"> * Linux is a family of free operating systems most commonly used on personal</span>
+<span class="nc" id="L31"> * computers.</span>
  *
  * @author alessandro[at]perucchi[dot]org
  */
@@ -37,48 +36,48 @@ public class LinuxOperatingSystem implements OperatingSystem {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(LinuxOperatingSystem.class);
-<span class="nc bnc" id="L40" title="All 2 branches missed."></span>
-<span class="nc" id="L41">  private OperatingSystemVersion _version;</span>
-<span class="nc" id="L42"></span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">  private String _family;</span>
-<span class="nc" id="L44"></span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">  @Override</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed."></span>
+<span class="nc" id="L40">  private OperatingSystemVersion _version;</span>
+<span class="nc" id="L41"></span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">  private String _family;</span>
+<span class="nc" id="L43"></span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">  @Override</span>
   public String getFamily() {
     if (this._family == null) {
-<span class="nc" id="L48">      try (final Scanner in = new Scanner(new FileReader(&quot;/etc/os-release&quot;))) {</span>
-<span class="nc" id="L49">        in.useDelimiter(&quot;\n&quot;);</span>
+<span class="nc" id="L47">      try (final Scanner in = new Scanner(new FileReader(&quot;/etc/os-release&quot;))) {</span>
+<span class="nc" id="L48">        in.useDelimiter(&quot;\n&quot;);</span>
         while (in.hasNext()) {
-<span class="nc" id="L51">          String[] splittedLine = in.next().split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L52" title="All 8 branches missed.">          if (splittedLine[0].equals(&quot;NAME&quot;)) {</span>
-<span class="nc" id="L53">            // remove beginning and ending '&quot;' characters, etc from</span>
-<span class="nc" id="L54">            // NAME=&quot;Ubuntu&quot;</span>
-<span class="nc" id="L55">            this._family = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
+<span class="nc" id="L50">          String[] splittedLine = in.next().split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L51" title="All 8 branches missed.">          if (splittedLine[0].equals(&quot;NAME&quot;)) {</span>
+<span class="nc" id="L52">            // remove beginning and ending '&quot;' characters, etc from</span>
+<span class="nc" id="L53">            // NAME=&quot;Ubuntu&quot;</span>
+<span class="nc" id="L54">            this._family = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
             break;
-<span class="nc" id="L57">          }</span>
+<span class="nc" id="L56">          }</span>
         }
       } catch (FileNotFoundException e) {
         LOG.trace(&quot;&quot;, e);
         return &quot;&quot;;
-<span class="nc" id="L62">      }</span>
+<span class="nc" id="L61">      }</span>
     }
     return this._family;
   }
 
-<span class="nc bnc" id="L67" title="All 2 branches missed.">  @Override</span>
-<span class="nc" id="L68">  public String getManufacturer() {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">  @Override</span>
+<span class="nc" id="L67">  public String getManufacturer() {</span>
     return &quot;GNU/Linux&quot;;
-<span class="nc" id="L70">  }</span>
+<span class="nc" id="L69">  }</span>
 
   @Override
   public OperatingSystemVersion getVersion() {
     if (this._version == null) {
-<span class="nc" id="L75">      this._version = new OSVersionInfoEx();</span>
-<span class="nc" id="L76">    }</span>
-<span class="nc" id="L77">    return this._version;</span>
-<span class="nc" id="L78">  }</span>
-<span class="nc" id="L79"></span>
-<span class="nc" id="L80">  @Override</span>
-<span class="nc" id="L81">  public String toString() {</span>
+<span class="nc" id="L74">      this._version = new LinuxOSVersionInfoEx();</span>
+<span class="nc" id="L75">    }</span>
+<span class="nc" id="L76">    return this._version;</span>
+<span class="nc" id="L77">  }</span>
+<span class="nc" id="L78"></span>
+<span class="nc" id="L79">  @Override</span>
+<span class="nc" id="L80">  public String toString() {</span>
     StringBuilder sb = new StringBuilder();
     sb.append(getManufacturer());
     sb.append(&quot; &quot;);

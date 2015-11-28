@@ -17,12 +17,12 @@
 package oshi;
 
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.linux.LinuxHardwareAbstractionLayer;
 import oshi.software.os.linux.LinuxOperatingSystem;
-import oshi.software.os.mac.MacHardwareAbstractionLayer;
 import oshi.software.os.mac.MacOperatingSystem;
-import oshi.software.os.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 import com.sun.jna.Platform;

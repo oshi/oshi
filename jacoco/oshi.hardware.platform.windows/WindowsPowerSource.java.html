@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsPowerSource.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsPowerSource.java</span></div><h1>WindowsPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2015 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * dblock[at]dblock[dot]org
+ * alessandro[at]perucchi[dot]org
+ * widdis[at]gmail[dot]com
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.windows;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.NativeLong;
+
+import oshi.hardware.PowerSource;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
+import oshi.util.FormatUtil;
+
+<span class="nc" id="L29">/**</span>
+<span class="nc" id="L30"> * A Power Source</span>
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public class WindowsPowerSource implements PowerSource {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(WindowsPowerSource.class);
+
+<span class="nc" id="L39">  private String name;</span>
+<span class="nc" id="L40"></span>
+<span class="nc" id="L41">  private double remainingCapacity;</span>
+<span class="nc" id="L42"></span>
+<span class="nc" id="L43">  private double timeRemaining;</span>
+<span class="nc" id="L44"></span>
+  public WindowsPowerSource(String newName, double newRemainingCapacity,
+      double newTimeRemaining) {
+    this.name = newName;
+<span class="nc" id="L48">    this.remainingCapacity = newRemainingCapacity;</span>
+    this.timeRemaining = newTimeRemaining;
+    LOG.debug(&quot;Initialized WindowsPowerSource&quot;);
+  }
+
+<span class="nc" id="L53">  @Override</span>
+  public String getName() {
+    return this.name;
+  }
+
+<span class="nc" id="L58">  @Override</span>
+  public double getRemainingCapacity() {
+    return this.remainingCapacity;
+  }
+
+  @Override
+  public double getTimeRemaining() {
+    return this.timeRemaining;
+  }
+
+<span class="nc" id="L68">  /**</span>
+<span class="nc" id="L69">   * Gets Battery Information.</span>
+   * 
+<span class="nc" id="L71">   * @return An array of PowerSource objects representing batteries, etc.</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">   */</span>
+  public static PowerSource[] getPowerSources() {
+<span class="nc" id="L74">    // Windows provides a single unnamed battery</span>
+    String name = &quot;System Battery&quot;;
+<span class="nc" id="L76">    WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
+    // Get structure
+<span class="nc" id="L78">    SystemBatteryState batteryState = new SystemBatteryState();</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">    if (0 != PowrProf.INSTANCE.CallNtPowerInformation(</span>
+        PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0), batteryState,
+<span class="nc" id="L81">        new NativeLong(batteryState.size()))</span>
+        || batteryState.batteryPresent == 0) {
+<span class="nc" id="L83">      psArray[0] = new WindowsPowerSource(&quot;Unknown&quot;, 0d, -1d);</span>
+<span class="nc" id="L84">    } else {</span>
+<span class="nc" id="L85">      int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
+      if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0
+<span class="nc" id="L87">          &amp;&amp; batteryState.discharging &gt; 0) {</span>
+        estimatedTime = batteryState.estimatedTime;
+      }
+      long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
+<span class="nc" id="L91">      long remainingCapacity = FormatUtil</span>
+          .getUnsignedInt(batteryState.remainingCapacity);
+
+      psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity
+          / maxCapacity, estimatedTime);
+    }
+
+    return psArray;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -17,8 +17,7 @@
 package oshi.software.os.mac;
 
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystemVersion;
-<span class="fc" id="L21">import oshi.software.os.mac.local.OSVersionInfoEx;</span>
+<span class="fc" id="L20">import oshi.software.os.OperatingSystemVersion;</span>
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -26,33 +25,33 @@ import oshi.software.os.OperatingSystemVersion;
  */
 
 public class MacOperatingSystem implements OperatingSystem {
-<span class="fc bfc" id="L29" title="All 2 branches covered."></span>
-<span class="fc" id="L30">  private String _family;</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered."></span>
+<span class="fc" id="L29">  private String _family;</span>
 
-<span class="fc" id="L32">  private OperatingSystemVersion _version;</span>
+<span class="fc" id="L31">  private OperatingSystemVersion _version;</span>
 
   @Override
   public OperatingSystemVersion getVersion() {
     if (this._version == null) {
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">      this._version = new OSVersionInfoEx();</span>
-<span class="fc" id="L38">    }</span>
-<span class="fc" id="L39">    return this._version;</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">      this._version = new MacOSVersionInfoEx();</span>
+<span class="fc" id="L37">    }</span>
+<span class="fc" id="L38">    return this._version;</span>
   }
 
   @Override
   public String getFamily() {
-<span class="fc" id="L44">    if (this._family == null)</span>
+<span class="fc" id="L43">    if (this._family == null)</span>
       this._family = System.getProperty(&quot;os.name&quot;);
     return this._family;
   }
 
-<span class="fc" id="L49">  @Override</span>
-<span class="fc" id="L50">  public String getManufacturer() {</span>
-<span class="fc" id="L51">    return &quot;Apple&quot;;</span>
-<span class="fc" id="L52">  }</span>
-<span class="fc" id="L53"></span>
-<span class="fc" id="L54">  @Override</span>
-<span class="fc" id="L55">  public String toString() {</span>
+<span class="fc" id="L48">  @Override</span>
+<span class="fc" id="L49">  public String getManufacturer() {</span>
+<span class="fc" id="L50">    return &quot;Apple&quot;;</span>
+<span class="fc" id="L51">  }</span>
+<span class="fc" id="L52"></span>
+<span class="fc" id="L53">  @Override</span>
+<span class="fc" id="L54">  public String toString() {</span>
     StringBuilder sb = new StringBuilder();
     sb.append(getManufacturer());
     sb.append(&quot; &quot;);

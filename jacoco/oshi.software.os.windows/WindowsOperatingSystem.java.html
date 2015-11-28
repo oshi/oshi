@@ -18,38 +18,37 @@ package oshi.software.os.windows;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.windows.nt.OSVersionInfoEx;
-<span class="nc" id="L22"></span>
+<span class="nc" id="L21"></span>
 /**
  * Microsoft Windows is a family of proprietary operating systems most commonly
  * used on personal computers.
  * 
  * @author dblock[at]dblock[dot]org
-<span class="nc bnc" id="L28" title="All 2 branches missed."> */</span>
-<span class="nc" id="L29">public class WindowsOperatingSystem implements OperatingSystem {</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed."> */</span>
+<span class="nc" id="L28">public class WindowsOperatingSystem implements OperatingSystem {</span>
 
-<span class="nc" id="L31">  private OperatingSystemVersion _version;</span>
+<span class="nc" id="L30">  private OperatingSystemVersion _version;</span>
 
   @Override
   public OperatingSystemVersion getVersion() {
     if (this._version == null) {
-<span class="nc" id="L36">      this._version = new OSVersionInfoEx();</span>
+<span class="nc" id="L35">      this._version = new WindowsOSVersionInfoEx();</span>
     }
     return this._version;
   }
 
-<span class="nc" id="L41">  @Override</span>
+<span class="nc" id="L40">  @Override</span>
   public String getFamily() {
     return &quot;Windows&quot;;
   }
 
-<span class="nc" id="L46">  @Override</span>
-<span class="nc" id="L47">  public String getManufacturer() {</span>
-<span class="nc" id="L48">    return &quot;Microsoft&quot;;</span>
-<span class="nc" id="L49">  }</span>
-<span class="nc" id="L50"></span>
-<span class="nc" id="L51">  @Override</span>
-<span class="nc" id="L52">  public String toString() {</span>
+<span class="nc" id="L45">  @Override</span>
+<span class="nc" id="L46">  public String getManufacturer() {</span>
+<span class="nc" id="L47">    return &quot;Microsoft&quot;;</span>
+<span class="nc" id="L48">  }</span>
+<span class="nc" id="L49"></span>
+<span class="nc" id="L50">  @Override</span>
+<span class="nc" id="L51">  public String toString() {</span>
     StringBuilder sb = new StringBuilder();
     sb.append(getManufacturer());
     sb.append(&quot; &quot;);

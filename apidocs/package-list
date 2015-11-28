@@ -1,10 +1,13 @@
 oshi
 oshi.hardware
+oshi.hardware.platform.linux
+oshi.hardware.platform.mac
+oshi.hardware.platform.windows
+oshi.jna.platform.linux
+oshi.jna.platform.mac
+oshi.jna.platform.windows
 oshi.software.os
 oshi.software.os.linux
-oshi.software.os.linux.proc
 oshi.software.os.mac
-oshi.software.os.mac.local
 oshi.software.os.windows
-oshi.software.os.windows.nt
 oshi.util
