@@ -23,19 +23,11 @@ package oshi.hardware;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface Processor {
-    /**
-     * Gets the processor number of this object, passed as an arg in the
-     * constructor.
-     * 
-     * @return The processor number
-     */
-    int getProcessorNumber();
-
+public interface CentralProcessor {
     /**
      * Processor vendor.
      * 
-     * @return String.
+     * @return vendor string.
      */
     String getVendor();
 
@@ -153,26 +145,6 @@ public interface Processor {
      * This method is intended to be used for periodic polling at intervals of 1
      * second or longer.
      * 
-     * @return CPU load in %
-     * 
-     * @deprecated Replaced in 1.3 by {@link #getSystemCpuLoadBetweenTicks()}
-     */
-    @Deprecated
-    float getLoad();
-
-    /**
-     * Returns the "recent cpu usage" for the whole system by counting ticks
-     * from {@link #getSystemCpuLoadTicks()} between successive calls of this
-     * method, with a minimum interval slightly less than 1 second.
-     * 
-     * If less than one second has elapsed since the last call of this method,
-     * it will return a calculation based on the tick counts and times of the
-     * previous two calls. If at least a second has elapsed, it will return the
-     * average CPU load for the interval and update the "last called" times.
-     * 
-     * This method is intended to be used for periodic polling at intervals of 1
-     * second or longer.
-     * 
      * @return CPU load between 0 and 1 (100%)
      */
     double getSystemCpuLoadBetweenTicks();
@@ -200,8 +172,8 @@ public interface Processor {
      * activities going on in the system. If the system recent cpu usage is not
      * available, the method returns a negative value.
      * 
-     * Calling this method immediately upon instantiating the {@link Processor}
-     * may give unreliable results.
+     * Calling this method immediately upon instantiating the
+     * {@link CentralProcessor} may give unreliable results.
      * 
      * If a user is not running the Oracle JVM, this method will default to the
      * behavior and return value of {@link #getSystemCpuLoadBetweenTicks()}.
@@ -232,8 +204,8 @@ public interface Processor {
     double getSystemLoadAverage();
 
     /**
-     * Returns the "recent cpu usage" for this processor by counting ticks for
-     * this processor from {@link #getProcessorCpuLoadTicks()} between
+     * Returns the "recent cpu usage" for all logical processors by counting
+     * ticks for the processors from {@link #getProcessorCpuLoadTicks()} between
      * successive calls of this method, with a minimum interval slightly less
      * than 1 second.
      * 
@@ -245,22 +217,23 @@ public interface Processor {
      * This method is intended to be used for periodic polling (iterating over
      * all processors) at intervals of 1 second or longer.
      * 
-     * @return CPU load between 0 and 1 (100%)
+     * @return array of CPU load between 0 and 1 (100%) for each logical
+     *         processor
      */
-
-    double getProcessorCpuLoadBetweenTicks();
+    double[] getProcessorCpuLoadBetweenTicks();
 
     /**
-     * Get this Processor's CPU Load tick counters. Returns an array with four
+     * Get Processor CPU Load tick counters. Returns a two dimensional array,
+     * with {@link #getLogicalProcessorCount()} arrays, each containing four
      * elements representing clock ticks or milliseconds (platform dependent)
      * spent in User (0), Nice (1), System (2), and Idle (3) states. By
      * measuring the difference between ticks across a time interval, CPU load
      * over that interval may be calculated.
      * 
-     * @return An array of 4 long values representing time spent in User,
-     *         Nice(if applicable), System, and Idle states.
+     * @return A 2D array of logicalProcessorCount x 4 long values representing
+     *         time spent in User, Nice(if applicable), System, and Idle states.
      */
-    long[] getProcessorCpuLoadTicks();
+    long[][] getProcessorCpuLoadTicks();
 
     /**
      * Get the System uptime (time since boot).

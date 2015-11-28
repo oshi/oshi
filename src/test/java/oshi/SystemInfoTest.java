@@ -32,10 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Platform;
 
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
-import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -48,18 +47,6 @@ import oshi.util.Util;
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfoTest {
-
-    /**
-     * Test get processor number.
-     */
-    @Test
-    public void testGetProcessorNumber() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        for (int i = 0; i < hal.getProcessors().length; i++) {
-            assertEquals(i, hal.getProcessors()[i].getProcessorNumber());
-        }
-    }
 
     /**
      * Test get version.
@@ -78,10 +65,10 @@ public class SystemInfoTest {
      * Test get processors.
      */
     @Test
-    public void testGetProcessors() {
+    public void testGetProcessor() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors().length > 0);
+        assertTrue(hal.getProcessor().getLogicalProcessorCount() > 0);
     }
 
     /**
@@ -91,11 +78,11 @@ public class SystemInfoTest {
     public void testGetMemory() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        GlobalMemory globalMemory = hal.getMemory();
-        assertNotNull(globalMemory);
-        assertTrue(globalMemory.getTotal() > 0);
-        assertTrue(globalMemory.getAvailable() >= 0);
-        assertTrue(globalMemory.getAvailable() <= globalMemory.getTotal());
+        GlobalMemory memory = hal.getMemory();
+        assertNotNull(memory);
+        assertTrue(memory.getTotal() > 0);
+        assertTrue(memory.getAvailable() >= 0);
+        assertTrue(memory.getAvailable() <= memory.getTotal());
     }
 
     /**
@@ -105,8 +92,8 @@ public class SystemInfoTest {
     public void testCpuLoad() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() >= 0
-                && hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() <= 1);
+        assertTrue(hal.getProcessor().getSystemCpuLoadBetweenTicks() >= 0
+                && hal.getProcessor().getSystemCpuLoadBetweenTicks() <= 1);
     }
 
     /**
@@ -116,7 +103,7 @@ public class SystemInfoTest {
     public void testCpuLoadTicks() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertEquals(4, hal.getProcessors()[0].getSystemCpuLoadTicks().length);
+        assertEquals(4, hal.getProcessor().getSystemCpuLoadTicks().length);
     }
 
     /**
@@ -126,8 +113,10 @@ public class SystemInfoTest {
     public void testProcCpuLoad() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors()[0].getProcessorCpuLoadBetweenTicks() >= 0
-                && hal.getProcessors()[0].getProcessorCpuLoadBetweenTicks() <= 1);
+        for (int cpu = 0; cpu < hal.getProcessor().getLogicalProcessorCount(); cpu++) {
+            assertTrue(hal.getProcessor().getProcessorCpuLoadBetweenTicks()[cpu] >= 0
+                    && hal.getProcessor().getProcessorCpuLoadBetweenTicks()[cpu] <= 1);
+        }
     }
 
     /**
@@ -137,7 +126,7 @@ public class SystemInfoTest {
     public void testProcCpuLoadTicks() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertEquals(4, hal.getProcessors()[0].getProcessorCpuLoadTicks().length);
+        assertEquals(4, hal.getProcessor().getProcessorCpuLoadTicks()[0].length);
     }
 
     /**
@@ -147,7 +136,7 @@ public class SystemInfoTest {
     public void testSystemCpuLoad() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        double cpuLoad = hal.getProcessors()[0].getSystemCpuLoad();
+        double cpuLoad = hal.getProcessor().getSystemCpuLoad();
         assertTrue(cpuLoad >= 0.0 && cpuLoad <= 1.0);
     }
 
@@ -159,7 +148,7 @@ public class SystemInfoTest {
         if (Platform.isMac() || Platform.isLinux()) {
             SystemInfo si = new SystemInfo();
             HardwareAbstractionLayer hal = si.getHardware();
-            assertTrue(hal.getProcessors()[0].getSystemLoadAverage() >= 0.0);
+            assertTrue(hal.getProcessor().getSystemLoadAverage() >= 0.0);
         }
     }
 
@@ -170,10 +159,8 @@ public class SystemInfoTest {
     public void testProcessorCounts() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors()[0].getPhysicalProcessorCount() >= 1);
-        assertTrue(hal.getProcessors()[0].getLogicalProcessorCount() >= hal.getProcessors()[0]
-                .getPhysicalProcessorCount());
-        assertTrue(hal.getProcessors()[0].getLogicalProcessorCount() == hal.getProcessors().length);
+        assertTrue(hal.getProcessor().getPhysicalProcessorCount() >= 1);
+        assertTrue(hal.getProcessor().getLogicalProcessorCount() >= hal.getProcessor().getPhysicalProcessorCount());
     }
 
     /**
@@ -183,7 +170,7 @@ public class SystemInfoTest {
     public void testCpuVendorFreq() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        assertTrue(hal.getProcessors()[0].getVendorFreq() == -1 || hal.getProcessors()[0].getVendorFreq() > 0);
+        assertTrue(hal.getProcessor().getVendorFreq() == -1 || hal.getProcessor().getVendorFreq() > 0);
     }
 
     /**
@@ -232,7 +219,7 @@ public class SystemInfoTest {
     public void testSystemUptime() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        long uptime = hal.getProcessors()[0].getSystemUptime();
+        long uptime = hal.getProcessor().getSystemUptime();
         assertTrue(uptime >= 0);
     }
 
@@ -243,7 +230,7 @@ public class SystemInfoTest {
     public void testSerialNumber() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
-        String sn = hal.getProcessors()[0].getSystemSerialNumber();
+        String sn = hal.getProcessor().getSystemSerialNumber();
         assertTrue(sn.length() >= 0);
     }
 
@@ -269,13 +256,12 @@ public class SystemInfoTest {
         // hardware
         HardwareAbstractionLayer hal = si.getHardware();
         // hardware: processors
-        System.out.println(hal.getProcessors()[0].getPhysicalProcessorCount() + " physical CPU(s)");
-        System.out.println(hal.getProcessors()[0].getLogicalProcessorCount() + " logical CPU(s):");
-        for (Processor cpu : hal.getProcessors()) {
-            System.out.println(" " + cpu);
-        }
-        System.out.println("Identifier: " + hal.getProcessors()[0].getIdentifier());
-        System.out.println("Serial Num: " + hal.getProcessors()[0].getSystemSerialNumber());
+        System.out.println(hal.getProcessor());
+        System.out.println(" " + hal.getProcessor().getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(" " + hal.getProcessor().getLogicalProcessorCount() + " logical CPU(s)");
+
+        System.out.println("Identifier: " + hal.getProcessor().getIdentifier());
+        System.out.println("Serial Num: " + hal.getProcessor().getSystemSerialNumber());
 
         // hardware: memory
         LOG.info("Checking Memory...");
@@ -283,15 +269,15 @@ public class SystemInfoTest {
                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
         // uptime
         LOG.info("Checking Uptime...");
-        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessors()[0].getSystemUptime()));
+        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
 
         // CPU
         LOG.info("Checking CPU...");
-        long[] prevTicks = hal.getProcessors()[0].getSystemCpuLoadTicks();
+        long[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
         System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
-        long[] ticks = hal.getProcessors()[0].getSystemCpuLoadTicks();
+        long[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
         System.out.println("CPU ticks @ 1 sec:" + Arrays.toString(ticks));
         long user = ticks[0] - prevTicks[0];
         long nice = ticks[1] - prevTicks[1];
@@ -302,14 +288,15 @@ public class SystemInfoTest {
         System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu, 100d
                 * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
         System.out.format("CPU load: %.1f%% (counting ticks)%n",
-                hal.getProcessors()[0].getSystemCpuLoadBetweenTicks() * 100);
-        System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessors()[0].getSystemCpuLoad() * 100);
-        double loadAverage = hal.getProcessors()[0].getSystemLoadAverage();
+                hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
+        System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessor().getSystemCpuLoad() * 100);
+        double loadAverage = hal.getProcessor().getSystemLoadAverage();
         System.out.println("CPU load average: " + (loadAverage < 0 ? "N/A" : String.format("%.2f", loadAverage)));
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
-        for (int cpu = 0; cpu < hal.getProcessors().length; cpu++) {
-            procCpu.append(String.format(" %.1f%%", hal.getProcessors()[cpu].getProcessorCpuLoadBetweenTicks() * 100));
+        double[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
+        for (int cpu = 0; cpu < load.length; cpu++) {
+            procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
 

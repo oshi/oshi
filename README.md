@@ -48,10 +48,9 @@ For Windows:
 
 ```
 Microsoft Windows 7
-1 physical CPU(s)
-2 logical CPU(s):
- Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
- Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
+ 1 physical CPU(s)
+ 2 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
@@ -79,16 +78,9 @@ For Linux:
 
 ```
 GNU/Linux Fedora 20 (Heisenbug)
-4 physical CPU(s)
-8 logical CPU(s):
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
- Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
+ 4 physical CPU(s)
+ 8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
@@ -113,12 +105,9 @@ For Mac OS X:
 
 ```
 Apple Mac OS X 10.11.1 (El Capitan) build 15B42
-2 physical CPU(s)
-4 logical CPU(s):
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
- Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
+ 2 physical CPU(s)
+ 4 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB

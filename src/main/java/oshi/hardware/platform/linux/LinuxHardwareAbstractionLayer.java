@@ -17,16 +17,15 @@
 package oshi.hardware.platform.linux;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
-import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
@@ -40,7 +39,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private static final String SEPARATOR = "\\s+:\\s";
 
-    private Processor[] _processors;
+    private CentralProcessor processor;
 
     private GlobalMemory _memory;
 
@@ -53,10 +52,9 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     }
 
     @Override
-    public Processor[] getProcessors() {
+    public CentralProcessor getProcessor() {
 
-        if (this._processors == null) {
-            List<Processor> processors = new ArrayList<>();
+        if (this.processor == null) {
             List<String> cpuInfo = null;
             try {
                 cpuInfo = FileUtil.readFile("/proc/cpuinfo");
@@ -64,21 +62,15 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
                 LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
                 return null;
             }
-            LinuxCentralProcessor cpu = null;
-            int numCPU = 0;
             for (String toBeAnalyzed : cpuInfo) {
                 if (toBeAnalyzed.equals("")) {
-                    if (cpu != null) {
-                        processors.add(cpu);
-                    }
-                    cpu = null;
-                    continue;
+                    break;
                 }
-                if (cpu == null) {
-                    cpu = new LinuxCentralProcessor(numCPU++);
+                if (processor == null) {
+                    processor = new LinuxCentralProcessor();
                 }
                 if (toBeAnalyzed.startsWith("model name\t")) {
-                    cpu.setName(toBeAnalyzed.split(SEPARATOR)[1]);
+                    processor.setName(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
                 if (toBeAnalyzed.startsWith("flags\t")) {
@@ -90,33 +82,28 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
                             break;
                         }
                     }
-                    cpu.setCpu64(found);
+                    processor.setCpu64(found);
                     continue;
                 }
                 if (toBeAnalyzed.startsWith("cpu family\t")) {
-                    cpu.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
+                    processor.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
                 if (toBeAnalyzed.startsWith("model\t")) {
-                    cpu.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
+                    processor.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
                 if (toBeAnalyzed.startsWith("stepping\t")) {
-                    cpu.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
+                    processor.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
                 if (toBeAnalyzed.startsWith("vendor_id")) {
-                    cpu.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
+                    processor.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
             }
-            if (cpu != null) {
-                processors.add(cpu);
-            }
-            this._processors = processors.toArray(new Processor[0]);
         }
-
-        return this._processors;
+        return this.processor;
     }
 
     @Override

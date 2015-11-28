@@ -24,6 +24,12 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 
+/**
+ * Linux C Library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
 public interface Libc extends Library {
 
     static final Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);

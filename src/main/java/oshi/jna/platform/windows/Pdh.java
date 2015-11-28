@@ -29,7 +29,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * Windows Performance Data Helper
+ * Windows Performance Data Helper. This class should be considered non-API as
+ * it may be removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */

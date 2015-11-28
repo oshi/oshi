@@ -25,7 +25,8 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
- * Power Supply stats
+ * Power Supply stats. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
