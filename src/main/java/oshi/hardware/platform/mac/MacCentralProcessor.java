@@ -32,7 +32,7 @@ import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.hardware.Processor;
+import oshi.hardware.CentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -45,7 +45,7 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
-public class MacCentralProcessor implements Processor {
+public class MacCentralProcessor implements CentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
@@ -67,51 +67,21 @@ public class MacCentralProcessor implements Processor {
     }
 
     // Logical and Physical Processor Counts
-    private static final int logicalProcessorCount;
-    private static final int physicalProcessorCount;
-    static {
-        IntByReference size = new IntByReference(SystemB.INT_SIZE);
-        Pointer p = new Memory(size.getValue());
+    private int logicalProcessorCount = 0;
+    private int physicalProcessorCount = 0;
 
-        // Get number of logical processors
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
-            LOG.error("Failed to get number of logical CPUs. Error code: " + Native.getLastError());
-            logicalProcessorCount = 1;
-        } else
-            logicalProcessorCount = p.getInt(0);
+    // Maintain previous ticks to be used for calculating usage between them.
+    // System ticks
+    private long tickTime;
+    private long[] prevTicks;
+    private long[] curTicks;
 
-        // Get number of physical processors
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.physicalcpu", p, size, null, 0)) {
-            LOG.error("Failed to get number of physical CPUs. Error code: " + Native.getLastError());
-            physicalProcessorCount = 1;
-        } else
-            physicalProcessorCount = p.getInt(0);
-    }
+    // Per-processor ticks [cpu][type]
+    private long procTickTime;
+    private long[][] prevProcTicks;
+    private long[][] curProcTicks;
 
-    // Maintain two sets of previous ticks to be used for calculating usage
-    // between them.
-    // System ticks (static)
-    private static long tickTime = System.currentTimeMillis();
-    private static long[] prevTicks = new long[4];
-    private static long[] curTicks = new long[4];
-
-    static {
-        updateSystemTicks();
-        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-    }
-
-    // Maintain similar arrays for per-processor ticks (class variables)
-    private long procTickTime = System.currentTimeMillis();
-    private long[] prevProcTicks = new long[4];
-    private long[] curProcTicks = new long[4];
-
-    // Set up array to maintain current ticks for rapid reference. This array
-    // will be updated in place and used as a cache to avoid rereading file
-    // while iterating processors
-    private static long[][] allProcessorTicks = new long[logicalProcessorCount][4];
-    private static long allProcTickTime = 0;
-
-    private int processorNumber;
+    // Processor info
     private String cpuVendor;
     private String cpuName;
     private String cpuIdentifier = null;
@@ -122,33 +92,49 @@ public class MacCentralProcessor implements Processor {
     private Boolean cpu64;
 
     /**
-     * Create a Processor with the given number
-     * 
-     * @param procNo
-     *            The processor number
+     * Create a Processor
      */
-    public MacCentralProcessor(int procNo) {
-        if (procNo >= logicalProcessorCount)
-            throw new IllegalArgumentException("Processor number (" + procNo
-                    + ") must be less than the number of CPUs: " + logicalProcessorCount);
-        this.processorNumber = procNo;
+    public MacCentralProcessor() {
+        // Processor counts
+        calculateProcessorCounts();
+
+        // System ticks
+        this.prevTicks = new long[4];
+        this.curTicks = new long[4];
+        updateSystemTicks();
+
+        // Per-processor ticks
+        this.prevProcTicks = new long[logicalProcessorCount][4];
+        this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
-        System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
-        LOG.debug("Initialized Processor {}", procNo);
+
+        LOG.debug("Initialized Processor");
+    }
+
+    /**
+     * Updates logical and physical processor counts from sysctl calls
+     */
+    private void calculateProcessorCounts() {
+        IntByReference size = new IntByReference(SystemB.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+
+        // Get number of logical processors
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of logical CPUs. Error code: " + Native.getLastError());
+            this.logicalProcessorCount = 1;
+        } else
+            this.logicalProcessorCount = p.getInt(0);
+
+        // Get number of physical processors
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.physicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of physical CPUs. Error code: " + Native.getLastError());
+            this.physicalProcessorCount = 1;
+        } else
+            this.physicalProcessorCount = p.getInt(0);
     }
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public int getProcessorNumber() {
-        return this.processorNumber;
-    }
-
-    /**
-     * Vendor identifier, eg. GenuineIntel.
-     * 
-     * @return Processor vendor.
      */
     @Override
     public String getVendor() {
@@ -169,10 +155,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Set processor vendor.
-     * 
-     * @param vendor
-     *            Vendor.
+     * {@inheritDoc}
      */
     @Override
     public void setVendor(String vendor) {
@@ -180,9 +163,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
-     * 
-     * @return Processor name.
+     * {@inheritDoc}
      */
     @Override
     public String getName() {
@@ -203,10 +184,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Set processor name.
-     * 
-     * @param name
-     *            Name.
+     * {@inheritDoc}
      */
     @Override
     public void setName(String name) {
@@ -214,10 +192,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
-     * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
-     * 
-     * @return Processor frequency or -1 if unknown.
+     * {@inheritDoc}
      */
     @Override
     public long getVendorFreq() {
@@ -237,10 +212,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Set vendor frequency.
-     * 
-     * @param freq
-     *            Frequency.
+     * {@inheritDoc}
      */
     @Override
     public void setVendorFreq(long freq) {
@@ -248,9 +220,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
-     * 
-     * @return Processor identifier.
+     * {@inheritDoc}
      */
     @Override
     public String getIdentifier() {
@@ -270,10 +240,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Set processor identifier.
-     * 
-     * @param identifier
-     *            Identifier.
+     * {@inheritDoc}
      */
     @Override
     public void setIdentifier(String identifier) {
@@ -281,9 +248,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Is CPU 64bit?
-     * 
-     * @return True if cpu is 64bit.
+     * {@inheritDoc}
      */
     @Override
     public boolean isCpu64bit() {
@@ -300,10 +265,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * Set flag is cpu is 64bit.
-     * 
-     * @param value
-     *            True if cpu is 64.
+     * {@inheritDoc}
      */
     @Override
     public void setCpu64(boolean value) {
@@ -311,7 +273,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @return the stepping
+     * {@inheritDoc}
      */
     @Override
     public String getStepping() {
@@ -328,8 +290,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @param stepping
-     *            the stepping to set
+     * {@inheritDoc}
      */
     @Override
     public void setStepping(String stepping) {
@@ -337,7 +298,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @return the model
+     * {@inheritDoc}
      */
     @Override
     public String getModel() {
@@ -354,8 +315,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @param model
-     *            the model to set
+     * {@inheritDoc}
      */
     @Override
     public void setModel(String model) {
@@ -363,7 +323,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @return the family
+     * {@inheritDoc}
      */
     @Override
     public String getFamily() {
@@ -380,8 +340,7 @@ public class MacCentralProcessor implements Processor {
     }
 
     /**
-     * @param family
-     *            the family to set
+     * {@inheritDoc}
      */
     @Override
     public void setFamily(String family) {
@@ -392,26 +351,13 @@ public class MacCentralProcessor implements Processor {
      * {@inheritDoc}
      */
     @Override
-    @Deprecated
-    public float getLoad() {
-        // TODO Remove in 2.0
-        return (float) getSystemCpuLoadBetweenTicks() * 100;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public synchronized double getSystemCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
         LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
-        boolean update = (now - tickTime > 950);
-        if (update) {
+        if (now - tickTime > 950) {
             // Enough time has elapsed.
-            // Update latest
             updateSystemTicks();
-            tickTime = now;
         }
         // Calculate total
         long total = 0;
@@ -422,16 +368,7 @@ public class MacCentralProcessor implements Processor {
         long idle = curTicks[3] - prevTicks[3];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
-        // Copy latest ticks to earlier position for next call
-        if (update) {
-            System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-        }
-
-        // return
-        if (total > 0 && idle >= 0) {
-            return (double) (total - idle) / total;
-        }
-        return 0d;
+        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
     }
 
     /**
@@ -439,37 +376,36 @@ public class MacCentralProcessor implements Processor {
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-        updateSystemTicks();
-        // Make a copy
         long[] ticks = new long[curTicks.length];
-        System.arraycopy(curTicks, 0, ticks, 0, curTicks.length);
-        return ticks;
-    }
-
-    /**
-     * Updates system tick information from native host_statistics query. Array
-     * with four elements representing clock ticks or milliseconds (platform
-     * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
-     * By measuring the difference between ticks across a time interval, CPU
-     * load over that interval may be calculated.
-     * 
-     * @return An array of 4 long values representing time spent in User,
-     *         Nice(if applicable), System, and Idle states.
-     */
-    private static void updateSystemTicks() {
-        LOG.trace("Updating System Ticks");
         int machPort = SystemB.INSTANCE.mach_host_self();
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
                 new IntByReference(cpuLoadInfo.size()))) {
             LOG.error("Failed to get System CPU ticks. Error code: " + Native.getLastError());
-            return;
+            return ticks;
         }
         // Switch order to match linux
-        curTicks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-        curTicks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-        curTicks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-        curTicks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+        ticks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+        ticks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+        ticks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+        ticks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+        return ticks;
+    }
+
+    /**
+     * Updates system tick information from native host_statistics query. Stores
+     * in array with four elements representing clock ticks or milliseconds
+     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
+     * (3) states. By measuring the difference between ticks across a time
+     * interval, CPU load over that interval may be calculated.
+     */
+    private void updateSystemTicks() {
+        LOG.trace("Updating System Ticks");
+        // Copy to previous
+        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+        this.tickTime = System.currentTimeMillis();
+        long[] ticks = getSystemCpuLoadTicks();
+        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
     }
 
     /**
@@ -495,51 +431,36 @@ public class MacCentralProcessor implements Processor {
      * {@inheritDoc}
      */
     @Override
-    public double getProcessorCpuLoadBetweenTicks() {
+    public double[] getProcessorCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last processor tick time: {}", now, this.procTickTime);
-        if (now - this.procTickTime > 950) {
-            // Enough time has elapsed. Update array in place
+        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
+        if (now - procTickTime > 950) {
+            // Enough time has elapsed.
+            // Update latest
             updateProcessorTicks();
-            // Copy arrays in place
-            System.arraycopy(this.curProcTicks, 0, this.prevProcTicks, 0, this.curProcTicks.length);
-            System.arraycopy(allProcessorTicks[this.processorNumber], 0, this.curProcTicks, 0, this.curProcTicks.length);
-            this.procTickTime = now;
         }
-        long total = 0;
-        for (int i = 0; i < this.curProcTicks.length; i++) {
-            total += (this.curProcTicks[i] - this.prevProcTicks[i]);
+        double[] load = new double[logicalProcessorCount];
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            long total = 0;
+            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
+                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
+            }
+            // Calculate idle from last field [3]
+            long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
+            LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
+            // update
+            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
         }
-        // Calculate idle from last field [3]
-        long idle = this.curProcTicks[3] - this.prevProcTicks[3];
-        LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
-        // update
-        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+        return load;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getProcessorCpuLoadTicks() {
-        updateProcessorTicks();
-        return allProcessorTicks[this.processorNumber];
-    }
-
-    /**
-     * Updates the tick array for all processors if more than 100ms has elapsed
-     * since the last update. This permits using the allProcessorTicks as a
-     * cache when iterating over processors so that the host_processor_info
-     * query is only done once
-     */
-    private static void updateProcessorTicks() {
-        // Update no more frequently than 100ms so this is only triggered once
-        // during iteration over Processors
-        long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last all processor tick time: {}", now, allProcTickTime);
-        if (now - allProcTickTime < 100)
-            return;
+    public long[][] getProcessorCpuLoadTicks() {
+        long[][] ticks = new long[logicalProcessorCount][4];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
 
@@ -549,20 +470,41 @@ public class MacCentralProcessor implements Processor {
         if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
                 procCpuLoadInfo, procInfoCount)) {
             LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
-            return;
+            return ticks;
         }
 
         int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
         for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
             for (int j = 0; j < 4; j++) {
                 int offset = cpu * SystemB.CPU_STATE_MAX;
-                allProcessorTicks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-                allProcessorTicks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-                allProcessorTicks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-                allProcessorTicks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+                ticks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+                ticks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+                ticks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+                ticks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
             }
         }
-        allProcTickTime = now;
+        return ticks;
+    }
+
+    /**
+     * Updates the tick array for all processors by calling
+     * host_processor_info(). Stores in 2D array; an array for each logical
+     * processor with four elements representing clock ticks or milliseconds
+     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
+     * (3) states. By measuring the difference between ticks across a time
+     * interval, CPU load over that interval may be calculated.
+     */
+    private void updateProcessorTicks() {
+        LOG.trace("Updating Processor Ticks");
+        // Copy to previous
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+        }
+        this.procTickTime = System.currentTimeMillis();
+        long[][] ticks = getProcessorCpuLoadTicks();
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+        }
     }
 
     /**

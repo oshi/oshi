@@ -16,20 +16,10 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.Native;
-import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.ptr.IntByReference;
-
-import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
-import oshi.hardware.Processor;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
@@ -38,9 +28,8 @@ import oshi.software.os.mac.MacFileSystem;
  * @author widdis[at]gmail[dot]com
  */
 public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
-    private static final Logger LOG = LoggerFactory.getLogger(MacHardwareAbstractionLayer.class);
 
-    private Processor[] _processors;
+    private CentralProcessor processor;
 
     private GlobalMemory _memory;
 
@@ -49,26 +38,14 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
     /*
      * (non-Javadoc)
      * 
-     * @see oshi.hardware.HardwareAbstractionLayer#getProcessors()
+     * @see oshi.hardware.HardwareAbstractionLayer#getProcessor()
      */
     @Override
-    public Processor[] getProcessors() {
-        if (this._processors == null) {
-            int nbCPU = 1;
-            List<Processor> processors = new ArrayList<>();
-            com.sun.jna.Memory pNbCPU = new com.sun.jna.Memory(SystemB.INT_SIZE);
-            if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", pNbCPU, new IntByReference(SystemB.INT_SIZE), null,
-                    0)) {
-                LOG.error("Failed to get number of CPUs. Error code: " + Native.getLastError());
-                nbCPU = 1;
-            } else
-                nbCPU = pNbCPU.getInt(0);
-            for (int i = 0; i < nbCPU; i++)
-                processors.add(new MacCentralProcessor(i));
-
-            this._processors = processors.toArray(new Processor[0]);
+    public CentralProcessor getProcessor() {
+        if (this.processor == null) {
+            this.processor = new MacCentralProcessor();
         }
-        return this._processors;
+        return this.processor;
     }
 
     /*

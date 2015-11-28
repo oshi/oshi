@@ -27,12 +27,12 @@ import oshi.software.os.OSFileStore;
 public interface HardwareAbstractionLayer {
 
     /**
-     * Instantiates an array of {@link Processor} objects. This represents one
-     * or more Logical CPUs.
+     * Instantiates a {@link CentralProcessor} object. This represents one or
+     * more Logical CPUs.
      * 
-     * @return An array of {@link Processor} objects.
+     * @return A {@link CentralProcessor} object.
      */
-    Processor[] getProcessors();
+    CentralProcessor getProcessor();
 
     /**
      * Instantiates a {@link GlobalMemory} object.

@@ -20,7 +20,8 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;
 
 /**
- * Windows Kernel32
+ * Windows Kernel32. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
