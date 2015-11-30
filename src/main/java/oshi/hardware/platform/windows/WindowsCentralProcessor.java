@@ -428,10 +428,10 @@ public class WindowsCentralProcessor implements CentralProcessor {
             return ticks;
         }
         // Array order is user,nice,kernel,idle
-        ticks[0] = lpUserTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+        ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate());
+        ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) - ticks[3];
         ticks[1] = 0L; // Windows is not 'nice'
-        ticks[2] = Math.max(0, lpKernelTime.toLong() - lpIdleTime.toLong());
-        ticks[3] = lpIdleTime.toLong() + Kernel32.WIN32_TIME_OFFSET;
+        ticks[0] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate());
         return ticks;
     }
 
