@@ -83,8 +83,13 @@ public abstract class ParseUtil {
     }
 
     /**
-     * Parse the last element of a string to a value return {@link Integer}
-     * value or the given default if not parsable
+     * Parse the last element of a string to a value
+     * 
+     * @param s
+     *            The string to parse
+     * @param i
+     *            Default integer if not parsable
+     * @return {@link Integer} value or the given default if not parsable
      */
     public static int parseString(String s, int i) {
         String[] ss = s.split("\\s+");

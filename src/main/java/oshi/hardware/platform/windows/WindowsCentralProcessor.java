@@ -24,10 +24,14 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.ptr.IntByReference;
@@ -142,11 +146,41 @@ public class WindowsCentralProcessor implements CentralProcessor {
         this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
         // Get number of physical processors
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                this.physicalProcessorCount++;
+        try {
+            // Weblogic server is throwing IllegalArgumentException on this call
+            WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+            for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+                if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                    this.physicalProcessorCount++;
+                }
             }
+        } catch (IllegalArgumentException e) {
+            // TODO: Remove this debugging code
+            System.out
+                    .println("Failed to get processor information array. Please report the following to the Oshi developers.");
+            int sizePerStruct = new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION().size();
+            System.out.println("Size per structure: " + sizePerStruct);
+            WinDef.DWORDByReference bufferSize = new WinDef.DWORDByReference(new WinDef.DWORD(sizePerStruct));
+            Memory memory;
+            int temp = 0;
+            while (true) {
+                memory = new Memory(bufferSize.getValue().intValue());
+                System.out.print("Iteration " + ++temp + " memory size: " + memory.size() + " ... ");
+                if (!Kernel32.INSTANCE.GetLogicalProcessorInformation(memory, bufferSize)) {
+                    int err = Kernel32.INSTANCE.GetLastError();
+                    if (err != WinError.ERROR_INSUFFICIENT_BUFFER)
+                        throw new Win32Exception(err);
+                    System.out.println("Insufficient buffer.");
+                } else {
+                    System.out.println("OK.");
+                    break;
+                }
+            }
+            System.out.println("Calculating returned structure count with buffer size "
+                    + bufferSize.getValue().intValue());
+            int returnedStructCount = bufferSize.getValue().intValue() / sizePerStruct;
+            System.out.println("Returned structure count is " + returnedStructCount);
+            System.out.println("End debug output.");
         }
     }
 
@@ -423,11 +457,12 @@ public class WindowsCentralProcessor implements CentralProcessor {
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
         WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-        if (0 == Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
+        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
             LOG.error("Failed to update system idle/kernel/user times. Error code: " + Native.getLastError());
             return ticks;
         }
         // Array order is user,nice,kernel,idle
+        // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.2.2
         ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate());
         ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) - ticks[3];
         ticks[1] = 0L; // Windows is not 'nice'
