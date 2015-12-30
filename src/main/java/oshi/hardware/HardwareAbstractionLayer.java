@@ -59,4 +59,10 @@ public interface HardwareAbstractionLayer {
      *         present.
      */
     OSFileStore[] getFileStores();
+
+    /**
+     * Instantiates an array of {@link Display} objects, representing monitors
+     * or other video output devices.
+     */
+    Display[] getDisplays();
 }

@@ -43,9 +43,21 @@ public class ExecutingCommand {
      * @return A list of Strings representing the result of the command
      */
     public static ArrayList<String> runNative(String cmdToRun) {
+        String[] cmd = cmdToRun.split(" ");
+        return runNative(cmd);
+    }
+
+    /**
+     * Executes a command on the native command line and returns the result.
+     * 
+     * @param cmdToRun
+     *            Command to run and args, in an array
+     * @return A list of Strings representing the result of the command
+     */
+    public static ArrayList<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdToRun);
+            p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (IOException e) {
             LOG.trace("", e);
             return null;
