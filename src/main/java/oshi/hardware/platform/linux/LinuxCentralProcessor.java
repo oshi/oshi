@@ -591,13 +591,21 @@ public class LinuxCentralProcessor
     @Override
     public long getSystemUptime()
     {
-        Sysinfo info = new Sysinfo();
-        if ( 0 != Libc.INSTANCE.sysinfo( info ) )
+        try
         {
-            LOG.error( "Failed to get system uptime. Error code: " + Native.getLastError() );
-            return 0L;
+            Sysinfo info = new Sysinfo();
+            if ( 0 != Libc.INSTANCE.sysinfo( info ) )
+            {
+                LOG.error( "Failed to get system uptime. Error code: " + Native.getLastError() );
+                return 0L;
+            }
+            return info.uptime.longValue();
         }
-        return info.uptime.longValue();
+        catch ( UnsatisfiedLinkError | NoClassDefFoundError e )
+        {
+            LOG.error( "Failed to get uptime from sysinfo. {}", e.getMessage() );
+        }
+        return 0L;
     }
 
     /**
