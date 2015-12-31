@@ -57,6 +57,8 @@ public interface HardwareAbstractionLayer
 
     /**
      * Instantiates an array of {@link Display} objects, representing monitors or other video output devices.
+     * 
+     * @return An array of Display objects or an empty array if none are present.
      */
     Display[] getDisplays();
 }
