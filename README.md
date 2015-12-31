@@ -5,12 +5,12 @@ OSHI
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 
-Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.
+Oshi is a free JNA-based (native) operating system information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
 
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.0&e=jar)
+* [Download Oshi 2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.0&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download Oshi 2.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.1-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
@@ -39,6 +39,7 @@ Current supported features
 * CPU uptime, load % and tick counters
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
+* Connected displays (with EDID info)
 
 Sample Output
 -------------
@@ -72,6 +73,21 @@ File System:
  MacData on 'psf' (X:) (Network Drive) 3.4 GB of 4.4 GB free (77.4%)
  Home on 'psf' (Y:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
  Host on 'psf' (Z:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
+Displays:
+ Display 0:
+  Manuf. ID=DEL, Product ID=4014, Analog, Serial=BENG, ManufDate=3/2006, EDID v1.3
+  38 x 30 cm (15.0 x 11.8 in)
+  Preferred Timing: Clock 108MHz, Active Pixels 1280x1024 
+  Serial Number: DC32363EBENG
+  Monitor Name: DELL 1907FP
+  Range Limits: Field Rate 56-76 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
+ Display 1:
+  Manuf. ID=DEL, Product ID=4026, Analog, Serial=RFN7, ManufDate=10/2007, EDID v1.3
+  38 x 30 cm (15.0 x 11.8 in)
+  Preferred Timing: Clock 108MHz, Active Pixels 1280x1024 
+  Serial Number: FP1827AFRFN7
+  Monitor Name: DELL 1908FP
+  Range Limits: Field Rate 56-76 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
 ```
 
 For Linux:
@@ -99,6 +115,22 @@ File System:
  Home (Mount Point) 134.5 GB of 697.5 GB free (19.3%)
  MacData (Mount Point) 3.4 GB of 4.4 GB free (77.4%)
  MobileBackups (Mount Point) 0 bytes of 697.5 GB free (0.0%)
+Displays:
+ Display 0:
+  Manuf. ID=SAM, Product ID=2ad, Analog, Serial=HA19, ManufDate=3/2008, EDID v1.3
+  41 x 27 cm (16.1 x 10.6 in)
+  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880 
+  Range Limits: Field Rate 56-75 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
+  Monitor Name: SyncMaster
+  Serial Number: H9FQ345476
+ Display 1:
+  Manuf. ID=SAM, Product ID=226, Analog, Serial=HA19, ManufDate=4/2007, EDID v1.3
+  41 x 26 cm (16.1 x 10.2 in)
+  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880 
+  Range Limits: Field Rate 56-75 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
+  Monitor Name: SyncMaster
+  Serial Number: HMCP431880
+
 ```
 
 For Mac OS X:
@@ -127,6 +159,21 @@ File System:
  Macintosh HD (/) (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
  MobileBackups (Network Drive) 0 bytes of 697.5 GB free (0.0%)
  Time Machine Backups (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
+Displays:
+ Display 0:
+  Manuf. ID=A, Product ID=9cb6, Analog, Serial=00000000, ManufDate=6/2009, EDID v1.3
+  33 x 21 cm (13.0 x 8.3 in)
+  Preferred Timing: Clock 119MHz, Active Pixels 3840x1440 
+  Manufacturer Data: 000000010006103000000000000000000A20
+  Unspecified Text: LTN158MT07
+  Monitor Name: Color LCD
+ Display 1:
+  Manuf. ID=A, Product ID=9227, Analog, Serial=162C0C25, ManufDate=11/2012, EDID v1.4
+  60 x 34 cm (23.6 x 13.4 in)
+  Preferred Timing: Clock 241MHz, Active Pixels 2560x3840 
+  Preferred Timing: Clock 74MHz, Active Pixels 1280x3840 
+  Serial Number: C02JM2PFF1GC
+  Monitor Name: Thunderbolt
 ```
 
 How is this different from ...

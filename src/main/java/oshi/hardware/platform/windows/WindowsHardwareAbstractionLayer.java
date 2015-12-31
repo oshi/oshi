@@ -20,6 +20,7 @@ import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
@@ -48,8 +49,8 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
             String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
             if (processorIds.length > 0) {
                 String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
-                processor.setIdentifier(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                        "Identifier"));
+                processor.setIdentifier(
+                        Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
                 processor.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                         "ProcessorNameString"));
                 processor.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
@@ -67,5 +68,10 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
     @Override
     public OSFileStore[] getFileStores() {
         return WindowsFileSystem.getFileStores();
+    }
+
+    @Override
+    public Display[] getDisplays() {
+        return WindowsDisplay.getDisplays();
     }
 }

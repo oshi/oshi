@@ -32,12 +32,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Platform;
 
+import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.EdidUtil;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -235,6 +237,19 @@ public class SystemInfoTest {
     }
 
     /**
+     * Test displays
+     */
+    @Test
+    public void testDisplay() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        Display[] displays = hal.getDisplays();
+        if (displays.length > 0) {
+            assertTrue(displays[0].getEdid().length >= 128);
+        }
+    }
+
+    /**
      * The main method.
      *
      * @param args
@@ -255,6 +270,7 @@ public class SystemInfoTest {
         LOG.info("Initializing Hardware...");
         // hardware
         HardwareAbstractionLayer hal = si.getHardware();
+
         // hardware: processors
         System.out.println(hal.getProcessor());
         System.out.println(" " + hal.getProcessor().getPhysicalProcessorCount() + " physical CPU(s)");
@@ -285,8 +301,8 @@ public class SystemInfoTest {
         long idle = ticks[3] - prevTicks[3];
         long totalCpu = user + nice + sys + idle;
 
-        System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu, 100d
-                * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
+        System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu,
+                100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
         System.out.format("CPU load: %.1f%% (counting ticks)%n",
                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
         System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessor().getSystemCpuLoad() * 100);
@@ -329,8 +345,55 @@ public class SystemInfoTest {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             System.out.format(" %s (%s) %s of %s free (%.1f%%)%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
-                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
+                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
+                    FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
         }
+
+        // hardware: displays
+        LOG.info("Checking Displays...");
+        System.out.println("Displays:");
+        int i = 0;
+        for (Display display : hal.getDisplays()) {
+            System.out.println(" Display " + i + ":");
+            byte[] edid = display.getEdid();
+            System.out.println("  Manuf. ID=" + EdidUtil.getManufacturerID(edid) + ", Product ID="
+                    + EdidUtil.getProductID(edid) + ", " + (EdidUtil.isDigital(edid) ? "Digital" : "Analog")
+                    + ", Serial=" + EdidUtil.getSerialNo(edid) + ", ManufDate=" + (EdidUtil.getWeek(edid) * 12 / 52 + 1)
+                    + "/" + EdidUtil.getYear(edid) + ", EDID v" + EdidUtil.getVersion(edid));
+            int hSize = EdidUtil.getHcm(edid);
+            int vSize = EdidUtil.getVcm(edid);
+            System.out.format("  %d x %d cm (%.1f x %.1f in)%n", hSize, vSize, hSize / 2.54, vSize / 2.54);
+            byte[][] desc = EdidUtil.getDescriptors(edid);
+            for (int d = 0; d < desc.length; d++) {
+                switch (EdidUtil.getDescriptorType(desc[d])) {
+                case 0xff:
+                    System.out.println("  Serial Number: " + EdidUtil.getDescriptorText(desc[d]));
+                    break;
+                case 0xfe:
+                    System.out.println("  Unspecified Text: " + EdidUtil.getDescriptorText(desc[d]));
+                    break;
+                case 0xfd:
+                    System.out.println("  Range Limits: " + EdidUtil.getDescriptorRangeLimits(desc[d]));
+                    break;
+                case 0xfc:
+                    System.out.println("  Monitor Name: " + EdidUtil.getDescriptorText(desc[d]));
+                    break;
+                case 0xfb:
+                    System.out.println("  White Point Data: " + EdidUtil.getDescriptorHex(desc[d]));
+                    break;
+                case 0xfa:
+                    System.out.println("  Standard Timing ID: " + EdidUtil.getDescriptorHex(desc[d]));
+                    break;
+                default:
+                    if (EdidUtil.getDescriptorType(desc[d]) <= 0x0f && EdidUtil.getDescriptorType(desc[d]) >= 0x00) {
+                        System.out.println("  Manufacturer Data: " + EdidUtil.getDescriptorHex(desc[d]));
+                    } else {
+                        System.out.println("  Preferred Timing: " + EdidUtil.getTimingDescriptor(desc[d]));
+                    }
+                }
+            }
+            i++;
+        }
+
     }
 }

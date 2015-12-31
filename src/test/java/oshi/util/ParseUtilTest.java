@@ -17,6 +17,9 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -46,5 +49,14 @@ public class ParseUtilTest {
     public void testParseString() {
         assertEquals(1, ParseUtil.parseString("foo : 1", 0));
         assertEquals(2, ParseUtil.parseString("foo", 2));
+    }
+
+    /**
+     * Test parse string.
+     */
+    @Test
+    public void testHexStringToByteArray() {
+        byte[] temp = { (byte) 0x12, (byte) 0xaf };
+        assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
     }
 }

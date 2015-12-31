@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
@@ -114,6 +115,11 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     @Override
     public OSFileStore[] getFileStores() {
         return LinuxFileSystem.getFileStores();
+    }
+
+    @Override
+    public Display[] getDisplays() {
+        return LinuxDisplay.getDisplays();
     }
 
 }

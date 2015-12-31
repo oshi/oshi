@@ -17,6 +17,7 @@
 package oshi.hardware.platform.mac;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
@@ -72,6 +73,11 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
     @Override
     public OSFileStore[] getFileStores() {
         return MacFileSystem.getFileStores();
+    }
+
+    @Override
+    public Display[] getDisplays() {
+        return MacDisplay.getDisplays();
     }
 
 }
