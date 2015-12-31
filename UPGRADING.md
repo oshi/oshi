@@ -26,8 +26,12 @@ JNA's `Memory` class.
 The `Processor` interface, which represented one of an array of logical
 processor objects, was renamed `CentralProcessor` and represents the entire
 System CPU which may contain multiple logical processors.  Methods applicable
-to an individual logical processor were modified to return arrays.  Specific
-changes to `CentralProcessor` methods:
+to an individual logical processor were modified to return arrays.  
+
+The `HardwareAbstractionLayer`'s `getProcessors()` method was renamed to
+`getProcessor()` and now returns a singular `CentralProcessor` object.
+
+Specific changes to `CentralProcessor` methods:
 * The constructor no longer takes a processor number argument and the 
 `getProcessorNumber()` method was removed
 * The deprectated `getLoad()` method was removed. Use 
