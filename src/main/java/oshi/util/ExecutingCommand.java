@@ -50,7 +50,7 @@ public class ExecutingCommand
     /**
      * Executes a command on the native command line and returns the result.
      * 
-     * @param cmdToRun Command to run and args, in an array
+     * @param cmdToRunWithArgs Command to run and args, in an array
      * @return A list of Strings representing the result of the command
      */
     public static ArrayList<String> runNative( String[] cmdToRunWithArgs )

@@ -297,7 +297,7 @@ public class LinuxCentralProcessor
         if ( this.cpuIdentifier == null )
         {
             StringBuilder sb = new StringBuilder();
-            if ( getVendor().contentEquals( "GenuineIntel" ) )
+            if ( getVendor() != null && getVendor().contentEquals( "GenuineIntel" ) )
             {
                 sb.append( isCpu64bit() ? "Intel64" : "x86" );
             }
