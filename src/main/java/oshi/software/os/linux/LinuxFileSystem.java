@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
  * 
- * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,48 +28,52 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OSFileStore;
 
 /**
- * The Mac File System contains {@link OSFileStore}s which are a storage pool,
- * device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Linux, these are found in the /proc/mount
+ * The Mac File System contains {@link OSFileStore}s which are a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxFileSystem {
+public class LinuxFileSystem
+{
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger( LinuxFileSystem.class );
 
     /**
      * Gets File System Information.
      * 
-     * @return An array of {@link FileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link FileStore} objects representing mounted volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public static OSFileStore[] getFileStores()
+    {
         List<OSFileStore> fsList = new ArrayList<>();
-        for (FileStore store : FileSystems.getDefault().getFileStores()) {
+        for ( FileStore store : FileSystems.getDefault().getFileStores() )
+        {
             // FileStore toString starts with path, then a space, then name in
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
-            String path = store.toString().replace(" (" + store.name() + ")", "");
+            String path = store.toString().replace( " (" + store.name() + ")", "" );
             // Exclude special directories
-            if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run") || path.equals("/dev")
-                    || path.equals("/dev/pts"))
+            if ( path.startsWith( "/proc" ) || path.startsWith( "/sys" ) || path.startsWith( "/run" )
+                || path.equals( "/dev" ) || path.equals( "/dev/pts" ) )
                 continue;
             String name = store.name();
-            if (path.equals("/"))
+            if ( path.equals( "/" ) )
                 name = "/";
             String description = "Mount Point";
-            if (store.name().startsWith("/dev"))
+            if ( store.name().startsWith( "/dev" ) )
                 description = "Local Disk";
-            try {
-                fsList.add(new OSFileStore(name, description, store.getUsableSpace(), store.getTotalSpace()));
-            } catch (IOException e) {
+            try
+            {
+                fsList.add( new OSFileStore( name, description, store.getUsableSpace(), store.getTotalSpace() ) );
+            }
+            catch ( IOException e )
+            {
                 // get*Space() may fail for ejected CD-ROM, etc.
-                LOG.trace("", e);
+                LOG.trace( "", e );
                 continue;
             }
         }
-        return fsList.toArray(new OSFileStore[fsList.size()]);
+        return fsList.toArray( new OSFileStore[fsList.size()] );
     }
 }

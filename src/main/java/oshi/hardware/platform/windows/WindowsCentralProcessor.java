@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
  * 
- * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -51,71 +51,93 @@ import oshi.util.ParseUtil;
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
-@SuppressWarnings("restriction")
-public class WindowsCentralProcessor implements CentralProcessor {
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
+@SuppressWarnings( "restriction" )
+public class WindowsCentralProcessor
+    implements CentralProcessor
+{
+    private static final Logger LOG = LoggerFactory.getLogger( WindowsCentralProcessor.class );
 
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
+    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN =
+        ManagementFactory.getOperatingSystemMXBean();
+
     private static boolean sunMXBean;
 
-    static {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
+    static
+    {
+        try
+        {
+            Class.forName( "com.sun.management.OperatingSystemMXBean" );
             // Initialize CPU usage
-            ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
             sunMXBean = true;
-            LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException e) {
+            LOG.debug( "Oracle MXBean detected." );
+        }
+        catch ( ClassNotFoundException e )
+        {
             sunMXBean = false;
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
+            LOG.debug( "Oracle MXBean not detected." );
+            LOG.trace( "", e );
         }
     }
 
     // Logical and Physical Processor Counts
     private int logicalProcessorCount = 0;
+
     private int physicalProcessorCount = 0;
 
     // Maintain previous ticks to be used for calculating usage between them.
     // System ticks
     private long tickTime;
+
     private long[] prevTicks;
+
     private long[] curTicks;
 
     // Per-processor ticks [cpu][type]
     private long procTickTime;
+
     private long[][] prevProcTicks;
+
     private long[][] curProcTicks;
 
     // PDH counters only give increments between calls so we maintain our own
     // "ticks" here
     private long allProcTickTime;
+
     private long[][] allProcTicks;
 
     // Initialize numCPU and open a Performance Data Helper Thread for
     // monitoring each processor ticks
     private PointerByReference phQuery = new PointerByReference();
-    private final IntByReference pZero = new IntByReference(0);
+
+    private final IntByReference pZero = new IntByReference( 0 );
+
     // Set up user and idle tick counters for each processor
     private PointerByReference[] phUserCounters;
+
     private PointerByReference[] phIdleCounters;
 
     // Set up Performance Data Helper thread for uptime
     private PointerByReference uptimeQuery = new PointerByReference();
-    private final IntByReference pOne = new IntByReference(1);
+
+    private final IntByReference pOne = new IntByReference( 1 );
+
     // Set up counter for uptime
     private PointerByReference pUptime;
 
     private String cpuVendor;
+
     private String cpuName;
+
     private String cpuIdentifier;
+
     private Long cpuVendorFreq;
 
     /**
      * Create a Processor
      */
-    public WindowsCentralProcessor() {
+    public WindowsCentralProcessor()
+    {
         // Processor counts
         calculateProcessorCounts();
 
@@ -133,134 +155,156 @@ public class WindowsCentralProcessor implements CentralProcessor {
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
 
-        LOG.debug("Initialized Processor");
+        LOG.debug( "Initialized Processor" );
     }
 
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
-    private void calculateProcessorCounts() {
+    private void calculateProcessorCounts()
+    {
         // Get number of logical processors
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
+        Kernel32.INSTANCE.GetSystemInfo( sysinfo );
         this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
         // Get number of physical processors
-        try {
+        try
+        {
             // Weblogic server is throwing IllegalArgumentException on this call
             WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-            for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-                if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+            for ( SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors )
+            {
+                if ( proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore )
+                {
                     this.physicalProcessorCount++;
                 }
             }
-        } catch (IllegalArgumentException e) {
+        }
+        catch ( IllegalArgumentException e )
+        {
             // TODO: Remove this debugging code
-            System.out
-                    .println("Failed to get processor information array. Please report the following to the Oshi developers.");
+            System.out.println( "Failed to get processor information array. Please report the following to the Oshi developers." );
             int sizePerStruct = new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION().size();
-            System.out.println("Size per structure: " + sizePerStruct);
-            WinDef.DWORDByReference bufferSize = new WinDef.DWORDByReference(new WinDef.DWORD(sizePerStruct));
+            System.out.println( "Size per structure: " + sizePerStruct );
+            WinDef.DWORDByReference bufferSize = new WinDef.DWORDByReference( new WinDef.DWORD( sizePerStruct ) );
             Memory memory;
             int temp = 0;
-            while (true) {
-                memory = new Memory(bufferSize.getValue().intValue());
-                System.out.print("Iteration " + ++temp + " memory size: " + memory.size() + " ... ");
-                if (!Kernel32.INSTANCE.GetLogicalProcessorInformation(memory, bufferSize)) {
+            while ( true )
+            {
+                memory = new Memory( bufferSize.getValue().intValue() );
+                System.out.print( "Iteration " + ++temp + " memory size: " + memory.size() + " ... " );
+                if ( !Kernel32.INSTANCE.GetLogicalProcessorInformation( memory, bufferSize ) )
+                {
                     int err = Kernel32.INSTANCE.GetLastError();
-                    if (err != WinError.ERROR_INSUFFICIENT_BUFFER)
-                        throw new Win32Exception(err);
-                    System.out.println("Insufficient buffer.");
-                } else {
-                    System.out.println("OK.");
+                    if ( err != WinError.ERROR_INSUFFICIENT_BUFFER )
+                        throw new Win32Exception( err );
+                    System.out.println( "Insufficient buffer." );
+                }
+                else
+                {
+                    System.out.println( "OK." );
                     break;
                 }
             }
-            System.out.println("Calculating returned structure count with buffer size "
-                    + bufferSize.getValue().intValue());
+            System.out.println( "Calculating returned structure count with buffer size "
+                + bufferSize.getValue().intValue() );
             int returnedStructCount = bufferSize.getValue().intValue() / sizePerStruct;
-            System.out.println("Returned structure count is " + returnedStructCount);
-            System.out.println("End debug output.");
+            System.out.println( "Returned structure count is " + returnedStructCount );
+            System.out.println( "End debug output." );
         }
     }
 
     /**
      * Initializes PDH Tick and Uptime Counters
      */
-    private void initPdhCounters() {
+    private void initPdhCounters()
+    {
         // Open tick query
-        int pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pZero, phQuery);
-        if (pdhOpenTickQueryError != 0) {
-            LOG.error("Failed to open PDH Tick Query. Error code: {}", String.format("0x%08X", pdhOpenTickQueryError));
+        int pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery( null, pZero, phQuery );
+        if ( pdhOpenTickQueryError != 0 )
+        {
+            LOG.error( "Failed to open PDH Tick Query. Error code: {}",
+                       String.format( "0x%08X", pdhOpenTickQueryError ) );
         }
 
         // Set up counters
         phUserCounters = new PointerByReference[logicalProcessorCount];
         phIdleCounters = new PointerByReference[logicalProcessorCount];
 
-        if (pdhOpenTickQueryError == 0) {
-            for (int p = 0; p < logicalProcessorCount; p++) {
+        if ( pdhOpenTickQueryError == 0 )
+        {
+            for ( int p = 0; p < logicalProcessorCount; p++ )
+            {
                 // Options are (only need 2 to calculate all)
                 // "\Processor(0)\% processor time"
                 // "\Processor(0)\% idle time" (1 - processor)
                 // "\Processor(0)\% privileged time" (subset of processor)
                 // "\Processor(0)\% user time" (other subset of processor)
                 // Note need to make \ = \\ for Java Strings and %% for format
-                String counterPath = String.format("\\Processor(%d)\\%% user time", p);
+                String counterPath = String.format( "\\Processor(%d)\\%% user time", p );
                 phUserCounters[p] = new PointerByReference();
                 // Open tick query for this processor
-                int pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, pZero,
-                        phUserCounters[p]);
-                if (pdhAddTickCounterError != 0) {
-                    LOG.error("Failed to add PDH User Tick Counter for processor {}. Error code: {}", p,
-                            String.format("0x%08X", pdhAddTickCounterError));
+                int pdhAddTickCounterError =
+                    Pdh.INSTANCE.PdhAddEnglishCounterA( phQuery.getValue(), counterPath, pZero, phUserCounters[p] );
+                if ( pdhAddTickCounterError != 0 )
+                {
+                    LOG.error( "Failed to add PDH User Tick Counter for processor {}. Error code: {}", p,
+                               String.format( "0x%08X", pdhAddTickCounterError ) );
                     break;
                 }
-                counterPath = String.format("\\Processor(%d)\\%% idle time", p);
+                counterPath = String.format( "\\Processor(%d)\\%% idle time", p );
                 phIdleCounters[p] = new PointerByReference();
-                pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, pZero,
-                        phIdleCounters[p]);
-                if (pdhAddTickCounterError != 0) {
-                    LOG.error("Failed to add PDH Idle Tick Counter for processor {}. Error code: {}", p,
-                            String.format("0x%08X", pdhAddTickCounterError));
+                pdhAddTickCounterError =
+                    Pdh.INSTANCE.PdhAddEnglishCounterA( phQuery.getValue(), counterPath, pZero, phIdleCounters[p] );
+                if ( pdhAddTickCounterError != 0 )
+                {
+                    LOG.error( "Failed to add PDH Idle Tick Counter for processor {}. Error code: {}", p,
+                               String.format( "0x%08X", pdhAddTickCounterError ) );
                     break;
                 }
             }
 
-            LOG.debug("Tick counter queries added.  Initializing with first query.");
+            LOG.debug( "Tick counter queries added.  Initializing with first query." );
             // Initialize by collecting data the first time
-            int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-            if (ret != 0) {
-                LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            int ret = Pdh.INSTANCE.PdhCollectQueryData( phQuery.getValue() );
+            if ( ret != 0 )
+            {
+                LOG.warn( "Failed to update Tick Counters. Error code: {}", String.format( "0x%08X", ret ) );
             }
         }
 
         // Open uptime query
-        int pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pOne, uptimeQuery);
-        if (pdhOpenTickQueryError != 0) {
-            LOG.error("Failed to open PDH Uptime Query. Error code: {}",
-                    String.format("0x%08X", pdhOpenUptimeQueryError));
+        int pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery( null, pOne, uptimeQuery );
+        if ( pdhOpenTickQueryError != 0 )
+        {
+            LOG.error( "Failed to open PDH Uptime Query. Error code: {}",
+                       String.format( "0x%08X", pdhOpenUptimeQueryError ) );
         }
-        if (pdhOpenUptimeQueryError == 0) {
+        if ( pdhOpenUptimeQueryError == 0 )
+        {
             // \System\System Up Time
             String uptimePath = "\\System\\System Up Time";
             pUptime = new PointerByReference();
-            int pdhAddUptimeCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(uptimeQuery.getValue(), uptimePath, pOne,
-                    pUptime);
-            if (pdhAddUptimeCounterError != 0) {
-                LOG.error("Failed to add PDH Uptime Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddUptimeCounterError));
+            int pdhAddUptimeCounterError =
+                Pdh.INSTANCE.PdhAddEnglishCounterA( uptimeQuery.getValue(), uptimePath, pOne, pUptime );
+            if ( pdhAddUptimeCounterError != 0 )
+            {
+                LOG.error( "Failed to add PDH Uptime Counter. Error code: {}",
+                           String.format( "0x%08X", pdhAddUptimeCounterError ) );
             }
         }
 
         // Set up hook to close the query on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        Runtime.getRuntime().addShutdownHook( new Thread()
+        {
             @Override
-            public void run() {
-                Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());
-                Pdh.INSTANCE.PdhCloseQuery(uptimeQuery.getValue());
+            public void run()
+            {
+                Pdh.INSTANCE.PdhCloseQuery( phQuery.getValue() );
+                Pdh.INSTANCE.PdhCloseQuery( uptimeQuery.getValue() );
             }
-        });
+        } );
     }
 
     /**
@@ -269,18 +313,19 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * @return Processor vendor.
      */
     @Override
-    public String getVendor() {
+    public String getVendor()
+    {
         return this.cpuVendor;
     }
 
     /**
      * Set processor vendor.
      * 
-     * @param vendor
-     *            Vendor.
+     * @param vendor Vendor.
      */
     @Override
-    public void setVendor(String vendor) {
+    public void setVendor( String vendor )
+    {
         this.cpuVendor = vendor;
     }
 
@@ -290,38 +335,44 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * @return Processor name.
      */
     @Override
-    public String getName() {
+    public String getName()
+    {
         return this.cpuName;
     }
 
     /**
      * Set processor name.
      * 
-     * @param name
-     *            Name.
+     * @param name Name.
      */
     @Override
-    public void setName(String name) {
+    public void setName( String name )
+    {
         this.cpuName = name;
     }
 
     /**
-     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
-     * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
+     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz the vendor frequency
+     * is 2000000000.
      * 
      * @return Processor frequency or -1 if unknown.
      */
     @Override
-    public long getVendorFreq() {
-        if (this.cpuVendorFreq == null) {
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(getName());
+    public long getVendorFreq()
+    {
+        if ( this.cpuVendorFreq == null )
+        {
+            Pattern pattern = Pattern.compile( "@ (.*)$" );
+            Matcher matcher = pattern.matcher( getName() );
 
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
-            } else {
-                this.cpuVendorFreq = Long.valueOf(-1L);
+            if ( matcher.find() )
+            {
+                String unit = matcher.group( 1 );
+                this.cpuVendorFreq = Long.valueOf( ParseUtil.parseHertz( unit ) );
+            }
+            else
+            {
+                this.cpuVendorFreq = Long.valueOf( -1L );
             }
         }
 
@@ -331,12 +382,12 @@ public class WindowsCentralProcessor implements CentralProcessor {
     /**
      * Set vendor frequency.
      * 
-     * @param freq
-     *            Frequency.
+     * @param freq Frequency.
      */
     @Override
-    public void setVendorFreq(long freq) {
-        this.cpuVendorFreq = Long.valueOf(freq);
+    public void setVendorFreq( long freq )
+    {
+        this.cpuVendorFreq = Long.valueOf( freq );
     }
 
     /**
@@ -345,18 +396,19 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * @return Processor identifier.
      */
     @Override
-    public String getIdentifier() {
+    public String getIdentifier()
+    {
         return this.cpuIdentifier;
     }
 
     /**
      * Set processor identifier.
      * 
-     * @param identifier
-     *            Identifier.
+     * @param identifier Identifier.
      */
     @Override
-    public void setIdentifier(String identifier) {
+    public void setIdentifier( String identifier )
+    {
         this.cpuIdentifier = identifier;
     }
 
@@ -364,7 +416,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCpu64bit() {
+    public boolean isCpu64bit()
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -372,7 +425,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setCpu64(boolean cpu64) {
+    public void setCpu64( boolean cpu64 )
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -380,7 +434,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public String getStepping() {
+    public String getStepping()
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -388,7 +443,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setStepping(String stepping) {
+    public void setStepping( String stepping )
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -396,7 +452,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public String getModel() {
+    public String getModel()
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -404,7 +461,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setModel(String model) {
+    public void setModel( String model )
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -412,7 +470,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public String getFamily() {
+    public String getFamily()
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -420,7 +479,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setFamily(String family) {
+    public void setFamily( String family )
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -428,71 +488,77 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public synchronized double getSystemCpuLoadBetweenTicks() {
+    public synchronized double getSystemCpuLoadBetweenTicks()
+    {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
-        if (now - tickTime > 950) {
+        LOG.trace( "Current time: {}  Last tick time: {}", now, tickTime );
+        if ( now - tickTime > 950 )
+        {
             // Enough time has elapsed.
             updateSystemTicks();
         }
         // Calculate total
         long total = 0;
-        for (int i = 0; i < curTicks.length; i++) {
-            total += (curTicks[i] - prevTicks[i]);
+        for ( int i = 0; i < curTicks.length; i++ )
+        {
+            total += ( curTicks[i] - prevTicks[i] );
         }
         // Calculate idle from last field [3]
         long idle = curTicks[3] - prevTicks[3];
-        LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
+        LOG.trace( "Total ticks: {}  Idle ticks: {}", total, idle );
 
-        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+        return ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks()
+    {
         long[] ticks = new long[curTicks.length];
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
         WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
-            LOG.error("Failed to update system idle/kernel/user times. Error code: " + Native.getLastError());
+        if ( !Kernel32.INSTANCE.GetSystemTimes( lpIdleTime, lpKernelTime, lpUserTime ) )
+        {
+            LOG.error( "Failed to update system idle/kernel/user times. Error code: " + Native.getLastError() );
             return ticks;
         }
         // Array order is user,nice,kernel,idle
         // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.2.2
-        ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate());
-        ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) - ticks[3];
+        ticks[3] = WinBase.FILETIME.dateToFileTime( lpIdleTime.toDate() );
+        ticks[2] = WinBase.FILETIME.dateToFileTime( lpKernelTime.toDate() ) - ticks[3];
         ticks[1] = 0L; // Windows is not 'nice'
-        ticks[0] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate());
+        ticks[0] = WinBase.FILETIME.dateToFileTime( lpUserTime.toDate() );
         return ticks;
     }
 
     /**
-     * Updates system tick information from native call to GetSystemTimes().
-     * Array with four elements representing clock ticks or milliseconds
-     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
-     * (3) states. By measuring the difference between ticks across a time
-     * interval, CPU load over that interval may be calculated.
+     * Updates system tick information from native call to GetSystemTimes(). Array with four elements representing clock
+     * ticks or milliseconds (platform dependent) spent in User (0), Nice (1), System (2), and Idle (3) states. By
+     * measuring the difference between ticks across a time interval, CPU load over that interval may be calculated.
      */
-    private void updateSystemTicks() {
-        LOG.trace("Updating System Ticks");
+    private void updateSystemTicks()
+    {
+        LOG.trace( "Updating System Ticks" );
         // Copy to previous
-        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+        System.arraycopy( curTicks, 0, prevTicks, 0, curTicks.length );
         this.tickTime = System.currentTimeMillis();
         long[] ticks = getSystemCpuLoadTicks();
-        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
+        System.arraycopy( ticks, 0, curTicks, 0, ticks.length );
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getSystemCpuLoad() {
-        if (sunMXBean) {
-            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+    public double getSystemCpuLoad()
+    {
+        if ( sunMXBean )
+        {
+            return ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
         }
         return getSystemCpuLoadBetweenTicks();
     }
@@ -501,7 +567,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public double getSystemLoadAverage() {
+    public double getSystemLoadAverage()
+    {
         // Expected to be -1 for Windows
         return OS_MXBEAN.getSystemLoadAverage();
     }
@@ -510,26 +577,30 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public double[] getProcessorCpuLoadBetweenTicks() {
+    public double[] getProcessorCpuLoadBetweenTicks()
+    {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
-        if (now - procTickTime > 950) {
+        LOG.trace( "Current time: {}  Last tick time: {}", now, procTickTime );
+        if ( now - procTickTime > 950 )
+        {
             // Enough time has elapsed.
             // Update latest
             updateProcessorTicks();
         }
         double[] load = new double[logicalProcessorCount];
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
+        {
             long total = 0;
-            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
-                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
+            for ( int i = 0; i < this.curProcTicks[cpu].length; i++ )
+            {
+                total += ( this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i] );
             }
             // Calculate idle from last field [3]
             long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
-            LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
+            LOG.trace( "CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle );
             // update
-            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+            load[cpu] = ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
         }
         return load;
     }
@@ -538,13 +609,15 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks()
+    {
         long[][] ticks = new long[logicalProcessorCount][4];
 
         // This call updates all process counters to % used since last call
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-        if (ret != 0) {
-            LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
+        int ret = Pdh.INSTANCE.PdhCollectQueryData( phQuery.getValue() );
+        if ( ret != 0 )
+        {
+            LOG.warn( "Failed to update Tick Counters. Error code: {}", String.format( "0x%08X", ret ) );
             return ticks;
         }
         long now = System.currentTimeMillis();
@@ -552,20 +625,25 @@ public class WindowsCentralProcessor implements CentralProcessor {
         // We'll manufacture our own ticks by multiplying the % used (from the
         // counter) by time elapsed since the last call to get a tick increment
         long elapsed = now - allProcTickTime;
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
+        {
             PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-                    | Pdh.PDH_FMT_1000, null, phUserCounterValue);
-            if (ret != 0) {
-                LOG.warn("Failed to get Uer Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue( phUserCounters[cpu].getValue(),
+                                                            Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
+                                                            phUserCounterValue );
+            if ( ret != 0 )
+            {
+                LOG.warn( "Failed to get Uer Tick Counters. Error code: {}", String.format( "0x%08X", ret ) );
                 return ticks;
             }
 
             PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(), Pdh.PDH_FMT_LARGE
-                    | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
-            if (ret != 0) {
-                LOG.warn("Failed to get idle Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue( phIdleCounters[cpu].getValue(),
+                                                            Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
+                                                            phIdleCounterValue );
+            if ( ret != 0 )
+            {
+                LOG.warn( "Failed to get idle Tick Counters. Error code: {}", String.format( "0x%08X", ret ) );
                 return ticks;
             }
 
@@ -577,36 +655,38 @@ public class WindowsCentralProcessor implements CentralProcessor {
             // Elasped is only since last read, so increment previous value
             allProcTicks[cpu][0] += user;
             // allProcTicks[cpu][1] is ignored, Windows is not nice
-            allProcTicks[cpu][2] += Math.max(0, elapsed - user - idle); // u+i+sys=100%
+            allProcTicks[cpu][2] += Math.max( 0, elapsed - user - idle ); // u+i+sys=100%
             allProcTicks[cpu][3] += idle;
         }
         allProcTickTime = now;
 
         // Make a copy of the array to return
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(allProcTicks[cpu], 0, ticks[cpu], 0, allProcTicks[cpu].length);
+        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
+        {
+            System.arraycopy( allProcTicks[cpu], 0, ticks[cpu], 0, allProcTicks[cpu].length );
         }
         return ticks;
     }
 
     /**
-     * Updates the tick array for all processors by querying PDH counter. Stores
-     * in 2D array; an array for each logical processor with four elements
-     * representing clock ticks or milliseconds (platform dependent) spent in
-     * User (0), Nice (1), System (2), and Idle (3) states. By measuring the
-     * difference between ticks across a time interval, CPU load over that
-     * interval may be calculated.
+     * Updates the tick array for all processors by querying PDH counter. Stores in 2D array; an array for each logical
+     * processor with four elements representing clock ticks or milliseconds (platform dependent) spent in User (0),
+     * Nice (1), System (2), and Idle (3) states. By measuring the difference between ticks across a time interval, CPU
+     * load over that interval may be calculated.
      */
-    private void updateProcessorTicks() {
-        LOG.trace("Updating Processor Ticks");
+    private void updateProcessorTicks()
+    {
+        LOG.trace( "Updating Processor Ticks" );
         // Copy to previous
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
+        {
+            System.arraycopy( curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length );
         }
         this.procTickTime = System.currentTimeMillis();
         long[][] ticks = getProcessorCpuLoadTicks();
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
+        {
+            System.arraycopy( ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length );
         }
     }
 
@@ -614,17 +694,21 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long getSystemUptime() {
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(uptimeQuery.getValue());
-        if (ret != 0) {
-            LOG.error("Failed to update Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+    public long getSystemUptime()
+    {
+        int ret = Pdh.INSTANCE.PdhCollectQueryData( uptimeQuery.getValue() );
+        if ( ret != 0 )
+        {
+            LOG.error( "Failed to update Uptime Counters. Error code: {}", String.format( "0x%08X", ret ) );
             return 0L;
         }
 
         PdhFmtCounterValue uptimeCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pUptime.getValue(), Pdh.PDH_FMT_LARGE, null, uptimeCounterValue);
-        if (ret != 0) {
-            LOG.error("Failed to get Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+        ret =
+            Pdh.INSTANCE.PdhGetFormattedCounterValue( pUptime.getValue(), Pdh.PDH_FMT_LARGE, null, uptimeCounterValue );
+        if ( ret != 0 )
+        {
+            LOG.error( "Failed to get Uptime Counters. Error code: {}", String.format( "0x%08X", ret ) );
             return 0L;
         }
 
@@ -635,45 +719,58 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public String getSystemSerialNumber() {
+    public String getSystemSerialNumber()
+    {
         String sn = null;
         // This should always work
-        ArrayList<String> hwInfo = ExecutingCommand.runNative("wmic bios get serialnumber");
-        for (String checkLine : hwInfo) {
-            if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
+        ArrayList<String> hwInfo = ExecutingCommand.runNative( "wmic bios get serialnumber" );
+        for ( String checkLine : hwInfo )
+        {
+            if ( checkLine.length() == 0 || checkLine.toLowerCase().contains( "serialnumber" ) )
+            {
                 continue;
-            } else {
+            }
+            else
+            {
                 sn = checkLine.trim();
                 break;
             }
         }
         // Just in case the above doesn't
-        if (sn == null || sn.length() == 0) {
-            hwInfo = ExecutingCommand.runNative("wmic csproduct get identifyingnumber");
-            for (String checkLine : hwInfo) {
-                if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
+        if ( sn == null || sn.length() == 0 )
+        {
+            hwInfo = ExecutingCommand.runNative( "wmic csproduct get identifyingnumber" );
+            for ( String checkLine : hwInfo )
+            {
+                if ( checkLine.length() == 0 || checkLine.toLowerCase().contains( "identifyingnumber" ) )
+                {
                     continue;
-                } else {
+                }
+                else
+                {
                     sn = checkLine.trim();
                     break;
                 }
             }
         }
-        return (sn == null || sn.length() == 0) ? "unknown" : sn;
+        return ( sn == null || sn.length() == 0 ) ? "unknown" : sn;
     }
 
     @Override
-    public int getLogicalProcessorCount() {
+    public int getLogicalProcessorCount()
+    {
         return logicalProcessorCount;
     }
 
     @Override
-    public int getPhysicalProcessorCount() {
+    public int getPhysicalProcessorCount()
+    {
         return physicalProcessorCount;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return getName();
     }
 }
