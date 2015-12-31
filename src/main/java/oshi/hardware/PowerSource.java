@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
  * 
- * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,12 +17,12 @@
 package oshi.hardware;
 
 /**
- * The Power Source is one or more batteries with some capacity, and some state
- * of charge/discharge
+ * The Power Source is one or more batteries with some capacity, and some state of charge/discharge
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface PowerSource {
+public interface PowerSource
+{
     /**
      * Name of the power source (e.g., InternalBattery-0)
      * 
@@ -40,8 +40,7 @@ public interface PowerSource {
     /**
      * Estimated time remaining on the power source, in seconds.
      * 
-     * @return If positive, seconds remaining. If negative, -1.0 (calculating)
-     *         or -2.0 (unlimited)
+     * @return If positive, seconds remaining. If negative, -1.0 (calculating) or -2.0 (unlimited)
      */
     double getTimeRemaining();
 }

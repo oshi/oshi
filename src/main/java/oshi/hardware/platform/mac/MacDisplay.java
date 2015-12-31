@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
  * 
- * Copyright (c) 2010 - 2015 The Oshi Project Team
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,19 +32,23 @@ import oshi.util.ParseUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class MacDisplay implements Display {
-    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
+public class MacDisplay
+    implements Display
+{
+    private static final Logger LOG = LoggerFactory.getLogger( MacDisplay.class );
 
     private byte[] edid;
 
-    public MacDisplay(byte[] edid) {
+    public MacDisplay( byte[] edid )
+    {
         this.edid = edid;
-        LOG.debug("Initialized MacDisplay");
+        LOG.debug( "Initialized MacDisplay" );
     }
 
     @Override
-    public byte[] getEdid() {
-        return Arrays.copyOf(edid, edid.length);
+    public byte[] getEdid()
+    {
+        return Arrays.copyOf( edid, edid.length );
     }
 
     /**
@@ -52,18 +56,21 @@ public class MacDisplay implements Display {
      * 
      * @return An array of Display objects representing monitors, etc.
      */
-    public static Display[] getDisplays() {
+    public static Display[] getDisplays()
+    {
         List<Display> displays = new ArrayList<Display>();
-        ArrayList<String> ioReg = ExecutingCommand.runNative("ioreg -lw0 -r -c IODisplayConnect");
-        for (String s : ioReg) {
-            if (s.contains("IODisplayEDID")) {
-                String edidStr = s.substring(s.indexOf("<") + 1, s.indexOf(">"));
-                LOG.debug("Parsed EDID: {}", edidStr);
-                Display display = new MacDisplay(ParseUtil.hexStringToByteArray(edidStr));
-                displays.add(display);
+        ArrayList<String> ioReg = ExecutingCommand.runNative( "ioreg -lw0 -r -c IODisplayConnect" );
+        for ( String s : ioReg )
+        {
+            if ( s.contains( "IODisplayEDID" ) )
+            {
+                String edidStr = s.substring( s.indexOf( "<" ) + 1, s.indexOf( ">" ) );
+                LOG.debug( "Parsed EDID: {}", edidStr );
+                Display display = new MacDisplay( ParseUtil.hexStringToByteArray( edidStr ) );
+                displays.add( display );
             }
         }
 
-        return displays.toArray(new Display[displays.size()]);
+        return displays.toArray( new Display[displays.size()] );
     }
 }
