@@ -1,6 +1,7 @@
 2.1 (in-progress)
 ================
 * [#108](https://github.com/dblock/oshi/pull/108): Added Display info from EDID - [@dbwiddis](https://github.com/dbwiddis).
+* [#111](https://github.com/dblock/oshi/pull/111): Catch exceptions when Linux c library missing - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.0 (11/28/2015)

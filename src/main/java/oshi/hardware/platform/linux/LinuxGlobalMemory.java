@@ -101,13 +101,45 @@ public class LinuxGlobalMemory
     {
         if ( this.totalMemory == 0 )
         {
-            Sysinfo info = new Sysinfo();
-            if ( 0 != Libc.INSTANCE.sysinfo( info ) )
+            // Try to get it from the libc sysinfo call
+            try
             {
-                LOG.error( "Failed to get total memory. Error code: " + Native.getLastError() );
-                return 0L;
+                Sysinfo info = new Sysinfo();
+                if ( 0 != Libc.INSTANCE.sysinfo( info ) )
+                {
+                    LOG.error( "Failed to get total memory. Error code: " + Native.getLastError() );
+                }
+                else
+                {
+                    this.totalMemory = info.totalram.longValue() * info.mem_unit;
+                    return this.totalMemory;
+                }
             }
-            this.totalMemory = info.totalram.longValue() * info.mem_unit;
+            catch ( UnsatisfiedLinkError | NoClassDefFoundError e )
+            {
+                LOG.warn( "Failed to get total memory from sysinfo. Falling back /proc/meminfo MemTotal. {}",
+                          e.getMessage() );
+            }
+            // If still no success, populate from /proc/meminfo
+            List<String> memInfo = null;
+            try
+            {
+                memInfo = FileUtil.readFile( "/proc/meminfo" );
+            }
+            catch ( IOException e )
+            {
+                LOG.error( "Problem with /proc/meminfo: {}", e.getMessage() );
+                return 0;
+            }
+            for ( String checkLine : memInfo )
+            {
+                if ( checkLine.startsWith( "MemTotal:" ) )
+                {
+                    String[] memorySplit = checkLine.split( "\\s+" );
+                    this.totalMemory = parseMeminfo( memorySplit );
+                    break;
+                }
+            }
         }
         return this.totalMemory;
     }
