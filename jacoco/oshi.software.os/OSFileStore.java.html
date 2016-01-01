@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OSFileStore.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSFileStore.java</span></div><h1>OSFileStore.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- *
- * Copyright (c) 2010 - 2015 The Oshi Project Team
- *
+ * 
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -20,119 +20,118 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The File System is a storage pool, device, partition, volume, concrete file
-<span class="fc" id="L24"> * system or other implementation specific means of file storage. See subclasses</span>
- * for definitions as they apply to specific platforms.
+ * The File System is a storage pool, device, partition, volume, concrete file system or other implementation specific
+ * means of file storage. See subclasses for definitions as they apply to specific platforms.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore {
+public class OSFileStore
+{
+<span class="fc" id="L30">    private static final Logger LOG = LoggerFactory.getLogger( OSFileStore.class );</span>
 
-  private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
+    private String name;
 
-  private String name;
+    private String description;
 
-  private String description;
+    private long usableSpace;
 
-  private long usableSpace;
+    private long totalSpace;
 
-  private long totalSpace;
+    /**
+     * Creates a {@link OSFileStore} with the specified parameters.
+     * 
+     * @param newName Name of the filestore
+     * @param newDescription Description of the file store
+     * @param newUsableSpace Available/usable bytes
+     * @param newTotalSpace Total bytes
+     */
+    public OSFileStore( String newName, String newDescription, long newUsableSpace, long newTotalSpace )
+<span class="fc" id="L49">    {</span>
+<span class="fc" id="L50">        this.setName( newName );</span>
+<span class="fc" id="L51">        this.setDescription( newDescription );</span>
+<span class="fc" id="L52">        this.setUsableSpace( newUsableSpace );</span>
+<span class="fc" id="L53">        this.setTotalSpace( newTotalSpace );</span>
+<span class="fc" id="L54">        LOG.debug( &quot;Initialized OSFileStore: {}&quot;, newName );</span>
+<span class="fc" id="L55">    }</span>
 
-  /**
-   * Creates a {@link OSFileStore} with the specified parameters.
-   * 
-   * @param newName
-   *        Name of the filestore
-   * @param newDescription
-<span class="fc" id="L47">   *        Description of the file store</span>
-<span class="fc" id="L48">   * @param newUsableSpace</span>
-<span class="fc" id="L49">   *        Available/usable bytes</span>
-<span class="fc" id="L50">   * @param newTotalSpace</span>
-<span class="fc" id="L51">   *        Total bytes</span>
-<span class="fc" id="L52">   */</span>
-<span class="fc" id="L53">  public OSFileStore(String newName, String newDescription,</span>
-      long newUsableSpace, long newTotalSpace) {
-    this.setName(newName);
-    this.setDescription(newDescription);
-    this.setUsableSpace(newUsableSpace);
-    this.setTotalSpace(newTotalSpace);
-    LOG.debug(&quot;Initialized OSFileStore: {}&quot;, newName);
-  }
-<span class="nc" id="L61"></span>
-  /**
-   * Name of the File System
-   * 
-   * @return The file system name
-   */
-  public String getName() {
-    return this.name;
-  }
+    /**
+     * Name of the File System
+     * 
+     * @return The file system name
+     */
+    public String getName()
+    {
+<span class="nc" id="L64">        return this.name;</span>
+    }
 
-<span class="fc" id="L71">  /**</span>
-<span class="fc" id="L72">   * Sets the File System name</span>
-   * 
-   * @param value
-   *        The name
-   */
-  public void setName(String value) {
-    this.name = value;
-  }
-<span class="nc" id="L80"></span>
-  /**
-   * Description of the File System
-   * 
-   * @return The file system description
-   */
-  public String getDescription() {
-    return this.description;
-  }
+    /**
+     * Sets the File System name
+     * 
+     * @param value The name
+     */
+    public void setName( String value )
+    {
+<span class="fc" id="L74">        this.name = value;</span>
+<span class="fc" id="L75">    }</span>
 
-<span class="fc" id="L90">  /**</span>
-<span class="fc" id="L91">   * Sets the File System description</span>
-   * 
-   * @param value
-   *        The description
-   */
-  public void setDescription(String value) {
-    this.description = value;
-  }
-<span class="fc" id="L99"></span>
-  /**
-   * Usable space on the drive.
-   * 
-   * @return Usable space on the drive (in bytes)
-   */
-  public long getUsableSpace() {
-    return this.usableSpace;
-  }
+    /**
+     * Description of the File System
+     * 
+     * @return The file system description
+     */
+    public String getDescription()
+    {
+<span class="nc" id="L84">        return this.description;</span>
+    }
 
-<span class="fc" id="L109">  /**</span>
-<span class="fc" id="L110">   * Sets usable space on the drive.</span>
-   * 
-   * @param value
-   *        Bytes of writable space.
-   */
-  public void setUsableSpace(long value) {
-    this.usableSpace = value;
-  }
-<span class="fc" id="L118"></span>
-  /**
-   * Total space/capacity of the drive.
-   * 
-   * @return Total capacity of the drive (in bytes)
-   */
-  public long getTotalSpace() {
-    return this.totalSpace;
-  }
+    /**
+     * Sets the File System description
+     * 
+     * @param value The description
+     */
+    public void setDescription( String value )
+    {
+<span class="fc" id="L94">        this.description = value;</span>
+<span class="fc" id="L95">    }</span>
 
-<span class="fc" id="L128">  /**</span>
-<span class="fc" id="L129">   * Sets the total space on the drive.</span>
-   * 
-   * @param value
-   *        Bytes of total space.
-   */
-  public void setTotalSpace(long value) {
-    this.totalSpace = value;
-  }
+    /**
+     * Usable space on the drive.
+     * 
+     * @return Usable space on the drive (in bytes)
+     */
+    public long getUsableSpace()
+    {
+<span class="fc" id="L104">        return this.usableSpace;</span>
+    }
+
+    /**
+     * Sets usable space on the drive.
+     * 
+     * @param value Bytes of writable space.
+     */
+    public void setUsableSpace( long value )
+    {
+<span class="fc" id="L114">        this.usableSpace = value;</span>
+<span class="fc" id="L115">    }</span>
+
+    /**
+     * Total space/capacity of the drive.
+     * 
+     * @return Total capacity of the drive (in bytes)
+     */
+    public long getTotalSpace()
+    {
+<span class="fc" id="L124">        return this.totalSpace;</span>
+    }
+
+    /**
+     * Sets the total space on the drive.
+     * 
+     * @param value Bytes of total space.
+     */
+    public void setTotalSpace( long value )
+    {
+<span class="fc" id="L134">        this.totalSpace = value;</span>
+<span class="fc" id="L135">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2015 com.github.dblock</copyright>
     <item>
-      <title>File: 56,
-             Errors: 918,
+      <title>File: 61,
+             Errors: 4642,
              Warnings: 0,
              Infos: 0
       </title>
@@ -55,7 +55,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  86
                 </td>
               </tr>
                           <tr>
@@ -69,7 +69,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  103
                 </td>
               </tr>
                           <tr>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  36
+                  52
                 </td>
               </tr>
                           <tr>
@@ -97,7 +97,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  41
                 </td>
               </tr>
                           <tr>
@@ -111,7 +111,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  113
                 </td>
               </tr>
                           <tr>
@@ -153,7 +153,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  23
                 </td>
               </tr>
                           <tr>
@@ -167,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  124
                 </td>
               </tr>
                           <tr>
@@ -181,7 +181,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  50
                 </td>
               </tr>
                           <tr>
@@ -195,7 +195,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  90
                 </td>
               </tr>
                           <tr>
@@ -237,7 +237,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  158
                 </td>
               </tr>
                           <tr>
@@ -251,7 +251,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  42
                 </td>
               </tr>
                           <tr>
@@ -265,7 +265,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  9
                 </td>
               </tr>
                           <tr>
@@ -279,7 +279,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  32
+                  120
                 </td>
               </tr>
                           <tr>
@@ -293,7 +293,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  68
                 </td>
               </tr>
                           <tr>
@@ -307,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  40
                 </td>
               </tr>
                           <tr>
@@ -321,7 +321,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  7
                 </td>
               </tr>
                           <tr>
@@ -335,7 +335,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  12
                 </td>
               </tr>
                           <tr>
@@ -349,7 +349,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  19
                 </td>
               </tr>
                           <tr>
@@ -363,7 +363,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.Display.java">oshi/hardware/Display.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
                 </td>
               </tr>
                           <tr>
@@ -377,7 +391,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
               </tr>
                           <tr>
@@ -391,7 +405,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  73
                 </td>
               </tr>
                           <tr>
@@ -405,7 +419,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  37
                 </td>
               </tr>
                           <tr>
@@ -419,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  58
                 </td>
               </tr>
                           <tr>
@@ -433,7 +447,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  74
                 </td>
               </tr>
                           <tr>
@@ -447,7 +461,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  95
+                  485
                 </td>
               </tr>
                           <tr>
@@ -461,7 +475,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  3
                 </td>
               </tr>
                           <tr>
@@ -475,7 +489,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  82
+                  463
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.mac.MacDisplay.java">oshi/hardware/platform/mac/MacDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  56
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.util.EdidUtil.java">oshi/util/EdidUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  281
                 </td>
               </tr>
                           <tr>
@@ -503,7 +545,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  34
                 </td>
               </tr>
                           <tr>
@@ -517,7 +559,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  29
                 </td>
               </tr>
                           <tr>
@@ -531,7 +573,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  5
                 </td>
               </tr>
                           <tr>
@@ -545,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
               </tr>
                           <tr>
@@ -559,7 +601,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
               </tr>
                           <tr>
@@ -573,7 +615,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  47
                 </td>
               </tr>
                           <tr>
@@ -587,7 +629,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  60
                 </td>
               </tr>
                           <tr>
@@ -601,7 +643,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  136
                 </td>
               </tr>
                           <tr>
@@ -615,7 +657,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  84
                 </td>
               </tr>
                           <tr>
@@ -629,7 +671,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  51
                 </td>
               </tr>
                           <tr>
@@ -657,7 +699,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  10
                 </td>
               </tr>
                           <tr>
@@ -671,7 +713,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  3
                 </td>
               </tr>
                           <tr>
@@ -685,7 +727,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  84
+                  531
                 </td>
               </tr>
                           <tr>
@@ -699,7 +741,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  23
                 </td>
               </tr>
                           <tr>
@@ -713,7 +755,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  3
                 </td>
               </tr>
                           <tr>
@@ -727,7 +769,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  59
                 </td>
               </tr>
                           <tr>
@@ -741,7 +783,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  47
+                  234
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxDisplay.java">oshi/hardware/platform/linux/LinuxDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  58
                 </td>
               </tr>
                           <tr>
@@ -755,7 +811,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
               </tr>
                           <tr>
@@ -769,7 +825,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  63
                 </td>
               </tr>
                           <tr>
@@ -783,7 +839,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  259
                 </td>
               </tr>
                           <tr>
@@ -797,7 +853,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  28
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisplay.java">oshi/hardware/platform/windows/WindowsDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  72
                 </td>
               </tr>
                           <tr>
@@ -811,7 +881,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  50
                 </td>
               </tr>
                           <tr>
@@ -825,7 +895,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  81
                 </td>
               </tr>
                       </tbody>

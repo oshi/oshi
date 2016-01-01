@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxOSVersionInfoEx.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxOSVersionInfoEx.java</span></div><h1>LinuxOSVersionInfoEx.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- *
- * Copyright (c) 2010 - 2015 The Oshi Project Team
- *
+ * 
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -26,100 +26,114 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
- * Contains operating system version information. The information includes major
-<span class="nc" id="L30"> * and minor version numbers, a build number, a platform identifier, and</span>
-<span class="nc" id="L31"> * descriptive text about the operating system.</span>
+ * Contains operating system version information. The information includes major and minor version numbers, a build
+ * number, a platform identifier, and descriptive text about the operating system.
  *
  * @author alessandro[at]perucchi[dot]org
  */
-public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
+public class LinuxOSVersionInfoEx
+    implements OperatingSystemVersion
+{
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(LinuxOSVersionInfoEx.class);
-<span class="nc" id="L39"></span>
-<span class="nc" id="L40">  private String _version;</span>
-<span class="nc" id="L41"></span>
-<span class="nc bnc" id="L42" title="All 2 branches missed.">  private String _codeName;</span>
-<span class="nc" id="L43"></span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">  private String version;</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger( LinuxOSVersionInfoEx.class );</span>
 
-  public LinuxOSVersionInfoEx() {
-<span class="nc" id="L47">    try (Scanner in = new Scanner(new FileReader(&quot;/etc/os-release&quot;))) {</span>
-      in.useDelimiter(&quot;\n&quot;);
-<span class="nc bnc" id="L49" title="All 2 branches missed.">      while (in.hasNext()) {</span>
-        String[] splittedLine = in.next().split(&quot;=&quot;);
-<span class="nc" id="L51">        if (splittedLine[0].equals(&quot;VERSION_ID&quot;)) {</span>
-          // remove beginning and ending '&quot;' characters, etc from
-          // VERSION_ID=&quot;14.04&quot;
-          setVersion(splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;));
-        }
-        if (splittedLine[0].equals(&quot;VERSION&quot;)) {
-          // remove beginning and ending '&quot;' characters
-          splittedLine[1] = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);
+    private String _version;
 
-<span class="nc" id="L60">          // Check basically if the code is between parenthesis or</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">          // after</span>
-          // the comma-space
+    private String _codeName;
 
-<span class="nc" id="L64">          // Basically, until now, that seems to be the standard to</span>
-          // use
-<span class="nc bnc" id="L66" title="All 2 branches missed.">          // parenthesis for the codename.</span>
-<span class="nc" id="L67">          String[] split = splittedLine[1].split(&quot;[()]&quot;);</span>
-          if (split.length &lt;= 1)
-<span class="nc" id="L69">            // We are probably with Ubuntu, so need to get that part</span>
-            // correctly.
-            split = splittedLine[1].split(&quot;, &quot;);
-<span class="nc" id="L72"></span>
-<span class="nc bnc" id="L73" title="All 8 branches missed.">          if (split.length &gt; 1) {</span>
-<span class="nc" id="L74">            setCodeName(split[1]);</span>
-<span class="nc" id="L75">          } else {</span>
-<span class="nc" id="L76">            setCodeName(splittedLine[1]);</span>
-<span class="nc" id="L77">          }</span>
-        }
-      }
-    } catch (FileNotFoundException e) {
-      LOG.trace(&quot;&quot;, e);
-      return;
-<span class="nc" id="L83">    }</span>
-  }
+    private String version;
 
-  /**
-   * @return the _codeName
-   */
-  public String getCodeName() {
-<span class="nc" id="L90">    return this._codeName;</span>
-  }
+    public LinuxOSVersionInfoEx()
+<span class="nc" id="L47">    {</span>
+<span class="nc" id="L48">        try (Scanner in = new Scanner( new FileReader( &quot;/etc/os-release&quot; ) ))</span>
+        {
+<span class="nc" id="L50">            in.useDelimiter( &quot;\n&quot; );</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            while ( in.hasNext() )</span>
+            {
+<span class="nc" id="L53">                String[] splittedLine = in.next().split( &quot;=&quot; );</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                if ( splittedLine[0].equals( &quot;VERSION_ID&quot; ) )</span>
+                {
+                    // remove beginning and ending '&quot;' characters, etc from
+                    // VERSION_ID=&quot;14.04&quot;
+<span class="nc" id="L58">                    setVersion( splittedLine[1].replaceAll( &quot;^\&quot;|\&quot;$&quot;, &quot;&quot; ) );</span>
+                }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if ( splittedLine[0].equals( &quot;VERSION&quot; ) )</span>
+                {
+                    // remove beginning and ending '&quot;' characters
+<span class="nc" id="L63">                    splittedLine[1] = splittedLine[1].replaceAll( &quot;^\&quot;|\&quot;$&quot;, &quot;&quot; );</span>
 
-  /**
-   * @return the _version
-   */
-  public String getVersion() {
-    return this._version;
-<span class="nc" id="L98">  }</span>
-<span class="nc" id="L99"></span>
-  /**
-   * @param value
-   *        the _codeName to set
-   */
-  public void setCodeName(String value) {
-    this._codeName = value;
-<span class="nc" id="L106">  }</span>
-<span class="nc" id="L107"></span>
-  /**
-   * @param value
-   *        the _version to set
-<span class="nc bnc" id="L111" title="All 2 branches missed.">   */</span>
-<span class="nc" id="L112">  public void setVersion(String value) {</span>
-    this._version = value;
-<span class="nc" id="L114">  }</span>
+                    // Check basically if the code is between parenthesis or
+                    // after
+                    // the comma-space
 
-  @Override
-  public String toString() {
-    if (this.version == null) {
-      this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;
+                    // Basically, until now, that seems to be the standard to
+                    // use
+                    // parenthesis for the codename.
+<span class="nc" id="L72">                    String[] split = splittedLine[1].split( &quot;[()]&quot; );</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                    if ( split.length &lt;= 1 )</span>
+                        // We are probably with Ubuntu, so need to get that part
+                        // correctly.
+<span class="nc" id="L76">                        split = splittedLine[1].split( &quot;, &quot; );</span>
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                    if ( split.length &gt; 1 )</span>
+                    {
+<span class="nc" id="L80">                        setCodeName( split[1] );</span>
+                    }
+                    else
+                    {
+<span class="nc" id="L84">                        setCodeName( splittedLine[1] );</span>
+                    }
+                }
+<span class="nc" id="L87">            }</span>
+<span class="nc bnc" id="L88" title="All 8 branches missed.">        }</span>
+<span class="nc" id="L89">        catch ( FileNotFoundException e )</span>
+        {
+<span class="nc" id="L91">            LOG.trace( &quot;&quot;, e );</span>
+<span class="nc" id="L92">            return;</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * @return the _codeName
+     */
+    public String getCodeName()
+    {
+<span class="nc" id="L101">        return this._codeName;</span>
     }
-    return this.version;
-  }
+
+    /**
+     * @return the _version
+     */
+    public String getVersion()
+    {
+<span class="nc" id="L109">        return this._version;</span>
+    }
+
+    /**
+     * @param value the _codeName to set
+     */
+    public void setCodeName( String value )
+    {
+<span class="nc" id="L117">        this._codeName = value;</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * @param value the _version to set
+     */
+    public void setVersion( String value )
+    {
+<span class="nc" id="L125">        this._version = value;</span>
+<span class="nc" id="L126">    }</span>
+
+    @Override
+    public String toString()
+    {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if ( this.version == null )</span>
+        {
+<span class="nc" id="L133">            this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;</span>
+        }
+<span class="nc" id="L135">        return this.version;</span>
+    }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
