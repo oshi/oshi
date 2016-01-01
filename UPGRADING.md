@@ -34,7 +34,7 @@ The `HardwareAbstractionLayer`'s `getProcessors()` method was renamed to
 Specific changes to `CentralProcessor` methods:
 * The constructor no longer takes a processor number argument and the 
 `getProcessorNumber()` method was removed
-* The deprectated `getLoad()` method was removed. Use 
+* The deprecated `getLoad()` method was removed. Use 
 `getSystemCpuLoadBetweenTicks()`.
 * The `getProcessorCpuLoadBetweenTicks()` method now returns an array of
 load values, one value for each logical processor.
