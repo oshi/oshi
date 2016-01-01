@@ -32,63 +32,56 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OSFileStore;
 
 /**
- * The Mac File System contains {@link OSFileStore}s which are a storage pool, device, partition, volume, concrete file
- * system or other implementation specific means of file storage. In Mac OS X, these are found in the /Volumes
+ * The Mac File System contains {@link OSFileStore}s which are a storage pool,
+ * device, partition, volume, concrete file system or other implementation
+ * specific means of file storage. In Mac OS X, these are found in the /Volumes
  * directory.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class MacFileSystem
-{
+public class MacFileSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger( MacFileSystem.class );
+    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.
-    private static final Pattern localDisk = Pattern.compile( "/dev/disk\\d" );
+    private static final Pattern localDisk = Pattern.compile("/dev/disk\\d");
 
     /**
      * Gets File System Information.
      * 
-     * @return An array of {@link OSFileStore} objects representing mounted volumes. May return disconnected volumes
-     *         with {@link OSFileStore#getTotalSpace()} = 0.
+     * @return An array of {@link OSFileStore} objects representing mounted
+     *         volumes. May return disconnected volumes with
+     *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores()
-    {
+    public static OSFileStore[] getFileStores() {
         List<OSFileStore> fsList = new ArrayList<>();
         FileSystemView fsv = FileSystemView.getFileSystemView();
         // Mac file systems are mounted in /Volumes
-        File volumes = new File( "/Volumes" );
-        if ( volumes.listFiles() != null )
-            for ( File f : volumes.listFiles() )
-            {
+        File volumes = new File("/Volumes");
+        if (volumes.listFiles() != null)
+            for (File f : volumes.listFiles()) {
                 // Everyone hates DS Store
-                if ( f.getName().endsWith( ".DS_Store" ) )
-                {
+                if (f.getName().endsWith(".DS_Store")) {
                     continue;
                 }
-                String name = fsv.getSystemDisplayName( f );
+                String name = fsv.getSystemDisplayName(f);
                 String description = "Volume";
-                try
-                {
-                    if ( f.getCanonicalPath().equals( "/" ) )
+                try {
+                    if (f.getCanonicalPath().equals("/"))
                         name = name + " (/)";
-                    FileStore fs = Files.getFileStore( f.toPath() );
-                    if ( localDisk.matcher( fs.name() ).matches() )
-                    {
+                    FileStore fs = Files.getFileStore(f.toPath());
+                    if (localDisk.matcher(fs.name()).matches()) {
                         description = "Local Disk";
                     }
-                    if ( fs.name().startsWith( "localhost:" ) || fs.name().startsWith( "//" ) )
-                    {
+                    if (fs.name().startsWith("localhost:") || fs.name().startsWith("//")) {
                         description = "Network Drive";
                     }
-                }
-                catch ( IOException e )
-                {
-                    LOG.trace( "", e );
+                } catch (IOException e) {
+                    LOG.trace("", e);
                     continue;
                 }
-                fsList.add( new OSFileStore( name, description, f.getUsableSpace(), f.getTotalSpace() ) );
+                fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));
             }
-        return fsList.toArray( new OSFileStore[fsList.size()] );
+        return fsList.toArray(new OSFileStore[fsList.size()]);
     }
 }

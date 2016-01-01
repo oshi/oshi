@@ -35,10 +35,8 @@ import oshi.util.FileUtil;
  * @author alessandro[at]perucchi[dot]org
  */
 
-public class LinuxHardwareAbstractionLayer
-    implements HardwareAbstractionLayer
-{
-    private static final Logger LOG = LoggerFactory.getLogger( LinuxHardwareAbstractionLayer.class );
+public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);
 
     private static final String SEPARATOR = "\\s+:\\s";
 
@@ -47,79 +45,61 @@ public class LinuxHardwareAbstractionLayer
     private GlobalMemory _memory;
 
     @Override
-    public GlobalMemory getMemory()
-    {
-        if ( this._memory == null )
-        {
+    public GlobalMemory getMemory() {
+        if (this._memory == null) {
             this._memory = new LinuxGlobalMemory();
         }
         return this._memory;
     }
 
     @Override
-    public CentralProcessor getProcessor()
-    {
+    public CentralProcessor getProcessor() {
 
-        if ( this.processor == null )
-        {
+        if (this.processor == null) {
             List<String> cpuInfo = null;
-            try
-            {
-                cpuInfo = FileUtil.readFile( "/proc/cpuinfo" );
-            }
-            catch ( IOException e )
-            {
-                LOG.error( "Problem with /proc/cpuinfo: {}", e.getMessage() );
+            try {
+                cpuInfo = FileUtil.readFile("/proc/cpuinfo");
+            } catch (IOException e) {
+                LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
                 return null;
             }
-            for ( String toBeAnalyzed : cpuInfo )
-            {
-                if ( toBeAnalyzed.equals( "" ) )
-                {
+            for (String toBeAnalyzed : cpuInfo) {
+                if (toBeAnalyzed.equals("")) {
                     break;
                 }
-                if ( processor == null )
-                {
+                if (processor == null) {
                     processor = new LinuxCentralProcessor();
                 }
-                if ( toBeAnalyzed.startsWith( "model name\t" ) )
-                {
-                    processor.setName( toBeAnalyzed.split( SEPARATOR )[1] );
+                if (toBeAnalyzed.startsWith("model name\t")) {
+                    processor.setName(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
-                if ( toBeAnalyzed.startsWith( "flags\t" ) )
-                {
-                    String[] flags = toBeAnalyzed.split( SEPARATOR )[1].split( " " );
+                if (toBeAnalyzed.startsWith("flags\t")) {
+                    String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(" ");
                     boolean found = false;
-                    for ( String flag : flags )
-                    {
-                        if ( flag.equalsIgnoreCase( "LM" ) )
-                        {
+                    for (String flag : flags) {
+                        if (flag.equalsIgnoreCase("LM")) {
                             found = true;
                             break;
                         }
                     }
-                    processor.setCpu64( found );
+                    processor.setCpu64(found);
                     continue;
                 }
-                if ( toBeAnalyzed.startsWith( "cpu family\t" ) )
-                {
-                    processor.setFamily( toBeAnalyzed.split( SEPARATOR )[1] );
+                if (toBeAnalyzed.startsWith("cpu family\t")) {
+                    processor.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
-                if ( toBeAnalyzed.startsWith( "model\t" ) )
-                {
-                    processor.setModel( toBeAnalyzed.split( SEPARATOR )[1] );
+                if (toBeAnalyzed.startsWith("model\t")) {
+                    processor.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
-                if ( toBeAnalyzed.startsWith( "stepping\t" ) )
-                {
-                    processor.setStepping( toBeAnalyzed.split( SEPARATOR )[1] );
+                if (toBeAnalyzed.startsWith("stepping\t")) {
+                    processor.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
-                if ( toBeAnalyzed.startsWith( "vendor_id" ) )
-                {
-                    processor.setVendor( toBeAnalyzed.split( SEPARATOR )[1] );
+                if (toBeAnalyzed.startsWith("vendor_id")) {
+                    processor.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
                     continue;
                 }
             }
@@ -128,20 +108,17 @@ public class LinuxHardwareAbstractionLayer
     }
 
     @Override
-    public PowerSource[] getPowerSources()
-    {
+    public PowerSource[] getPowerSources() {
         return LinuxPowerSource.getPowerSources();
     }
 
     @Override
-    public OSFileStore[] getFileStores()
-    {
+    public OSFileStore[] getFileStores() {
         return LinuxFileSystem.getFileStores();
     }
 
     @Override
-    public Display[] getDisplays()
-    {
+    public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();
     }
 

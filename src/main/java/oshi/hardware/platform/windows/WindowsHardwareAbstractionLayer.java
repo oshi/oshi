@@ -27,61 +27,51 @@ import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
-public class WindowsHardwareAbstractionLayer
-    implements HardwareAbstractionLayer
-{
+public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private CentralProcessor processor;
 
     private GlobalMemory _memory;
 
     @Override
-    public GlobalMemory getMemory()
-    {
-        if ( this._memory == null )
-        {
+    public GlobalMemory getMemory() {
+        if (this._memory == null) {
             this._memory = new WindowsGlobalMemory();
         }
         return this._memory;
     }
 
     @Override
-    public CentralProcessor getProcessor()
-    {
-        if ( this.processor == null )
-        {
+    public CentralProcessor getProcessor() {
+        if (this.processor == null) {
             processor = new WindowsCentralProcessor();
             final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
-            String[] processorIds = Advapi32Util.registryGetKeys( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot );
-            if ( processorIds.length > 0 )
-            {
+            String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+            if (processorIds.length > 0) {
                 String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
-                processor.setIdentifier( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE,
-                                                                              cpuRegistryPath, "Identifier" ) );
-                processor.setName( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                                                                        "ProcessorNameString" ) );
-                processor.setVendor( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                                                                          "VendorIdentifier" ) );
+                processor.setIdentifier(
+                        Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
+                processor.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                        "ProcessorNameString"));
+                processor.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                        "VendorIdentifier"));
             }
         }
         return this.processor;
     }
 
     @Override
-    public PowerSource[] getPowerSources()
-    {
+    public PowerSource[] getPowerSources() {
         return WindowsPowerSource.getPowerSources();
     }
 
     @Override
-    public OSFileStore[] getFileStores()
-    {
+    public OSFileStore[] getFileStores() {
         return WindowsFileSystem.getFileStores();
     }
 
     @Override
-    public Display[] getDisplays()
-    {
+    public Display[] getDisplays() {
         return WindowsDisplay.getDisplays();
     }
 }

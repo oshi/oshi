@@ -28,14 +28,14 @@ import oshi.software.os.windows.WindowsOperatingSystem;
 import com.sun.jna.Platform;
 
 /**
- * System information. This is the main entry point to Oshi. This object provides getters which instantiate the
- * appropriate platform-specific implementations of {@link OperatingSystem} (software) and
+ * System information. This is the main entry point to Oshi. This object
+ * provides getters which instantiate the appropriate platform-specific
+ * implementations of {@link OperatingSystem} (software) and
  * {@link HardwareAbstractionLayer} (hardware).
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class SystemInfo
-{
+public class SystemInfo {
     private OperatingSystem _os = null;
 
     private HardwareAbstractionLayer _hardware = null;
@@ -43,75 +43,64 @@ public class SystemInfo
     private PlatformEnum currentPlatformEnum;
 
     {
-        if ( Platform.isWindows() )
-        {
+        if (Platform.isWindows()) {
             this.currentPlatformEnum = PlatformEnum.WINDOWS;
-        }
-        else if ( Platform.isLinux() )
-        {
+        } else if (Platform.isLinux()) {
             this.currentPlatformEnum = PlatformEnum.LINUX;
-        }
-        else if ( Platform.isMac() )
-        {
+        } else if (Platform.isMac()) {
             this.currentPlatformEnum = PlatformEnum.MACOSX;
-        }
-        else
-        {
+        } else {
             this.currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
     }
 
     /**
-     * Creates a new instance of the appropriate platform-specific {@link OperatingSystem}.
+     * Creates a new instance of the appropriate platform-specific
+     * {@link OperatingSystem}.
      * 
      * @return A new instance of {@link OperatingSystem}.
      */
-    public OperatingSystem getOperatingSystem()
-    {
-        if ( this._os == null )
-        {
-            switch ( this.currentPlatformEnum )
-            {
+    public OperatingSystem getOperatingSystem() {
+        if (this._os == null) {
+            switch (this.currentPlatformEnum) {
 
-                case WINDOWS:
-                    this._os = new WindowsOperatingSystem();
-                    break;
-                case LINUX:
-                    this._os = new LinuxOperatingSystem();
-                    break;
-                case MACOSX:
-                    this._os = new MacOperatingSystem();
-                    break;
-                default:
-                    throw new RuntimeException( "Operating system not supported: " + Platform.getOSType() );
+            case WINDOWS:
+                this._os = new WindowsOperatingSystem();
+                break;
+            case LINUX:
+                this._os = new LinuxOperatingSystem();
+                break;
+            case MACOSX:
+                this._os = new MacOperatingSystem();
+                break;
+            default:
+                throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
             }
         }
         return this._os;
     }
 
     /**
-     * Creates a new instance of the appropriate platform-specific {@link HardwareAbstractionLayer}.
+     * Creates a new instance of the appropriate platform-specific
+     * {@link HardwareAbstractionLayer}.
      * 
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
-    public HardwareAbstractionLayer getHardware()
-    {
-        if ( this._hardware == null )
-        {
-            switch ( this.currentPlatformEnum )
-            {
+    public HardwareAbstractionLayer getHardware() {
+        if (this._hardware == null) {
+            switch (this.currentPlatformEnum) {
 
-                case WINDOWS:
-                    this._hardware = new WindowsHardwareAbstractionLayer();
-                    break;
-                case LINUX:
-                    this._hardware = new LinuxHardwareAbstractionLayer();
-                    break;
-                case MACOSX:
-                    this._hardware = new MacHardwareAbstractionLayer();
-                    break;
-                default:
-                    throw new RuntimeException( "Operating system not supported: " + Platform.getOSType() );
+            case WINDOWS:
+                this._hardware = new WindowsHardwareAbstractionLayer();
+                break;
+            case LINUX:
+                this._hardware = new LinuxHardwareAbstractionLayer();
+                break;
+            case MACOSX:
+                this._hardware = new MacHardwareAbstractionLayer();
+                break;
+            default:
+                throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
             }
         }
         return this._hardware;

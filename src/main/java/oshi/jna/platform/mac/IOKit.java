@@ -25,29 +25,27 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
- * Power Supply stats. This class should be considered non-API as it may be removed if/when its code is incorporated
- * into the JNA project.
+ * Power Supply stats. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface IOKit
-    extends Library
-{
-    IOKit INSTANCE = (IOKit) Native.loadLibrary( "IOKit", IOKit.class );
+public interface IOKit extends Library {
+    IOKit INSTANCE = (IOKit) Native.loadLibrary("IOKit", IOKit.class);
 
-    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString( "Name" );
+    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
 
-    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString( "Is Present" );
+    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString("Is Present");
 
-    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString( "Current Capacity" );
+    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString("Current Capacity");
 
-    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString( "Max Capacity" );
+    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString("Max Capacity");
 
     CFTypeRef IOPSCopyPowerSourcesInfo();
 
-    CFArrayRef IOPSCopyPowerSourcesList( CFTypeRef blob );
+    CFArrayRef IOPSCopyPowerSourcesList(CFTypeRef blob);
 
-    CFDictionaryRef IOPSGetPowerSourceDescription( CFTypeRef blob, CFTypeRef ps );
+    CFDictionaryRef IOPSGetPowerSourceDescription(CFTypeRef blob, CFTypeRef ps);
 
     double IOPSGetTimeRemainingEstimate();
 }

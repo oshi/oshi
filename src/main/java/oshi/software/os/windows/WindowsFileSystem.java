@@ -30,57 +30,51 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OSFileStore;
 
 /**
- * The Windows File System contains {@link OSFileStore}s which are a storage pool, device, partition, volume, concrete
- * file system or other implementation specific means of file storage. In Windows, these are represented by a drive
+ * The Windows File System contains {@link OSFileStore}s which are a storage
+ * pool, device, partition, volume, concrete file system or other implementation
+ * specific means of file storage. In Windows, these are represented by a drive
  * letter, e.g., "A:\" and "C:\"
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsFileSystem
-{
+public class WindowsFileSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger( WindowsFileSystem.class );
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
 
     /**
      * Gets File System Information.
      * 
-     * @return An array of {@link OSFileStore} objects representing mounted volumes. May return disconnected volumes
-     *         with {@link OSFileStore#getTotalSpace()} = 0.
+     * @return An array of {@link OSFileStore} objects representing mounted
+     *         volumes. May return disconnected volumes with
+     *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores()
-    {
+    public static OSFileStore[] getFileStores() {
         // File.listRoots() has more information for Windows
         // than FileSystem.getDefalut().getFileStores()
         final File[] roots = File.listRoots();
         // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
         // problems
-        SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>()
-        {
+        SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
             @Override
-            public List<OSFileStore> doInBackground()
-            {
+            public List<OSFileStore> doInBackground() {
                 FileSystemView fsv = FileSystemView.getFileSystemView();
                 List<OSFileStore> fsList = new ArrayList<>();
-                for ( File f : roots )
-                {
-                    fsList.add( new OSFileStore( fsv.getSystemDisplayName( f ), fsv.getSystemTypeDescription( f ),
-                                                 f.getUsableSpace(), f.getTotalSpace() ) );
+                for (File f : roots) {
+                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),
+                            f.getUsableSpace(), f.getTotalSpace()));
                 }
                 return fsList;
             }
         };
         worker.execute();
         List<OSFileStore> fs = new ArrayList<>();
-        try
-        {
+        try {
             // TODO: Consider a timeout version of this method that passes
             // timeout parameters which are used in this get()
             fs = worker.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("", e);
         }
-        catch ( InterruptedException | ExecutionException e )
-        {
-            LOG.error( "", e );
-        }
-        return fs.toArray( new OSFileStore[fs.size()] );
+        return fs.toArray(new OSFileStore[fs.size()]);
     }
 }

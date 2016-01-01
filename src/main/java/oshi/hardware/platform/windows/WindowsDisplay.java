@@ -40,23 +40,19 @@ import oshi.hardware.Display;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsDisplay
-    implements Display
-{
-    private static final Logger LOG = LoggerFactory.getLogger( WindowsDisplay.class );
+public class WindowsDisplay implements Display {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
 
     private byte[] edid;
 
-    public WindowsDisplay( byte[] edid )
-    {
+    public WindowsDisplay(byte[] edid) {
         this.edid = edid;
-        LOG.debug( "Initialized WindowsDisplay" );
+        LOG.debug("Initialized WindowsDisplay");
     }
 
     @Override
-    public byte[] getEdid()
-    {
-        return Arrays.copyOf( edid, edid.length );
+    public byte[] getEdid() {
+        return Arrays.copyOf(edid, edid.length);
     }
 
     /**
@@ -64,45 +60,39 @@ public class WindowsDisplay
      * 
      * @return An array of Display objects representing monitors, etc.
      */
-    public static Display[] getDisplays()
-    {
+    public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<Display>();
 
-        Guid.GUID monitorGuid = new Guid.GUID( "E6F07B5F-EE97-4a90-B076-33F57BF4EAA7" );
-        WinNT.HANDLE hDevInfo =
-            SetupApi.INSTANCE.SetupDiGetClassDevs( monitorGuid, null, null,
-                                                   ( SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE ) );
-        if ( !hDevInfo.equals( WinNT.INVALID_HANDLE_VALUE ) )
-        {
+        Guid.GUID monitorGuid = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
+        WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,
+                (SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE));
+        if (!hDevInfo.equals(WinNT.INVALID_HANDLE_VALUE)) {
             SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();
             deviceInterfaceData.cbSize = deviceInterfaceData.size();
 
             // build a DevInfo Data structure
             SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();
 
-            for ( int memberIndex = 0; SetupApi.INSTANCE.SetupDiEnumDeviceInfo( hDevInfo, memberIndex,
-                                                                                info ); memberIndex++ )
-            {
-                HKEY key = SetupApi.INSTANCE.SetupDiOpenDevRegKey( hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0,
-                                                                   SetupApi.DIREG_DEV, WinNT.KEY_QUERY_VALUE );
+            for (int memberIndex = 0; SetupApi.INSTANCE.SetupDiEnumDeviceInfo(hDevInfo, memberIndex,
+                    info); memberIndex++) {
+                HKEY key = SetupApi.INSTANCE.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0,
+                        SetupApi.DIREG_DEV, WinNT.KEY_QUERY_VALUE);
 
                 byte[] edid = new byte[1];
                 Advapi32 advapi32 = Advapi32.INSTANCE;
                 IntByReference pType = new IntByReference();
                 IntByReference lpcbData = new IntByReference();
 
-                if ( advapi32.RegQueryValueEx( key, "EDID", 0, pType, edid, lpcbData ) == WinError.ERROR_MORE_DATA )
-                {
+                if (advapi32.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
                     edid = new byte[lpcbData.getValue()];
-                    if ( advapi32.RegQueryValueEx( key, "EDID", 0, pType, edid, lpcbData ) == WinError.ERROR_SUCCESS )
-                    {
-                        Display display = new WindowsDisplay( edid );
-                        displays.add( display );
+                    if (advapi32.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
+                        Display display = new WindowsDisplay(edid);
+                        displays.add(display);
                     }
                 }
-                Advapi32.INSTANCE.RegCloseKey( key );
+                Advapi32.INSTANCE.RegCloseKey(key);
             }
         }
-        return displays.toArray( new Display[displays.size()] );
+        return displays.toArray(new Display[displays.size()]);
     }
 }

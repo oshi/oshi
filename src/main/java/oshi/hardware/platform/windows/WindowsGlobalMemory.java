@@ -29,39 +29,31 @@ import oshi.hardware.GlobalMemory;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsGlobalMemory
-    implements GlobalMemory
-{
-    private static final Logger LOG = LoggerFactory.getLogger( WindowsGlobalMemory.class );
+public class WindowsGlobalMemory implements GlobalMemory {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
     private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
 
-    public WindowsGlobalMemory()
-    {
-        if ( !Kernel32.INSTANCE.GlobalMemoryStatusEx( this._memory ) )
-        {
-            LOG.error( "Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError() );
+    public WindowsGlobalMemory() {
+        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
+            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
             this._memory = null;
         }
     }
 
     @Override
-    public long getAvailable()
-    {
-        if ( this._memory == null )
-        {
-            LOG.warn( "MemoryStatusEx not initialized. No available memoroy data available" );
+    public long getAvailable() {
+        if (this._memory == null) {
+            LOG.warn("MemoryStatusEx not initialized. No available memoroy data available");
             return 0L;
         }
         return this._memory.ullAvailPhys.longValue();
     }
 
     @Override
-    public long getTotal()
-    {
-        if ( this._memory == null )
-        {
-            LOG.warn( "MemoryStatusEx not initialized. No total memory data available" );
+    public long getTotal() {
+        if (this._memory == null) {
+            LOG.warn("MemoryStatusEx not initialized. No total memory data available");
             return 0L;
         }
         return this._memory.ullTotalPhys.longValue();

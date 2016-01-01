@@ -20,14 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The File System is a storage pool, device, partition, volume, concrete file system or other implementation specific
- * means of file storage. See subclasses for definitions as they apply to specific platforms.
+ * The File System is a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. See subclasses
+ * for definitions as they apply to specific platforms.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore
-{
-    private static final Logger LOG = LoggerFactory.getLogger( OSFileStore.class );
+public class OSFileStore {
+    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
     private String name;
 
@@ -40,18 +40,21 @@ public class OSFileStore
     /**
      * Creates a {@link OSFileStore} with the specified parameters.
      * 
-     * @param newName Name of the filestore
-     * @param newDescription Description of the file store
-     * @param newUsableSpace Available/usable bytes
-     * @param newTotalSpace Total bytes
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
      */
-    public OSFileStore( String newName, String newDescription, long newUsableSpace, long newTotalSpace )
-    {
-        this.setName( newName );
-        this.setDescription( newDescription );
-        this.setUsableSpace( newUsableSpace );
-        this.setTotalSpace( newTotalSpace );
-        LOG.debug( "Initialized OSFileStore: {}", newName );
+    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+        this.setName(newName);
+        this.setDescription(newDescription);
+        this.setUsableSpace(newUsableSpace);
+        this.setTotalSpace(newTotalSpace);
+        LOG.debug("Initialized OSFileStore: {}", newName);
     }
 
     /**
@@ -59,18 +62,17 @@ public class OSFileStore
      * 
      * @return The file system name
      */
-    public String getName()
-    {
+    public String getName() {
         return this.name;
     }
 
     /**
      * Sets the File System name
      * 
-     * @param value The name
+     * @param value
+     *            The name
      */
-    public void setName( String value )
-    {
+    public void setName(String value) {
         this.name = value;
     }
 
@@ -79,18 +81,17 @@ public class OSFileStore
      * 
      * @return The file system description
      */
-    public String getDescription()
-    {
+    public String getDescription() {
         return this.description;
     }
 
     /**
      * Sets the File System description
      * 
-     * @param value The description
+     * @param value
+     *            The description
      */
-    public void setDescription( String value )
-    {
+    public void setDescription(String value) {
         this.description = value;
     }
 
@@ -99,18 +100,17 @@ public class OSFileStore
      * 
      * @return Usable space on the drive (in bytes)
      */
-    public long getUsableSpace()
-    {
+    public long getUsableSpace() {
         return this.usableSpace;
     }
 
     /**
      * Sets usable space on the drive.
      * 
-     * @param value Bytes of writable space.
+     * @param value
+     *            Bytes of writable space.
      */
-    public void setUsableSpace( long value )
-    {
+    public void setUsableSpace(long value) {
         this.usableSpace = value;
     }
 
@@ -119,18 +119,17 @@ public class OSFileStore
      * 
      * @return Total capacity of the drive (in bytes)
      */
-    public long getTotalSpace()
-    {
+    public long getTotalSpace() {
         return this.totalSpace;
     }
 
     /**
      * Sets the total space on the drive.
      * 
-     * @param value Bytes of total space.
+     * @param value
+     *            Bytes of total space.
      */
-    public void setTotalSpace( long value )
-    {
+    public void setTotalSpace(long value) {
         this.totalSpace = value;
     }
 }

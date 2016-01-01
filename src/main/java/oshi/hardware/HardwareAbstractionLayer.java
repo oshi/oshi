@@ -19,15 +19,16 @@ package oshi.hardware;
 import oshi.software.os.OSFileStore;
 
 /**
- * A hardware abstraction layer. Provides access to hardware items such as processors, memory, battery, and disks.
+ * A hardware abstraction layer. Provides access to hardware items such as
+ * processors, memory, battery, and disks.
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface HardwareAbstractionLayer
-{
+public interface HardwareAbstractionLayer {
 
     /**
-     * Instantiates a {@link CentralProcessor} object. This represents one or more Logical CPUs.
+     * Instantiates a {@link CentralProcessor} object. This represents one or
+     * more Logical CPUs.
      * 
      * @return A {@link CentralProcessor} object.
      */
@@ -41,24 +42,30 @@ public interface HardwareAbstractionLayer
     GlobalMemory getMemory();
 
     /**
-     * Instantiates an array of {@link PowerSource} objects, representing batteries, etc.
+     * Instantiates an array of {@link PowerSource} objects, representing
+     * batteries, etc.
      * 
-     * @return An array of PowerSource objects or an empty array if none are present.
+     * @return An array of PowerSource objects or an empty array if none are
+     *         present.
      */
     PowerSource[] getPowerSources();
 
     /**
-     * Instantiates an array of {@link OSFileStore} objects, representing a storage pool, device, partition, volume,
-     * concrete file system or other implementation specific means of file storage.
+     * Instantiates an array of {@link OSFileStore} objects, representing a
+     * storage pool, device, partition, volume, concrete file system or other
+     * implementation specific means of file storage.
      * 
-     * @return An array of OSFileStore objects or an empty array if none are present.
+     * @return An array of OSFileStore objects or an empty array if none are
+     *         present.
      */
     OSFileStore[] getFileStores();
 
     /**
-     * Instantiates an array of {@link Display} objects, representing monitors or other video output devices.
+     * Instantiates an array of {@link Display} objects, representing monitors
+     * or other video output devices.
      * 
-     * @return An array of Display objects or an empty array if none are present.
+     * @return An array of Display objects or an empty array if none are
+     *         present.
      */
     Display[] getDisplays();
 }

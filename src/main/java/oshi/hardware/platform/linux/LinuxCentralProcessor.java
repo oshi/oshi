@@ -44,33 +44,27 @@ import oshi.util.ParseUtil;
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
-@SuppressWarnings( "restriction" )
-public class LinuxCentralProcessor
-    implements CentralProcessor
-{
-    private static final Logger LOG = LoggerFactory.getLogger( LinuxCentralProcessor.class );
+@SuppressWarnings("restriction")
+public class LinuxCentralProcessor implements CentralProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
     // Determine whether MXBean supports Oracle JVM methods
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN =
-        ManagementFactory.getOperatingSystemMXBean();
+    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
+            .getOperatingSystemMXBean();
 
     private static boolean sunMXBean;
 
-    static
-    {
-        try
-        {
-            Class.forName( "com.sun.management.OperatingSystemMXBean" );
+    static {
+        try {
+            Class.forName("com.sun.management.OperatingSystemMXBean");
             // Initialize CPU usage
-            ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
+            ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
             sunMXBean = true;
-            LOG.debug( "Oracle MXBean detected." );
-        }
-        catch ( ClassNotFoundException e )
-        {
+            LOG.debug("Oracle MXBean detected.");
+        } catch (ClassNotFoundException e) {
             sunMXBean = false;
-            LOG.debug( "Oracle MXBean not detected." );
-            LOG.trace( "", e );
+            LOG.debug("Oracle MXBean not detected.");
+            LOG.trace("", e);
         }
     }
 
@@ -114,8 +108,7 @@ public class LinuxCentralProcessor
     /**
      * Create a Processor
      */
-    public LinuxCentralProcessor()
-    {
+    public LinuxCentralProcessor() {
         // Processor counts
         calculateProcessorCounts();
 
@@ -129,22 +122,18 @@ public class LinuxCentralProcessor
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
 
-        LOG.debug( "Initialized Processor" );
+        LOG.debug("Initialized Processor");
     }
 
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
-    private void calculateProcessorCounts()
-    {
-        try
-        {
-            List<String> procCpu = FileUtil.readFile( "/proc/cpuinfo" );
+    private void calculateProcessorCounts() {
+        try {
+            List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
             // Get number of logical processors
-            for ( String cpu : procCpu )
-            {
-                if ( cpu.startsWith( "processor" ) )
-                {
+            for (String cpu : procCpu) {
+                if (cpu.startsWith("processor")) {
                     logicalProcessorCount++;
                 }
             }
@@ -157,63 +146,49 @@ public class LinuxCentralProcessor
 
             Set<String> ids = new HashSet<String>();
 
-            for ( String cpu : procCpu )
-            {
-                if ( cpu.startsWith( "siblings" ) )
-                {
+            for (String cpu : procCpu) {
+                if (cpu.startsWith("siblings")) {
                     // if siblings = 1, no hyperthreading
-                    siblings = ParseUtil.parseString( cpu, 1 );
-                    if ( siblings == 1 )
-                    {
+                    siblings = ParseUtil.parseString(cpu, 1);
+                    if (siblings == 1) {
                         physicalProcessorCount = logicalProcessorCount;
                         break;
                     }
                 }
-                if ( cpu.startsWith( "cpu cores" ) )
-                {
+                if (cpu.startsWith("cpu cores")) {
                     // if siblings > 1, ratio with cores
-                    cpucores = ParseUtil.parseString( cpu, 1 );
-                    if ( siblings > 1 )
-                    {
+                    cpucores = ParseUtil.parseString(cpu, 1);
+                    if (siblings > 1) {
                         physicalProcessorCount = logicalProcessorCount * cpucores / siblings;
                         break;
                     }
                 }
                 // If siblings and cpu cores don't define it, count unique
                 // combinations of core id and physical id.
-                if ( cpu.startsWith( "core id" ) || cpu.startsWith( "cpu number" ) )
-                {
-                    uniqueID[0] = ParseUtil.parseString( cpu, 0 );
+                if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
+                    uniqueID[0] = ParseUtil.parseString(cpu, 0);
+                } else if (cpu.startsWith("physical id")) {
+                    uniqueID[1] = ParseUtil.parseString(cpu, 0);
                 }
-                else if ( cpu.startsWith( "physical id" ) )
-                {
-                    uniqueID[1] = ParseUtil.parseString( cpu, 0 );
-                }
-                if ( uniqueID[0] >= 0 && uniqueID[1] >= 0 )
-                {
-                    ids.add( uniqueID[0] + " " + uniqueID[1] );
+                if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
+                    ids.add(uniqueID[0] + " " + uniqueID[1]);
                     uniqueID[0] = -1;
                     uniqueID[1] = -1;
                 }
             }
-            if ( physicalProcessorCount == 0 )
-            {
+            if (physicalProcessorCount == 0) {
                 physicalProcessorCount = ids.size();
             }
-        }
-        catch ( IOException e )
-        {
-            LOG.error( "Problem with /proc/cpuinfo: {}", e.getMessage() );
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
         }
         // Force at least one processor
-        if ( logicalProcessorCount < 1 )
-        {
-            LOG.error( "Couldn't find logical processor count. Assuming 1." );
+        if (logicalProcessorCount < 1) {
+            LOG.error("Couldn't find logical processor count. Assuming 1.");
             logicalProcessorCount = 1;
         }
-        if ( physicalProcessorCount < 1 )
-        {
-            LOG.error( "Couldn't find physical processor count. Assuming 1." );
+        if (physicalProcessorCount < 1) {
+            LOG.error("Couldn't find physical processor count. Assuming 1.");
             physicalProcessorCount = 1;
         }
     }
@@ -222,8 +197,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getVendor()
-    {
+    public String getVendor() {
         return this.cpuVendor;
     }
 
@@ -231,8 +205,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setVendor( String vendor )
-    {
+    public void setVendor(String vendor) {
         this.cpuVendor = vendor;
     }
 
@@ -240,8 +213,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getName()
-    {
+    public String getName() {
         return this.cpuName;
     }
 
@@ -249,8 +221,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setName( String name )
-    {
+    public void setName(String name) {
         this.cpuName = name;
     }
 
@@ -258,21 +229,16 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long getVendorFreq()
-    {
-        if ( this.cpuVendorFreq == null )
-        {
-            Pattern pattern = Pattern.compile( "@ (.*)$" );
-            Matcher matcher = pattern.matcher( getName() );
+    public long getVendorFreq() {
+        if (this.cpuVendorFreq == null) {
+            Pattern pattern = Pattern.compile("@ (.*)$");
+            Matcher matcher = pattern.matcher(getName());
 
-            if ( matcher.find() )
-            {
-                String unit = matcher.group( 1 );
-                this.cpuVendorFreq = Long.valueOf( ParseUtil.parseHertz( unit ) );
-            }
-            else
-            {
-                this.cpuVendorFreq = Long.valueOf( -1L );
+            if (matcher.find()) {
+                String unit = matcher.group(1);
+                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
+            } else {
+                this.cpuVendorFreq = Long.valueOf(-1L);
             }
         }
 
@@ -283,34 +249,28 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setVendorFreq( long freq )
-    {
-        this.cpuVendorFreq = Long.valueOf( freq );
+    public void setVendorFreq(long freq) {
+        this.cpuVendorFreq = Long.valueOf(freq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getIdentifier()
-    {
-        if ( this.cpuIdentifier == null )
-        {
+    public String getIdentifier() {
+        if (this.cpuIdentifier == null) {
             StringBuilder sb = new StringBuilder();
-            if ( getVendor() != null && getVendor().contentEquals( "GenuineIntel" ) )
-            {
-                sb.append( isCpu64bit() ? "Intel64" : "x86" );
+            if (getVendor() != null && getVendor().contentEquals("GenuineIntel")) {
+                sb.append(isCpu64bit() ? "Intel64" : "x86");
+            } else {
+                sb.append(getVendor());
             }
-            else
-            {
-                sb.append( getVendor() );
-            }
-            sb.append( " Family " );
-            sb.append( getFamily() );
-            sb.append( " Model " );
-            sb.append( getModel() );
-            sb.append( " Stepping " );
-            sb.append( getStepping() );
+            sb.append(" Family ");
+            sb.append(getFamily());
+            sb.append(" Model ");
+            sb.append(getModel());
+            sb.append(" Stepping ");
+            sb.append(getStepping());
             this.cpuIdentifier = sb.toString();
         }
         return this.cpuIdentifier;
@@ -320,8 +280,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setIdentifier( String identifier )
-    {
+    public void setIdentifier(String identifier) {
         this.cpuIdentifier = identifier;
     }
 
@@ -329,8 +288,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public boolean isCpu64bit()
-    {
+    public boolean isCpu64bit() {
         return this.cpu64.booleanValue();
     }
 
@@ -338,17 +296,15 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setCpu64( boolean value )
-    {
-        this.cpu64 = Boolean.valueOf( value );
+    public void setCpu64(boolean value) {
+        this.cpu64 = Boolean.valueOf(value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getStepping()
-    {
+    public String getStepping() {
         return this.cpuStepping;
     }
 
@@ -356,8 +312,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setStepping( String stepping )
-    {
+    public void setStepping(String stepping) {
         this.cpuStepping = stepping;
     }
 
@@ -365,8 +320,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getModel()
-    {
+    public String getModel() {
         return this.cpuModel;
     }
 
@@ -374,8 +328,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setModel( String model )
-    {
+    public void setModel(String model) {
         this.cpuModel = model;
     }
 
@@ -383,8 +336,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getFamily()
-    {
+    public String getFamily() {
         return this.cpuFamily;
     }
 
@@ -392,8 +344,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setFamily( String family )
-    {
+    public void setFamily(String family) {
         this.cpuFamily = family;
     }
 
@@ -401,85 +352,76 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public synchronized double getSystemCpuLoadBetweenTicks()
-    {
+    public synchronized double getSystemCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace( "Current time: {}  Last tick time: {}", now, tickTime );
-        if ( now - tickTime > 950 )
-        {
+        LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
+        if (now - tickTime > 950) {
             // Enough time has elapsed.
             updateSystemTicks();
         }
         // Calculate total
         long total = 0;
-        for ( int i = 0; i < curTicks.length; i++ )
-        {
-            total += ( curTicks[i] - prevTicks[i] );
+        for (int i = 0; i < curTicks.length; i++) {
+            total += (curTicks[i] - prevTicks[i]);
         }
         // Calculate idle from last field [3]
         long idle = curTicks[3] - prevTicks[3];
-        LOG.trace( "Total ticks: {}  Idle ticks: {}", total, idle );
+        LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
-        return ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
+        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks()
-    {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[curTicks.length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr = "";
-        try
-        {
-            List<String> procStat = FileUtil.readFile( "/proc/stat" );
-            if ( !procStat.isEmpty() )
-                tickStr = procStat.get( 0 );
-        }
-        catch ( IOException e )
-        {
-            LOG.error( "Problem with /proc/stat: {}", e.getMessage() );
+        try {
+            List<String> procStat = FileUtil.readFile("/proc/stat");
+            if (!procStat.isEmpty())
+                tickStr = procStat.get(0);
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/stat: {}", e.getMessage());
             return ticks;
         }
-        String[] tickArr = tickStr.split( "\\s+" );
-        if ( tickArr.length < 5 )
+        String[] tickArr = tickStr.split("\\s+");
+        if (tickArr.length < 5)
             return ticks;
-        for ( int i = 0; i < 4; i++ )
-        {
-            ticks[i] = Long.parseLong( tickArr[i + 1] );
+        for (int i = 0; i < 4; i++) {
+            ticks[i] = Long.parseLong(tickArr[i + 1]);
         }
         return ticks;
     }
 
     /**
-     * Updates system tick information from parsing /proc/stat. Stores in array with four elements representing clock
-     * ticks or milliseconds (platform dependent) spent in User (0), Nice (1), System (2), and Idle (3) states. By
-     * measuring the difference between ticks across a time interval, CPU load over that interval may be calculated.
+     * Updates system tick information from parsing /proc/stat. Stores in array
+     * with four elements representing clock ticks or milliseconds (platform
+     * dependent) spent in User (0), Nice (1), System (2), and Idle (3) states.
+     * By measuring the difference between ticks across a time interval, CPU
+     * load over that interval may be calculated.
      */
-    private void updateSystemTicks()
-    {
-        LOG.trace( "Updating System Ticks" );
+    private void updateSystemTicks() {
+        LOG.trace("Updating System Ticks");
         // Copy to previous
-        System.arraycopy( curTicks, 0, prevTicks, 0, curTicks.length );
+        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
         this.tickTime = System.currentTimeMillis();
         long[] ticks = getSystemCpuLoadTicks();
-        System.arraycopy( ticks, 0, curTicks, 0, ticks.length );
+        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getSystemCpuLoad()
-    {
-        if ( sunMXBean )
-        {
-            return ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
+    public double getSystemCpuLoad() {
+        if (sunMXBean) {
+            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
         }
         return getSystemCpuLoadBetweenTicks();
     }
@@ -488,8 +430,7 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public double getSystemLoadAverage()
-    {
+    public double getSystemLoadAverage() {
         return OS_MXBEAN.getSystemLoadAverage();
     }
 
@@ -497,30 +438,26 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public double[] getProcessorCpuLoadBetweenTicks()
-    {
+    public double[] getProcessorCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace( "Current time: {}  Last tick time: {}", now, procTickTime );
-        if ( now - procTickTime > 950 )
-        {
+        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
+        if (now - procTickTime > 950) {
             // Enough time has elapsed.
             // Update latest
             updateProcessorTicks();
         }
         double[] load = new double[logicalProcessorCount];
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
             long total = 0;
-            for ( int i = 0; i < this.curProcTicks[cpu].length; i++ )
-            {
-                total += ( this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i] );
+            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
+                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
             }
             // Calculate idle from last field [3]
             long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
-            LOG.trace( "CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle );
+            LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
-            load[cpu] = ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
+            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
         }
         return load;
     }
@@ -529,59 +466,51 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks()
-    {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[logicalProcessorCount][4];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
-        try
-        {
+        try {
             int cpu = 0;
-            List<String> procStat = FileUtil.readFile( "/proc/stat" );
-            for ( String stat : procStat )
-            {
-                if ( stat.startsWith( "cpu" ) && !stat.startsWith( "cpu " ) )
-                {
-                    String[] tickArr = stat.split( "\\s+" );
-                    if ( tickArr.length < 5 )
+            List<String> procStat = FileUtil.readFile("/proc/stat");
+            for (String stat : procStat) {
+                if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
+                    String[] tickArr = stat.split("\\s+");
+                    if (tickArr.length < 5)
                         break;
-                    for ( int i = 0; i < 4; i++ )
-                    {
-                        ticks[cpu][i] = Long.parseLong( tickArr[i + 1] );
+                    for (int i = 0; i < 4; i++) {
+                        ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
                     }
-                    if ( ++cpu >= logicalProcessorCount )
+                    if (++cpu >= logicalProcessorCount)
                         break;
                 }
             }
-        }
-        catch ( IOException e )
-        {
-            LOG.error( "Problem with /proc/stat: {}", e.getMessage() );
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/stat: {}", e.getMessage());
         }
         return ticks;
     }
 
     /**
-     * Updates per-processor tick information from parsing /proc/stat. Stores in 2D array; an array for each logical
-     * processor with four elements representing clock ticks or milliseconds (platform dependent) spent in User (0),
-     * Nice (1), System (2), and Idle (3) states. By measuring the difference between ticks across a time interval, CPU
-     * load over that interval may be calculated.
+     * Updates per-processor tick information from parsing /proc/stat. Stores in
+     * 2D array; an array for each logical processor with four elements
+     * representing clock ticks or milliseconds (platform dependent) spent in
+     * User (0), Nice (1), System (2), and Idle (3) states. By measuring the
+     * difference between ticks across a time interval, CPU load over that
+     * interval may be calculated.
      */
-    private void updateProcessorTicks()
-    {
-        LOG.trace( "Updating Processor Ticks" );
+    private void updateProcessorTicks() {
+        LOG.trace("Updating Processor Ticks");
         // Copy to previous
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
-            System.arraycopy( curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length );
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
         }
         this.procTickTime = System.currentTimeMillis();
         long[][] ticks = getProcessorCpuLoadTicks();
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
-            System.arraycopy( ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length );
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
         }
     }
 
@@ -589,21 +518,16 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long getSystemUptime()
-    {
-        try
-        {
+    public long getSystemUptime() {
+        try {
             Sysinfo info = new Sysinfo();
-            if ( 0 != Libc.INSTANCE.sysinfo( info ) )
-            {
-                LOG.error( "Failed to get system uptime. Error code: " + Native.getLastError() );
+            if (0 != Libc.INSTANCE.sysinfo(info)) {
+                LOG.error("Failed to get system uptime. Error code: " + Native.getLastError());
                 return 0L;
             }
             return info.uptime.longValue();
-        }
-        catch ( UnsatisfiedLinkError | NoClassDefFoundError e )
-        {
-            LOG.error( "Failed to get uptime from sysinfo. {}", e.getMessage() );
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+            LOG.error("Failed to get uptime from sysinfo. {}", e.getMessage());
         }
         return 0L;
     }
@@ -612,35 +536,27 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getSystemSerialNumber()
-    {
+    public String getSystemSerialNumber() {
         String sn = null;
         // If root privileges this will work
-        ArrayList<String> hwInfo = ExecutingCommand.runNative( "dmidecode -t system" );
+        ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
         String marker = "Serial Number:";
-        if ( hwInfo != null )
-        {
-            for ( String checkLine : hwInfo )
-            {
-                if ( checkLine.contains( marker ) )
-                {
-                    sn = checkLine.split( marker )[1].trim();
+        if (hwInfo != null) {
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains(marker)) {
+                    sn = checkLine.split(marker)[1].trim();
                     break;
                 }
             }
         }
         // if lshal command available (HAL deprecated in newer linuxes)
-        if ( sn == null )
-        {
+        if (sn == null) {
             marker = "system.hardware.serial =";
-            hwInfo = ExecutingCommand.runNative( "lshal" );
-            if ( hwInfo != null )
-            {
-                for ( String checkLine : hwInfo )
-                {
-                    if ( checkLine.contains( marker ) )
-                    {
-                        String[] temp = checkLine.split( marker )[1].split( "'" );
+            hwInfo = ExecutingCommand.runNative("lshal");
+            if (hwInfo != null) {
+                for (String checkLine : hwInfo) {
+                    if (checkLine.contains(marker)) {
+                        String[] temp = checkLine.split(marker)[1].split("'");
                         // Format: '12345' (string)
                         sn = temp.length > 0 ? temp[1] : null;
                         break;
@@ -648,15 +564,14 @@ public class LinuxCentralProcessor
                 }
             }
         }
-        return ( sn == null ) ? "unknown" : sn;
+        return (sn == null) ? "unknown" : sn;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getLogicalProcessorCount()
-    {
+    public int getLogicalProcessorCount() {
         return this.logicalProcessorCount;
     }
 
@@ -664,14 +579,12 @@ public class LinuxCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public int getPhysicalProcessorCount()
-    {
+    public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getName();
     }
 }

@@ -31,10 +31,8 @@ import oshi.util.FormatUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsPowerSource
-    implements PowerSource
-{
-    private static final Logger LOG = LoggerFactory.getLogger( WindowsPowerSource.class );
+public class WindowsPowerSource implements PowerSource {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
     private String name;
 
@@ -42,29 +40,25 @@ public class WindowsPowerSource
 
     private double timeRemaining;
 
-    public WindowsPowerSource( String newName, double newRemainingCapacity, double newTimeRemaining )
-    {
+    public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
         this.remainingCapacity = newRemainingCapacity;
         this.timeRemaining = newTimeRemaining;
-        LOG.debug( "Initialized WindowsPowerSource" );
+        LOG.debug("Initialized WindowsPowerSource");
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public double getRemainingCapacity()
-    {
+    public double getRemainingCapacity() {
         return this.remainingCapacity;
     }
 
     @Override
-    public double getTimeRemaining()
-    {
+    public double getTimeRemaining() {
         return this.timeRemaining;
     }
 
@@ -73,30 +67,24 @@ public class WindowsPowerSource
      * 
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources()
-    {
+    public static PowerSource[] getPowerSources() {
         // Windows provides a single unnamed battery
         String name = "System Battery";
         WindowsPowerSource[] psArray = new WindowsPowerSource[1];
         // Get structure
         SystemBatteryState batteryState = new SystemBatteryState();
-        if ( 0 != PowrProf.INSTANCE.CallNtPowerInformation( PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong( 0 ),
-                                                            batteryState, new NativeLong( batteryState.size() ) )
-            || batteryState.batteryPresent == 0 )
-        {
-            psArray[0] = new WindowsPowerSource( "Unknown", 0d, -1d );
-        }
-        else
-        {
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),
+                batteryState, new NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {
+            psArray[0] = new WindowsPowerSource("Unknown", 0d, -1d);
+        } else {
             int estimatedTime = -2; // -1 = unknown, -2 = unlimited
-            if ( batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0 )
-            {
+            if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {
                 estimatedTime = batteryState.estimatedTime;
             }
-            long maxCapacity = FormatUtil.getUnsignedInt( batteryState.maxCapacity );
-            long remainingCapacity = FormatUtil.getUnsignedInt( batteryState.remainingCapacity );
+            long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
+            long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
 
-            psArray[0] = new WindowsPowerSource( name, (double) remainingCapacity / maxCapacity, estimatedTime );
+            psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
         }
 
         return psArray;

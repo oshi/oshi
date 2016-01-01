@@ -24,46 +24,39 @@ import oshi.software.os.OperatingSystemVersion;
  * @author widdis[at]gmail[dot]com
  */
 
-public class MacOperatingSystem
-    implements OperatingSystem
-{
+public class MacOperatingSystem implements OperatingSystem {
     private String _family;
 
     private OperatingSystemVersion _version;
 
     @Override
-    public OperatingSystemVersion getVersion()
-    {
-        if ( this._version == null )
-        {
+    public OperatingSystemVersion getVersion() {
+        if (this._version == null) {
             this._version = new MacOSVersionInfoEx();
         }
         return this._version;
     }
 
     @Override
-    public String getFamily()
-    {
-        if ( this._family == null )
-            this._family = System.getProperty( "os.name" );
+    public String getFamily() {
+        if (this._family == null)
+            this._family = System.getProperty("os.name");
         return this._family;
     }
 
     @Override
-    public String getManufacturer()
-    {
+    public String getManufacturer() {
         return "Apple";
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append( getManufacturer() );
-        sb.append( " " );
-        sb.append( getFamily() );
-        sb.append( " " );
-        sb.append( getVersion().toString() );
+        sb.append(getManufacturer());
+        sb.append(" ");
+        sb.append(getFamily());
+        sb.append(" ");
+        sb.append(getVersion().toString());
         return sb.toString();
     }
 }

@@ -21,7 +21,6 @@ package oshi.software.os;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface OperatingSystemVersion
-{
+public interface OperatingSystemVersion {
     // TODO Build this out
 }

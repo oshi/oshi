@@ -32,23 +32,19 @@ import oshi.util.ParseUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxDisplay
-    implements Display
-{
-    private static final Logger LOG = LoggerFactory.getLogger( LinuxDisplay.class );
+public class LinuxDisplay implements Display {
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);
 
     private byte[] edid;
 
-    public LinuxDisplay( byte[] edid )
-    {
+    public LinuxDisplay(byte[] edid) {
         this.edid = edid;
-        LOG.debug( "Initialized LinuxDisplay" );
+        LOG.debug("Initialized LinuxDisplay");
     }
 
     @Override
-    public byte[] getEdid()
-    {
-        return Arrays.copyOf( edid, edid.length );
+    public byte[] getEdid() {
+        return Arrays.copyOf(edid, edid.length);
     }
 
     /**
@@ -56,34 +52,29 @@ public class LinuxDisplay
      * 
      * @return An array of Display objects representing monitors, etc.
      */
-    public static Display[] getDisplays()
-    {
+    public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<Display>();
-        ArrayList<String> xrandr = ExecutingCommand.runNative( "xrandr --verbose" );
+        ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
         boolean foundEdid = false;
         StringBuilder sb = new StringBuilder();
-        for ( String s : xrandr )
-        {
-            if ( s.contains( "EDID" ) )
-            {
+        for (String s : xrandr) {
+            if (s.contains("EDID")) {
                 foundEdid = true;
                 sb = new StringBuilder();
                 continue;
             }
-            if ( foundEdid )
-            {
-                sb.append( s.trim() );
-                if ( sb.length() >= 256 )
-                {
+            if (foundEdid) {
+                sb.append(s.trim());
+                if (sb.length() >= 256) {
                     String edidStr = sb.toString();
-                    LOG.debug( "Parsed EDID: {}", edidStr );
-                    Display display = new LinuxDisplay( ParseUtil.hexStringToByteArray( edidStr ) );
-                    displays.add( display );
+                    LOG.debug("Parsed EDID: {}", edidStr);
+                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));
+                    displays.add(display);
                     foundEdid = false;
                 }
             }
         }
 
-        return displays.toArray( new Display[displays.size()] );
+        return displays.toArray(new Display[displays.size()]);
     }
 }

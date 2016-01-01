@@ -29,42 +29,34 @@ import com.sun.jna.ptr.IntByReference;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsOSSystemInfo
-{
-    private static final Logger LOG = LoggerFactory.getLogger( WindowsOSSystemInfo.class );
+public class WindowsOSSystemInfo {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);
 
     private SYSTEM_INFO _si = null;
 
-    public WindowsOSSystemInfo()
-    {
+    public WindowsOSSystemInfo() {
 
         SYSTEM_INFO si = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetSystemInfo( si );
+        Kernel32.INSTANCE.GetSystemInfo(si);
 
-        try
-        {
+        try {
             IntByReference isWow64 = new IntByReference();
             HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
-            if ( Kernel32.INSTANCE.IsWow64Process( hProcess, isWow64 ) )
-            {
-                if ( isWow64.getValue() > 0 )
-                {
-                    Kernel32.INSTANCE.GetNativeSystemInfo( si );
+            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64)) {
+                if (isWow64.getValue() > 0) {
+                    Kernel32.INSTANCE.GetNativeSystemInfo(si);
                 }
             }
-        }
-        catch ( UnsatisfiedLinkError e )
-        {
+        } catch (UnsatisfiedLinkError e) {
             // no WOW64 support
-            LOG.trace( "", e );
+            LOG.trace("", e);
         }
 
         this._si = si;
-        LOG.debug( "Initialized OSNativeSystemInfo" );
+        LOG.debug("Initialized OSNativeSystemInfo");
     }
 
-    public WindowsOSSystemInfo( SYSTEM_INFO si )
-    {
+    public WindowsOSSystemInfo(SYSTEM_INFO si) {
         this._si = si;
     }
 
@@ -73,8 +65,7 @@ public class WindowsOSSystemInfo
      * 
      * @return Integer.
      */
-    public int getNumberOfProcessors()
-    {
+    public int getNumberOfProcessors() {
         return this._si.dwNumberOfProcessors.intValue();
     }
 }

@@ -26,19 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Read an entire file at one time and return a list of Strings for each line. Intended primarily for Linux /proc
- * filesystem to avoid recalculating file contents on iterative reads.
+ * Read an entire file at one time and return a list of Strings for each line.
+ * Intended primarily for Linux /proc filesystem to avoid recalculating file
+ * contents on iterative reads.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class FileUtil
-{
-    private static final Logger LOG = LoggerFactory.getLogger( FileUtil.class );
+public class FileUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
-    public static List<String> readFile( String filename )
-        throws IOException
-    {
-        LOG.debug( "Reading file {}", filename );
-        return Files.readAllLines( Paths.get( filename ), StandardCharsets.UTF_8 );
+    public static List<String> readFile(String filename) throws IOException {
+        LOG.debug("Reading file {}", filename);
+        return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
     }
 }

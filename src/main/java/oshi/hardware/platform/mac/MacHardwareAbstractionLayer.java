@@ -28,9 +28,7 @@ import oshi.software.os.mac.MacFileSystem;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-public class MacHardwareAbstractionLayer
-    implements HardwareAbstractionLayer
-{
+public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private CentralProcessor processor;
 
@@ -40,13 +38,12 @@ public class MacHardwareAbstractionLayer
 
     /*
      * (non-Javadoc)
+     * 
      * @see oshi.hardware.HardwareAbstractionLayer#getProcessor()
      */
     @Override
-    public CentralProcessor getProcessor()
-    {
-        if ( this.processor == null )
-        {
+    public CentralProcessor getProcessor() {
+        if (this.processor == null) {
             this.processor = new MacCentralProcessor();
         }
         return this.processor;
@@ -54,37 +51,32 @@ public class MacHardwareAbstractionLayer
 
     /*
      * (non-Javadoc)
+     * 
      * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
      */
     @Override
-    public GlobalMemory getMemory()
-    {
-        if ( this._memory == null )
-        {
+    public GlobalMemory getMemory() {
+        if (this._memory == null) {
             this._memory = new MacGlobalMemory();
         }
         return this._memory;
     }
 
     @Override
-    public PowerSource[] getPowerSources()
-    {
-        if ( this._powerSources == null )
-        {
+    public PowerSource[] getPowerSources() {
+        if (this._powerSources == null) {
             this._powerSources = MacPowerSource.getPowerSources();
         }
         return this._powerSources;
     }
 
     @Override
-    public OSFileStore[] getFileStores()
-    {
+    public OSFileStore[] getFileStores() {
         return MacFileSystem.getFileStores();
     }
 
     @Override
-    public Display[] getDisplays()
-    {
+    public Display[] getDisplays() {
         return MacDisplay.getDisplays();
     }
 

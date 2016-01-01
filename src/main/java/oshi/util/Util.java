@@ -24,44 +24,41 @@ import org.slf4j.LoggerFactory;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class Util
-{
-    private static final Logger LOG = LoggerFactory.getLogger( Util.class );
+public class Util {
+    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     /**
      * Sleeps for the specified number of milliseconds.
      * 
-     * @param ms How long to sleep
+     * @param ms
+     *            How long to sleep
      */
-    public static void sleep( long ms )
-    {
-        try
-        {
-            LOG.trace( "Sleeping for {} ms", ms );
-            Thread.sleep( ms );
-        }
-        catch ( InterruptedException e )
-        {
-            LOG.trace( "", e );
-            LOG.warn( "Interrupted while sleeping for {} ms", ms );
+    public static void sleep(long ms) {
+        try {
+            LOG.trace("Sleeping for {} ms", ms);
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            LOG.trace("", e);
+            LOG.warn("Interrupted while sleeping for {} ms", ms);
         }
     }
 
     /**
-     * Sleeps for the specified number of milliseconds after the given system time in milliseconds. If that number of
-     * milliseconds has already elapsed, does nothing.
+     * Sleeps for the specified number of milliseconds after the given system
+     * time in milliseconds. If that number of milliseconds has already elapsed,
+     * does nothing.
      * 
-     * @param startTime System time in milliseconds to sleep after
-     * @param ms How long after startTime to sleep
+     * @param startTime
+     *            System time in milliseconds to sleep after
+     * @param ms
+     *            How long after startTime to sleep
      */
-    public static void sleepAfter( long startTime, long ms )
-    {
+    public static void sleepAfter(long startTime, long ms) {
         long now = System.currentTimeMillis();
         long until = startTime + ms;
-        LOG.trace( "Sleeping until {}", until );
-        if ( now < until )
-        {
-            sleep( until - now );
+        LOG.trace("Sleeping until {}", until);
+        if (now < until) {
+            sleep(until - now);
         }
     }
 }

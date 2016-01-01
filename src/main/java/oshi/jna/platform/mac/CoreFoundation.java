@@ -23,65 +23,55 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 
 /**
- * CoreFoundation framework for power supply stats. This class should be considered non-API as it may be removed if/when
- * its code is incorporated into the JNA project.
+ * CoreFoundation framework for power supply stats. This class should be
+ * considered non-API as it may be removed if/when its code is incorporated into
+ * the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface CoreFoundation
-    extends Library
-{
-    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary( "CoreFoundation", CoreFoundation.class );
+public interface CoreFoundation extends Library {
+    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary("CoreFoundation", CoreFoundation.class);
 
     static final int UTF_8 = 0x08000100;
 
-    int CFArrayGetCount( CFArrayRef array );
+    int CFArrayGetCount(CFArrayRef array);
 
-    CFTypeRef CFArrayGetValueAtIndex( CFArrayRef array, int index );
+    CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
 
-    void CFRelease( CFTypeRef blob );
+    void CFRelease(CFTypeRef blob);
 
-    class CFTypeRef
-        extends PointerType
-    {
+    class CFTypeRef extends PointerType {
         // TODO Build this out
     }
 
-    class CFArrayRef
-        extends PointerType
-    {
+    class CFArrayRef extends PointerType {
         // TODO Build this out
     }
 
-    class CFDictionaryRef
-        extends PointerType
-    {
+    class CFDictionaryRef extends PointerType {
         // TODO Build this out
     }
 
-    class CFStringRef
-        extends PointerType
-    {
-        public static CFStringRef toCFString( String s )
-        {
+    class CFStringRef extends PointerType {
+        public static CFStringRef toCFString(String s) {
             final char[] chars = s.toCharArray();
             int length = chars.length;
-            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters( null, chars, new NativeLong( length ) );
+            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));
         }
     }
 
-    CFStringRef CFStringCreateWithCharacters( Object object, char[] chars, NativeLong length );
+    CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
-    boolean CFDictionaryGetValueIfPresent( CFDictionaryRef dictionary, CFStringRef key, PointerType value );
+    boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
 
-    Pointer CFDictionaryGetValue( CFDictionaryRef dictionary, CFStringRef key );
+    Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
-    boolean CFStringGetCString( Pointer foo, Pointer buffer, long maxSize, int encoding );
+    boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize, int encoding);
 
-    long CFStringGetLength( Pointer str );
+    long CFStringGetLength(Pointer str);
 
-    long CFStringGetMaximumSizeForEncoding( long length, int encoding );
+    long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
-    boolean CFBooleanGetValue( Pointer booleanRef );
+    boolean CFBooleanGetValue(Pointer booleanRef);
 
 }

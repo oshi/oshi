@@ -44,32 +44,26 @@ import oshi.util.ParseUtil;
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
-@SuppressWarnings( "restriction" )
-public class MacCentralProcessor
-    implements CentralProcessor
-{
-    private static final Logger LOG = LoggerFactory.getLogger( MacCentralProcessor.class );
+@SuppressWarnings("restriction")
+public class MacCentralProcessor implements CentralProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN =
-        ManagementFactory.getOperatingSystemMXBean();
+    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
+            .getOperatingSystemMXBean();
 
     private static boolean sunMXBean;
 
-    static
-    {
-        try
-        {
-            Class.forName( "com.sun.management.OperatingSystemMXBean" );
+    static {
+        try {
+            Class.forName("com.sun.management.OperatingSystemMXBean");
             // Initialize CPU usage
-            ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
+            ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
             sunMXBean = true;
-            LOG.debug( "Oracle MXBean detected." );
-        }
-        catch ( ClassNotFoundException e )
-        {
+            LOG.debug("Oracle MXBean detected.");
+        } catch (ClassNotFoundException e) {
             sunMXBean = false;
-            LOG.debug( "Oracle MXBean not detected." );
-            LOG.trace( "", e );
+            LOG.debug("Oracle MXBean not detected.");
+            LOG.trace("", e);
         }
     }
 
@@ -113,8 +107,7 @@ public class MacCentralProcessor
     /**
      * Create a Processor
      */
-    public MacCentralProcessor()
-    {
+    public MacCentralProcessor() {
         // Processor counts
         calculateProcessorCounts();
 
@@ -128,57 +121,48 @@ public class MacCentralProcessor
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
 
-        LOG.debug( "Initialized Processor" );
+        LOG.debug("Initialized Processor");
     }
 
     /**
      * Updates logical and physical processor counts from sysctl calls
      */
-    private void calculateProcessorCounts()
-    {
-        IntByReference size = new IntByReference( SystemB.INT_SIZE );
-        Pointer p = new Memory( size.getValue() );
+    private void calculateProcessorCounts() {
+        IntByReference size = new IntByReference(SystemB.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
 
         // Get number of logical processors
-        if ( 0 != SystemB.INSTANCE.sysctlbyname( "hw.logicalcpu", p, size, null, 0 ) )
-        {
-            LOG.error( "Failed to get number of logical CPUs. Error code: " + Native.getLastError() );
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of logical CPUs. Error code: " + Native.getLastError());
             this.logicalProcessorCount = 1;
-        }
-        else
-            this.logicalProcessorCount = p.getInt( 0 );
+        } else
+            this.logicalProcessorCount = p.getInt(0);
 
         // Get number of physical processors
-        if ( 0 != SystemB.INSTANCE.sysctlbyname( "hw.physicalcpu", p, size, null, 0 ) )
-        {
-            LOG.error( "Failed to get number of physical CPUs. Error code: " + Native.getLastError() );
+        if (0 != SystemB.INSTANCE.sysctlbyname("hw.physicalcpu", p, size, null, 0)) {
+            LOG.error("Failed to get number of physical CPUs. Error code: " + Native.getLastError());
             this.physicalProcessorCount = 1;
-        }
-        else
-            this.physicalProcessorCount = p.getInt( 0 );
+        } else
+            this.physicalProcessorCount = p.getInt(0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getVendor()
-    {
-        if ( this.cpuVendor == null )
-        {
+    public String getVendor() {
+        if (this.cpuVendor == null) {
             IntByReference size = new IntByReference();
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.vendor", null, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Vendor. Error code: " + Native.getLastError() );
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", null, size, null, 0)) {
+                LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
                 return "";
             }
-            Pointer p = new Memory( size.getValue() + 1 );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.vendor", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Vendor. Error code: " + Native.getLastError() );
+            Pointer p = new Memory(size.getValue() + 1);
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", p, size, null, 0)) {
+                LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
                 return "";
             }
-            this.cpuVendor = p.getString( 0 );
+            this.cpuVendor = p.getString(0);
         }
         return this.cpuVendor;
     }
@@ -187,8 +171,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setVendor( String vendor )
-    {
+    public void setVendor(String vendor) {
         this.cpuVendor = vendor;
     }
 
@@ -196,23 +179,19 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getName()
-    {
-        if ( this.cpuName == null )
-        {
+    public String getName() {
+        if (this.cpuName == null) {
             IntByReference size = new IntByReference();
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.brand_string", null, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Name. Error code: " + Native.getLastError() );
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", null, size, null, 0)) {
+                LOG.error("Failed to get Name. Error code: " + Native.getLastError());
                 return "";
             }
-            Pointer p = new Memory( size.getValue() + 1 );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.brand_string", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Name. Error code: " + Native.getLastError() );
+            Pointer p = new Memory(size.getValue() + 1);
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", p, size, null, 0)) {
+                LOG.error("Failed to get Name. Error code: " + Native.getLastError());
                 return "";
             }
-            this.cpuName = p.getString( 0 );
+            this.cpuName = p.getString(0);
         }
         return this.cpuName;
     }
@@ -221,8 +200,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setName( String name )
-    {
+    public void setName(String name) {
         this.cpuName = name;
     }
 
@@ -230,21 +208,16 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long getVendorFreq()
-    {
-        if ( this.cpuVendorFreq == null )
-        {
-            Pattern pattern = Pattern.compile( "@ (.*)$" );
-            Matcher matcher = pattern.matcher( getName() );
+    public long getVendorFreq() {
+        if (this.cpuVendorFreq == null) {
+            Pattern pattern = Pattern.compile("@ (.*)$");
+            Matcher matcher = pattern.matcher(getName());
 
-            if ( matcher.find() )
-            {
-                String unit = matcher.group( 1 );
-                this.cpuVendorFreq = Long.valueOf( ParseUtil.parseHertz( unit ) );
-            }
-            else
-            {
-                this.cpuVendorFreq = Long.valueOf( -1L );
+            if (matcher.find()) {
+                String unit = matcher.group(1);
+                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
+            } else {
+                this.cpuVendorFreq = Long.valueOf(-1L);
             }
         }
 
@@ -255,31 +228,25 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setVendorFreq( long freq )
-    {
-        this.cpuVendorFreq = Long.valueOf( freq );
+    public void setVendorFreq(long freq) {
+        this.cpuVendorFreq = Long.valueOf(freq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getIdentifier()
-    {
-        if ( this.cpuIdentifier == null )
-        {
+    public String getIdentifier() {
+        if (this.cpuIdentifier == null) {
             StringBuilder sb = new StringBuilder();
-            if ( getVendor().contentEquals( "GenuineIntel" ) )
-            {
-                sb.append( isCpu64bit() ? "Intel64" : "x86" );
+            if (getVendor().contentEquals("GenuineIntel")) {
+                sb.append(isCpu64bit() ? "Intel64" : "x86");
+            } else {
+                sb.append(getVendor());
             }
-            else
-            {
-                sb.append( getVendor() );
-            }
-            sb.append( " Family " ).append( getFamily() );
-            sb.append( " Model " ).append( getModel() );
-            sb.append( " Stepping " ).append( getStepping() );
+            sb.append(" Family ").append(getFamily());
+            sb.append(" Model ").append(getModel());
+            sb.append(" Stepping ").append(getStepping());
             this.cpuIdentifier = sb.toString();
         }
         return this.cpuIdentifier;
@@ -289,8 +256,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setIdentifier( String identifier )
-    {
+    public void setIdentifier(String identifier) {
         this.cpuIdentifier = identifier;
     }
 
@@ -298,18 +264,15 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public boolean isCpu64bit()
-    {
-        if ( this.cpu64 == null )
-        {
-            IntByReference size = new IntByReference( SystemB.INT_SIZE );
-            Pointer p = new Memory( size.getValue() );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "hw.cpu64bit_capable", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get 64Bit_capable. Error code: " + Native.getLastError() );
+    public boolean isCpu64bit() {
+        if (this.cpu64 == null) {
+            IntByReference size = new IntByReference(SystemB.INT_SIZE);
+            Pointer p = new Memory(size.getValue());
+            if (0 != SystemB.INSTANCE.sysctlbyname("hw.cpu64bit_capable", p, size, null, 0)) {
+                LOG.error("Failed to get 64Bit_capable. Error code: " + Native.getLastError());
                 return false;
             }
-            this.cpu64 = p.getInt( 0 ) != 0;
+            this.cpu64 = p.getInt(0) != 0;
         }
         return this.cpu64.booleanValue();
     }
@@ -318,27 +281,23 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setCpu64( boolean value )
-    {
-        this.cpu64 = Boolean.valueOf( value );
+    public void setCpu64(boolean value) {
+        this.cpu64 = Boolean.valueOf(value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getStepping()
-    {
-        if ( this.cpuStepping == null )
-        {
-            IntByReference size = new IntByReference( SystemB.INT_SIZE );
-            Pointer p = new Memory( size.getValue() );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.stepping", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Stepping. Error code: " + Native.getLastError() );
+    public String getStepping() {
+        if (this.cpuStepping == null) {
+            IntByReference size = new IntByReference(SystemB.INT_SIZE);
+            Pointer p = new Memory(size.getValue());
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.stepping", p, size, null, 0)) {
+                LOG.error("Failed to get Stepping. Error code: " + Native.getLastError());
                 return "";
             }
-            this.cpuStepping = Integer.toString( p.getInt( 0 ) );
+            this.cpuStepping = Integer.toString(p.getInt(0));
         }
         return this.cpuStepping;
     }
@@ -347,8 +306,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setStepping( String stepping )
-    {
+    public void setStepping(String stepping) {
         this.cpuStepping = stepping;
     }
 
@@ -356,18 +314,15 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getModel()
-    {
-        if ( this.cpuModel == null )
-        {
-            IntByReference size = new IntByReference( SystemB.INT_SIZE );
-            Pointer p = new Memory( size.getValue() );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.model", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Model. Error code: " + Native.getLastError() );
+    public String getModel() {
+        if (this.cpuModel == null) {
+            IntByReference size = new IntByReference(SystemB.INT_SIZE);
+            Pointer p = new Memory(size.getValue());
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.model", p, size, null, 0)) {
+                LOG.error("Failed to get Model. Error code: " + Native.getLastError());
                 return "";
             }
-            this.cpuModel = Integer.toString( p.getInt( 0 ) );
+            this.cpuModel = Integer.toString(p.getInt(0));
         }
         return this.cpuModel;
     }
@@ -376,8 +331,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setModel( String model )
-    {
+    public void setModel(String model) {
         this.cpuModel = model;
     }
 
@@ -385,18 +339,15 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public String getFamily()
-    {
-        if ( this.cpuFamily == null )
-        {
-            IntByReference size = new IntByReference( SystemB.INT_SIZE );
-            Pointer p = new Memory( size.getValue() );
-            if ( 0 != SystemB.INSTANCE.sysctlbyname( "machdep.cpu.family", p, size, null, 0 ) )
-            {
-                LOG.error( "Failed to get Family. Error code: " + Native.getLastError() );
+    public String getFamily() {
+        if (this.cpuFamily == null) {
+            IntByReference size = new IntByReference(SystemB.INT_SIZE);
+            Pointer p = new Memory(size.getValue());
+            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.family", p, size, null, 0)) {
+                LOG.error("Failed to get Family. Error code: " + Native.getLastError());
                 return "";
             }
-            this.cpuFamily = Integer.toString( p.getInt( 0 ) );
+            this.cpuFamily = Integer.toString(p.getInt(0));
         }
         return this.cpuFamily;
     }
@@ -405,8 +356,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public void setFamily( String family )
-    {
+    public void setFamily(String family) {
         this.cpuFamily = family;
     }
 
@@ -414,42 +364,37 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public synchronized double getSystemCpuLoadBetweenTicks()
-    {
+    public synchronized double getSystemCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace( "Current time: {}  Last tick time: {}", now, tickTime );
-        if ( now - tickTime > 950 )
-        {
+        LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
+        if (now - tickTime > 950) {
             // Enough time has elapsed.
             updateSystemTicks();
         }
         // Calculate total
         long total = 0;
-        for ( int i = 0; i < curTicks.length; i++ )
-        {
-            total += ( curTicks[i] - prevTicks[i] );
+        for (int i = 0; i < curTicks.length; i++) {
+            total += (curTicks[i] - prevTicks[i]);
         }
         // Calculate idle from last field [3]
         long idle = curTicks[3] - prevTicks[3];
-        LOG.trace( "Total ticks: {}  Idle ticks: {}", total, idle );
+        LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
-        return ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
+        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks()
-    {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[curTicks.length];
         int machPort = SystemB.INSTANCE.mach_host_self();
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
-        if ( 0 != SystemB.INSTANCE.host_statistics( machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
-                                                    new IntByReference( cpuLoadInfo.size() ) ) )
-        {
-            LOG.error( "Failed to get System CPU ticks. Error code: " + Native.getLastError() );
+        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
+                new IntByReference(cpuLoadInfo.size()))) {
+            LOG.error("Failed to get System CPU ticks. Error code: " + Native.getLastError());
             return ticks;
         }
         // Switch order to match linux
@@ -461,30 +406,28 @@ public class MacCentralProcessor
     }
 
     /**
-     * Updates system tick information from native host_statistics query. Stores in array with four elements
-     * representing clock ticks or milliseconds (platform dependent) spent in User (0), Nice (1), System (2), and Idle
-     * (3) states. By measuring the difference between ticks across a time interval, CPU load over that interval may be
-     * calculated.
+     * Updates system tick information from native host_statistics query. Stores
+     * in array with four elements representing clock ticks or milliseconds
+     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
+     * (3) states. By measuring the difference between ticks across a time
+     * interval, CPU load over that interval may be calculated.
      */
-    private void updateSystemTicks()
-    {
-        LOG.trace( "Updating System Ticks" );
+    private void updateSystemTicks() {
+        LOG.trace("Updating System Ticks");
         // Copy to previous
-        System.arraycopy( curTicks, 0, prevTicks, 0, curTicks.length );
+        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
         this.tickTime = System.currentTimeMillis();
         long[] ticks = getSystemCpuLoadTicks();
-        System.arraycopy( ticks, 0, curTicks, 0, ticks.length );
+        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getSystemCpuLoad()
-    {
-        if ( sunMXBean )
-        {
-            return ( (com.sun.management.OperatingSystemMXBean) OS_MXBEAN ).getSystemCpuLoad();
+    public double getSystemCpuLoad() {
+        if (sunMXBean) {
+            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
         }
         return getSystemCpuLoadBetweenTicks();
     }
@@ -493,8 +436,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public double getSystemLoadAverage()
-    {
+    public double getSystemLoadAverage() {
         return OS_MXBEAN.getSystemLoadAverage();
     }
 
@@ -502,30 +444,26 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public double[] getProcessorCpuLoadBetweenTicks()
-    {
+    public double[] getProcessorCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace( "Current time: {}  Last tick time: {}", now, procTickTime );
-        if ( now - procTickTime > 950 )
-        {
+        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
+        if (now - procTickTime > 950) {
             // Enough time has elapsed.
             // Update latest
             updateProcessorTicks();
         }
         double[] load = new double[logicalProcessorCount];
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
             long total = 0;
-            for ( int i = 0; i < this.curProcTicks[cpu].length; i++ )
-            {
-                total += ( this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i] );
+            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
+                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
             }
             // Calculate idle from last field [3]
             long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
-            LOG.trace( "CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle );
+            LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
-            load[cpu] = ( total > 0 && idle >= 0 ) ? (double) ( total - idle ) / total : 0d;
+            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
         }
         return load;
     }
@@ -534,8 +472,7 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks()
-    {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[logicalProcessorCount][4];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
@@ -543,47 +480,43 @@ public class MacCentralProcessor
         IntByReference procCount = new IntByReference();
         PointerByReference procCpuLoadInfo = new PointerByReference();
         IntByReference procInfoCount = new IntByReference();
-        if ( 0 != SystemB.INSTANCE.host_processor_info( machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-                                                        procCpuLoadInfo, procInfoCount ) )
-        {
-            LOG.error( "Failed to update CPU Load. Error code: " + Native.getLastError() );
+        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+                procCpuLoadInfo, procInfoCount)) {
+            LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
             return ticks;
         }
 
-        int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray( 0, procInfoCount.getValue() );
-        for ( int cpu = 0; cpu < procCount.getValue(); cpu++ )
-        {
-            for ( int j = 0; j < 4; j++ )
-            {
+        int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
+        for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
+            for (int j = 0; j < 4; j++) {
                 int offset = cpu * SystemB.CPU_STATE_MAX;
-                ticks[cpu][0] = FormatUtil.getUnsignedInt( cpuTicks[offset + SystemB.CPU_STATE_USER] );
-                ticks[cpu][1] = FormatUtil.getUnsignedInt( cpuTicks[offset + SystemB.CPU_STATE_NICE] );
-                ticks[cpu][2] = FormatUtil.getUnsignedInt( cpuTicks[offset + SystemB.CPU_STATE_SYSTEM] );
-                ticks[cpu][3] = FormatUtil.getUnsignedInt( cpuTicks[offset + SystemB.CPU_STATE_IDLE] );
+                ticks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+                ticks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+                ticks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+                ticks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
             }
         }
         return ticks;
     }
 
     /**
-     * Updates the tick array for all processors by calling host_processor_info(). Stores in 2D array; an array for each
-     * logical processor with four elements representing clock ticks or milliseconds (platform dependent) spent in User
-     * (0), Nice (1), System (2), and Idle (3) states. By measuring the difference between ticks across a time interval,
-     * CPU load over that interval may be calculated.
+     * Updates the tick array for all processors by calling
+     * host_processor_info(). Stores in 2D array; an array for each logical
+     * processor with four elements representing clock ticks or milliseconds
+     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
+     * (3) states. By measuring the difference between ticks across a time
+     * interval, CPU load over that interval may be calculated.
      */
-    private void updateProcessorTicks()
-    {
-        LOG.trace( "Updating Processor Ticks" );
+    private void updateProcessorTicks() {
+        LOG.trace("Updating Processor Ticks");
         // Copy to previous
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
-            System.arraycopy( curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length );
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
         }
         this.procTickTime = System.currentTimeMillis();
         long[][] ticks = getProcessorCpuLoadTicks();
-        for ( int cpu = 0; cpu < logicalProcessorCount; cpu++ )
-        {
-            System.arraycopy( ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length );
+        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
         }
     }
 
@@ -591,77 +524,65 @@ public class MacCentralProcessor
      * {@inheritDoc}
      */
     @Override
-    public long getSystemUptime()
-    {
+    public long getSystemUptime() {
         IntByReference size = new IntByReference();
-        if ( 0 != SystemB.INSTANCE.sysctlbyname( "kern.boottime", null, size, null, 0 ) )
-        {
-            LOG.error( "Failed to get Boot Time. Error code: " + Native.getLastError() );
+        if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", null, size, null, 0)) {
+            LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
             return 0L;
         }
         // This should point to a 16-byte structure. If not, this code is valid
-        if ( size.getValue() != 16 )
-            throw new UnsupportedOperationException( "sysctl kern.boottime should be 16 bytes but isn't." );
-        Pointer p = new Memory( size.getValue() + 1 );
-        if ( 0 != SystemB.INSTANCE.sysctlbyname( "kern.boottime", p, size, null, 0 ) )
-        {
-            LOG.error( "Failed to get Boot Time. Error code: " + Native.getLastError() );
+        if (size.getValue() != 16)
+            throw new UnsupportedOperationException("sysctl kern.boottime should be 16 bytes but isn't.");
+        Pointer p = new Memory(size.getValue() + 1);
+        if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", p, size, null, 0)) {
+            LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
             return 0L;
         }
         // p now points to a 16-bit timeval structure for boot time.
         // First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
-        return System.currentTimeMillis() / 1000 - p.getLong( 0 );
+        return System.currentTimeMillis() / 1000 - p.getLong(0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getSystemSerialNumber()
-    {
+    public String getSystemSerialNumber() {
         String sn = null;
-        ArrayList<String> hwInfo = ExecutingCommand.runNative( "system_profiler SPHardwareDataType" );
+        ArrayList<String> hwInfo = ExecutingCommand.runNative("system_profiler SPHardwareDataType");
         // Mavericks and later
-        for ( String checkLine : hwInfo )
-        {
-            if ( checkLine.contains( "Serial Number (system)" ) )
-            {
-                String[] snSplit = checkLine.split( "\\s+" );
+        for (String checkLine : hwInfo) {
+            if (checkLine.contains("Serial Number (system)")) {
+                String[] snSplit = checkLine.split("\\s+");
                 sn = snSplit[snSplit.length - 1];
                 break;
             }
         }
         // Panther and later
-        if ( sn == null )
-        {
-            for ( String checkLine : hwInfo )
-            {
-                if ( checkLine.contains( "r (system)" ) )
-                {
-                    String[] snSplit = checkLine.split( "\\s+" );
+        if (sn == null) {
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains("r (system)")) {
+                    String[] snSplit = checkLine.split("\\s+");
                     sn = snSplit[snSplit.length - 1];
                     break;
                 }
             }
         }
-        return ( sn == null ) ? "unknown" : sn;
+        return (sn == null) ? "unknown" : sn;
     }
 
     @Override
-    public int getLogicalProcessorCount()
-    {
+    public int getLogicalProcessorCount() {
         return logicalProcessorCount;
     }
 
     @Override
-    public int getPhysicalProcessorCount()
-    {
+    public int getPhysicalProcessorCount() {
         return physicalProcessorCount;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getName();
     }
 }
