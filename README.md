@@ -12,6 +12,9 @@ Essentials
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download Oshi 2.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.1&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download Oshi 2.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.2-SNAPSHOT&e=jar)
+* Dependencies:
+	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
+	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 
