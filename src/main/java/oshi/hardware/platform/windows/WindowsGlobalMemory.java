@@ -43,8 +43,9 @@ public class WindowsGlobalMemory implements GlobalMemory {
 
     @Override
     public long getAvailable() {
-        if (this._memory == null) {
-            LOG.warn("MemoryStatusEx not initialized. No available memoroy data available");
+        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
+            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            this._memory = null;
             return 0L;
         }
         return this._memory.ullAvailPhys.longValue();
