@@ -1,5 +1,6 @@
 2.2 (in-progress)
 ================
+* [#114](https://github.com/dblock/oshi/pull/114): Memory information wasn't updating for Windows - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.1 (1/1/2016)
