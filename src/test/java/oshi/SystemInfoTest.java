@@ -394,6 +394,8 @@ public class SystemInfoTest {
             }
             i++;
         }
+        LOG.info("Printing JSON:");
+        System.out.println(si.toString());
 
     }
 }

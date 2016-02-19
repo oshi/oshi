@@ -16,6 +16,8 @@
  */
 package oshi.hardware;
 
+import oshi.JsonObject;
+
 /**
  * The Central Processing Unit (CPU) or the processor is the portion of a
  * computer system that carries out the instructions of a computer program, and
@@ -23,7 +25,7 @@ package oshi.hardware;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface CentralProcessor {
+public interface CentralProcessor extends JsonObject {
     /**
      * Processor vendor.
      * 

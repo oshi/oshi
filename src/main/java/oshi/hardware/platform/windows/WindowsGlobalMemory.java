@@ -59,4 +59,12 @@ public class WindowsGlobalMemory implements GlobalMemory {
         }
         return this._memory.ullTotalPhys.longValue();
     }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"available\":").append(getAvailable()).append(",");
+        sb.append("\"total\":").append(getTotal());
+        return sb.append("}").toString();
+    }
 }

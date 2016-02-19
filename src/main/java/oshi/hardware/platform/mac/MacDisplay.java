@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Display;
+import oshi.util.EdidUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -45,6 +46,13 @@ public class MacDisplay implements Display {
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(edid, edid.length);
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"edid\":\"").append(EdidUtil.toString(getEdid())).append("\"");
+        return sb.append("}").toString();
     }
 
     /**

@@ -16,6 +16,8 @@
  */
 package oshi.hardware;
 
+import oshi.JsonObject;
+
 /**
  * Memory refers to the state information of a computing system, as it is kept
  * active in some physical structure. The term "memory" is used for the
@@ -26,7 +28,7 @@ package oshi.hardware;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface GlobalMemory {
+public interface GlobalMemory extends JsonObject {
     /**
      * Total memory.
      * 

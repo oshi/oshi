@@ -19,6 +19,7 @@ package oshi.hardware.platform.linux;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -581,6 +582,37 @@ public class LinuxCentralProcessor implements CentralProcessor {
     @Override
     public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"physicalProcessorCount\":").append(getPhysicalProcessorCount()).append(",");
+        sb.append("\"logicalProcessorCount\":").append(getLogicalProcessorCount()).append(",");
+        sb.append("\"systemSerialNumber\":\"").append(getSystemSerialNumber()).append("\",");
+        sb.append("\"vendor\":\"").append(getVendor()).append("\",");
+        sb.append("\"vendorFreq\":").append(getVendorFreq()).append(",");
+        sb.append("\"cpu64bit\":").append(isCpu64bit()).append(",");
+        sb.append("\"family\":\"").append(getFamily()).append("\",");
+        sb.append("\"model\":\"").append(getModel()).append("\",");
+        sb.append("\"stepping\":\"").append(getStepping()).append("\",");
+        sb.append("\"systemCpuLoadBetweenTicks\":").append(getSystemCpuLoadBetweenTicks()).append(",");
+        sb.append("\"systemCpuLoadTicks\":").append(Arrays.toString(getSystemCpuLoadTicks()).replaceAll(" ", ""))
+                .append(",");
+        sb.append("\"systemCpuLoad\":").append(getSystemCpuLoad()).append(",");
+        sb.append("\"systemLoadAverage\":").append(getSystemLoadAverage()).append(",");
+        sb.append("\"processorCpuLoadBetweenTicks\":")
+                .append(Arrays.toString(getProcessorCpuLoadBetweenTicks()).replaceAll(" ", "")).append(",");
+        sb.append("\"processorCpuLoadTicks\":[");
+        String separator = "";
+        for (long[] procTicks : getProcessorCpuLoadTicks()) {
+            sb.append(separator).append(Arrays.toString(procTicks).replaceAll(" ", ""));
+            separator = ",";
+        }
+        sb.append("],");
+        sb.append("\"systemUptime\":").append(getSystemUptime());
+        return sb.append("}").toString();
     }
 
     @Override

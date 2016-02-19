@@ -23,6 +23,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
+import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -80,4 +81,14 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
         return MacDisplay.getDisplays();
     }
 
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"processor\":").append(getProcessor().toJSON()).append(",");
+        sb.append("\"memory\":").append(getMemory().toJSON()).append(",");
+        sb.append("\"powerSources\":").append(ParseUtil.toJsonArray(getPowerSources())).append(",");
+        sb.append("\"fileStores\":").append(ParseUtil.toJsonArray(getFileStores())).append(",");
+        sb.append("\"displays\":").append(ParseUtil.toJsonArray(getDisplays()));
+        return sb.append("}").toString();
+    }
 }

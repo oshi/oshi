@@ -16,6 +16,8 @@
  */
 package oshi.software.os;
 
+import oshi.JsonObject;
+
 /**
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
@@ -23,7 +25,7 @@ package oshi.software.os;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface OperatingSystem {
+public interface OperatingSystem extends JsonObject {
 
     /**
      * Operating system family.

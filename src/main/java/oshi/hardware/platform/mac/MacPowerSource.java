@@ -28,10 +28,10 @@ import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.PowerSource;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
 
 /**
  * A Power Source
@@ -67,6 +67,15 @@ public class MacPowerSource implements PowerSource {
     @Override
     public double getTimeRemaining() {
         return this.timeRemaining;
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
+        sb.append("\"timeRemaining\":").append(getTimeRemaining());
+        return sb.append("}").toString();
     }
 
     /**

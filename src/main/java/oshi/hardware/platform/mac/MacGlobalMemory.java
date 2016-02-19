@@ -77,4 +77,12 @@ public class MacGlobalMemory implements GlobalMemory {
         }
         return this.totalMemory;
     }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"available\":").append(getAvailable()).append(",");
+        sb.append("\"total\":").append(getTotal());
+        return sb.append("}").toString();
+    }
 }

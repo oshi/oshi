@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.JsonObject;
+
 /**
  * String parsing utility.
  * 
@@ -120,5 +122,85 @@ public abstract class ParseUtil {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    /**
+     * Prints an array of JSON objects
+     * 
+     * @param objArray
+     *            an array of JsonObjects
+     * @return compact JSON string for the array
+     */
+    public static String toJsonArray(JsonObject[] objArray) {
+        StringBuilder sb = new StringBuilder("[");
+        String separator = "";
+        for (JsonObject obj : objArray) {
+            sb.append(separator).append(obj.toJSON());
+            separator = ",";
+        }
+        return sb.append("]").toString();
+    }
+
+    /**
+     * Pretty print a JSON string.
+     * 
+     * @param json
+     * @return String with added whitespace, new lines, indentation
+     */
+    public static String jsonPrettyPrint(String json) {
+        int indent = 0;
+        boolean inQuotes = false;
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < json.length(); i++) {
+            char c = json.charAt(i);
+            // If " toggle inQuotes.
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            }
+            // If inside quotes ignore other formatting
+            if (inQuotes) {
+                sb.append(c);
+                continue;
+            }
+            switch (c) {
+            // If { or [ add new line and increase indent
+            case '{':
+            case '[':
+                sb.append(c);
+                indent++;
+                sb.append(newLineWithIndent(indent));
+                break;
+            // If } or ] add new line and decrease indent
+            case '}':
+            case ']':
+                indent--;
+                sb.append(newLineWithIndent(indent));
+                sb.append(c);
+                break;
+            // If , add new line
+            case ',':
+                sb.append(c);
+                sb.append(newLineWithIndent(indent));
+                break;
+            // If :, add space
+            case ':':
+                sb.append(c).append(" ");
+                break;
+            // Otherwise just display
+            default:
+                sb.append(c);
+            }
+        }
+        // Remove whitespace between brackets if needed
+        return sb.toString().replaceAll("\\[\\s+\\]", "[]").replaceAll("\\{\\s+\\}", "{}");
+    }
+
+    private static String newLineWithIndent(int indent) {
+        StringBuilder sb = new StringBuilder("\n");
+        for (int i = 0; i < indent; i++) {
+            sb.append("  ");
+        }
+        return sb.toString();
     }
 }

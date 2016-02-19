@@ -76,6 +76,15 @@ public class LinuxOperatingSystem implements OperatingSystem {
     }
 
     @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"manufacturer\":\"").append(getManufacturer()).append("\",");
+        sb.append("\"family\":\"").append(getFamily()).append("\",");
+        sb.append("\"version\":").append(getVersion().toJSON());
+        return sb.append("}").toString();
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer());
