@@ -65,6 +65,15 @@ public class LinuxPowerSource implements PowerSource {
         return this.timeRemaining;
     }
 
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
+        sb.append("\"timeRemaining\":").append(getTimeRemaining());
+        return sb.append("}").toString();
+    }
+
     /**
      * Gets Battery Information
      * 

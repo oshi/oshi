@@ -16,13 +16,15 @@
  */
 package oshi.hardware;
 
+import oshi.JsonObject;
+
 /**
  * Display refers to the information regarding a video source and monitor
  * identified by the EDID standard.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface Display {
+public interface Display extends JsonObject {
     /**
      * The EDID byte array.
      * 

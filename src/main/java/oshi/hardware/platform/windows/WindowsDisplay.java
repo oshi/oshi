@@ -34,6 +34,7 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Display;
+import oshi.util.EdidUtil;
 
 /**
  * A Display
@@ -53,6 +54,13 @@ public class WindowsDisplay implements Display {
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(edid, edid.length);
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"edid\":\"").append(EdidUtil.toString(getEdid())).append("\"");
+        return sb.append("}").toString();
     }
 
     /**

@@ -16,11 +16,13 @@
  */
 package oshi.software.os;
 
+import oshi.JsonObject;
+
 /**
  * Version of an operating system.
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface OperatingSystemVersion {
+public interface OperatingSystemVersion extends JsonObject {
     // TODO Build this out
 }

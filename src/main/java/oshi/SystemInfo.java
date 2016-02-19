@@ -16,6 +16,8 @@
  */
 package oshi;
 
+import com.sun.jna.Platform;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
@@ -24,8 +26,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
-
-import com.sun.jna.Platform;
+import oshi.util.ParseUtil;
 
 /**
  * System information. This is the main entry point to Oshi. This object
@@ -35,7 +36,7 @@ import com.sun.jna.Platform;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class SystemInfo {
+public class SystemInfo implements JsonObject {
     private OperatingSystem _os = null;
 
     private HardwareAbstractionLayer _hardware = null;
@@ -104,5 +105,22 @@ public class SystemInfo {
             }
         }
         return this._hardware;
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"operatingSystem\":").append(getOperatingSystem().toJSON());
+        sb.append(",\"hardware\":").append(getHardware().toJSON());
+        return sb.append("}").toString();
+    }
+
+    /**
+     * Pretty prints a JSON string containing all system information
+     * 
+     * @return a pretty printed JSON string
+     */
+    public String toString() {
+        return ParseUtil.jsonPrettyPrint(this.toJSON());
     }
 }

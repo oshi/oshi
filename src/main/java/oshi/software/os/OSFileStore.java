@@ -19,6 +19,8 @@ package oshi.software.os;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.JsonObject;
+
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
@@ -26,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore {
+public class OSFileStore implements JsonObject {
     private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
     private String name;
@@ -131,5 +133,15 @@ public class OSFileStore {
      */
     public void setTotalSpace(long value) {
         this.totalSpace = value;
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"description\":\"").append(getDescription()).append("\",");
+        sb.append("\"usableSpace\":").append(getUsableSpace()).append(",");
+        sb.append("\"totalSpace\":").append(getTotalSpace());
+        return sb.append("}").toString();
     }
 }

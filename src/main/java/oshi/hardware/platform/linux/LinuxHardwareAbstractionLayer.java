@@ -30,6 +30,7 @@ import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -120,6 +121,17 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"processor\":").append(getProcessor().toJSON()).append(",");
+        sb.append("\"memory\":").append(getMemory().toJSON()).append(",");
+        sb.append("\"powerSources\":").append(ParseUtil.toJsonArray(getPowerSources())).append(",");
+        sb.append("\"fileStores\":").append(ParseUtil.toJsonArray(getFileStores())).append(",");
+        sb.append("\"displays\":").append(ParseUtil.toJsonArray(getDisplays()));
+        return sb.append("}").toString();
     }
 
 }

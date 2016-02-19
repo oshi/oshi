@@ -156,8 +156,12 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
         return this._versionInfo.wProductType;
     }
 
-    @Override
-    public String toString() {
+    /**
+     * Gets the operating system version
+     * 
+     * @return Version
+     */
+    public String getVersion() {
         if (this._versionInfo == null) {
             LOG.warn("OSVersionInfoEx not initialized. No version data available");
             return "Unknown";
@@ -241,5 +245,19 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
 
     public WindowsOSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
         this._versionInfo = versionInfo;
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"version\":\"").append(getVersion()).append("\",");
+        sb.append("\"codeName\":\"\",");
+        sb.append("\"build\":\"").append(getBuildNumber()).append("\"");
+        return sb.append("}").toString();
+    }
+
+    @Override
+    public String toString() {
+        return this.getVersion();
     }
 }

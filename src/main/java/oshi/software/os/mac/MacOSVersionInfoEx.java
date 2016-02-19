@@ -150,6 +150,15 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"version\":\"").append(getVersion()).append("\",");
+        sb.append("\"codeName\":\"").append(getCodeName()).append("\",");
+        sb.append("\"build\":\"").append(getBuildNumber()).append("\"");
+        return sb.append("}").toString();
+    }
+
+    @Override
     public String toString() {
         if (this._versionStr == null) {
             StringBuilder sb = new StringBuilder(getVersion());

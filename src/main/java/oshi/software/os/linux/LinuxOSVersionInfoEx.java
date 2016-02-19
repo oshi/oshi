@@ -113,6 +113,15 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"version\":\"").append(getVersion()).append("\",");
+        sb.append("\"codeName\":\"").append(getCodeName()).append("\",");
+        sb.append("\"build\":\"\"");
+        return sb.append("}").toString();
+    }
+
+    @Override
     public String toString() {
         if (this.version == null) {
             this.version = getVersion() + " (" + getCodeName() + ")";
