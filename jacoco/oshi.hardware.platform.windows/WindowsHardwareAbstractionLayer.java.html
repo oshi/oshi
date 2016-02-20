@@ -26,63 +26,65 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
+import oshi.util.ParseUtil;
 
-<span class="nc" id="L30">public class WindowsHardwareAbstractionLayer</span>
-    implements HardwareAbstractionLayer
-{
+<span class="nc" id="L31">public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
     private CentralProcessor processor;
 
     private GlobalMemory _memory;
 
     @Override
-    public GlobalMemory getMemory()
-    {
-<span class="nc bnc" id="L41" title="All 2 branches missed.">        if ( this._memory == null )</span>
-        {
-<span class="nc" id="L43">            this._memory = new WindowsGlobalMemory();</span>
+    public GlobalMemory getMemory() {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (this._memory == null) {</span>
+<span class="nc" id="L40">            this._memory = new WindowsGlobalMemory();</span>
         }
-<span class="nc" id="L45">        return this._memory;</span>
+<span class="nc" id="L42">        return this._memory;</span>
     }
 
     @Override
-    public CentralProcessor getProcessor()
-    {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if ( this.processor == null )</span>
-        {
-<span class="nc" id="L53">            processor = new WindowsCentralProcessor();</span>
-<span class="nc" id="L54">            final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
-<span class="nc" id="L55">            String[] processorIds = Advapi32Util.registryGetKeys( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot );</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">            if ( processorIds.length &gt; 0 )</span>
-            {
-<span class="nc" id="L58">                String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorIds[0];</span>
-<span class="nc" id="L59">                processor.setIdentifier( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE,</span>
-                                                                              cpuRegistryPath, &quot;Identifier&quot; ) );
-<span class="nc" id="L61">                processor.setName( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-                                                                        &quot;ProcessorNameString&quot; ) );
-<span class="nc" id="L63">                processor.setVendor( Advapi32Util.registryGetStringValue( WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-                                                                          &quot;VendorIdentifier&quot; ) );
+    public CentralProcessor getProcessor() {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L48">            processor = new WindowsCentralProcessor();</span>
+<span class="nc" id="L49">            final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
+<span class="nc" id="L50">            String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            if (processorIds.length &gt; 0) {</span>
+<span class="nc" id="L52">                String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorIds[0];</span>
+<span class="nc" id="L53">                processor.setIdentifier(</span>
+<span class="nc" id="L54">                        Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;Identifier&quot;));</span>
+<span class="nc" id="L55">                processor.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+                        &quot;ProcessorNameString&quot;));
+<span class="nc" id="L57">                processor.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+                        &quot;VendorIdentifier&quot;));
             }
         }
-<span class="nc" id="L67">        return this.processor;</span>
+<span class="nc" id="L61">        return this.processor;</span>
     }
 
     @Override
-    public PowerSource[] getPowerSources()
-    {
-<span class="nc" id="L73">        return WindowsPowerSource.getPowerSources();</span>
+    public PowerSource[] getPowerSources() {
+<span class="nc" id="L66">        return WindowsPowerSource.getPowerSources();</span>
     }
 
     @Override
-    public OSFileStore[] getFileStores()
-    {
-<span class="nc" id="L79">        return WindowsFileSystem.getFileStores();</span>
+    public OSFileStore[] getFileStores() {
+<span class="nc" id="L71">        return WindowsFileSystem.getFileStores();</span>
     }
 
     @Override
-    public Display[] getDisplays()
-    {
-<span class="nc" id="L85">        return WindowsDisplay.getDisplays();</span>
+    public Display[] getDisplays() {
+<span class="nc" id="L76">        return WindowsDisplay.getDisplays();</span>
+    }
+
+    @Override
+    public String toJSON() {
+<span class="nc" id="L81">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L82">        sb.append(&quot;\&quot;processor\&quot;:&quot;).append(getProcessor().toJSON()).append(&quot;,&quot;);</span>
+<span class="nc" id="L83">        sb.append(&quot;\&quot;memory\&quot;:&quot;).append(getMemory().toJSON()).append(&quot;,&quot;);</span>
+<span class="nc" id="L84">        sb.append(&quot;\&quot;powerSources\&quot;:&quot;).append(ParseUtil.toJsonArray(getPowerSources())).append(&quot;,&quot;);</span>
+<span class="nc" id="L85">        sb.append(&quot;\&quot;fileStores\&quot;:&quot;).append(ParseUtil.toJsonArray(getFileStores())).append(&quot;,&quot;);</span>
+<span class="nc" id="L86">        sb.append(&quot;\&quot;displays\&quot;:&quot;).append(ParseUtil.toJsonArray(getDisplays()));</span>
+<span class="nc" id="L87">        return sb.append(&quot;}&quot;).toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

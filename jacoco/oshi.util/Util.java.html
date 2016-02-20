@@ -24,45 +24,42 @@ import org.slf4j.LoggerFactory;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L27">public class Util</span>
-{
-<span class="nc" id="L29">    private static final Logger LOG = LoggerFactory.getLogger( Util.class );</span>
+<span class="nc" id="L27">public class Util {</span>
+<span class="nc" id="L28">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
 
     /**
      * Sleeps for the specified number of milliseconds.
      * 
-     * @param ms How long to sleep
+     * @param ms
+     *            How long to sleep
      */
-    public static void sleep( long ms )
-    {
-        try
-        {
-<span class="nc" id="L40">            LOG.trace( &quot;Sleeping for {} ms&quot;, ms );</span>
-<span class="nc" id="L41">            Thread.sleep( ms );</span>
-        }
-<span class="nc" id="L43">        catch ( InterruptedException e )</span>
-        {
-<span class="nc" id="L45">            LOG.trace( &quot;&quot;, e );</span>
-<span class="nc" id="L46">            LOG.warn( &quot;Interrupted while sleeping for {} ms&quot;, ms );</span>
-<span class="nc" id="L47">        }</span>
-<span class="nc" id="L48">    }</span>
+    public static void sleep(long ms) {
+        try {
+<span class="nc" id="L38">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="nc" id="L39">            Thread.sleep(ms);</span>
+<span class="nc" id="L40">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L41">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L42">            LOG.warn(&quot;Interrupted while sleeping for {} ms&quot;, ms);</span>
+<span class="nc" id="L43">        }</span>
+<span class="nc" id="L44">    }</span>
 
     /**
-     * Sleeps for the specified number of milliseconds after the given system time in milliseconds. If that number of
-     * milliseconds has already elapsed, does nothing.
+     * Sleeps for the specified number of milliseconds after the given system
+     * time in milliseconds. If that number of milliseconds has already elapsed,
+     * does nothing.
      * 
-     * @param startTime System time in milliseconds to sleep after
-     * @param ms How long after startTime to sleep
+     * @param startTime
+     *            System time in milliseconds to sleep after
+     * @param ms
+     *            How long after startTime to sleep
      */
-    public static void sleepAfter( long startTime, long ms )
-    {
-<span class="nc" id="L59">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L60">        long until = startTime + ms;</span>
-<span class="nc" id="L61">        LOG.trace( &quot;Sleeping until {}&quot;, until );</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if ( now &lt; until )</span>
-        {
-<span class="nc" id="L64">            sleep( until - now );</span>
+    public static void sleepAfter(long startTime, long ms) {
+<span class="nc" id="L57">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L58">        long until = startTime + ms;</span>
+<span class="nc" id="L59">        LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (now &lt; until) {</span>
+<span class="nc" id="L61">            sleep(until - now);</span>
         }
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L63">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

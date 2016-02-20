@@ -26,97 +26,90 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class for executing on the command line and returning the result of execution.
+ * A class for executing on the command line and returning the result of
+ * execution.
  * 
  * @author alessandro[at]perucchi[dot]org
  */
-<span class="nc" id="L33">public class ExecutingCommand</span>
-{
+<span class="nc" id="L34">public class ExecutingCommand {</span>
 
-<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger( ExecutingCommand.class );</span>
+<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
     /**
      * Executes a command on the native command line and returns the result.
      * 
-     * @param cmdToRun Command to run
+     * @param cmdToRun
+     *            Command to run
      * @return A list of Strings representing the result of the command
      */
-    public static ArrayList&lt;String&gt; runNative( String cmdToRun )
-    {
-<span class="fc" id="L46">        String[] cmd = cmdToRun.split( &quot; &quot; );</span>
-<span class="fc" id="L47">        return runNative( cmd );</span>
+    public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
+<span class="fc" id="L46">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="fc" id="L47">        return runNative(cmd);</span>
     }
 
     /**
      * Executes a command on the native command line and returns the result.
      * 
-     * @param cmdToRunWithArgs Command to run and args, in an array
+     * @param cmdToRunWithArgs
+     *            Command to run and args, in an array
      * @return A list of Strings representing the result of the command
      */
-    public static ArrayList&lt;String&gt; runNative( String[] cmdToRunWithArgs )
-    {
+    public static ArrayList&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
 <span class="fc" id="L58">        Process p = null;</span>
-        try
-        {
-<span class="fc" id="L61">            p = Runtime.getRuntime().exec( cmdToRunWithArgs );</span>
-        }
-<span class="nc" id="L63">        catch ( IOException e )</span>
-        {
-<span class="nc" id="L65">            LOG.trace( &quot;&quot;, e );</span>
-<span class="nc" id="L66">            return null;</span>
-<span class="fc" id="L67">        }</span>
+        try {
+<span class="fc" id="L60">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
+<span class="nc" id="L61">        } catch (IOException e) {</span>
+<span class="nc" id="L62">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L63">            return null;</span>
+<span class="fc" id="L64">        }</span>
 
-<span class="fc" id="L69">        BufferedReader reader = new BufferedReader( new InputStreamReader( p.getInputStream() ) );</span>
-<span class="fc" id="L70">        String line = &quot;&quot;;</span>
-<span class="fc" id="L71">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-        try
-        {
-<span class="fc bfc" id="L74" title="All 2 branches covered.">            while ( ( line = reader.readLine() ) != null )</span>
-            {
-<span class="fc" id="L76">                sa.add( line );</span>
+<span class="fc" id="L66">        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));</span>
+<span class="fc" id="L67">        String line = &quot;&quot;;</span>
+<span class="fc" id="L68">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L71">                sa.add(line);</span>
             }
-<span class="fc" id="L78">            p.waitFor();</span>
-        }
-<span class="nc" id="L80">        catch ( InterruptedException e )</span>
-        {
-<span class="nc" id="L82">            LOG.trace( &quot;&quot;, e );</span>
-<span class="nc" id="L83">            return null;</span>
-        }
-<span class="nc" id="L85">        catch ( IOException e )</span>
-        {
-<span class="nc" id="L87">            LOG.trace( &quot;&quot;, e );</span>
-<span class="nc" id="L88">            return null;</span>
-<span class="fc" id="L89">        }</span>
-<span class="fc" id="L90">        return sa;</span>
+<span class="fc" id="L73">            p.waitFor();</span>
+<span class="nc" id="L74">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L75">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L76">            return null;</span>
+<span class="nc" id="L77">        } catch (IOException e) {</span>
+<span class="nc" id="L78">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L79">            return null;</span>
+<span class="fc" id="L80">        }</span>
+<span class="fc" id="L81">        return sa;</span>
     }
 
     /**
      * Return first line of response for selected command.
      * 
-     * @param cmd2launch String command to be launched
+     * @param cmd2launch
+     *            String command to be launched
      * @return String or null
      */
-    public static String getFirstAnswer( String cmd2launch )
-    {
-<span class="nc" id="L101">        return getAnswerAt( cmd2launch, 0 );</span>
+    public static String getFirstAnswer(String cmd2launch) {
+<span class="nc" id="L92">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
-     * Return response on selected line index (0-based) after running selected command.
+     * Return response on selected line index (0-based) after running selected
+     * command.
      * 
-     * @param cmd2launch String command to be launched
-     * @param answerIdx int index of line in response of the command
-     * @return String whole line in response or null if invalid index or running of command fails
+     * @param cmd2launch
+     *            String command to be launched
+     * @param answerIdx
+     *            int index of line in response of the command
+     * @return String whole line in response or null if invalid index or running
+     *         of command fails
      */
-    public static String getAnswerAt( String cmd2launch, int answerIdx )
-    {
-<span class="nc" id="L113">        List&lt;String&gt; sa = ExecutingCommand.runNative( cmd2launch );</span>
+    public static String getAnswerAt(String cmd2launch, int answerIdx) {
+<span class="nc" id="L107">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="nc bnc" id="L115" title="All 6 branches missed.">        if ( sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size() )</span>
-        {
-<span class="nc" id="L117">            return sa.get( answerIdx );</span>
+<span class="nc bnc" id="L109" title="All 6 branches missed.">        if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="nc" id="L110">            return sa.get(answerIdx);</span>
         }
-<span class="nc" id="L119">        return null;</span>
+<span class="nc" id="L112">        return null;</span>
     }
 
 }

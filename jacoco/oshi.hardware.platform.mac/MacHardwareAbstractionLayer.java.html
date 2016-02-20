@@ -23,14 +23,13 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
+import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L31">public class MacHardwareAbstractionLayer</span>
-    implements HardwareAbstractionLayer
-{
+<span class="fc" id="L32">public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
     private CentralProcessor processor;
 
@@ -40,53 +39,57 @@ import oshi.software.os.mac.MacFileSystem;
 
     /*
      * (non-Javadoc)
+     * 
      * @see oshi.hardware.HardwareAbstractionLayer#getProcessor()
      */
     @Override
-    public CentralProcessor getProcessor()
-    {
-<span class="fc bfc" id="L48" title="All 2 branches covered.">        if ( this.processor == null )</span>
-        {
-<span class="fc" id="L50">            this.processor = new MacCentralProcessor();</span>
+    public CentralProcessor getProcessor() {
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (this.processor == null) {</span>
+<span class="fc" id="L48">            this.processor = new MacCentralProcessor();</span>
         }
-<span class="fc" id="L52">        return this.processor;</span>
+<span class="fc" id="L50">        return this.processor;</span>
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see oshi.hardware.HardwareAbstractionLayer#getMemory()
      */
     @Override
-    public GlobalMemory getMemory()
-    {
-<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if ( this._memory == null )</span>
-        {
-<span class="fc" id="L64">            this._memory = new MacGlobalMemory();</span>
+    public GlobalMemory getMemory() {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (this._memory == null) {</span>
+<span class="fc" id="L61">            this._memory = new MacGlobalMemory();</span>
         }
-<span class="fc" id="L66">        return this._memory;</span>
+<span class="fc" id="L63">        return this._memory;</span>
     }
 
     @Override
-    public PowerSource[] getPowerSources()
-    {
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if ( this._powerSources == null )</span>
-        {
-<span class="fc" id="L74">            this._powerSources = MacPowerSource.getPowerSources();</span>
+    public PowerSource[] getPowerSources() {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (this._powerSources == null) {</span>
+<span class="fc" id="L69">            this._powerSources = MacPowerSource.getPowerSources();</span>
         }
-<span class="fc" id="L76">        return this._powerSources;</span>
+<span class="fc" id="L71">        return this._powerSources;</span>
     }
 
     @Override
-    public OSFileStore[] getFileStores()
-    {
-<span class="fc" id="L82">        return MacFileSystem.getFileStores();</span>
+    public OSFileStore[] getFileStores() {
+<span class="fc" id="L76">        return MacFileSystem.getFileStores();</span>
     }
 
     @Override
-    public Display[] getDisplays()
-    {
-<span class="fc" id="L88">        return MacDisplay.getDisplays();</span>
+    public Display[] getDisplays() {
+<span class="fc" id="L81">        return MacDisplay.getDisplays();</span>
     }
 
+    @Override
+    public String toJSON() {
+<span class="nc" id="L86">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L87">        sb.append(&quot;\&quot;processor\&quot;:&quot;).append(getProcessor().toJSON()).append(&quot;,&quot;);</span>
+<span class="nc" id="L88">        sb.append(&quot;\&quot;memory\&quot;:&quot;).append(getMemory().toJSON()).append(&quot;,&quot;);</span>
+<span class="nc" id="L89">        sb.append(&quot;\&quot;powerSources\&quot;:&quot;).append(ParseUtil.toJsonArray(getPowerSources())).append(&quot;,&quot;);</span>
+<span class="nc" id="L90">        sb.append(&quot;\&quot;fileStores\&quot;:&quot;).append(ParseUtil.toJsonArray(getFileStores())).append(&quot;,&quot;);</span>
+<span class="nc" id="L91">        sb.append(&quot;\&quot;displays\&quot;:&quot;).append(ParseUtil.toJsonArray(getDisplays()));</span>
+<span class="nc" id="L92">        return sb.append(&quot;}&quot;).toString();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

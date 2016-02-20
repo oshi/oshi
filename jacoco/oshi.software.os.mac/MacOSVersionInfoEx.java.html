@@ -32,10 +32,8 @@ import oshi.software.os.OperatingSystemVersion;
  * @author widdis[at]gmail[dot]com
  */
 
-public class MacOSVersionInfoEx
-    implements OperatingSystemVersion
-{
-<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger( MacOSVersionInfoEx.class );</span>
+public class MacOSVersionInfoEx implements OperatingSystemVersion {
+<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
 
     private String _version;
 
@@ -45,140 +43,132 @@ public class MacOSVersionInfoEx
 
     private String _buildNumber;
 
-    public MacOSVersionInfoEx()
-<span class="fc" id="L49">    {</span>
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L46">    public MacOSVersionInfoEx() {</span>
+<span class="fc" id="L47">    }</span>
 
     /**
      * @return the _version
      */
-    public String getVersion()
-    {
-<span class="fc bfc" id="L57" title="All 2 branches covered.">        if ( this._version == null )</span>
-        {
-<span class="fc" id="L59">            this._version = System.getProperty( &quot;os.version&quot; );</span>
+    public String getVersion() {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (this._version == null) {</span>
+<span class="fc" id="L54">            this._version = System.getProperty(&quot;os.version&quot;);</span>
         }
-<span class="fc" id="L61">        return this._version;</span>
+<span class="fc" id="L56">        return this._version;</span>
     }
 
     /**
-     * @param version the version to set
+     * @param version
+     *            the version to set
      */
-    public void setVersion( String version )
-    {
-<span class="nc" id="L69">        this._version = version;</span>
-<span class="nc" id="L70">    }</span>
+    public void setVersion(String version) {
+<span class="nc" id="L64">        this._version = version;</span>
+<span class="nc" id="L65">    }</span>
 
     /**
      * @return the _codeName
      */
-    public String getCodeName()
-    {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if ( this._codeName == null )</span>
-        {
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if ( getVersion() != null )</span>
-            {
-<span class="fc" id="L81">                String[] versionSplit = getVersion().split( &quot;\\.&quot; );</span>
-<span class="pc bpc" id="L82" title="2 of 4 branches missed.">                if ( versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals( &quot;10&quot; ) )</span>
-                {
-<span class="pc bpc" id="L84" title="12 of 13 branches missed.">                    switch ( Integer.parseInt( versionSplit[1] ) )</span>
-                    {
-                        case 0:
-<span class="nc" id="L87">                            this._codeName = &quot;Cheetah&quot;;</span>
-<span class="nc" id="L88">                            break;</span>
-                        case 1:
-<span class="nc" id="L90">                            this._codeName = &quot;Puma&quot;;</span>
-<span class="nc" id="L91">                            break;</span>
-                        case 2:
-<span class="nc" id="L93">                            this._codeName = &quot;Jaguar&quot;;</span>
-<span class="nc" id="L94">                            break;</span>
-                        case 3:
-<span class="nc" id="L96">                            this._codeName = &quot;Panther&quot;;</span>
-<span class="nc" id="L97">                            break;</span>
-                        case 4:
-<span class="nc" id="L99">                            this._codeName = &quot;Tiger&quot;;</span>
-<span class="nc" id="L100">                            break;</span>
-                        case 5:
-<span class="nc" id="L102">                            this._codeName = &quot;Leopard&quot;;</span>
-<span class="nc" id="L103">                            break;</span>
-                        case 6:
-<span class="nc" id="L105">                            this._codeName = &quot;Snow Leopard&quot;;</span>
-<span class="nc" id="L106">                            break;</span>
-                        case 7:
-<span class="nc" id="L108">                            this._codeName = &quot;Lion&quot;;</span>
-<span class="nc" id="L109">                            break;</span>
-                        case 8:
-<span class="nc" id="L111">                            this._codeName = &quot;Mountain Lion&quot;;</span>
-<span class="nc" id="L112">                            break;</span>
-                        case 9:
-<span class="nc" id="L114">                            this._codeName = &quot;Mavericks&quot;;</span>
-<span class="nc" id="L115">                            break;</span>
-                        case 10:
-<span class="nc" id="L117">                            this._codeName = &quot;Yosemite&quot;;</span>
-<span class="nc" id="L118">                            break;</span>
-                        case 11:
-<span class="fc" id="L120">                            this._codeName = &quot;El Capitan&quot;;</span>
-<span class="fc" id="L121">                            break;</span>
-                        default:
-<span class="nc" id="L123">                            this._codeName = &quot;&quot;;</span>
+    public String getCodeName() {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (this._codeName == null) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (getVersion() != null) {</span>
+<span class="fc" id="L73">                String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">                if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+<span class="pc bpc" id="L75" title="12 of 13 branches missed.">                    switch (Integer.parseInt(versionSplit[1])) {</span>
+                    case 0:
+<span class="nc" id="L77">                        this._codeName = &quot;Cheetah&quot;;</span>
+<span class="nc" id="L78">                        break;</span>
+                    case 1:
+<span class="nc" id="L80">                        this._codeName = &quot;Puma&quot;;</span>
+<span class="nc" id="L81">                        break;</span>
+                    case 2:
+<span class="nc" id="L83">                        this._codeName = &quot;Jaguar&quot;;</span>
+<span class="nc" id="L84">                        break;</span>
+                    case 3:
+<span class="nc" id="L86">                        this._codeName = &quot;Panther&quot;;</span>
+<span class="nc" id="L87">                        break;</span>
+                    case 4:
+<span class="nc" id="L89">                        this._codeName = &quot;Tiger&quot;;</span>
+<span class="nc" id="L90">                        break;</span>
+                    case 5:
+<span class="nc" id="L92">                        this._codeName = &quot;Leopard&quot;;</span>
+<span class="nc" id="L93">                        break;</span>
+                    case 6:
+<span class="nc" id="L95">                        this._codeName = &quot;Snow Leopard&quot;;</span>
+<span class="nc" id="L96">                        break;</span>
+                    case 7:
+<span class="nc" id="L98">                        this._codeName = &quot;Lion&quot;;</span>
+<span class="nc" id="L99">                        break;</span>
+                    case 8:
+<span class="nc" id="L101">                        this._codeName = &quot;Mountain Lion&quot;;</span>
+<span class="nc" id="L102">                        break;</span>
+                    case 9:
+<span class="nc" id="L104">                        this._codeName = &quot;Mavericks&quot;;</span>
+<span class="nc" id="L105">                        break;</span>
+                    case 10:
+<span class="nc" id="L107">                        this._codeName = &quot;Yosemite&quot;;</span>
+<span class="nc" id="L108">                        break;</span>
+                    case 11:
+<span class="fc" id="L110">                        this._codeName = &quot;El Capitan&quot;;</span>
+<span class="fc" id="L111">                        break;</span>
+                    default:
+<span class="nc" id="L113">                        this._codeName = &quot;&quot;;</span>
                     }
 
-                }
-                else
-<span class="nc" id="L128">                    this._codeName = &quot;&quot;;</span>
+                } else
+<span class="nc" id="L117">                    this._codeName = &quot;&quot;;</span>
             }
         }
-<span class="fc" id="L131">        return this._codeName;</span>
+<span class="fc" id="L120">        return this._codeName;</span>
     }
 
     /**
-     * @param codeName the codeName to set
+     * @param codeName
+     *            the codeName to set
      */
-    public void setCodeName( String codeName )
-    {
-<span class="nc" id="L139">        this._codeName = codeName;</span>
-<span class="nc" id="L140">    }</span>
+    public void setCodeName(String codeName) {
+<span class="nc" id="L128">        this._codeName = codeName;</span>
+<span class="nc" id="L129">    }</span>
 
-    public String getBuildNumber()
-    {
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if ( this._buildNumber == null )</span>
-        {
-<span class="fc" id="L146">            IntByReference size = new IntByReference();</span>
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            if ( 0 != SystemB.INSTANCE.sysctlbyname( &quot;kern.osversion&quot;, null, size, null, 0 ) )</span>
-            {
-<span class="nc" id="L149">                LOG.error( &quot;Failed to get OS Version. Error code: &quot; + Native.getLastError() );</span>
-<span class="nc" id="L150">                return &quot;&quot;;</span>
+    public String getBuildNumber() {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (this._buildNumber == null) {</span>
+<span class="fc" id="L133">            IntByReference size = new IntByReference();</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, null, size, null, 0)) {</span>
+<span class="nc" id="L135">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L136">                return &quot;&quot;;</span>
             }
-<span class="fc" id="L152">            Pointer p = new Memory( size.getValue() + 1 );</span>
-<span class="pc bpc" id="L153" title="1 of 2 branches missed.">            if ( 0 != SystemB.INSTANCE.sysctlbyname( &quot;kern.osversion&quot;, p, size, null, 0 ) )</span>
-            {
-<span class="nc" id="L155">                LOG.error( &quot;Failed to get OS Version. Error code: &quot; + Native.getLastError() );</span>
-<span class="nc" id="L156">                return &quot;&quot;;</span>
+<span class="fc" id="L138">            Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, p, size, null, 0)) {</span>
+<span class="nc" id="L140">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L141">                return &quot;&quot;;</span>
             }
-<span class="fc" id="L158">            this._buildNumber = p.getString( 0 );</span>
+<span class="fc" id="L143">            this._buildNumber = p.getString(0);</span>
         }
-<span class="fc" id="L160">        return this._buildNumber;</span>
+<span class="fc" id="L145">        return this._buildNumber;</span>
     }
 
-    public void setBuildNumber( String buildNumber )
-    {
-<span class="nc" id="L165">        this._buildNumber = buildNumber;</span>
-<span class="nc" id="L166">    }</span>
+    public void setBuildNumber(String buildNumber) {
+<span class="nc" id="L149">        this._buildNumber = buildNumber;</span>
+<span class="nc" id="L150">    }</span>
 
     @Override
-    public String toString()
-    {
-<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if ( this._versionStr == null )</span>
-        {
-<span class="fc" id="L173">            StringBuilder sb = new StringBuilder( getVersion() );</span>
-<span class="pc bpc" id="L174" title="1 of 2 branches missed.">            if ( getCodeName().length() &gt; 0 )</span>
-            {
-<span class="fc" id="L176">                sb.append( &quot; (&quot; ).append( getCodeName() ).append( &quot;)&quot; );</span>
+    public String toJSON() {
+<span class="nc" id="L154">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L155">        sb.append(&quot;\&quot;version\&quot;:\&quot;&quot;).append(getVersion()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L156">        sb.append(&quot;\&quot;codeName\&quot;:\&quot;&quot;).append(getCodeName()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L157">        sb.append(&quot;\&quot;build\&quot;:\&quot;&quot;).append(getBuildNumber()).append(&quot;\&quot;&quot;);</span>
+<span class="nc" id="L158">        return sb.append(&quot;}&quot;).toString();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (this._versionStr == null) {</span>
+<span class="fc" id="L164">            StringBuilder sb = new StringBuilder(getVersion());</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
+<span class="fc" id="L166">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
             }
-<span class="fc" id="L178">            sb.append( &quot; build &quot; ).append( getBuildNumber() );</span>
-<span class="fc" id="L179">            this._versionStr = sb.toString();</span>
+<span class="fc" id="L168">            sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="fc" id="L169">            this._versionStr = sb.toString();</span>
         }
-<span class="fc" id="L181">        return this._versionStr;</span>
+<span class="fc" id="L171">        return this._versionStr;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

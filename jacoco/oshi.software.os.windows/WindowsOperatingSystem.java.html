@@ -20,48 +20,51 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
- * Microsoft Windows is a family of proprietary operating systems most commonly used on personal computers.
+ * Microsoft Windows is a family of proprietary operating systems most commonly
+ * used on personal computers.
  * 
  * @author dblock[at]dblock[dot]org
  */
-<span class="nc" id="L27">public class WindowsOperatingSystem</span>
-    implements OperatingSystem
-{
+<span class="nc" id="L28">public class WindowsOperatingSystem implements OperatingSystem {</span>
 
     private OperatingSystemVersion _version;
 
     @Override
-    public OperatingSystemVersion getVersion()
-    {
-<span class="nc bnc" id="L36" title="All 2 branches missed.">        if ( this._version == null )</span>
-        {
-<span class="nc" id="L38">            this._version = new WindowsOSVersionInfoEx();</span>
+    public OperatingSystemVersion getVersion() {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (this._version == null) {</span>
+<span class="nc" id="L35">            this._version = new WindowsOSVersionInfoEx();</span>
         }
-<span class="nc" id="L40">        return this._version;</span>
+<span class="nc" id="L37">        return this._version;</span>
     }
 
     @Override
-    public String getFamily()
-    {
-<span class="nc" id="L46">        return &quot;Windows&quot;;</span>
+    public String getFamily() {
+<span class="nc" id="L42">        return &quot;Windows&quot;;</span>
     }
 
     @Override
-    public String getManufacturer()
-    {
-<span class="nc" id="L52">        return &quot;Microsoft&quot;;</span>
+    public String getManufacturer() {
+<span class="nc" id="L47">        return &quot;Microsoft&quot;;</span>
     }
 
     @Override
-    public String toString()
-    {
-<span class="nc" id="L58">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L59">        sb.append( getManufacturer() );</span>
-<span class="nc" id="L60">        sb.append( &quot; &quot; );</span>
-<span class="nc" id="L61">        sb.append( getFamily() );</span>
-<span class="nc" id="L62">        sb.append( &quot; &quot; );</span>
-<span class="nc" id="L63">        sb.append( getVersion().toString() );</span>
-<span class="nc" id="L64">        return sb.toString();</span>
+    public String toJSON() {
+<span class="nc" id="L52">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L53">        sb.append(&quot;\&quot;manufacturer\&quot;:\&quot;&quot;).append(getManufacturer()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L54">        sb.append(&quot;\&quot;family\&quot;:\&quot;&quot;).append(getFamily()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L55">        sb.append(&quot;\&quot;version\&quot;:&quot;).append(getVersion().toJSON());</span>
+<span class="nc" id="L56">        return sb.append(&quot;}&quot;).toString();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L61">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L62">        sb.append(getManufacturer());</span>
+<span class="nc" id="L63">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L64">        sb.append(getFamily());</span>
+<span class="nc" id="L65">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L66">        sb.append(getVersion().toString());</span>
+<span class="nc" id="L67">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

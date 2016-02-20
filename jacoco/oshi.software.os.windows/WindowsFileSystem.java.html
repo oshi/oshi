@@ -30,58 +30,52 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OSFileStore;
 
 /**
- * The Windows File System contains {@link OSFileStore}s which are a storage pool, device, partition, volume, concrete
- * file system or other implementation specific means of file storage. In Windows, these are represented by a drive
+ * The Windows File System contains {@link OSFileStore}s which are a storage
+ * pool, device, partition, volume, concrete file system or other implementation
+ * specific means of file storage. In Windows, these are represented by a drive
  * letter, e.g., &quot;A:\&quot; and &quot;C:\&quot;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L39">public class WindowsFileSystem</span>
-{
+<span class="nc" id="L40">public class WindowsFileSystem {</span>
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger( WindowsFileSystem.class );</span>
+<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);</span>
 
     /**
      * Gets File System Information.
      * 
-     * @return An array of {@link OSFileStore} objects representing mounted volumes. May return disconnected volumes
-     *         with {@link OSFileStore#getTotalSpace()} = 0.
+     * @return An array of {@link OSFileStore} objects representing mounted
+     *         volumes. May return disconnected volumes with
+     *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores()
-    {
+    public static OSFileStore[] getFileStores() {
         // File.listRoots() has more information for Windows
         // than FileSystem.getDefalut().getFileStores()
 <span class="nc" id="L54">        final File[] roots = File.listRoots();</span>
         // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
         // problems
-<span class="nc" id="L57">        SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt; worker = new SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt;()</span>
-<span class="nc" id="L58">        {</span>
+<span class="nc" id="L57">        SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt; worker = new SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt;() {</span>
             @Override
-            public List&lt;OSFileStore&gt; doInBackground()
-            {
-<span class="nc" id="L62">                FileSystemView fsv = FileSystemView.getFileSystemView();</span>
-<span class="nc" id="L63">                List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">                for ( File f : roots )</span>
-                {
-<span class="nc" id="L66">                    fsList.add( new OSFileStore( fsv.getSystemDisplayName( f ), fsv.getSystemTypeDescription( f ),</span>
-<span class="nc" id="L67">                                                 f.getUsableSpace(), f.getTotalSpace() ) );</span>
+            public List&lt;OSFileStore&gt; doInBackground() {
+<span class="nc" id="L60">                FileSystemView fsv = FileSystemView.getFileSystemView();</span>
+<span class="nc" id="L61">                List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                for (File f : roots) {</span>
+<span class="nc" id="L63">                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),</span>
+<span class="nc" id="L64">                            f.getUsableSpace(), f.getTotalSpace()));</span>
                 }
-<span class="nc" id="L69">                return fsList;</span>
+<span class="nc" id="L66">                return fsList;</span>
             }
         };
-<span class="nc" id="L72">        worker.execute();</span>
-<span class="nc" id="L73">        List&lt;OSFileStore&gt; fs = new ArrayList&lt;&gt;();</span>
-        try
-        {
+<span class="nc" id="L69">        worker.execute();</span>
+<span class="nc" id="L70">        List&lt;OSFileStore&gt; fs = new ArrayList&lt;&gt;();</span>
+        try {
             // TODO: Consider a timeout version of this method that passes
             // timeout parameters which are used in this get()
-<span class="nc" id="L78">            fs = worker.get();</span>
-        }
-<span class="nc" id="L80">        catch ( InterruptedException | ExecutionException e )</span>
-        {
-<span class="nc" id="L82">            LOG.error( &quot;&quot;, e );</span>
-<span class="nc" id="L83">        }</span>
-<span class="nc" id="L84">        return fs.toArray( new OSFileStore[fs.size()] );</span>
+<span class="nc" id="L74">            fs = worker.get();</span>
+<span class="nc" id="L75">        } catch (InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L76">            LOG.error(&quot;&quot;, e);</span>
+<span class="nc" id="L77">        }</span>
+<span class="nc" id="L78">        return fs.toArray(new OSFileStore[fs.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

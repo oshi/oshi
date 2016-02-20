@@ -32,10 +32,8 @@ import oshi.util.FileUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxPowerSource
-    implements PowerSource
-{
-<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger( LinuxPowerSource.class );</span>
+public class LinuxPowerSource implements PowerSource {
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);</span>
 
     private static final String PS_PATH = &quot;/sys/class/power_supply/&quot;;
 
@@ -45,30 +43,35 @@ public class LinuxPowerSource
 
     private double timeRemaining;
 
-    public LinuxPowerSource( String newName, double newRemainingCapacity, double newTimeRemaining )
-<span class="nc" id="L49">    {</span>
-<span class="nc" id="L50">        this.name = newName;</span>
-<span class="nc" id="L51">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="nc" id="L52">        this.timeRemaining = newTimeRemaining;</span>
-<span class="nc" id="L53">        LOG.debug( &quot;Initialized LinuxPowerSource&quot; );</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L46">    public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="nc" id="L47">        this.name = newName;</span>
+<span class="nc" id="L48">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="nc" id="L49">        this.timeRemaining = newTimeRemaining;</span>
+<span class="nc" id="L50">        LOG.debug(&quot;Initialized LinuxPowerSource&quot;);</span>
+<span class="nc" id="L51">    }</span>
 
     @Override
-    public String getName()
-    {
-<span class="nc" id="L59">        return this.name;</span>
+    public String getName() {
+<span class="nc" id="L55">        return this.name;</span>
     }
 
     @Override
-    public double getRemainingCapacity()
-    {
-<span class="nc" id="L65">        return this.remainingCapacity;</span>
+    public double getRemainingCapacity() {
+<span class="nc" id="L60">        return this.remainingCapacity;</span>
     }
 
     @Override
-    public double getTimeRemaining()
-    {
-<span class="nc" id="L71">        return this.timeRemaining;</span>
+    public double getTimeRemaining() {
+<span class="nc" id="L65">        return this.timeRemaining;</span>
+    }
+
+    @Override
+    public String toJSON() {
+<span class="nc" id="L70">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L71">        sb.append(&quot;\&quot;name\&quot;:\&quot;&quot;).append(getName()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L72">        sb.append(&quot;\&quot;remainingCapacity\&quot;:&quot;).append(getRemainingCapacity()).append(&quot;,&quot;);</span>
+<span class="nc" id="L73">        sb.append(&quot;\&quot;timeRemaining\&quot;:&quot;).append(getTimeRemaining());</span>
+<span class="nc" id="L74">        return sb.append(&quot;}&quot;).toString();</span>
     }
 
     /**
@@ -76,95 +79,78 @@ public class LinuxPowerSource
      * 
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources()
-    {
+    public static PowerSource[] getPowerSources() {
         // Get list of power source names
-<span class="nc" id="L82">        File f = new File( PS_PATH );</span>
-<span class="nc" id="L83">        String[] psNames = f.list();</span>
+<span class="nc" id="L84">        File f = new File(PS_PATH);</span>
+<span class="nc" id="L85">        String[] psNames = f.list();</span>
         // Empty directory will give null rather than empty array, so fix
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if ( psNames == null )</span>
-<span class="nc" id="L86">            psNames = new String[0];</span>
-<span class="nc" id="L87">        List&lt;LinuxPowerSource&gt; psList = new ArrayList&lt;&gt;( psNames.length );</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (psNames == null)</span>
+<span class="nc" id="L88">            psNames = new String[0];</span>
+<span class="nc" id="L89">        List&lt;LinuxPowerSource&gt; psList = new ArrayList&lt;&gt;(psNames.length);</span>
         // For each power source, output various info
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for ( String psName : psNames )</span>
-        {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (String psName : psNames) {</span>
             // Skip if name is ADP* (AC power supply)
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if ( psName.startsWith( &quot;ADP&quot; ) )</span>
-<span class="nc" id="L93">                continue;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (psName.startsWith(&quot;ADP&quot;))</span>
+<span class="nc" id="L94">                continue;</span>
             // Skip if can't read uevent file
             List&lt;String&gt; psInfo;
-            try
-            {
-<span class="nc" id="L98">                psInfo = FileUtil.readFile( PS_PATH + psName + &quot;/uevent&quot; );</span>
-            }
-<span class="nc" id="L100">            catch ( IOException e )</span>
-            {
-<span class="nc" id="L102">                LOG.trace( &quot;&quot;, e );</span>
-<span class="nc" id="L103">                continue;</span>
-<span class="nc" id="L104">            }</span>
+            try {
+<span class="nc" id="L98">                psInfo = FileUtil.readFile(PS_PATH + psName + &quot;/uevent&quot;);</span>
+<span class="nc" id="L99">            } catch (IOException e) {</span>
+<span class="nc" id="L100">                LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L101">                continue;</span>
+<span class="nc" id="L102">            }</span>
             // Initialize defaults
-<span class="nc" id="L106">            boolean isPresent = false;</span>
-<span class="nc" id="L107">            boolean isCharging = false;</span>
-<span class="nc" id="L108">            String name = &quot;Unknown&quot;;</span>
-<span class="nc" id="L109">            int energyNow = 0;</span>
-<span class="nc" id="L110">            int energyFull = 1;</span>
-<span class="nc" id="L111">            int powerNow = 1;</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            for ( String checkLine : psInfo )</span>
-            {
-<span class="nc bnc" id="L114" title="All 2 branches missed.">                if ( checkLine.startsWith( &quot;POWER_SUPPLY_PRESENT&quot; ) )</span>
-                {
+<span class="nc" id="L104">            boolean isPresent = false;</span>
+<span class="nc" id="L105">            boolean isCharging = false;</span>
+<span class="nc" id="L106">            String name = &quot;Unknown&quot;;</span>
+<span class="nc" id="L107">            int energyNow = 0;</span>
+<span class="nc" id="L108">            int energyFull = 1;</span>
+<span class="nc" id="L109">            int powerNow = 1;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (String checkLine : psInfo) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (checkLine.startsWith(&quot;POWER_SUPPLY_PRESENT&quot;)) {</span>
                     // Skip if not present
-<span class="nc" id="L117">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    if ( psSplit.length &gt; 1 )</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                        isPresent = Integer.parseInt( psSplit[1] ) &gt; 0;</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                    if ( !isPresent )</span>
-<span class="nc" id="L121">                        continue;</span>
-<span class="nc" id="L122">                }</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                else if ( checkLine.startsWith( &quot;POWER_SUPPLY_NAME&quot; ) )</span>
-                {
+<span class="nc" id="L113">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                    if (psSplit.length &gt; 1)</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                        isPresent = Integer.parseInt(psSplit[1]) &gt; 0;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                    if (!isPresent)</span>
+<span class="nc" id="L117">                        continue;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_NAME&quot;)) {</span>
                     // Name
-<span class="nc" id="L126">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                    if ( psSplit.length &gt; 1 )</span>
-<span class="nc" id="L128">                        name = psSplit[1];</span>
-<span class="nc" id="L129">                }</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">                else if ( checkLine.startsWith( &quot;POWER_SUPPLY_ENERGY_NOW&quot; )</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">                    || checkLine.startsWith( &quot;POWER_SUPPLY_CHARGE_NOW&quot; ) )</span>
-                {
+<span class="nc" id="L120">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                    if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L122">                        name = psSplit[1];</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_NOW&quot;)</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_NOW&quot;)) {</span>
                     // Remaining Capacity = energyNow / energyFull
-<span class="nc" id="L134">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                    if ( psSplit.length &gt; 1 )</span>
-<span class="nc" id="L136">                        energyNow = Integer.parseInt( psSplit[1] );</span>
-<span class="nc" id="L137">                }</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">                else if ( checkLine.startsWith( &quot;POWER_SUPPLY_ENERGY_FULL&quot; )</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">                    || checkLine.startsWith( &quot;POWER_SUPPLY_CHARGE_FULL&quot; ) )</span>
-                {
-<span class="nc" id="L141">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">                    if ( psSplit.length &gt; 1 )</span>
-<span class="nc" id="L143">                        energyFull = Integer.parseInt( psSplit[1] );</span>
-<span class="nc" id="L144">                }</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">                else if ( checkLine.startsWith( &quot;POWER_SUPPLY_STATUS&quot; ) )</span>
-                {
+<span class="nc" id="L126">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                    if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L128">                        energyNow = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_FULL&quot;)</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_FULL&quot;)) {</span>
+<span class="nc" id="L131">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                    if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L133">                        energyFull = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_STATUS&quot;)) {</span>
                     // Check if charging
-<span class="nc" id="L148">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L149" title="All 4 branches missed.">                    if ( psSplit.length &gt; 1 &amp;&amp; psSplit[1].equals( &quot;Charging&quot; ) )</span>
-<span class="nc" id="L150">                        isCharging = true;</span>
-<span class="nc" id="L151">                }</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                else if ( checkLine.startsWith( &quot;POWER_SUPPLY_POWER_NOW&quot; )</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                    || checkLine.startsWith( &quot;POWER_SUPPLY_CURRENT_NOW&quot; ) )</span>
-                {
+<span class="nc" id="L136">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">                    if (psSplit.length &gt; 1 &amp;&amp; psSplit[1].equals(&quot;Charging&quot;))</span>
+<span class="nc" id="L138">                        isCharging = true;</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_POWER_NOW&quot;)</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CURRENT_NOW&quot;)) {</span>
                     // Time Remaining = energyNow / powerNow (hours)
-<span class="nc" id="L156">                    String[] psSplit = checkLine.split( &quot;=&quot; );</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">                    if ( psSplit.length &gt; 1 )</span>
-<span class="nc" id="L158">                        powerNow = Integer.parseInt( psSplit[1] );</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                    if ( powerNow &lt;= 0 )</span>
-<span class="nc" id="L160">                        isCharging = true;</span>
+<span class="nc" id="L142">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                    if (psSplit.length &gt; 1)</span>
+<span class="nc" id="L144">                        powerNow = Integer.parseInt(psSplit[1]);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                    if (powerNow &lt;= 0)</span>
+<span class="nc" id="L146">                        isCharging = true;</span>
                 }
-<span class="nc" id="L162">            }</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">            psList.add( new LinuxPowerSource( name, (double) energyNow / energyFull,</span>
-                                              isCharging ? -2d : 3600d * energyNow / powerNow ) );
+<span class="nc" id="L148">            }</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">            psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,</span>
+                    isCharging ? -2d : 3600d * energyNow / powerNow));
         }
 
-<span class="nc" id="L167">        return psList.toArray( new LinuxPowerSource[psList.size()] );</span>
+<span class="nc" id="L153">        return psList.toArray(new LinuxPowerSource[psList.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

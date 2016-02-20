@@ -26,21 +26,17 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
- * Power profile stats. This class should be considered non-API as it may be removed if/when its code is incorporated
- * into the JNA project.
+ * Power profile stats. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface PowrProf
-    extends Library
-{
-<span class="nc" id="L37">    PowrProf INSTANCE = (PowrProf) Native.loadLibrary( &quot;PowrProf&quot;, PowrProf.class );</span>
+public interface PowrProf extends Library {
+<span class="nc" id="L35">    PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     static int SYSTEM_BATTERY_STATE = 5;
 
-<span class="nc" id="L41">    static class SystemBatteryState</span>
-        extends Structure
-    {
+<span class="nc" id="L39">    static class SystemBatteryState extends Structure {</span>
         public byte acOnLine; // boolean
 
         public byte batteryPresent; // boolean
@@ -49,7 +45,7 @@ public interface PowrProf
 
         public byte discharging; // boolean
 
-<span class="nc" id="L52">        public byte[] spare1 = new byte[4]; // unused</span>
+<span class="nc" id="L48">        public byte[] spare1 = new byte[4]; // unused</span>
 
         public int maxCapacity; // unsigned 32 bit
 
@@ -64,14 +60,13 @@ public interface PowrProf
         public int defaultAlert2; // unsigned 32 bit
 
         @Override
-        protected List&lt;String&gt; getFieldOrder()
-        {
-<span class="nc" id="L69">            return Arrays.asList( new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
-                &quot;maxCapacity&quot;, &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; } );
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L64">            return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
+                    &quot;maxCapacity&quot;, &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
         }
     }
 
-    int CallNtPowerInformation( int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
-                                Structure lpOutputBuffer, NativeLong nOutputBufferSize );
+    int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
+            Structure lpOutputBuffer, NativeLong nOutputBufferSize);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

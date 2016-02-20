@@ -19,15 +19,17 @@ package oshi.software.os;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.JsonObject;
+
 /**
- * The File System is a storage pool, device, partition, volume, concrete file system or other implementation specific
- * means of file storage. See subclasses for definitions as they apply to specific platforms.
+ * The File System is a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. See subclasses
+ * for definitions as they apply to specific platforms.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore
-{
-<span class="fc" id="L30">    private static final Logger LOG = LoggerFactory.getLogger( OSFileStore.class );</span>
+public class OSFileStore implements JsonObject {
+<span class="fc" id="L32">    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
 
     private String name;
 
@@ -40,98 +42,107 @@ public class OSFileStore
     /**
      * Creates a {@link OSFileStore} with the specified parameters.
      * 
-     * @param newName Name of the filestore
-     * @param newDescription Description of the file store
-     * @param newUsableSpace Available/usable bytes
-     * @param newTotalSpace Total bytes
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
      */
-    public OSFileStore( String newName, String newDescription, long newUsableSpace, long newTotalSpace )
-<span class="fc" id="L49">    {</span>
-<span class="fc" id="L50">        this.setName( newName );</span>
-<span class="fc" id="L51">        this.setDescription( newDescription );</span>
-<span class="fc" id="L52">        this.setUsableSpace( newUsableSpace );</span>
-<span class="fc" id="L53">        this.setTotalSpace( newTotalSpace );</span>
-<span class="fc" id="L54">        LOG.debug( &quot;Initialized OSFileStore: {}&quot;, newName );</span>
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L54">    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {</span>
+<span class="fc" id="L55">        this.setName(newName);</span>
+<span class="fc" id="L56">        this.setDescription(newDescription);</span>
+<span class="fc" id="L57">        this.setUsableSpace(newUsableSpace);</span>
+<span class="fc" id="L58">        this.setTotalSpace(newTotalSpace);</span>
+<span class="fc" id="L59">        LOG.debug(&quot;Initialized OSFileStore: {}&quot;, newName);</span>
+<span class="fc" id="L60">    }</span>
 
     /**
      * Name of the File System
      * 
      * @return The file system name
      */
-    public String getName()
-    {
-<span class="nc" id="L64">        return this.name;</span>
+    public String getName() {
+<span class="nc" id="L68">        return this.name;</span>
     }
 
     /**
      * Sets the File System name
      * 
-     * @param value The name
+     * @param value
+     *            The name
      */
-    public void setName( String value )
-    {
-<span class="fc" id="L74">        this.name = value;</span>
-<span class="fc" id="L75">    }</span>
+    public void setName(String value) {
+<span class="fc" id="L78">        this.name = value;</span>
+<span class="fc" id="L79">    }</span>
 
     /**
      * Description of the File System
      * 
      * @return The file system description
      */
-    public String getDescription()
-    {
-<span class="nc" id="L84">        return this.description;</span>
+    public String getDescription() {
+<span class="nc" id="L87">        return this.description;</span>
     }
 
     /**
      * Sets the File System description
      * 
-     * @param value The description
+     * @param value
+     *            The description
      */
-    public void setDescription( String value )
-    {
-<span class="fc" id="L94">        this.description = value;</span>
-<span class="fc" id="L95">    }</span>
+    public void setDescription(String value) {
+<span class="fc" id="L97">        this.description = value;</span>
+<span class="fc" id="L98">    }</span>
 
     /**
      * Usable space on the drive.
      * 
      * @return Usable space on the drive (in bytes)
      */
-    public long getUsableSpace()
-    {
-<span class="fc" id="L104">        return this.usableSpace;</span>
+    public long getUsableSpace() {
+<span class="fc" id="L106">        return this.usableSpace;</span>
     }
 
     /**
      * Sets usable space on the drive.
      * 
-     * @param value Bytes of writable space.
+     * @param value
+     *            Bytes of writable space.
      */
-    public void setUsableSpace( long value )
-    {
-<span class="fc" id="L114">        this.usableSpace = value;</span>
-<span class="fc" id="L115">    }</span>
+    public void setUsableSpace(long value) {
+<span class="fc" id="L116">        this.usableSpace = value;</span>
+<span class="fc" id="L117">    }</span>
 
     /**
      * Total space/capacity of the drive.
      * 
      * @return Total capacity of the drive (in bytes)
      */
-    public long getTotalSpace()
-    {
-<span class="fc" id="L124">        return this.totalSpace;</span>
+    public long getTotalSpace() {
+<span class="fc" id="L125">        return this.totalSpace;</span>
     }
 
     /**
      * Sets the total space on the drive.
      * 
-     * @param value Bytes of total space.
+     * @param value
+     *            Bytes of total space.
      */
-    public void setTotalSpace( long value )
-    {
-<span class="fc" id="L134">        this.totalSpace = value;</span>
-<span class="fc" id="L135">    }</span>
+    public void setTotalSpace(long value) {
+<span class="fc" id="L135">        this.totalSpace = value;</span>
+<span class="fc" id="L136">    }</span>
+
+    @Override
+    public String toJSON() {
+<span class="nc" id="L140">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L141">        sb.append(&quot;\&quot;name\&quot;:\&quot;&quot;).append(getName()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L142">        sb.append(&quot;\&quot;description\&quot;:\&quot;&quot;).append(getDescription()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L143">        sb.append(&quot;\&quot;usableSpace\&quot;:&quot;).append(getUsableSpace()).append(&quot;,&quot;);</span>
+<span class="nc" id="L144">        sb.append(&quot;\&quot;totalSpace\&quot;:&quot;).append(getTotalSpace());</span>
+<span class="nc" id="L145">        return sb.append(&quot;}&quot;).toString();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -29,42 +29,43 @@ import oshi.hardware.GlobalMemory;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsGlobalMemory
-    implements GlobalMemory
-{
-<span class="nc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger( WindowsGlobalMemory.class );</span>
+public class WindowsGlobalMemory implements GlobalMemory {
+<span class="nc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L37">    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
+<span class="nc" id="L35">    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
 
-    public WindowsGlobalMemory()
-<span class="nc" id="L40">    {</span>
-<span class="nc bnc" id="L41" title="All 2 branches missed.">        if ( !Kernel32.INSTANCE.GlobalMemoryStatusEx( this._memory ) )</span>
-        {
-<span class="nc" id="L43">            LOG.error( &quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError() );</span>
-<span class="nc" id="L44">            this._memory = null;</span>
+<span class="nc" id="L37">    public WindowsGlobalMemory() {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
+<span class="nc" id="L39">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L40">            this._memory = null;</span>
         }
-<span class="nc" id="L46">    }</span>
+<span class="nc" id="L42">    }</span>
 
     @Override
-    public long getAvailable()
-    {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if ( this._memory == null )</span>
-        {
-<span class="nc" id="L53">            LOG.warn( &quot;MemoryStatusEx not initialized. No available memoroy data available&quot; );</span>
-<span class="nc" id="L54">            return 0L;</span>
+    public long getAvailable() {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
+<span class="nc" id="L47">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L48">            this._memory = null;</span>
+<span class="nc" id="L49">            return 0L;</span>
         }
-<span class="nc" id="L56">        return this._memory.ullAvailPhys.longValue();</span>
+<span class="nc" id="L51">        return this._memory.ullAvailPhys.longValue();</span>
     }
 
     @Override
-    public long getTotal()
-    {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if ( this._memory == null )</span>
-        {
-<span class="nc" id="L64">            LOG.warn( &quot;MemoryStatusEx not initialized. No total memory data available&quot; );</span>
-<span class="nc" id="L65">            return 0L;</span>
+    public long getTotal() {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this._memory == null) {</span>
+<span class="nc" id="L57">            LOG.warn(&quot;MemoryStatusEx not initialized. No total memory data available&quot;);</span>
+<span class="nc" id="L58">            return 0L;</span>
         }
-<span class="nc" id="L67">        return this._memory.ullTotalPhys.longValue();</span>
+<span class="nc" id="L60">        return this._memory.ullTotalPhys.longValue();</span>
+    }
+
+    @Override
+    public String toJSON() {
+<span class="nc" id="L65">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L66">        sb.append(&quot;\&quot;available\&quot;:&quot;).append(getAvailable()).append(&quot;,&quot;);</span>
+<span class="nc" id="L67">        sb.append(&quot;\&quot;total\&quot;:&quot;).append(getTotal());</span>
+<span class="nc" id="L68">        return sb.append(&quot;}&quot;).toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

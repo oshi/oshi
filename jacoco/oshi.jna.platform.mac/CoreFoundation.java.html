@@ -23,66 +23,56 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 
 /**
- * CoreFoundation framework for power supply stats. This class should be considered non-API as it may be removed if/when
- * its code is incorporated into the JNA project.
+ * CoreFoundation framework for power supply stats. This class should be
+ * considered non-API as it may be removed if/when its code is incorporated into
+ * the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface CoreFoundation
-    extends Library
-{
-<span class="fc" id="L34">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary( &quot;CoreFoundation&quot;, CoreFoundation.class );</span>
+public interface CoreFoundation extends Library {
+<span class="fc" id="L33">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
     static final int UTF_8 = 0x08000100;
 
-    int CFArrayGetCount( CFArrayRef array );
+    int CFArrayGetCount(CFArrayRef array);
 
-    CFTypeRef CFArrayGetValueAtIndex( CFArrayRef array, int index );
+    CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
 
-    void CFRelease( CFTypeRef blob );
+    void CFRelease(CFTypeRef blob);
 
-<span class="fc" id="L44">    class CFTypeRef</span>
-        extends PointerType
-    {
+<span class="fc" id="L43">    class CFTypeRef extends PointerType {</span>
         // TODO Build this out
     }
 
-<span class="fc" id="L50">    class CFArrayRef</span>
-        extends PointerType
-    {
+<span class="fc" id="L47">    class CFArrayRef extends PointerType {</span>
         // TODO Build this out
     }
 
-<span class="fc" id="L56">    class CFDictionaryRef</span>
-        extends PointerType
-    {
+<span class="fc" id="L51">    class CFDictionaryRef extends PointerType {</span>
         // TODO Build this out
     }
 
-<span class="fc" id="L62">    class CFStringRef</span>
-        extends PointerType
-    {
-        public static CFStringRef toCFString( String s )
-        {
-<span class="fc" id="L67">            final char[] chars = s.toCharArray();</span>
-<span class="fc" id="L68">            int length = chars.length;</span>
-<span class="fc" id="L69">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters( null, chars, new NativeLong( length ) );</span>
+<span class="fc" id="L55">    class CFStringRef extends PointerType {</span>
+        public static CFStringRef toCFString(String s) {
+<span class="fc" id="L57">            final char[] chars = s.toCharArray();</span>
+<span class="fc" id="L58">            int length = chars.length;</span>
+<span class="fc" id="L59">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 
-    CFStringRef CFStringCreateWithCharacters( Object object, char[] chars, NativeLong length );
+    CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
-    boolean CFDictionaryGetValueIfPresent( CFDictionaryRef dictionary, CFStringRef key, PointerType value );
+    boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
 
-    Pointer CFDictionaryGetValue( CFDictionaryRef dictionary, CFStringRef key );
+    Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
-    boolean CFStringGetCString( Pointer foo, Pointer buffer, long maxSize, int encoding );
+    boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize, int encoding);
 
-    long CFStringGetLength( Pointer str );
+    long CFStringGetLength(Pointer str);
 
-    long CFStringGetMaximumSizeForEncoding( long length, int encoding );
+    long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
-    boolean CFBooleanGetValue( Pointer booleanRef );
+    boolean CFBooleanGetValue(Pointer booleanRef);
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

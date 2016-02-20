@@ -25,29 +25,27 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
- * Power Supply stats. This class should be considered non-API as it may be removed if/when its code is incorporated
- * into the JNA project.
+ * Power Supply stats. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface IOKit
-    extends Library
-{
-<span class="fc" id="L36">    IOKit INSTANCE = (IOKit) Native.loadLibrary( &quot;IOKit&quot;, IOKit.class );</span>
+public interface IOKit extends Library {
+<span class="fc" id="L34">    IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
 
-<span class="fc" id="L38">    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString( &quot;Name&quot; );</span>
+<span class="fc" id="L36">    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
 
-<span class="fc" id="L40">    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString( &quot;Is Present&quot; );</span>
+<span class="fc" id="L38">    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
 
-<span class="fc" id="L42">    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString( &quot;Current Capacity&quot; );</span>
+<span class="fc" id="L40">    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
 
-<span class="fc" id="L44">    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString( &quot;Max Capacity&quot; );</span>
+<span class="fc" id="L42">    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
 
     CFTypeRef IOPSCopyPowerSourcesInfo();
 
-    CFArrayRef IOPSCopyPowerSourcesList( CFTypeRef blob );
+    CFArrayRef IOPSCopyPowerSourcesList(CFTypeRef blob);
 
-    CFDictionaryRef IOPSGetPowerSourceDescription( CFTypeRef blob, CFTypeRef ps );
+    CFDictionaryRef IOPSGetPowerSourceDescription(CFTypeRef blob, CFTypeRef ps);
 
     double IOPSGetTimeRemainingEstimate();
 }

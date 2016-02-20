@@ -31,10 +31,8 @@ import oshi.util.FormatUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsPowerSource
-    implements PowerSource
-{
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger( WindowsPowerSource.class );</span>
+public class WindowsPowerSource implements PowerSource {
+<span class="nc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);</span>
 
     private String name;
 
@@ -42,30 +40,35 @@ public class WindowsPowerSource
 
     private double timeRemaining;
 
-    public WindowsPowerSource( String newName, double newRemainingCapacity, double newTimeRemaining )
-<span class="nc" id="L46">    {</span>
-<span class="nc" id="L47">        this.name = newName;</span>
-<span class="nc" id="L48">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="nc" id="L49">        this.timeRemaining = newTimeRemaining;</span>
-<span class="nc" id="L50">        LOG.debug( &quot;Initialized WindowsPowerSource&quot; );</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L43">    public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="nc" id="L44">        this.name = newName;</span>
+<span class="nc" id="L45">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="nc" id="L46">        this.timeRemaining = newTimeRemaining;</span>
+<span class="nc" id="L47">        LOG.debug(&quot;Initialized WindowsPowerSource&quot;);</span>
+<span class="nc" id="L48">    }</span>
 
     @Override
-    public String getName()
-    {
-<span class="nc" id="L56">        return this.name;</span>
+    public String getName() {
+<span class="nc" id="L52">        return this.name;</span>
     }
 
     @Override
-    public double getRemainingCapacity()
-    {
-<span class="nc" id="L62">        return this.remainingCapacity;</span>
+    public double getRemainingCapacity() {
+<span class="nc" id="L57">        return this.remainingCapacity;</span>
     }
 
     @Override
-    public double getTimeRemaining()
-    {
-<span class="nc" id="L68">        return this.timeRemaining;</span>
+    public double getTimeRemaining() {
+<span class="nc" id="L62">        return this.timeRemaining;</span>
+    }
+
+    @Override
+    public String toJSON() {
+<span class="nc" id="L67">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
+<span class="nc" id="L68">        sb.append(&quot;\&quot;name\&quot;:\&quot;&quot;).append(getName()).append(&quot;\&quot;,&quot;);</span>
+<span class="nc" id="L69">        sb.append(&quot;\&quot;remainingCapacity\&quot;:&quot;).append(getRemainingCapacity()).append(&quot;,&quot;);</span>
+<span class="nc" id="L70">        sb.append(&quot;\&quot;timeRemaining\&quot;:&quot;).append(getTimeRemaining());</span>
+<span class="nc" id="L71">        return sb.append(&quot;}&quot;).toString();</span>
     }
 
     /**
@@ -73,33 +76,27 @@ public class WindowsPowerSource
      * 
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources()
-    {
+    public static PowerSource[] getPowerSources() {
         // Windows provides a single unnamed battery
-<span class="nc" id="L79">        String name = &quot;System Battery&quot;;</span>
-<span class="nc" id="L80">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
+<span class="nc" id="L81">        String name = &quot;System Battery&quot;;</span>
+<span class="nc" id="L82">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
         // Get structure
-<span class="nc" id="L82">        SystemBatteryState batteryState = new SystemBatteryState();</span>
-<span class="nc bnc" id="L83" title="All 4 branches missed.">        if ( 0 != PowrProf.INSTANCE.CallNtPowerInformation( PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong( 0 ),</span>
-<span class="nc" id="L84">                                                            batteryState, new NativeLong( batteryState.size() ) )</span>
-            || batteryState.batteryPresent == 0 )
-        {
-<span class="nc" id="L87">            psArray[0] = new WindowsPowerSource( &quot;Unknown&quot;, 0d, -1d );</span>
-        }
-        else
-        {
-<span class="nc" id="L91">            int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
-<span class="nc bnc" id="L92" title="All 6 branches missed.">            if ( batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0 )</span>
-            {
-<span class="nc" id="L94">                estimatedTime = batteryState.estimatedTime;</span>
+<span class="nc" id="L84">        SystemBatteryState batteryState = new SystemBatteryState();</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),</span>
+<span class="nc" id="L86">                batteryState, new NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {</span>
+<span class="nc" id="L87">            psArray[0] = new WindowsPowerSource(&quot;Unknown&quot;, 0d, -1d);</span>
+        } else {
+<span class="nc" id="L89">            int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
+<span class="nc bnc" id="L90" title="All 6 branches missed.">            if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {</span>
+<span class="nc" id="L91">                estimatedTime = batteryState.estimatedTime;</span>
             }
-<span class="nc" id="L96">            long maxCapacity = FormatUtil.getUnsignedInt( batteryState.maxCapacity );</span>
-<span class="nc" id="L97">            long remainingCapacity = FormatUtil.getUnsignedInt( batteryState.remainingCapacity );</span>
+<span class="nc" id="L93">            long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);</span>
+<span class="nc" id="L94">            long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);</span>
 
-<span class="nc" id="L99">            psArray[0] = new WindowsPowerSource( name, (double) remainingCapacity / maxCapacity, estimatedTime );</span>
+<span class="nc" id="L96">            psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);</span>
         }
 
-<span class="nc" id="L102">        return psArray;</span>
+<span class="nc" id="L99">        return psArray;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
