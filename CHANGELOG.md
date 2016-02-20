@@ -1,8 +1,11 @@
 2.2 (in-progress)
 ================
+* Your contribution here.
+
+2.1.1 (2/19/2016)
+================
 * [#114](https://github.com/dblock/oshi/pull/114): Memory information wasn't updating for Windows - [@dbwiddis](https://github.com/dbwiddis).
 * [#116](https://github.com/dblock/oshi/pull/116): Added JSON output - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 2.1 (1/1/2016)
 ================
