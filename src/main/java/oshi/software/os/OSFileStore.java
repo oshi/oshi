@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.JsonObject;
+import oshi.util.ParseUtil;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
@@ -138,8 +139,8 @@ public class OSFileStore implements JsonObject {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":\"").append(getName()).append("\",");
-        sb.append("\"description\":\"").append(getDescription()).append("\",");
+        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
+        sb.append("\"description\":").append(ParseUtil.jsonQuote(getDescription())).append(",");
         sb.append("\"usableSpace\":").append(getUsableSpace()).append(",");
         sb.append("\"totalSpace\":").append(getTotalSpace());
         return sb.append("}").toString();

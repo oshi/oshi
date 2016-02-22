@@ -18,6 +18,7 @@ package oshi.software.os.mac;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -52,8 +53,8 @@ public class MacOperatingSystem implements OperatingSystem {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"manufacturer\":\"").append(getManufacturer()).append("\",");
-        sb.append("\"family\":\"").append(getFamily()).append("\",");
+        sb.append("\"manufacturer\":").append(ParseUtil.jsonQuote(getManufacturer())).append(",");
+        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
         sb.append("\"version\":").append(getVersion().toJSON());
         return sb.append("}").toString();
     }

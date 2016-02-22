@@ -142,9 +142,66 @@ public abstract class ParseUtil {
     }
 
     /**
+     * Escapes special characters in a string for use with JSON
+     * 
+     * @param s
+     *            A string which possibly contains special characters
+     * @return The string with JSON special characters escaped, wrapped in
+     *         double quotes
+     */
+    public static String jsonQuote(String s) {
+        if (s == null || s.length() == 0) {
+            return "\"\"";
+        }
+        char c = 0;
+        int i;
+        int len = s.length();
+        StringBuilder sb = new StringBuilder(len + 4);
+        String t;
+
+        sb.append('"');
+        for (i = 0; i < len; i++) {
+            c = s.charAt(i);
+            switch (c) {
+            case '\\':
+            case '"':
+            case '/':
+                sb.append('\\');
+                sb.append(c);
+                break;
+            case '\b':
+                sb.append("\\b");
+                break;
+            case '\t':
+                sb.append("\\t");
+                break;
+            case '\n':
+                sb.append("\\n");
+                break;
+            case '\f':
+                sb.append("\\f");
+                break;
+            case '\r':
+                sb.append("\\r");
+                break;
+            default:
+                if (c < ' ') {
+                    t = "000" + Integer.toHexString(c);
+                    sb.append("\\u" + t.substring(t.length() - 4));
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
+    }
+
+    /**
      * Pretty print a JSON string.
      * 
      * @param json
+     *            A JSON string
      * @return String with added whitespace, new lines, indentation
      */
     public static String jsonPrettyPrint(String json) {
@@ -154,6 +211,7 @@ public abstract class ParseUtil {
 
         for (int i = 0; i < json.length(); i++) {
             char c = json.charAt(i);
+            // TODO: Handle backslash escapes
             // If " toggle inQuotes.
             if (c == '"') {
                 inQuotes = !inQuotes;
