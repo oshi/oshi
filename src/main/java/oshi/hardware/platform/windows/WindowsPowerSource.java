@@ -25,6 +25,7 @@ import oshi.hardware.PowerSource;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -65,7 +66,7 @@ public class WindowsPowerSource implements PowerSource {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
         sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
         sb.append("\"timeRemaining\":").append(getTimeRemaining());
         return sb.append("}").toString();

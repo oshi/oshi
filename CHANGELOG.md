@@ -1,5 +1,6 @@
 2.2 (in-progress)
 ================
+* [#118](https://github.com/dblock/oshi/pull/118): Properly escape JSON strings - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.1.1 (2/19/2016)

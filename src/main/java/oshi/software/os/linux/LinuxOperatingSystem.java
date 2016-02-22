@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.ParseUtil;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -78,8 +79,8 @@ public class LinuxOperatingSystem implements OperatingSystem {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"manufacturer\":\"").append(getManufacturer()).append("\",");
-        sb.append("\"family\":\"").append(getFamily()).append("\",");
+        sb.append("\"manufacturer\":").append(ParseUtil.jsonQuote(getManufacturer())).append(",");
+        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
         sb.append("\"version\":").append(getVersion().toJSON());
         return sb.append("}").toString();
     }

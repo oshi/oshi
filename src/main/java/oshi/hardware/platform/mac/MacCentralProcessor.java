@@ -585,16 +585,16 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
         sb.append("\"physicalProcessorCount\":").append(getPhysicalProcessorCount()).append(",");
         sb.append("\"logicalProcessorCount\":").append(getLogicalProcessorCount()).append(",");
-        sb.append("\"systemSerialNumber\":\"").append(getSystemSerialNumber()).append("\",");
-        sb.append("\"vendor\":\"").append(getVendor()).append("\",");
+        sb.append("\"systemSerialNumber\":").append(ParseUtil.jsonQuote(getSystemSerialNumber())).append(",");
+        sb.append("\"vendor\":").append(ParseUtil.jsonQuote(getVendor())).append(",");
         sb.append("\"vendorFreq\":").append(getVendorFreq()).append(",");
         sb.append("\"cpu64bit\":").append(isCpu64bit()).append(",");
-        sb.append("\"family\":\"").append(getFamily()).append("\",");
-        sb.append("\"model\":\"").append(getModel()).append("\",");
-        sb.append("\"stepping\":\"").append(getStepping()).append("\",");
+        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
+        sb.append("\"model\":").append(ParseUtil.jsonQuote(getModel())).append(",");
+        sb.append("\"stepping\":").append(ParseUtil.jsonQuote(getStepping())).append(",");
         sb.append("\"systemCpuLoadBetweenTicks\":").append(getSystemCpuLoadBetweenTicks()).append(",");
         sb.append("\"systemCpuLoadTicks\":").append(Arrays.toString(getSystemCpuLoadTicks()).replaceAll(" ", ""))
                 .append(",");

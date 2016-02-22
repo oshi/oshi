@@ -32,6 +32,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -72,7 +73,7 @@ public class MacPowerSource implements PowerSource {
     @Override
     public String toJSON() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":\"").append(getName()).append("\",");
+        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
         sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
         sb.append("\"timeRemaining\":").append(getTimeRemaining());
         return sb.append("}").toString();
