@@ -16,6 +16,10 @@
  */
 package oshi;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
@@ -26,7 +30,6 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
-import oshi.util.ParseUtil;
 
 /**
  * System information. This is the main entry point to Oshi. This object
@@ -36,7 +39,7 @@ import oshi.util.ParseUtil;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class SystemInfo implements JsonObject {
+public class SystemInfo implements OshiJsonObject {
     private OperatingSystem _os = null;
 
     private HardwareAbstractionLayer _hardware = null;
@@ -54,6 +57,8 @@ public class SystemInfo implements JsonObject {
             this.currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
     }
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Creates a new instance of the appropriate platform-specific
@@ -108,19 +113,8 @@ public class SystemInfo implements JsonObject {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"operatingSystem\":").append(getOperatingSystem().toJSON());
-        sb.append(",\"hardware\":").append(getHardware().toJSON());
-        return sb.append("}").toString();
-    }
-
-    /**
-     * Pretty prints a JSON string containing all system information
-     * 
-     * @return a pretty printed JSON string
-     */
-    public String toString() {
-        return ParseUtil.jsonPrettyPrint(this.toJSON());
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("operatingSystem", getOperatingSystem().toJSON())
+                .add("hardware", getHardware().toJSON()).build();
     }
 }

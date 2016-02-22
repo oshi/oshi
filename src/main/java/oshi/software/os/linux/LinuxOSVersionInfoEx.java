@@ -20,6 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,8 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
     private String _codeName;
 
     private String version;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public LinuxOSVersionInfoEx() {
         try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
@@ -113,12 +119,9 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"version\":\"").append(getVersion()).append("\",");
-        sb.append("\"codeName\":\"").append(getCodeName()).append("\",");
-        sb.append("\"build\":\"\"");
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", getCodeName())
+                .add("build", "").build();
     }
 
     @Override

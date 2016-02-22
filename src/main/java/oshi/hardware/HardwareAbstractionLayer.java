@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.JsonObject;
+import oshi.OshiJsonObject;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -25,7 +25,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface HardwareAbstractionLayer extends JsonObject {
+public interface HardwareAbstractionLayer extends OshiJsonObject {
 
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or

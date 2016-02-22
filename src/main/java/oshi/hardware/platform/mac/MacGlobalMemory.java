@@ -16,6 +16,10 @@
  */
 package oshi.hardware.platform.mac;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +42,8 @@ public class MacGlobalMemory implements GlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
     long totalMemory = 0;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override
     public long getAvailable() {
@@ -79,10 +85,7 @@ public class MacGlobalMemory implements GlobalMemory {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"available\":").append(getAvailable()).append(",");
-        sb.append("\"total\":").append(getTotal());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
     }
 }

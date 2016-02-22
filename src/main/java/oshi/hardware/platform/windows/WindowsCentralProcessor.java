@@ -18,9 +18,13 @@ package oshi.hardware.platform.windows;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +127,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
     private String cpuIdentifier;
 
     private Long cpuVendorFreq;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Create a Processor
@@ -655,34 +661,35 @@ public class WindowsCentralProcessor implements CentralProcessor {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
-        sb.append("\"physicalProcessorCount\":").append(getPhysicalProcessorCount()).append(",");
-        sb.append("\"logicalProcessorCount\":").append(getLogicalProcessorCount()).append(",");
-        sb.append("\"systemSerialNumber\":").append(ParseUtil.jsonQuote(getSystemSerialNumber())).append(",");
-        sb.append("\"vendor\":").append(ParseUtil.jsonQuote(getVendor())).append(",");
-        sb.append("\"vendorFreq\":").append(getVendorFreq()).append(",");
-        sb.append("\"cpu64bit\":").append(isCpu64bit()).append(",");
-        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
-        sb.append("\"model\":").append(ParseUtil.jsonQuote(getModel())).append(",");
-        sb.append("\"stepping\":").append(ParseUtil.jsonQuote(getStepping())).append(",");
-        sb.append("\"systemCpuLoadBetweenTicks\":").append(getSystemCpuLoadBetweenTicks()).append(",");
-        sb.append("\"systemCpuLoadTicks\":").append(Arrays.toString(getSystemCpuLoadTicks()).replaceAll(" ", ""))
-                .append(",");
-        sb.append("\"systemCpuLoad\":").append(getSystemCpuLoad()).append(",");
-        sb.append("\"systemLoadAverage\":").append(getSystemLoadAverage()).append(",");
-        sb.append("\"processorCpuLoadBetweenTicks\":")
-                .append(Arrays.toString(getProcessorCpuLoadBetweenTicks()).replaceAll(" ", "")).append(",");
-        sb.append("\"processorCpuLoadTicks\":[");
-        String separator = "";
-        for (long[] procTicks : getProcessorCpuLoadTicks()) {
-            sb.append(separator).append(Arrays.toString(procTicks).replaceAll(" ", ""));
-            separator = ",";
+    public JsonObject toJSON() {
+        JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (long ticks : getSystemCpuLoadTicks()) {
+            systemCpuLoadTicksArrayBuilder.add(ticks);
         }
-        sb.append("],");
-        sb.append("\"systemUptime\":").append(getSystemUptime());
-        return sb.append("}").toString();
+        JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (double load : getProcessorCpuLoadBetweenTicks()) {
+            processorCpuLoadBetweenTicksArrayBuilder.add(load);
+        }
+        JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (long[] procTicks : getProcessorCpuLoadTicks()) {
+            JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
+            for (long ticks : procTicks) {
+                processorTicksArrayBuilder.add(ticks);
+            }
+            processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
+        }
+        return jsonFactory.createObjectBuilder().add("name", getName())
+                .add("physicalProcessorCount", getPhysicalProcessorCount())
+                .add("logicalProcessorCount", getLogicalProcessorCount())
+                .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())
+                .add("vendorFreq", getVendorFreq()).add("cpu64bit", isCpu64bit()).add("family", getFamily())
+                .add("model", getModel()).add("stepping", getStepping())
+                .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
+                .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
+                .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
+                .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
+                .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
+                .add("systemUptime", getSystemUptime()).build();
     }
 
     @Override

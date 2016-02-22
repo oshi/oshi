@@ -16,6 +16,11 @@
  */
 package oshi.hardware.platform.mac;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
@@ -23,7 +28,6 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
-import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -36,6 +40,8 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
     private GlobalMemory _memory;
 
     private PowerSource[] _powerSources;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /*
      * (non-Javadoc)
@@ -82,13 +88,21 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"processor\":").append(getProcessor().toJSON()).append(",");
-        sb.append("\"memory\":").append(getMemory().toJSON()).append(",");
-        sb.append("\"powerSources\":").append(ParseUtil.toJsonArray(getPowerSources())).append(",");
-        sb.append("\"fileStores\":").append(ParseUtil.toJsonArray(getFileStores())).append(",");
-        sb.append("\"displays\":").append(ParseUtil.toJsonArray(getDisplays()));
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
+        for (PowerSource powerSource : getPowerSources()) {
+            powerSourceArrayBuilder.add(powerSource.toJSON());
+        }
+        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+        for (OSFileStore fileStore : getFileStores()) {
+            fileStoreArrayBuilder.add(fileStore.toJSON());
+        }
+        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
+        for (Display display : getDisplays()) {
+            displayArrayBuilder.add(display.toJSON());
+        }
+        return jsonFactory.createObjectBuilder().add("processor", getProcessor().toJSON())
+                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
+                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build()).build();
     }
 }

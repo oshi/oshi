@@ -16,11 +16,14 @@
  */
 package oshi.software.os;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.JsonObject;
-import oshi.util.ParseUtil;
+import oshi.OshiJsonObject;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
@@ -29,7 +32,7 @@ import oshi.util.ParseUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore implements JsonObject {
+public class OSFileStore implements OshiJsonObject {
     private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
     private String name;
@@ -39,6 +42,8 @@ public class OSFileStore implements JsonObject {
     private long usableSpace;
 
     private long totalSpace;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Creates a {@link OSFileStore} with the specified parameters.
@@ -137,12 +142,8 @@ public class OSFileStore implements JsonObject {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
-        sb.append("\"description\":").append(ParseUtil.jsonQuote(getDescription())).append(",");
-        sb.append("\"usableSpace\":").append(getUsableSpace()).append(",");
-        sb.append("\"totalSpace\":").append(getTotalSpace());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("name", getName()).add("description", getDescription())
+                .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
     }
 }
