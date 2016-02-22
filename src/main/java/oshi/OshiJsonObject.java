@@ -16,11 +16,13 @@
  */
 package oshi;
 
-public interface JsonObject {
+import javax.json.JsonObject;
+
+public interface OshiJsonObject {
     /**
      * Creates a compact JSON string containing all system information
      * 
      * @return a compact JSON string
      */
-    public String toJSON();
+    public JsonObject toJSON();
 }

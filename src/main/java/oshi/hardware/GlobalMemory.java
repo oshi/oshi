@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.JsonObject;
+import oshi.OshiJsonObject;
 
 /**
  * Memory refers to the state information of a computing system, as it is kept
@@ -28,7 +28,7 @@ import oshi.JsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface GlobalMemory extends JsonObject {
+public interface GlobalMemory extends OshiJsonObject {
     /**
      * Total memory.
      * 

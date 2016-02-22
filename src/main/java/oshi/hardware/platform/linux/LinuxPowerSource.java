@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
 import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -43,6 +46,8 @@ public class LinuxPowerSource implements PowerSource {
     private double remainingCapacity;
 
     private double timeRemaining;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
@@ -67,12 +72,9 @@ public class LinuxPowerSource implements PowerSource {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
-        sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
-        sb.append("\"timeRemaining\":").append(getTimeRemaining());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("name", getName()).add("remainingCapacity", getRemainingCapacity())
+                .add("timeRemaining", getTimeRemaining()).build();
     }
 
     /**

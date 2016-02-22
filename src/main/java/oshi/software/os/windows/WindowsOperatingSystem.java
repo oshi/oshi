@@ -16,9 +16,12 @@
  */
 package oshi.software.os.windows;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.util.ParseUtil;
 
 /**
  * Microsoft Windows is a family of proprietary operating systems most commonly
@@ -29,6 +32,8 @@ import oshi.util.ParseUtil;
 public class WindowsOperatingSystem implements OperatingSystem {
 
     private OperatingSystemVersion _version;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override
     public OperatingSystemVersion getVersion() {
@@ -49,12 +54,9 @@ public class WindowsOperatingSystem implements OperatingSystem {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"manufacturer\":").append(ParseUtil.jsonQuote(getManufacturer())).append(",");
-        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
-        sb.append("\"version\":").append(getVersion().toJSON());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("manufacturer", getManufacturer()).add("family", getFamily())
+                .add("version", getVersion().toJSON()).build();
     }
 
     @Override

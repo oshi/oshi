@@ -16,15 +16,20 @@
  */
 package oshi.util;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriter;
+import javax.json.JsonWriterFactory;
+import javax.json.stream.JsonGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import oshi.JsonObject;
 
 /**
  * String parsing utility.
@@ -125,140 +130,26 @@ public abstract class ParseUtil {
     }
 
     /**
-     * Prints an array of JSON objects
-     * 
-     * @param objArray
-     *            an array of JsonObjects
-     * @return compact JSON string for the array
-     */
-    public static String toJsonArray(JsonObject[] objArray) {
-        StringBuilder sb = new StringBuilder("[");
-        String separator = "";
-        for (JsonObject obj : objArray) {
-            sb.append(separator).append(obj.toJSON());
-            separator = ",";
-        }
-        return sb.append("]").toString();
-    }
-
-    /**
-     * Escapes special characters in a string for use with JSON
-     * 
-     * @param s
-     *            A string which possibly contains special characters
-     * @return The string with JSON special characters escaped, wrapped in
-     *         double quotes
-     */
-    public static String jsonQuote(String s) {
-        if (s == null || s.length() == 0) {
-            return "\"\"";
-        }
-        char c = 0;
-        int i;
-        int len = s.length();
-        StringBuilder sb = new StringBuilder(len + 4);
-        String t;
-
-        sb.append('"');
-        for (i = 0; i < len; i++) {
-            c = s.charAt(i);
-            switch (c) {
-            case '\\':
-            case '"':
-            case '/':
-                sb.append('\\');
-                sb.append(c);
-                break;
-            case '\b':
-                sb.append("\\b");
-                break;
-            case '\t':
-                sb.append("\\t");
-                break;
-            case '\n':
-                sb.append("\\n");
-                break;
-            case '\f':
-                sb.append("\\f");
-                break;
-            case '\r':
-                sb.append("\\r");
-                break;
-            default:
-                if (c < ' ') {
-                    t = "000" + Integer.toHexString(c);
-                    sb.append("\\u" + t.substring(t.length() - 4));
-                } else {
-                    sb.append(c);
-                }
-            }
-        }
-        sb.append('"');
-        return sb.toString();
-    }
-
-    /**
      * Pretty print a JSON string.
      * 
      * @param json
-     *            A JSON string
-     * @return String with added whitespace, new lines, indentation
+     *            A JSON object
+     * @return String representing the object with added whitespace, new lines,
+     *         indentation
      */
-    public static String jsonPrettyPrint(String json) {
-        int indent = 0;
-        boolean inQuotes = false;
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < json.length(); i++) {
-            char c = json.charAt(i);
-            // TODO: Handle backslash escapes
-            // If " toggle inQuotes.
-            if (c == '"') {
-                inQuotes = !inQuotes;
-            }
-            // If inside quotes ignore other formatting
-            if (inQuotes) {
-                sb.append(c);
-                continue;
-            }
-            switch (c) {
-            // If { or [ add new line and increase indent
-            case '{':
-            case '[':
-                sb.append(c);
-                indent++;
-                sb.append(newLineWithIndent(indent));
-                break;
-            // If } or ] add new line and decrease indent
-            case '}':
-            case ']':
-                indent--;
-                sb.append(newLineWithIndent(indent));
-                sb.append(c);
-                break;
-            // If , add new line
-            case ',':
-                sb.append(c);
-                sb.append(newLineWithIndent(indent));
-                break;
-            // If :, add space
-            case ':':
-                sb.append(c).append(" ");
-                break;
-            // Otherwise just display
-            default:
-                sb.append(c);
-            }
-        }
-        // Remove whitespace between brackets if needed
-        return sb.toString().replaceAll("\\[\\s+\\]", "[]").replaceAll("\\{\\s+\\}", "{}");
-    }
-
-    private static String newLineWithIndent(int indent) {
-        StringBuilder sb = new StringBuilder("\n");
-        for (int i = 0; i < indent; i++) {
-            sb.append("  ");
-        }
-        return sb.toString();
+    public static String jsonPrettyPrint(JsonObject json) {
+        // Pretty printing using JsonWriterFactory
+        // Output stream
+        StringWriter stringWriter = new StringWriter();
+        // Config
+        Map<String, Boolean> config = new HashMap<String, Boolean>();
+        config.put(JsonGenerator.PRETTY_PRINTING, true);
+        JsonWriterFactory writerFactory = Json.createWriterFactory(config);
+        // Writer
+        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);
+        jsonWriter.write(json);
+        jsonWriter.close();
+        // Return
+        return stringWriter.toString();
     }
 }

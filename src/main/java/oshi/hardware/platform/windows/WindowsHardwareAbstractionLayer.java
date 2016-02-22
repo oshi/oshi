@@ -16,6 +16,11 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 
@@ -26,13 +31,14 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
-import oshi.util.ParseUtil;
 
 public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private CentralProcessor processor;
 
     private GlobalMemory _memory;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override
     public GlobalMemory getMemory() {
@@ -77,13 +83,21 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"processor\":").append(getProcessor().toJSON()).append(",");
-        sb.append("\"memory\":").append(getMemory().toJSON()).append(",");
-        sb.append("\"powerSources\":").append(ParseUtil.toJsonArray(getPowerSources())).append(",");
-        sb.append("\"fileStores\":").append(ParseUtil.toJsonArray(getFileStores())).append(",");
-        sb.append("\"displays\":").append(ParseUtil.toJsonArray(getDisplays()));
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
+        for (PowerSource powerSource : getPowerSources()) {
+            powerSourceArrayBuilder.add(powerSource.toJSON());
+        }
+        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+        for (OSFileStore fileStore : getFileStores()) {
+            fileStoreArrayBuilder.add(fileStore.toJSON());
+        }
+        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
+        for (Display display : getDisplays()) {
+            displayArrayBuilder.add(display.toJSON());
+        }
+        return jsonFactory.createObjectBuilder().add("processor", getProcessor().toJSON())
+                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
+                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build()).build();
     }
 }

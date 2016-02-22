@@ -16,9 +16,12 @@
  */
 package oshi.software.os.mac;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.util.ParseUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -29,6 +32,8 @@ public class MacOperatingSystem implements OperatingSystem {
     private String _family;
 
     private OperatingSystemVersion _version;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override
     public OperatingSystemVersion getVersion() {
@@ -51,12 +56,9 @@ public class MacOperatingSystem implements OperatingSystem {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"manufacturer\":").append(ParseUtil.jsonQuote(getManufacturer())).append(",");
-        sb.append("\"family\":").append(ParseUtil.jsonQuote(getFamily())).append(",");
-        sb.append("\"version\":").append(getVersion().toJSON());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("manufacturer", getManufacturer()).add("family", getFamily())
+                .add("version", getVersion().toJSON()).build();
     }
 
     @Override

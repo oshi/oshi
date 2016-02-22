@@ -16,6 +16,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +29,6 @@ import oshi.hardware.PowerSource;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -40,6 +43,8 @@ public class WindowsPowerSource implements PowerSource {
     private double remainingCapacity;
 
     private double timeRemaining;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
@@ -64,12 +69,9 @@ public class WindowsPowerSource implements PowerSource {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"name\":").append(ParseUtil.jsonQuote(getName())).append(",");
-        sb.append("\"remainingCapacity\":").append(getRemainingCapacity()).append(",");
-        sb.append("\"timeRemaining\":").append(getTimeRemaining());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("name", getName()).add("remainingCapacity", getRemainingCapacity())
+                .add("timeRemaining", getTimeRemaining()).build();
     }
 
     /**

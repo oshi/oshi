@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,8 @@ public class WindowsDisplay implements Display {
 
     private byte[] edid;
 
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+
     public WindowsDisplay(byte[] edid) {
         this.edid = edid;
         LOG.debug("Initialized WindowsDisplay");
@@ -57,10 +63,8 @@ public class WindowsDisplay implements Display {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"edid\":\"").append(EdidUtil.toString(getEdid())).append("\"");
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("edid", EdidUtil.toString(getEdid())).build();
     }
 
     /**

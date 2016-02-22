@@ -16,6 +16,10 @@
  */
 package oshi.software.os.windows;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,8 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
     private OSVERSIONINFOEX _versionInfo;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public WindowsOSVersionInfoEx() {
         this._versionInfo = new OSVERSIONINFOEX();
@@ -248,12 +254,9 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"version\":\"").append(getVersion()).append("\",");
-        sb.append("\"codeName\":\"\",");
-        sb.append("\"build\":\"").append(getBuildNumber()).append("\"");
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", "")
+                .add("build", getBuildNumber()).build();
     }
 
     @Override

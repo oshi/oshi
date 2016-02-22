@@ -19,6 +19,10 @@ package oshi.hardware.platform.linux;
 import java.io.IOException;
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,8 @@ public class LinuxGlobalMemory implements GlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     private long totalMemory = 0;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override
     public long getAvailable() {
@@ -127,10 +133,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"available\":").append(getAvailable()).append(",");
-        sb.append("\"total\":").append(getTotal());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
     }
 }

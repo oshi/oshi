@@ -16,6 +16,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,8 @@ public class WindowsGlobalMemory implements GlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
     private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public WindowsGlobalMemory() {
         if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
@@ -61,10 +67,7 @@ public class WindowsGlobalMemory implements GlobalMemory {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"available\":").append(getAvailable()).append(",");
-        sb.append("\"total\":").append(getTotal());
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
     }
 }

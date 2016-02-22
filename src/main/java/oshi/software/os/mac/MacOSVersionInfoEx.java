@@ -16,6 +16,10 @@
  */
 package oshi.software.os.mac;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,8 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
     private String _versionStr;
 
     private String _buildNumber;
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public MacOSVersionInfoEx() {
     }
@@ -150,12 +156,9 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append("\"version\":\"").append(getVersion()).append("\",");
-        sb.append("\"codeName\":\"").append(getCodeName()).append("\",");
-        sb.append("\"build\":\"").append(getBuildNumber()).append("\"");
-        return sb.append("}").toString();
+    public JsonObject toJSON() {
+        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", getCodeName())
+                .add("build", getBuildNumber()).build();
     }
 
     @Override

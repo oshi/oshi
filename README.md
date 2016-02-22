@@ -17,6 +17,7 @@ Essentials
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
+	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for Oshi
 

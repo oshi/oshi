@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.JsonObject;
+import oshi.OshiJsonObject;
 
 /**
  * The Power Source is one or more batteries with some capacity, and some state
@@ -24,7 +24,7 @@ import oshi.JsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface PowerSource extends JsonObject {
+public interface PowerSource extends OshiJsonObject {
     /**
      * Name of the power source (e.g., InternalBattery-0)
      * 

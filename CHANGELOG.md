@@ -1,6 +1,6 @@
 2.2 (in-progress)
 ================
-* [#117](https://github.com/dblock/oshi/pull/117): Properly escape JSON strings - [@dbwiddis](https://github.com/dbwiddis).
+* [#118](https://github.com/dblock/oshi/pull/118): Port JSON to javax.json - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.1.1 (2/19/2016)

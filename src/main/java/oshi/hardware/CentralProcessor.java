@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.JsonObject;
+import oshi.OshiJsonObject;
 
 /**
  * The Central Processing Unit (CPU) or the processor is the portion of a
@@ -25,7 +25,7 @@ import oshi.JsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface CentralProcessor extends JsonObject {
+public interface CentralProcessor extends OshiJsonObject {
     /**
      * Processor vendor.
      * 
