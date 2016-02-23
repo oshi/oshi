@@ -97,6 +97,8 @@ public class MacCentralProcessor implements CentralProcessor {
 
     private String cpuName;
 
+    private String cpuSerialNumber = null;
+
     private String cpuIdentifier = null;
 
     private String cpuStepping;
@@ -555,27 +557,31 @@ public class MacCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getSystemSerialNumber() {
-        String sn = null;
-        ArrayList<String> hwInfo = ExecutingCommand.runNative("system_profiler SPHardwareDataType");
-        // Mavericks and later
-        for (String checkLine : hwInfo) {
-            if (checkLine.contains("Serial Number (system)")) {
-                String[] snSplit = checkLine.split("\\s+");
-                sn = snSplit[snSplit.length - 1];
-                break;
-            }
-        }
-        // Panther and later
-        if (sn == null) {
+        if (this.cpuSerialNumber == null) {
+            ArrayList<String> hwInfo = ExecutingCommand.runNative("system_profiler SPHardwareDataType");
+            // Mavericks and later
             for (String checkLine : hwInfo) {
-                if (checkLine.contains("r (system)")) {
+                if (checkLine.contains("Serial Number (system)")) {
                     String[] snSplit = checkLine.split("\\s+");
-                    sn = snSplit[snSplit.length - 1];
+                    this.cpuSerialNumber = snSplit[snSplit.length - 1];
                     break;
                 }
             }
+            // Panther and later
+            if (this.cpuSerialNumber == null) {
+                for (String checkLine : hwInfo) {
+                    if (checkLine.contains("r (system)")) {
+                        String[] snSplit = checkLine.split("\\s+");
+                        this.cpuSerialNumber = snSplit[snSplit.length - 1];
+                        break;
+                    }
+                }
+            }
+            if (this.cpuSerialNumber == null) {
+                this.cpuSerialNumber = "unknown";
+            }
         }
-        return (sn == null) ? "unknown" : sn;
+        return this.cpuSerialNumber;
     }
 
     @Override

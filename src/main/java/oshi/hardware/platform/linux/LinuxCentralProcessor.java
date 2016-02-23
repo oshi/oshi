@@ -98,6 +98,8 @@ public class LinuxCentralProcessor implements CentralProcessor {
 
     private String cpuName;
 
+    private String cpuSerialNumber = null;
+
     private String cpuIdentifier;
 
     private String cpuStepping;
@@ -544,34 +546,38 @@ public class LinuxCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getSystemSerialNumber() {
-        String sn = null;
-        // If root privileges this will work
-        ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
-        String marker = "Serial Number:";
-        if (hwInfo != null) {
-            for (String checkLine : hwInfo) {
-                if (checkLine.contains(marker)) {
-                    sn = checkLine.split(marker)[1].trim();
-                    break;
-                }
-            }
-        }
-        // if lshal command available (HAL deprecated in newer linuxes)
-        if (sn == null) {
-            marker = "system.hardware.serial =";
-            hwInfo = ExecutingCommand.runNative("lshal");
+        if (this.cpuSerialNumber == null) {
+            // If root privileges this will work
+            ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
+            String marker = "Serial Number:";
             if (hwInfo != null) {
                 for (String checkLine : hwInfo) {
                     if (checkLine.contains(marker)) {
-                        String[] temp = checkLine.split(marker)[1].split("'");
-                        // Format: '12345' (string)
-                        sn = temp.length > 0 ? temp[1] : null;
+                        this.cpuSerialNumber = checkLine.split(marker)[1].trim();
                         break;
                     }
                 }
             }
+            // if lshal command available (HAL deprecated in newer linuxes)
+            if (this.cpuSerialNumber == null) {
+                marker = "system.hardware.serial =";
+                hwInfo = ExecutingCommand.runNative("lshal");
+                if (hwInfo != null) {
+                    for (String checkLine : hwInfo) {
+                        if (checkLine.contains(marker)) {
+                            String[] temp = checkLine.split(marker)[1].split("'");
+                            // Format: '12345' (string)
+                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (this.cpuSerialNumber == null) {
+                this.cpuSerialNumber = "unknown";
+            }
         }
-        return (sn == null) ? "unknown" : sn;
+        return this.cpuSerialNumber;
     }
 
     /**

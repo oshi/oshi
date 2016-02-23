@@ -124,6 +124,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     private String cpuName;
 
+    private String cpuSerialNumber = null;
+
     private String cpuIdentifier;
 
     private Long cpuVendorFreq;
@@ -624,30 +626,34 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getSystemSerialNumber() {
-        String sn = null;
-        // This should always work
-        ArrayList<String> hwInfo = ExecutingCommand.runNative("wmic bios get serialnumber");
-        for (String checkLine : hwInfo) {
-            if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
-                continue;
-            } else {
-                sn = checkLine.trim();
-                break;
-            }
-        }
-        // Just in case the above doesn't
-        if (sn == null || sn.length() == 0) {
-            hwInfo = ExecutingCommand.runNative("wmic csproduct get identifyingnumber");
+        if (this.cpuSerialNumber == null) {
+            // This should always work
+            ArrayList<String> hwInfo = ExecutingCommand.runNative("wmic bios get serialnumber");
             for (String checkLine : hwInfo) {
-                if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
+                if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
                     continue;
                 } else {
-                    sn = checkLine.trim();
+                    this.cpuSerialNumber = checkLine.trim();
                     break;
                 }
             }
+            // Just in case the above doesn't
+            if (this.cpuSerialNumber == null || this.cpuSerialNumber.length() == 0) {
+                hwInfo = ExecutingCommand.runNative("wmic csproduct get identifyingnumber");
+                for (String checkLine : hwInfo) {
+                    if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
+                        continue;
+                    } else {
+                        this.cpuSerialNumber = checkLine.trim();
+                        break;
+                    }
+                }
+            }
+            if (this.cpuSerialNumber == null) {
+                this.cpuSerialNumber = "unknown";
+            }
         }
-        return (sn == null || sn.length() == 0) ? "unknown" : sn;
+        return this.cpuSerialNumber;
     }
 
     @Override
