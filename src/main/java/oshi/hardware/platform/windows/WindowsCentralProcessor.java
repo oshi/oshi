@@ -128,7 +128,15 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     private String cpuIdentifier;
 
+    private String cpuStepping;
+
+    private String cpuModel;
+
+    private String cpuFamily;
+
     private Long cpuVendorFreq;
+
+    private Boolean cpu64;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
@@ -348,6 +356,22 @@ public class WindowsCentralProcessor implements CentralProcessor {
     @Override
     public void setIdentifier(String identifier) {
         this.cpuIdentifier = identifier;
+        if (this.cpuIdentifier != null) {
+            String[] id = this.cpuIdentifier.split(" ");
+            for (int i = 0; i < id.length; i++) {
+                if (id[i].equals("Intel64")) {
+                    setCpu64(true);
+                } else if (id[i].equals("Intel32")) {
+                    setCpu64(false);
+                } else if (id[i].equals("Family")) {
+                    setFamily((i < id.length - 1) ? id[i + 1] : "");
+                } else if (id[i].equals("Model")) {
+                    setModel((i < id.length - 1) ? id[i + 1] : "");
+                } else if (id[i].equals("Stepping")) {
+                    setStepping((i < id.length - 1) ? id[i + 1] : "");
+                }
+            }
+        }
     }
 
     /**
@@ -355,7 +379,17 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public boolean isCpu64bit() {
-        throw new UnsupportedOperationException();
+        if (this.cpu64 == null) {
+            SYSTEM_INFO sysinfo = new SYSTEM_INFO();
+            Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+            if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
+                    || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
+                this.cpu64 = true;
+            } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
+                this.cpu64 = false;
+            }
+        }
+        return this.cpu64 != null ? this.cpu64 : false;
     }
 
     /**
@@ -363,7 +397,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public void setCpu64(boolean cpu64) {
-        throw new UnsupportedOperationException();
+        this.cpu64 = cpu64;
     }
 
     /**
@@ -371,7 +405,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getStepping() {
-        throw new UnsupportedOperationException();
+        return this.cpuStepping != null ? this.cpuStepping : "";
     }
 
     /**
@@ -379,7 +413,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public void setStepping(String stepping) {
-        throw new UnsupportedOperationException();
+        this.cpuStepping = stepping;
     }
 
     /**
@@ -387,7 +421,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getModel() {
-        throw new UnsupportedOperationException();
+        return this.cpuModel != null ? this.cpuModel : "";
     }
 
     /**
@@ -395,7 +429,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public void setModel(String model) {
-        throw new UnsupportedOperationException();
+        this.cpuModel = model;
     }
 
     /**
@@ -403,7 +437,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public String getFamily() {
-        throw new UnsupportedOperationException();
+        return this.cpuFamily != null ? this.cpuFamily : "";
     }
 
     /**
@@ -411,7 +445,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
      */
     @Override
     public void setFamily(String family) {
-        throw new UnsupportedOperationException();
+        this.cpuFamily = family;
     }
 
     /**
