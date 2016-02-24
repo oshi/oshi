@@ -191,8 +191,8 @@ How is this different from ...
 	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2016.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
-	* The MXBean has very few methods that address system-wide statistics.
-	* Oshi provides significantly more information than the OperatingSystemMXBean
+	* The `MXBean` has very few methods that address system-wide statistics.
+	* Oshi provides significantly more information than the `OperatingSystemMXBean`.
 
 License
 -------
