@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,25 +38,25 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxDisplay implements Display {
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);</span>
+<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);</span>
 
     private byte[] edid;
 
-<span class="nc" id="L41">    public LinuxDisplay(byte[] edid) {</span>
-<span class="nc" id="L42">        this.edid = edid;</span>
-<span class="nc" id="L43">        LOG.debug(&quot;Initialized LinuxDisplay&quot;);</span>
-<span class="nc" id="L44">    }</span>
+<span class="nc" id="L45">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="nc" id="L47">    public LinuxDisplay(byte[] edid) {</span>
+<span class="nc" id="L48">        this.edid = edid;</span>
+<span class="nc" id="L49">        LOG.debug(&quot;Initialized LinuxDisplay&quot;);</span>
+<span class="nc" id="L50">    }</span>
 
     @Override
     public byte[] getEdid() {
-<span class="nc" id="L48">        return Arrays.copyOf(edid, edid.length);</span>
+<span class="nc" id="L54">        return Arrays.copyOf(edid, edid.length);</span>
     }
 
     @Override
-    public String toJSON() {
-<span class="nc" id="L53">        StringBuilder sb = new StringBuilder(&quot;{&quot;);</span>
-<span class="nc" id="L54">        sb.append(&quot;\&quot;edid\&quot;:\&quot;&quot;).append(EdidUtil.toString(getEdid())).append(&quot;\&quot;&quot;);</span>
-<span class="nc" id="L55">        return sb.append(&quot;}&quot;).toString();</span>
+    public JsonObject toJSON() {
+<span class="nc" id="L59">        return jsonFactory.createObjectBuilder().add(&quot;edid&quot;, EdidUtil.toString(getEdid())).build();</span>
     }
 
     /**
@@ -61,29 +65,29 @@ public class LinuxDisplay implements Display {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L64">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
-<span class="nc" id="L65">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
-<span class="nc" id="L66">        boolean foundEdid = false;</span>
-<span class="nc" id="L67">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (String s : xrandr) {</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (s.contains(&quot;EDID&quot;)) {</span>
-<span class="nc" id="L70">                foundEdid = true;</span>
-<span class="nc" id="L71">                sb = new StringBuilder();</span>
-<span class="nc" id="L72">                continue;</span>
+<span class="nc" id="L68">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
+<span class="nc" id="L69">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
+<span class="nc" id="L70">        boolean foundEdid = false;</span>
+<span class="nc" id="L71">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (String s : xrandr) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (s.contains(&quot;EDID&quot;)) {</span>
+<span class="nc" id="L74">                foundEdid = true;</span>
+<span class="nc" id="L75">                sb = new StringBuilder();</span>
+<span class="nc" id="L76">                continue;</span>
             }
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (foundEdid) {</span>
-<span class="nc" id="L75">                sb.append(s.trim());</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">                if (sb.length() &gt;= 256) {</span>
-<span class="nc" id="L77">                    String edidStr = sb.toString();</span>
-<span class="nc" id="L78">                    LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
-<span class="nc" id="L79">                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
-<span class="nc" id="L80">                    displays.add(display);</span>
-<span class="nc" id="L81">                    foundEdid = false;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (foundEdid) {</span>
+<span class="nc" id="L79">                sb.append(s.trim());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (sb.length() &gt;= 256) {</span>
+<span class="nc" id="L81">                    String edidStr = sb.toString();</span>
+<span class="nc" id="L82">                    LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
+<span class="nc" id="L83">                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
+<span class="nc" id="L84">                    displays.add(display);</span>
+<span class="nc" id="L85">                    foundEdid = false;</span>
                 }
             }
-<span class="nc" id="L84">        }</span>
+<span class="nc" id="L88">        }</span>
 
-<span class="nc" id="L86">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L90">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

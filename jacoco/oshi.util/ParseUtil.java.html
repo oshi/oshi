@@ -16,24 +16,29 @@
  */
 package oshi.util;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriter;
+import javax.json.JsonWriterFactory;
+import javax.json.stream.JsonGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import oshi.JsonObject;
 
 /**
  * String parsing utility.
  * 
  * @author alessio.fachechi[at]gmail[dot]com
  */
-<span class="nc" id="L34">public abstract class ParseUtil {</span>
+<span class="nc" id="L39">public abstract class ParseUtil {</span>
 
-<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
+<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
     /**
      * Hertz related variables.
@@ -53,14 +58,14 @@ import oshi.JsonObject;
     final private static Map&lt;String, Long&gt; multipliers;
 
     static {
-<span class="fc" id="L56">        multipliers = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L57">        multipliers.put(Hertz, 1L);</span>
-<span class="fc" id="L58">        multipliers.put(kiloHertz, 1000L);</span>
-<span class="fc" id="L59">        multipliers.put(megaHertz, 1000000L);</span>
-<span class="fc" id="L60">        multipliers.put(gigaHertz, 1000000000L);</span>
-<span class="fc" id="L61">        multipliers.put(teraHertz, 1000000000000L);</span>
-<span class="fc" id="L62">        multipliers.put(petaHertz, 1000000000000000L);</span>
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L61">        multipliers = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L62">        multipliers.put(Hertz, 1L);</span>
+<span class="fc" id="L63">        multipliers.put(kiloHertz, 1000L);</span>
+<span class="fc" id="L64">        multipliers.put(megaHertz, 1000000L);</span>
+<span class="fc" id="L65">        multipliers.put(gigaHertz, 1000000000L);</span>
+<span class="fc" id="L66">        multipliers.put(teraHertz, 1000000000000L);</span>
+<span class="fc" id="L67">        multipliers.put(petaHertz, 1000000000000000L);</span>
+<span class="fc" id="L68">    }</span>
 
     /**
      * Parse hertz from a string, eg. &quot;2.00MHz&quot; in 2000000L.
@@ -70,24 +75,24 @@ import oshi.JsonObject;
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-<span class="fc" id="L73">        Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
-<span class="fc" id="L74">        Matcher matcher = pattern.matcher(hertz.trim());</span>
+<span class="fc" id="L78">        Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
+<span class="fc" id="L79">        Matcher matcher = pattern.matcher(hertz.trim());</span>
 
-<span class="pc bpc" id="L76" title="2 of 4 branches missed.">        if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">        if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
             try {
-<span class="fc" id="L78">                Double value = Double.valueOf(matcher.group(1));</span>
-<span class="fc" id="L79">                String unit = matcher.group(3);</span>
+<span class="fc" id="L83">                Double value = Double.valueOf(matcher.group(1));</span>
+<span class="fc" id="L84">                String unit = matcher.group(3);</span>
 
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                if (multipliers.containsKey(unit)) {</span>
-<span class="fc" id="L82">                    value = value * multipliers.get(unit);</span>
-<span class="fc" id="L83">                    return value.longValue();</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                if (multipliers.containsKey(unit)) {</span>
+<span class="fc" id="L87">                    value = value * multipliers.get(unit);</span>
+<span class="fc" id="L88">                    return value.longValue();</span>
                 }
-<span class="nc" id="L85">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L86">                LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L87">            }</span>
+<span class="nc" id="L90">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L91">                LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L92">            }</span>
         }
 
-<span class="nc" id="L90">        return -1L;</span>
+<span class="nc" id="L95">        return -1L;</span>
     }
 
     /**
@@ -100,11 +105,11 @@ import oshi.JsonObject;
      * @return {@link Integer} value or the given default if not parsable
      */
     public static int parseString(String s, int i) {
-<span class="fc" id="L103">        String[] ss = s.split(&quot;\\s+&quot;);</span>
-<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
-<span class="fc" id="L105">            return i;</span>
+<span class="fc" id="L108">        String[] ss = s.split(&quot;\\s+&quot;);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
+<span class="fc" id="L110">            return i;</span>
         } else {
-<span class="fc" id="L107">            return Integer.valueOf(ss[ss.length - 1]);</span>
+<span class="fc" id="L112">            return Integer.valueOf(ss[ss.length - 1]);</span>
         }
     }
 
@@ -116,92 +121,36 @@ import oshi.JsonObject;
      * @return a byte array with each pair of characters converted to a byte
      */
     public static byte[] hexStringToByteArray(String s) {
-<span class="fc" id="L119">        int len = s.length();</span>
-<span class="fc" id="L120">        byte[] data = new byte[len / 2];</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="fc" id="L122">            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) &lt;&lt; 4) + Character.digit(s.charAt(i + 1), 16));</span>
+<span class="fc" id="L124">        int len = s.length();</span>
+<span class="fc" id="L125">        byte[] data = new byte[len / 2];</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="fc" id="L127">            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) &lt;&lt; 4) + Character.digit(s.charAt(i + 1), 16));</span>
         }
-<span class="fc" id="L124">        return data;</span>
-    }
-
-    /**
-     * Prints an array of JSON objects
-     * 
-     * @param objArray
-     *            an array of JsonObjects
-     * @return compact JSON string for the array
-     */
-    public static String toJsonArray(JsonObject[] objArray) {
-<span class="nc" id="L135">        StringBuilder sb = new StringBuilder(&quot;[&quot;);</span>
-<span class="nc" id="L136">        String separator = &quot;&quot;;</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (JsonObject obj : objArray) {</span>
-<span class="nc" id="L138">            sb.append(separator).append(obj.toJSON());</span>
-<span class="nc" id="L139">            separator = &quot;,&quot;;</span>
-        }
-<span class="nc" id="L141">        return sb.append(&quot;]&quot;).toString();</span>
+<span class="fc" id="L129">        return data;</span>
     }
 
     /**
      * Pretty print a JSON string.
      * 
      * @param json
-     * @return String with added whitespace, new lines, indentation
+     *            A JSON object
+     * @return String representing the object with added whitespace, new lines,
+     *         indentation
      */
-    public static String jsonPrettyPrint(String json) {
-<span class="nc" id="L151">        int indent = 0;</span>
-<span class="nc" id="L152">        boolean inQuotes = false;</span>
-<span class="nc" id="L153">        StringBuilder sb = new StringBuilder();</span>
-
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (int i = 0; i &lt; json.length(); i++) {</span>
-<span class="nc" id="L156">            char c = json.charAt(i);</span>
-            // If &quot; toggle inQuotes.
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (c == '&quot;') {</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                inQuotes = !inQuotes;</span>
-            }
-            // If inside quotes ignore other formatting
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (inQuotes) {</span>
-<span class="nc" id="L163">                sb.append(c);</span>
-<span class="nc" id="L164">                continue;</span>
-            }
-<span class="nc bnc" id="L166" title="All 5 branches missed.">            switch (c) {</span>
-            // If { or [ add new line and increase indent
-            case '{':
-            case '[':
-<span class="nc" id="L170">                sb.append(c);</span>
-<span class="nc" id="L171">                indent++;</span>
-<span class="nc" id="L172">                sb.append(newLineWithIndent(indent));</span>
-<span class="nc" id="L173">                break;</span>
-            // If } or ] add new line and decrease indent
-            case '}':
-            case ']':
-<span class="nc" id="L177">                indent--;</span>
-<span class="nc" id="L178">                sb.append(newLineWithIndent(indent));</span>
-<span class="nc" id="L179">                sb.append(c);</span>
-<span class="nc" id="L180">                break;</span>
-            // If , add new line
-            case ',':
-<span class="nc" id="L183">                sb.append(c);</span>
-<span class="nc" id="L184">                sb.append(newLineWithIndent(indent));</span>
-<span class="nc" id="L185">                break;</span>
-            // If :, add space
-            case ':':
-<span class="nc" id="L188">                sb.append(c).append(&quot; &quot;);</span>
-<span class="nc" id="L189">                break;</span>
-            // Otherwise just display
-            default:
-<span class="nc" id="L192">                sb.append(c);</span>
-            }
-        }
-        // Remove whitespace between brackets if needed
-<span class="nc" id="L196">        return sb.toString().replaceAll(&quot;\\[\\s+\\]&quot;, &quot;[]&quot;).replaceAll(&quot;\\{\\s+\\}&quot;, &quot;{}&quot;);</span>
-    }
-
-    private static String newLineWithIndent(int indent) {
-<span class="nc" id="L200">        StringBuilder sb = new StringBuilder(&quot;\n&quot;);</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (int i = 0; i &lt; indent; i++) {</span>
-<span class="nc" id="L202">            sb.append(&quot;  &quot;);</span>
-        }
-<span class="nc" id="L204">        return sb.toString();</span>
+    public static String jsonPrettyPrint(JsonObject json) {
+        // Pretty printing using JsonWriterFactory
+        // Output stream
+<span class="nc" id="L143">        StringWriter stringWriter = new StringWriter();</span>
+        // Config
+<span class="nc" id="L145">        Map&lt;String, Boolean&gt; config = new HashMap&lt;String, Boolean&gt;();</span>
+<span class="nc" id="L146">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
+<span class="nc" id="L147">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
+        // Writer
+<span class="nc" id="L149">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
+<span class="nc" id="L150">        jsonWriter.write(json);</span>
+<span class="nc" id="L151">        jsonWriter.close();</span>
+        // Return
+<span class="nc" id="L153">        return stringWriter.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
