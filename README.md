@@ -23,7 +23,7 @@ Essentials
 
 Where are we?
 -------------
-Oshi is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html).
 
 Current supported platforms
 ---------------------------
