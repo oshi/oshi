@@ -43,6 +43,7 @@ Current supported features
 * How much physical/available (free+reclaimable) RAM
 * How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
+* CPU temperature, fan speeds, voltage (if available; some OS's, some CPUs)
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
@@ -69,6 +70,10 @@ CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
 CPU load average: N/A
 CPU load per processor: 3.8% 4.0%
+Sensors:
+ CPU Temperature: 73.5°C
+ Fan Speeds:[0]
+ CPU Voltage: 3.3V
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
@@ -114,6 +119,10 @@ CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
 CPU load average: 1.13
 CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
+Sensors:
+ CPU Temperature: 62.0°C
+ Fan Speeds:[2339, 2344]
+ CPU Voltage: 3.6V
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
@@ -142,7 +151,7 @@ Displays:
 For Mac OS X:
 
 ```
-Apple Mac OS X 10.11.1 (El Capitan) build 15B42
+Apple Mac OS X 10.11.3 (El Capitan) build 15D21
 Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  2 physical CPU(s)
  4 logical CPU(s)
@@ -157,6 +166,10 @@ CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
 CPU load average: 1.48
 CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
+Sensors:
+ CPU Temperature: 67.0°C
+ Fan Speeds:[3402, 3399]
+ CPU Voltage: 4.3V
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:

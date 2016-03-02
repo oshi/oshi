@@ -316,6 +316,12 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
+        // hardware: sensors
+        LOG.info("Checking Sensors...");
+        System.out.println("Sensors:");
+        System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
+        System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
+        System.out.format(" CPU Voltagee: %.1fV%n", hal.getSensors().getCpuVoltage());
 
         // hardware: power
         LOG.info("Checking Power sources...");

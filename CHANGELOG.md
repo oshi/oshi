@@ -1,12 +1,12 @@
 2.2 (in-progress)
 ================
+* [#121](https://github.com/dblock/oshi/pull/121): Added CPU temperature, fan speeds, and voltage - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.1.2 (2/24/2016)
 ================
 * [#118](https://github.com/dblock/oshi/pull/118): Port JSON to javax.json - [@dbwiddis](https://github.com/dbwiddis).
 * [#120](https://github.com/dblock/oshi/pull/120): Support all windows processor methods - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 2.1.1 (2/19/2016)
 ================

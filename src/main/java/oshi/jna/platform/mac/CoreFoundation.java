@@ -52,6 +52,10 @@ public interface CoreFoundation extends Library {
         // TODO Build this out
     }
 
+    class CFMutableDictionaryRef extends PointerType {
+        // TODO Build this out
+    }
+
     class CFStringRef extends PointerType {
         public static CFStringRef toCFString(String s) {
             final char[] chars = s.toCharArray();

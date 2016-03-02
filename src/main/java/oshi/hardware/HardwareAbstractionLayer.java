@@ -69,4 +69,12 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      *         present.
      */
     Display[] getDisplays();
+
+    /**
+     * Instantiates a {@link Sensors} object, representing CPU temperature and
+     * fan speed
+     * 
+     * @return A Sensors object
+     */
+    Sensors getSensors();
 }

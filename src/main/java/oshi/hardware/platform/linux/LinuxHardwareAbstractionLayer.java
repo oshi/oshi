@@ -32,6 +32,7 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
@@ -48,6 +49,8 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     private CentralProcessor processor;
 
     private GlobalMemory _memory;
+
+    private Sensors sensors;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
@@ -130,6 +133,14 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     }
 
     @Override
+    public Sensors getSensors() {
+        if (this.sensors == null) {
+            this.sensors = new LinuxSensors();
+        }
+        return this.sensors;
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
         for (PowerSource powerSource : getPowerSources()) {
@@ -145,6 +156,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
         }
         return jsonFactory.createObjectBuilder().add("processor", getProcessor().toJSON())
                 .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build()).build();
+                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
+                .add("sensors", getSensors().toJSON()).build();
     }
 }
