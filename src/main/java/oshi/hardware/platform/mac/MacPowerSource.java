@@ -35,6 +35,7 @@ import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.jna.platform.mac.IOKit;
 
 /**
@@ -77,7 +78,7 @@ public class MacPowerSource implements PowerSource {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("name", getName()).add("remainingCapacity", getRemainingCapacity())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("remainingCapacity", getRemainingCapacity())
                 .add("timeRemaining", getTimeRemaining()).build();
     }
 

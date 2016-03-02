@@ -32,6 +32,7 @@ import com.sun.jna.platform.win32.WinNT.OSVERSIONINFOEX;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.WinUser;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -255,7 +256,7 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", "")
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", "")
                 .add("build", getBuildNumber()).build();
     }
 

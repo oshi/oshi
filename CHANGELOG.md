@@ -1,7 +1,11 @@
-2.2 (in-progress)
+2.3 (in-progress)
+================
+* Your contribution here.
+
+2.2 (3/1/2016)
 ================
 * [#121](https://github.com/dblock/oshi/pull/121): Added CPU temperature, fan speeds, and voltage - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#123](https://github.com/dblock/oshi/pull/123): Handle JSON nulls - [@dbwiddis](https://github.com/dbwiddis).
 
 2.1.2 (2/24/2016)
 ================

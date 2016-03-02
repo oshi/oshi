@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * Display refers to the information regarding a video source and monitor

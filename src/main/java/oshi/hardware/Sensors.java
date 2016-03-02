@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * Sensors include hardwore sensors to monitor temperature, fan speed, and other

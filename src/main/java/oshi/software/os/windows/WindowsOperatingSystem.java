@@ -20,6 +20,7 @@ import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -55,7 +56,7 @@ public class WindowsOperatingSystem implements OperatingSystem {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("manufacturer", getManufacturer()).add("family", getFamily())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer()).add("family", getFamily())
                 .add("version", getVersion().toJSON()).build();
     }
 

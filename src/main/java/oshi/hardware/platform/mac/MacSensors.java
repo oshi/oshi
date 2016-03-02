@@ -37,6 +37,7 @@ import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.Util;
 
@@ -341,7 +342,7 @@ public class MacSensors implements Sensors {
         for (int speed : getFanSpeeds()) {
             fanSpeedsArrayBuilder.add(speed);
         }
-        return jsonFactory.createObjectBuilder().add("cpuTemperature", getCpuTemperature())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("cpuTemperature", getCpuTemperature())
                 .add("fanSpeeds", fanSpeedsArrayBuilder.build()).add("cpuVoltage", getCpuVoltage()).build();
     }
 }

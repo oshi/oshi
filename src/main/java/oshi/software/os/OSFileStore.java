@@ -23,7 +23,8 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.OshiJsonObject;
+import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.json.OshiJsonObject;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
@@ -143,7 +144,7 @@ public class OSFileStore implements OshiJsonObject {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("name", getName()).add("description", getDescription())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("description", getDescription())
                 .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
     }
 }

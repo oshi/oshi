@@ -26,6 +26,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
+import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.json.OshiJsonObject;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
@@ -114,7 +116,7 @@ public class SystemInfo implements OshiJsonObject {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("operatingSystem", getOperatingSystem().toJSON())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("operatingSystem", getOperatingSystem().toJSON())
                 .add("hardware", getHardware().toJSON()).build();
     }
 }

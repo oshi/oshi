@@ -10,19 +10,20 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 2.1.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.1.2&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download Oshi 2.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.2-SNAPSHOT&amp;e=jar)
+* [Download Oshi 2.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.2&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download Oshi 2.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.3-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
+	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for Oshi
 
 Where are we?
 -------------
-Oshi is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/introducing-oshi-operating-system-and-hardware-information-java).
+Oshi is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html).
 
 Current supported platforms
 ---------------------------
@@ -42,6 +43,7 @@ Current supported features
 * How much physical/available (free+reclaimable) RAM
 * How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
+* CPU temperature, fan speeds, voltage (if available; some OS's, some CPUs)
 * Battery state (% capacity, time remaining)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
@@ -68,6 +70,10 @@ CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
 CPU load average: N/A
 CPU load per processor: 3.8% 4.0%
+Sensors:
+ CPU Temperature: 73.5°C
+ Fan Speeds:[0]
+ CPU Voltage: 3.3V
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
@@ -113,6 +119,10 @@ CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
 CPU load average: 1.13
 CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
+Sensors:
+ CPU Temperature: 62.0°C
+ Fan Speeds:[2339, 2344]
+ CPU Voltage: 3.6V
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
@@ -141,7 +151,7 @@ Displays:
 For Mac OS X:
 
 ```
-Apple Mac OS X 10.11.1 (El Capitan) build 15B42
+Apple Mac OS X 10.11.3 (El Capitan) build 15D21
 Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  2 physical CPU(s)
  4 logical CPU(s)
@@ -156,6 +166,10 @@ CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
 CPU load average: 1.48
 CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
+Sensors:
+ CPU Temperature: 67.0°C
+ Fan Speeds:[3402, 3399]
+ CPU Voltage: 4.3V
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:
@@ -190,8 +204,8 @@ How is this different from ...
 	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2016.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
-	* The MXBean has very few methods that address system-wide statistics.
-	* Oshi provides significantly more information than the OperatingSystemMXBean
+	* The `MXBean` has very few methods that address system-wide statistics.
+	* Oshi provides significantly more information than the `OperatingSystemMXBean`.
 
 License
 -------

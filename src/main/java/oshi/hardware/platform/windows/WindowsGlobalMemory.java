@@ -27,6 +27,7 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
 
 import oshi.hardware.GlobalMemory;
+import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -68,6 +69,6 @@ public class WindowsGlobalMemory implements GlobalMemory {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).build();
     }
 }

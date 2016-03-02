@@ -16,9 +16,10 @@
  */
 package oshi.software.os.linux;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -27,8 +28,10 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.FileUtil;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -46,21 +49,52 @@ public class LinuxOperatingSystem implements OperatingSystem {
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
+    private List<String> osRelease;
+
+    protected static String getReleaseFilename() {
+        // Check for existence of primary sources of info:
+        if ((new File("/etc/os-release")).exists()) {
+            return "/etc/os-release";
+        }
+        if ((new File("/etc/lsb-release")).exists()) {
+            return "/etc/lsb-release";
+        }
+        // Look for any /etc/*-release, *-version, and variants
+        File etc = new File("/etc");
+        File[] files = etc.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return (name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_version"));
+            }
+        });
+        if (files.length > 0) {
+            return files[0].getPath();
+        }
+        return "/etc/release";
+    }
+
     @Override
     public String getFamily() {
         if (this._family == null) {
-            try (final Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
-                in.useDelimiter("\n");
-                while (in.hasNext()) {
-                    String[] splittedLine = in.next().split("=");
-                    if (splittedLine[0].equals("NAME")) {
+            String etcOsRelease = getReleaseFilename();
+            try {
+                this.osRelease = FileUtil.readFile(etcOsRelease);
+                for (String line : this.osRelease) {
+                    String[] splittedLine = line.split("=");
+                    if ((splittedLine[0].equals("NAME") || splittedLine[0].equals("DISTRIB_ID"))
+                            && splittedLine.length > 1) {
                         // remove beginning and ending '"' characters, etc from
                         // NAME="Ubuntu"
                         this._family = splittedLine[1].replaceAll("^\"|\"$", "");
                         break;
                     }
                 }
-            } catch (FileNotFoundException e) {
+                // If we've gotten to the end without matching, use the filename
+                if (this._family == null) {
+                    this._family = etcOsRelease.replace("/etc/", "").replace("release", "").replace("version", "")
+                            .replace("-", "");
+                }
+            } catch (IOException e) {
                 LOG.trace("", e);
                 return "";
             }
@@ -76,15 +110,15 @@ public class LinuxOperatingSystem implements OperatingSystem {
     @Override
     public OperatingSystemVersion getVersion() {
         if (this._version == null) {
-            this._version = new LinuxOSVersionInfoEx();
+            this._version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();
         }
         return this._version;
     }
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("manufacturer", getManufacturer()).add("family", getFamily())
-                .add("version", getVersion().toJSON()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
+                .add("family", getFamily()).add("version", getVersion().toJSON()).build();
     }
 
     @Override

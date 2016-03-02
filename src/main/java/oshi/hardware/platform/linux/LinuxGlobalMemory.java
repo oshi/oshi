@@ -31,6 +31,7 @@ import com.sun.jna.Native;
 import oshi.hardware.GlobalMemory;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FileUtil;
 
 /**
@@ -134,6 +135,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
+                .add("total", getTotal()).build();
     }
 }

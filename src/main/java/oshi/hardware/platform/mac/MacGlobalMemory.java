@@ -32,6 +32,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.GlobalMemory;
+import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
@@ -86,6 +87,6 @@ public class MacGlobalMemory implements GlobalMemory {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("available", getAvailable()).add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).build();
     }
 }

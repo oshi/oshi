@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FileUtil;
 
 /**
@@ -73,7 +74,7 @@ public class LinuxPowerSource implements PowerSource {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("name", getName()).add("remainingCapacity", getRemainingCapacity())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("remainingCapacity", getRemainingCapacity())
                 .add("timeRemaining", getTimeRemaining()).build();
     }
 
