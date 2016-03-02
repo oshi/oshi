@@ -20,6 +20,7 @@ import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -28,48 +29,48 @@ import oshi.software.os.OperatingSystemVersion;
  * @author widdis[at]gmail[dot]com
  */
 
-<span class="fc" id="L31">public class MacOperatingSystem implements OperatingSystem {</span>
+<span class="fc" id="L32">public class MacOperatingSystem implements OperatingSystem {</span>
     private String _family;
 
     private OperatingSystemVersion _version;
 
-<span class="fc" id="L36">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     @Override
     public OperatingSystemVersion getVersion() {
-<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (this._version == null) {</span>
-<span class="fc" id="L41">            this._version = new MacOSVersionInfoEx();</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (this._version == null) {</span>
+<span class="fc" id="L42">            this._version = new MacOSVersionInfoEx();</span>
         }
-<span class="fc" id="L43">        return this._version;</span>
+<span class="fc" id="L44">        return this._version;</span>
     }
 
     @Override
     public String getFamily() {
-<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (this._family == null)</span>
-<span class="fc" id="L49">            this._family = System.getProperty(&quot;os.name&quot;);</span>
-<span class="fc" id="L50">        return this._family;</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (this._family == null)</span>
+<span class="fc" id="L50">            this._family = System.getProperty(&quot;os.name&quot;);</span>
+<span class="fc" id="L51">        return this._family;</span>
     }
 
     @Override
     public String getManufacturer() {
-<span class="fc" id="L55">        return &quot;Apple&quot;;</span>
+<span class="fc" id="L56">        return &quot;Apple&quot;;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L60">        return jsonFactory.createObjectBuilder().add(&quot;manufacturer&quot;, getManufacturer()).add(&quot;family&quot;, getFamily())</span>
-<span class="nc" id="L61">                .add(&quot;version&quot;, getVersion().toJSON()).build();</span>
+<span class="nc" id="L61">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer()).add(&quot;family&quot;, getFamily())</span>
+<span class="nc" id="L62">                .add(&quot;version&quot;, getVersion().toJSON()).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L66">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L67">        sb.append(getManufacturer());</span>
-<span class="fc" id="L68">        sb.append(&quot; &quot;);</span>
-<span class="fc" id="L69">        sb.append(getFamily());</span>
-<span class="fc" id="L70">        sb.append(&quot; &quot;);</span>
-<span class="fc" id="L71">        sb.append(getVersion().toString());</span>
-<span class="fc" id="L72">        return sb.toString();</span>
+<span class="fc" id="L67">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L68">        sb.append(getManufacturer());</span>
+<span class="fc" id="L69">        sb.append(&quot; &quot;);</span>
+<span class="fc" id="L70">        sb.append(getFamily());</span>
+<span class="fc" id="L71">        sb.append(&quot; &quot;);</span>
+<span class="fc" id="L72">        sb.append(getVersion().toString());</span>
+<span class="fc" id="L73">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

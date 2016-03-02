@@ -52,11 +52,15 @@ public interface CoreFoundation extends Library {
         // TODO Build this out
     }
 
-<span class="fc" id="L55">    class CFStringRef extends PointerType {</span>
+<span class="nc" id="L55">    class CFMutableDictionaryRef extends PointerType {</span>
+        // TODO Build this out
+    }
+
+<span class="fc" id="L59">    class CFStringRef extends PointerType {</span>
         public static CFStringRef toCFString(String s) {
-<span class="fc" id="L57">            final char[] chars = s.toCharArray();</span>
-<span class="fc" id="L58">            int length = chars.length;</span>
-<span class="fc" id="L59">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+<span class="fc" id="L61">            final char[] chars = s.toCharArray();</span>
+<span class="fc" id="L62">            int length = chars.length;</span>
+<span class="fc" id="L63">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 

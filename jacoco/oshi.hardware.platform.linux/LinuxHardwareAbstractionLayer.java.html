@@ -32,6 +32,8 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
@@ -40,8 +42,8 @@ import oshi.util.FileUtil;
  * @author alessandro[at]perucchi[dot]org
  */
 
-<span class="nc" id="L43">public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
-<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);</span>
+<span class="nc" id="L45">public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);</span>
 
     private static final String SEPARATOR = &quot;\\s+:\\s&quot;;
 
@@ -49,103 +51,114 @@ import oshi.util.FileUtil;
 
     private GlobalMemory _memory;
 
-<span class="nc" id="L52">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+    private Sensors sensors;
+
+<span class="nc" id="L56">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this._memory == null) {</span>
-<span class="nc" id="L57">            this._memory = new LinuxGlobalMemory();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this._memory == null) {</span>
+<span class="nc" id="L61">            this._memory = new LinuxGlobalMemory();</span>
         }
-<span class="nc" id="L59">        return this._memory;</span>
+<span class="nc" id="L63">        return this._memory;</span>
     }
 
     @Override
     public CentralProcessor getProcessor() {
 
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L66">            List&lt;String&gt; cpuInfo = null;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L70">            List&lt;String&gt; cpuInfo = null;</span>
             try {
-<span class="nc" id="L68">                cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
-<span class="nc" id="L69">            } catch (IOException e) {</span>
-<span class="nc" id="L70">                LOG.error(&quot;Problem with /proc/cpuinfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L71">                return null;</span>
-<span class="nc" id="L72">            }</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            for (String toBeAnalyzed : cpuInfo) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">                if (toBeAnalyzed.equals(&quot;&quot;)) {</span>
-<span class="nc" id="L75">                    break;</span>
+<span class="nc" id="L72">                cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
+<span class="nc" id="L73">            } catch (IOException e) {</span>
+<span class="nc" id="L74">                LOG.error(&quot;Problem with /proc/cpuinfo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L75">                return null;</span>
+<span class="nc" id="L76">            }</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (String toBeAnalyzed : cpuInfo) {</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (toBeAnalyzed.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L79">                    break;</span>
                 }
-<span class="nc bnc" id="L77" title="All 2 branches missed.">                if (processor == null) {</span>
-<span class="nc" id="L78">                    processor = new LinuxCentralProcessor();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (processor == null) {</span>
+<span class="nc" id="L82">                    processor = new LinuxCentralProcessor();</span>
                 }
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;model name\t&quot;)) {</span>
-<span class="nc" id="L81">                    processor.setName(toBeAnalyzed.split(SEPARATOR)[1]);</span>
-<span class="nc" id="L82">                    continue;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;model name\t&quot;)) {</span>
+<span class="nc" id="L85">                    processor.setName(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L86">                    continue;</span>
                 }
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;flags\t&quot;)) {</span>
-<span class="nc" id="L85">                    String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(&quot; &quot;);</span>
-<span class="nc" id="L86">                    boolean found = false;</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">                    for (String flag : flags) {</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">                        if (flag.equalsIgnoreCase(&quot;LM&quot;)) {</span>
-<span class="nc" id="L89">                            found = true;</span>
-<span class="nc" id="L90">                            break;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;flags\t&quot;)) {</span>
+<span class="nc" id="L89">                    String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(&quot; &quot;);</span>
+<span class="nc" id="L90">                    boolean found = false;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                    for (String flag : flags) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                        if (flag.equalsIgnoreCase(&quot;LM&quot;)) {</span>
+<span class="nc" id="L93">                            found = true;</span>
+<span class="nc" id="L94">                            break;</span>
                         }
                     }
-<span class="nc" id="L93">                    processor.setCpu64(found);</span>
-<span class="nc" id="L94">                    continue;</span>
-                }
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;cpu family\t&quot;)) {</span>
-<span class="nc" id="L97">                    processor.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L97">                    processor.setCpu64(found);</span>
 <span class="nc" id="L98">                    continue;</span>
                 }
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;model\t&quot;)) {</span>
-<span class="nc" id="L101">                    processor.setModel(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;cpu family\t&quot;)) {</span>
+<span class="nc" id="L101">                    processor.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);</span>
 <span class="nc" id="L102">                    continue;</span>
                 }
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;stepping\t&quot;)) {</span>
-<span class="nc" id="L105">                    processor.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;model\t&quot;)) {</span>
+<span class="nc" id="L105">                    processor.setModel(toBeAnalyzed.split(SEPARATOR)[1]);</span>
 <span class="nc" id="L106">                    continue;</span>
                 }
-<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;vendor_id&quot;)) {</span>
-<span class="nc" id="L109">                    processor.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;stepping\t&quot;)) {</span>
+<span class="nc" id="L109">                    processor.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);</span>
 <span class="nc" id="L110">                    continue;</span>
                 }
-<span class="nc" id="L112">            }</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (toBeAnalyzed.startsWith(&quot;vendor_id&quot;)) {</span>
+<span class="nc" id="L113">                    processor.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);</span>
+<span class="nc" id="L114">                    continue;</span>
+                }
+<span class="nc" id="L116">            }</span>
         }
-<span class="nc" id="L114">        return this.processor;</span>
+<span class="nc" id="L118">        return this.processor;</span>
     }
 
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L119">        return LinuxPowerSource.getPowerSources();</span>
+<span class="nc" id="L123">        return LinuxPowerSource.getPowerSources();</span>
     }
 
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L124">        return LinuxFileSystem.getFileStores();</span>
+<span class="nc" id="L128">        return LinuxFileSystem.getFileStores();</span>
     }
 
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L129">        return LinuxDisplay.getDisplays();</span>
+<span class="nc" id="L133">        return LinuxDisplay.getDisplays();</span>
+    }
+
+    @Override
+    public Sensors getSensors() {
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L139">            this.sensors = new LinuxSensors();</span>
+        }
+<span class="nc" id="L141">        return this.sensors;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L134">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
-<span class="nc" id="L136">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
+<span class="nc" id="L146">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
+<span class="nc" id="L148">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
         }
-<span class="nc" id="L138">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
-<span class="nc" id="L140">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
+<span class="nc" id="L150">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
+<span class="nc" id="L152">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
         }
-<span class="nc" id="L142">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
-<span class="nc" id="L144">            displayArrayBuilder.add(display.toJSON());</span>
+<span class="nc" id="L154">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
+<span class="nc" id="L156">            displayArrayBuilder.add(display.toJSON());</span>
         }
-<span class="nc" id="L146">        return jsonFactory.createObjectBuilder().add(&quot;processor&quot;, getProcessor().toJSON())</span>
-<span class="nc" id="L147">                .add(&quot;memory&quot;, getMemory().toJSON()).add(&quot;powerSources&quot;, powerSourceArrayBuilder.build())</span>
-<span class="nc" id="L148">                .add(&quot;fileStores&quot;, fileStoreArrayBuilder.build()).add(&quot;displays&quot;, displayArrayBuilder.build()).build();</span>
+<span class="nc" id="L158">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;processor&quot;, getProcessor().toJSON())</span>
+<span class="nc" id="L159">                .add(&quot;memory&quot;, getMemory().toJSON()).add(&quot;powerSources&quot;, powerSourceArrayBuilder.build())</span>
+<span class="nc" id="L160">                .add(&quot;fileStores&quot;, fileStoreArrayBuilder.build()).add(&quot;displays&quot;, displayArrayBuilder.build())</span>
+<span class="nc" id="L161">                .add(&quot;sensors&quot;, getSensors().toJSON()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

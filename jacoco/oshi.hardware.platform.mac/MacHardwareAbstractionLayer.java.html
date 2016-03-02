@@ -26,6 +26,8 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
@@ -33,7 +35,7 @@ import oshi.software.os.mac.MacFileSystem;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L36">public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="fc" id="L38">public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
     private CentralProcessor processor;
 
@@ -41,7 +43,9 @@ import oshi.software.os.mac.MacFileSystem;
 
     private PowerSource[] _powerSources;
 
-<span class="fc" id="L44">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+    private Sensors sensors;
+
+<span class="fc" id="L48">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /*
      * (non-Javadoc)
@@ -50,10 +54,10 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (this.processor == null) {</span>
-<span class="fc" id="L54">            this.processor = new MacCentralProcessor();</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (this.processor == null) {</span>
+<span class="fc" id="L58">            this.processor = new MacCentralProcessor();</span>
         }
-<span class="fc" id="L56">        return this.processor;</span>
+<span class="fc" id="L60">        return this.processor;</span>
     }
 
     /*
@@ -63,47 +67,56 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (this._memory == null) {</span>
-<span class="fc" id="L67">            this._memory = new MacGlobalMemory();</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (this._memory == null) {</span>
+<span class="fc" id="L71">            this._memory = new MacGlobalMemory();</span>
         }
-<span class="fc" id="L69">        return this._memory;</span>
+<span class="fc" id="L73">        return this._memory;</span>
     }
 
     @Override
     public PowerSource[] getPowerSources() {
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (this._powerSources == null) {</span>
-<span class="fc" id="L75">            this._powerSources = MacPowerSource.getPowerSources();</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (this._powerSources == null) {</span>
+<span class="fc" id="L79">            this._powerSources = MacPowerSource.getPowerSources();</span>
         }
-<span class="fc" id="L77">        return this._powerSources;</span>
+<span class="fc" id="L81">        return this._powerSources;</span>
     }
 
     @Override
     public OSFileStore[] getFileStores() {
-<span class="fc" id="L82">        return MacFileSystem.getFileStores();</span>
+<span class="fc" id="L86">        return MacFileSystem.getFileStores();</span>
     }
 
     @Override
     public Display[] getDisplays() {
-<span class="fc" id="L87">        return MacDisplay.getDisplays();</span>
+<span class="fc" id="L91">        return MacDisplay.getDisplays();</span>
+    }
+
+    @Override
+    public Sensors getSensors() {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L97">            this.sensors = new MacSensors();</span>
+        }
+<span class="nc" id="L99">        return this.sensors;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L92">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
-<span class="nc" id="L94">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
+<span class="nc" id="L104">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
+<span class="nc" id="L106">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
         }
-<span class="nc" id="L96">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
-<span class="nc" id="L98">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
+<span class="nc" id="L108">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
+<span class="nc" id="L110">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
         }
-<span class="nc" id="L100">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
-<span class="nc" id="L102">            displayArrayBuilder.add(display.toJSON());</span>
+<span class="nc" id="L112">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
+<span class="nc" id="L114">            displayArrayBuilder.add(display.toJSON());</span>
         }
-<span class="nc" id="L104">        return jsonFactory.createObjectBuilder().add(&quot;processor&quot;, getProcessor().toJSON())</span>
-<span class="nc" id="L105">                .add(&quot;memory&quot;, getMemory().toJSON()).add(&quot;powerSources&quot;, powerSourceArrayBuilder.build())</span>
-<span class="nc" id="L106">                .add(&quot;fileStores&quot;, fileStoreArrayBuilder.build()).add(&quot;displays&quot;, displayArrayBuilder.build()).build();</span>
+<span class="nc" id="L116">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;processor&quot;, getProcessor().toJSON())</span>
+<span class="nc" id="L117">                .add(&quot;memory&quot;, getMemory().toJSON()).add(&quot;powerSources&quot;, powerSourceArrayBuilder.build())</span>
+<span class="nc" id="L118">                .add(&quot;fileStores&quot;, fileStoreArrayBuilder.build()).add(&quot;displays&quot;, displayArrayBuilder.build())</span>
+<span class="nc" id="L119">                .add(&quot;sensors&quot;, getSensors().toJSON()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

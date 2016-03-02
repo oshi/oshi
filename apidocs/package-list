@@ -6,6 +6,7 @@ oshi.hardware.platform.windows
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.windows
+oshi.json
 oshi.software.os
 oshi.software.os.linux
 oshi.software.os.mac

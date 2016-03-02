@@ -27,6 +27,7 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
 
 import oshi.hardware.GlobalMemory;
+import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -34,41 +35,41 @@ import oshi.hardware.GlobalMemory;
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsGlobalMemory implements GlobalMemory {
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L39">    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
+<span class="nc" id="L40">    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
 
-<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L42">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-<span class="nc" id="L43">    public WindowsGlobalMemory() {</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
-<span class="nc" id="L45">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L46">            this._memory = null;</span>
+<span class="nc" id="L44">    public WindowsGlobalMemory() {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
+<span class="nc" id="L46">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L47">            this._memory = null;</span>
         }
-<span class="nc" id="L48">    }</span>
+<span class="nc" id="L49">    }</span>
 
     @Override
     public long getAvailable() {
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
-<span class="nc" id="L53">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L54">            this._memory = null;</span>
-<span class="nc" id="L55">            return 0L;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
+<span class="nc" id="L54">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L55">            this._memory = null;</span>
+<span class="nc" id="L56">            return 0L;</span>
         }
-<span class="nc" id="L57">        return this._memory.ullAvailPhys.longValue();</span>
+<span class="nc" id="L58">        return this._memory.ullAvailPhys.longValue();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (this._memory == null) {</span>
-<span class="nc" id="L63">            LOG.warn(&quot;MemoryStatusEx not initialized. No total memory data available&quot;);</span>
-<span class="nc" id="L64">            return 0L;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this._memory == null) {</span>
+<span class="nc" id="L64">            LOG.warn(&quot;MemoryStatusEx not initialized. No total memory data available&quot;);</span>
+<span class="nc" id="L65">            return 0L;</span>
         }
-<span class="nc" id="L66">        return this._memory.ullTotalPhys.longValue();</span>
+<span class="nc" id="L67">        return this._memory.ullTotalPhys.longValue();</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L71">        return jsonFactory.createObjectBuilder().add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
+<span class="nc" id="L72">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

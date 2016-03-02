@@ -32,61 +32,62 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.GlobalMemory;
+import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L41">public class MacGlobalMemory implements GlobalMemory {</span>
-<span class="fc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
+<span class="fc" id="L42">public class MacGlobalMemory implements GlobalMemory {</span>
+<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="fc" id="L44">    long totalMemory = 0;</span>
+<span class="fc" id="L45">    long totalMemory = 0;</span>
 
-<span class="fc" id="L46">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L47">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     @Override
     public long getAvailable() {
-<span class="fc" id="L50">        long availableMemory = 0;</span>
-<span class="fc" id="L51">        long pageSize = 4096;</span>
+<span class="fc" id="L51">        long availableMemory = 0;</span>
+<span class="fc" id="L52">        long pageSize = 4096;</span>
 
-<span class="fc" id="L53">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="fc" id="L54">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
 
-<span class="fc" id="L55">        LongByReference pPageSize = new LongByReference();</span>
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize)) {</span>
-<span class="nc" id="L57">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L58">            return 0L;</span>
+<span class="fc" id="L56">        LongByReference pPageSize = new LongByReference();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize)) {</span>
+<span class="nc" id="L58">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L59">            return 0L;</span>
         }
-<span class="fc" id="L60">        pageSize = pPageSize.getValue();</span>
+<span class="fc" id="L61">        pageSize = pPageSize.getValue();</span>
 
-<span class="fc" id="L62">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="fc" id="L64">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L65">            LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L66">            return 0L;</span>
+<span class="fc" id="L63">        VMStatistics vmStats = new VMStatistics();</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="fc" id="L65">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L66">            LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L67">            return 0L;</span>
         }
-<span class="fc" id="L68">        availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
+<span class="fc" id="L69">        availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
 
-<span class="fc" id="L70">        return availableMemory;</span>
+<span class="fc" id="L71">        return availableMemory;</span>
     }
 
     @Override
     public long getTotal() {
-<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (this.totalMemory == 0) {</span>
-<span class="fc" id="L76">            Pointer pMemSize = new Memory(SystemB.UINT64_SIZE);</span>
-<span class="pc bpc" id="L77" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;hw.memsize&quot;, pMemSize, new IntByReference(SystemB.UINT64_SIZE),</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (this.totalMemory == 0) {</span>
+<span class="fc" id="L77">            Pointer pMemSize = new Memory(SystemB.UINT64_SIZE);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;hw.memsize&quot;, pMemSize, new IntByReference(SystemB.UINT64_SIZE),</span>
                     null, 0)) {
-<span class="nc" id="L79">                LOG.error(&quot;Failed to get memory size. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L80">                return 0L;</span>
+<span class="nc" id="L80">                LOG.error(&quot;Failed to get memory size. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L81">                return 0L;</span>
             }
-<span class="fc" id="L82">            this.totalMemory = pMemSize.getLong(0);</span>
+<span class="fc" id="L83">            this.totalMemory = pMemSize.getLong(0);</span>
         }
-<span class="fc" id="L84">        return this.totalMemory;</span>
+<span class="fc" id="L85">        return this.totalMemory;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L89">        return jsonFactory.createObjectBuilder().add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
+<span class="nc" id="L90">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

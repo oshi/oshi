@@ -16,11 +16,17 @@
  */
 package oshi.jna.platform.mac;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Structure;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 
@@ -31,15 +37,118 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-<span class="fc" id="L34">    IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="fc" id="L40">    IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
 
-<span class="fc" id="L36">    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
+<span class="fc" id="L42">    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
 
-<span class="fc" id="L38">    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
+<span class="fc" id="L44">    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
 
-<span class="fc" id="L40">    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
+<span class="fc" id="L46">    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
 
-<span class="fc" id="L42">    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
+<span class="fc" id="L48">    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
+
+    static final String SMC_KEY_FAN_NUM = &quot;FNum&quot;;
+
+    static final String SMC_KEY_FAN_SPEED = &quot;F%dAc&quot;;
+
+    static final String SMC_KEY_CPU_TEMP = &quot;TC0P&quot;;
+
+    static final String SMC_KEY_CPU_VOLTAGE = &quot;VC0C&quot;;
+
+    static final byte SMC_CMD_READ_BYTES = 5;
+
+    static final byte SMC_CMD_READ_KEYINFO = 9;
+
+    static final int KERNEL_INDEX_SMC = 2;
+
+<span class="fc" id="L64">    static final byte[] DATATYPE_SP78 = { (byte) 's', (byte) 'p', (byte) '7', (byte) '8', 0 };</span>
+
+    /**
+     * Holds the return value of SMC version query.
+     */
+<span class="nc" id="L69">    static class SMCKeyDataVers extends Structure {</span>
+        public byte major;
+        public byte minor;
+        public byte build;
+<span class="nc" id="L73">        public byte[] reserved = new byte[1];</span>
+        public short release;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L78">            return Arrays.asList(new String[] { &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; });</span>
+        }
+    }
+
+    /**
+     * Holds the return value of SMC pLimit query.
+     */
+<span class="nc" id="L85">    static class SMCKeyDataPLimitData extends Structure {</span>
+        public short version;
+        public short length;
+        public int cpuPLimit;
+        public int gpuPLimit;
+        public int memPLimit;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L94">            return Arrays.asList(new String[] { &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; });</span>
+        }
+    }
+
+    /**
+     * Holds the return value of SMC KeyInfo query.
+     */
+<span class="nc" id="L101">    static class SMCKeyDataKeyInfo extends Structure {</span>
+        public int dataSize;
+        public int dataType;
+        public byte dataAttributes;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L108">            return Arrays.asList(new String[] { &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; });</span>
+        }
+    }
+
+    /**
+     * Holds the return value of SMC query.
+     */
+<span class="nc" id="L115">    static class SMCKeyData extends Structure {</span>
+        public int key;
+        public SMCKeyDataVers vers;
+        public SMCKeyDataPLimitData pLimitData;
+        public SMCKeyDataKeyInfo keyInfo;
+        public byte result;
+        public byte status;
+        public byte data8;
+        public int data32;
+<span class="nc" id="L124">        public byte[] bytes = new byte[32];</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L128">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;,</span>
+                    &quot;data32&quot;, &quot;bytes&quot; });
+        }
+    }
+
+    /**
+     * Holds an SMC value
+     */
+<span class="nc" id="L136">    static class SMCVal extends Structure {</span>
+<span class="nc" id="L137">        public byte[] key = new byte[5];</span>
+        public int dataSize;
+<span class="nc" id="L139">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L140">        public byte[] bytes = new byte[32];</span>
+
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L143">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; });</span>
+        }
+    }
+
+<span class="nc" id="L147">    class IOConnect extends IntByReference {</span>
+    }
+
+<span class="nc" id="L150">    class MachPort extends IntByReference {</span>
+    }
 
     CFTypeRef IOPSCopyPowerSourcesInfo();
 
@@ -48,5 +157,23 @@ public interface IOKit extends Library {
     CFDictionaryRef IOPSGetPowerSourceDescription(CFTypeRef blob, CFTypeRef ps);
 
     double IOPSGetTimeRemainingEstimate();
+
+    int IOMasterPort(int unused, IntByReference masterPort);
+
+    CFMutableDictionaryRef IOServiceMatching(String name);
+
+    int IOServiceGetMatchingService(int port, CFMutableDictionaryRef matchingDictionary);
+
+    int IOServiceGetMatchingServices(int port, CFMutableDictionaryRef matchingDictionary, IntByReference iterator);
+
+    int IOServiceOpen(int service, int owningTask, int type, IntByReference connect);
+
+    int IOServiceClose(int connect);
+
+    void IOObjectRelease(int object);
+
+    // Requires OS X 10.5+
+    int IOConnectCallStructMethod(int connection, int selector, Structure inputStructure, int structureInputSize,
+            Structure outputStructure, IntByReference structureOutputSize);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

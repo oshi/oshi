@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Display;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.EdidUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -38,25 +39,25 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay implements Display {
-<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
+<span class="fc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
 
     private byte[] edid;
 
-<span class="fc" id="L45">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L46">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-<span class="fc" id="L47">    public MacDisplay(byte[] edid) {</span>
-<span class="fc" id="L48">        this.edid = edid;</span>
-<span class="fc" id="L49">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L48">    public MacDisplay(byte[] edid) {</span>
+<span class="fc" id="L49">        this.edid = edid;</span>
+<span class="fc" id="L50">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
+<span class="fc" id="L51">    }</span>
 
     @Override
     public byte[] getEdid() {
-<span class="fc" id="L54">        return Arrays.copyOf(edid, edid.length);</span>
+<span class="fc" id="L55">        return Arrays.copyOf(edid, edid.length);</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L59">        return jsonFactory.createObjectBuilder().add(&quot;edid&quot;, EdidUtil.toString(getEdid())).build();</span>
+<span class="nc" id="L60">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;edid&quot;, EdidUtil.toString(getEdid())).build();</span>
     }
 
     /**
@@ -65,18 +66,18 @@ public class MacDisplay implements Display {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="fc" id="L68">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
-<span class="fc" id="L69">        ArrayList&lt;String&gt; ioReg = ExecutingCommand.runNative(&quot;ioreg -lw0 -r -c IODisplayConnect&quot;);</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        for (String s : ioReg) {</span>
-<span class="fc bfc" id="L71" title="All 2 branches covered.">            if (s.contains(&quot;IODisplayEDID&quot;)) {</span>
-<span class="fc" id="L72">                String edidStr = s.substring(s.indexOf(&quot;&lt;&quot;) + 1, s.indexOf(&quot;&gt;&quot;));</span>
-<span class="fc" id="L73">                LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
-<span class="fc" id="L74">                Display display = new MacDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
-<span class="fc" id="L75">                displays.add(display);</span>
+<span class="fc" id="L69">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
+<span class="fc" id="L70">        ArrayList&lt;String&gt; ioReg = ExecutingCommand.runNative(&quot;ioreg -lw0 -r -c IODisplayConnect&quot;);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (String s : ioReg) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            if (s.contains(&quot;IODisplayEDID&quot;)) {</span>
+<span class="fc" id="L73">                String edidStr = s.substring(s.indexOf(&quot;&lt;&quot;) + 1, s.indexOf(&quot;&gt;&quot;));</span>
+<span class="fc" id="L74">                LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
+<span class="fc" id="L75">                Display display = new MacDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
+<span class="fc" id="L76">                displays.add(display);</span>
             }
-<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">        }</span>
 
-<span class="fc" id="L79">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="fc" id="L80">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

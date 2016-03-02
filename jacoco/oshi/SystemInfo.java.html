@@ -26,6 +26,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
+import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.json.OshiJsonObject;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
@@ -39,26 +41,26 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * 
  * @author dblock[at]dblock[dot]org
  */
-<span class="fc" id="L42">public class SystemInfo implements OshiJsonObject {</span>
-<span class="fc" id="L43">    private OperatingSystem _os = null;</span>
+<span class="fc" id="L44">public class SystemInfo implements OshiJsonObject {</span>
+<span class="fc" id="L45">    private OperatingSystem _os = null;</span>
 
-<span class="fc" id="L45">    private HardwareAbstractionLayer _hardware = null;</span>
+<span class="fc" id="L47">    private HardwareAbstractionLayer _hardware = null;</span>
 
     private PlatformEnum currentPlatformEnum;
 
     {
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
-<span class="nc" id="L51">            this.currentPlatformEnum = PlatformEnum.WINDOWS;</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
-<span class="nc" id="L53">            this.currentPlatformEnum = PlatformEnum.LINUX;</span>
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
-<span class="fc" id="L55">            this.currentPlatformEnum = PlatformEnum.MACOSX;</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
+<span class="nc" id="L53">            this.currentPlatformEnum = PlatformEnum.WINDOWS;</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
+<span class="nc" id="L55">            this.currentPlatformEnum = PlatformEnum.LINUX;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
+<span class="fc" id="L57">            this.currentPlatformEnum = PlatformEnum.MACOSX;</span>
         } else {
-<span class="nc" id="L57">            this.currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
+<span class="nc" id="L59">            this.currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
         }
     }
 
-<span class="fc" id="L61">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L63">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * Creates a new instance of the appropriate platform-specific
@@ -67,23 +69,23 @@ import oshi.software.os.windows.WindowsOperatingSystem;
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (this._os == null) {</span>
-<span class="pc bpc" id="L71" title="3 of 4 branches missed.">            switch (this.currentPlatformEnum) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (this._os == null) {</span>
+<span class="pc bpc" id="L73" title="3 of 4 branches missed.">            switch (this.currentPlatformEnum) {</span>
 
             case WINDOWS:
-<span class="nc" id="L74">                this._os = new WindowsOperatingSystem();</span>
-<span class="nc" id="L75">                break;</span>
+<span class="nc" id="L76">                this._os = new WindowsOperatingSystem();</span>
+<span class="nc" id="L77">                break;</span>
             case LINUX:
-<span class="nc" id="L77">                this._os = new LinuxOperatingSystem();</span>
-<span class="nc" id="L78">                break;</span>
+<span class="nc" id="L79">                this._os = new LinuxOperatingSystem();</span>
+<span class="nc" id="L80">                break;</span>
             case MACOSX:
-<span class="fc" id="L80">                this._os = new MacOperatingSystem();</span>
-<span class="fc" id="L81">                break;</span>
+<span class="fc" id="L82">                this._os = new MacOperatingSystem();</span>
+<span class="fc" id="L83">                break;</span>
             default:
-<span class="nc" id="L83">                throw new RuntimeException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
+<span class="nc" id="L85">                throw new RuntimeException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
             }
         }
-<span class="fc" id="L86">        return this._os;</span>
+<span class="fc" id="L88">        return this._os;</span>
     }
 
     /**
@@ -93,29 +95,29 @@ import oshi.software.os.windows.WindowsOperatingSystem;
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (this._hardware == null) {</span>
-<span class="pc bpc" id="L97" title="3 of 4 branches missed.">            switch (this.currentPlatformEnum) {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (this._hardware == null) {</span>
+<span class="pc bpc" id="L99" title="3 of 4 branches missed.">            switch (this.currentPlatformEnum) {</span>
 
             case WINDOWS:
-<span class="nc" id="L100">                this._hardware = new WindowsHardwareAbstractionLayer();</span>
-<span class="nc" id="L101">                break;</span>
+<span class="nc" id="L102">                this._hardware = new WindowsHardwareAbstractionLayer();</span>
+<span class="nc" id="L103">                break;</span>
             case LINUX:
-<span class="nc" id="L103">                this._hardware = new LinuxHardwareAbstractionLayer();</span>
-<span class="nc" id="L104">                break;</span>
+<span class="nc" id="L105">                this._hardware = new LinuxHardwareAbstractionLayer();</span>
+<span class="nc" id="L106">                break;</span>
             case MACOSX:
-<span class="fc" id="L106">                this._hardware = new MacHardwareAbstractionLayer();</span>
-<span class="fc" id="L107">                break;</span>
+<span class="fc" id="L108">                this._hardware = new MacHardwareAbstractionLayer();</span>
+<span class="fc" id="L109">                break;</span>
             default:
-<span class="nc" id="L109">                throw new RuntimeException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
+<span class="nc" id="L111">                throw new RuntimeException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
             }
         }
-<span class="fc" id="L112">        return this._hardware;</span>
+<span class="fc" id="L114">        return this._hardware;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L117">        return jsonFactory.createObjectBuilder().add(&quot;operatingSystem&quot;, getOperatingSystem().toJSON())</span>
-<span class="nc" id="L118">                .add(&quot;hardware&quot;, getHardware().toJSON()).build();</span>
+<span class="nc" id="L119">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;operatingSystem&quot;, getOperatingSystem().toJSON())</span>
+<span class="nc" id="L120">                .add(&quot;hardware&quot;, getHardware().toJSON()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

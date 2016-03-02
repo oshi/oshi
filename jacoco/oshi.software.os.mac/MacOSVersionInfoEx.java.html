@@ -29,6 +29,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -37,7 +38,7 @@ import oshi.software.os.OperatingSystemVersion;
  */
 
 public class MacOSVersionInfoEx implements OperatingSystemVersion {
-<span class="fc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
+<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
 
     private String _version;
 
@@ -47,19 +48,19 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
 
     private String _buildNumber;
 
-<span class="fc" id="L50">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L51">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-<span class="fc" id="L52">    public MacOSVersionInfoEx() {</span>
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L53">    public MacOSVersionInfoEx() {</span>
+<span class="fc" id="L54">    }</span>
 
     /**
      * @return the _version
      */
     public String getVersion() {
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (this._version == null) {</span>
-<span class="fc" id="L60">            this._version = System.getProperty(&quot;os.version&quot;);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (this._version == null) {</span>
+<span class="fc" id="L61">            this._version = System.getProperty(&quot;os.version&quot;);</span>
         }
-<span class="fc" id="L62">        return this._version;</span>
+<span class="fc" id="L63">        return this._version;</span>
     }
 
     /**
@@ -67,63 +68,63 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
      *            the version to set
      */
     public void setVersion(String version) {
-<span class="nc" id="L70">        this._version = version;</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L71">        this._version = version;</span>
+<span class="nc" id="L72">    }</span>
 
     /**
      * @return the _codeName
      */
     public String getCodeName() {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (this._codeName == null) {</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (getVersion() != null) {</span>
-<span class="fc" id="L79">                String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
-<span class="pc bpc" id="L80" title="2 of 4 branches missed.">                if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
-<span class="pc bpc" id="L81" title="12 of 13 branches missed.">                    switch (Integer.parseInt(versionSplit[1])) {</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (this._codeName == null) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if (getVersion() != null) {</span>
+<span class="fc" id="L80">                String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">                if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+<span class="pc bpc" id="L82" title="12 of 13 branches missed.">                    switch (Integer.parseInt(versionSplit[1])) {</span>
                     case 0:
-<span class="nc" id="L83">                        this._codeName = &quot;Cheetah&quot;;</span>
-<span class="nc" id="L84">                        break;</span>
+<span class="nc" id="L84">                        this._codeName = &quot;Cheetah&quot;;</span>
+<span class="nc" id="L85">                        break;</span>
                     case 1:
-<span class="nc" id="L86">                        this._codeName = &quot;Puma&quot;;</span>
-<span class="nc" id="L87">                        break;</span>
+<span class="nc" id="L87">                        this._codeName = &quot;Puma&quot;;</span>
+<span class="nc" id="L88">                        break;</span>
                     case 2:
-<span class="nc" id="L89">                        this._codeName = &quot;Jaguar&quot;;</span>
-<span class="nc" id="L90">                        break;</span>
+<span class="nc" id="L90">                        this._codeName = &quot;Jaguar&quot;;</span>
+<span class="nc" id="L91">                        break;</span>
                     case 3:
-<span class="nc" id="L92">                        this._codeName = &quot;Panther&quot;;</span>
-<span class="nc" id="L93">                        break;</span>
+<span class="nc" id="L93">                        this._codeName = &quot;Panther&quot;;</span>
+<span class="nc" id="L94">                        break;</span>
                     case 4:
-<span class="nc" id="L95">                        this._codeName = &quot;Tiger&quot;;</span>
-<span class="nc" id="L96">                        break;</span>
+<span class="nc" id="L96">                        this._codeName = &quot;Tiger&quot;;</span>
+<span class="nc" id="L97">                        break;</span>
                     case 5:
-<span class="nc" id="L98">                        this._codeName = &quot;Leopard&quot;;</span>
-<span class="nc" id="L99">                        break;</span>
+<span class="nc" id="L99">                        this._codeName = &quot;Leopard&quot;;</span>
+<span class="nc" id="L100">                        break;</span>
                     case 6:
-<span class="nc" id="L101">                        this._codeName = &quot;Snow Leopard&quot;;</span>
-<span class="nc" id="L102">                        break;</span>
+<span class="nc" id="L102">                        this._codeName = &quot;Snow Leopard&quot;;</span>
+<span class="nc" id="L103">                        break;</span>
                     case 7:
-<span class="nc" id="L104">                        this._codeName = &quot;Lion&quot;;</span>
-<span class="nc" id="L105">                        break;</span>
+<span class="nc" id="L105">                        this._codeName = &quot;Lion&quot;;</span>
+<span class="nc" id="L106">                        break;</span>
                     case 8:
-<span class="nc" id="L107">                        this._codeName = &quot;Mountain Lion&quot;;</span>
-<span class="nc" id="L108">                        break;</span>
+<span class="nc" id="L108">                        this._codeName = &quot;Mountain Lion&quot;;</span>
+<span class="nc" id="L109">                        break;</span>
                     case 9:
-<span class="nc" id="L110">                        this._codeName = &quot;Mavericks&quot;;</span>
-<span class="nc" id="L111">                        break;</span>
+<span class="nc" id="L111">                        this._codeName = &quot;Mavericks&quot;;</span>
+<span class="nc" id="L112">                        break;</span>
                     case 10:
-<span class="nc" id="L113">                        this._codeName = &quot;Yosemite&quot;;</span>
-<span class="nc" id="L114">                        break;</span>
+<span class="nc" id="L114">                        this._codeName = &quot;Yosemite&quot;;</span>
+<span class="nc" id="L115">                        break;</span>
                     case 11:
-<span class="fc" id="L116">                        this._codeName = &quot;El Capitan&quot;;</span>
-<span class="fc" id="L117">                        break;</span>
+<span class="fc" id="L117">                        this._codeName = &quot;El Capitan&quot;;</span>
+<span class="fc" id="L118">                        break;</span>
                     default:
-<span class="nc" id="L119">                        this._codeName = &quot;&quot;;</span>
+<span class="nc" id="L120">                        this._codeName = &quot;&quot;;</span>
                     }
 
                 } else
-<span class="nc" id="L123">                    this._codeName = &quot;&quot;;</span>
+<span class="nc" id="L124">                    this._codeName = &quot;&quot;;</span>
             }
         }
-<span class="fc" id="L126">        return this._codeName;</span>
+<span class="fc" id="L127">        return this._codeName;</span>
     }
 
     /**
@@ -131,47 +132,47 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
      *            the codeName to set
      */
     public void setCodeName(String codeName) {
-<span class="nc" id="L134">        this._codeName = codeName;</span>
-<span class="nc" id="L135">    }</span>
+<span class="nc" id="L135">        this._codeName = codeName;</span>
+<span class="nc" id="L136">    }</span>
 
     public String getBuildNumber() {
-<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (this._buildNumber == null) {</span>
-<span class="fc" id="L139">            IntByReference size = new IntByReference();</span>
-<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, null, size, null, 0)) {</span>
-<span class="nc" id="L141">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L142">                return &quot;&quot;;</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (this._buildNumber == null) {</span>
+<span class="fc" id="L140">            IntByReference size = new IntByReference();</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, null, size, null, 0)) {</span>
+<span class="nc" id="L142">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L143">                return &quot;&quot;;</span>
             }
-<span class="fc" id="L144">            Pointer p = new Memory(size.getValue() + 1);</span>
-<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, p, size, null, 0)) {</span>
-<span class="nc" id="L146">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L147">                return &quot;&quot;;</span>
+<span class="fc" id="L145">            Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;kern.osversion&quot;, p, size, null, 0)) {</span>
+<span class="nc" id="L147">                LOG.error(&quot;Failed to get OS Version. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L148">                return &quot;&quot;;</span>
             }
-<span class="fc" id="L149">            this._buildNumber = p.getString(0);</span>
+<span class="fc" id="L150">            this._buildNumber = p.getString(0);</span>
         }
-<span class="fc" id="L151">        return this._buildNumber;</span>
+<span class="fc" id="L152">        return this._buildNumber;</span>
     }
 
     public void setBuildNumber(String buildNumber) {
-<span class="nc" id="L155">        this._buildNumber = buildNumber;</span>
-<span class="nc" id="L156">    }</span>
+<span class="nc" id="L156">        this._buildNumber = buildNumber;</span>
+<span class="nc" id="L157">    }</span>
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L160">        return jsonFactory.createObjectBuilder().add(&quot;version&quot;, getVersion()).add(&quot;codeName&quot;, getCodeName())</span>
-<span class="nc" id="L161">                .add(&quot;build&quot;, getBuildNumber()).build();</span>
+<span class="nc" id="L161">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;version&quot;, getVersion()).add(&quot;codeName&quot;, getCodeName())</span>
+<span class="nc" id="L162">                .add(&quot;build&quot;, getBuildNumber()).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (this._versionStr == null) {</span>
-<span class="fc" id="L167">            StringBuilder sb = new StringBuilder(getVersion());</span>
-<span class="pc bpc" id="L168" title="1 of 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
-<span class="fc" id="L169">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if (this._versionStr == null) {</span>
+<span class="fc" id="L168">            StringBuilder sb = new StringBuilder(getVersion());</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
+<span class="fc" id="L170">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
             }
-<span class="fc" id="L171">            sb.append(&quot; build &quot;).append(getBuildNumber());</span>
-<span class="fc" id="L172">            this._versionStr = sb.toString();</span>
+<span class="fc" id="L172">            sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="fc" id="L173">            this._versionStr = sb.toString();</span>
         }
-<span class="fc" id="L174">        return this._versionStr;</span>
+<span class="fc" id="L175">        return this._versionStr;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

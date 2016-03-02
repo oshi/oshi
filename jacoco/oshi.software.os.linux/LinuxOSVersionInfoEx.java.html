@@ -16,9 +16,9 @@
  */
 package oshi.software.os.linux;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -27,7 +27,9 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.FileUtil;
 
 /**
  * Contains operating system version information. The information includes major
@@ -38,7 +40,7 @@ import oshi.software.os.OperatingSystemVersion;
  */
 public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
 
-<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);</span>
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);</span>
 
     private String _version;
 
@@ -46,60 +48,69 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
 
     private String version;
 
-<span class="nc" id="L49">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L51">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-<span class="nc" id="L51">    public LinuxOSVersionInfoEx() {</span>
-<span class="nc" id="L52">        try (Scanner in = new Scanner(new FileReader(&quot;/etc/os-release&quot;))) {</span>
-<span class="nc" id="L53">            in.useDelimiter(&quot;\n&quot;);</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">            while (in.hasNext()) {</span>
-<span class="nc" id="L55">                String[] splittedLine = in.next().split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">                if (splittedLine[0].equals(&quot;VERSION_ID&quot;)) {</span>
-                    // remove beginning and ending '&quot;' characters, etc from
-                    // VERSION_ID=&quot;14.04&quot;
-<span class="nc" id="L59">                    setVersion(splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;));</span>
+<span class="nc" id="L53">    public LinuxOSVersionInfoEx() {</span>
+<span class="nc" id="L54">        String etcOsRelease = LinuxOperatingSystem.getReleaseFilename();</span>
+        List&lt;String&gt; osRelease;
+        try {
+<span class="nc" id="L57">            osRelease = FileUtil.readFile(etcOsRelease);</span>
+<span class="nc" id="L58">        } catch (IOException e) {</span>
+<span class="nc" id="L59">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L60">            osRelease = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L61">        }</span>
+<span class="nc" id="L62">        init(osRelease);</span>
+<span class="nc" id="L63">    }</span>
+
+<span class="nc" id="L65">    protected LinuxOSVersionInfoEx(List&lt;String&gt; osRelease) {</span>
+<span class="nc" id="L66">        init(osRelease);</span>
+<span class="nc" id="L67">    }</span>
+
+    private void init(List&lt;String&gt; osRelease) {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (String line : osRelease) {</span>
+<span class="nc" id="L71">            String[] splittedLine = line.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (splittedLine.length &lt; 2) {</span>
+<span class="nc" id="L73">                continue;</span>
+            }
+<span class="nc bnc" id="L75" title="All 4 branches missed.">            if (splittedLine[0].equals(&quot;VERSION_ID&quot;) || splittedLine[0].equals(&quot;DISTRIB_RELEASE&quot;)) {</span>
+                // remove beginning and ending '&quot;' characters, etc from
+                // VERSION_ID=&quot;14.04&quot;
+<span class="nc" id="L78">                setVersion(splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;));</span>
+            }
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (splittedLine[0].equals(&quot;DISTRIB_CODENAME&quot;)) {</span>
+<span class="nc" id="L81">                setCodeName(splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;));</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            } else if (splittedLine[0].equals(&quot;VERSION&quot;)) {</span>
+                // remove beginning and ending '&quot;' characters
+<span class="nc" id="L84">                splittedLine[1] = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
+                // Check basically if the code is between parenthesis or
+                // after the comma-space
+<span class="nc" id="L87">                String[] split = splittedLine[1].split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (split.length &lt;= 1) {</span>
+                    // We are probably with Ubuntu, so need to get that part
+                    // correctly.
+<span class="nc" id="L91">                    split = splittedLine[1].split(&quot;, &quot;);</span>
                 }
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                if (splittedLine[0].equals(&quot;VERSION&quot;)) {</span>
-                    // remove beginning and ending '&quot;' characters
-<span class="nc" id="L63">                    splittedLine[1] = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
-
-                    // Check basically if the code is between parenthesis or
-                    // after
-                    // the comma-space
-
-                    // Basically, until now, that seems to be the standard to
-                    // use
-                    // parenthesis for the codename.
-<span class="nc" id="L72">                    String[] split = splittedLine[1].split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                    if (split.length &lt;= 1)</span>
-                        // We are probably with Ubuntu, so need to get that part
-                        // correctly.
-<span class="nc" id="L76">                        split = splittedLine[1].split(&quot;, &quot;);</span>
-
-<span class="nc bnc" id="L78" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
-<span class="nc" id="L79">                        setCodeName(split[1]);</span>
-                    } else {
-<span class="nc" id="L81">                        setCodeName(splittedLine[1]);</span>
-                    }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                if (split.length &gt; 1) {</span>
+<span class="nc" id="L94">                    setCodeName(split[1]);</span>
+                } else {
+<span class="nc" id="L96">                    setCodeName(splittedLine[1]);</span>
                 }
-<span class="nc" id="L84">            }</span>
-<span class="nc bnc" id="L85" title="All 8 branches missed.">        } catch (FileNotFoundException e) {</span>
-<span class="nc" id="L86">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L87">            return;</span>
-<span class="nc" id="L88">        }</span>
-<span class="nc" id="L89">    }</span>
+            }
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">    }</span>
 
     /**
      * @return the _codeName
      */
     public String getCodeName() {
-<span class="nc" id="L95">        return this._codeName;</span>
+<span class="nc" id="L106">        return this._codeName;</span>
     }
 
     /**
      * @return the _version
      */
     public String getVersion() {
-<span class="nc" id="L102">        return this._version;</span>
+<span class="nc" id="L113">        return this._version;</span>
     }
 
     /**
@@ -107,29 +118,29 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
      *            the _codeName to set
      */
     public void setCodeName(String value) {
-<span class="nc" id="L110">        this._codeName = value;</span>
-<span class="nc" id="L111">    }</span>
+<span class="nc" id="L121">        this._codeName = value;</span>
+<span class="nc" id="L122">    }</span>
 
     /**
      * @param value
      *            the _version to set
      */
     public void setVersion(String value) {
-<span class="nc" id="L118">        this._version = value;</span>
-<span class="nc" id="L119">    }</span>
+<span class="nc" id="L129">        this._version = value;</span>
+<span class="nc" id="L130">    }</span>
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L123">        return jsonFactory.createObjectBuilder().add(&quot;version&quot;, getVersion()).add(&quot;codeName&quot;, getCodeName())</span>
-<span class="nc" id="L124">                .add(&quot;build&quot;, &quot;&quot;).build();</span>
+<span class="nc" id="L134">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;version&quot;, getVersion()).add(&quot;codeName&quot;, getCodeName())</span>
+<span class="nc" id="L135">                .add(&quot;build&quot;, &quot;&quot;).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L130">            this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (this.version == null) {</span>
+<span class="nc" id="L141">            this.version = getVersion() + &quot; (&quot; + getCodeName() + &quot;)&quot;;</span>
         }
-<span class="nc" id="L132">        return this.version;</span>
+<span class="nc" id="L143">        return this.version;</span>
     }
 
 }

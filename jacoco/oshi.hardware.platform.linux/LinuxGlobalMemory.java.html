@@ -31,6 +31,7 @@ import com.sun.jna.Native;
 import oshi.hardware.GlobalMemory;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FileUtil;
 
 /**
@@ -39,102 +40,103 @@ import oshi.util.FileUtil;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L42">public class LinuxGlobalMemory implements GlobalMemory {</span>
-<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);</span>
+<span class="nc" id="L43">public class LinuxGlobalMemory implements GlobalMemory {</span>
+<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);</span>
 
-<span class="nc" id="L45">    private long totalMemory = 0;</span>
+<span class="nc" id="L46">    private long totalMemory = 0;</span>
 
-<span class="nc" id="L47">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L48">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L51">        long availableMemory = 0;</span>
-<span class="nc" id="L52">        List&lt;String&gt; memInfo = null;</span>
+<span class="nc" id="L52">        long availableMemory = 0;</span>
+<span class="nc" id="L53">        List&lt;String&gt; memInfo = null;</span>
         try {
-<span class="nc" id="L54">            memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
-<span class="nc" id="L55">        } catch (IOException e) {</span>
-<span class="nc" id="L56">            LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L57">            return availableMemory;</span>
-<span class="nc" id="L58">        }</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (String checkLine : memInfo) {</span>
+<span class="nc" id="L55">            memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
+<span class="nc" id="L56">        } catch (IOException e) {</span>
+<span class="nc" id="L57">            LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L58">            return availableMemory;</span>
+<span class="nc" id="L59">        }</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        for (String checkLine : memInfo) {</span>
             // If we have MemAvailable, it trumps all. See code in
             // https://git.kernel.org/cgit/linux/kernel/git/torvalds/
             // linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
-<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (checkLine.startsWith(&quot;MemAvailable:&quot;)) {</span>
-<span class="nc" id="L64">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L65">                availableMemory = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L66">                break;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (checkLine.startsWith(&quot;MemAvailable:&quot;)) {</span>
+<span class="nc" id="L65">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L66">                availableMemory = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L67">                break;</span>
             } else
             // Otherwise we combine MemFree + Active(file), Inactive(file), and
             // Reclaimable. Free+cached is no longer appropriate. MemAvailable
             // reduces these values using watermarks to estimate when swapping
             // is prevented, omitted here for simplicity (assuming 0 swap).
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
-<span class="nc" id="L73">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L74">                availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
-<span class="nc" id="L76">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L77">                availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
-<span class="nc" id="L79">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L80">                availableMemory += parseMeminfo(memorySplit);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
-<span class="nc" id="L82">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L83">                availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (checkLine.startsWith(&quot;MemFree:&quot;)) {</span>
+<span class="nc" id="L74">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L75">                availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;Active(file):&quot;)) {</span>
+<span class="nc" id="L77">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L78">                availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;Inactive(file):&quot;)) {</span>
+<span class="nc" id="L80">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L81">                availableMemory += parseMeminfo(memorySplit);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            } else if (checkLine.startsWith(&quot;SReclaimable:&quot;)) {</span>
+<span class="nc" id="L83">                String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L84">                availableMemory += parseMeminfo(memorySplit);</span>
             }
-<span class="nc" id="L85">        }</span>
-<span class="nc" id="L86">        return availableMemory;</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        return availableMemory;</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (this.totalMemory == 0) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (this.totalMemory == 0) {</span>
             // Try to get it from the libc sysinfo call
             try {
-<span class="nc" id="L94">                Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L96">                    LOG.error(&quot;Failed to get total memory. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L95">                Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L97">                    LOG.error(&quot;Failed to get total memory. Error code: &quot; + Native.getLastError());</span>
                 } else {
-<span class="nc" id="L98">                    this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
-<span class="nc" id="L99">                    return this.totalMemory;</span>
+<span class="nc" id="L99">                    this.totalMemory = info.totalram.longValue() * info.mem_unit;</span>
+<span class="nc" id="L100">                    return this.totalMemory;</span>
                 }
-<span class="nc" id="L101">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L102">                LOG.warn(&quot;Failed to get total memory from sysinfo. Falling back /proc/meminfo MemTotal. {}&quot;,</span>
-<span class="nc" id="L103">                        e.getMessage());</span>
-<span class="nc" id="L104">            }</span>
+<span class="nc" id="L102">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L103">                LOG.warn(&quot;Failed to get total memory from sysinfo. Falling back /proc/meminfo MemTotal. {}&quot;,</span>
+<span class="nc" id="L104">                        e.getMessage());</span>
+<span class="nc" id="L105">            }</span>
             // If still no success, populate from /proc/meminfo
-<span class="nc" id="L106">            List&lt;String&gt; memInfo = null;</span>
+<span class="nc" id="L107">            List&lt;String&gt; memInfo = null;</span>
             try {
-<span class="nc" id="L108">                memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
-<span class="nc" id="L109">            } catch (IOException e) {</span>
-<span class="nc" id="L110">                LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L111">                return 0;</span>
-<span class="nc" id="L112">            }</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (checkLine.startsWith(&quot;MemTotal:&quot;)) {</span>
-<span class="nc" id="L115">                    String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L116">                    this.totalMemory = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L117">                    break;</span>
+<span class="nc" id="L109">                memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
+<span class="nc" id="L110">            } catch (IOException e) {</span>
+<span class="nc" id="L111">                LOG.error(&quot;Problem with /proc/meminfo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L112">                return 0;</span>
+<span class="nc" id="L113">            }</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                if (checkLine.startsWith(&quot;MemTotal:&quot;)) {</span>
+<span class="nc" id="L116">                    String[] memorySplit = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L117">                    this.totalMemory = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L118">                    break;</span>
                 }
-<span class="nc" id="L119">            }</span>
+<span class="nc" id="L120">            }</span>
         }
-<span class="nc" id="L121">        return this.totalMemory;</span>
+<span class="nc" id="L122">        return this.totalMemory;</span>
     }
 
     private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L126">            return 0l;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L127">            return 0l;</span>
         }
-<span class="nc" id="L128">        long memory = Long.valueOf(memorySplit[1]);</span>
-<span class="nc bnc" id="L129" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
-<span class="nc" id="L130">            memory *= 1024;</span>
+<span class="nc" id="L129">        long memory = Long.valueOf(memorySplit[1]);</span>
+<span class="nc bnc" id="L130" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(&quot;kB&quot;)) {</span>
+<span class="nc" id="L131">            memory *= 1024;</span>
         }
-<span class="nc" id="L132">        return memory;</span>
+<span class="nc" id="L133">        return memory;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L137">        return jsonFactory.createObjectBuilder().add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
+<span class="nc" id="L138">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable())</span>
+<span class="nc" id="L139">                .add(&quot;total&quot;, getTotal()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
