@@ -38,6 +38,7 @@ import com.sun.jna.Native;
 import oshi.hardware.CentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -614,7 +615,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
-        return jsonFactory.createObjectBuilder().add("name", getName())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
                 .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())

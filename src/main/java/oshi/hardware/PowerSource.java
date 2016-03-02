@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * The Power Source is one or more batteries with some capacity, and some state

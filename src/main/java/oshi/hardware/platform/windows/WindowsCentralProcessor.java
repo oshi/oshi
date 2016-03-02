@@ -42,6 +42,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -718,7 +719,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
-        return jsonFactory.createObjectBuilder().add("name", getName())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
                 .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())

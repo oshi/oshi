@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * Memory refers to the state information of a computing system, as it is kept

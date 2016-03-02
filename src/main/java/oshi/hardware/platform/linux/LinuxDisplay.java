@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Display;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.EdidUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -56,7 +57,8 @@ public class LinuxDisplay implements Display {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("edid", EdidUtil.toString(getEdid())).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
+                .add("edid", EdidUtil.toString(getEdid())).build();
     }
 
     /**

@@ -16,7 +16,7 @@
  */
 package oshi.hardware;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 import oshi.software.os.OSFileStore;
 
 /**

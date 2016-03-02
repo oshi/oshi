@@ -29,6 +29,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -157,7 +158,7 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", getCodeName())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", getCodeName())
                 .add("build", getBuildNumber()).build();
     }
 

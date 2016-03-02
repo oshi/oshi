@@ -38,6 +38,7 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Display;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.EdidUtil;
 
 /**
@@ -64,7 +65,7 @@ public class WindowsDisplay implements Display {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("edid", EdidUtil.toString(getEdid())).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("edid", EdidUtil.toString(getEdid())).build();
     }
 
     /**

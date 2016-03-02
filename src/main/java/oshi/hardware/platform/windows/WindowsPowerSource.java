@@ -28,6 +28,7 @@ import com.sun.jna.NativeLong;
 import oshi.hardware.PowerSource;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FormatUtil;
 
 /**
@@ -70,7 +71,7 @@ public class WindowsPowerSource implements PowerSource {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("name", getName()).add("remainingCapacity", getRemainingCapacity())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("remainingCapacity", getRemainingCapacity())
                 .add("timeRemaining", getTimeRemaining()).build();
     }
 

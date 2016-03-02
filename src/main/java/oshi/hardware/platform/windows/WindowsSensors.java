@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Sensors;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 
 public class WindowsSensors implements Sensors {
@@ -195,7 +196,7 @@ public class WindowsSensors implements Sensors {
         for (int speed : getFanSpeeds()) {
             fanSpeedsArrayBuilder.add(speed);
         }
-        return jsonFactory.createObjectBuilder().add("cpuTemperature", getCpuTemperature())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("cpuTemperature", getCpuTemperature())
                 .add("fanSpeeds", fanSpeedsArrayBuilder.build()).add("cpuVoltage", getCpuVoltage()).build();
     }
 }

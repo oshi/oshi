@@ -16,7 +16,7 @@
  */
 package oshi.software.os;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * An operating system (OS) is the software on a computer that manages the way

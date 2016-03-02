@@ -16,7 +16,7 @@
  */
 package oshi.software.os;
 
-import oshi.OshiJsonObject;
+import oshi.json.OshiJsonObject;
 
 /**
  * Version of an operating system.

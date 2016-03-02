@@ -16,9 +16,9 @@
  */
 package oshi.software.os.linux;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -27,7 +27,9 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.FileUtil;
 
 /**
  * Contains operating system version information. The information includes major
@@ -49,42 +51,51 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public LinuxOSVersionInfoEx() {
-        try (Scanner in = new Scanner(new FileReader("/etc/os-release"))) {
-            in.useDelimiter("\n");
-            while (in.hasNext()) {
-                String[] splittedLine = in.next().split("=");
-                if (splittedLine[0].equals("VERSION_ID")) {
-                    // remove beginning and ending '"' characters, etc from
-                    // VERSION_ID="14.04"
-                    setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
+        String etcOsRelease = LinuxOperatingSystem.getReleaseFilename();
+        List<String> osRelease;
+        try {
+            osRelease = FileUtil.readFile(etcOsRelease);
+        } catch (IOException e) {
+            LOG.trace("", e);
+            osRelease = new ArrayList<String>();
+        }
+        init(osRelease);
+    }
+
+    protected LinuxOSVersionInfoEx(List<String> osRelease) {
+        init(osRelease);
+    }
+
+    private void init(List<String> osRelease) {
+        for (String line : osRelease) {
+            String[] splittedLine = line.split("=");
+            if (splittedLine.length < 2) {
+                continue;
+            }
+            if (splittedLine[0].equals("VERSION_ID") || splittedLine[0].equals("DISTRIB_RELEASE")) {
+                // remove beginning and ending '"' characters, etc from
+                // VERSION_ID="14.04"
+                setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
+            }
+            if (splittedLine[0].equals("DISTRIB_CODENAME")) {
+                setCodeName(splittedLine[1].replaceAll("^\"|\"$", ""));
+            } else if (splittedLine[0].equals("VERSION")) {
+                // remove beginning and ending '"' characters
+                splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
+                // Check basically if the code is between parenthesis or
+                // after the comma-space
+                String[] split = splittedLine[1].split("[()]");
+                if (split.length <= 1) {
+                    // We are probably with Ubuntu, so need to get that part
+                    // correctly.
+                    split = splittedLine[1].split(", ");
                 }
-                if (splittedLine[0].equals("VERSION")) {
-                    // remove beginning and ending '"' characters
-                    splittedLine[1] = splittedLine[1].replaceAll("^\"|\"$", "");
-
-                    // Check basically if the code is between parenthesis or
-                    // after
-                    // the comma-space
-
-                    // Basically, until now, that seems to be the standard to
-                    // use
-                    // parenthesis for the codename.
-                    String[] split = splittedLine[1].split("[()]");
-                    if (split.length <= 1)
-                        // We are probably with Ubuntu, so need to get that part
-                        // correctly.
-                        split = splittedLine[1].split(", ");
-
-                    if (split.length > 1) {
-                        setCodeName(split[1]);
-                    } else {
-                        setCodeName(splittedLine[1]);
-                    }
+                if (split.length > 1) {
+                    setCodeName(split[1]);
+                } else {
+                    setCodeName(splittedLine[1]);
                 }
             }
-        } catch (FileNotFoundException e) {
-            LOG.trace("", e);
-            return;
         }
     }
 
@@ -120,7 +131,7 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
 
     @Override
     public JsonObject toJSON() {
-        return jsonFactory.createObjectBuilder().add("version", getVersion()).add("codeName", getCodeName())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", getCodeName())
                 .add("build", "").build();
     }
 

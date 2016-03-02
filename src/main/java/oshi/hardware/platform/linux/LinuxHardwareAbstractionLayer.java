@@ -33,6 +33,7 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.util.FileUtil;
@@ -154,7 +155,7 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
         }
-        return jsonFactory.createObjectBuilder().add("processor", getProcessor().toJSON())
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("processor", getProcessor().toJSON())
                 .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
                 .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
                 .add("sensors", getSensors().toJSON()).build();

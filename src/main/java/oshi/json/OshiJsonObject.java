@@ -14,7 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi;
+package oshi.json;
 
 import javax.json.JsonObject;
 
