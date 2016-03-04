@@ -321,7 +321,7 @@ public class SystemInfoTest {
         System.out.println("Sensors:");
         System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
         System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
-        System.out.format(" CPU Voltagee: %.1fV%n", hal.getSensors().getCpuVoltage());
+        System.out.format(" CPU Voltage: %.1fV%n", hal.getSensors().getCpuVoltage());
 
         // hardware: power
         LOG.info("Checking Power sources...");

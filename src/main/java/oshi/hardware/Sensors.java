@@ -27,6 +27,12 @@ import oshi.json.OshiJsonObject;
  * and empty arrays which will result if the OS is unable to provide the
  * information.
  * 
+ * Windows information is retrieved via Windows Management Instrumentation
+ * (WMI). Unfortunately, most hardware providers do not publish values to WMI.
+ * If a value is not available through the Microsoft API, Oshi will attempt to
+ * retrieve values as published by the Open Hardware Monitor
+ * (http://openhardwaremonitor.org/) if it is running.
+ * 
  * @author widdis[at]gmail[dot]com
  */
 public interface Sensors extends OshiJsonObject {

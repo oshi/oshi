@@ -1,5 +1,6 @@
 2.3 (in-progress)
 ================
+* [#124](https://github.com/dblock/oshi/pull/124): Read Windows Sensor info from Open Hardware Monitor as fallback - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.2 (3/1/2016)
