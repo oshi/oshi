@@ -64,13 +64,18 @@ public class LinuxOperatingSystem implements OperatingSystem {
         File[] files = etc.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return (name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_version"));
+                return (name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_release")
+                        || name.endsWith("_version"));
             }
         });
         if (files.length > 0) {
             return files[0].getPath();
         }
-        return "/etc/release";
+        if ((new File("/etc/release")).exists()) {
+            return "/etc/release";
+        }
+        // If all else fails, try this
+        return "/etc/issue";
     }
 
     @Override
@@ -89,10 +94,24 @@ public class LinuxOperatingSystem implements OperatingSystem {
                         break;
                     }
                 }
+                // If we couldn't parse the os-release or lsb-release formats,
+                // see if we can parse first line of /etc/*-release
+                if (this._family == null && this.osRelease.size() > 0) {
+                    // Get everything before " release" or " VERSION"
+                    String[] split = this.osRelease.get(0).split("release");
+                    if (split.length > 1) {
+                        this._family = split[0].trim();
+                    } else {
+                        split = this.osRelease.get(0).split("VERSION");
+                        if (split.length > 1) {
+                            this._family = split[0].trim();
+                        }
+                    }
+                }
                 // If we've gotten to the end without matching, use the filename
                 if (this._family == null) {
-                    this._family = etcOsRelease.replace("/etc/", "").replace("release", "").replace("version", "")
-                            .replace("-", "");
+                    this._family = filenameToFamily(etcOsRelease.replace("/etc/", "").replace("release", "")
+                            .replace("version", "").replace("-", "").replace("_", ""));
                 }
             } catch (IOException e) {
                 LOG.trace("", e);
@@ -100,6 +119,63 @@ public class LinuxOperatingSystem implements OperatingSystem {
             }
         }
         return this._family;
+
+    }
+
+    /**
+     * Converts a portion of a filename (e.g. the 'redhat' in
+     * /etc/redhat-release) to a mixed case string representing the family
+     * (e.g., Red Hat)
+     * 
+     * @param name
+     *            Stripped version of filename after removing /etc and -release
+     * @return Mixed case family
+     */
+    private String filenameToFamily(String name) {
+        switch (name) {
+        // Handle known special cases
+        case "":
+            return "Solaris";
+        case "blackcat":
+            return "Black Cat";
+        case "e-smith":
+            return "SME Server";
+        case "eos":
+            return "FreeEOS";
+        case "hlfs":
+            return "HLFS";
+        case "linuxppc":
+            return "Linux-PPC";
+        case "mklinux":
+            return "MkLinux";
+        case "nld":
+            return "Novell Linux Desktop";
+        case "pld":
+            return "PLD";
+        case "redhat":
+            return "Red Hat";
+        case "novell":
+        case "sles":
+            return "SuSE";
+        case "synoinfo":
+            return "Synology";
+        case "tinysofa":
+            return "Tiny Sofa";
+        case "turbolinux":
+            return "TurboLinux";
+        case "ultrapenguin":
+            return "UltraPenguin";
+        case "va":
+            return "VA-Linux";
+        case "yellowdog":
+            return "Yellow Dog";
+        // /etc/issue will end up here:
+        case "issue":
+            return "Unknown";
+        // If not a special case just capitalize first letter
+        default:
+            return name.substring(0, 1).toUpperCase() + name.substring(1);
+        }
     }
 
     @Override
