@@ -67,6 +67,7 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
     }
 
     private void init(List<String> osRelease) {
+        // For multiline files (/etc/lsb-release or /etc/os-release):
         for (String line : osRelease) {
             String[] splittedLine = line.split("=");
             if (splittedLine.length < 2) {
@@ -95,6 +96,36 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
                 } else {
                     setCodeName(splittedLine[1]);
                 }
+            }
+        }
+        // If we haven't found version or codename, parse first line of the file
+        // e.g. "Red Hat Enterprise Linux AS release 3 (Taroon)"
+        if (getVersion() == null && osRelease.size() > 0) {
+            // After word "release" or "VERSION" but before parenthesis
+            String vers = null;
+            String[] split = osRelease.get(0).split("release");
+            if (split.length > 1) {
+                vers = split[0].trim();
+            } else {
+                split = osRelease.get(0).split("VERSION");
+                if (split.length > 1) {
+                    vers = split[0].trim();
+                }
+            }
+            if (vers != null) {
+                // Get part before parenthesis
+                split = vers.split("(");
+                if (split.length > 1) {
+                    vers = split[0];
+                }
+                setVersion(vers.trim());
+            }
+        }
+        if (getCodeName() == null && osRelease.size() > 0) {
+            // Between parenthesis
+            String name = osRelease.get(0).replaceAll(".*\\(|\\).*", "");
+            if (name.length() > 0) {
+                setCodeName(name);
             }
         }
     }
@@ -131,8 +162,8 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", getCodeName())
-                .add("build", "").build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
+                .add("codeName", getCodeName()).add("build", "").build();
     }
 
     @Override
