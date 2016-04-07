@@ -111,7 +111,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
 
     private Long cpuVendorFreq;
 
-    private Boolean cpu64;
+    private Boolean cpu64 = Boolean.FALSE;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
