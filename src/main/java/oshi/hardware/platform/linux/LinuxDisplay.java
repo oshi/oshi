@@ -69,22 +69,24 @@ public class LinuxDisplay implements Display {
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<Display>();
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
-        boolean foundEdid = false;
-        StringBuilder sb = new StringBuilder();
-        for (String s : xrandr) {
-            if (s.contains("EDID")) {
-                foundEdid = true;
-                sb = new StringBuilder();
-                continue;
-            }
-            if (foundEdid) {
-                sb.append(s.trim());
-                if (sb.length() >= 256) {
-                    String edidStr = sb.toString();
-                    LOG.debug("Parsed EDID: {}", edidStr);
-                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));
-                    displays.add(display);
-                    foundEdid = false;
+        if (xrandr != null) {
+            boolean foundEdid = false;
+            StringBuilder sb = new StringBuilder();
+            for (String s : xrandr) {
+                if (s.contains("EDID")) {
+                    foundEdid = true;
+                    sb = new StringBuilder();
+                    continue;
+                }
+                if (foundEdid) {
+                    sb.append(s.trim());
+                    if (sb.length() >= 256) {
+                        String edidStr = sb.toString();
+                        LOG.debug("Parsed EDID: {}", edidStr);
+                        Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));
+                        displays.add(display);
+                        foundEdid = false;
+                    }
                 }
             }
         }
