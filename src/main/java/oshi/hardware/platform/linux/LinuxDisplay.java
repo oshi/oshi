@@ -71,23 +71,27 @@ public class LinuxDisplay implements Display {
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
         boolean foundEdid = false;
         StringBuilder sb = new StringBuilder();
-        for (String s : xrandr) {
-            if (s.contains("EDID")) {
-                foundEdid = true;
-                sb = new StringBuilder();
-                continue;
-            }
-            if (foundEdid) {
-                sb.append(s.trim());
-                if (sb.length() >= 256) {
-                    String edidStr = sb.toString();
-                    LOG.debug("Parsed EDID: {}", edidStr);
-                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));
-                    displays.add(display);
-                    foundEdid = false;
-                }
-            }
-        }
+        
+		if (null != xrandr) {
+			for (String s : xrandr) {
+				if (s.contains("EDID")) {
+					foundEdid = true;
+					sb = new StringBuilder();
+					continue;
+				}
+				if (foundEdid) {
+					sb.append(s.trim());
+					if (sb.length() >= 256) {
+						String edidStr = sb.toString();
+						LOG.debug("Parsed EDID: {}", edidStr);
+						Display display = new LinuxDisplay(
+								ParseUtil.hexStringToByteArray(edidStr));
+						displays.add(display);
+						foundEdid = false;
+					}
+				}
+			}
+		}
 
         return displays.toArray(new Display[displays.size()]);
     }
