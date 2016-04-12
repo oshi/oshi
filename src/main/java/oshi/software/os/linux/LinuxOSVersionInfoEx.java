@@ -105,16 +105,16 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
             String vers = null;
             String[] split = osRelease.get(0).split("release");
             if (split.length > 1) {
-                vers = split[0].trim();
+                vers = split[1].trim();
             } else {
                 split = osRelease.get(0).split("VERSION");
                 if (split.length > 1) {
-                    vers = split[0].trim();
+                    vers = split[1].trim();
                 }
             }
             if (vers != null) {
                 // Get part before parenthesis
-                split = vers.split("(");
+                split = vers.split("\\(");
                 if (split.length > 1) {
                     vers = split[0];
                 }
