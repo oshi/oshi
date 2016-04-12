@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -432,8 +433,20 @@ public class LinuxCentralProcessor implements CentralProcessor {
     public double getSystemCpuLoad() {
         if (sunMXBean) {
             return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+        } else {
+            // If sunMxBean isn't available, it uses the first value of
+            // /proc/loadavg as explained in proc(5) manpage
+            // (note, this is a perfect example of spaghetti code)
+            try {
+                List<String> loadAvg = FileUtil.readFile("/proc/loadavg");
+                return Double.parseDouble(loadAvg.get(0).split(" ")[0]);
+            } catch (IOException e) {
+                LOG.error("Problem with /proc/loadavg: {}", e.getMessage());
+                // Old method for getting CPU Load average is maintained as
+                // fallback if the file read return errors
+                return getSystemCpuLoadBetweenTicks();
+            }
         }
-        return getSystemCpuLoadBetweenTicks();
     }
 
     /**
