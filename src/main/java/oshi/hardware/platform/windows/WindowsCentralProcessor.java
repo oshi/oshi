@@ -121,6 +121,30 @@ public class WindowsCentralProcessor implements CentralProcessor {
     // Set up counter for uptime
     private PointerByReference pUptime;
 
+    // Set up Performance Data Helper thread for IOWait
+    private long iowaitTime;
+
+    private PointerByReference iowaitQuery = new PointerByReference();
+
+    private final IntByReference pTwo = new IntByReference(2);
+
+    // Set up counters for IOWait
+    private PointerByReference pLatency;
+    private PointerByReference pTransfers;
+    private long iowaitTicks;
+
+    // Set up Performance Data Helper thread for IRQticks
+    private long irqTime;
+
+    private PointerByReference irqQuery = new PointerByReference();
+
+    private final IntByReference pThree = new IntByReference(3);
+
+    // Set up counter for IRQticks
+    private PointerByReference pIrq;
+    private PointerByReference pDpc;
+    private long[] irqTicks = new long[2];
+
     private String cpuVendor;
 
     private String cpuName;
@@ -161,6 +185,10 @@ public class WindowsCentralProcessor implements CentralProcessor {
         this.prevProcTicks = new long[logicalProcessorCount][4];
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
+
+        // Get and discard initial read to reset timers
+        getSystemIOWaitTicks();
+        getSystemIrqTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -236,7 +264,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
         // Open uptime query
         int pdhOpenUptimeQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pOne, uptimeQuery);
-        if (pdhOpenTickQueryError != 0) {
+        if (pdhOpenUptimeQueryError != 0) {
             LOG.error("Failed to open PDH Uptime Query. Error code: {}",
                     String.format("0x%08X", pdhOpenUptimeQueryError));
         }
@@ -252,12 +280,65 @@ public class WindowsCentralProcessor implements CentralProcessor {
             }
         }
 
-        // Set up hook to close the query on shutdown
+        // Open iowait query
+        int pdhOpenIOwaitQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pOne, iowaitQuery);
+        if (pdhOpenIOwaitQueryError != 0) {
+            LOG.error("Failed to open PDH iowait Query. Error code: {}",
+                    String.format("0x%08X", pdhOpenIOwaitQueryError));
+        }
+        if (pdhOpenIOwaitQueryError == 0) {
+            // \LogicalDisk(_Total)\Avg. Disk sec/Transfer
+            String latencyPath = "\\LogicalDisk(_Total)\\Avg. Disk sec/Transfer";
+            pLatency = new PointerByReference();
+            int pdhAddLatencyCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(iowaitQuery.getValue(), latencyPath,
+                    pTwo, pLatency);
+            if (pdhAddLatencyCounterError != 0) {
+                LOG.error("Failed to add PDH latency Counter. Error code: {}",
+                        String.format("0x%08X", pdhAddLatencyCounterError));
+            }
+            // \LogicalDisk(_Total)\Disk Transfers/sec
+            String transfersPath = "\\LogicalDisk(_Total)\\Disk Transfers/sec";
+            pTransfers = new PointerByReference();
+            int pdhAddTransfersCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(iowaitQuery.getValue(), transfersPath,
+                    pTwo, pTransfers);
+            if (pdhAddTransfersCounterError != 0) {
+                LOG.error("Failed to add PDH latency Counter. Error code: {}",
+                        String.format("0x%08X", pdhAddTransfersCounterError));
+            }
+        }
+
+        // Open irq query
+        int pdhOpenIrqQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pOne, irqQuery);
+        if (pdhOpenIrqQueryError != 0) {
+            LOG.error("Failed to open PDH Irq Query. Error code: {}", String.format("0x%08X", pdhOpenIrqQueryError));
+        }
+        if (pdhOpenIrqQueryError == 0) {
+            // \Processor(_Total)\% Interrupt Time
+            String irqPath = "\\Processor(_Total)\\% Interrupt Time";
+            pIrq = new PointerByReference();
+            int pdhAddIrqCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(irqQuery.getValue(), irqPath, pThree, pIrq);
+            if (pdhAddIrqCounterError != 0) {
+                LOG.error("Failed to add PDH Irq Counter. Error code: {}",
+                        String.format("0x%08X", pdhAddIrqCounterError));
+            }
+            // \Processor(_Total)\% DPC Time
+            String dpcPath = "\\Processor(_Total)\\% DPC Time";
+            pDpc = new PointerByReference();
+            int pdhAddDpcCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(irqQuery.getValue(), dpcPath, pThree, pDpc);
+            if (pdhAddDpcCounterError != 0) {
+                LOG.error("Failed to add PDH DPC Counter. Error code: {}",
+                        String.format("0x%08X", pdhAddDpcCounterError));
+            }
+        }
+
+        // Set up hook to close the queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());
                 Pdh.INSTANCE.PdhCloseQuery(uptimeQuery.getValue());
+                Pdh.INSTANCE.PdhCloseQuery(iowaitQuery.getValue());
+                Pdh.INSTANCE.PdhCloseQuery(irqQuery.getValue());
             }
         });
     }
@@ -496,6 +577,105 @@ public class WindowsCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemIOWaitTicks() {
+        // Avg. Disk sec/Transfer x Avg. Disk Transfers/sec * seconds between
+        // reads
+
+        // This call updates all process counters to % used since last call
+        int ret = Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
+        if (ret != 0) {
+            LOG.error("Failed to update Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+            return 0;
+        }
+
+        long now = System.currentTimeMillis();
+
+        // We'll manufacture our own ticks by multiplying the % used (from the
+        // counter) by time elapsed since the last call to get a tick increment
+        long elapsed = now - iowaitTime;
+
+        PdhFmtCounterValue phLatencyCounterValue = new PdhFmtCounterValue();
+        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pLatency.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
+                phLatencyCounterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get Latency Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            return 0;
+        }
+
+        PdhFmtCounterValue phTransfersCounterValue = new PdhFmtCounterValue();
+        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pTransfers.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
+                null, phTransfersCounterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get Transfers Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            return 0;
+        }
+
+        // Returns results in 1000's of percent, e.g. 5% is 5000
+        // Multiply by elapsed to get total ms and Divide by 100 * 1000
+        // Putting division at end avoids need to cast division to double
+        // Elasped is only since last read, so increment previous value
+        iowaitTicks += elapsed * phLatencyCounterValue.value.largeValue / 100000
+                * phTransfersCounterValue.value.largeValue / 100000;
+
+        iowaitTime = now;
+
+        return iowaitTicks;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getSystemIrqTicks() {
+        long[] ticks = new long[2];
+        // Time * seconds between reads
+        // This call updates all process counters to % used since last call
+        int ret = Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
+        if (ret != 0) {
+            LOG.error("Failed to update Uptime Counters. Error code: {}", String.format("0x%08X", ret));
+            return ticks;
+        }
+
+        long now = System.currentTimeMillis();
+
+        // We'll manufacture our own ticks by multiplying the % used (from the
+        // counter) by time elapsed since the last call to get a tick increment
+        long elapsed = now - irqTime;
+
+        PdhFmtCounterValue phIrqCounterValue = new PdhFmtCounterValue();
+        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pIrq.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
+                phIrqCounterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get IRQ Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            return ticks;
+        }
+
+        PdhFmtCounterValue phDpcCounterValue = new PdhFmtCounterValue();
+        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pDpc.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
+                phDpcCounterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get DPC Tick Counters. Error code: {}", String.format("0x%08X", ret));
+            return ticks;
+        }
+
+        // Returns results in 1000's of percent, e.g. 5% is 5000
+        // Multiply by elapsed to get total ms and Divide by 100 * 1000
+        // Putting division at end avoids need to cast division to double
+        // Elasped is only since last read, so increment previous value
+        irqTicks[0] += elapsed * phIrqCounterValue.value.largeValue / 100000;
+        irqTicks[1] += elapsed * phDpcCounterValue.value.largeValue / 100000;
+
+        irqTime = now;
+
+        // Make a copy of the array to return
+        System.arraycopy(irqTicks, 0, ticks, 0, irqTicks.length);
+        return ticks;
+    };
+
+    /**
      * Updates system tick information from native call to GetSystemTimes().
      * Array with four elements representing clock ticks or milliseconds
      * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
@@ -528,7 +708,29 @@ public class WindowsCentralProcessor implements CentralProcessor {
     @Override
     public double getSystemLoadAverage() {
         // Expected to be -1 for Windows
-        return OS_MXBEAN.getSystemLoadAverage();
+        return getSystemLoadAverage(1)[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1) {
+            throw new IllegalArgumentException("Must include at least one element.");
+        }
+        if (nelem > 3) {
+            LOG.warn("Max elements of SystemLoadAverage is 3. " + nelem + " specified. Ignoring extra.");
+            nelem = 3;
+        }
+        double[] average = new double[nelem];
+        // TODO: If Windows ever actually implements a laod average for 1/5/15,
+        // return it rather than the same (probably -1) value
+        double retval = OS_MXBEAN.getSystemLoadAverage();
+        for (int i = 0; i < average.length; i++) {
+            average[i] = retval;
+        }
+        return average;
     }
 
     /**
@@ -703,6 +905,10 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     @Override
     public JsonObject toJSON() {
+        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
+        for (double avg : getSystemLoadAverage(3)) {
+            systemLoadAverageArrayBuilder.add(avg);
+        }
         JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
         for (long ticks : getSystemCpuLoadTicks()) {
             systemCpuLoadTicksArrayBuilder.add(ticks);
@@ -719,6 +925,10 @@ public class WindowsCentralProcessor implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
+        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (long ticks : getSystemIrqTicks()) {
+            systemIrqTicksArrayBuilder.add(ticks);
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -728,6 +938,9 @@ public class WindowsCentralProcessor implements CentralProcessor {
                 .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
                 .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
                 .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
+                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
+                .add("systemIOWaitTicks", getSystemIOWaitTicks())
+                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).build();

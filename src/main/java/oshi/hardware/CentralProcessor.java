@@ -157,10 +157,39 @@ public interface CentralProcessor extends OshiJsonObject {
      * measuring the difference between ticks across a time interval, CPU load
      * over that interval may be calculated.
      * 
+     * The Idle time for this method includes system time spent idle waiting for
+     * IO as reported by {@link #getSystemIOWaitTicks()}. The system time
+     * includes system time spent servicing Hardware and Software IRQ requests
+     * as reported by {@link #getSystemIrqTicks()} as well as executing other
+     * virtual hosts (steal) or running a virtual cpu (guest).
+     * 
      * @return An array of 4 long values representing time spent in User,
      *         Nice(if applicable), System, and Idle states.
      */
     long[] getSystemCpuLoadTicks();
+
+    /**
+     * Get System IOWait tick counters (if available on that Operating System).
+     * Time spent waiting for IO to complete is included in the idle time
+     * calculated by {@link #getSystemCpuLoadTicks()} but is provided separately
+     * for more detail.
+     * 
+     * @return a long value representing time spent idle waiting for IO to
+     *         complete.
+     */
+    long getSystemIOWaitTicks();
+
+    /**
+     * Get System IRQ tick counters (if available on that Operating System).
+     * Time spent servicing hardware and software (Deferred Procedure Call)
+     * interrupts is included in the system time calculated by
+     * {@link #getSystemCpuLoadTicks()} but is provided separately for more
+     * detail.
+     * 
+     * @return an array of two long values representing time spent servicing
+     *         hardware interrupts and software interrupts (DPC)
+     */
+    long[] getSystemIrqTicks();
 
     /**
      * Returns the "recent cpu usage" for the whole system from
@@ -184,9 +213,18 @@ public interface CentralProcessor extends OshiJsonObject {
     double getSystemCpuLoad();
 
     /**
-     * Returns the system load average for the last minute from
-     * {@link java.lang.management.OperatingSystemMXBean#getSystemLoadAverage()}
-     * or using native call in Linux systems. The system load average is the
+     * Returns the system load average for the last minute. This is equivalent
+     * to calling {@link CentralProcessor#getSystemLoadAverage(int)} with an
+     * argument of 1 and returning the first value, and is retained for
+     * compatibility.
+     * 
+     * @return the system load average; or a negative value if not available.
+     */
+    double getSystemLoadAverage();
+
+    /**
+     * Returns the system load average for the number of elements specified, up
+     * to 3, representing 1, 5, and 15 minutes. The system load average is the
      * sum of the number of runnable entities queued to the available processors
      * and the number of runnable entities running on the available processors
      * averaged over a period of time. The way in which the load average is
@@ -197,9 +235,11 @@ public interface CentralProcessor extends OshiJsonObject {
      * unavailable on some platforms (e.g., Windows) where it is expensive to
      * implement this method.
      * 
-     * @return the system load average; or a negative value if not available.
+     * @return an array of the system load averages for 1, 5, and 15 minutes
+     *         with the size of the array specified by nelem; or negative values
+     *         if not available.
      */
-    double getSystemLoadAverage();
+    double[] getSystemLoadAverage(int nelem);
 
     /**
      * Returns the "recent cpu usage" for all logical processors by counting
@@ -225,6 +265,13 @@ public interface CentralProcessor extends OshiJsonObject {
      * spent in User (0), Nice (1), System (2), and Idle (3) states. By
      * measuring the difference between ticks across a time interval, CPU load
      * over that interval may be calculated.
+     * 
+     * The Idle time for this method includes processor time spent idle waiting
+     * for IO as reported by {@link #getSystemIOWaitTicks()}. The system time
+     * includes processor time spent servicing Hardware IRQ requests as reported
+     * by {@link #getSystemIrqTicks()} as well as Software IRQ requests
+     * (softirq), executing other virtual hosts (steal) or running a virtual cpu
+     * (guest).
      * 
      * @return A 2D array of logicalProcessorCount x 4 long values representing
      *         time spent in User, Nice(if applicable), System, and Idle states.
