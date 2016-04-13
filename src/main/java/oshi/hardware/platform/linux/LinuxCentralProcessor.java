@@ -1,13 +1,13 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
@@ -46,13 +46,14 @@ import oshi.util.ParseUtil;
 
 /**
  * A CPU as defined in Linux /proc.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class LinuxCentralProcessor implements CentralProcessor {
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
     // Determine whether MXBean supports Oracle JVM methods
@@ -395,15 +396,17 @@ public class LinuxCentralProcessor implements CentralProcessor {
         String tickStr = "";
         try {
             List<String> procStat = FileUtil.readFile("/proc/stat");
-            if (!procStat.isEmpty())
+            if (!procStat.isEmpty()) {
                 tickStr = procStat.get(0);
+            }
         } catch (IOException e) {
             LOG.error("Problem with /proc/stat: {}", e.getMessage());
             return ticks;
         }
         String[] tickArr = tickStr.split("\\s+");
-        if (tickArr.length < 5)
+        if (tickArr.length < 5) {
             return ticks;
+        }
         for (int i = 0; i < 4; i++) {
             ticks[i] = Long.parseLong(tickArr[i + 1]);
         }
@@ -433,20 +436,8 @@ public class LinuxCentralProcessor implements CentralProcessor {
     public double getSystemCpuLoad() {
         if (sunMXBean) {
             return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-        } else {
-            // If sunMxBean isn't available, it uses the first value of
-            // /proc/loadavg as explained in proc(5) manpage
-            // (note, this is a perfect example of spaghetti code)
-            try {
-                List<String> loadAvg = FileUtil.readFile("/proc/loadavg");
-                return Double.parseDouble(loadAvg.get(0).split(" ")[0]);
-            } catch (IOException e) {
-                LOG.error("Problem with /proc/loadavg: {}", e.getMessage());
-                // Old method for getting CPU Load average is maintained as
-                // fallback if the file read return errors
-                return getSystemCpuLoadBetweenTicks();
-            }
         }
+        return getSystemCpuLoadBetweenTicks();
     }
 
     /**
@@ -501,13 +492,15 @@ public class LinuxCentralProcessor implements CentralProcessor {
             for (String stat : procStat) {
                 if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
                     String[] tickArr = stat.split("\\s+");
-                    if (tickArr.length < 5)
+                    if (tickArr.length < 5) {
                         break;
+                    }
                     for (int i = 0; i < 4; i++) {
                         ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
                     }
-                    if (++cpu >= logicalProcessorCount)
+                    if (++cpu >= logicalProcessorCount) {
                         break;
+                    }
                 }
             }
         } catch (IOException e) {
