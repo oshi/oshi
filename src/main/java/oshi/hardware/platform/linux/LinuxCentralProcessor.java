@@ -445,7 +445,15 @@ public class LinuxCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemLoadAverage() {
-        return OS_MXBEAN.getSystemLoadAverage();
+        // Modified for using JNA library
+        double[] average = new double[3];
+        
+        int retval = Libc.INSTANCE.getloadavg(average, 1);
+        if (retval == -1) {
+            return -1;
+        }
+        
+        return average[0];
     }
 
     /**
