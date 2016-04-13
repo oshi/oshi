@@ -1,17 +1,18 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware;
@@ -185,15 +186,16 @@ public interface CentralProcessor extends OshiJsonObject {
     /**
      * Returns the system load average for the last minute from
      * {@link java.lang.management.OperatingSystemMXBean#getSystemLoadAverage()}
-     * . The system load average is the sum of the number of runnable entities
-     * queued to the available processors and the number of runnable entities
-     * running on the available processors averaged over a period of time. The
-     * way in which the load average is calculated is operating system specific
-     * but is typically a damped time-dependent average. If the load average is
-     * not available, a negative value is returned. This method is designed to
-     * provide a hint about the system load and may be queried frequently. The
-     * load average may be unavailable on some platforms (e.g., Windows) where
-     * it is expensive to implement this method.
+     * or using native call in Linux systems. The system load average is the
+     * sum of the number of runnable entities queued to the available processors
+     * and the number of runnable entities running on the available processors
+     * averaged over a period of time. The way in which the load average is
+     * calculated is operating system specific but is typically a damped
+     * time-dependent average. If the load average is not available, a negative
+     * value is returned. This method is designed to provide a hint about the
+     * system load and may be queried frequently. The load average may be
+     * unavailable on some platforms (e.g., Windows) where it is expensive to
+     * implement this method.
      * 
      * @return the system load average; or a negative value if not available.
      */

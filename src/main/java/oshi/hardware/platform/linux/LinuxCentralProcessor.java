@@ -1,17 +1,18 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -45,13 +46,14 @@ import oshi.util.ParseUtil;
 
 /**
  * A CPU as defined in Linux /proc.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
 @SuppressWarnings("restriction")
 public class LinuxCentralProcessor implements CentralProcessor {
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
     // Determine whether MXBean supports Oracle JVM methods
@@ -394,15 +396,17 @@ public class LinuxCentralProcessor implements CentralProcessor {
         String tickStr = "";
         try {
             List<String> procStat = FileUtil.readFile("/proc/stat");
-            if (!procStat.isEmpty())
+            if (!procStat.isEmpty()) {
                 tickStr = procStat.get(0);
+            }
         } catch (IOException e) {
             LOG.error("Problem with /proc/stat: {}", e.getMessage());
             return ticks;
         }
         String[] tickArr = tickStr.split("\\s+");
-        if (tickArr.length < 5)
+        if (tickArr.length < 5) {
             return ticks;
+        }
         for (int i = 0; i < 4; i++) {
             ticks[i] = Long.parseLong(tickArr[i + 1]);
         }
@@ -441,7 +445,15 @@ public class LinuxCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemLoadAverage() {
-        return OS_MXBEAN.getSystemLoadAverage();
+        // Modified for using JNA library
+        double[] average = new double[3];
+        
+        int retval = Libc.INSTANCE.getloadavg(average, 1);
+        if (retval == -1) {
+            return -1;
+        }
+        
+        return average[0];
     }
 
     /**
@@ -488,13 +500,15 @@ public class LinuxCentralProcessor implements CentralProcessor {
             for (String stat : procStat) {
                 if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
                     String[] tickArr = stat.split("\\s+");
-                    if (tickArr.length < 5)
+                    if (tickArr.length < 5) {
                         break;
+                    }
                     for (int i = 0; i < 4; i++) {
                         ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
                     }
-                    if (++cpu >= logicalProcessorCount)
+                    if (++cpu >= logicalProcessorCount) {
                         break;
+                    }
                 }
             }
         } catch (IOException e) {
