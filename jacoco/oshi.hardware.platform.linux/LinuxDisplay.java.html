@@ -69,27 +69,29 @@ public class LinuxDisplay implements Display {
     public static Display[] getDisplays() {
 <span class="nc" id="L70">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
 <span class="nc" id="L71">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
-<span class="nc" id="L72">        boolean foundEdid = false;</span>
-<span class="nc" id="L73">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String s : xrandr) {</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (s.contains(&quot;EDID&quot;)) {</span>
-<span class="nc" id="L76">                foundEdid = true;</span>
-<span class="nc" id="L77">                sb = new StringBuilder();</span>
-<span class="nc" id="L78">                continue;</span>
-            }
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (foundEdid) {</span>
-<span class="nc" id="L81">                sb.append(s.trim());</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (sb.length() &gt;= 256) {</span>
-<span class="nc" id="L83">                    String edidStr = sb.toString();</span>
-<span class="nc" id="L84">                    LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
-<span class="nc" id="L85">                    Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
-<span class="nc" id="L86">                    displays.add(display);</span>
-<span class="nc" id="L87">                    foundEdid = false;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (xrandr != null) {</span>
+<span class="nc" id="L73">            boolean foundEdid = false;</span>
+<span class="nc" id="L74">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            for (String s : xrandr) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                if (s.contains(&quot;EDID&quot;)) {</span>
+<span class="nc" id="L77">                    foundEdid = true;</span>
+<span class="nc" id="L78">                    sb = new StringBuilder();</span>
+<span class="nc" id="L79">                    continue;</span>
                 }
-            }
-<span class="nc" id="L90">        }</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (foundEdid) {</span>
+<span class="nc" id="L82">                    sb.append(s.trim());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                    if (sb.length() &gt;= 256) {</span>
+<span class="nc" id="L84">                        String edidStr = sb.toString();</span>
+<span class="nc" id="L85">                        LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
+<span class="nc" id="L86">                        Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));</span>
+<span class="nc" id="L87">                        displays.add(display);</span>
+<span class="nc" id="L88">                        foundEdid = false;</span>
+                    }
+                }
+<span class="nc" id="L91">            }</span>
+        }
 
-<span class="nc" id="L92">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L94">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

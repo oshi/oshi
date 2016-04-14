@@ -36,7 +36,10 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <a href="../../../../oshi/jna/platform/mac/SystemB.html">SystemB</a> INSTANCE = (SystemB) Native.loadLibrary(<span class="jxr_string">"System"</span>, SystemB.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">int</strong> mach_task_self();
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <em class="jxr_comment">// Native call for getting load average</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">int</strong> getloadavg(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

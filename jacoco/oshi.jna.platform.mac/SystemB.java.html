@@ -28,5 +28,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 <span class="fc" id="L28">    SystemB INSTANCE = (SystemB) Native.loadLibrary(&quot;System&quot;, SystemB.class);</span>
 
     int mach_task_self();
+
+    // Native call for getting load average
+    int getloadavg(double[] loadavg, int nelem);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

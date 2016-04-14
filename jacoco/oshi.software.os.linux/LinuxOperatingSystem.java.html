@@ -64,72 +64,148 @@ import oshi.util.FileUtil;
 <span class="nc" id="L64">        File[] files = etc.listFiles(new FilenameFilter() {</span>
             @Override
             public boolean accept(File dir, String name) {
-<span class="nc bnc" id="L67" title="All 6 branches missed.">                return (name.endsWith(&quot;-release&quot;) || name.endsWith(&quot;-version&quot;) || name.endsWith(&quot;_version&quot;));</span>
+<span class="nc bnc" id="L67" title="All 6 branches missed.">                return (name.endsWith(&quot;-release&quot;) || name.endsWith(&quot;-version&quot;) || name.endsWith(&quot;_release&quot;)</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                        || name.endsWith(&quot;_version&quot;));</span>
             }
         });
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (files.length &gt; 0) {</span>
-<span class="nc" id="L71">            return files[0].getPath();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (files.length &gt; 0) {</span>
+<span class="nc" id="L72">            return files[0].getPath();</span>
         }
-<span class="nc" id="L73">        return &quot;/etc/release&quot;;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if ((new File(&quot;/etc/release&quot;)).exists()) {</span>
+<span class="nc" id="L75">            return &quot;/etc/release&quot;;</span>
+        }
+        // If all else fails, try this
+<span class="nc" id="L78">        return &quot;/etc/issue&quot;;</span>
     }
 
     @Override
     public String getFamily() {
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (this._family == null) {</span>
-<span class="nc" id="L79">            String etcOsRelease = getReleaseFilename();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (this._family == null) {</span>
+<span class="nc" id="L84">            String etcOsRelease = getReleaseFilename();</span>
             try {
-<span class="nc" id="L81">                this.osRelease = FileUtil.readFile(etcOsRelease);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                for (String line : this.osRelease) {</span>
-<span class="nc" id="L83">                    String[] splittedLine = line.split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L84" title="All 6 branches missed.">                    if ((splittedLine[0].equals(&quot;NAME&quot;) || splittedLine[0].equals(&quot;DISTRIB_ID&quot;))</span>
+<span class="nc" id="L86">                this.osRelease = FileUtil.readFile(etcOsRelease);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                for (String line : this.osRelease) {</span>
+<span class="nc" id="L88">                    String[] splittedLine = line.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L89" title="All 6 branches missed.">                    if ((splittedLine[0].equals(&quot;NAME&quot;) || splittedLine[0].equals(&quot;DISTRIB_ID&quot;))</span>
                             &amp;&amp; splittedLine.length &gt; 1) {
                         // remove beginning and ending '&quot;' characters, etc from
                         // NAME=&quot;Ubuntu&quot;
-<span class="nc" id="L88">                        this._family = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
-<span class="nc" id="L89">                        break;</span>
+<span class="nc" id="L93">                        this._family = splittedLine[1].replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;);</span>
+<span class="nc" id="L94">                        break;</span>
                     }
-<span class="nc" id="L91">                }</span>
-                // If we've gotten to the end without matching, use the filename
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                if (this._family == null) {</span>
-<span class="nc" id="L94">                    this._family = etcOsRelease.replace(&quot;/etc/&quot;, &quot;&quot;).replace(&quot;release&quot;, &quot;&quot;).replace(&quot;version&quot;, &quot;&quot;)</span>
-<span class="nc" id="L95">                            .replace(&quot;-&quot;, &quot;&quot;);</span>
+<span class="nc" id="L96">                }</span>
+                // If we couldn't parse the os-release or lsb-release formats,
+                // see if we can parse first line of /etc/*-release
+<span class="nc bnc" id="L99" title="All 4 branches missed.">                if (this._family == null &amp;&amp; this.osRelease.size() &gt; 0) {</span>
+                    // Get everything before &quot; release&quot; or &quot; VERSION&quot;
+<span class="nc" id="L101">                    String[] split = this.osRelease.get(0).split(&quot;release&quot;);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
+<span class="nc" id="L103">                        this._family = split[0].trim();</span>
+                    } else {
+<span class="nc" id="L105">                        split = this.osRelease.get(0).split(&quot;VERSION&quot;);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                        if (split.length &gt; 1) {</span>
+<span class="nc" id="L107">                            this._family = split[0].trim();</span>
+                        }
+                    }
                 }
-<span class="nc" id="L97">            } catch (IOException e) {</span>
-<span class="nc" id="L98">                LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L99">                return &quot;&quot;;</span>
-<span class="nc" id="L100">            }</span>
+                // If we've gotten to the end without matching, use the filename
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (this._family == null) {</span>
+<span class="nc" id="L113">                    this._family = filenameToFamily(etcOsRelease.replace(&quot;/etc/&quot;, &quot;&quot;).replace(&quot;release&quot;, &quot;&quot;)</span>
+<span class="nc" id="L114">                            .replace(&quot;version&quot;, &quot;&quot;).replace(&quot;-&quot;, &quot;&quot;).replace(&quot;_&quot;, &quot;&quot;));</span>
+                }
+<span class="nc" id="L116">            } catch (IOException e) {</span>
+<span class="nc" id="L117">                LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L118">                return &quot;&quot;;</span>
+<span class="nc" id="L119">            }</span>
         }
-<span class="nc" id="L102">        return this._family;</span>
+<span class="nc" id="L121">        return this._family;</span>
+
+    }
+
+    /**
+     * Converts a portion of a filename (e.g. the 'redhat' in
+     * /etc/redhat-release) to a mixed case string representing the family
+     * (e.g., Red Hat)
+     * 
+     * @param name
+     *            Stripped version of filename after removing /etc and -release
+     * @return Mixed case family
+     */
+    private String filenameToFamily(String name) {
+<span class="nc bnc" id="L135" title="All 77 branches missed.">        switch (name) {</span>
+        // Handle known special cases
+        case &quot;&quot;:
+<span class="nc" id="L138">            return &quot;Solaris&quot;;</span>
+        case &quot;blackcat&quot;:
+<span class="nc" id="L140">            return &quot;Black Cat&quot;;</span>
+        case &quot;e-smith&quot;:
+<span class="nc" id="L142">            return &quot;SME Server&quot;;</span>
+        case &quot;eos&quot;:
+<span class="nc" id="L144">            return &quot;FreeEOS&quot;;</span>
+        case &quot;hlfs&quot;:
+<span class="nc" id="L146">            return &quot;HLFS&quot;;</span>
+        case &quot;linuxppc&quot;:
+<span class="nc" id="L148">            return &quot;Linux-PPC&quot;;</span>
+        case &quot;mklinux&quot;:
+<span class="nc" id="L150">            return &quot;MkLinux&quot;;</span>
+        case &quot;nld&quot;:
+<span class="nc" id="L152">            return &quot;Novell Linux Desktop&quot;;</span>
+        case &quot;pld&quot;:
+<span class="nc" id="L154">            return &quot;PLD&quot;;</span>
+        case &quot;redhat&quot;:
+<span class="nc" id="L156">            return &quot;Red Hat&quot;;</span>
+        case &quot;novell&quot;:
+        case &quot;sles&quot;:
+<span class="nc" id="L159">            return &quot;SuSE&quot;;</span>
+        case &quot;synoinfo&quot;:
+<span class="nc" id="L161">            return &quot;Synology&quot;;</span>
+        case &quot;tinysofa&quot;:
+<span class="nc" id="L163">            return &quot;Tiny Sofa&quot;;</span>
+        case &quot;turbolinux&quot;:
+<span class="nc" id="L165">            return &quot;TurboLinux&quot;;</span>
+        case &quot;ultrapenguin&quot;:
+<span class="nc" id="L167">            return &quot;UltraPenguin&quot;;</span>
+        case &quot;va&quot;:
+<span class="nc" id="L169">            return &quot;VA-Linux&quot;;</span>
+        case &quot;yellowdog&quot;:
+<span class="nc" id="L171">            return &quot;Yellow Dog&quot;;</span>
+        // /etc/issue will end up here:
+        case &quot;issue&quot;:
+<span class="nc" id="L174">            return &quot;Unknown&quot;;</span>
+        // If not a special case just capitalize first letter
+        default:
+<span class="nc" id="L177">            return name.substring(0, 1).toUpperCase() + name.substring(1);</span>
+        }
     }
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L107">        return &quot;GNU/Linux&quot;;</span>
+<span class="nc" id="L183">        return &quot;GNU/Linux&quot;;</span>
     }
 
     @Override
     public OperatingSystemVersion getVersion() {
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (this._version == null) {</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            this._version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (this._version == null) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            this._version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();</span>
         }
-<span class="nc" id="L115">        return this._version;</span>
+<span class="nc" id="L191">        return this._version;</span>
     }
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L120">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer())</span>
-<span class="nc" id="L121">                .add(&quot;family&quot;, getFamily()).add(&quot;version&quot;, getVersion().toJSON()).build();</span>
+<span class="nc" id="L196">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer())</span>
+<span class="nc" id="L197">                .add(&quot;family&quot;, getFamily()).add(&quot;version&quot;, getVersion().toJSON()).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L126">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L127">        sb.append(getManufacturer());</span>
-<span class="nc" id="L128">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L129">        sb.append(getFamily());</span>
-<span class="nc" id="L130">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L131">        sb.append(getVersion().toString());</span>
-<span class="nc" id="L132">        return sb.toString();</span>
+<span class="nc" id="L202">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L203">        sb.append(getManufacturer());</span>
+<span class="nc" id="L204">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L205">        sb.append(getFamily());</span>
+<span class="nc" id="L206">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L207">        sb.append(getVersion().toString());</span>
+<span class="nc" id="L208">        return sb.toString();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

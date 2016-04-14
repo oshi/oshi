@@ -424,222 +424,273 @@
 <a class="jxr_linenumber" name="L416" href="#L416">416</a>     }
 <a class="jxr_linenumber" name="L417" href="#L417">417</a> 
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     * Updates system tick information from native host_statistics query. Stores</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     * in array with four elements representing clock ticks or milliseconds</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">     * (3) states. By measuring the difference between ticks across a time</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">     * interval, CPU load over that interval may be calculated.</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateSystemTicks() {
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>         LOG.trace(<span class="jxr_string">"Updating System Ticks"</span>);
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <em class="jxr_comment">// Copy to previous</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <strong class="jxr_keyword">this</strong>.tickTime = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">long</strong>[] ticks = getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>     }
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     @Override
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSystemCpuLoad() {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">if</strong> (sunMXBean) {
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>             <strong class="jxr_keyword">return</strong> ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         <strong class="jxr_keyword">return</strong> getSystemCpuLoadBetweenTicks();
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>     @Override
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSystemLoadAverage() {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         <strong class="jxr_keyword">return</strong> OS_MXBEAN.getSystemLoadAverage();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     }
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     @Override
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getProcessorCpuLoadBetweenTicks() {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <em class="jxr_comment">// Check if &gt; ~ 0.95 seconds since last tick count.</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         LOG.trace(<span class="jxr_string">"Current time: {}  Last tick time: {}"</span>, now, procTickTime);
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <strong class="jxr_keyword">if</strong> (now - procTickTime &gt; 950) {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <em class="jxr_comment">// Enough time has elapsed.</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             <em class="jxr_comment">// Update latest</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>             updateProcessorTicks();
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">double</strong>[] load = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[logicalProcessorCount];
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             <strong class="jxr_keyword">long</strong> total = 0;
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.curProcTicks[cpu].length; i++) {
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>                 total += (<strong class="jxr_keyword">this</strong>.curProcTicks[cpu][i] - <strong class="jxr_keyword">this</strong>.prevProcTicks[cpu][i]);
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             }
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>             <em class="jxr_comment">// Calculate idle from last field [3]</em>
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <strong class="jxr_keyword">long</strong> idle = <strong class="jxr_keyword">this</strong>.curProcTicks[cpu][3] - <strong class="jxr_keyword">this</strong>.prevProcTicks[cpu][3];
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>             LOG.trace(<span class="jxr_string">"CPU: {}  Total ticks: {}  Idle ticks: {}"</span>, cpu, total, idle);
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <em class="jxr_comment">// update</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             load[cpu] = (total &gt; 0 &amp;&amp; idle &gt;= 0) ? (<strong class="jxr_keyword">double</strong>) (total - idle) / total : 0d;
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         }
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">return</strong> load;
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>     }
-<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>     @Override
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[logicalProcessorCount][4];
-<a class="jxr_linenumber" name="L487" href="#L487">487</a> 
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">int</strong> machPort = SystemB.INSTANCE.mach_host_self();
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         IntByReference procCount = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         PointerByReference procCpuLoadInfo = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         IntByReference procInfoCount = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 procCpuLoadInfo, procInfoCount)) {
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>         }
-<a class="jxr_linenumber" name="L498" href="#L498">498</a> 
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; 4; j++) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                 ticks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 ticks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 ticks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>                 ticks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             }
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         }
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     }
-<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">     * Updates the tick array for all processors by calling</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     * host_processor_info(). Stores in 2D array; an array for each logical</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * processor with four elements representing clock ticks or milliseconds</em>
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">     * (3) states. By measuring the difference between ticks across a time</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">     * interval, CPU load over that interval may be calculated.</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateProcessorTicks() {
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>         LOG.trace(<span class="jxr_string">"Updating Processor Ticks"</span>);
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <em class="jxr_comment">// Copy to previous</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         }
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <strong class="jxr_keyword">this</strong>.procTickTime = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>         <strong class="jxr_keyword">long</strong>[][] ticks = getProcessorCpuLoadTicks();
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>             System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         }
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>     }
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>     @Override
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         IntByReference size = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctlbyname(<span class="jxr_string">"kern.boottime"</span>, <strong class="jxr_keyword">null</strong>, size, <strong class="jxr_keyword">null</strong>, 0)) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>             LOG.error(<span class="jxr_string">"Failed to get Boot Time. Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         }
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <em class="jxr_comment">// This should point to a 16-byte structure. If not, this code is valid</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">if</strong> (size.getValue() != 16)
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"sysctl kern.boottime should be 16 bytes but isn't."</span>);
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>         Pointer p = <strong class="jxr_keyword">new</strong> Memory(size.getValue() + 1);
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctlbyname(<span class="jxr_string">"kern.boottime"</span>, p, size, <strong class="jxr_keyword">null</strong>, 0)) {
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>             LOG.error(<span class="jxr_string">"Failed to get Boot Time. Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>             <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         }
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <em class="jxr_comment">// p now points to a 16-bit timeval structure for boot time.</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <em class="jxr_comment">// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <strong class="jxr_keyword">return</strong> System.currentTimeMillis() / 1000 - p.getLong(0);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>     }
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> 
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>     @Override
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>             ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPHardwareDataType"</span>);
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>             <em class="jxr_comment">// Mavericks and later</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>             <strong class="jxr_keyword">for</strong> (String checkLine : hwInfo) {
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>                 <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"Serial Number (system)"</span>)) {
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>                     String[] snSplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>                     <strong class="jxr_keyword">this</strong>.cpuSerialNumber = snSplit[snSplit.length - 1];
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>                 }
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>             }
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>             <em class="jxr_comment">// Panther and later</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>                 <strong class="jxr_keyword">for</strong> (String checkLine : hwInfo) {
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>                     <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"r (system)"</span>)) {
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>                         String[] snSplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>                         <strong class="jxr_keyword">this</strong>.cpuSerialNumber = snSplit[snSplit.length - 1];
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>                         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>                     }
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>                 }
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>             }
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = <span class="jxr_string">"unknown"</span>;
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>             }
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>         }
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.cpuSerialNumber;
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>     }
-<a class="jxr_linenumber" name="L587" href="#L587">587</a> 
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>     @Override
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getLogicalProcessorCount() {
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <strong class="jxr_keyword">return</strong> logicalProcessorCount;
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
-<a class="jxr_linenumber" name="L592" href="#L592">592</a> 
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>     @Override
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorCount() {
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>         <strong class="jxr_keyword">return</strong> physicalProcessorCount;
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>     }
-<a class="jxr_linenumber" name="L597" href="#L597">597</a> 
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>     @Override
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON() {
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>         JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> ticks : getSystemCpuLoadTicks()) {
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>             systemCpuLoadTicksArrayBuilder.add(ticks);
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>         }
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>         JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> load : getProcessorCpuLoadBetweenTicks()) {
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>             processorCpuLoadBetweenTicksArrayBuilder.add(load);
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>         }
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>         JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong>[] procTicks : getProcessorCpuLoadTicks()) {
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>             JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> ticks : procTicks) {
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 processorTicksArrayBuilder.add(ticks);
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>             }
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>         }
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>         <strong class="jxr_keyword">return</strong> NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(<span class="jxr_string">"name"</span>, getName())
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>                 .add(<span class="jxr_string">"physicalProcessorCount"</span>, getPhysicalProcessorCount())
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>                 .add(<span class="jxr_string">"logicalProcessorCount"</span>, getLogicalProcessorCount())
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 .add(<span class="jxr_string">"systemSerialNumber"</span>, getSystemSerialNumber()).add(<span class="jxr_string">"vendor"</span>, getVendor())
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>                 .add(<span class="jxr_string">"vendorFreq"</span>, getVendorFreq()).add(<span class="jxr_string">"cpu64bit"</span>, isCpu64bit()).add(<span class="jxr_string">"family"</span>, getFamily())
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>                 .add(<span class="jxr_string">"model"</span>, getModel()).add(<span class="jxr_string">"stepping"</span>, getStepping())
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 .add(<span class="jxr_string">"systemCpuLoadBetweenTicks"</span>, getSystemCpuLoadBetweenTicks())
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>                 .add(<span class="jxr_string">"systemCpuLoadTicks"</span>, systemCpuLoadTicksArrayBuilder.build())
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>                 .add(<span class="jxr_string">"systemCpuLoad"</span>, getSystemCpuLoad()).add(<span class="jxr_string">"systemLoadAverage"</span>, getSystemLoadAverage())
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 .add(<span class="jxr_string">"processorCpuLoadBetweenTicks"</span>, processorCpuLoadBetweenTicksArrayBuilder.build())
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>                 .add(<span class="jxr_string">"processorCpuLoadTicks"</span>, processorCpuLoadTicksArrayBuilder.build())
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>                 .add(<span class="jxr_string">"systemUptime"</span>, getSystemUptime()).build();
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>     }
-<a class="jxr_linenumber" name="L629" href="#L629">629</a> 
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>     @Override
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>     <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>         <strong class="jxr_keyword">return</strong> getName();
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>     }
-<a class="jxr_linenumber" name="L634" href="#L634">634</a> }
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     @Override
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemIOWaitTicks() {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <em class="jxr_comment">// Data not available on OS X</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     @Override
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] getSystemIrqTicks() {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <em class="jxr_comment">// Data not available on OS X</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[2];
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     };
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_javadoccomment">     * Updates system tick information from native host_statistics query. Stores</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_javadoccomment">     * in array with four elements representing clock ticks or milliseconds</em>
+<a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">     * (3) states. By measuring the difference between ticks across a time</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * interval, CPU load over that interval may be calculated.</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateSystemTicks() {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         LOG.trace(<span class="jxr_string">"Updating System Ticks"</span>);
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         <em class="jxr_comment">// Copy to previous</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>         <strong class="jxr_keyword">this</strong>.tickTime = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         <strong class="jxr_keyword">long</strong>[] ticks = getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>     @Override
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSystemCpuLoad() {
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">if</strong> (sunMXBean) {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             <strong class="jxr_keyword">return</strong> ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         }
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <strong class="jxr_keyword">return</strong> getSystemCpuLoadBetweenTicks();
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     }
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     @Override
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSystemLoadAverage() {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">return</strong> getSystemLoadAverage(1)[0];
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     }
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> 
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>     @Override
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1) {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include at least one element."</span>);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         }
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">if</strong> (nelem &gt; 3) {
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>             LOG.warn(<span class="jxr_string">"Max elements of SystemLoadAverage is 3. "</span> + nelem + <span class="jxr_string">" specified. Ignoring extra."</span>);
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>             nelem = 3;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         }
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">int</strong> retval = SystemB.INSTANCE.getloadavg(average, nelem);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = Math.max(retval, 0); i &lt; average.length; i++) {
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 average[i] = -1d;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>             }
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         }
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     @Override
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getProcessorCpuLoadBetweenTicks() {
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <em class="jxr_comment">// Check if &gt; ~ 0.95 seconds since last tick count.</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         LOG.trace(<span class="jxr_string">"Current time: {}  Last tick time: {}"</span>, now, procTickTime);
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">if</strong> (now - procTickTime &gt; 950) {
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>             <em class="jxr_comment">// Enough time has elapsed.</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <em class="jxr_comment">// Update latest</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             updateProcessorTicks();
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">double</strong>[] load = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[logicalProcessorCount];
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">long</strong> total = 0;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.curProcTicks[cpu].length; i++) {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                 total += (<strong class="jxr_keyword">this</strong>.curProcTicks[cpu][i] - <strong class="jxr_keyword">this</strong>.prevProcTicks[cpu][i]);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             }
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <em class="jxr_comment">// Calculate idle from last field [3]</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">long</strong> idle = <strong class="jxr_keyword">this</strong>.curProcTicks[cpu][3] - <strong class="jxr_keyword">this</strong>.prevProcTicks[cpu][3];
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>             LOG.trace(<span class="jxr_string">"CPU: {}  Total ticks: {}  Idle ticks: {}"</span>, cpu, total, idle);
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>             <em class="jxr_comment">// update</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             load[cpu] = (total &gt; 0 &amp;&amp; idle &gt;= 0) ? (<strong class="jxr_keyword">double</strong>) (total - idle) / total : 0d;
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         }
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">return</strong> load;
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>     }
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> 
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     @Override
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[logicalProcessorCount][4];
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         <strong class="jxr_keyword">int</strong> machPort = SystemB.INSTANCE.mach_host_self();
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> 
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         IntByReference procCount = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         PointerByReference procCpuLoadInfo = <strong class="jxr_keyword">new</strong> PointerByReference();
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         IntByReference procInfoCount = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>                 procCpuLoadInfo, procInfoCount)) {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; 4; j++) {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>                 <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 ticks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>                 ticks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 ticks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>                 ticks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>             }
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         }
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>     }
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> 
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">     * Updates the tick array for all processors by calling</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     * host_processor_info(). Stores in 2D array; an array for each logical</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * processor with four elements representing clock ticks or milliseconds</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     * (3) states. By measuring the difference between ticks across a time</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">     * interval, CPU load over that interval may be calculated.</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateProcessorTicks() {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         LOG.trace(<span class="jxr_string">"Updating Processor Ticks"</span>);
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         <em class="jxr_comment">// Copy to previous</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>             System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         }
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         <strong class="jxr_keyword">this</strong>.procTickTime = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>         <strong class="jxr_keyword">long</strong>[][] ticks = getProcessorCpuLoadTicks();
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; logicalProcessorCount; cpu++) {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>             System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         }
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     }
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> 
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     @Override
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         IntByReference size = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctlbyname(<span class="jxr_string">"kern.boottime"</span>, <strong class="jxr_keyword">null</strong>, size, <strong class="jxr_keyword">null</strong>, 0)) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>             LOG.error(<span class="jxr_string">"Failed to get Boot Time. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>             <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         }
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>         <em class="jxr_comment">// This should point to a 16-byte structure. If not, this code is valid</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         <strong class="jxr_keyword">if</strong> (size.getValue() != 16)
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"sysctl kern.boottime should be 16 bytes but isn't."</span>);
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>         Pointer p = <strong class="jxr_keyword">new</strong> Memory(size.getValue() + 1);
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctlbyname(<span class="jxr_string">"kern.boottime"</span>, p, size, <strong class="jxr_keyword">null</strong>, 0)) {
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>             LOG.error(<span class="jxr_string">"Failed to get Boot Time. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>             <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <em class="jxr_comment">// p now points to a 16-bit timeval structure for boot time.</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <em class="jxr_comment">// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)</em>
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">return</strong> System.currentTimeMillis() / 1000 - p.getLong(0);
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>     }
+<a class="jxr_linenumber" name="L595" href="#L595">595</a> 
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>     @Override
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>             ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPHardwareDataType"</span>);
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>             <em class="jxr_comment">// Mavericks and later</em>
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>             <strong class="jxr_keyword">for</strong> (String checkLine : hwInfo) {
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>                 <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"Serial Number (system)"</span>)) {
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>                     String[] snSplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>                     <strong class="jxr_keyword">this</strong>.cpuSerialNumber = snSplit[snSplit.length - 1];
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 }
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>             }
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>             <em class="jxr_comment">// Panther and later</em>
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>                 <strong class="jxr_keyword">for</strong> (String checkLine : hwInfo) {
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                     <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"r (system)"</span>)) {
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>                         String[] snSplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                         <strong class="jxr_keyword">this</strong>.cpuSerialNumber = snSplit[snSplit.length - 1];
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>                     }
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 }
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>             }
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = <span class="jxr_string">"unknown"</span>;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>             }
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>         }
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.cpuSerialNumber;
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>     }
+<a class="jxr_linenumber" name="L627" href="#L627">627</a> 
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>     @Override
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getLogicalProcessorCount() {
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>         <strong class="jxr_keyword">return</strong> logicalProcessorCount;
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>     }
+<a class="jxr_linenumber" name="L632" href="#L632">632</a> 
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>     @Override
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorCount() {
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>         <strong class="jxr_keyword">return</strong> physicalProcessorCount;
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>     }
+<a class="jxr_linenumber" name="L637" href="#L637">637</a> 
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>     @Override
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON() {
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>         JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> avg : getSystemLoadAverage(3)) {
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>             systemLoadAverageArrayBuilder.add(avg);
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>         }
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>         JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> ticks : getSystemCpuLoadTicks()) {
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>             systemCpuLoadTicksArrayBuilder.add(ticks);
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>         }
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>         JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> load : getProcessorCpuLoadBetweenTicks()) {
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>             processorCpuLoadBetweenTicksArrayBuilder.add(load);
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>         }
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>         JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong>[] procTicks : getProcessorCpuLoadTicks()) {
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>             JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> ticks : procTicks) {
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>                 processorTicksArrayBuilder.add(ticks);
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>             }
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>         }
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>         JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> ticks : getSystemIrqTicks()) {
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>             systemIrqTicksArrayBuilder.add(ticks);
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>         }
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>         <strong class="jxr_keyword">return</strong> NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(<span class="jxr_string">"name"</span>, getName())
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>                 .add(<span class="jxr_string">"physicalProcessorCount"</span>, getPhysicalProcessorCount())
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>                 .add(<span class="jxr_string">"logicalProcessorCount"</span>, getLogicalProcessorCount())
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>                 .add(<span class="jxr_string">"systemSerialNumber"</span>, getSystemSerialNumber()).add(<span class="jxr_string">"vendor"</span>, getVendor())
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>                 .add(<span class="jxr_string">"vendorFreq"</span>, getVendorFreq()).add(<span class="jxr_string">"cpu64bit"</span>, isCpu64bit()).add(<span class="jxr_string">"family"</span>, getFamily())
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>                 .add(<span class="jxr_string">"model"</span>, getModel()).add(<span class="jxr_string">"stepping"</span>, getStepping())
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>                 .add(<span class="jxr_string">"systemCpuLoadBetweenTicks"</span>, getSystemCpuLoadBetweenTicks())
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>                 .add(<span class="jxr_string">"systemCpuLoadTicks"</span>, systemCpuLoadTicksArrayBuilder.build())
+<a class="jxr_linenumber" name="L672" href="#L672">672</a>                 .add(<span class="jxr_string">"systemCpuLoad"</span>, getSystemCpuLoad()).add(<span class="jxr_string">"systemLoadAverage"</span>, getSystemLoadAverage())
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>                 .add(<span class="jxr_string">"systemLoadAverages"</span>, systemLoadAverageArrayBuilder.build())
+<a class="jxr_linenumber" name="L674" href="#L674">674</a>                 .add(<span class="jxr_string">"systemIOWaitTicks"</span>, getSystemIOWaitTicks())
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>                 .add(<span class="jxr_string">"systemIrqTicks"</span>, systemIrqTicksArrayBuilder.build())
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>                 .add(<span class="jxr_string">"processorCpuLoadBetweenTicks"</span>, processorCpuLoadBetweenTicksArrayBuilder.build())
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>                 .add(<span class="jxr_string">"processorCpuLoadTicks"</span>, processorCpuLoadTicksArrayBuilder.build())
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>                 .add(<span class="jxr_string">"systemUptime"</span>, getSystemUptime()).build();
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>     }
+<a class="jxr_linenumber" name="L680" href="#L680">680</a> 
+<a class="jxr_linenumber" name="L681" href="#L681">681</a>     @Override
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L683" href="#L683">683</a>         <strong class="jxr_keyword">return</strong> getName();
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>     }
+<a class="jxr_linenumber" name="L685" href="#L685">685</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
