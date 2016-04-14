@@ -10,8 +10,8 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 2.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.2&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download Oshi 2.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.3-SNAPSHOT&e=jar)
+* [Download Oshi 2.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.3&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download Oshi 2.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.4-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
 * [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
@@ -64,7 +64,7 @@ Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[26579029, 0, 21746695, 549739287], 672432, [520882, 156271]
-CPU, IOWait, and IRQ ticks @ 0 sec:[26579060, 0, 21746695, 549740254], 672435, [520883, 156271]
+CPU, IOWait, and IRQ ticks @ 1 sec:[26579060, 0, 21746695, 549740254], 672435, [520883, 156271]
 User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
 CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
@@ -113,7 +113,7 @@ Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
-CPU, IOWait, and IRQ ticks @ 0 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
+CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
 User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
 CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
@@ -160,7 +160,7 @@ Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[15973594, 0, 21796209, 286595204], 0, [0, 0]
-CPU, IOWait, and IRQ ticks @ 0 sec:[15973619, 0, 21796271, 286595920], 0, [0, 0]
+CPU, IOWait, and IRQ ticks @ 1 sec:[15973619, 0, 21796271, 286595920], 0, [0, 0]
 User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
 CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
