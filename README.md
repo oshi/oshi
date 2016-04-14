@@ -20,6 +20,7 @@ Essentials
 	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for Oshi
+	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
 
 Where are we?
 -------------
@@ -202,6 +203,10 @@ How is this different from ...
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
 	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2016.
+* [jHardware](https://github.com/profesorfalken/jHardware):
+	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing.  Oshi uses some command line parsing but attempts to use native commands whenever possible.
+	* jHardware presently only supports Windows and Unix systems.
+	* jHardware is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
 	* The `MXBean` has very few methods that address system-wide statistics.
