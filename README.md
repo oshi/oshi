@@ -50,7 +50,7 @@ Current supported features
 
 Sample Output
 -------------
-Here's sample tests output:
+Here's sample output from the `main` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/src/test/java/oshi/SystemInfoTest.java):
 
 For Windows:
 
@@ -63,12 +63,12 @@ Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
 Memory: 532.1 MB/2.0 GB
 Uptime: 12 days, 11:00:17
-CPU ticks @ 0 sec:[26579029, 0, 21746695, 549739287]
-CPU ticks @ 1 sec:[26579060, 0, 21746695, 549740254]
+CPU, IOWait, and IRQ ticks @ 0 sec:[26579029, 0, 21746695, 549739287], 672432, [520882, 156271]
+CPU, IOWait, and IRQ ticks @ 0 sec:[26579060, 0, 21746695, 549740254], 672435, [520883, 156271]
 User: 3.1% Nice: 0.0% System: 0.0% Idle: 96.9%
 CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
-CPU load average: N/A
+CPU load averages: N/A N/A N/A
 CPU load per processor: 3.8% 4.0%
 Sensors:
  CPU Temperature: 73.5°C
@@ -112,12 +112,12 @@ Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: CN123456789098
 Memory: 21.0 GB/31.0 GB
 Uptime: 12 days, 11:00:17
-CPU ticks @ 0 sec:[967282, 15484, 195343, 124216619]
-CPU ticks @ 1 sec:[967308, 15484, 195346, 124216790]
+CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
+CPU, IOWait, and IRQ ticks @ 0 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
 User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
 CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
-CPU load average: 1.13
+CPU load averages: 1.13 1.19 0.97
 CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
 Sensors:
  CPU Temperature: 62.0°C
@@ -159,12 +159,12 @@ Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: C02FG3HIJK45
 Memory: 17.3 MB/4 GB
 Uptime: 12 days, 11:00:17
-CPU ticks @ 0 sec:[15973594, 0, 21796209, 286595204]
-CPU ticks @ 1 sec:[15973619, 0, 21796271, 286595920]
+CPU, IOWait, and IRQ ticks @ 0 sec:[15973594, 0, 21796209, 286595204], 0, [0, 0]
+CPU, IOWait, and IRQ ticks @ 0 sec:[15973619, 0, 21796271, 286595920], 0, [0, 0]
 User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
 CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
-CPU load average: 1.48
+CPU load average: 1.64 1.70 1.30
 CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
 Sensors:
  CPU Temperature: 67.0°C
