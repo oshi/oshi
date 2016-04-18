@@ -416,6 +416,24 @@ public class MacCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemIOWaitTicks() {
+        // Data not available on OS X
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getSystemIrqTicks() {
+        // Data not available on OS X
+        return new long[2];
+    };
+
+    /**
      * Updates system tick information from native host_statistics query. Stores
      * in array with four elements representing clock ticks or milliseconds
      * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
@@ -447,7 +465,29 @@ public class MacCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemLoadAverage() {
-        return OS_MXBEAN.getSystemLoadAverage();
+        return getSystemLoadAverage(1)[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1) {
+            throw new IllegalArgumentException("Must include at least one element.");
+        }
+        if (nelem > 3) {
+            LOG.warn("Max elements of SystemLoadAverage is 3. " + nelem + " specified. Ignoring extra.");
+            nelem = 3;
+        }
+        double[] average = new double[nelem];
+        int retval = SystemB.INSTANCE.getloadavg(average, nelem);
+        if (retval < nelem) {
+            for (int i = Math.max(retval, 0); i < average.length; i++) {
+                average[i] = -1d;
+            }
+        }
+        return average;
     }
 
     /**
@@ -597,6 +637,10 @@ public class MacCentralProcessor implements CentralProcessor {
 
     @Override
     public JsonObject toJSON() {
+        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
+        for (double avg : getSystemLoadAverage(3)) {
+            systemLoadAverageArrayBuilder.add(avg);
+        }
         JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
         for (long ticks : getSystemCpuLoadTicks()) {
             systemCpuLoadTicksArrayBuilder.add(ticks);
@@ -613,6 +657,10 @@ public class MacCentralProcessor implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
+        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (long ticks : getSystemIrqTicks()) {
+            systemIrqTicksArrayBuilder.add(ticks);
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -622,6 +670,9 @@ public class MacCentralProcessor implements CentralProcessor {
                 .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
                 .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
                 .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
+                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
+                .add("systemIOWaitTicks", getSystemIOWaitTicks())
+                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).build();

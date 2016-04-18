@@ -391,7 +391,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
     public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[curTicks.length];
         // /proc/stat expected format
-        // first line is overall user,nice,system,idle, etc.
+        // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr = "";
         try {
@@ -407,11 +407,72 @@ public class LinuxCentralProcessor implements CentralProcessor {
         if (tickArr.length < 5) {
             return ticks;
         }
+
+        // Note tickArr is offset by 1
         for (int i = 0; i < 4; i++) {
             ticks[i] = Long.parseLong(tickArr[i + 1]);
         }
+        if (tickArr.length > 5) {
+            // Add iowait to idle
+            ticks[3] += Long.parseLong(tickArr[5]);
+            // Add other fields to system
+            for (int i = 6; i < tickArr.length; i++) {
+                ticks[2] += Long.parseLong(tickArr[i]);
+            }
+        }
         return ticks;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemIOWaitTicks() {
+        // /proc/stat expected format
+        // first line is overall user,nice,system,idle,iowait,irq, etc.
+        // cpu 3357 0 4313 1362393 ...
+        String tickStr = "";
+        try {
+            List<String> procStat = FileUtil.readFile("/proc/stat");
+            if (!procStat.isEmpty())
+                tickStr = procStat.get(0);
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/stat: {}", e.getMessage());
+            return 0;
+        }
+        String[] tickArr = tickStr.split("\\s+");
+        if (tickArr.length < 6) {
+            return 0;
+        }
+        return Long.parseLong(tickArr[5]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getSystemIrqTicks() {
+        // /proc/stat expected format
+        // first line is overall user,nice,system,idle,iowait,irq, etc.
+        // cpu 3357 0 4313 1362393 ...
+        String tickStr = "";
+        long[] ticks = new long[2];
+        try {
+            List<String> procStat = FileUtil.readFile("/proc/stat");
+            if (!procStat.isEmpty())
+                tickStr = procStat.get(0);
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/stat: {}", e.getMessage());
+            return ticks;
+        }
+        String[] tickArr = tickStr.split("\\s+");
+        if (tickArr.length < 8) {
+            return ticks;
+        }
+        ticks[0] = Long.parseLong(tickArr[6]);
+        ticks[1] = Long.parseLong(tickArr[7]);
+        return ticks;
+    };
 
     /**
      * Updates system tick information from parsing /proc/stat. Stores in array
@@ -445,15 +506,29 @@ public class LinuxCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemLoadAverage() {
-        // Modified for using JNA library
-        double[] average = new double[3];
-        
-        int retval = Libc.INSTANCE.getloadavg(average, 1);
-        if (retval == -1) {
-            return -1;
+        return getSystemLoadAverage(1)[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1) {
+            throw new IllegalArgumentException("Must include at least one element.");
         }
-        
-        return average[0];
+        if (nelem > 3) {
+            LOG.warn("Max elements of SystemLoadAverage is 3. " + nelem + " specified. Ignoring extra.");
+            nelem = 3;
+        }
+        double[] average = new double[nelem];
+        int retval = Libc.INSTANCE.getloadavg(average, nelem);
+        if (retval < nelem) {
+            for (int i = Math.max(retval, 0); i < average.length; i++) {
+                average[i] = -1d;
+            }
+        }
+        return average;
     }
 
     /**
@@ -503,8 +578,17 @@ public class LinuxCentralProcessor implements CentralProcessor {
                     if (tickArr.length < 5) {
                         break;
                     }
+                    // Note tickArr is offset by 1
                     for (int i = 0; i < 4; i++) {
                         ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
+                    }
+                    if (tickArr.length > 5) {
+                        // Add iowait to idle
+                        ticks[cpu][3] += Long.parseLong(tickArr[5]);
+                        // Add other fields to system
+                        for (int i = 6; i < tickArr.length; i++) {
+                            ticks[cpu][2] += Long.parseLong(tickArr[i]);
+                        }
                     }
                     if (++cpu >= logicalProcessorCount) {
                         break;
@@ -613,6 +697,10 @@ public class LinuxCentralProcessor implements CentralProcessor {
 
     @Override
     public JsonObject toJSON() {
+        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
+        for (double avg : getSystemLoadAverage(3)) {
+            systemLoadAverageArrayBuilder.add(avg);
+        }
         JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
         for (long ticks : getSystemCpuLoadTicks()) {
             systemCpuLoadTicksArrayBuilder.add(ticks);
@@ -629,6 +717,10 @@ public class LinuxCentralProcessor implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
+        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
+        for (long ticks : getSystemIrqTicks()) {
+            systemIrqTicksArrayBuilder.add(ticks);
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -638,6 +730,9 @@ public class LinuxCentralProcessor implements CentralProcessor {
                 .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
                 .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
                 .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
+                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
+                .add("systemIOWaitTicks", getSystemIOWaitTicks())
+                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).build();

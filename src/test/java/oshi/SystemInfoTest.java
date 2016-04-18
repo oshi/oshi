@@ -291,11 +291,15 @@ public class SystemInfoTest {
         // CPU
         LOG.info("Checking CPU...");
         long[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
-        System.out.println("CPU ticks @ 0 sec:" + Arrays.toString(prevTicks));
+        System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks) + ", "
+                + hal.getProcessor().getSystemIOWaitTicks() + ", "
+                + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
         // Wait a second...
         Util.sleep(1000);
         long[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
-        System.out.println("CPU ticks @ 1 sec:" + Arrays.toString(ticks));
+        System.out.println("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks) + ", "
+                + hal.getProcessor().getSystemIOWaitTicks() + ", "
+                + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
         long user = ticks[0] - prevTicks[0];
         long nice = ticks[1] - prevTicks[1];
         long sys = ticks[2] - prevTicks[2];
@@ -307,8 +311,10 @@ public class SystemInfoTest {
         System.out.format("CPU load: %.1f%% (counting ticks)%n",
                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
         System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessor().getSystemCpuLoad() * 100);
-        double loadAverage = hal.getProcessor().getSystemLoadAverage();
-        System.out.println("CPU load average: " + (loadAverage < 0 ? "N/A" : String.format("%.2f", loadAverage)));
+        double[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
+        System.out.println("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
+                + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
+                + (loadAverage[2] < 0 ? " N/A" : String.format(" %.2f", loadAverage[2])));
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
         double[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();

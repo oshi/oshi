@@ -1,10 +1,14 @@
-2.3 (in-progress)
+2.4 (in-progress)
+================
+* Your contribution here.
+
+2.3 (4/14/2016)
 ================
 * [#124](https://github.com/dblock/oshi/pull/124): Read Windows Sensor info from Open Hardware Monitor as fallback - [@dbwiddis](https://github.com/dbwiddis).
 * [#129](https://github.com/dblock/oshi/pull/129): Improve Linux version and code name parsing - [@dbwiddis](https://github.com/dbwiddis).
 * [#132](https://github.com/dblock/oshi/pull/132), [#133](https://github.com/dblock/oshi/pull/133): Fix NPEs on Raspberry Pi - [@pcollaog](https://github.com/pcollaog).
-* [#136](https://github.com/dblock/oshi/pull/136): Modified method for getting CPU load average- [@henryx](https://github.com/henryx).
-* Your contribution here.
+* [#136](https://github.com/dblock/oshi/pull/136): Updated CPU load average to use system call - [@henryx](https://github.com/henryx).
+* [#137](https://github.com/dblock/oshi/pull/137): Added iowait and irq ticks - [@dbwiddis](https://github.com/dbwiddis).
 
 2.2 (3/1/2016)
 ================
