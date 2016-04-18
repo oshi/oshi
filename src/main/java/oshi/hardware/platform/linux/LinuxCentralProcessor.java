@@ -407,6 +407,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
         if (tickArr.length < 5) {
             return ticks;
         }
+
         // Note tickArr is offset by 1
         for (int i = 0; i < 4; i++) {
             ticks[i] = Long.parseLong(tickArr[i + 1]);

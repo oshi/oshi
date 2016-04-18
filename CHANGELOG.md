@@ -1,5 +1,6 @@
 2.4 (in-progress)
 ================
+[#136](https://github.com/dblock/oshi/pull/141): Rewritten LinuxGlobalMemory class for using JNA system call instead of /proc/meminfo parsing - [@henryx](https://github.com/henryx).
 * Your contribution here.
 
 2.3 (4/14/2016)
