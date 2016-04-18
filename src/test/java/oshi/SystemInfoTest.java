@@ -164,6 +164,8 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         assertTrue(hal.getProcessor().getPhysicalProcessorCount() >= 1);
         assertTrue(hal.getProcessor().getLogicalProcessorCount() >= hal.getProcessor().getPhysicalProcessorCount());
+        assertTrue(hal.getProcessor().getProcessCount() >= 1);
+        assertTrue(hal.getProcessor().getProcessThreadCount() >= hal.getProcessor().getProcessCount());
     }
 
     /**
