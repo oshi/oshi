@@ -322,6 +322,8 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
+        System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
+                + hal.getProcessor().getProcessThreadCount());
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");

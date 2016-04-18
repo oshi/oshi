@@ -38,6 +38,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.CentralProcessor;
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -93,6 +94,9 @@ public class MacCentralProcessor implements CentralProcessor {
 
     private long[][] curProcTicks;
 
+    // Max processes
+    private int maxProc;
+
     // Processor info
     private String cpuVendor;
 
@@ -130,6 +134,15 @@ public class MacCentralProcessor implements CentralProcessor {
         this.prevProcTicks = new long[logicalProcessorCount][4];
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
+
+        // Set max processes
+        IntByReference size = new IntByReference(SystemB.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        if (0 != SystemB.INSTANCE.sysctlbyname("kern.maxproc", p, size, null, 0)) {
+            LOG.error("Failed to get max processes. Error code: " + Native.getLastError());
+            this.maxProc = 0x1000;
+        } else
+            this.maxProc = p.getInt(0);
 
         LOG.debug("Initialized Processor");
     }
@@ -636,6 +649,25 @@ public class MacCentralProcessor implements CentralProcessor {
     }
 
     @Override
+    public int getProcessCount() {
+        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
+    }
+
+    @Override
+    public int getProcessThreadCount() {
+        int[] pids = new int[this.maxProc];
+        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
+                / SystemB.INT_SIZE;
+        int numberOfThreads = 0;
+        ProcTaskInfo taskInfo = new ProcTaskInfo();
+        for (int i = 0; i < numberOfProcesses; i++) {
+            SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());
+            numberOfThreads += taskInfo.pti_threadnum;
+        }
+        return numberOfThreads;
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
         for (double avg : getSystemLoadAverage(3)) {
@@ -675,7 +707,8 @@ public class MacCentralProcessor implements CentralProcessor {
                 .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).build();
+                .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
+                .add("threads", getProcessThreadCount()).build();
     }
 
     @Override

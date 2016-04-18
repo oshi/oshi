@@ -308,4 +308,18 @@ public interface CentralProcessor extends OshiJsonObject {
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();
+
+    /**
+     * Get the number of processes currently running
+     * 
+     * @return The number of processes running
+     */
+    int getProcessCount();
+
+    /**
+     * Get the number of threads currently running
+     * 
+     * @return The number of threads running
+     */
+    int getProcessThreadCount();
 }
