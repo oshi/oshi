@@ -71,6 +71,7 @@ CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
 CPU load averages: N/A N/A N/A
 CPU load per processor: 3.8% 4.0%
+Processes: 45, Threads: 652
 Sensors:
  CPU Temperature: 73.5°C
  Fan Speeds:[0]
@@ -120,6 +121,7 @@ CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
 CPU load averages: 1.13 1.19 0.97
 CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
+Processes: 251, Threads: 468
 Sensors:
  CPU Temperature: 62.0°C
  Fan Speeds:[2339, 2344]
@@ -166,7 +168,8 @@ User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
 CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
 CPU load average: 1.64 1.70 1.30
-CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
+CPU load per processor: 25.2% 1.9% 17.3% 1.9%
+Processes: 266, Threads: 1733
 Sensors:
  CPU Temperature: 67.0°C
  Fan Speeds:[3402, 3399]

@@ -164,6 +164,8 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         assertTrue(hal.getProcessor().getPhysicalProcessorCount() >= 1);
         assertTrue(hal.getProcessor().getLogicalProcessorCount() >= hal.getProcessor().getPhysicalProcessorCount());
+        assertTrue(hal.getProcessor().getProcessCount() >= 1);
+        assertTrue(hal.getProcessor().getProcessThreadCount() >= hal.getProcessor().getProcessCount());
     }
 
     /**
@@ -322,6 +324,8 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
+        System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
+                + hal.getProcessor().getProcessThreadCount());
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");

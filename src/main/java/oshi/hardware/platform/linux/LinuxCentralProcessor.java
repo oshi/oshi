@@ -17,6 +17,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -694,6 +696,44 @@ public class LinuxCentralProcessor implements CentralProcessor {
         return this.physicalProcessorCount;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessCount() {
+        // Get all filenames in /proc directory with only digits (pids)
+        File procdir = new File("/proc");
+        final Pattern p = Pattern.compile("\\d+");
+        File[] pids = procdir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return p.matcher(file.getName()).matches();
+            }
+        });
+        return pids.length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessThreadCount() {
+        try {
+            Sysinfo info = new Sysinfo();
+            if (0 != Libc.INSTANCE.sysinfo(info)) {
+                LOG.error("Failed to get process thread count. Error code: " + Native.getLastError());
+                return 0;
+            }
+            return info.procs;
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+            LOG.error("Failed to get procs from sysinfo. {}", e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
         JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
@@ -734,7 +774,8 @@ public class LinuxCentralProcessor implements CentralProcessor {
                 .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).build();
+                .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
+                .add("threads", getProcessThreadCount()).build();
     }
 
     @Override
