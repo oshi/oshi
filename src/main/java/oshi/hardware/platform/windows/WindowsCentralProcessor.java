@@ -42,6 +42,8 @@ import oshi.hardware.CentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
+import oshi.jna.platform.windows.Psapi;
+import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -145,21 +147,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
     private PointerByReference pDpc;
     private long[] irqTicks = new long[2];
 
-    // Set up Performance Data Helper thread for processes
-    private PointerByReference processQuery = new PointerByReference();
-
-    private final IntByReference pFour = new IntByReference(4);
-
-    // Set up counter for processes
-    private PointerByReference pProcesses;
-
-    // Set up Performance Data Helper thread for threads
-    private PointerByReference threadsQuery = new PointerByReference();
-
-    private final IntByReference pFive = new IntByReference(5);
-
-    // Set up counter for threads
-    private PointerByReference pThreads;
+    // Class variables
 
     private String cpuVendor;
 
@@ -201,10 +189,6 @@ public class WindowsCentralProcessor implements CentralProcessor {
         this.prevProcTicks = new long[logicalProcessorCount][4];
         this.curProcTicks = new long[logicalProcessorCount][4];
         updateProcessorTicks();
-
-        // Get and discard initial read to reset timers
-        getSystemIOWaitTicks();
-        getSystemIrqTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -272,10 +256,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
             LOG.debug("Tick counter queries added.  Initializing with first query.");
             // Initialize by collecting data the first time
-            int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-            if (ret != 0) {
-                LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
-            }
+            Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
         }
 
         // Open uptime query
@@ -322,6 +303,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
                         String.format("0x%08X", pdhAddTransfersCounterError));
             }
         }
+        // Initialize by collecting data the first time
+        Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
 
         // Open irq query
         int pdhOpenIrqQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pThree, irqQuery);
@@ -346,42 +329,8 @@ public class WindowsCentralProcessor implements CentralProcessor {
                         String.format("0x%08X", pdhAddDpcCounterError));
             }
         }
-
-        // Open process query
-        int pdhOpenProcessQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pFour, processQuery);
-        if (pdhOpenProcessQueryError != 0) {
-            LOG.error("Failed to open PDH Process Query. Error code: {}",
-                    String.format("0x%08X", pdhOpenProcessQueryError));
-        }
-        if (pdhOpenProcessQueryError == 0) {
-            // \System\Processes
-            String processPath = "\\System\\Processes";
-            pProcesses = new PointerByReference();
-            int pdhAddProcessCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(processQuery.getValue(), processPath,
-                    pFour, pProcesses);
-            if (pdhAddProcessCounterError != 0) {
-                LOG.error("Failed to add PDH Process Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddProcessCounterError));
-            }
-        }
-
-        // Open threads query
-        int pdhOpenThreadsQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pFive, threadsQuery);
-        if (pdhOpenThreadsQueryError != 0) {
-            LOG.error("Failed to open PDH Threads Query. Error code: {}",
-                    String.format("0x%08X", pdhOpenThreadsQueryError));
-        }
-        if (pdhOpenThreadsQueryError == 0) {
-            // \Process(_Total)\Thread Count
-            String threadsPath = "\\Process(_Total)\\Thread Count";
-            pThreads = new PointerByReference();
-            int pdhAddThreadsCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(threadsQuery.getValue(), threadsPath,
-                    pFive, pThreads);
-            if (pdhAddThreadsCounterError != 0) {
-                LOG.error("Failed to add PDH Threads Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddThreadsCounterError));
-            }
-        }
+        // Initialize by collecting data the first time
+        Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
 
         // Set up hook to close the queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -391,8 +340,6 @@ public class WindowsCentralProcessor implements CentralProcessor {
                 Pdh.INSTANCE.PdhCloseQuery(uptimeQuery.getValue());
                 Pdh.INSTANCE.PdhCloseQuery(iowaitQuery.getValue());
                 Pdh.INSTANCE.PdhCloseQuery(irqQuery.getValue());
-                Pdh.INSTANCE.PdhCloseQuery(processQuery.getValue());
-                Pdh.INSTANCE.PdhCloseQuery(threadsQuery.getValue());
             }
         });
     }
@@ -647,8 +594,9 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
         long now = System.currentTimeMillis();
 
-        // We'll manufacture our own ticks by multiplying the % used (from the
-        // counter) by time elapsed since the last call to get a tick increment
+        // We'll manufacture our own ticks by multiplying the latency (sec per
+        // read) by transfers (reads per sec) by time elapsed since the last
+        // call to get a tick increment
         long elapsed = now - iowaitTime;
 
         PdhFmtCounterValue phLatencyCounterValue = new PdhFmtCounterValue();
@@ -667,12 +615,15 @@ public class WindowsCentralProcessor implements CentralProcessor {
             return 0;
         }
 
-        // Returns results in 1000's of percent, e.g. 5% is 5000
-        // Multiply by elapsed to get total ms and Divide by 100 * 1000
+        // Since PDH_FMT_1000 is used, results must be divided by 1000 to get
+        // actual. Units are sec (*1000) per read * reads (*1000) per sec time *
+        // ms time. Reads cancel so result is in sec (*1000*1000) per sec, which
+        // is a unitless percentage (times a million) multiplied by elapsed time
+        // Multiply by elapsed to get total ms and Divide by 1000 * 1000.
         // Putting division at end avoids need to cast division to double
         // Elasped is only since last read, so increment previous value
-        iowaitTicks += elapsed * phLatencyCounterValue.value.largeValue / 100000
-                * phTransfersCounterValue.value.largeValue / 100000;
+        iowaitTicks += elapsed * phLatencyCounterValue.value.largeValue * phTransfersCounterValue.value.largeValue
+                / 1000000;
 
         iowaitTime = now;
 
@@ -762,7 +713,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
     @Override
     public double getSystemLoadAverage() {
         // Expected to be -1 for Windows
-        return getSystemLoadAverage(1)[0];
+        return OS_MXBEAN.getSystemLoadAverage();
     }
 
     /**
@@ -959,40 +910,22 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     @Override
     public int getProcessCount() {
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(processQuery.getValue());
-        if (ret != 0) {
-            LOG.error("Failed to update process Counters. Error code: {}", String.format("0x%08X", ret));
+        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
+        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return 0;
         }
-
-        PdhFmtCounterValue processCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pProcesses.getValue(), Pdh.PDH_FMT_LARGE, null,
-                processCounterValue);
-        if (ret != 0) {
-            LOG.error("Failed to get process Counters. Error code: {}", String.format("0x%08X", ret));
-            return 0;
-        }
-
-        return processCounterValue.value.longValue;
+        return perfInfo.ProcessCount.intValue();
     }
 
     @Override
-    public int getProcessThreadCount() {
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(threadsQuery.getValue());
-        if (ret != 0) {
-            LOG.error("Failed to update threads Counters. Error code: {}", String.format("0x%08X", ret));
+    public int getThreadCount() {
+        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
+        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return 0;
         }
-
-        PdhFmtCounterValue threadsCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pThreads.getValue(), Pdh.PDH_FMT_LARGE, null,
-                threadsCounterValue);
-        if (ret != 0) {
-            LOG.error("Failed to get threads Counters. Error code: {}", String.format("0x%08X", ret));
-            return 0;
-        }
-
-        return threadsCounterValue.value.longValue;
+        return perfInfo.ThreadCount.intValue();
     }
 
     @Override
@@ -1036,7 +969,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
-                .add("threads", getProcessThreadCount()).build();
+                .add("threads", getThreadCount()).build();
     }
 
     @Override

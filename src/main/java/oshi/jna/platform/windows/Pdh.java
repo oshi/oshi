@@ -25,6 +25,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
 import com.sun.jna.WString;
+import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -70,7 +71,7 @@ public interface Pdh extends Library {
      * Holds the return value of a formatted data query.
      */
     static class PdhFmtCounterValue extends Structure {
-        public int cStatus;
+        public DWORD cStatus;
 
         public ValueUnion value;
 

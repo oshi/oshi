@@ -165,7 +165,7 @@ public class SystemInfoTest {
         assertTrue(hal.getProcessor().getPhysicalProcessorCount() >= 1);
         assertTrue(hal.getProcessor().getLogicalProcessorCount() >= hal.getProcessor().getPhysicalProcessorCount());
         assertTrue(hal.getProcessor().getProcessCount() >= 1);
-        assertTrue(hal.getProcessor().getProcessThreadCount() >= hal.getProcessor().getProcessCount());
+        assertTrue(hal.getProcessor().getThreadCount() >= hal.getProcessor().getProcessCount());
     }
 
     /**
@@ -325,7 +325,7 @@ public class SystemInfoTest {
         }
         System.out.println(procCpu.toString());
         System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
-                + hal.getProcessor().getProcessThreadCount());
+                + hal.getProcessor().getThreadCount());
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");
