@@ -76,7 +76,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
                 availableMemory += parseMeminfo(memorySplit);
             } else if (checkLine.startsWith("Active(file):")) {
                 String[] memorySplit = checkLine.split("\\s+");
-//                availableMemory += parseMeminfo(memorySplit);
+                availableMemory += parseMeminfo(memorySplit);
             } else if (checkLine.startsWith("Inactive(file):")) {
                 String[] memorySplit = checkLine.split("\\s+");
                 availableMemory += parseMeminfo(memorySplit);
