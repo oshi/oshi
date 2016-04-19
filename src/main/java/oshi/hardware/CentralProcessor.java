@@ -321,5 +321,5 @@ public interface CentralProcessor extends OshiJsonObject {
      * 
      * @return The number of threads running
      */
-    int getProcessThreadCount();
+    int getThreadCount();
 }

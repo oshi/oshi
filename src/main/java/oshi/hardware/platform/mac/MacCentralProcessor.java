@@ -654,7 +654,7 @@ public class MacCentralProcessor implements CentralProcessor {
     }
 
     @Override
-    public int getProcessThreadCount() {
+    public int getThreadCount() {
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
                 / SystemB.INT_SIZE;
@@ -708,7 +708,7 @@ public class MacCentralProcessor implements CentralProcessor {
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
-                .add("threads", getProcessThreadCount()).build();
+                .add("threads", getThreadCount()).build();
     }
 
     @Override

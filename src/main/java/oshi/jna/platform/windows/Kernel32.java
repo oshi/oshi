@@ -52,4 +52,11 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      */
     boolean GetSystemTimes(WinBase.FILETIME lpIdleTime, WinBase.FILETIME lpKernelTime, WinBase.FILETIME lpUserTime);
 
+    /**
+     * Retrieves the number of milliseconds that have elapsed since the system
+     * was started.
+     * 
+     * @return The number of milliseconds.
+     */
+    long GetTickCount64();
 }

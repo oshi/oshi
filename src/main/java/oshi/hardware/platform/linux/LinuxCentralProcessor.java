@@ -717,7 +717,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public int getProcessThreadCount() {
+    public int getThreadCount() {
         try {
             Sysinfo info = new Sysinfo();
             if (0 != Libc.INSTANCE.sysinfo(info)) {
@@ -775,7 +775,7 @@ public class LinuxCentralProcessor implements CentralProcessor {
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
-                .add("threads", getProcessThreadCount()).build();
+                .add("threads", getThreadCount()).build();
     }
 
     @Override
