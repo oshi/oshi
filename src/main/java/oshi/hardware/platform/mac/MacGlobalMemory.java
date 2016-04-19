@@ -93,7 +93,7 @@ public class MacGlobalMemory implements GlobalMemory {
     }
 
     @Override
-    public long getSwapAvailable() {
+    public long getSwapUsed() {
         // TODO: for now, it returns 0
         return 0;
     }

@@ -124,7 +124,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
     }
     
     @Override
-    public long getSwapAvailable() {
+    public long getSwapUsed() {
         long swapAvailable = 0;
         List<String> memInfo = null;
         

@@ -52,9 +52,9 @@ public interface GlobalMemory extends OshiJsonObject {
      long getSwapTotal();
     
     /**
-     * Available swap.
+     * Used swap.
      * 
-     * @return Available swap in bytes
+     * @return Swap used in bytes
      */
-    long getSwapAvailable();
+    long getSwapUsed();
 }
