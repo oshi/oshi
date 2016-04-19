@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -75,7 +76,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
                 availableMemory += parseMeminfo(memorySplit);
             } else if (checkLine.startsWith("Active(file):")) {
                 String[] memorySplit = checkLine.split("\\s+");
-                availableMemory += parseMeminfo(memorySplit);
+//                availableMemory += parseMeminfo(memorySplit);
             } else if (checkLine.startsWith("Inactive(file):")) {
                 String[] memorySplit = checkLine.split("\\s+");
                 availableMemory += parseMeminfo(memorySplit);
@@ -120,6 +121,51 @@ public class LinuxGlobalMemory implements GlobalMemory {
             }
         }
         return this.totalMemory;
+    }
+    
+    @Override
+    public long getSwapAvailable() {
+        long swapAvailable = 0;
+        List<String> memInfo = null;
+        
+        try {
+            memInfo = FileUtil.readFile("/proc/meminfo");
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
+        }
+        
+        for (String checkLine : memInfo) {
+            if (checkLine.startsWith("SwapFree:")) {
+                String[] memorySplit = checkLine.split("\\s+");
+                swapAvailable = parseMeminfo(memorySplit);
+                break;
+            }
+        }
+        
+        return swapAvailable;
+
+    }
+    
+    @Override
+    public long getSwapTotal() {
+        long swapTotal = 0;
+        List<String> memInfo = null;
+        
+        try {
+            memInfo = FileUtil.readFile("/proc/meminfo");
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
+        }
+        
+        for (String checkLine : memInfo) {
+            if (checkLine.startsWith("SwapTotal:")) {
+                String[] memorySplit = checkLine.split("\\s+");
+                swapTotal = parseMeminfo(memorySplit);
+                break;
+            }
+        }
+        
+        return swapTotal;
     }
 
     private long parseMeminfo(String[] memorySplit) {

@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi;
@@ -83,9 +84,16 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         GlobalMemory memory = hal.getMemory();
         assertNotNull(memory);
+        
+        // RAM tests
         assertTrue(memory.getTotal() > 0);
         assertTrue(memory.getAvailable() >= 0);
         assertTrue(memory.getAvailable() <= memory.getTotal());
+        
+        // Swap tests
+        assertTrue(memory.getSwapTotal() >= 0);
+        assertTrue(memory.getSwapAvailable()>= 0);
+        assertTrue(memory.getSwapAvailable() <= memory.getSwapTotal());
     }
 
     /**

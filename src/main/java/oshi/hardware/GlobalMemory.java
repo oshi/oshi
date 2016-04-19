@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware;
@@ -42,4 +43,18 @@ public interface GlobalMemory extends OshiJsonObject {
      * @return Available number of bytes.
      */
     long getAvailable();
+    
+    /**
+     * Total swap.
+     * 
+     * @return Total swap in bytes.
+     */
+     long getSwapTotal();
+    
+    /**
+     * Available swap.
+     * 
+     * @return Available swap in bytes
+     */
+    long getSwapAvailable();
 }

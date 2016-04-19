@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
@@ -67,6 +68,18 @@ public class WindowsGlobalMemory implements GlobalMemory {
         return this._memory.ullTotalPhys.longValue();
     }
 
+    @Override
+    public long getSwapTotal() {
+        // TODO: for now, it returns 0
+        return 0;
+    }
+
+    @Override
+    public long getSwapAvailable() {
+        // TODO: for now, it returns 0
+        return 0;
+    }
+    
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).build();
