@@ -64,6 +64,20 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         }
     };
 
+    static class XswUsage extends Structure {
+        public long xsu_total;
+        public long xsu_avail;
+        public long xsu_used;
+        public int xsu_pagesize;
+        public boolean xsu_encrypted;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays
+                    .asList(new String[] { "xsu_total", "xsu_avail", "xsu_used", "xsu_pagesize", "xsu_encrypted" });
+        }
+    };
+
     int mach_task_self();
 
     // Native call for getting load average

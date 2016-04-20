@@ -27,11 +27,7 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-
 import oshi.hardware.GlobalMemory;
-import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FileUtil;
 
@@ -45,133 +41,88 @@ public class LinuxGlobalMemory implements GlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
-    private long totalMemory = 0;
+    // Values read from /proc/meminfo used for other calculations
+    private long memTotal = 0;
+    private long memFree = 0;
+    private long memAvailable = 0;
+    private long activeFile = 0;
+    private long inactiveFile = 0;
+    private long sReclaimable = 0;
+    private long swapTotal = 0;
+    private long swapFree = 0;
+
+    private long lastUpdate = 0;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
-    @Override
-    public long getAvailable() {
-        long availableMemory = 0;
-        List<String> memInfo = null;
-        try {
-            memInfo = FileUtil.readFile("/proc/meminfo");
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
-            return availableMemory;
-        }
-        for (String checkLine : memInfo) {
-            // If we have MemAvailable, it trumps all. See code in
-            // https://git.kernel.org/cgit/linux/kernel/git/torvalds/
-            // linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
-            if (checkLine.startsWith("MemAvailable:")) {
-                String[] memorySplit = checkLine.split("\\s+");
-                availableMemory = parseMeminfo(memorySplit);
-                break;
-            } else // Otherwise we combine MemFree + Active(file), Inactive(file), and
-            // Reclaimable. Free+cached is no longer appropriate. MemAvailable
-            // reduces these values using watermarks to estimate when swapping
-            // is prevented, omitted here for simplicity (assuming 0 swap).
-            {
-                if (checkLine.startsWith("MemFree:")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    availableMemory += parseMeminfo(memorySplit);
-                } else if (checkLine.startsWith("Active(file):")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    availableMemory += parseMeminfo(memorySplit);
-                } else if (checkLine.startsWith("Inactive(file):")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    availableMemory += parseMeminfo(memorySplit);
-                } else if (checkLine.startsWith("SReclaimable:")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    availableMemory += parseMeminfo(memorySplit);
-                }
-            }
-        }
-        return availableMemory;
-    }
-
-    @Override
-    public long getTotal() {
-        if (this.totalMemory == 0) {
-            // Try to get it from the libc sysinfo call
-            try {
-                Sysinfo info = new Sysinfo();
-                if (0 != Libc.INSTANCE.sysinfo(info)) {
-                    LOG.error("Failed to get total memory. Error code: " + Native.getLastError());
-                } else {
-                    this.totalMemory = info.totalram.longValue() * info.mem_unit;
-                    return this.totalMemory;
-                }
-            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.warn("Failed to get total memory from sysinfo. Falling back /proc/meminfo MemTotal. {}",
-                        e.getMessage());
-            }
-            // If still no success, populate from /proc/meminfo
+    /**
+     * Updates instance variables from reading /proc/meminfo no more frequently
+     * than every 100ms. While most of the information is available in the
+     * sysinfo structure, the most accurate calculation of MemAvailable is only
+     * available from reading this pseudo-file. The maintainers of the Linux
+     * Kernel have indicated this location will be kept up to date if the
+     * calculation changes: see
+     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
+     * id=34e431b0ae398fc54ea69ff85ec700722c9da773
+     * 
+     * Internally, reading /proc/meminfo is faster than sysinfo because it only
+     * spends time populating the memory components of the sysinfo structure.
+     */
+    private void updateMeminfo() {
+        long now = System.currentTimeMillis();
+        if (now - this.lastUpdate > 100) {
             List<String> memInfo = null;
             try {
                 memInfo = FileUtil.readFile("/proc/meminfo");
             } catch (IOException e) {
                 LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
-                return 0;
+                return;
             }
             for (String checkLine : memInfo) {
-                if (checkLine.startsWith("MemTotal:")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    this.totalMemory = parseMeminfo(memorySplit);
-                    break;
-                }
-            }
-        }
-        return this.totalMemory;
-    }
-
-    @Override
-    public long getSwapUsed() {
-        long swapFree = 0;
-        long swapTotal = 0;
-        List<String> memInfo = null;
-
-        try {
-            memInfo = FileUtil.readFile("/proc/meminfo");
-            for (String checkLine : memInfo) {
-                if (checkLine.startsWith("SwapFree:")) {
-                    String[] memorySplit = checkLine.split("\\s+");
-                    swapFree = parseMeminfo(memorySplit);
-                    break;
-                }
-            }
-
-            swapTotal = getSwapTotal();
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
-        }
-
-        return swapTotal - swapFree;
-
-    }
-
-    @Override
-    public long getSwapTotal() {
-        long swapTotal = 0;
-        List<String> memInfo = null;
-
-        try {
-            memInfo = FileUtil.readFile("/proc/meminfo");
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
-        }
-
-        for (String checkLine : memInfo) {
-            if (checkLine.startsWith("SwapTotal:")) {
                 String[] memorySplit = checkLine.split("\\s+");
-                swapTotal = parseMeminfo(memorySplit);
-                break;
+                if (memorySplit.length > 1) {
+                    switch (memorySplit[0]) {
+                    case "MemTotal:":
+                        this.memTotal = parseMeminfo(memorySplit);
+                        break;
+                    case "MemFree:":
+                        this.memFree = parseMeminfo(memorySplit);
+                        break;
+                    case "MemAvailable:":
+                        this.memAvailable = parseMeminfo(memorySplit);
+                        break;
+                    case "Active(file):":
+                        this.activeFile = parseMeminfo(memorySplit);
+                        break;
+                    case "Inactive(file):":
+                        this.inactiveFile = parseMeminfo(memorySplit);
+                        break;
+                    case "SReclaimable:":
+                        this.sReclaimable = parseMeminfo(memorySplit);
+                        break;
+                    case "SwapTotal:":
+                        this.swapTotal = parseMeminfo(memorySplit);
+                        break;
+                    case "SwapFree:":
+                        this.swapFree = parseMeminfo(memorySplit);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
+                }
             }
+            this.lastUpdate = now;
         }
-
-        return swapTotal;
     }
 
+    /**
+     * Parses lines from the display of /proc/meminfo
+     * 
+     * @param memorySplit
+     *            Array of Strings representing the 3 columns of /proc/meminfo
+     * @return value, multiplied by 1024 if kB is specified
+     */
     private long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
             return 0l;
@@ -184,7 +135,37 @@ public class LinuxGlobalMemory implements GlobalMemory {
     }
 
     @Override
+    public long getAvailable() {
+        updateMeminfo();
+        // If we have MemAvailable, it trumps all. Otherwise we combine MemFree,
+        // Active(file), Inactive(file), and Reclaimable.
+        return this.memAvailable > 0 ? this.memAvailable
+                : this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;
+    }
+
+    @Override
+    public long getTotal() {
+        if (this.memTotal == 0) {
+            updateMeminfo();
+        }
+        return this.memTotal;
+    }
+
+    @Override
+    public long getSwapUsed() {
+        updateMeminfo();
+        return this.swapTotal - this.swapFree;
+    }
+
+    @Override
+    public long getSwapTotal() {
+        updateMeminfo();
+        return this.swapTotal;
+    }
+
+    @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
+                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }

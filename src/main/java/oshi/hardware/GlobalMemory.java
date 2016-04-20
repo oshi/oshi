@@ -31,28 +31,29 @@ import oshi.json.OshiJsonObject;
  */
 public interface GlobalMemory extends OshiJsonObject {
     /**
-     * Total memory.
+     * The amount of actual physical memory, in bytes.
      * 
      * @return Total number of bytes.
      */
     long getTotal();
 
     /**
-     * Currently available.
+     * The amount of physical memory currently available, in bytes.
      * 
      * @return Available number of bytes.
      */
     long getAvailable();
-    
+
     /**
-     * Total swap.
+     * The current size of the paging/swap file(s), in bytes. If the paging/swap
+     * file can be extended, this is a soft limit.
      * 
      * @return Total swap in bytes.
      */
-     long getSwapTotal();
-    
+    long getSwapTotal();
+
     /**
-     * Used swap.
+     * The current memory committed to the paging/swap file(s), in bytes
      * 
      * @return Swap used in bytes
      */

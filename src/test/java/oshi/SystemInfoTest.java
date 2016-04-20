@@ -84,12 +84,12 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         GlobalMemory memory = hal.getMemory();
         assertNotNull(memory);
-        
+
         // RAM tests
         assertTrue(memory.getTotal() > 0);
         assertTrue(memory.getAvailable() >= 0);
         assertTrue(memory.getAvailable() <= memory.getTotal());
-        
+
         // Swap tests
         assertTrue(memory.getSwapTotal() >= 0);
         assertTrue(memory.getSwapUsed() >= 0);
@@ -294,6 +294,8 @@ public class SystemInfoTest {
         LOG.info("Checking Memory...");
         System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
+        System.out.println("Swap used: " + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + "/"
+                + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
         // uptime
         LOG.info("Checking Uptime...");
         System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));

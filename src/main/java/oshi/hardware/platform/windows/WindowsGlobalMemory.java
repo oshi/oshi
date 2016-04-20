@@ -25,10 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
-import java.math.BigDecimal;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GlobalMemory;
+import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
+import oshi.jna.platform.windows.Psapi;
+import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
@@ -39,70 +43,108 @@ import oshi.json.NullAwareJsonObjectBuilder;
 public class WindowsGlobalMemory implements GlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();
+    private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
+
+    private long lastUpdate = 0;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
+    // Set up Performance Data Helper thread for % pagefile usage
+    private PointerByReference pagefileQuery = new PointerByReference();
+
+    private final IntByReference pFour = new IntByReference(4);
+
+    private PointerByReference pPagefile;
+
     public WindowsGlobalMemory() {
-        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            this._memory = null;
+        initPdh();
+    }
+
+    /**
+     * Initialize performance monitor counter
+     */
+    private void initPdh() {
+        // Open Pagefile query
+        int pdhOpenPagefileQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pFour, pagefileQuery);
+        if (pdhOpenPagefileQueryError != 0) {
+            LOG.error("Failed to open PDH Pagefile Query. Error code: {}",
+                    String.format("0x%08X", pdhOpenPagefileQueryError));
+        }
+        if (pdhOpenPagefileQueryError == 0) {
+            // \Paging File(_Total)\% Usage
+            String pagefilePath = "\\Paging File(_Total)\\% Usage";
+            pPagefile = new PointerByReference();
+            int pdhAddPagefileCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(pagefileQuery.getValue(), pagefilePath,
+                    pFour, pPagefile);
+            if (pdhAddPagefileCounterError != 0) {
+                LOG.error("Failed to add PDH Pagefile Counter. Error code: {}",
+                        String.format("0x%08X", pdhAddPagefileCounterError));
+            }
+        }
+        // Initialize by collecting data the first time
+        Pdh.INSTANCE.PdhCollectQueryData(pagefileQuery.getValue());
+
+        // Set up hook to close the query on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                Pdh.INSTANCE.PdhCloseQuery(pagefileQuery.getValue());
+            }
+        });
+    }
+
+    /**
+     * Update the performance information no more frequently than every 100ms
+     */
+    private void updatePerfInfo() {
+        long now = System.currentTimeMillis();
+        if (now - this.lastUpdate > 100) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+                LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                this.perfInfo = null;
+            }
+            this.lastUpdate = now;
         }
     }
 
     @Override
     public long getAvailable() {
-        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            this._memory = null;
-            return 0L;
-        }
-        return this._memory.ullAvailPhys.longValue();
+        updatePerfInfo();
+        return this.perfInfo == null ? 0L : perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();
     }
 
     @Override
     public long getTotal() {
-        if (this._memory == null) {
-            LOG.warn("MemoryStatusEx not initialized. No total memory data available");
-            return 0L;
-        }
-        return this._memory.ullTotalPhys.longValue();
+        updatePerfInfo();
+        return this.perfInfo == null ? 0L : perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();
     }
 
     @Override
     public long getSwapTotal() {
-        // NOTE: other ways to get the Windows page file size are:
-        // 1 - The Win32_PageFile WMI class via OLE32 call;
-        // 2 - The EnumPageFiles via Psapi call. 
-
-        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            this._memory = null;
-            return 0L;
-        }
-
-        return this._memory.ullTotalPageFile.longValue() - this._memory.ullTotalPhys.longValue();
+        updatePerfInfo();
+        return this.perfInfo == null ? 0L
+                : perfInfo.PageSize.longValue()
+                        * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
     }
 
     @Override
     public long getSwapUsed() {
-        long total;
-        long available;
-        
-        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {
-            LOG.error("Failed to Initialize MemoryStatusEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            this._memory = null;
+        PdhFmtCounterValue phPagefileCounterValue = new PdhFmtCounterValue();
+        int ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pPagefile.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
+                null, phPagefileCounterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get Pagefile % Usage counter. Error code: {}", String.format("0x%08X", ret));
             return 0L;
         }
-
-        total = this.getSwapTotal();
-        available = this._memory.ullAvailPageFile.longValue() - this._memory.ullAvailPhys.longValue();
-        
-        return total - available;
+        // Returns results in 1000's of percent, e.g. 5% is 5000
+        // Multiply by page file size and Divide by 100 * 1000
+        // Putting division at end avoids need to cast division to double
+        return getSwapTotal() * phPagefileCounterValue.value.largeValue / 100000;
     }
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
+                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }

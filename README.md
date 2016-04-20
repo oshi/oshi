@@ -62,7 +62,8 @@ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  2 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
-Memory: 532.1 MB/2.0 GB
+Memory: 1.3 GiB/2.7 GiB
+Swap used: 278 MiB/2.7 GiB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[26579029, 0, 21746695, 549739287], 672432, [520882, 156271]
 CPU, IOWait, and IRQ ticks @ 1 sec:[26579060, 0, 21746695, 549740254], 672435, [520883, 156271]
@@ -112,7 +113,8 @@ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: CN123456789098
-Memory: 21.0 GB/31.0 GB
+Memory: 21.8 GiB/31 GiB
+Swap used: 836 MiB/2 GiB[
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
 CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
@@ -160,7 +162,8 @@ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  4 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: C02FG3HIJK45
-Memory: 17.3 MB/4 GB
+Memory: 4.8 GiB/16 GiB
+Swap used: 836 MiB/2 GiB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[15973594, 0, 21796209, 286595204], 0, [0, 0]
 CPU, IOWait, and IRQ ticks @ 1 sec:[15973619, 0, 21796271, 286595920], 0, [0, 0]
