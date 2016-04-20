@@ -185,7 +185,6 @@ public class LinuxGlobalMemory implements GlobalMemory {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }
