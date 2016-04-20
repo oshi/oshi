@@ -1,7 +1,7 @@
 2.4 (in-progress)
 ================
 * [#140](https://github.com/dblock/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
-* [#142](https://github.com/dblock/oshi/pull/142): Added methods for getting swap (total and free) in the system - [@henryx](https://github.com/henryx).
+* [#142](https://github.com/dblock/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
 
 * Your contribution here.
 
