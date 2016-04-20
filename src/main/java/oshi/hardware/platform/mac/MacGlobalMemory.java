@@ -31,6 +31,7 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import java.math.BigDecimal;
 
 import oshi.hardware.GlobalMemory;
 import oshi.json.NullAwareJsonObjectBuilder;
@@ -87,15 +88,29 @@ public class MacGlobalMemory implements GlobalMemory {
     }
 
     @Override
-    public long getSwapTotal() {
-        // TODO: for now, it returns 0
-        return 0;
+    public long getSwapUsed() {
+        Pointer p = new Memory(SystemB.UINT64_SIZE * 4);
+        if (0 != SystemB.INSTANCE.sysctlbyname("vm.swapusage", p, new IntByReference(SystemB.UINT64_SIZE * 4), null,
+                0)) {
+            LOG.error("Failed to get Swap Usage. Error code: " + Native.getLastError());
+            return 0L;
+        }
+        // p points to an array of four longs
+        // first 3 elements total, free, used
+        return p.getLong(SystemB.UINT64_SIZE * 2);
     }
 
     @Override
-    public long getSwapUsed() {
-        // TODO: for now, it returns 0
-        return 0;
+    public long getSwapTotal() {
+        Pointer p = new Memory(SystemB.UINT64_SIZE * 4);
+        if (0 != SystemB.INSTANCE.sysctlbyname("vm.swapusage", p, new IntByReference(SystemB.UINT64_SIZE * 4), null,
+                0)) {
+            LOG.error("Failed to get Swap Usage. Error code: " + Native.getLastError());
+            return 0L;
+        }
+        // p points to an array of four longs
+        // first 3 elements total, free, used
+        return p.getLong(0);
     }
 
     @Override
