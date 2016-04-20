@@ -12,6 +12,7 @@
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.mac;
@@ -30,6 +31,7 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import java.math.BigDecimal;
 
 import oshi.hardware.GlobalMemory;
 import oshi.json.NullAwareJsonObjectBuilder;
@@ -86,7 +88,33 @@ public class MacGlobalMemory implements GlobalMemory {
     }
 
     @Override
+    public long getSwapUsed() {
+        Pointer p = new Memory(SystemB.UINT64_SIZE * 4);
+        if (0 != SystemB.INSTANCE.sysctlbyname("vm.swapusage", p, new IntByReference(SystemB.UINT64_SIZE * 4), null,
+                0)) {
+            LOG.error("Failed to get Swap Usage. Error code: " + Native.getLastError());
+            return 0L;
+        }
+        // p points to an array of four longs
+        // first 3 elements total, free, used
+        return p.getLong(SystemB.UINT64_SIZE * 2);
+    }
+
+    @Override
+    public long getSwapTotal() {
+        Pointer p = new Memory(SystemB.UINT64_SIZE * 4);
+        if (0 != SystemB.INSTANCE.sysctlbyname("vm.swapusage", p, new IntByReference(SystemB.UINT64_SIZE * 4), null,
+                0)) {
+            LOG.error("Failed to get Swap Usage. Error code: " + Native.getLastError());
+            return 0L;
+        }
+        // p points to an array of four longs
+        // first 3 elements total, free, used
+        return p.getLong(0);
+    }
+
+    @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapused", getSwapUsed()).build();
     }
 }

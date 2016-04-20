@@ -1,17 +1,18 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * dblock[at]dblock[dot]org
  * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -36,11 +37,12 @@ import oshi.util.FileUtil;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxGlobalMemory implements GlobalMemory {
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     private long totalMemory = 0;
@@ -65,23 +67,24 @@ public class LinuxGlobalMemory implements GlobalMemory {
                 String[] memorySplit = checkLine.split("\\s+");
                 availableMemory = parseMeminfo(memorySplit);
                 break;
-            } else
-            // Otherwise we combine MemFree + Active(file), Inactive(file), and
+            } else // Otherwise we combine MemFree + Active(file), Inactive(file), and
             // Reclaimable. Free+cached is no longer appropriate. MemAvailable
             // reduces these values using watermarks to estimate when swapping
             // is prevented, omitted here for simplicity (assuming 0 swap).
-            if (checkLine.startsWith("MemFree:")) {
-                String[] memorySplit = checkLine.split("\\s+");
-                availableMemory += parseMeminfo(memorySplit);
-            } else if (checkLine.startsWith("Active(file):")) {
-                String[] memorySplit = checkLine.split("\\s+");
-                availableMemory += parseMeminfo(memorySplit);
-            } else if (checkLine.startsWith("Inactive(file):")) {
-                String[] memorySplit = checkLine.split("\\s+");
-                availableMemory += parseMeminfo(memorySplit);
-            } else if (checkLine.startsWith("SReclaimable:")) {
-                String[] memorySplit = checkLine.split("\\s+");
-                availableMemory += parseMeminfo(memorySplit);
+            {
+                if (checkLine.startsWith("MemFree:")) {
+                    String[] memorySplit = checkLine.split("\\s+");
+                    availableMemory += parseMeminfo(memorySplit);
+                } else if (checkLine.startsWith("Active(file):")) {
+                    String[] memorySplit = checkLine.split("\\s+");
+                    availableMemory += parseMeminfo(memorySplit);
+                } else if (checkLine.startsWith("Inactive(file):")) {
+                    String[] memorySplit = checkLine.split("\\s+");
+                    availableMemory += parseMeminfo(memorySplit);
+                } else if (checkLine.startsWith("SReclaimable:")) {
+                    String[] memorySplit = checkLine.split("\\s+");
+                    availableMemory += parseMeminfo(memorySplit);
+                }
             }
         }
         return availableMemory;
@@ -122,6 +125,53 @@ public class LinuxGlobalMemory implements GlobalMemory {
         return this.totalMemory;
     }
 
+    @Override
+    public long getSwapUsed() {
+        long swapFree = 0;
+        long swapTotal = 0;
+        List<String> memInfo = null;
+
+        try {
+            memInfo = FileUtil.readFile("/proc/meminfo");
+            for (String checkLine : memInfo) {
+                if (checkLine.startsWith("SwapFree:")) {
+                    String[] memorySplit = checkLine.split("\\s+");
+                    swapFree = parseMeminfo(memorySplit);
+                    break;
+                }
+            }
+
+            swapTotal = getSwapTotal();
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
+        }
+
+        return swapTotal - swapFree;
+
+    }
+
+    @Override
+    public long getSwapTotal() {
+        long swapTotal = 0;
+        List<String> memInfo = null;
+
+        try {
+            memInfo = FileUtil.readFile("/proc/meminfo");
+        } catch (IOException e) {
+            LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
+        }
+
+        for (String checkLine : memInfo) {
+            if (checkLine.startsWith("SwapTotal:")) {
+                String[] memorySplit = checkLine.split("\\s+");
+                swapTotal = parseMeminfo(memorySplit);
+                break;
+            }
+        }
+
+        return swapTotal;
+    }
+
     private long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
             return 0l;
@@ -135,7 +185,6 @@ public class LinuxGlobalMemory implements GlobalMemory {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable()).add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }
