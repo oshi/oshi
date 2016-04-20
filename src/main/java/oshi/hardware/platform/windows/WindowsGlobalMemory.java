@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GlobalMemory;
@@ -34,6 +33,7 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.util.platform.windows.PdhUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -52,9 +52,7 @@ public class WindowsGlobalMemory implements GlobalMemory {
     // Set up Performance Data Helper thread for % pagefile usage
     private PointerByReference pagefileQuery = new PointerByReference();
 
-    private final IntByReference pFour = new IntByReference(4);
-
-    private PointerByReference pPagefile;
+    private PointerByReference pPagefile = new PointerByReference();;
 
     public WindowsGlobalMemory() {
         initPdh();
@@ -65,24 +63,12 @@ public class WindowsGlobalMemory implements GlobalMemory {
      */
     private void initPdh() {
         // Open Pagefile query
-        int pdhOpenPagefileQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pFour, pagefileQuery);
-        if (pdhOpenPagefileQueryError != 0) {
-            LOG.error("Failed to open PDH Pagefile Query. Error code: {}",
-                    String.format("0x%08X", pdhOpenPagefileQueryError));
-        }
-        if (pdhOpenPagefileQueryError == 0) {
+        if (PdhUtil.openQuery(pagefileQuery)) {
             // \Paging File(_Total)\% Usage
-            String pagefilePath = "\\Paging File(_Total)\\% Usage";
-            pPagefile = new PointerByReference();
-            int pdhAddPagefileCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(pagefileQuery.getValue(), pagefilePath,
-                    pFour, pPagefile);
-            if (pdhAddPagefileCounterError != 0) {
-                LOG.error("Failed to add PDH Pagefile Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddPagefileCounterError));
-            }
+            PdhUtil.addCounter(pagefileQuery, "\\Paging File(_Total)\\% Usage", pPagefile);
+            // Initialize by collecting data the first time
+            Pdh.INSTANCE.PdhCollectQueryData(pagefileQuery.getValue());
         }
-        // Initialize by collecting data the first time
-        Pdh.INSTANCE.PdhCollectQueryData(pagefileQuery.getValue());
 
         // Set up hook to close the query on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {

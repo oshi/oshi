@@ -35,7 +35,6 @@ import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
-import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.CentralProcessor;
@@ -47,6 +46,7 @@ import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PdhUtil;
 
 /**
  * A CPU as defined in Windows registry.
@@ -108,8 +108,6 @@ public class WindowsCentralProcessor implements CentralProcessor {
     // monitoring each processor ticks
     private PointerByReference phQuery = new PointerByReference();
 
-    private final IntByReference pZero = new IntByReference(0);
-
     // Set up user and idle tick counters for each processor
     private PointerByReference[] phUserCounters;
 
@@ -120,11 +118,9 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     private PointerByReference iowaitQuery = new PointerByReference();
 
-    private final IntByReference pTwo = new IntByReference(2);
-
     // Set up counters for IOWait
-    private PointerByReference pLatency;
-    private PointerByReference pTransfers;
+    private PointerByReference pLatency = new PointerByReference();
+    private PointerByReference pTransfers = new PointerByReference();
     private long iowaitTicks;
 
     // Set up Performance Data Helper thread for IRQticks
@@ -132,11 +128,9 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     private PointerByReference irqQuery = new PointerByReference();
 
-    private final IntByReference pThree = new IntByReference(3);
-
     // Set up counter for IRQticks
-    private PointerByReference pIrq;
-    private PointerByReference pDpc;
+    private PointerByReference pIrq = new PointerByReference();
+    private PointerByReference pDpc = new PointerByReference();
     private long[] irqTicks = new long[2];
 
     // Class variables
@@ -207,17 +201,13 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * Initializes PDH Tick Counters
      */
     private void initPdhCounters() {
-        // Open tick query
-        int pdhOpenTickQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pZero, phQuery);
-        if (pdhOpenTickQueryError != 0) {
-            LOG.error("Failed to open PDH Tick Query. Error code: {}", String.format("0x%08X", pdhOpenTickQueryError));
-        }
 
         // Set up counters
         phUserCounters = new PointerByReference[logicalProcessorCount];
         phIdleCounters = new PointerByReference[logicalProcessorCount];
 
-        if (pdhOpenTickQueryError == 0) {
+        // Open tick query
+        if (PdhUtil.openQuery(phQuery)) {
             for (int p = 0; p < logicalProcessorCount; p++) {
                 // Options are (only need 2 to calculate all)
                 // "\Processor(0)\% processor time"
@@ -227,84 +217,38 @@ public class WindowsCentralProcessor implements CentralProcessor {
                 // Note need to make \ = \\ for Java Strings and %% for format
                 String counterPath = String.format("\\Processor(%d)\\%% user time", p);
                 phUserCounters[p] = new PointerByReference();
-                // Open tick query for this processor
-                int pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, pZero,
-                        phUserCounters[p]);
-                if (pdhAddTickCounterError != 0) {
-                    LOG.error("Failed to add PDH User Tick Counter for processor {}. Error code: {}", p,
-                            String.format("0x%08X", pdhAddTickCounterError));
-                    break;
-                }
+                // Add tick query for this processor
+                PdhUtil.addCounter(phQuery, counterPath, phUserCounters[p]);
+
                 counterPath = String.format("\\Processor(%d)\\%% idle time", p);
                 phIdleCounters[p] = new PointerByReference();
-                pdhAddTickCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(phQuery.getValue(), counterPath, pZero,
-                        phIdleCounters[p]);
-                if (pdhAddTickCounterError != 0) {
-                    LOG.error("Failed to add PDH Idle Tick Counter for processor {}. Error code: {}", p,
-                            String.format("0x%08X", pdhAddTickCounterError));
-                    break;
-                }
+                PdhUtil.addCounter(phQuery, counterPath, phIdleCounters[p]);
             }
-
             LOG.debug("Tick counter queries added.  Initializing with first query.");
+
             // Initialize by collecting data the first time
             Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
         }
 
         // Open iowait query
-        int pdhOpenIOwaitQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pTwo, iowaitQuery);
-        if (pdhOpenIOwaitQueryError != 0) {
-            LOG.error("Failed to open PDH iowait Query. Error code: {}",
-                    String.format("0x%08X", pdhOpenIOwaitQueryError));
-        }
-        if (pdhOpenIOwaitQueryError == 0) {
+        if (PdhUtil.openQuery(iowaitQuery)) {
             // \LogicalDisk(_Total)\Avg. Disk sec/Transfer
-            String latencyPath = "\\LogicalDisk(_Total)\\Avg. Disk sec/Transfer";
-            pLatency = new PointerByReference();
-            int pdhAddLatencyCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(iowaitQuery.getValue(), latencyPath,
-                    pTwo, pLatency);
-            if (pdhAddLatencyCounterError != 0) {
-                LOG.error("Failed to add PDH latency Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddLatencyCounterError));
-            }
+            PdhUtil.addCounter(iowaitQuery, "\\LogicalDisk(_Total)\\Avg. Disk sec/Transfer", pLatency);
             // \LogicalDisk(_Total)\Disk Transfers/sec
-            String transfersPath = "\\LogicalDisk(_Total)\\Disk Transfers/sec";
-            pTransfers = new PointerByReference();
-            int pdhAddTransfersCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(iowaitQuery.getValue(), transfersPath,
-                    pTwo, pTransfers);
-            if (pdhAddTransfersCounterError != 0) {
-                LOG.error("Failed to add PDH latency Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddTransfersCounterError));
-            }
+            PdhUtil.addCounter(iowaitQuery, "\\LogicalDisk(_Total)\\Disk Transfers/sec", pTransfers);
+            // Initialize by collecting data the first time
+            Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
         }
-        // Initialize by collecting data the first time
-        Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
 
         // Open irq query
-        int pdhOpenIrqQueryError = Pdh.INSTANCE.PdhOpenQuery(null, pThree, irqQuery);
-        if (pdhOpenIrqQueryError != 0) {
-            LOG.error("Failed to open PDH Irq Query. Error code: {}", String.format("0x%08X", pdhOpenIrqQueryError));
-        }
-        if (pdhOpenIrqQueryError == 0) {
+        if (PdhUtil.openQuery(irqQuery)) {
             // \Processor(_Total)\% Interrupt Time
-            String irqPath = "\\Processor(_Total)\\% Interrupt Time";
-            pIrq = new PointerByReference();
-            int pdhAddIrqCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(irqQuery.getValue(), irqPath, pThree, pIrq);
-            if (pdhAddIrqCounterError != 0) {
-                LOG.error("Failed to add PDH Irq Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddIrqCounterError));
-            }
+            PdhUtil.addCounter(irqQuery, "\\Processor(_Total)\\% Interrupt Time", pIrq);
             // \Processor(_Total)\% DPC Time
-            String dpcPath = "\\Processor(_Total)\\% DPC Time";
-            pDpc = new PointerByReference();
-            int pdhAddDpcCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(irqQuery.getValue(), dpcPath, pThree, pDpc);
-            if (pdhAddDpcCounterError != 0) {
-                LOG.error("Failed to add PDH DPC Counter. Error code: {}",
-                        String.format("0x%08X", pdhAddDpcCounterError));
-            }
+            PdhUtil.addCounter(irqQuery, "\\Processor(_Total)\\% DPC Time", pDpc);
+            // Initialize by collecting data the first time
+            Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
         }
-        // Initialize by collecting data the first time
-        Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
 
         // Set up hook to close the queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
