@@ -35,14 +35,12 @@ public class LinuxDisks implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
-    public List<HWDiskStore> getDisks() {
+    public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
 
         result = new ArrayList<>();
-        
-        // TODO: extract disks hardware information
 
-        return result;
+        return result.toArray(new HWDiskStore[result.size()]);
     }
 
     @Override
