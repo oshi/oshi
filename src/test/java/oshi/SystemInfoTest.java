@@ -35,6 +35,7 @@ import com.sun.jna.Platform;
 
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.software.os.OSFileStore;
@@ -225,6 +226,24 @@ public class SystemInfoTest {
         }
     }
 
+       /**
+     * Test disks extraction.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testDisks() throws IOException {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        if (hal.getDisksStores().length > 1) {
+            // NOTE: for now, only tests are for getting disk informations
+            assertNotNull(hal.getDisksStores()[0].getName());
+            assertNotNull(hal.getDisksStores()[0].getModel());
+            assertNotNull(hal.getDisksStores()[0].getSerial());
+        }
+    }
+    
     /**
      * Test system uptime.
      */
@@ -374,6 +393,18 @@ public class SystemInfoTest {
             System.out.format(" %s (%s) %s of %s free (%.1f%%)%n", fs.getName(),
                     fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
                     FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
+        }
+        
+        // hardware: disks
+        LOG.info("Checking File System...");
+        System.out.println("File System:");
+
+        HWDiskStore[] dskArray = hal.getDisksStores();
+        for (HWDiskStore dsk : dskArray) {
+            long byteReads = dsk.getReads();
+            long byteWrites = dsk.getWrites();
+            System.out.format(" %s: (model: %s - S/N: %s) reads (in bytes): %s writes (in bytes): %s %n",
+                    dsk.getName(), dsk.getModel(), dsk.getSerial(), byteReads, byteWrites);
         }
 
         // hardware: displays
