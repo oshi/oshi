@@ -24,6 +24,7 @@ import javax.json.JsonObject;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
@@ -97,6 +98,11 @@ public class MacHardwareAbstractionLayer implements HardwareAbstractionLayer {
             this.sensors = new MacSensors();
         }
         return this.sensors;
+    }
+
+    @Override
+    public HWDiskStore[] getDisksStores() {
+        return new MacDisks().getDisks();
     }
 
     @Override
