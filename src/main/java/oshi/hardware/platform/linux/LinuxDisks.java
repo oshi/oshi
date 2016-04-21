@@ -11,7 +11,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.json.Json;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import oshi.hardware.HWDiskStore;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
-import oshi.util.FileUtil;
 
 /**
  * Linux hard disk implementation.
