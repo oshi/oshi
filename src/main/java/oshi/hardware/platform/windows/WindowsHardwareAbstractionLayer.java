@@ -16,31 +16,20 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
-public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    private CentralProcessor processor;
-
-    private GlobalMemory memory;
-
-    private Sensors sensors;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
@@ -49,6 +38,9 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
         return this.memory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
@@ -57,46 +49,38 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
         return this.processor;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PowerSource[] getPowerSources() {
         return WindowsPowerSource.getPowerSources();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OSFileStore[] getFileStores() {
         return WindowsFileSystem.getFileStores();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Display[] getDisplays() {
         return WindowsDisplay.getDisplays();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
             this.sensors = new WindowsSensors();
         }
         return this.sensors;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (PowerSource powerSource : getPowerSources()) {
-            powerSourceArrayBuilder.add(powerSource.toJSON());
-        }
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
-        }
-        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
-        for (Display display : getDisplays()) {
-            displayArrayBuilder.add(display.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
-                .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
-                .add("displays", displayArrayBuilder.build()).add("sensors", getSensors().toJSON()).build();
     }
 }
