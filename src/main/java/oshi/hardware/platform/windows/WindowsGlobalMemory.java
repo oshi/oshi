@@ -17,21 +17,16 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.hardware.GlobalMemory;
+import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.platform.windows.PdhUtil;
 
 /**
@@ -39,28 +34,18 @@ import oshi.util.platform.windows.PdhUtil;
  *
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsGlobalMemory implements GlobalMemory {
+public class WindowsGlobalMemory extends AbstractGlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
     private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
 
     private long lastUpdate = 0;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     // Set up Performance Data Helper thread for % pagefile usage
     private PointerByReference pagefileQuery = new PointerByReference();
-
     private PointerByReference pPagefile = new PointerByReference();;
 
     public WindowsGlobalMemory() {
-        initPdh();
-    }
-
-    /**
-     * Initialize performance monitor counter
-     */
-    private void initPdh() {
         // Open Pagefile query
         if (PdhUtil.openQuery(pagefileQuery)) {
             // \Paging File(_Total)\% Usage
@@ -81,52 +66,32 @@ public class WindowsGlobalMemory implements GlobalMemory {
     /**
      * Update the performance information no more frequently than every 100ms
      */
-    private void updatePerfInfo() {
+    protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
             if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 this.perfInfo = null;
             }
+            this.memAvailable = perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();
+            this.memTotal = perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();
+            this.swapTotal = perfInfo.PageSize.longValue()
+                    * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
             this.lastUpdate = now;
         }
     }
 
-    @Override
-    public long getAvailable() {
-        updatePerfInfo();
-        return this.perfInfo == null ? 0L : perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();
-    }
-
-    @Override
-    public long getTotal() {
-        updatePerfInfo();
-        return this.perfInfo == null ? 0L : perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();
-    }
-
-    @Override
-    public long getSwapTotal() {
-        updatePerfInfo();
-        return this.perfInfo == null ? 0L
-                : perfInfo.PageSize.longValue()
-                        * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
-    }
-
-    @Override
-    public long getSwapUsed() {
+    /**
+     * {@inheritDoc}
+     */
+    protected void updateSwap() {
+        updateMeminfo();
         if (!PdhUtil.updateCounters(pagefileQuery)) {
-            return 0L;
+            return;
         }
-        long swapPct = PdhUtil.queryCounter(pPagefile);
         // Returns results in 1000's of percent, e.g. 5% is 5000
         // Multiply by page file size and Divide by 100 * 1000
         // Putting division at end avoids need to cast division to double
-        return getSwapTotal() * swapPct / 100000;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
+        this.swapUsed = this.swapTotal * PdhUtil.queryCounter(pPagefile) / 100000;
     }
 }
