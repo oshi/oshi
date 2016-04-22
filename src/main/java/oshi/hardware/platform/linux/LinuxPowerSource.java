@@ -21,15 +21,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.FileUtil;
 
 /**
@@ -37,45 +33,14 @@ import oshi.util.FileUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxPowerSource implements PowerSource {
+public class LinuxPowerSource extends AbstractPowerSource {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
 
     private static final String PS_PATH = "/sys/class/power_supply/";
 
-    private String name;
-
-    private double remainingCapacity;
-
-    private double timeRemaining;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        this.name = newName;
-        this.remainingCapacity = newRemainingCapacity;
-        this.timeRemaining = newTimeRemaining;
+        super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized LinuxPowerSource");
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public double getRemainingCapacity() {
-        return this.remainingCapacity;
-    }
-
-    @Override
-    public double getTimeRemaining() {
-        return this.timeRemaining;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("remainingCapacity", getRemainingCapacity())
-                .add("timeRemaining", getTimeRemaining()).build();
     }
 
     /**

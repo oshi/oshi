@@ -16,19 +16,15 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.NativeLong;
 
 import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.FormatUtil;
 
 /**
@@ -36,43 +32,12 @@ import oshi.util.FormatUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsPowerSource implements PowerSource {
+public class WindowsPowerSource extends AbstractPowerSource {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
-    private String name;
-
-    private double remainingCapacity;
-
-    private double timeRemaining;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        this.name = newName;
-        this.remainingCapacity = newRemainingCapacity;
-        this.timeRemaining = newTimeRemaining;
+        super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized WindowsPowerSource");
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public double getRemainingCapacity() {
-        return this.remainingCapacity;
-    }
-
-    @Override
-    public double getTimeRemaining() {
-        return this.timeRemaining;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("remainingCapacity", getRemainingCapacity())
-                .add("timeRemaining", getTimeRemaining()).build();
     }
 
     /**
