@@ -16,6 +16,9 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
+import com.sun.jna.Structure;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Interface for talking with Udev.
@@ -26,6 +29,39 @@ public interface Udev extends Library {
 
     public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance("udev");
     public static final Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
+
+    public static final class BlockDevStats extends Structure {
+
+        // Number of read I/Os processed
+        long read_ops;
+        // Number of read I/Os merged with in-queue I/O
+        long read_merged;
+        // Number of sectors read
+        long read_512bytes;
+        // Total wait time for read requests, milliseconds
+        long read_waits_ms;
+        // Number of write I/Os processed
+        long write_ops;
+        // Number of write I/Os merged with in-queue I/O
+        long write_merged;
+        // Number of sectors written
+        long write_512bytes;
+        // Total wait time for write requests, milliseconds */
+        long write_waits_ms;
+        // Number of I/Os currently in flight
+        long in_flight;
+        // Total active time, milliseconds
+        long active_ms;
+        // Total wait time, milliseconds
+        long waits_ms;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList(new String[]{"read_ops", "read_merged", "read_512bytes",
+                "read_waits_ms", "write_ops", "write_merged", "write_512bytes", "write_watis_ms",
+                "in_flight", "actice_ms", "watis_ms"});
+        }
+    };
 
     public static class UdevHandle extends PointerType {
 
