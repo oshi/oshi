@@ -16,36 +16,27 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
+import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.hardware.CentralProcessor;
+import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
-import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PdhUtil;
 
 /**
@@ -55,48 +46,8 @@ import oshi.util.platform.windows.PdhUtil;
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
-@SuppressWarnings("restriction")
-public class WindowsCentralProcessor implements CentralProcessor {
+public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
-
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
-
-    private static boolean sunMXBean;
-
-    static {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            // Initialize CPU usage
-            ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            sunMXBean = true;
-            LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException e) {
-            sunMXBean = false;
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
-        }
-    }
-
-    // Logical and Physical Processor Counts
-    private int logicalProcessorCount = 0;
-
-    private int physicalProcessorCount = 0;
-
-    // Maintain previous ticks to be used for calculating usage between them.
-    // System ticks
-    private long tickTime;
-
-    private long[] prevTicks;
-
-    private long[] curTicks;
-
-    // Per-processor ticks [cpu][type]
-    private long procTickTime;
-
-    private long[][] prevProcTicks;
-
-    private long[][] curProcTicks;
 
     // PDH counters only give increments between calls so we maintain our own
     // "ticks" here
@@ -104,96 +55,62 @@ public class WindowsCentralProcessor implements CentralProcessor {
 
     private long[][] allProcTicks;
 
-    // Initialize numCPU and open a Performance Data Helper Thread for
-    // monitoring each processor ticks
+    // Open a Performance Data Helper Thread for monitoring each processor ticks
     private PointerByReference phQuery = new PointerByReference();
-
-    // Set up user and idle tick counters for each processor
     private PointerByReference[] phUserCounters;
-
     private PointerByReference[] phIdleCounters;
 
     // Set up Performance Data Helper thread for IOWait
     private long iowaitTime;
-
     private PointerByReference iowaitQuery = new PointerByReference();
-
-    // Set up counters for IOWait
     private PointerByReference pLatency = new PointerByReference();
     private PointerByReference pTransfers = new PointerByReference();
     private long iowaitTicks;
 
     // Set up Performance Data Helper thread for IRQticks
     private long irqTime;
-
     private PointerByReference irqQuery = new PointerByReference();
-
-    // Set up counter for IRQticks
     private PointerByReference pIrq = new PointerByReference();
     private PointerByReference pDpc = new PointerByReference();
     private long[] irqTicks = new long[2];
-
-    // Class variables
-
-    private String cpuVendor;
-
-    private String cpuName;
-
-    private String cpuSerialNumber = null;
-
-    private String cpuIdentifier;
-
-    private String cpuStepping;
-
-    private String cpuModel;
-
-    private String cpuFamily;
-
-    private Long cpuVendorFreq;
-
-    private Boolean cpu64;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Create a Processor
      */
     public WindowsCentralProcessor() {
-        // Processor counts
-        calculateProcessorCounts();
-
-        // PDH counter setup
+        // Initialize class variables
+        initVars();
+        // Initialize PDH
         initPdhCounters();
-
-        // System ticks
-        this.prevTicks = new long[4];
-        this.curTicks = new long[4];
-        updateSystemTicks();
-
-        // Per-processor ticks
-        this.allProcTicks = new long[logicalProcessorCount][4];
-        this.prevProcTicks = new long[logicalProcessorCount][4];
-        this.curProcTicks = new long[logicalProcessorCount][4];
-        updateProcessorTicks();
+        // Initialize tick arrays
+        this.allProcTicks = new long[this.logicalProcessorCount][4];
+        initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
     /**
-     * Updates logical and physical processor counts from /proc/cpuinfo
+     * Initializes Class variables
      */
-    private void calculateProcessorCounts() {
-        // Get number of logical processors
+    private void initVars() {
+        final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
+        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+        if (processorIds.length > 0) {
+            String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
+            this.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                    "VendorIdentifier"));
+            this.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                    "ProcessorNameString"));
+            this.setIdentifier(
+                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
+        }
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
-        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
-
-        // Get number of physical processors
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                this.physicalProcessorCount++;
-            }
+        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+        if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
+                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
+            this.setCpu64(true);
+        } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
+            this.setCpu64(false);
         }
     }
 
@@ -201,14 +118,13 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * Initializes PDH Tick Counters
      */
     private void initPdhCounters() {
-
         // Set up counters
-        phUserCounters = new PointerByReference[logicalProcessorCount];
-        phIdleCounters = new PointerByReference[logicalProcessorCount];
+        this.phUserCounters = new PointerByReference[this.logicalProcessorCount];
+        this.phIdleCounters = new PointerByReference[this.logicalProcessorCount];
 
         // Open tick query
         if (PdhUtil.openQuery(phQuery)) {
-            for (int p = 0; p < logicalProcessorCount; p++) {
+            for (int p = 0; p < this.logicalProcessorCount; p++) {
                 // Options are (only need 2 to calculate all)
                 // "\Processor(0)\% processor time"
                 // "\Processor(0)\% idle time" (1 - processor)
@@ -216,13 +132,13 @@ public class WindowsCentralProcessor implements CentralProcessor {
                 // "\Processor(0)\% user time" (other subset of processor)
                 // Note need to make \ = \\ for Java Strings and %% for format
                 String counterPath = String.format("\\Processor(%d)\\%% user time", p);
-                phUserCounters[p] = new PointerByReference();
+                this.phUserCounters[p] = new PointerByReference();
                 // Add tick query for this processor
-                PdhUtil.addCounter(phQuery, counterPath, phUserCounters[p]);
+                PdhUtil.addCounter(phQuery, counterPath, this.phUserCounters[p]);
 
                 counterPath = String.format("\\Processor(%d)\\%% idle time", p);
-                phIdleCounters[p] = new PointerByReference();
-                PdhUtil.addCounter(phQuery, counterPath, phIdleCounters[p]);
+                this.phIdleCounters[p] = new PointerByReference();
+                PdhUtil.addCounter(phQuery, counterPath, this.phIdleCounters[p]);
             }
             LOG.debug("Tick counter queries added.  Initializing with first query.");
 
@@ -262,214 +178,21 @@ public class WindowsCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Vendor identifier, eg. GenuineIntel.
-     * 
-     * @return Processor vendor.
+     * Updates logical and physical processor counts from /proc/cpuinfo
      */
-    @Override
-    public String getVendor() {
-        return this.cpuVendor;
-    }
+    protected void calculateProcessorCounts() {
+        // Get number of logical processors
+        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
+        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
+        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
-    /**
-     * Set processor vendor.
-     * 
-     * @param vendor
-     *            Vendor.
-     */
-    @Override
-    public void setVendor(String vendor) {
-        this.cpuVendor = vendor;
-    }
-
-    /**
-     * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
-     * 
-     * @return Processor name.
-     */
-    @Override
-    public String getName() {
-        return this.cpuName;
-    }
-
-    /**
-     * Set processor name.
-     * 
-     * @param name
-     *            Name.
-     */
-    @Override
-    public void setName(String name) {
-        this.cpuName = name;
-    }
-
-    /**
-     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
-     * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
-     * 
-     * @return Processor frequency or -1 if unknown.
-     */
-    @Override
-    public long getVendorFreq() {
-        if (this.cpuVendorFreq == null) {
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(getName());
-
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
-            } else {
-                this.cpuVendorFreq = Long.valueOf(-1L);
+        // Get number of physical processors
+        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                this.physicalProcessorCount++;
             }
         }
-
-        return this.cpuVendorFreq.longValue();
-    }
-
-    /**
-     * Set vendor frequency.
-     * 
-     * @param freq
-     *            Frequency.
-     */
-    @Override
-    public void setVendorFreq(long freq) {
-        this.cpuVendorFreq = Long.valueOf(freq);
-    }
-
-    /**
-     * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
-     * 
-     * @return Processor identifier.
-     */
-    @Override
-    public String getIdentifier() {
-        return this.cpuIdentifier;
-    }
-
-    /**
-     * Set processor identifier.
-     * 
-     * @param identifier
-     *            Identifier.
-     */
-    @Override
-    public void setIdentifier(String identifier) {
-        this.cpuIdentifier = identifier;
-        if (this.cpuIdentifier != null) {
-            String[] id = this.cpuIdentifier.split(" ");
-            for (int i = 0; i < id.length; i++) {
-                if (id[i].equals("Intel64")) {
-                    setCpu64(true);
-                } else if (id[i].equals("Intel32")) {
-                    setCpu64(false);
-                } else if (id[i].equals("Family")) {
-                    setFamily((i < id.length - 1) ? id[i + 1] : "");
-                } else if (id[i].equals("Model")) {
-                    setModel((i < id.length - 1) ? id[i + 1] : "");
-                } else if (id[i].equals("Stepping")) {
-                    setStepping((i < id.length - 1) ? id[i + 1] : "");
-                }
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCpu64bit() {
-        if (this.cpu64 == null) {
-            SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-            Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
-            if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
-                    || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
-                this.cpu64 = true;
-            } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
-                this.cpu64 = false;
-            }
-        }
-        return this.cpu64 != null ? this.cpu64 : false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCpu64(boolean cpu64) {
-        this.cpu64 = cpu64;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStepping() {
-        return this.cpuStepping != null ? this.cpuStepping : "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setStepping(String stepping) {
-        this.cpuStepping = stepping;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getModel() {
-        return this.cpuModel != null ? this.cpuModel : "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setModel(String model) {
-        this.cpuModel = model;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getFamily() {
-        return this.cpuFamily != null ? this.cpuFamily : "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setFamily(String family) {
-        this.cpuFamily = family;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized double getSystemCpuLoadBetweenTicks() {
-        // Check if > ~ 0.95 seconds since last tick count.
-        long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
-        if (now - tickTime > 950) {
-            // Enough time has elapsed.
-            updateSystemTicks();
-        }
-        // Calculate total
-        long total = 0;
-        for (int i = 0; i < curTicks.length; i++) {
-            total += (curTicks[i] - prevTicks[i]);
-        }
-        // Calculate idle from last field [3]
-        long idle = curTicks[3] - prevTicks[3];
-        LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
-
-        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
     }
 
     /**
@@ -501,36 +224,18 @@ public class WindowsCentralProcessor implements CentralProcessor {
     public long getSystemIOWaitTicks() {
         // Avg. Disk sec/Transfer x Avg. Disk Transfers/sec * seconds between
         // reads
-
-        // This call updates all process counters to % used since last call
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
-        if (ret != 0) {
-            LOG.error("Failed to update Iowait Counters. Error code: {}", String.format("0x%08X", ret));
+        if (!PdhUtil.updateCounters(iowaitQuery)) {
             return 0;
         }
-
-        long now = System.currentTimeMillis();
 
         // We'll manufacture our own ticks by multiplying the latency (sec per
         // read) by transfers (reads per sec) by time elapsed since the last
         // call to get a tick increment
+        long now = System.currentTimeMillis();
         long elapsed = now - iowaitTime;
 
-        PdhFmtCounterValue phLatencyCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pLatency.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
-                phLatencyCounterValue);
-        if (ret != 0) {
-            LOG.warn("Failed to get Latency Tick Counters. Error code: {}", String.format("0x%08X", ret));
-            return 0;
-        }
-
-        PdhFmtCounterValue phTransfersCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pTransfers.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
-                null, phTransfersCounterValue);
-        if (ret != 0) {
-            LOG.warn("Failed to get Transfers Tick Counters. Error code: {}", String.format("0x%08X", ret));
-            return 0;
-        }
+        long latency = PdhUtil.queryCounter(pLatency);
+        long transfers = PdhUtil.queryCounter(pTransfers);
 
         // Since PDH_FMT_1000 is used, results must be divided by 1000 to get
         // actual. Units are sec (*1000) per read * reads (*1000) per sec time *
@@ -539,8 +244,7 @@ public class WindowsCentralProcessor implements CentralProcessor {
         // Multiply by elapsed to get total ms and Divide by 1000 * 1000.
         // Putting division at end avoids need to cast division to double
         // Elasped is only since last read, so increment previous value
-        iowaitTicks += elapsed * phLatencyCounterValue.value.largeValue * phTransfersCounterValue.value.largeValue
-                / 1000000;
+        iowaitTicks += elapsed * latency * transfers / 1000000;
 
         iowaitTime = now;
 
@@ -554,41 +258,24 @@ public class WindowsCentralProcessor implements CentralProcessor {
     public long[] getSystemIrqTicks() {
         long[] ticks = new long[2];
         // Time * seconds between reads
-        // This call updates all process counters to % used since last call
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
-        if (ret != 0) {
-            LOG.error("Failed to update IRQ Counters. Error code: {}", String.format("0x%08X", ret));
+        if (!PdhUtil.updateCounters(irqQuery)) {
             return ticks;
         }
-
-        long now = System.currentTimeMillis();
 
         // We'll manufacture our own ticks by multiplying the % used (from the
         // counter) by time elapsed since the last call to get a tick increment
+        long now = System.currentTimeMillis();
         long elapsed = now - irqTime;
 
-        PdhFmtCounterValue phIrqCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pIrq.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
-                phIrqCounterValue);
-        if (ret != 0) {
-            LOG.warn("Failed to get IRQ Tick Counters. Error code: {}", String.format("0x%08X", ret));
-            return ticks;
-        }
-
-        PdhFmtCounterValue phDpcCounterValue = new PdhFmtCounterValue();
-        ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pDpc.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null,
-                phDpcCounterValue);
-        if (ret != 0) {
-            LOG.warn("Failed to get DPC Tick Counters. Error code: {}", String.format("0x%08X", ret));
-            return ticks;
-        }
+        long irq = PdhUtil.queryCounter(pIrq);
+        long dpc = PdhUtil.queryCounter(pDpc);
 
         // Returns results in 1000's of percent, e.g. 5% is 5000
         // Multiply by elapsed to get total ms and Divide by 100 * 1000
         // Putting division at end avoids need to cast division to double
         // Elasped is only since last read, so increment previous value
-        irqTicks[0] += elapsed * phIrqCounterValue.value.largeValue / 100000;
-        irqTicks[1] += elapsed * phDpcCounterValue.value.largeValue / 100000;
+        irqTicks[0] += elapsed * irq / 100000;
+        irqTicks[1] += elapsed * dpc / 100000;
 
         irqTime = now;
 
@@ -596,42 +283,6 @@ public class WindowsCentralProcessor implements CentralProcessor {
         System.arraycopy(irqTicks, 0, ticks, 0, irqTicks.length);
         return ticks;
     };
-
-    /**
-     * Updates system tick information from native call to GetSystemTimes().
-     * Array with four elements representing clock ticks or milliseconds
-     * (platform dependent) spent in User (0), Nice (1), System (2), and Idle
-     * (3) states. By measuring the difference between ticks across a time
-     * interval, CPU load over that interval may be calculated.
-     */
-    private void updateSystemTicks() {
-        LOG.trace("Updating System Ticks");
-        // Copy to previous
-        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-        this.tickTime = System.currentTimeMillis();
-        long[] ticks = getSystemCpuLoadTicks();
-        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getSystemCpuLoad() {
-        if (sunMXBean) {
-            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-        }
-        return getSystemCpuLoadBetweenTicks();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getSystemLoadAverage() {
-        // Expected to be -1 for Windows
-        return OS_MXBEAN.getSystemLoadAverage();
-    }
 
     /**
      * {@inheritDoc}
@@ -647,10 +298,9 @@ public class WindowsCentralProcessor implements CentralProcessor {
         }
         double[] average = new double[nelem];
         // TODO: If Windows ever actually implements a laod average for 1/5/15,
-        // return it rather than the same (probably -1) value
-        double retval = OS_MXBEAN.getSystemLoadAverage();
+        // return it
         for (int i = 0; i < average.length; i++) {
-            average[i] = retval;
+            average[i] = -1;
         }
         return average;
     }
@@ -659,70 +309,27 @@ public class WindowsCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public double[] getProcessorCpuLoadBetweenTicks() {
-        // Check if > ~ 0.95 seconds since last tick count.
-        long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
-        if (now - procTickTime > 950) {
-            // Enough time has elapsed.
-            // Update latest
-            updateProcessorTicks();
-        }
-        double[] load = new double[logicalProcessorCount];
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            long total = 0;
-            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
-                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
-            }
-            // Calculate idle from last field [3]
-            long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
-            LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
-            // update
-            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
-        }
-        return load;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][4];
+        long[][] ticks = new long[this.logicalProcessorCount][4];
 
-        // This call updates all process counters to % used since last call
-        int ret = Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-        if (ret != 0) {
-            LOG.warn("Failed to update Tick Counters. Error code: {}", String.format("0x%08X", ret));
+        if (!PdhUtil.updateCounters(phQuery)) {
             return ticks;
         }
-        long now = System.currentTimeMillis();
 
         // We'll manufacture our own ticks by multiplying the % used (from the
         // counter) by time elapsed since the last call to get a tick increment
+        long now = System.currentTimeMillis();
         long elapsed = now - allProcTickTime;
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            PdhFmtCounterValue phUserCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phUserCounters[cpu].getValue(),
-                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phUserCounterValue);
-            if (ret != 0) {
-                LOG.warn("Failed to get Uer Tick Counters. Error code: {}", String.format("0x%08X", ret));
-                return ticks;
-            }
 
-            PdhFmtCounterValue phIdleCounterValue = new PdhFmtCounterValue();
-            ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(phIdleCounters[cpu].getValue(),
-                    Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000, null, phIdleCounterValue);
-            if (ret != 0) {
-                LOG.warn("Failed to get idle Tick Counters. Error code: {}", String.format("0x%08X", ret));
-                return ticks;
-            }
+        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+            long userPct = PdhUtil.queryCounter(this.phUserCounters[cpu]);
+            long idlePct = PdhUtil.queryCounter(this.phIdleCounters[cpu]);
 
             // Returns results in 1000's of percent, e.g. 5% is 5000
             // Multiply by elapsed to get total ms and Divide by 100 * 1000
             // Putting division at end avoids need to cast division to double
-            long user = elapsed * phUserCounterValue.value.largeValue / 100000;
-            long idle = elapsed * phIdleCounterValue.value.largeValue / 100000;
+            long user = elapsed * userPct / 100000;
+            long idle = elapsed * idlePct / 100000;
             // Elasped is only since last read, so increment previous value
             allProcTicks[cpu][0] += user;
             // allProcTicks[cpu][1] is ignored, Windows is not nice
@@ -732,31 +339,10 @@ public class WindowsCentralProcessor implements CentralProcessor {
         allProcTickTime = now;
 
         // Make a copy of the array to return
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
             System.arraycopy(allProcTicks[cpu], 0, ticks[cpu], 0, allProcTicks[cpu].length);
         }
         return ticks;
-    }
-
-    /**
-     * Updates the tick array for all processors by querying PDH counter. Stores
-     * in 2D array; an array for each logical processor with four elements
-     * representing clock ticks or milliseconds (platform dependent) spent in
-     * User (0), Nice (1), System (2), and Idle (3) states. By measuring the
-     * difference between ticks across a time interval, CPU load over that
-     * interval may be calculated.
-     */
-    private void updateProcessorTicks() {
-        LOG.trace("Updating Processor Ticks");
-        // Copy to previous
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
-        }
-        this.procTickTime = System.currentTimeMillis();
-        long[][] ticks = getProcessorCpuLoadTicks();
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
-        }
     }
 
     /**
@@ -803,16 +389,6 @@ public class WindowsCentralProcessor implements CentralProcessor {
     }
 
     @Override
-    public int getLogicalProcessorCount() {
-        return logicalProcessorCount;
-    }
-
-    @Override
-    public int getPhysicalProcessorCount() {
-        return physicalProcessorCount;
-    }
-
-    @Override
     public int getProcessCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
@@ -830,54 +406,5 @@ public class WindowsCentralProcessor implements CentralProcessor {
             return 0;
         }
         return perfInfo.ThreadCount.intValue();
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double avg : getSystemLoadAverage(3)) {
-            systemLoadAverageArrayBuilder.add(avg);
-        }
-        JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemCpuLoadTicks()) {
-            systemCpuLoadTicksArrayBuilder.add(ticks);
-        }
-        JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double load : getProcessorCpuLoadBetweenTicks()) {
-            processorCpuLoadBetweenTicksArrayBuilder.add(load);
-        }
-        JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long[] procTicks : getProcessorCpuLoadTicks()) {
-            JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
-            for (long ticks : procTicks) {
-                processorTicksArrayBuilder.add(ticks);
-            }
-            processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
-        }
-        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemIrqTicks()) {
-            systemIrqTicksArrayBuilder.add(ticks);
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("physicalProcessorCount", getPhysicalProcessorCount())
-                .add("logicalProcessorCount", getLogicalProcessorCount())
-                .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())
-                .add("vendorFreq", getVendorFreq()).add("cpu64bit", isCpu64bit()).add("family", getFamily())
-                .add("model", getModel()).add("stepping", getStepping())
-                .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
-                .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
-                .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
-                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
-                .add("systemIOWaitTicks", getSystemIOWaitTicks())
-                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
-                .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
-                .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
-                .add("threads", getThreadCount()).build();
-    }
-
-    @Override
-    public String toString() {
-        return getName();
     }
 }

@@ -112,11 +112,14 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
                         this._codeName = "El Capitan";
                         break;
                     default:
+                        LOG.warn("Unable to parse version {} to a codename.", getVersion());
                         this._codeName = "";
                     }
 
-                } else
+                } else {
+                    LOG.warn("We only do codenames for OS X. This is version {}.", getVersion());
                     this._codeName = "";
+                }
             }
         }
         return this._codeName;

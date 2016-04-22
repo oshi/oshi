@@ -16,9 +16,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.io.IOException;
-import java.util.List;
-
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
@@ -36,7 +33,6 @@ import oshi.hardware.Sensors;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
-import oshi.util.FileUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -45,11 +41,9 @@ import oshi.util.FileUtil;
 public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxHardwareAbstractionLayer.class);
 
-    private static final String SEPARATOR = "\\s+:\\s";
-
     private CentralProcessor processor;
 
-    private GlobalMemory _memory;
+    private GlobalMemory memory;
 
     private Sensors sensors;
 
@@ -57,63 +51,16 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     @Override
     public GlobalMemory getMemory() {
-        if (this._memory == null) {
-            this._memory = new LinuxGlobalMemory();
+        if (this.memory == null) {
+            this.memory = new LinuxGlobalMemory();
         }
-        return this._memory;
+        return this.memory;
     }
 
     @Override
     public CentralProcessor getProcessor() {
-
         if (this.processor == null) {
-            List<String> cpuInfo = null;
-            try {
-                cpuInfo = FileUtil.readFile("/proc/cpuinfo");
-            } catch (IOException e) {
-                LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
-                return null;
-            }
-            for (String toBeAnalyzed : cpuInfo) {
-                if (toBeAnalyzed.equals("")) {
-                    break;
-                }
-                if (processor == null) {
-                    processor = new LinuxCentralProcessor();
-                }
-                if (toBeAnalyzed.startsWith("model name\t")) {
-                    processor.setName(toBeAnalyzed.split(SEPARATOR)[1]);
-                    continue;
-                }
-                if (toBeAnalyzed.startsWith("flags\t")) {
-                    String[] flags = toBeAnalyzed.split(SEPARATOR)[1].split(" ");
-                    boolean found = false;
-                    for (String flag : flags) {
-                        if (flag.equalsIgnoreCase("LM")) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    processor.setCpu64(found);
-                    continue;
-                }
-                if (toBeAnalyzed.startsWith("cpu family\t")) {
-                    processor.setFamily(toBeAnalyzed.split(SEPARATOR)[1]);
-                    continue;
-                }
-                if (toBeAnalyzed.startsWith("model\t")) {
-                    processor.setModel(toBeAnalyzed.split(SEPARATOR)[1]);
-                    continue;
-                }
-                if (toBeAnalyzed.startsWith("stepping\t")) {
-                    processor.setStepping(toBeAnalyzed.split(SEPARATOR)[1]);
-                    continue;
-                }
-                if (toBeAnalyzed.startsWith("vendor_id")) {
-                    processor.setVendor(toBeAnalyzed.split(SEPARATOR)[1]);
-                    continue;
-                }
-            }
+            this.processor = new LinuxCentralProcessor();
         }
         return this.processor;
     }
@@ -155,9 +102,9 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("processor", getProcessor().toJSON())
-                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
+                .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
+                .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
+                .add("displays", displayArrayBuilder.build()).add("sensors", getSensors().toJSON()).build();
     }
 }

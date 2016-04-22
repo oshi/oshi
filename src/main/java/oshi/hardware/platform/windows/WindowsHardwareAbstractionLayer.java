@@ -21,9 +21,6 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
-import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.WinReg;
-
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
@@ -38,7 +35,7 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 
     private CentralProcessor processor;
 
-    private GlobalMemory _memory;
+    private GlobalMemory memory;
 
     private Sensors sensors;
 
@@ -46,27 +43,16 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
 
     @Override
     public GlobalMemory getMemory() {
-        if (this._memory == null) {
-            this._memory = new WindowsGlobalMemory();
+        if (this.memory == null) {
+            this.memory = new WindowsGlobalMemory();
         }
-        return this._memory;
+        return this.memory;
     }
 
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
             processor = new WindowsCentralProcessor();
-            final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
-            String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
-            if (processorIds.length > 0) {
-                String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
-                processor.setIdentifier(
-                        Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
-                processor.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                        "ProcessorNameString"));
-                processor.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                        "VendorIdentifier"));
-            }
         }
         return this.processor;
     }
@@ -108,9 +94,9 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("processor", getProcessor().toJSON())
-                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
+                .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
+                .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
+                .add("displays", displayArrayBuilder.build()).add("sensors", getSensors().toJSON()).build();
     }
 }

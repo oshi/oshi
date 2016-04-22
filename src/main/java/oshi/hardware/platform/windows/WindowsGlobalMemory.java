@@ -29,7 +29,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GlobalMemory;
 import oshi.jna.platform.windows.Pdh;
-import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.json.NullAwareJsonObjectBuilder;
@@ -115,17 +114,14 @@ public class WindowsGlobalMemory implements GlobalMemory {
 
     @Override
     public long getSwapUsed() {
-        PdhFmtCounterValue phPagefileCounterValue = new PdhFmtCounterValue();
-        int ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(pPagefile.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
-                null, phPagefileCounterValue);
-        if (ret != 0) {
-            LOG.warn("Failed to get Pagefile % Usage counter. Error code: {}", String.format("0x%08X", ret));
+        if (!PdhUtil.updateCounters(pagefileQuery)) {
             return 0L;
         }
+        long swapPct = PdhUtil.queryCounter(pPagefile);
         // Returns results in 1000's of percent, e.g. 5% is 5000
         // Multiply by page file size and Divide by 100 * 1000
         // Putting division at end avoids need to cast division to double
-        return getSwapTotal() * phPagefileCounterValue.value.largeValue / 100000;
+        return getSwapTotal() * swapPct / 100000;
     }
 
     @Override
