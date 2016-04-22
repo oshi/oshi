@@ -24,9 +24,7 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
@@ -35,6 +33,7 @@ import com.sun.jna.ptr.LongByReference;
 import oshi.hardware.GlobalMemory;
 import oshi.jna.platform.mac.SystemB.XswUsage;
 import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
@@ -73,13 +72,11 @@ public class MacGlobalMemory implements GlobalMemory {
      * Updates total memory
      */
     private void updateTotal() {
-        Pointer pMemSize = new Memory(SystemB.UINT64_SIZE);
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.memsize", pMemSize, new IntByReference(SystemB.UINT64_SIZE), null,
-                0)) {
-            LOG.error("Failed to get memory size. Error code: " + Native.getLastError());
+        long memory = SysctlUtil.sysctl("hw.memsize", -1L);
+        if (memory < 0) {
             return;
         }
-        this.totalMemory = pMemSize.getLong(0);
+        this.totalMemory = memory;
     }
 
     /**
@@ -103,12 +100,9 @@ public class MacGlobalMemory implements GlobalMemory {
     private void updateSwap() {
         long now = System.currentTimeMillis();
         if (now - lastUpdateSwap > 100) {
-            if (0 != SystemB.INSTANCE.sysctlbyname("vm.swapusage", xswUsage.getPointer(),
-                    new IntByReference(xswUsage.size()), null, 0)) {
-                LOG.error("Failed to get Swap Usage. Error code: " + Native.getLastError());
+            if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
                 return;
             }
-            xswUsage.read();
             lastUpdateSwap = now;
         }
     }

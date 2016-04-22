@@ -29,9 +29,7 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -39,10 +37,12 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.hardware.CentralProcessor;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
+import oshi.jna.platform.mac.SystemB.Timeval;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * A CPU.
@@ -136,13 +136,7 @@ public class MacCentralProcessor implements CentralProcessor {
         updateProcessorTicks();
 
         // Set max processes
-        IntByReference size = new IntByReference(SystemB.INT_SIZE);
-        Pointer p = new Memory(size.getValue());
-        if (0 != SystemB.INSTANCE.sysctlbyname("kern.maxproc", p, size, null, 0)) {
-            LOG.error("Failed to get max processes. Error code: " + Native.getLastError());
-            this.maxProc = 0x1000;
-        } else
-            this.maxProc = p.getInt(0);
+        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
 
         LOG.debug("Initialized Processor");
     }
@@ -151,22 +145,8 @@ public class MacCentralProcessor implements CentralProcessor {
      * Updates logical and physical processor counts from sysctl calls
      */
     private void calculateProcessorCounts() {
-        IntByReference size = new IntByReference(SystemB.INT_SIZE);
-        Pointer p = new Memory(size.getValue());
-
-        // Get number of logical processors
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.logicalcpu", p, size, null, 0)) {
-            LOG.error("Failed to get number of logical CPUs. Error code: " + Native.getLastError());
-            this.logicalProcessorCount = 1;
-        } else
-            this.logicalProcessorCount = p.getInt(0);
-
-        // Get number of physical processors
-        if (0 != SystemB.INSTANCE.sysctlbyname("hw.physicalcpu", p, size, null, 0)) {
-            LOG.error("Failed to get number of physical CPUs. Error code: " + Native.getLastError());
-            this.physicalProcessorCount = 1;
-        } else
-            this.physicalProcessorCount = p.getInt(0);
+        this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
     }
 
     /**
@@ -175,17 +155,7 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String getVendor() {
         if (this.cpuVendor == null) {
-            IntByReference size = new IntByReference();
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", null, size, null, 0)) {
-                LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
-                return "";
-            }
-            Pointer p = new Memory(size.getValue() + 1);
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.vendor", p, size, null, 0)) {
-                LOG.error("Failed to get Vendor. Error code: " + Native.getLastError());
-                return "";
-            }
-            this.cpuVendor = p.getString(0);
+            this.cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
         }
         return this.cpuVendor;
     }
@@ -204,17 +174,7 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String getName() {
         if (this.cpuName == null) {
-            IntByReference size = new IntByReference();
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", null, size, null, 0)) {
-                LOG.error("Failed to get Name. Error code: " + Native.getLastError());
-                return "";
-            }
-            Pointer p = new Memory(size.getValue() + 1);
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.brand_string", p, size, null, 0)) {
-                LOG.error("Failed to get Name. Error code: " + Native.getLastError());
-                return "";
-            }
-            this.cpuName = p.getString(0);
+            this.cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
         }
         return this.cpuName;
     }
@@ -289,13 +249,7 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public boolean isCpu64bit() {
         if (this.cpu64 == null) {
-            IntByReference size = new IntByReference(SystemB.INT_SIZE);
-            Pointer p = new Memory(size.getValue());
-            if (0 != SystemB.INSTANCE.sysctlbyname("hw.cpu64bit_capable", p, size, null, 0)) {
-                LOG.error("Failed to get 64Bit_capable. Error code: " + Native.getLastError());
-                return false;
-            }
-            this.cpu64 = p.getInt(0) != 0;
+            this.cpu64 = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
         }
         return this.cpu64.booleanValue();
     }
@@ -314,13 +268,8 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String getStepping() {
         if (this.cpuStepping == null) {
-            IntByReference size = new IntByReference(SystemB.INT_SIZE);
-            Pointer p = new Memory(size.getValue());
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.stepping", p, size, null, 0)) {
-                LOG.error("Failed to get Stepping. Error code: " + Native.getLastError());
-                return "";
-            }
-            this.cpuStepping = Integer.toString(p.getInt(0));
+            int stepping = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
+            this.cpuStepping = stepping < 0 ? "" : Integer.toString(stepping);
         }
         return this.cpuStepping;
     }
@@ -339,13 +288,8 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String getModel() {
         if (this.cpuModel == null) {
-            IntByReference size = new IntByReference(SystemB.INT_SIZE);
-            Pointer p = new Memory(size.getValue());
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.model", p, size, null, 0)) {
-                LOG.error("Failed to get Model. Error code: " + Native.getLastError());
-                return "";
-            }
-            this.cpuModel = Integer.toString(p.getInt(0));
+            int model = SysctlUtil.sysctl("machdep.cpu.model", -1);
+            this.cpuModel = model < 0 ? "" : Integer.toString(model);
         }
         return this.cpuModel;
     }
@@ -364,13 +308,8 @@ public class MacCentralProcessor implements CentralProcessor {
     @Override
     public String getFamily() {
         if (this.cpuFamily == null) {
-            IntByReference size = new IntByReference(SystemB.INT_SIZE);
-            Pointer p = new Memory(size.getValue());
-            if (0 != SystemB.INSTANCE.sysctlbyname("machdep.cpu.family", p, size, null, 0)) {
-                LOG.error("Failed to get Family. Error code: " + Native.getLastError());
-                return "";
-            }
-            this.cpuFamily = Integer.toString(p.getInt(0));
+            int family = SysctlUtil.sysctl("machdep.cpu.family", -1);
+            this.cpuFamily = family < 0 ? "" : Integer.toString(family);
         }
         return this.cpuFamily;
     }
@@ -588,22 +527,13 @@ public class MacCentralProcessor implements CentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        IntByReference size = new IntByReference();
-        if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", null, size, null, 0)) {
-            LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
+        Timeval tv = new Timeval();
+        if (!SysctlUtil.sysctl("kern.boottime", tv)) {
             return 0L;
         }
-        // This should point to a 16-byte structure. If not, this code is valid
-        if (size.getValue() != 16)
-            throw new UnsupportedOperationException("sysctl kern.boottime should be 16 bytes but isn't.");
-        Pointer p = new Memory(size.getValue() + 1);
-        if (0 != SystemB.INSTANCE.sysctlbyname("kern.boottime", p, size, null, 0)) {
-            LOG.error("Failed to get Boot Time. Error code: " + Native.getLastError());
-            return 0L;
-        }
-        // p now points to a 16-bit timeval structure for boot time.
+        // tv now points to a 16-bit timeval structure for boot time.
         // First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
-        return System.currentTimeMillis() / 1000 - p.getLong(0);
+        return System.currentTimeMillis() / 1000 - tv.tv_sec;
     }
 
     /**

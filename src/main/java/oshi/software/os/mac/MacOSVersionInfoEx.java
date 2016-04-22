@@ -23,14 +23,9 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.ptr.IntByReference;
-
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * @author alessandro[at]perucchi[dot]org
@@ -137,17 +132,7 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
 
     public String getBuildNumber() {
         if (this._buildNumber == null) {
-            IntByReference size = new IntByReference();
-            if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", null, size, null, 0)) {
-                LOG.error("Failed to get OS Version. Error code: " + Native.getLastError());
-                return "";
-            }
-            Pointer p = new Memory(size.getValue() + 1);
-            if (0 != SystemB.INSTANCE.sysctlbyname("kern.osversion", p, size, null, 0)) {
-                LOG.error("Failed to get OS Version. Error code: " + Native.getLastError());
-                return "";
-            }
-            this._buildNumber = p.getString(0);
+            this._buildNumber = SysctlUtil.sysctl("kern.osversion", "");
         }
         return this._buildNumber;
     }
@@ -158,8 +143,8 @@ public class MacOSVersionInfoEx implements OperatingSystemVersion {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", getCodeName())
-                .add("build", getBuildNumber()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
+                .add("codeName", getCodeName()).add("build", getBuildNumber()).build();
     }
 
     @Override

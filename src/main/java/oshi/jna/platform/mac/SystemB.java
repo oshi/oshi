@@ -64,6 +64,9 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         }
     };
 
+    /**
+     * Return type for sysctl vm.swapusage
+     */
     static class XswUsage extends Structure {
         public long xsu_total;
         public long xsu_avail;
@@ -75,6 +78,19 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         protected List<String> getFieldOrder() {
             return Arrays
                     .asList(new String[] { "xsu_total", "xsu_avail", "xsu_used", "xsu_pagesize", "xsu_encrypted" });
+        }
+    };
+
+    /**
+     * Return type for sysctl kern.boottime
+     */
+    static class Timeval extends Structure {
+        public long tv_sec; // seconds
+        public long tv_usec; // microseconds
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "tv_sec", "tv_usec" });
         }
     };
 
