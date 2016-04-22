@@ -16,20 +16,10 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.ArrayList;
-import java.util.List;
+import oshi.hardware.common.AbstractSensors;
+import oshi.util.platform.windows.WmiUtil;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.util.ExecutingCommand;
-
-public class WindowsSensors implements Sensors {
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+public class WindowsSensors extends AbstractSensors {
 
     // If null, haven't attempted OHM.
     private String tempIdentifierStr = null;
@@ -46,79 +36,9 @@ public class WindowsSensors implements Sensors {
     private String wmiVoltPath = null;
     private String wmiVoltProperty = null;
 
-    /*
-     * Gets integer value from WMI or -1 if failed
+    /**
+     * {@inheritDoc}
      */
-    private int wmiGetValue(String path, String property) {
-        int value = -1;
-        ArrayList<String> data = ExecutingCommand.runNative(String.format("wmic %s get %s", path, property));
-        for (String checkLine : data) {
-            if (checkLine.length() == 0 || checkLine.toLowerCase().contains(property.toLowerCase())) {
-                continue;
-            } else {
-                // If successful this line is the desired value
-                try {
-                    value = Integer.parseInt(checkLine.trim());
-                } catch (NumberFormatException e) {
-                    // If we failed to parse, give up
-                    value = -1;
-                }
-                break;
-            }
-        }
-        return value;
-    }
-
-    /*
-     * Returns string value in the second property when first property matches
-     * the key
-     */
-    private String[] wmiGetStrValuesForKey(String path, String key, String properties) {
-        List<String> values = new ArrayList<String>();
-        ArrayList<String> data = ExecutingCommand.runNative(String.format("wmic %s get %s", path, properties));
-        for (String checkLine : data) {
-            String[] keyValue = checkLine.split("\\s+");
-            if (keyValue.length < 2) {
-                continue;
-            }
-            if (keyValue[0].equals(key)) {
-                values.add(keyValue[1]);
-            }
-        }
-        return values.toArray(new String[values.size()]);
-    }
-
-    /*
-     * Returns array of values in the third property when first two properties
-     * match the keys
-     */
-    private double[] wmiGetValuesForKeys(String path, String key0, String key1, String properties) {
-        List<Double> values = new ArrayList<Double>();
-        ArrayList<String> data = ExecutingCommand.runNative(String.format("wmic %s get %s", path, properties));
-        for (String checkLine : data) {
-            double value;
-            String[] keyValue = checkLine.split("\\s+");
-            if (keyValue.length < 3) {
-                continue;
-            }
-            if ((key0 == null || keyValue[0].equals(key0)) && keyValue[1].equals(key1)) {
-                // If successful this line is the desired value
-                try {
-                    value = Double.parseDouble(keyValue[2]);
-                } catch (NumberFormatException e) {
-                    // If we failed to parse, do nothing
-                    continue;
-                }
-                values.add(value);
-            }
-        }
-        double[] valueArray = new double[values.size()];
-        for (int i = 0; i < values.size(); i++) {
-            valueArray[i] = values.get(i);
-        }
-        return valueArray;
-    }
-
     @Override
     public double getCpuTemperature() {
         // Initialize
@@ -126,7 +46,7 @@ public class WindowsSensors implements Sensors {
         // If Open Hardware Monitor identifier is set, we couldn't get through
         // normal WMI, and got ID from OHM at least once so go directly to OHM
         if (this.tempIdentifierStr != null) {
-            double[] vals = wmiGetValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor",
+            double[] vals = WmiUtil.wmiGetDoubleValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor",
                     this.tempIdentifierStr, "Temperature", "Parent,SensorType,Value");
             if (vals.length > 0) {
                 double sum = 0;
@@ -144,20 +64,20 @@ public class WindowsSensors implements Sensors {
         if (this.wmiTempPath == null) {
             this.wmiTempPath = "Temperature";
             this.wmiTempProperty = "CurrentReading";
-            tempK = wmiGetValue(this.wmiTempPath, this.wmiTempProperty);
+            tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
             if (tempK < 0) {
                 this.wmiTempPath = "/namespace:\\\\root\\cimv2 PATH Win32_TemperatureProbe";
-                tempK = wmiGetValue(this.wmiTempPath, this.wmiTempProperty);
+                tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
             }
             if (tempK < 0) {
                 this.wmiTempPath = "/namespace:\\\\root\\wmi PATH MSAcpi_ThermalZoneTemperature";
                 this.wmiTempProperty = "CurrentTemperature";
-                tempK = wmiGetValue(this.wmiTempPath, this.wmiTempProperty);
+                tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
-            tempK = wmiGetValue(this.wmiTempPath, this.wmiTempProperty);
+            tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
         }
         // Convert K to C and return result
         if (tempK > 0) {
@@ -166,8 +86,8 @@ public class WindowsSensors implements Sensors {
         if (tempC <= 0d) {
             // Unable to get temperature via WMI. Future attempts will be
             // attempted via Open Hardware Monitor WMI if successful
-            String[] cpuIdentifiers = wmiGetStrValuesForKey("/namespace:\\\\root\\OpenHardwareMonitor PATH Hardware",
-                    "CPU", "HardwareType,Identifier");
+            String[] cpuIdentifiers = WmiUtil.getStrValuesForKey(
+                    "/namespace:\\\\root\\OpenHardwareMonitor PATH Hardware", "CPU", "HardwareType,Identifier");
             if (cpuIdentifiers.length > 0) {
                 this.tempIdentifierStr = cpuIdentifiers[0];
             }
@@ -179,14 +99,17 @@ public class WindowsSensors implements Sensors {
         return tempC;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int[] getFanSpeeds() {
         // Initialize
         int[] fanSpeeds = new int[1];
         // If we couldn't get through normal WMI go directly to OHM
         if (!this.fanSpeedWMI) {
-            double[] vals = wmiGetValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor", null, "Fan",
-                    "Parent,SensorType,Value");
+            double[] vals = WmiUtil.wmiGetDoubleValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor", null,
+                    "Fan", "Parent,SensorType,Value");
             if (vals.length > 0) {
                 fanSpeeds = new int[vals.length];
                 for (int i = 0; i < vals.length; i++) {
@@ -198,7 +121,7 @@ public class WindowsSensors implements Sensors {
         // This branch is used the first time and all subsequent times if
         // successful (fanSpeedWMI == true)
         // Try to get value
-        int rpm = wmiGetValue("/namespace:\\\\root\\cimv2 PATH Win32_Fan", "DesiredSpeed");
+        int rpm = WmiUtil.getIntValue("/namespace:\\\\root\\cimv2 PATH Win32_Fan", "DesiredSpeed");
         // Set in array and return
         if (rpm > 0) {
             fanSpeeds[0] = rpm;
@@ -210,13 +133,16 @@ public class WindowsSensors implements Sensors {
         return fanSpeeds;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuVoltage() {
         // Initialize
         double volts = 0d;
         // If we couldn't get through normal WMI go directly to OHM
         if (this.voltIdentifierStr != null) {
-            double[] vals = wmiGetValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor",
+            double[] vals = WmiUtil.wmiGetDoubleValuesForKeys("/namespace:\\\\root\\OpenHardwareMonitor PATH Sensor",
                     this.voltIdentifierStr, "Voltage", "Identifier,SensorType,Value");
             if (vals.length > 0) {
                 // Return the first voltage reading
@@ -232,10 +158,10 @@ public class WindowsSensors implements Sensors {
         if (this.wmiVoltPath == null) {
             this.wmiVoltPath = "CPU";
             this.wmiVoltProperty = "CurrentVoltage";
-            decivolts = wmiGetValue(this.wmiVoltPath, this.wmiVoltProperty);
+            decivolts = WmiUtil.getIntValue(this.wmiVoltPath, this.wmiVoltProperty);
             if (decivolts < 0) {
                 this.wmiVoltPath = "/namespace:\\\\root\\cimv2 PATH Win32_Processor";
-                decivolts = wmiGetValue(this.wmiVoltPath, this.wmiVoltProperty);
+                decivolts = WmiUtil.getIntValue(this.wmiVoltPath, this.wmiVoltProperty);
             }
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
@@ -243,12 +169,12 @@ public class WindowsSensors implements Sensors {
             if ((decivolts & 0x80) == 0 && decivolts > 0) {
                 this.wmiVoltProperty = "VoltageCaps";
                 // really a bit setting, not decivolts, test later
-                decivolts = wmiGetValue(this.wmiVoltPath, this.wmiVoltProperty);
+                decivolts = WmiUtil.getIntValue(this.wmiVoltPath, this.wmiVoltProperty);
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
-            decivolts = wmiGetValue(this.wmiVoltPath, this.wmiVoltProperty);
+            decivolts = WmiUtil.getIntValue(this.wmiVoltPath, this.wmiVoltProperty);
         }
         // Convert dV to V and return result
         if (decivolts > 0) {
@@ -269,8 +195,8 @@ public class WindowsSensors implements Sensors {
         if (volts <= 0d) {
             // Unable to get voltage via WMI. Future attempts will be
             // attempted via Open Hardware Monitor WMI if successful
-            String[] voltIdentifiers = wmiGetStrValuesForKey("/namespace:\\\\root\\OpenHardwareMonitor PATH Hardware",
-                    "Voltage", "SensorType,Identifier");
+            String[] voltIdentifiers = WmiUtil.getStrValuesForKey(
+                    "/namespace:\\\\root\\OpenHardwareMonitor PATH Hardware", "Voltage", "SensorType,Identifier");
             // Look for identifier containing "cpu"
             for (String id : voltIdentifiers) {
                 if (id.toLowerCase().contains("cpu")) {
@@ -288,16 +214,5 @@ public class WindowsSensors implements Sensors {
             }
         }
         return volts;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
-        for (int speed : getFanSpeeds()) {
-            fanSpeedsArrayBuilder.add(speed);
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("cpuTemperature", getCpuTemperature()).add("fanSpeeds", fanSpeedsArrayBuilder.build())
-                .add("cpuVoltage", getCpuVoltage()).build();
     }
 }
