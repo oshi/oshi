@@ -1,5 +1,8 @@
-/*
- * Copyright (c) 2016 com.github.dblock.
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,27 +49,27 @@ public class LinuxDisks implements OshiJsonObject {
         Udev.UdevListEntry entry, oldEntry;
 
         result = new ArrayList<>();
-        
+
         handle = Udev.INSTANCE.udev_new();
         enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "block");
         Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
 
-        oldEntry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
+        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
         while (true) {
             try {
-                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
+                oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));
-                String devtype = Udev.INSTANCE.udev_device_get_devtype(device);
-                if (devtype.equals("disk")) {
+                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
                     store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-                    
+
                     result.add(store);
                 }
-                oldEntry = entry;
+                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
             } catch (Exception ex) {
+                LOG.debug("Reached all disks. Exiting ");
                 break;
             } finally {
                 if (device instanceof Udev.UdevDevice) {
@@ -82,7 +85,6 @@ public class LinuxDisks implements OshiJsonObject {
     }
 
     @Override
-
     public JsonObject toJSON() {
 
         JsonArrayBuilder array = jsonFactory.createArrayBuilder();
