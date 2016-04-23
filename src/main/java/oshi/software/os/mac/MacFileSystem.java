@@ -29,6 +29,7 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -39,12 +40,28 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class MacFileSystem {
+public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern localDisk = Pattern.compile("/dev/disk\\d");
+
+    /**
+     * Creates a {@link AbstractFileSystem} with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public MacFileSystem(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+        super(newName, newDescription, newUsableSpace, newTotalSpace);
+    }
 
     /**
      * Gets File System Information.
@@ -80,7 +97,7 @@ public class MacFileSystem {
                     LOG.trace("", e);
                     continue;
                 }
-                fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));
+                fsList.add(new MacFileSystem(name, description, f.getUsableSpace(), f.getTotalSpace()));
             }
         return fsList.toArray(new OSFileStore[fsList.size()]);
     }

@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -37,9 +38,25 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsFileSystem {
+public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+
+    /**
+     * Creates a {@link AbstractFileSystem} with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public WindowsFileSystem(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+        super(newName, newDescription, newUsableSpace, newTotalSpace);
+    }
 
     /**
      * Gets File System Information.
@@ -60,7 +77,7 @@ public class WindowsFileSystem {
                 FileSystemView fsv = FileSystemView.getFileSystemView();
                 List<OSFileStore> fsList = new ArrayList<>();
                 for (File f : roots) {
-                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),
+                    fsList.add(new WindowsFileSystem(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),
                             f.getUsableSpace(), f.getTotalSpace()));
                 }
                 return fsList;

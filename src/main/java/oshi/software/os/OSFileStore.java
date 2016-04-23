@@ -16,14 +16,6 @@
  */
 package oshi.software.os;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
 
 /**
@@ -33,47 +25,14 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore implements OshiJsonObject {
-    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
-
-    private String name;
-
-    private String description;
-
-    private long usableSpace;
-
-    private long totalSpace;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
-    /**
-     * Creates a {@link OSFileStore} with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        this.setName(newName);
-        this.setDescription(newDescription);
-        this.setUsableSpace(newUsableSpace);
-        this.setTotalSpace(newTotalSpace);
-        LOG.debug("Initialized OSFileStore: {}", newName);
-    }
+public interface OSFileStore extends OshiJsonObject {
 
     /**
      * Name of the File System
      * 
      * @return The file system name
      */
-    public String getName() {
-        return this.name;
-    }
+    public String getName();
 
     /**
      * Sets the File System name
@@ -81,18 +40,14 @@ public class OSFileStore implements OshiJsonObject {
      * @param value
      *            The name
      */
-    public void setName(String value) {
-        this.name = value;
-    }
+    public void setName(String value);
 
     /**
      * Description of the File System
      * 
      * @return The file system description
      */
-    public String getDescription() {
-        return this.description;
-    }
+    public String getDescription();
 
     /**
      * Sets the File System description
@@ -100,18 +55,14 @@ public class OSFileStore implements OshiJsonObject {
      * @param value
      *            The description
      */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+    public void setDescription(String value);
 
     /**
      * Usable space on the drive.
      * 
      * @return Usable space on the drive (in bytes)
      */
-    public long getUsableSpace() {
-        return this.usableSpace;
-    }
+    public long getUsableSpace();
 
     /**
      * Sets usable space on the drive.
@@ -119,18 +70,14 @@ public class OSFileStore implements OshiJsonObject {
      * @param value
      *            Bytes of writable space.
      */
-    public void setUsableSpace(long value) {
-        this.usableSpace = value;
-    }
+    public void setUsableSpace(long value);
 
     /**
      * Total space/capacity of the drive.
      * 
      * @return Total capacity of the drive (in bytes)
      */
-    public long getTotalSpace() {
-        return this.totalSpace;
-    }
+    public long getTotalSpace();
 
     /**
      * Sets the total space on the drive.
@@ -138,13 +85,5 @@ public class OSFileStore implements OshiJsonObject {
      * @param value
      *            Bytes of total space.
      */
-    public void setTotalSpace(long value) {
-        this.totalSpace = value;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("description", getDescription())
-                .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
-    }
+    public void setTotalSpace(long value);
 }
