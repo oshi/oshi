@@ -20,15 +20,10 @@ package oshi.hardware.platform.linux;
 import java.io.IOException;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.GlobalMemory;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.FileUtil;
 
 /**
@@ -37,23 +32,18 @@ import oshi.util.FileUtil;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxGlobalMemory implements GlobalMemory {
+public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     // Values read from /proc/meminfo used for other calculations
-    private long memTotal = 0;
     private long memFree = 0;
-    private long memAvailable = 0;
     private long activeFile = 0;
     private long inactiveFile = 0;
     private long sReclaimable = 0;
-    private long swapTotal = 0;
     private long swapFree = 0;
 
     private long lastUpdate = 0;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Updates instance variables from reading /proc/meminfo no more frequently
@@ -68,7 +58,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private void updateMeminfo() {
+    protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
             List<String> memInfo = null;
@@ -78,6 +68,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
                 LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
                 return;
             }
+            boolean found = false;
             for (String checkLine : memInfo) {
                 String[] memorySplit = checkLine.split("\\s+");
                 if (memorySplit.length > 1) {
@@ -90,6 +81,7 @@ public class LinuxGlobalMemory implements GlobalMemory {
                         break;
                     case "MemAvailable:":
                         this.memAvailable = parseMeminfo(memorySplit);
+                        found = true;
                         break;
                     case "Active(file):":
                         this.activeFile = parseMeminfo(memorySplit);
@@ -112,8 +104,22 @@ public class LinuxGlobalMemory implements GlobalMemory {
                     }
                 }
             }
+            this.swapUsed = this.swapTotal - this.swapFree;
+            // If no MemAvailable, calculate from other fields
+            if (!found) {
+                this.memAvailable = this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;
+            }
+
             this.lastUpdate = now;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateSwap() {
+        updateMeminfo();
     }
 
     /**
@@ -132,40 +138,5 @@ public class LinuxGlobalMemory implements GlobalMemory {
             memory *= 1024;
         }
         return memory;
-    }
-
-    @Override
-    public long getAvailable() {
-        updateMeminfo();
-        // If we have MemAvailable, it trumps all. Otherwise we combine MemFree,
-        // Active(file), Inactive(file), and Reclaimable.
-        return this.memAvailable > 0 ? this.memAvailable
-                : this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;
-    }
-
-    @Override
-    public long getTotal() {
-        if (this.memTotal == 0) {
-            updateMeminfo();
-        }
-        return this.memTotal;
-    }
-
-    @Override
-    public long getSwapUsed() {
-        updateMeminfo();
-        return this.swapTotal - this.swapFree;
-    }
-
-    @Override
-    public long getSwapTotal() {
-        updateMeminfo();
-        return this.swapTotal;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }

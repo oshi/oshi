@@ -25,22 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.FileUtil;
 
-public class LinuxSensors implements Sensors {
+public class LinuxSensors extends AbstractSensors {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxSensors.class);
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     // Possible sensor types. See sysfs documentation for others, e.g. current
     private static final String[] SENSORS = { "temp", "fan", "in" };
@@ -67,6 +59,9 @@ public class LinuxSensors implements Sensors {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuTemperature() {
         if (hwmonMap.containsKey("temp")) {
@@ -92,6 +87,9 @@ public class LinuxSensors implements Sensors {
         return 0d;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int[] getFanSpeeds() {
         if (hwmonMap.containsKey("fan")) {
@@ -126,6 +124,9 @@ public class LinuxSensors implements Sensors {
         return new int[0];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuVoltage() {
         if (hwmonMap.containsKey("in")) {
@@ -149,15 +150,5 @@ public class LinuxSensors implements Sensors {
             }
         }
         return 0d;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
-        for (int speed : getFanSpeeds()) {
-            fanSpeedsArrayBuilder.add(speed);
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("cpuTemperature", getCpuTemperature())
-                .add("fanSpeeds", fanSpeedsArrayBuilder.build()).add("cpuVoltage", getCpuVoltage()).build();
     }
 }

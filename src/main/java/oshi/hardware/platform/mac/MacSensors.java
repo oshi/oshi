@@ -20,33 +20,25 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.IOConnect;
 import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.Util;
 
-public class MacSensors implements Sensors {
+public class MacSensors extends AbstractSensors {
     private static final Logger LOG = LoggerFactory.getLogger(MacSensors.class);
 
     private IOConnect conn = new IOConnect();
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     // Cache the first key query
     private Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new HashMap<Integer, SMCKeyDataKeyInfo>();
@@ -290,6 +282,9 @@ public class MacSensors implements Sensors {
         return total;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuTemperature() {
         // Only update every second
@@ -303,6 +298,9 @@ public class MacSensors implements Sensors {
         return this.lastTemp;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int[] getFanSpeeds() {
         // Only update every second
@@ -323,6 +321,9 @@ public class MacSensors implements Sensors {
         return this.lastFanSpeeds;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuVoltage() {
         // Only update every second
@@ -334,15 +335,5 @@ public class MacSensors implements Sensors {
             }
         }
         return this.lastVolts;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
-        for (int speed : getFanSpeeds()) {
-            fanSpeedsArrayBuilder.add(speed);
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("cpuTemperature", getCpuTemperature())
-                .add("fanSpeeds", fanSpeedsArrayBuilder.build()).add("cpuVoltage", getCpuVoltage()).build();
     }
 }

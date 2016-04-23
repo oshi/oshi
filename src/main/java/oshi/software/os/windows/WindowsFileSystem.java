@@ -27,7 +27,8 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.software.os.OSFileStore;
+import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStore;
 
 /**
  * The Windows File System contains {@link OSFileStore}s which are a storage
@@ -37,7 +38,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsFileSystem {
+public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
 
@@ -48,7 +49,7 @@ public class WindowsFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         // File.listRoots() has more information for Windows
         // than FileSystem.getDefalut().getFileStores()
         final File[] roots = File.listRoots();

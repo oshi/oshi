@@ -16,8 +16,9 @@
  */
 package oshi.hardware;
 
+import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
@@ -67,7 +68,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      * @return An array of HWDiskStore objects or an empty array if none are
      *         present.
      */
-    HWDiskStore[] getDisksStores();
+    HWDiskStore[] getDiskStores();
     
     /**
      * Instantiates an array of {@link Display} objects, representing monitors

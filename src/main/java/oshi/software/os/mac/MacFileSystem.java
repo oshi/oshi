@@ -29,7 +29,8 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.software.os.OSFileStore;
+import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStore;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -39,7 +40,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class MacFileSystem {
+public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
@@ -53,7 +54,7 @@ public class MacFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         List<OSFileStore> fsList = new ArrayList<>();
         FileSystemView fsv = FileSystemView.getFileSystemView();
         // Mac file systems are mounted in /Volumes

@@ -14,15 +14,7 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac;
-
-import oshi.software.common.AbstractOperatingSystem;
-
-public class MacOperatingSystem extends AbstractOperatingSystem {
-
-    public MacOperatingSystem() {
-        this.manufacturer = "Apple";
-        this.family = System.getProperty("os.name");
-        this.version = new MacOSVersionInfoEx();
-    }
-}
+/**
+ * Provides abstract classes for common code 
+ */
+package oshi.software.common;

@@ -58,9 +58,10 @@ public interface CentralProcessor extends OshiJsonObject {
     void setName(String name);
 
     /**
-     * Vendor frequency (in Hz).
+     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
+     * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
      * 
-     * @return Processor frequency.
+     * @return Processor frequency or -1 if unknown.
      */
     long getVendorFreq();
 

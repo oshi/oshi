@@ -16,107 +16,77 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.WinReg;
-
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OSFileStore;
+import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.HWDiskStore;
+import oshi.software.common.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
-public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    private CentralProcessor processor;
-
-    private GlobalMemory _memory;
-
-    private Sensors sensors;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GlobalMemory getMemory() {
-        if (this._memory == null) {
-            this._memory = new WindowsGlobalMemory();
+        if (this.memory == null) {
+            this.memory = new WindowsGlobalMemory();
         }
-        return this._memory;
+        return this.memory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
             processor = new WindowsCentralProcessor();
-            final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
-            String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
-            if (processorIds.length > 0) {
-                String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
-                processor.setIdentifier(
-                        Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
-                processor.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                        "ProcessorNameString"));
-                processor.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                        "VendorIdentifier"));
-            }
         }
         return this.processor;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PowerSource[] getPowerSources() {
         return WindowsPowerSource.getPowerSources();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OSFileStore[] getFileStores() {
-        return WindowsFileSystem.getFileStores();
+        return new WindowsFileSystem().getFileStores();
     }
-    
+
     @Override
-    public HWDiskStore[] getDisksStores() {
+    public HWDiskStore[] getDiskStores() {
         return new WindowsDisks().getDisks();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Display[] getDisplays() {
         return WindowsDisplay.getDisplays();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
             this.sensors = new WindowsSensors();
         }
         return this.sensors;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (PowerSource powerSource : getPowerSources()) {
-            powerSourceArrayBuilder.add(powerSource.toJSON());
-        }
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
-        }
-        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
-        for (Display display : getDisplays()) {
-            displayArrayBuilder.add(display.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("processor", getProcessor().toJSON())
-                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
     }
 }

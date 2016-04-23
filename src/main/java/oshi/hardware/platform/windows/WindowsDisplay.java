@@ -17,12 +17,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,34 +33,19 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Display;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.util.EdidUtil;
+import oshi.hardware.common.AbstractDisplay;
 
 /**
  * A Display
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsDisplay implements Display {
+public class WindowsDisplay extends AbstractDisplay {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
 
-    private byte[] edid;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     public WindowsDisplay(byte[] edid) {
-        this.edid = edid;
+        super(edid);
         LOG.debug("Initialized WindowsDisplay");
-    }
-
-    @Override
-    public byte[] getEdid() {
-        return Arrays.copyOf(edid, edid.length);
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("edid", EdidUtil.toString(getEdid())).build();
     }
 
     /**

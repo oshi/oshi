@@ -17,10 +17,6 @@
  */
 package oshi.hardware.platform.mac;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +26,8 @@ import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import oshi.hardware.GlobalMemory;
+import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.mac.SystemB.XswUsage;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -40,49 +35,35 @@ import oshi.util.platform.mac.SysctlUtil;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class MacGlobalMemory implements GlobalMemory {
+public class MacGlobalMemory extends AbstractGlobalMemory {
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
     private XswUsage xswUsage = new XswUsage();
-
     private long lastUpdateSwap = 0;
 
     private VMStatistics vmStats = new VMStatistics();
-
     private long lastUpdateAvail = 0;
-
-    private long totalMemory = 0;
 
     private long pageSize = 4096;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     public MacGlobalMemory() {
-        updateTotal();
+        long memory = SysctlUtil.sysctl("hw.memsize", -1L);
+        if (memory >= 0) {
+            this.memTotal = memory;
+        }
 
         LongByReference pPageSize = new LongByReference();
         if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
             LOG.error("Failed to get host page size. Error code: " + Native.getLastError());
             return;
         }
-        pageSize = pPageSize.getValue();
-    }
-
-    /**
-     * Updates total memory
-     */
-    private void updateTotal() {
-        long memory = SysctlUtil.sysctl("hw.memsize", -1L);
-        if (memory < 0) {
-            return;
-        }
-        this.totalMemory = memory;
+        this.pageSize = pPageSize.getValue();
     }
 
     /**
      * Updates available memory no more often than every 100ms
      */
-    private void updateAvailable() {
+    protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - lastUpdateAvail > 100) {
             if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
@@ -90,6 +71,7 @@ public class MacGlobalMemory implements GlobalMemory {
                 LOG.error("Failed to get host VM info. Error code: " + Native.getLastError());
                 return;
             }
+            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;
             lastUpdateAvail = now;
         }
     }
@@ -97,45 +79,15 @@ public class MacGlobalMemory implements GlobalMemory {
     /**
      * Updates swap file stats no more often than every 100ms
      */
-    private void updateSwap() {
+    protected void updateSwap() {
         long now = System.currentTimeMillis();
         if (now - lastUpdateSwap > 100) {
             if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
                 return;
             }
+            this.swapUsed = xswUsage.xsu_used;
+            this.swapTotal = xswUsage.xsu_total;
             lastUpdateSwap = now;
         }
-    }
-
-    @Override
-    public long getAvailable() {
-        updateAvailable();
-        return (vmStats.free_count + vmStats.inactive_count) * pageSize;
-    }
-
-    @Override
-    public long getTotal() {
-        if (this.totalMemory == 0) {
-            updateTotal();
-        }
-        return this.totalMemory;
-    }
-
-    @Override
-    public long getSwapUsed() {
-        updateSwap();
-        return xswUsage.xsu_used;
-    }
-
-    @Override
-    public long getSwapTotal() {
-        updateSwap();
-        return xswUsage.xsu_total;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapused", getSwapUsed()).build();
     }
 }

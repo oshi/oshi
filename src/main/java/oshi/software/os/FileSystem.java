@@ -9,22 +9,17 @@
  * enrico[dot]bianchi[at]gmail[dot]com
  *    com.github.dblock - initial API and implementation and/or initial documentation
  */
-package oshi.hardware;
+package oshi.software.os;
 
-import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
+import oshi.software.common.OSFileStore;
 
-/**
- * Disks refers to hard drives installed in the machine.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
- */
-public interface Disks extends OshiJsonObject {
+public interface FileSystem extends OshiJsonObject {
 
     /**
-     * Get hard drives on this machine
+     * Get file stores on this machine
      * 
-     * @return Array of {@link HWDiskStore} objects
+     * @return Array of {@link OSFileStore} objects
      */
-    public HWDiskStore[] getDisks();
+    public OSFileStore[] getFileStores();
 }

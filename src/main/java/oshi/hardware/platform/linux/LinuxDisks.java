@@ -15,30 +15,24 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.hardware.Disks;
-import oshi.hardware.HWDiskStore;
+
+import oshi.hardware.common.AbstractDisks;
+import oshi.hardware.common.HWDiskStore;
 import oshi.jna.platform.linux.Udev;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Linux hard disk implementation.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class LinuxDisks implements Disks {
+public class LinuxDisks extends AbstractDisks {
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
     private final int SECTORSIZE = 512;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
     private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
         LinuxBlockDevStats stats;
@@ -53,7 +47,6 @@ public class LinuxDisks implements Disks {
     public HWDiskStore[] getDisks() {
         HWDiskStore store;
         List<HWDiskStore> result;
-        HashMap<String, Long> stats;
 
         Udev.UdevHandle handle = null;
         Udev.UdevDevice device = null;
@@ -71,20 +64,20 @@ public class LinuxDisks implements Disks {
         while (true) {
             try {
                 oldEntry = entry;
-                device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));
+                device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
+                        Udev.INSTANCE.udev_list_entry_get_name(entry));
                 if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
-                    
+
                     // Avoid model and serial in virtual environments
                     store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
-                            ? "Unknown"
-                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                     store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
-                            ? "Unknown"
-                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-                    
-                    store.setSize(Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
+                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+
+                    store.setSize(
+                            Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
 
                     this.computeDiskStats(store, device);
                     result.add(store);
@@ -104,16 +97,5 @@ public class LinuxDisks implements Disks {
         Udev.INSTANCE.udev_unref(handle);
 
         return result.toArray(new HWDiskStore[result.size()]);
-    }
-
-    @Override
-    public JsonObject toJSON() {
-
-        JsonArrayBuilder array = jsonFactory.createArrayBuilder();
-
-        for (HWDiskStore store : getDisks()) {
-            array.add(store.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("disks", array).build();
     }
 }

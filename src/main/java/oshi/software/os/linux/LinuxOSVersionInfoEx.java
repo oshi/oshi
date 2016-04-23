@@ -20,35 +20,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OperatingSystemVersion;
+import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.FileUtil;
 
-/**
- * Contains operating system version information. The information includes major
- * and minor version numbers, a build number, a platform identifier, and
- * descriptive text about the operating system.
- *
- * @author alessandro[at]perucchi[dot]org
- */
-public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
+public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);
-
-    private String _version;
-
-    private String _codeName;
-
-    private String version;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public LinuxOSVersionInfoEx() {
         String etcOsRelease = LinuxOperatingSystem.getReleaseFilename();
@@ -128,50 +108,29 @@ public class LinuxOSVersionInfoEx implements OperatingSystemVersion {
                 setCodeName(name);
             }
         }
-    }
-
-    /**
-     * @return the _codeName
-     */
-    public String getCodeName() {
-        return this._codeName;
-    }
-
-    /**
-     * @return the _version
-     */
-    public String getVersion() {
-        return this._version;
-    }
-
-    /**
-     * @param value
-     *            the _codeName to set
-     */
-    public void setCodeName(String value) {
-        this._codeName = value;
-    }
-
-    /**
-     * @param value
-     *            the _version to set
-     */
-    public void setVersion(String value) {
-        this._version = value;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
-                .add("codeName", getCodeName()).add("build", "").build();
-    }
-
-    @Override
-    public String toString() {
-        if (this.version == null) {
-            this.version = getVersion() + " (" + getCodeName() + ")";
+        if (getVersion() == null) {
+            setVersion(System.getProperty("os.version"));
         }
-        return this.version;
+        if (getCodeName() == null) {
+            setCodeName("");
+        }
+        List<String> procVersion = null;
+        try {
+            procVersion = FileUtil.readFile("/proc/version");
+        } catch (IOException e) {
+            LOG.trace("", e);
+            setBuildNumber("");
+            return;
+        }
+        if (procVersion.size() > 0) {
+            String[] split = procVersion.get(0).split("\\s+");
+            for (String s : split) {
+                if (!s.equals("Linux") && !s.equals("version")) {
+                    setBuildNumber(s);
+                    return;
+                }
+            }
+        }
+        setBuildNumber("");
     }
-
 }

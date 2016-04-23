@@ -14,14 +14,11 @@
  * widdis[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os;
+package oshi.software.common;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
@@ -34,7 +31,8 @@ import oshi.json.OshiJsonObject;
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements OshiJsonObject {
-    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
+
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
 
@@ -44,10 +42,8 @@ public class OSFileStore implements OshiJsonObject {
 
     private long totalSpace;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     /**
-     * Creates a {@link OSFileStore} with the specified parameters.
+     * Creates an OSFileStore with the specified parameters.
      * 
      * @param newName
      *            Name of the filestore
@@ -63,7 +59,6 @@ public class OSFileStore implements OshiJsonObject {
         this.setDescription(newDescription);
         this.setUsableSpace(newUsableSpace);
         this.setTotalSpace(newTotalSpace);
-        LOG.debug("Initialized OSFileStore: {}", newName);
     }
 
     /**
@@ -142,9 +137,13 @@ public class OSFileStore implements OshiJsonObject {
         this.totalSpace = value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName()).add("description", getDescription())
-                .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
+                .add("description", getDescription()).add("usableSpace", getUsableSpace())
+                .add("totalSpace", getTotalSpace()).build();
     }
 }

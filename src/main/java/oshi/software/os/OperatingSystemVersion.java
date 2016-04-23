@@ -18,11 +18,37 @@ package oshi.software.os;
 
 import oshi.json.OshiJsonObject;
 
-/**
- * Version of an operating system.
- * 
- * @author dblock[at]dblock[dot]org
- */
 public interface OperatingSystemVersion extends OshiJsonObject {
-    // TODO Build this out
+    /**
+     * @return the version
+     */
+    public String getVersion();
+
+    /**
+     * @param version
+     *            the version to set
+     */
+    public void setVersion(String version);
+
+    /**
+     * @return the codeName
+     */
+    public String getCodeName();
+
+    /**
+     * @param codeName
+     *            the codeName to set
+     */
+    public void setCodeName(String codeName);
+
+    /**
+     * @return the build number
+     */
+    public String getBuildNumber();
+
+    /**
+     * @param buildNumber
+     *            the build number to set
+     */
+    public void setBuildNumber(String buildNumber);
 }

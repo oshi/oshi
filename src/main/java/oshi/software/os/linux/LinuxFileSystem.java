@@ -25,7 +25,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.software.os.OSFileStore;
+import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStore;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -35,7 +36,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxFileSystem {
+public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
@@ -46,7 +47,7 @@ public class LinuxFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         List<OSFileStore> fsList = new ArrayList<>();
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             // FileStore toString starts with path, then a space, then name in

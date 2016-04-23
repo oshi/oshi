@@ -23,9 +23,10 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
 
 /**
- * Provides access to open pdh queries and add counters
+ * Provides access to open pdh queries and add/query counters
  * 
  * @author widdis[at]gmail[dot]com
  */
@@ -65,5 +66,39 @@ public class PdhUtil {
             LOG.error("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format("0x%08X", pdhAddCounterError));
         }
+    }
+
+    /**
+     * Update counters to values since the last call
+     * 
+     * @param query
+     *            The query whose counters to update
+     * @return True if successful
+     */
+    public static boolean updateCounters(PointerByReference query) {
+        int ret = Pdh.INSTANCE.PdhCollectQueryData(query.getValue());
+        if (ret != 0) {
+            LOG.error("Failed to update counters. Error code: {}", String.format("0x%08X", ret));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get value of pdh counter
+     * 
+     * @param counter
+     *            The counter to get the value of
+     * @return long value of the counter x 1000
+     */
+    public static long queryCounter(PointerByReference counter) {
+        PdhFmtCounterValue counterValue = new PdhFmtCounterValue();
+        int ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(counter.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,
+                null, counterValue);
+        if (ret != 0) {
+            LOG.warn("Failed to get counter. Error code: {}", String.format("0x%08X", ret));
+            return 0L;
+        }
+        return counterValue.value.largeValue;
     }
 }
