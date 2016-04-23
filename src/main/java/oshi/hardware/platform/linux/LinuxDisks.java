@@ -88,7 +88,9 @@ public class LinuxDisks implements Disks {
             try {
                 oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));
-                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
+                // NOTE: only disks (and not device mappers) are parsed
+                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk") &&
+                        !Udev.INSTANCE.udev_device_get_devnode(device).contains("dm-")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
                     store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
