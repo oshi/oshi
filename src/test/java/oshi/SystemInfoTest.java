@@ -241,6 +241,9 @@ public class SystemInfoTest {
             assertNotNull(hal.getDisksStores()[0].getName());
             assertNotNull(hal.getDisksStores()[0].getModel());
             assertNotNull(hal.getDisksStores()[0].getSerial());
+            assertNotNull(hal.getDisksStores()[0].getSize());
+            assertNotNull(hal.getDisksStores()[0].getReads());
+            assertNotNull(hal.getDisksStores()[0].getWrites());
         }
     }
     
