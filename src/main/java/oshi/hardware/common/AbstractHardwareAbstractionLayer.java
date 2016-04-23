@@ -28,7 +28,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
     protected CentralProcessor processor;

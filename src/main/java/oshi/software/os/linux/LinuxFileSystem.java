@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractFileSystem;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -41,29 +41,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     /**
-     * Creates a {@link AbstractFileSystem} with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public LinuxFileSystem(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        super(newName, newDescription, newUsableSpace, newTotalSpace);
-    }
-
-    /**
      * Gets File System Information.
      * 
      * @return An array of {@link FileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         List<OSFileStore> fsList = new ArrayList<>();
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             // FileStore toString starts with path, then a space, then name in
@@ -80,7 +64,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             if (store.name().startsWith("/dev"))
                 description = "Local Disk";
             try {
-                fsList.add(new LinuxFileSystem(name, description, store.getUsableSpace(), store.getTotalSpace()));
+                fsList.add(new OSFileStore(name, description, store.getUsableSpace(), store.getTotalSpace()));
             } catch (IOException e) {
                 // get*Space() may fail for ejected CD-ROM, etc.
                 LOG.trace("", e);

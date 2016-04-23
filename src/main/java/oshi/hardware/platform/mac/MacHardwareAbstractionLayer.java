@@ -23,7 +23,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.HWDiskStore;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
 public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
@@ -63,7 +63,7 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
      */
     @Override
     public OSFileStore[] getFileStores() {
-        return MacFileSystem.getFileStores();
+        return new MacFileSystem().getFileStores();
     }
 
     /**

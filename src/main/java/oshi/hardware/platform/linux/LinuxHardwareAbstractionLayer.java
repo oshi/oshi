@@ -23,7 +23,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.HWDiskStore;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
@@ -63,7 +63,7 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
      */
     @Override
     public OSFileStore[] getFileStores() {
-        return LinuxFileSystem.getFileStores();
+        return new LinuxFileSystem().getFileStores();
     }
 
     /**

@@ -16,12 +16,9 @@
  */
 package oshi.software.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OSFileStore;
+import oshi.software.os.FileSystem;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
@@ -30,108 +27,15 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class AbstractFileSystem implements OSFileStore {
+public abstract class AbstractFileSystem implements FileSystem {
 
-    protected String name;
-
-    protected String description;
-
-    protected long usableSpace;
-
-    protected long totalSpace;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
-    /**
-     * Creates a {@link AbstractFileSystem} with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public AbstractFileSystem(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        this.setName(newName);
-        this.setDescription(newDescription);
-        this.setUsableSpace(newUsableSpace);
-        this.setTotalSpace(newTotalSpace);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setName(String value) {
-        this.name = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDescription() {
-        return this.description;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDescription(String value) {
-        this.description = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getUsableSpace() {
-        return this.usableSpace;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setUsableSpace(long value) {
-        this.usableSpace = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getTotalSpace() {
-        return this.totalSpace;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setTotalSpace(long value) {
-        this.totalSpace = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("description", getDescription()).add("usableSpace", getUsableSpace())
-                .add("totalSpace", getTotalSpace()).build();
+        // TODO Auto-generated method stub
+        return null;
     }
+
+    @Override
+    public abstract OSFileStore[] getFileStores();
+
 }

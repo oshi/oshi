@@ -18,7 +18,7 @@ package oshi.hardware;
 
 import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as

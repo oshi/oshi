@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractFileSystem;
-import oshi.software.os.OSFileStore;
+import oshi.software.common.OSFileStore;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -48,29 +48,13 @@ public class MacFileSystem extends AbstractFileSystem {
     private static final Pattern localDisk = Pattern.compile("/dev/disk\\d");
 
     /**
-     * Creates a {@link AbstractFileSystem} with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public MacFileSystem(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        super(newName, newDescription, newUsableSpace, newTotalSpace);
-    }
-
-    /**
      * Gets File System Information.
      * 
      * @return An array of {@link OSFileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         List<OSFileStore> fsList = new ArrayList<>();
         FileSystemView fsv = FileSystemView.getFileSystemView();
         // Mac file systems are mounted in /Volumes
@@ -97,7 +81,7 @@ public class MacFileSystem extends AbstractFileSystem {
                     LOG.trace("", e);
                     continue;
                 }
-                fsList.add(new MacFileSystem(name, description, f.getUsableSpace(), f.getTotalSpace()));
+                fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));
             }
         return fsList.toArray(new OSFileStore[fsList.size()]);
     }
