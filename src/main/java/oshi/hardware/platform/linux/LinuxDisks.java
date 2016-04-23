@@ -72,20 +72,17 @@ public class LinuxDisks implements Disks {
             try {
                 oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));
-                // NOTE: only disks (and not device mappers) are parsed
-                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk") &&
-                        !Udev.INSTANCE.udev_device_get_devnode(device).contains("dm-")) {
+                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
                     
                     // Avoid model and serial in virtual environments
-                    try {
-                        store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                        store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-                    } catch(NullPointerException ex) {
-                        store.setModel("Unknown");
-                        store.setSerial("Unknown");
-                    }
+                    store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
+                            ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                    store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
+                            ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
                     
                     store.setSize(Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
 
