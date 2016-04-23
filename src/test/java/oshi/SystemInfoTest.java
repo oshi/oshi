@@ -207,8 +207,7 @@ public class SystemInfoTest {
     /**
      * Test file system.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     public void testFileSystem() throws IOException {
@@ -226,27 +225,26 @@ public class SystemInfoTest {
         }
     }
 
-       /**
+    /**
      * Test disks extraction.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     public void testDisks() throws IOException {
         SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        if (hal.getDisksStores().length > 1) {
+
+        for (HWDiskStore disk : si.getHardware().getDisksStores()) {
             // NOTE: for now, only tests are for getting disk informations
-            assertNotNull(hal.getDisksStores()[0].getName());
-            assertNotNull(hal.getDisksStores()[0].getModel());
-            assertNotNull(hal.getDisksStores()[0].getSerial());
-            assertNotNull(hal.getDisksStores()[0].getSize());
-            assertNotNull(hal.getDisksStores()[0].getReads());
-            assertNotNull(hal.getDisksStores()[0].getWrites());
+            assertNotNull(disk.getName());
+            assertNotNull(disk.getModel());
+            assertNotNull(disk.getSerial());
+            assertNotNull(disk.getSize());
+            assertNotNull(disk.getReads());
+            assertNotNull(disk.getWrites());
         }
     }
-    
+
     /**
      * Test system uptime.
      */
@@ -285,8 +283,7 @@ public class SystemInfoTest {
     /**
      * The main method.
      *
-     * @param args
-     *            the arguments
+     * @param args the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE
@@ -372,13 +369,14 @@ public class SystemInfoTest {
             sb.append("Unknown");
         } else {
             double timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
-            if (timeRemaining < -1d)
+            if (timeRemaining < -1d) {
                 sb.append("Charging");
-            else if (timeRemaining < 0d)
+            } else if (timeRemaining < 0d) {
                 sb.append("Calculating time remaining");
-            else
+            } else {
                 sb.append(String.format("%d:%02d remaining", (int) (timeRemaining / 3600),
                         (int) (timeRemaining / 60) % 60));
+            }
         }
         for (PowerSource pSource : hal.getPowerSources()) {
             sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
@@ -397,7 +395,7 @@ public class SystemInfoTest {
                     fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
                     FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
         }
-        
+
         // hardware: disks
         LOG.info("Checking Disks...");
         System.out.println("Disks:");
@@ -427,30 +425,30 @@ public class SystemInfoTest {
             byte[][] desc = EdidUtil.getDescriptors(edid);
             for (int d = 0; d < desc.length; d++) {
                 switch (EdidUtil.getDescriptorType(desc[d])) {
-                case 0xff:
-                    System.out.println("  Serial Number: " + EdidUtil.getDescriptorText(desc[d]));
-                    break;
-                case 0xfe:
-                    System.out.println("  Unspecified Text: " + EdidUtil.getDescriptorText(desc[d]));
-                    break;
-                case 0xfd:
-                    System.out.println("  Range Limits: " + EdidUtil.getDescriptorRangeLimits(desc[d]));
-                    break;
-                case 0xfc:
-                    System.out.println("  Monitor Name: " + EdidUtil.getDescriptorText(desc[d]));
-                    break;
-                case 0xfb:
-                    System.out.println("  White Point Data: " + EdidUtil.getDescriptorHex(desc[d]));
-                    break;
-                case 0xfa:
-                    System.out.println("  Standard Timing ID: " + EdidUtil.getDescriptorHex(desc[d]));
-                    break;
-                default:
-                    if (EdidUtil.getDescriptorType(desc[d]) <= 0x0f && EdidUtil.getDescriptorType(desc[d]) >= 0x00) {
-                        System.out.println("  Manufacturer Data: " + EdidUtil.getDescriptorHex(desc[d]));
-                    } else {
-                        System.out.println("  Preferred Timing: " + EdidUtil.getTimingDescriptor(desc[d]));
-                    }
+                    case 0xff:
+                        System.out.println("  Serial Number: " + EdidUtil.getDescriptorText(desc[d]));
+                        break;
+                    case 0xfe:
+                        System.out.println("  Unspecified Text: " + EdidUtil.getDescriptorText(desc[d]));
+                        break;
+                    case 0xfd:
+                        System.out.println("  Range Limits: " + EdidUtil.getDescriptorRangeLimits(desc[d]));
+                        break;
+                    case 0xfc:
+                        System.out.println("  Monitor Name: " + EdidUtil.getDescriptorText(desc[d]));
+                        break;
+                    case 0xfb:
+                        System.out.println("  White Point Data: " + EdidUtil.getDescriptorHex(desc[d]));
+                        break;
+                    case 0xfa:
+                        System.out.println("  Standard Timing ID: " + EdidUtil.getDescriptorHex(desc[d]));
+                        break;
+                    default:
+                        if (EdidUtil.getDescriptorType(desc[d]) <= 0x0f && EdidUtil.getDescriptorType(desc[d]) >= 0x00) {
+                            System.out.println("  Manufacturer Data: " + EdidUtil.getDescriptorHex(desc[d]));
+                        } else {
+                            System.out.println("  Preferred Timing: " + EdidUtil.getTimingDescriptor(desc[d]));
+                        }
                 }
             }
             i++;
