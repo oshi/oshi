@@ -396,8 +396,8 @@ public class SystemInfoTest {
         }
         
         // hardware: disks
-        LOG.info("Checking File System...");
-        System.out.println("File System:");
+        LOG.info("Checking Disks...");
+        System.out.println("Disks:");
 
         HWDiskStore[] dskArray = hal.getDisksStores();
         for (HWDiskStore dsk : dskArray) {
