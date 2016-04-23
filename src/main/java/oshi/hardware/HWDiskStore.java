@@ -22,7 +22,7 @@ import oshi.json.OshiJsonObject;
 
 /**
  * Store object of disk attributes.
- * 
+ *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class HWDiskStore implements OshiJsonObject {
@@ -32,6 +32,7 @@ public class HWDiskStore implements OshiJsonObject {
     private String name;
     private String model;
     private String serial;
+    private long size;
     private long reads;
     private long writes;
 
@@ -75,6 +76,20 @@ public class HWDiskStore implements OshiJsonObject {
      */
     public void setSerial(String serial) {
         this.serial = serial;
+    }
+
+    /**
+     * @return Get size of disk (in bytes)
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     * @param size Set size of disk (in bytes)
+     */
+    public void setSize(long size) {
+        this.size = size;
     }
 
     /**
