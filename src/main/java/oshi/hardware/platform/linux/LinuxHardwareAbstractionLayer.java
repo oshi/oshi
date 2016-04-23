@@ -20,7 +20,6 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -71,10 +70,13 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
      * {@inheritDoc}
      */
     @Override
-    public HWDiskStore[] getDisksStores() {
+    public HWDiskStore[] getDiskStores() {
         return new LinuxDisks().getDisks();
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();

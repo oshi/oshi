@@ -117,19 +117,40 @@ public class SystemInfoTest {
     }
 
     /**
+     * Test disks extraction.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testDisks() throws IOException {
+        SystemInfo si = new SystemInfo();
+
+        for (HWDiskStore disk : si.getHardware().getDiskStores()) {
+            // NOTE: for now, only tests are for getting disk informations
+            assertNotNull(disk.getName());
+            assertNotNull(disk.getModel());
+            assertNotNull(disk.getSerial());
+            assertNotNull(disk.getSize());
+            assertNotNull(disk.getReads());
+            assertNotNull(disk.getWrites());
+        }
+    }
+
+    /**
      * Test displays
      */
     @Test
     public void testDisplay() {
         SystemInfo si = new SystemInfo();
         Display[] displays = si.getHardware().getDisplays();
-        if (displays.length > 0) {
-            assertTrue(displays[0].getEdid().length >= 128);
+        for (Display d : displays) {
+            assertTrue(d.getEdid().length >= 128);
         }
     }
 
     /**
-     * Test get memory.
+     * Test GlobalMemory.
      */
     @Test
     public void testGlobalMemory() {
@@ -155,12 +176,12 @@ public class SystemInfoTest {
     @Test
     public void testPowerSource() {
         SystemInfo si = new SystemInfo();
-        PowerSource[] ps = si.getHardware().getPowerSources();
-        if (ps.length > 1) {
-            assertTrue(ps[0].getRemainingCapacity() >= 0 && ps[0].getRemainingCapacity() <= 1);
+        PowerSource[] psArr = si.getHardware().getPowerSources();
+        for (PowerSource ps : psArr) {
+            assertTrue(ps.getRemainingCapacity() >= 0 && ps.getRemainingCapacity() <= 1);
             double epsilon = 1E-6;
-            assertTrue(ps[0].getTimeRemaining() > 0 || Math.abs(ps[0].getTimeRemaining() - -1) < epsilon
-                    || Math.abs(ps[0].getTimeRemaining() - -2) < epsilon);
+            assertTrue(ps.getTimeRemaining() > 0 || Math.abs(ps.getTimeRemaining() - -1) < epsilon
+                    || Math.abs(ps.getTimeRemaining() - -2) < epsilon);
         }
     }
 
@@ -198,7 +219,8 @@ public class SystemInfoTest {
     /**
      * Test file system.
      *
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     @Test
     public void testFileSystem() throws IOException {
@@ -217,64 +239,10 @@ public class SystemInfoTest {
     }
 
     /**
-     * Test disks extraction.
-     *
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    @Test
-    public void testDisks() throws IOException {
-        SystemInfo si = new SystemInfo();
-
-        for (HWDiskStore disk : si.getHardware().getDisksStores()) {
-            // NOTE: for now, only tests are for getting disk informations
-            assertNotNull(disk.getName());
-            assertNotNull(disk.getModel());
-            assertNotNull(disk.getSerial());
-            assertNotNull(disk.getSize());
-            assertNotNull(disk.getReads());
-            assertNotNull(disk.getWrites());
-        }
-    }
-
-    /**
-     * Test system uptime.
-     */
-    @Test
-    public void testSystemUptime() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        long uptime = hal.getProcessor().getSystemUptime();
-        assertTrue(uptime >= 0);
-    }
-
-    /**
-     * Test serial number
-     */
-    @Test
-    public void testSerialNumber() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        String sn = hal.getProcessor().getSystemSerialNumber();
-        assertTrue(sn.length() >= 0);
-    }
-
-    /**
-     * Test displays
-     */
-    @Test
-    public void testDisplay() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        Display[] displays = hal.getDisplays();
-        if (displays.length > 0) {
-            assertTrue(displays[0].getEdid().length >= 128);
-        }
-    }
-
-    /**
      * The main method.
      *
-     * @param args the arguments
+     * @param args
+     *            the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE
@@ -391,12 +359,12 @@ public class SystemInfoTest {
         LOG.info("Checking Disks...");
         System.out.println("Disks:");
 
-        HWDiskStore[] dskArray = hal.getDisksStores();
+        HWDiskStore[] dskArray = hal.getDiskStores();
         for (HWDiskStore dsk : dskArray) {
             long byteReads = dsk.getReads();
             long byteWrites = dsk.getWrites();
-            System.out.format(" %s: (model: %s - S/N: %s) reads (in bytes): %s writes (in bytes): %s %n",
-                    dsk.getName(), dsk.getModel(), dsk.getSerial(), byteReads, byteWrites);
+            System.out.format(" %s: (model: %s - S/N: %s) reads (in bytes): %s writes (in bytes): %s %n", dsk.getName(),
+                    dsk.getModel(), dsk.getSerial(), byteReads, byteWrites);
         }
 
         // hardware: displays

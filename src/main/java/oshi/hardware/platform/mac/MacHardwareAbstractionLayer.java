@@ -20,7 +20,6 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -87,27 +86,7 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
     }
 
     @Override
-    public HWDiskStore[] getDisksStores() {
+    public HWDiskStore[] getDiskStores() {
         return new MacDisks().getDisks();
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (PowerSource powerSource : getPowerSources()) {
-            powerSourceArrayBuilder.add(powerSource.toJSON());
-        }
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
-        }
-        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
-        for (Display display : getDisplays()) {
-            displayArrayBuilder.add(display.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("processor", getProcessor().toJSON())
-                .add("memory", getMemory().toJSON()).add("powerSources", powerSourceArrayBuilder.build())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
     }
 }
