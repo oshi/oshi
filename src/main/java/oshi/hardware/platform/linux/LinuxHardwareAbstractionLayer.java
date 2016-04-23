@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
@@ -128,6 +129,11 @@ public class LinuxHardwareAbstractionLayer implements HardwareAbstractionLayer {
         return LinuxFileSystem.getFileStores();
     }
 
+    @Override
+    public HWDiskStore[] getDisksStores() {
+        return new LinuxDisks().getDisks();
+    }
+    
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();

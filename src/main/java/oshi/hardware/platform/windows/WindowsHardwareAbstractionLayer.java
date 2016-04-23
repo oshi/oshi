@@ -27,6 +27,7 @@ import com.sun.jna.platform.win32.WinReg;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
@@ -79,6 +80,11 @@ public class WindowsHardwareAbstractionLayer implements HardwareAbstractionLayer
     @Override
     public OSFileStore[] getFileStores() {
         return WindowsFileSystem.getFileStores();
+    }
+    
+    @Override
+    public HWDiskStore[] getDisksStores() {
+        return new WindowsDisks().getDisks();
     }
 
     @Override

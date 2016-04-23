@@ -61,6 +61,14 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      */
     OSFileStore[] getFileStores();
 
+        /**
+     * Instantiates an array of {@link HWDiskStore} objects, representing a
+     * disk pool
+     * @return An array of HWDiskStore objects or an empty array if none are
+     *         present.
+     */
+    HWDiskStore[] getDisksStores();
+    
     /**
      * Instantiates an array of {@link Display} objects, representing monitors
      * or other video output devices.
