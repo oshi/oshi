@@ -35,34 +35,58 @@ public interface Udev extends Library {
 
     public static final class BlockDevStats extends Structure {
 
+        public BlockDevStats(long read_ops,
+                long read_merged,
+                long read_512bytes,
+                long read_waits_ms,
+                long write_ops,
+                long write_merged,
+                long write_512bytes,
+                long write_waits_ms,
+                long in_flight,
+                long active_ms,
+                long waits_ms) {
+            this.read_ops = read_ops;
+            this.read_merged = read_merged;
+            this.read_512bytes = read_512bytes;
+            this.read_waits_ms = read_waits_ms;
+            this.write_ops = write_ops;
+            this.write_merged = write_merged;
+            this.write_512bytes = write_512bytes;
+            this.write_waits_ms = write_waits_ms;
+            this.in_flight = in_flight;
+            this.active_ms = active_ms;
+            this.waits_ms = waits_ms;
+        }
+
         // Number of read I/Os processed
-        long read_ops;
+        public final long read_ops;
         // Number of read I/Os merged with in-queue I/O
-        long read_merged;
+        public final long read_merged;
         // Number of sectors read
-        long read_512bytes;
+        public final long read_512bytes;
         // Total wait time for read requests, milliseconds
-        long read_waits_ms;
+        public final long read_waits_ms;
         // Number of write I/Os processed
-        long write_ops;
+        public final long write_ops;
         // Number of write I/Os merged with in-queue I/O
-        long write_merged;
+        public final long write_merged;
         // Number of sectors written
-        long write_512bytes;
+        public final long write_512bytes;
         // Total wait time for write requests, milliseconds */
-        long write_waits_ms;
+        public final long write_waits_ms;
         // Number of I/Os currently in flight
-        long in_flight;
+        public final long in_flight;
         // Total active time, milliseconds
-        long active_ms;
+        public final long active_ms;
         // Total wait time, milliseconds
-        long waits_ms;
+        public final long waits_ms;
 
         @Override
         protected List getFieldOrder() {
             return Arrays.asList(new String[]{"read_ops", "read_merged", "read_512bytes",
-                "read_waits_ms", "write_ops", "write_merged", "write_512bytes", "write_watis_ms",
-                "in_flight", "actice_ms", "watis_ms"});
+                "read_waits_ms", "write_ops", "write_merged", "write_512bytes", "write_waits_ms",
+                "in_flight", "active_ms", "waits_ms"});
         }
     };
 
