@@ -77,8 +77,16 @@ public class LinuxDisks implements Disks {
                         !Udev.INSTANCE.udev_device_get_devnode(device).contains("dm-")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
-                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                    store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                    
+                    // Avoid model and serial in virtual environments
+                    try {
+                        store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                        store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                    } catch(NullPointerException ex) {
+                        store.setModel("Unknown");
+                        store.setSerial("Unknown");
+                    }
+                    
                     store.setSize(Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
 
                     this.computeDiskStats(store, device);
