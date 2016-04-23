@@ -8,9 +8,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
  * Contributors:
- * enrico[dot]bianchi[at]gmail[dot]com
- *    com.github.dblock - initial API and implementation and/or initial documentation
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
 
@@ -20,8 +23,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
-import oshi.hardware.common.HWDiskStore;
 import oshi.jna.platform.linux.Udev;
 
 /**

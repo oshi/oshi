@@ -8,9 +8,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
  * Contributors:
- * enrico[dot]bianchi[at]gmail[dot]com
- *    com.github.dblock - initial API and implementation and/or initial documentation
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.jna.platform.linux;
 
@@ -82,7 +85,8 @@ public interface Udev extends Library {
 
     public Udev.UdevEnumerate udev_enumerate_new(Udev.UdevHandle udev);
 
-    public Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem, String devtype);
+    public Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem,
+            String devtype);
 
     public Udev.UdevDevice udev_device_new_from_syspath(Udev.UdevHandle udev, String syspath);
 

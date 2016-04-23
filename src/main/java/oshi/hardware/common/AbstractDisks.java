@@ -8,9 +8,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
  * Contributors:
- * enrico[dot]bianchi[at]gmail[dot]com
- *    com.github.dblock - initial API and implementation and/or initial documentation
+ * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.common;
 
@@ -20,6 +23,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.hardware.Disks;
+import oshi.hardware.HWDiskStore;
 import oshi.json.NullAwareJsonObjectBuilder;
 
 /**

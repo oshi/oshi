@@ -1,24 +1,24 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware;
 
-import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
-import oshi.software.common.OSFileStore;
+import oshi.software.os.OSFileStore;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
@@ -62,14 +62,15 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      */
     OSFileStore[] getFileStores();
 
-        /**
-     * Instantiates an array of {@link HWDiskStore} objects, representing a
-     * disk pool
+    /**
+     * Instantiates an array of {@link HWDiskStore} objects, representing a disk
+     * pool
+     * 
      * @return An array of HWDiskStore objects or an empty array if none are
      *         present.
      */
     HWDiskStore[] getDiskStores();
-    
+
     /**
      * Instantiates an array of {@link Display} objects, representing monitors
      * or other video output devices.

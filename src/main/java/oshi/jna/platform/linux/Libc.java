@@ -8,11 +8,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
- * enrico[dot]bianchi[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.jna.platform.linux;
@@ -71,7 +71,7 @@ public interface Libc extends Library {
     }
 
     int sysinfo(Sysinfo info);
-    
+
     // Native call for getting load average
     int getloadavg(double[] loadavg, int nelem);
 }

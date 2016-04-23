@@ -1,17 +1,18 @@
 /**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.mac;
@@ -19,11 +20,11 @@ package oshi.hardware.platform.mac;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.common.HWDiskStore;
-import oshi.software.common.OSFileStore;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
 public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {

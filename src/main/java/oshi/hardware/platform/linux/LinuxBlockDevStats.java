@@ -8,8 +8,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
  * Contributors:
- * enrico[dot]bianchi[at]gmail[dot]com
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -78,19 +81,12 @@ public class LinuxBlockDevStats implements OshiJsonObject {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("device", this.device)
-                .add("read_ops", this.read_ops)
-                .add("read_merged", this.read_merged)
-                .add("read_512bytes", this.read_512bytes)
-                .add("read_waits_ms", this.read_waits_ms)
-                .add("write_ops", this.write_ops)
-                .add("write_merged", this.write_merged)
-                .add("write_512bytes", this.write_512bytes)
-                .add("write_waits_ms", this.write_waits_ms)
-                .add("in_flight", this.in_flight)
-                .add("active_ms", this.active_ms)
-                .add("waits_ms", this.waits_ms)
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("device", this.device)
+                .add("read_ops", this.read_ops).add("read_merged", this.read_merged)
+                .add("read_512bytes", this.read_512bytes).add("read_waits_ms", this.read_waits_ms)
+                .add("write_ops", this.write_ops).add("write_merged", this.write_merged)
+                .add("write_512bytes", this.write_512bytes).add("write_waits_ms", this.write_waits_ms)
+                .add("in_flight", this.in_flight).add("active_ms", this.active_ms).add("waits_ms", this.waits_ms)
                 .build();
     }
 }

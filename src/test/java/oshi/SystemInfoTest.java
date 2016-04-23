@@ -8,11 +8,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
- * enrico[dot]bianchi[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi;
@@ -36,11 +36,11 @@ import com.sun.jna.Platform;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.common.HWDiskStore;
-import oshi.software.common.OSFileStore;
+import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;

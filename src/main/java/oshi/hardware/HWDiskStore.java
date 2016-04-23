@@ -8,11 +8,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
  * Contributors:
- * enrico[dot]bianchi[at]gmail[dot]com
- *    com.github.dblock - initial API and implementation and/or initial documentation
+ * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware.common;
+package oshi.hardware;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -44,7 +47,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param name the name to set
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -58,7 +62,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param model the model to set
+     * @param model
+     *            the model to set
      */
     public void setModel(String model) {
         this.model = model;
@@ -72,7 +77,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param serial the serial to set
+     * @param serial
+     *            the serial to set
      */
     public void setSerial(String serial) {
         this.serial = serial;
@@ -86,7 +92,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param size Set size of disk (in bytes)
+     * @param size
+     *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
         this.size = size;
@@ -100,7 +107,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param reads the reads to set
+     * @param reads
+     *            the reads to set
      */
     public void setReads(long reads) {
         this.reads = reads;
@@ -114,7 +122,8 @@ public class HWDiskStore implements OshiJsonObject {
     }
 
     /**
-     * @param writes the writes to set
+     * @param writes
+     *            the writes to set
      */
     public void setWrites(long writes) {
         this.writes = writes;
@@ -122,13 +131,8 @@ public class HWDiskStore implements OshiJsonObject {
 
     @Override
     public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("name", getName())
-                .add("model", getModel())
-                .add("serial", getSerial())
-                .add("size", getSize())
-                .add("reads", getReads())
-                .add("writes", getWrites())
-                .build();
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
+                .add("model", getModel()).add("serial", getSerial()).add("size", getSize()).add("reads", getReads())
+                .add("writes", getWrites()).build();
     }
 }
