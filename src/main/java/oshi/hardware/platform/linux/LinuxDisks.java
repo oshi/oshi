@@ -23,17 +23,17 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.jna.platform.linux.Udev;
 import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.json.OshiJsonObject;
 
 /**
  * Linux hard disk implementation.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class LinuxDisks implements OshiJsonObject {
+public class LinuxDisks implements Disks {
 
     private final int SECTORSIZE = 512;
 
@@ -65,6 +65,7 @@ public class LinuxDisks implements OshiJsonObject {
         store.setWrites(stats.write_512bytes * this.SECTORSIZE);
     }
 
+    @Override
     public HWDiskStore[] getDisks() {
         HWDiskStore store;
         List<HWDiskStore> result;

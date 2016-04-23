@@ -19,32 +19,31 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.json.OshiJsonObject;
 
 /**
  * Mac hard disk implementation.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class MacDisks implements OshiJsonObject {
+public class MacDisks implements Disks {
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
+    @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
 
         result = new ArrayList<>();
-        
+
         //TODO: extract disks hardware information
-        
         return result.toArray(new HWDiskStore[result.size()]);
     }
 
     @Override
-
     public JsonObject toJSON() {
 
         JsonArrayBuilder array = jsonFactory.createArrayBuilder();
