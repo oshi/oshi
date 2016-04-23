@@ -92,6 +92,7 @@ public class LinuxDisks implements OshiJsonObject {
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
                     store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                     store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                    store.setSize(Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
 
                     this.computeDiskStats(store, device);
                     result.add(store);
