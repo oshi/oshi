@@ -45,6 +45,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
 
+    // MXBean getSystemCpuLoad() returns NaN if not enough time has elapsed
+    private static double lastCpuLoad = 0d;
+    private static long lastCpuLoadTime = 0;
+
     // Determine whether MXBean supports Oracle JVM methods
     private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
             .getOperatingSystemMXBean();
@@ -55,7 +59,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         try {
             Class.forName("com.sun.management.OperatingSystemMXBean");
             // Initialize CPU usage
-            ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            lastCpuLoadTime = System.currentTimeMillis();
             sunMXBean = true;
             LOG.debug("Oracle MXBean detected.");
         } catch (ClassNotFoundException e) {
@@ -388,7 +393,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public double getSystemCpuLoad() {
         if (sunMXBean) {
-            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            long now = System.currentTimeMillis();
+            // If called too recently, return latest value
+            if (now - lastCpuLoadTime < 200) {
+                return lastCpuLoad;
+            }
+            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            lastCpuLoadTime = now;
+            return lastCpuLoad;
         }
         return getSystemCpuLoadBetweenTicks();
     }
