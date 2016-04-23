@@ -1,5 +1,8 @@
-/*
- * Copyright (c) 2016 com.github.dblock.
+/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +26,7 @@ import java.util.List;
 /**
  * Interface for talking with Udev.
  *
- * @author ebianchi
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public interface Udev extends Library {
 
