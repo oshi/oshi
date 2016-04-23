@@ -16,7 +16,6 @@ package oshi.jna.platform.linux;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
@@ -30,7 +29,6 @@ import java.util.List;
  */
 public interface Udev extends Library {
 
-    public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance("udev");
     public static final Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
 
     public static final class BlockDevStats extends Structure {
