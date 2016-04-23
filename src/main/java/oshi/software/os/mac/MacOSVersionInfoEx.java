@@ -16,150 +16,54 @@
  */
 package oshi.software.os.mac;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OperatingSystemVersion;
+import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.platform.mac.SysctlUtil;
 
-/**
- * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
- */
-
-public class MacOSVersionInfoEx implements OperatingSystemVersion {
+public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 
-    private String _version;
-
-    private String _codeName;
-
-    private String _versionStr;
-
-    private String _buildNumber;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     public MacOSVersionInfoEx() {
+        setVersion(System.getProperty("os.version"));
+        setCodeName(parseCodeName());
+        setBuildNumber(SysctlUtil.sysctl("kern.osversion", ""));
     }
 
-    /**
-     * @return the _version
-     */
-    public String getVersion() {
-        if (this._version == null) {
-            this._version = System.getProperty("os.version");
-        }
-        return this._version;
-    }
-
-    /**
-     * @param version
-     *            the version to set
-     */
-    public void setVersion(String version) {
-        this._version = version;
-    }
-
-    /**
-     * @return the _codeName
-     */
-    public String getCodeName() {
-        if (this._codeName == null) {
-            if (getVersion() != null) {
-                String[] versionSplit = getVersion().split("\\.");
-                if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
-                    switch (Integer.parseInt(versionSplit[1])) {
-                    case 0:
-                        this._codeName = "Cheetah";
-                        break;
-                    case 1:
-                        this._codeName = "Puma";
-                        break;
-                    case 2:
-                        this._codeName = "Jaguar";
-                        break;
-                    case 3:
-                        this._codeName = "Panther";
-                        break;
-                    case 4:
-                        this._codeName = "Tiger";
-                        break;
-                    case 5:
-                        this._codeName = "Leopard";
-                        break;
-                    case 6:
-                        this._codeName = "Snow Leopard";
-                        break;
-                    case 7:
-                        this._codeName = "Lion";
-                        break;
-                    case 8:
-                        this._codeName = "Mountain Lion";
-                        break;
-                    case 9:
-                        this._codeName = "Mavericks";
-                        break;
-                    case 10:
-                        this._codeName = "Yosemite";
-                        break;
-                    case 11:
-                        this._codeName = "El Capitan";
-                        break;
-                    default:
-                        LOG.warn("Unable to parse version {} to a codename.", getVersion());
-                        this._codeName = "";
-                    }
-
-                } else {
-                    LOG.warn("We only do codenames for OS X. This is version {}.", getVersion());
-                    this._codeName = "";
-                }
+    private String parseCodeName() {
+        String[] versionSplit = getVersion().split("\\.");
+        if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
+            switch (Integer.parseInt(versionSplit[1])) {
+            case 11:
+                return "El Capitan";
+            case 10:
+                return "Yosemite";
+            case 9:
+                return "Mavericks";
+            case 8:
+                return "Mountain Lion";
+            case 7:
+                return "Lion";
+            case 6:
+                return "Snow Leopard";
+            case 5:
+                return "Leopard";
+            case 4:
+                return "Tiger";
+            case 3:
+                return "Panther";
+            case 2:
+                return "Jaguar";
+            case 1:
+                return "Puma";
+            case 0:
+                return "Cheetah";
+            default:
+                // Not OS X
             }
         }
-        return this._codeName;
-    }
-
-    /**
-     * @param codeName
-     *            the codeName to set
-     */
-    public void setCodeName(String codeName) {
-        this._codeName = codeName;
-    }
-
-    public String getBuildNumber() {
-        if (this._buildNumber == null) {
-            this._buildNumber = SysctlUtil.sysctl("kern.osversion", "");
-        }
-        return this._buildNumber;
-    }
-
-    public void setBuildNumber(String buildNumber) {
-        this._buildNumber = buildNumber;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
-                .add("codeName", getCodeName()).add("build", getBuildNumber()).build();
-    }
-
-    @Override
-    public String toString() {
-        if (this._versionStr == null) {
-            StringBuilder sb = new StringBuilder(getVersion());
-            if (getCodeName().length() > 0) {
-                sb.append(" (").append(getCodeName()).append(")");
-            }
-            sb.append(" build ").append(getBuildNumber());
-            this._versionStr = sb.toString();
-        }
-        return this._versionStr;
+        LOG.warn("Unable to parse version {} to a codename.", getVersion());
+        return "";
     }
 }

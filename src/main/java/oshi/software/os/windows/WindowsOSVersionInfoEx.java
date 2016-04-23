@@ -16,9 +16,8 @@
  */
 package oshi.software.os.windows;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,135 +31,39 @@ import com.sun.jna.platform.win32.WinNT.OSVERSIONINFOEX;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.WinUser;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OperatingSystemVersion;
+import oshi.software.common.AbstractOSVersionInfoEx;
 
-/**
- * Contains operating system version information. The information includes major
- * and minor version numbers, a build number, a platform identifier, and
- * descriptive text about the operating system.
- * 
- * @author dblock[at]dblock[dot]org
- */
-public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
+public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
-    private OSVERSIONINFOEX _versionInfo;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+    private OSVERSIONINFOEX versionInfo = null;
 
     public WindowsOSVersionInfoEx() {
-        this._versionInfo = new OSVERSIONINFOEX();
-        if (!Kernel32.INSTANCE.GetVersionEx(this._versionInfo)) {
+        this.versionInfo = new OSVERSIONINFOEX();
+        if (!Kernel32.INSTANCE.GetVersionEx(this.versionInfo)) {
             LOG.error("Failed to Initialize OSVersionInfoEx. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            this._versionInfo = null;
-        } else {
-            LOG.debug("Initialized OSVersionInfoEx");
         }
+        init();
+        LOG.debug("Initialized OSVersionInfoEx");
+
+    }
+
+    public WindowsOSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
+        this.versionInfo = versionInfo;
+        init();
     }
 
     /**
-     * The major version number of the operating system.
-     * 
-     * @return The major version within the following supported operating
-     *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
-     *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
-     *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
-     *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
-     *         Windows XP: 5.1 Windows 2000: 5.0
+     * Initialize class variables
      */
-    public int getMajor() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No version data available");
-            return 0;
-        }
-        return this._versionInfo.dwMajorVersion.intValue();
-    }
-
-    /**
-     * The minor version number of the operating system.
-     * 
-     * @return The minor version within the following supported operating
-     *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
-     *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
-     *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
-     *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
-     *         Windows XP: 5.1 Windows 2000: 5.0
-     */
-    public int getMinor() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No version data available");
-            return 0;
-        }
-        return this._versionInfo.dwMinorVersion.intValue();
-    }
-
-    /**
-     * The build number of the operating system.
-     * 
-     * @return Build number.
-     */
-    public int getBuildNumber() {
-        if (this._versionInfo == null) {
+    private void init() {
+        setVersion(parseVersion());
+        setCodeName(parseCodeName());
+        if (this.versionInfo == null) {
             LOG.warn("OSVersionInfoEx not initialized. No build number available");
-            return 0;
+            setBuildNumber("");
         }
-        return this._versionInfo.dwBuildNumber.intValue();
-    }
-
-    /**
-     * The operating system platform. This member can be VER_PLATFORM_WIN32_NT.
-     * 
-     * @return Platform ID.
-     */
-    public int getPlatformId() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No platform id available");
-            return 0;
-        }
-        return this._versionInfo.dwPlatformId.intValue();
-    }
-
-    /**
-     * String, such as "Service Pack 3", that indicates the latest Service Pack
-     * installed on the system. If no Service Pack has been installed, the
-     * string is empty.
-     * 
-     * @return Service pack.
-     */
-    public String getServicePack() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No service pack data available");
-            return "";
-        }
-        return Native.toString(this._versionInfo.szCSDVersion);
-    }
-
-    /**
-     * A bit mask that identifies the product suites available on the system.
-     * 
-     * @return Suite mask.
-     */
-    public int getSuiteMask() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No suite mask data available");
-            return 0;
-        }
-
-        return this._versionInfo.wSuiteMask.intValue();
-    }
-
-    /**
-     * Any additional information about the system.
-     * 
-     * @return Product type.
-     */
-    public byte getProductType() {
-        if (this._versionInfo == null) {
-            LOG.warn("OSVersionInfoEx not initialized. No product type available");
-            return 0;
-        }
-        return this._versionInfo.wProductType;
+        setBuildNumber(this.versionInfo.dwBuildNumber.toString());
     }
 
     /**
@@ -168,10 +71,10 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
      * 
      * @return Version
      */
-    public String getVersion() {
-        if (this._versionInfo == null) {
+    private String parseVersion() {
+        if (this.versionInfo == null) {
             LOG.warn("OSVersionInfoEx not initialized. No version data available");
-            return "Unknown";
+            return System.getProperty("os.version");
         }
 
         String version = null;
@@ -218,50 +121,164 @@ public class WindowsOSVersionInfoEx implements OperatingSystemVersion {
                 }
 
             } else {
-                throw new RuntimeException("Unsupported Windows NT version: " + this._versionInfo.toString());
+                throw new RuntimeException("Unsupported Windows NT version: " + this.versionInfo.toString());
             }
 
-            if (this._versionInfo.wServicePackMajor.intValue() > 0) {
-                version = version + " SP" + this._versionInfo.wServicePackMajor.intValue();
+            if (this.versionInfo.wServicePackMajor.intValue() > 0) {
+                version = version + " SP" + this.versionInfo.wServicePackMajor.intValue();
             }
 
         } else if (getPlatformId() == WinNT.VER_PLATFORM_WIN32_WINDOWS) {
             if (getMajor() == 4 && getMinor() == 90) {
                 version = "ME";
             } else if (getMajor() == 4 && getMinor() == 10) {
-                if (this._versionInfo.szCSDVersion[1] == 'A') {
+                if (this.versionInfo.szCSDVersion[1] == 'A') {
                     version = "98 SE";
                 } else {
                     version = "98";
                 }
             } else if (getMajor() == 4 && getMinor() == 0) {
-                if (this._versionInfo.szCSDVersion[1] == 'C' || this._versionInfo.szCSDVersion[1] == 'B') {
+                if (this.versionInfo.szCSDVersion[1] == 'C' || this.versionInfo.szCSDVersion[1] == 'B') {
                     version = "95 OSR2";
                 } else {
                     version = "95";
                 }
             } else {
-                throw new RuntimeException("Unsupported Windows 9x version: " + this._versionInfo.toString());
+                throw new RuntimeException("Unsupported Windows 9x version: " + this.versionInfo.toString());
             }
         } else {
-            throw new RuntimeException("Unsupported Windows platform: " + this._versionInfo.toString());
+            throw new RuntimeException("Unsupported Windows platform: " + this.versionInfo.toString());
         }
 
         return version;
     }
 
-    public WindowsOSVersionInfoEx(OSVERSIONINFOEX versionInfo) {
-        this._versionInfo = versionInfo;
+    /**
+     * The operating system platform. This member can be VER_PLATFORM_WIN32_NT.
+     * 
+     * @return Platform ID.
+     */
+    private int getPlatformId() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No platform id available");
+            return 0;
+        }
+        return this.versionInfo.dwPlatformId.intValue();
     }
 
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion()).add("codeName", "")
-                .add("build", getBuildNumber()).build();
+    /**
+     * Any additional information about the system.
+     * 
+     * @return Product type.
+     */
+    private byte getProductType() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No product type available");
+            return 0;
+        }
+        return this.versionInfo.wProductType;
     }
 
-    @Override
-    public String toString() {
-        return this.getVersion();
+    /**
+     * The major version number of the operating system.
+     * 
+     * @return The major version within the following supported operating
+     *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
+     *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
+     *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
+     *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
+     *         Windows XP: 5.1 Windows 2000: 5.0
+     */
+    private int getMajor() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No version data available");
+            return 0;
+        }
+        return this.versionInfo.dwMajorVersion.intValue();
+    }
+
+    /**
+     * The minor version number of the operating system.
+     * 
+     * @return The minor version within the following supported operating
+     *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
+     *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
+     *         Vista: 6.0 Windows Server 2003 R2: 5.2 Windows Home Server: 5.2
+     *         Windows Server 2003: 5.2 Windows XP Professional x64 Edition: 5.2
+     *         Windows XP: 5.1 Windows 2000: 5.0
+     */
+    private int getMinor() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No version data available");
+            return 0;
+        }
+        return this.versionInfo.dwMinorVersion.intValue();
+    }
+
+    /**
+     * String, such as "Service Pack 3", that indicates the latest Service Pack
+     * installed on the system. If no Service Pack has been installed, the
+     * string is empty.
+     * 
+     * @return Service pack.
+     */
+    private String getServicePack() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No service pack data available");
+            return "";
+        }
+        return Native.toString(this.versionInfo.szCSDVersion);
+    }
+
+    /**
+     * Gets suites available on the system and return as a codename
+     * 
+     * @return Suites
+     */
+    private String parseCodeName() {
+        List<String> suites = new ArrayList<String>();
+        int bitmask = getSuiteMask();
+        if ((bitmask & 0x00000004) > 0) {
+            suites.add("BackOffice");
+        }
+        if ((bitmask & 0x00000400) > 0) {
+            suites.add("Web Edition");
+        }
+        if ((bitmask & 0x00004000) > 0) {
+            suites.add("Compute Cluster");
+        }
+        if ((bitmask & 0x00000080) > 0) {
+            suites.add("Datacenter");
+        }
+        if ((bitmask & 0x00000002) > 0) {
+            suites.add("Enterprise");
+        }
+        if ((bitmask & 0x00000200) > 0) {
+            suites.add("Home");
+        }
+        if ((bitmask & 0x00008000) > 0) {
+            suites.add("Home Server");
+        }
+        String separator = "";
+        StringBuilder sb = new StringBuilder();
+        for (String s : suites) {
+            sb.append(separator).append(s);
+            separator = ",";
+        }
+        return sb.toString();
+    }
+
+    /**
+     * A bit mask that identifies the product suites available on the system.
+     * 
+     * @return Suite mask.
+     */
+    private int getSuiteMask() {
+        if (this.versionInfo == null) {
+            LOG.warn("OSVersionInfoEx not initialized. No suite mask data available");
+            return 0;
+        }
+
+        return this.versionInfo.wSuiteMask.intValue();
     }
 }

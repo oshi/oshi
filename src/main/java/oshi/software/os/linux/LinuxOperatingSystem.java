@@ -21,16 +21,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystemVersion;
+import oshi.software.common.AbstractOperatingSystem;
 import oshi.util.FileUtil;
 
 /**
@@ -39,17 +33,60 @@ import oshi.util.FileUtil;
  *
  * @author alessandro[at]perucchi[dot]org
  */
-public class LinuxOperatingSystem implements OperatingSystem {
+public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
-    private OperatingSystemVersion _version;
-
-    private String _family;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     private List<String> osRelease;
+
+    public LinuxOperatingSystem() {
+        this.manufacturer = "GNU/Linux";
+        this.family = parseFamily(); // populates osRelease
+        this.version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();
+    }
+
+    private String parseFamily() {
+        if (this.family == null) {
+            String etcOsRelease = getReleaseFilename();
+            try {
+                this.osRelease = FileUtil.readFile(etcOsRelease);
+                for (String line : this.osRelease) {
+                    String[] splittedLine = line.split("=");
+                    if ((splittedLine[0].equals("NAME") || splittedLine[0].equals("DISTRIB_ID"))
+                            && splittedLine.length > 1) {
+                        // remove beginning and ending '"' characters, etc from
+                        // NAME="Ubuntu"
+                        this.family = splittedLine[1].replaceAll("^\"|\"$", "");
+                        break;
+                    }
+                }
+                // If we couldn't parse the os-release or lsb-release formats,
+                // see if we can parse first line of /etc/*-release
+                if (this.family == null && this.osRelease.size() > 0) {
+                    // Get everything before " release" or " VERSION"
+                    String[] split = this.osRelease.get(0).split("release");
+                    if (split.length > 1) {
+                        this.family = split[0].trim();
+                    } else {
+                        split = this.osRelease.get(0).split("VERSION");
+                        if (split.length > 1) {
+                            this.family = split[0].trim();
+                        }
+                    }
+                }
+                // If we've gotten to the end without matching, use the filename
+                if (this.family == null) {
+                    this.family = filenameToFamily(etcOsRelease.replace("/etc/", "").replace("release", "")
+                            .replace("version", "").replace("-", "").replace("_", ""));
+                }
+            } catch (IOException e) {
+                LOG.trace("", e);
+                return "";
+            }
+        }
+        return this.family;
+
+    }
 
     protected static String getReleaseFilename() {
         // Check for existence of primary sources of info:
@@ -78,50 +115,6 @@ public class LinuxOperatingSystem implements OperatingSystem {
         return "/etc/issue";
     }
 
-    @Override
-    public String getFamily() {
-        if (this._family == null) {
-            String etcOsRelease = getReleaseFilename();
-            try {
-                this.osRelease = FileUtil.readFile(etcOsRelease);
-                for (String line : this.osRelease) {
-                    String[] splittedLine = line.split("=");
-                    if ((splittedLine[0].equals("NAME") || splittedLine[0].equals("DISTRIB_ID"))
-                            && splittedLine.length > 1) {
-                        // remove beginning and ending '"' characters, etc from
-                        // NAME="Ubuntu"
-                        this._family = splittedLine[1].replaceAll("^\"|\"$", "");
-                        break;
-                    }
-                }
-                // If we couldn't parse the os-release or lsb-release formats,
-                // see if we can parse first line of /etc/*-release
-                if (this._family == null && this.osRelease.size() > 0) {
-                    // Get everything before " release" or " VERSION"
-                    String[] split = this.osRelease.get(0).split("release");
-                    if (split.length > 1) {
-                        this._family = split[0].trim();
-                    } else {
-                        split = this.osRelease.get(0).split("VERSION");
-                        if (split.length > 1) {
-                            this._family = split[0].trim();
-                        }
-                    }
-                }
-                // If we've gotten to the end without matching, use the filename
-                if (this._family == null) {
-                    this._family = filenameToFamily(etcOsRelease.replace("/etc/", "").replace("release", "")
-                            .replace("version", "").replace("-", "").replace("_", ""));
-                }
-            } catch (IOException e) {
-                LOG.trace("", e);
-                return "";
-            }
-        }
-        return this._family;
-
-    }
-
     /**
      * Converts a portion of a filename (e.g. the 'redhat' in
      * /etc/redhat-release) to a mixed case string representing the family
@@ -131,7 +124,7 @@ public class LinuxOperatingSystem implements OperatingSystem {
      *            Stripped version of filename after removing /etc and -release
      * @return Mixed case family
      */
-    private String filenameToFamily(String name) {
+    private static String filenameToFamily(String name) {
         switch (name) {
         // Handle known special cases
         case "":
@@ -176,35 +169,5 @@ public class LinuxOperatingSystem implements OperatingSystem {
         default:
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
-    }
-
-    @Override
-    public String getManufacturer() {
-        return "GNU/Linux";
-    }
-
-    @Override
-    public OperatingSystemVersion getVersion() {
-        if (this._version == null) {
-            this._version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();
-        }
-        return this._version;
-    }
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
-                .add("family", getFamily()).add("version", getVersion().toJSON()).build();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getManufacturer());
-        sb.append(" ");
-        sb.append(getFamily());
-        sb.append(" ");
-        sb.append(getVersion().toString());
-        return sb.toString();
     }
 }
