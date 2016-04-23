@@ -15,6 +15,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -39,9 +40,35 @@ public class LinuxDisks implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
+    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
+        Udev.BlockDevStats stats;
+        String devstat;
+        String[] splitstats;
+
+        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
+        splitstats = devstat.split("\\s+");
+
+        stats = new Udev.BlockDevStats(Long.parseLong(splitstats[1]),
+                Long.parseLong(splitstats[2]),
+                Long.parseLong(splitstats[3]),
+                Long.parseLong(splitstats[4]),
+                Long.parseLong(splitstats[5]),
+                Long.parseLong(splitstats[6]),
+                Long.parseLong(splitstats[7]),
+                Long.parseLong(splitstats[8]),
+                Long.parseLong(splitstats[9]),
+                Long.parseLong(splitstats[10]),
+                Long.parseLong(splitstats[11]));
+
+        // Reads and writes are converted in bytes
+        store.setReads((stats.read_512bytes * this.SECTORSIZE));
+        store.setWrites(stats.write_512bytes * this.SECTORSIZE);
+    }
+
     public HWDiskStore[] getDisks() {
         HWDiskStore store;
         List<HWDiskStore> result;
+        HashMap<String, Long> stats;
 
         Udev.UdevHandle handle = null;
         Udev.UdevDevice device = null;
@@ -63,8 +90,10 @@ public class LinuxDisks implements OshiJsonObject {
                 if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
+                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                     store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
+                    this.computeDiskStats(store, device);
                     result.add(store);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
