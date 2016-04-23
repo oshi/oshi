@@ -12,7 +12,7 @@
  * enrico[dot]bianchi[at]gmail[dot]com
  *    com.github.dblock - initial API and implementation and/or initial documentation
  */
-package oshi.hardware;
+package oshi.hardware.common;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;

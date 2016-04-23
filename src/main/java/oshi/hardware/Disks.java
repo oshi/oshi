@@ -11,6 +11,7 @@
  */
 package oshi.hardware;
 
+import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
 
 /**
@@ -20,5 +21,10 @@ import oshi.json.OshiJsonObject;
  */
 public interface Disks extends OshiJsonObject {
 
+    /**
+     * Get hard drives on this machine
+     * 
+     * @return Array of {@link HWDiskStore} objects
+     */
     public HWDiskStore[] getDisks();
 }

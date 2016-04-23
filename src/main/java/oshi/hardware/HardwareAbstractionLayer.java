@@ -16,6 +16,7 @@
  */
 package oshi.hardware;
 
+import oshi.hardware.common.HWDiskStore;
 import oshi.json.OshiJsonObject;
 import oshi.software.os.OSFileStore;
 
