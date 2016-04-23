@@ -126,6 +126,7 @@ public class HWDiskStore implements OshiJsonObject {
                 .add("name", getName())
                 .add("model", getModel())
                 .add("serial", getSerial())
+                .add("size", getSize())
                 .add("reads", getReads())
                 .add("writes", getWrites())
                 .build();
