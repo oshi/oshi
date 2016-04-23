@@ -19,6 +19,8 @@ package oshi.hardware.platform.windows;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -63,6 +65,11 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public OSFileStore[] getFileStores() {
         return WindowsFileSystem.getFileStores();
+    }
+    
+    @Override
+    public HWDiskStore[] getDisksStores() {
+        return new WindowsDisks().getDisks();
     }
 
     /**
