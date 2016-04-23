@@ -18,9 +18,6 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
-import com.sun.jna.Structure;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Interface for talking with Udev.
@@ -30,63 +27,6 @@ import java.util.List;
 public interface Udev extends Library {
 
     public static final Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
-
-    public static final class BlockDevStats extends Structure {
-
-        public BlockDevStats(long read_ops,
-                long read_merged,
-                long read_512bytes,
-                long read_waits_ms,
-                long write_ops,
-                long write_merged,
-                long write_512bytes,
-                long write_waits_ms,
-                long in_flight,
-                long active_ms,
-                long waits_ms) {
-            this.read_ops = read_ops;
-            this.read_merged = read_merged;
-            this.read_512bytes = read_512bytes;
-            this.read_waits_ms = read_waits_ms;
-            this.write_ops = write_ops;
-            this.write_merged = write_merged;
-            this.write_512bytes = write_512bytes;
-            this.write_waits_ms = write_waits_ms;
-            this.in_flight = in_flight;
-            this.active_ms = active_ms;
-            this.waits_ms = waits_ms;
-        }
-
-        // Number of read I/Os processed
-        public final long read_ops;
-        // Number of read I/Os merged with in-queue I/O
-        public final long read_merged;
-        // Number of sectors read
-        public final long read_512bytes;
-        // Total wait time for read requests, milliseconds
-        public final long read_waits_ms;
-        // Number of write I/Os processed
-        public final long write_ops;
-        // Number of write I/Os merged with in-queue I/O
-        public final long write_merged;
-        // Number of sectors written
-        public final long write_512bytes;
-        // Total wait time for write requests, milliseconds */
-        public final long write_waits_ms;
-        // Number of I/Os currently in flight
-        public final long in_flight;
-        // Total active time, milliseconds
-        public final long active_ms;
-        // Total wait time, milliseconds
-        public final long waits_ms;
-
-        @Override
-        protected List getFieldOrder() {
-            return Arrays.asList(new String[]{"read_ops", "read_merged", "read_512bytes",
-                "read_waits_ms", "write_ops", "write_merged", "write_512bytes", "write_waits_ms",
-                "in_flight", "active_ms", "waits_ms"});
-        }
-    };
 
     public static class UdevHandle extends PointerType {
 

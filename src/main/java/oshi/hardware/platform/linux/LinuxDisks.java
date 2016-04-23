@@ -41,27 +41,11 @@ public class LinuxDisks implements Disks {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
     private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
-        Udev.BlockDevStats stats;
-        String devstat;
-        String[] splitstats;
-
-        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
-        splitstats = devstat.split("\\s+");
-
-        stats = new Udev.BlockDevStats(Long.parseLong(splitstats[1]),
-                Long.parseLong(splitstats[2]),
-                Long.parseLong(splitstats[3]),
-                Long.parseLong(splitstats[4]),
-                Long.parseLong(splitstats[5]),
-                Long.parseLong(splitstats[6]),
-                Long.parseLong(splitstats[7]),
-                Long.parseLong(splitstats[8]),
-                Long.parseLong(splitstats[9]),
-                Long.parseLong(splitstats[10]),
-                Long.parseLong(splitstats[11]));
+        LinuxBlockDevStats stats;
+        stats = new LinuxBlockDevStats(store.getName(), disk);
 
         // Reads and writes are converted in bytes
-        store.setReads((stats.read_512bytes * this.SECTORSIZE));
+        store.setReads(stats.read_512bytes * this.SECTORSIZE);
         store.setWrites(stats.write_512bytes * this.SECTORSIZE);
     }
 
