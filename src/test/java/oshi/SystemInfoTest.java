@@ -361,10 +361,10 @@ public class SystemInfoTest {
 
         HWDiskStore[] dskArray = hal.getDiskStores();
         for (HWDiskStore dsk : dskArray) {
-            long byteReads = dsk.getReads();
-            long byteWrites = dsk.getWrites();
-            System.out.format(" %s: (model: %s - S/N: %s) reads (in bytes): %s writes (in bytes): %s %n", dsk.getName(),
-                    dsk.getModel(), dsk.getSerial(), byteReads, byteWrites);
+            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", dsk.getName(),
+                    dsk.getModel(), dsk.getSerial(), dsk.getSize() > 0 ? FormatUtil.formatBytes(dsk.getSize()) : "?",
+                    dsk.getReads() > 0 ? FormatUtil.formatBytes(dsk.getReads()) : "?",
+                    dsk.getWrites() > 0 ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
         }
 
         // hardware: displays

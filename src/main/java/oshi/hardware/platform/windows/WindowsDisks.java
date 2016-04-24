@@ -19,9 +19,11 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Windows hard disk implementation.
@@ -33,10 +35,22 @@ public class WindowsDisks extends AbstractDisks {
     @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
-
         result = new ArrayList<>();
 
-        // TODO: extract disks hardware information
+        Map<String, List<String>> vals = WmiUtil.getStrValues("DiskDrive", "Name,Manufacturer,Model,SerialNumber,Size");
+        for (int i = 0; i < vals.get("Name").size(); i++) {
+            HWDiskStore ds = new HWDiskStore();
+            ds.setName(vals.get("Name").get(i));
+            ds.setModel(String.format("%s %s", vals.get("Model").get(i), vals.get("Manufacturer").get(i)).trim());
+            ds.setSerial(vals.get("SerialNumber").get(i));
+            // If successful this line is the desired value
+            try {
+                ds.setSize(Long.parseLong(vals.get("Size").get(i)));
+            } catch (NumberFormatException e) {
+                // If we failed to parse, give up
+            }
+            result.add(ds);
+        }
         return result.toArray(new HWDiskStore[result.size()]);
     }
 }

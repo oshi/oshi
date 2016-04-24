@@ -87,6 +87,8 @@ File System:
  MacData on 'psf' (X:) (Network Drive) 3.4 GB of 4.4 GB free (77.4%)
  Home on 'psf' (Y:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
  Host on 'psf' (Z:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
+Disks:
+ \\.\PHYSICALDRIVE0: (model: Windows 7-0 ATA Device (Standard disk drives) - S/N: 314143413454355748334d4445464d5938414a34) size: 640.0 GiB, reads: ?, writes: ?
 Displays:
  Display 0:
   Manuf. ID=DEL, Product ID=4014, Analog, Serial=BENG, ManufDate=3/2006, EDID v1.3
@@ -135,6 +137,9 @@ File System:
  Home (Mount Point) 134.5 GB of 697.5 GB free (19.3%)
  MacData (Mount Point) 3.4 GB of 4.4 GB free (77.4%)
  MobileBackups (Mount Point) 0 bytes of 697.5 GB free (0.0%)
+Disks:
+ /dev/sda: (model: Linux-0 - S/N: XQ1PCFXNN6YMN4JDF120) size: 480 GiB, reads: 2.3 GiB, writes: 6.0 GiB 
+ /dev/sr0: (model: Virtual_DVD-ROM__1_ - S/N: -_31415B265) size: 1024.0 MiB, reads: ?, writes: ? 
 Displays:
  Display 0:
   Manuf. ID=SAM, Product ID=2ad, Analog, Serial=HA19, ManufDate=3/2008, EDID v1.3
@@ -185,6 +190,9 @@ File System:
  Macintosh HD (/) (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
  MobileBackups (Network Drive) 0 bytes of 697.5 GB free (0.0%)
  Time Machine Backups (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
+Disks:
+ disk0: (model: ST2000LM003 HN-M201RAD - S/N: S34RJ9FGB21964) size: 1.8 TiB, reads: ?, writes: ? 
+ disk1: (model: MATSHITADVD-R   UJ-8A8 - S/N: D0211230551DDPPAF) size: ?, reads: ?, writes: ? 
 Displays:
  Display 0:
   Manuf. ID=A, Product ID=9cb6, Analog, Serial=00000000, ManufDate=6/2009, EDID v1.3
