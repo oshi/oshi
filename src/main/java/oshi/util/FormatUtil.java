@@ -28,73 +28,110 @@ import java.util.concurrent.TimeUnit;
 public abstract class FormatUtil {
 
     /**
-     * Added these variable for easier reading Using the IEC Standard for naming
-     * the units.
+     * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+     * 
+     * Should be used for most representations of bytes
      */
-    final private static long kibiByte = 1024L;
-
-    final private static long mebiByte = kibiByte * kibiByte;
-
-    final private static long gibiByte = mebiByte * kibiByte;
-
-    final private static long tebiByte = gibiByte * kibiByte;
-
-    final private static long pebiByte = tebiByte * kibiByte;
-
-    final private static long exbiByte = pebiByte * kibiByte;
+    final private static long KIBI = 1L << 10;
+    final private static long MEBI = 1L << 20;
+    final private static long GIBI = 1L << 30;
+    final private static long TEBI = 1L << 40;
+    final private static long PEBI = 1L << 50;
+    final private static long EXBI = 1L << 60;
 
     /**
-     * Hertz related variables
+     * Decimal prefixes, used for Hz and other metric units and for bytes by
+     * hard drive manufacturers
      */
-    final private static long kiloHertz = 1000L;
-
-    final private static long megaHertz = kiloHertz * kiloHertz;
-
-    final private static long gigaHertz = megaHertz * kiloHertz;
-
-    final private static long teraHertz = gigaHertz * kiloHertz;
-
-    final private static long petaHertz = teraHertz * kiloHertz;
-
-    final private static long exaHertz = petaHertz * kiloHertz;
+    final private static long KILO = 1000L;
+    final private static long MEGA = 1000000L;
+    final private static long GIGA = 1000000000L;
+    final private static long TERA = 1000000000000L;
+    final private static long PETA = 1000000000000000L;
+    final private static long EXA = 1000000000000000000L;
 
     /**
      * Format bytes into a rounded string representation using IEC standard
-     * (matches Mac/Linux). To match Windows displays for KB, MB and GB, users
-     * can edit the returned string to display the (incorrect) JEDEC units.
+     * (matches Mac/Linux). For hard drive capacities, use @link
+     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and
+     * GB, in JEDEC units, edit the returned string to remove the 'i' to display
+     * the (incorrect) JEDEC units.
      * 
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytes(long bytes) {
+        if (bytes == 1L) { // bytes
+            return String.format("%d byte", bytes);
+        } else if (bytes < KIBI) { // bytes
+            return String.format("%d bytes", bytes);
+        } else if (bytes % KIBI == 0 && bytes < MEBI) { // KiB
+            return String.format("%.0f KiB", (double) bytes / KIBI);
+        } else if (bytes < MEBI) { // KiB
+            return String.format("%.1f KiB", (double) bytes / KIBI);
+        } else if (bytes % MEBI == 0 && bytes < GIBI) { // MiB
+            return String.format("%.0f MiB", (double) bytes / MEBI);
+        } else if (bytes < GIBI) { // MiB
+            return String.format("%.1f MiB", (double) bytes / MEBI);
+        } else if (bytes % GIBI == 0 && bytes < TEBI) { // GiB
+            return String.format("%.0f GiB", (double) bytes / GIBI);
+        } else if (bytes < TEBI) { // GiB
+            return String.format("%.1f GiB", (double) bytes / GIBI);
+        } else if (bytes % TEBI == 0 && bytes < PEBI) { // TiB
+            return String.format("%.0f TiB", (double) bytes / TEBI);
+        } else if (bytes < PEBI) { // TiB
+            return String.format("%.1f TiB", (double) bytes / TEBI);
+        } else if (bytes % PEBI == 0 && bytes < EXBI) { // PiB
+            return String.format("%.0f PiB", (double) bytes / PEBI);
+        } else if (bytes < EXBI) { // PiB
+            return String.format("%.1f PiB", (double) bytes / PEBI);
+        } else if (bytes % EXBI == 0) { // EiB
+            return String.format("%.0f EiB", (double) bytes / EXBI);
+        } else { // EiB
+            return String.format("%.1f EiB", (double) bytes / EXBI);
+        }
+    }
+
+    /**
+     * Format bytes into a rounded string representation using decimal SI units.
+     * These are used by hard drive manufacturers for capacity. Most other
+     * storage should use {@link #formatBytes(long)}.
+     * 
+     * @param bytes
+     *            Bytes.
+     * @return Rounded string representation of the byte size.
+     */
+    public static String formatBytesDecimal(long bytes) {
         if (bytes == 1) { // bytes
             return String.format("%d byte", bytes);
-        } else if (bytes < kibiByte) { // bytes
+        } else if (bytes < KILO) { // bytes
             return String.format("%d bytes", bytes);
-        } else if (bytes < mebiByte && bytes % kibiByte == 0) { // KiB
-            return String.format("%.0f KiB", (double) bytes / kibiByte);
-        } else if (bytes < mebiByte) { // KiB
-            return String.format("%.1f KiB", (double) bytes / kibiByte);
-        } else if (bytes < gibiByte && bytes % mebiByte == 0) { // MiB
-            return String.format("%.0f MiB", (double) bytes / mebiByte);
-        } else if (bytes < gibiByte) { // MiB
-            return String.format("%.1f MiB", (double) bytes / mebiByte);
-        } else if (bytes % gibiByte == 0 && bytes < tebiByte) { // GiB
-            return String.format("%.0f GiB", (double) bytes / gibiByte);
-        } else if (bytes < tebiByte) { // GiB
-            return String.format("%.1f GiB", (double) bytes / gibiByte);
-        } else if (bytes % tebiByte == 0 && bytes < pebiByte) { // TiB
-            return String.format("%.0f TiB", (double) bytes / tebiByte);
-        } else if (bytes < pebiByte) { // TiB
-            return String.format("%.1f TiB", (double) bytes / tebiByte);
-        } else if (bytes % pebiByte == 0 && bytes < exbiByte) { // PiB
-            return String.format("%.0f PiB", (double) bytes / pebiByte);
-        } else if (bytes < exbiByte) { // PiB
-            return String.format("%.1f PiB", (double) bytes / pebiByte);
-        } else {
-            return String.format("%d bytes", bytes);
+        } else if (bytes % KILO == 0 && bytes < MEGA) { // KB
+            return String.format("%.0f KB", (double) bytes / KILO);
+        } else if (bytes < MEGA) { // KB
+            return String.format("%.1f KB", (double) bytes / KILO);
+        } else if (bytes % MEGA == 0 && bytes < GIGA) { // MB
+            return String.format("%.0f MB", (double) bytes / MEGA);
+        } else if (bytes < GIGA) { // MB
+            return String.format("%.1f MB", (double) bytes / MEGA);
+        } else if (bytes % GIGA == 0 && bytes < TERA) { // GB
+            return String.format("%.0f GB", (double) bytes / GIGA);
+        } else if (bytes < TERA) { // GB
+            return String.format("%.1f GB", (double) bytes / GIGA);
+        } else if (bytes % TERA == 0 && bytes < PETA) { // TB
+            return String.format("%.0f TB", (double) bytes / TERA);
+        } else if (bytes < PETA) { // TB
+            return String.format("%.1f TB", (double) bytes / TERA);
+        } else if (bytes % PETA == 0 && bytes < EXA) { // PB
+            return String.format("%.0f PB", (double) bytes / PETA);
+        } else if (bytes < EXA) { // PB
+            return String.format("%.1f PB", (double) bytes / PETA);
+        } else if (bytes % EXA == 0) { // EB
+            return String.format("%.0f EB", (double) bytes / EXA);
+        } else { // EB
+            return String.format("%.1f EB", (double) bytes / EXA);
         }
     }
 
@@ -106,28 +143,28 @@ public abstract class FormatUtil {
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
-        if (hertz < kiloHertz) { // Hz
+        if (hertz < KILO) { // Hz
             return String.format("%d Hz", hertz);
-        } else if (hertz < megaHertz && hertz % kiloHertz == 0) { // KHz
-            return String.format("%.0f kHz", (double) hertz / kiloHertz);
-        } else if (hertz < megaHertz) {
-            return String.format("%.1f kHz", (double) hertz / kiloHertz);
-        } else if (hertz < gigaHertz && hertz % megaHertz == 0) { // MHz
-            return String.format("%.0f MHz", (double) hertz / megaHertz);
-        } else if (hertz < gigaHertz) {
-            return String.format("%.1f MHz", (double) hertz / megaHertz);
-        } else if (hertz < teraHertz && hertz % gigaHertz == 0) { // GHz
-            return String.format("%.0f GHz", (double) hertz / gigaHertz);
-        } else if (hertz < teraHertz) {
-            return String.format("%.1f GHz", (double) hertz / gigaHertz);
-        } else if (hertz < petaHertz && hertz % teraHertz == 0) { // THz
-            return String.format("%.0f THz", (double) hertz / teraHertz);
-        } else if (hertz < petaHertz) {
-            return String.format("%.1f THz", (double) hertz / teraHertz);
-        } else if (hertz < exaHertz && hertz % petaHertz == 0) { // EHz
-            return String.format("%.0f EHz", (double) hertz / petaHertz);
-        } else if (hertz < exaHertz) {
-            return String.format("%.1f EHz", (double) hertz / petaHertz);
+        } else if (hertz < MEGA && hertz % KILO == 0) { // KHz
+            return String.format("%.0f kHz", (double) hertz / KILO);
+        } else if (hertz < MEGA) {
+            return String.format("%.1f kHz", (double) hertz / KILO);
+        } else if (hertz < GIGA && hertz % MEGA == 0) { // MHz
+            return String.format("%.0f MHz", (double) hertz / MEGA);
+        } else if (hertz < GIGA) {
+            return String.format("%.1f MHz", (double) hertz / MEGA);
+        } else if (hertz < TERA && hertz % GIGA == 0) { // GHz
+            return String.format("%.0f GHz", (double) hertz / GIGA);
+        } else if (hertz < TERA) {
+            return String.format("%.1f GHz", (double) hertz / GIGA);
+        } else if (hertz < PETA && hertz % TERA == 0) { // THz
+            return String.format("%.0f THz", (double) hertz / TERA);
+        } else if (hertz < PETA) {
+            return String.format("%.1f THz", (double) hertz / TERA);
+        } else if (hertz < EXA && hertz % PETA == 0) { // EHz
+            return String.format("%.0f EHz", (double) hertz / PETA);
+        } else if (hertz < EXA) {
+            return String.format("%.1f EHz", (double) hertz / PETA);
         } else {
             return String.format("%d Hz", hertz);
         }
