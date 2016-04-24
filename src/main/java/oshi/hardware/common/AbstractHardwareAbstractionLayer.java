@@ -25,6 +25,7 @@ import javax.json.JsonObject;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
@@ -68,6 +69,12 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      * {@inheritDoc}
      */
     @Override
+    public abstract HWDiskStore[] getDiskStores();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public abstract Display[] getDisplays();
 
     /**
@@ -89,6 +96,10 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         for (OSFileStore fileStore : getFileStores()) {
             fileStoreArrayBuilder.add(fileStore.toJSON());
         }
+        JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();
+        for (HWDiskStore diskStore : getDiskStores()) {
+            diskStoreArrayBuilder.add(diskStore.toJSON());
+        }
         JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
@@ -96,6 +107,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
                 .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
-                .add("displays", displayArrayBuilder.build()).add("sensors", getSensors().toJSON()).build();
+                .add("disks", diskStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
+                .add("sensors", getSensors().toJSON()).build();
     }
 }

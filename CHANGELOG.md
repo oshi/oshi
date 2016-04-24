@@ -3,7 +3,7 @@
 * [#140](https://github.com/dblock/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
 * [#142](https://github.com/dblock/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
 * [#145](https://github.com/dblock/oshi/pull/145): Refactored common code to abstract classes - [@dbwiddis](https://github.com/dbwiddis).
-* [#147](https://github.com/dblock/oshi/pull/147): Added disk information for Linux - [@henryx](https://github.com/henryx).
+* [#147](https://github.com/dblock/oshi/pull/147), [#149](https://github.com/dblock/oshi/pull/149): Added disk information and statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.3 (4/14/2016)

@@ -18,7 +18,9 @@
 package oshi.util.platform.windows;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import oshi.util.ExecutingCommand;
 
@@ -57,6 +59,49 @@ public class WmiUtil {
             }
         }
         return value;
+    }
+
+    /**
+     * Get String values from WMI
+     * 
+     * @param path
+     *            Path for the query
+     * @param properties
+     *            Comma-delimited properties to retrieve value
+     * @return Map with a key for each property and value a List of string
+     *         values of the property. All lists will contain the same elements
+     */
+    public static Map<String, List<String>> getStrValues(String path, String properties) {
+        // Set up map
+        Map<String, List<String>> values = new HashMap<>();
+        String[] props = properties.split(",");
+        // If only one property, no header row is returned so we manually add it
+        if (props.length == 1) {
+            values.put(props[0], new ArrayList<String>());
+        }
+        // Get query
+        // TODO: Replace wmic command line with COM call
+        ArrayList<String> data = ExecutingCommand.runNative(String.format("wmic %s get %s", path, properties));
+        String[] headers = new String[props.length];
+        for (String checkLine : data) {
+            if (checkLine.length() == 0) {
+                continue;
+            }
+            String[] vals = checkLine.split("\\s\\s+");
+            // First row is header
+            if (headers[0] == null) {
+                for (int i = 0; i < headers.length && i < vals.length; i++) {
+                    headers[i] = vals[i];
+                    values.put(headers[i], new ArrayList<String>());
+                }
+                continue;
+            }
+            // Values are in same order as headers
+            for (int i = 0; i < headers.length && i < vals.length; i++) {
+                values.get(headers[i]).add(vals[i].trim());
+            }
+        }
+        return values;
     }
 
     /**
