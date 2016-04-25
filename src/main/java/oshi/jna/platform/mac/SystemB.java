@@ -173,7 +173,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *            holds results
      * @param buffersize
      *            size of results
-     * @return
+     * @return the number of bytes of data returned in the provided buffer; -1
+     *         if an error was encountered;
      */
     int proc_pidinfo(int pid, int flavor, long arg, Structure buffer, int buffersize);
 

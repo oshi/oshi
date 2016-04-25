@@ -236,6 +236,8 @@ public interface CentralProcessor extends OshiJsonObject {
      * unavailable on some platforms (e.g., Windows) where it is expensive to
      * implement this method.
      * 
+     * @param nelem
+     *            Number of elements to return.
      * @return an array of the system load averages for 1, 5, and 15 minutes
      *         with the size of the array specified by nelem; or negative values
      *         if not available.

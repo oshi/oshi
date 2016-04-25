@@ -24,6 +24,9 @@ Releasing OSHI
 ### Release
 
 * See [this page](http://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
+* `mvn clean deploy`
+	* Do a final snapshot release and fix any errors in the javadocs
+	* If license headers are rewritten as part of this deployment, commit the changes
 * `mvn release:clean`
 	* Takes a few seconds
 * `mvn release:prepare`
