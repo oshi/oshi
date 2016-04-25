@@ -21,13 +21,16 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.FileUtil;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -49,6 +52,24 @@ public class LinuxFileSystem extends AbstractFileSystem {
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     public OSFileStore[] getFileStores() {
+        // Parse /proc/self/mounts to map filesystem paths to types
+        Map<String, String> fstype = new HashMap<>();
+        try {
+            List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+            for (String mount : mounts) {
+                String[] split = mount.split(" ");
+                // 2nd field is path with spaces escaped as \040
+                // 3rd field is fs type
+                if (split.length < 6) {
+                    continue;
+                }
+                fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
+            }
+        } catch (IOException e) {
+            LOG.error("Error reading /proc/self/mounts. Can't detect filetypes.");
+        }
+        // Format
+        // Now list file systems
         List<OSFileStore> fsList = new ArrayList<>();
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             // FileStore toString starts with path, then a space, then name in
@@ -64,8 +85,12 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String description = "Mount Point";
             if (store.name().startsWith("/dev"))
                 description = "Local Disk";
+            String type = "unknown";
+            if (fstype.containsKey(path)) {
+                type = fstype.get(path);
+            }
             try {
-                fsList.add(new OSFileStore(name, description, store.getUsableSpace(), store.getTotalSpace()));
+                fsList.add(new OSFileStore(name, description, type, store.getUsableSpace(), store.getTotalSpace()));
             } catch (IOException e) {
                 // get*Space() may fail for ejected CD-ROM, etc.
                 LOG.trace("", e);

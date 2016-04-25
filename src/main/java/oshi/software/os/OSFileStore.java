@@ -39,6 +39,8 @@ public class OSFileStore implements OshiJsonObject {
 
     private String description;
 
+    private String fsType;
+
     private long usableSpace;
 
     private long totalSpace;
@@ -56,8 +58,27 @@ public class OSFileStore implements OshiJsonObject {
      *            Total bytes
      */
     public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+        this(newName, newDescription, "unknown", newUsableSpace, newTotalSpace);
+    }
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newDescription, String newType, long newUsableSpace, long newTotalSpace) {
         this.setName(newName);
         this.setDescription(newDescription);
+        this.setType(newType);
         this.setUsableSpace(newUsableSpace);
         this.setTotalSpace(newTotalSpace);
     }
@@ -98,6 +119,25 @@ public class OSFileStore implements OshiJsonObject {
      */
     public void setDescription(String value) {
         this.description = value;
+    }
+
+    /**
+     * Type of the File System (FAT, NTFS, etx2, ext4, etc)
+     * 
+     * @return The file system type
+     */
+    public String getType() {
+        return this.fsType;
+    }
+
+    /**
+     * Sets the File System type
+     * 
+     * @param value
+     *            The type
+     */
+    public void setType(String value) {
+        this.fsType = value;
     }
 
     /**
@@ -144,7 +184,7 @@ public class OSFileStore implements OshiJsonObject {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("description", getDescription()).add("usableSpace", getUsableSpace())
+                .add("description", getDescription()).add("fsType", getType()).add("usableSpace", getUsableSpace())
                 .add("totalSpace", getTotalSpace()).build();
     }
 }

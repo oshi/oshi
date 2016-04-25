@@ -18,6 +18,7 @@
 package oshi.software.os.windows;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +29,7 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -42,6 +44,11 @@ import oshi.software.os.OSFileStore;
 public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+
+    public WindowsFileSystem() {
+        // Set error mode to fail rather than prompt for FLoppy/CD-Rom
+        Kernel32.INSTANCE.SetErrorMode(Kernel32.SEM_FAILCRITICALERRORS);
+    }
 
     /**
      * Gets File System Information.
@@ -62,7 +69,21 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 FileSystemView fsv = FileSystemView.getFileSystemView();
                 List<OSFileStore> fsList = new ArrayList<>();
                 for (File f : roots) {
-                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),
+                    String type = "unknown";
+                    try {
+                        // add trailing slash to path if needed
+                        String path = f.getCanonicalPath();
+                        if (path.charAt(path.length() - 1) != '\\') {
+                            path = path + '\\';
+                        }
+                        char[] fstype = new char[16];
+                        if (Kernel32.INSTANCE.GetVolumeInformation(path, null, 0, null, null, null, fstype, 16)) {
+                            type = (new String(fstype)).trim();
+                        }
+                    } catch (IOException e) {
+                        LOG.error("Could not get canonical path for {}", f.toString());
+                    }
+                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), type,
                             f.getUsableSpace(), f.getTotalSpace()));
                 }
                 return fsList;

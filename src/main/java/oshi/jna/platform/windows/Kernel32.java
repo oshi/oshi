@@ -19,6 +19,7 @@ package oshi.jna.platform.windows;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.win32.W32APIOptions;
 
 /**
  * Windows Kernel32. This class should be considered non-API as it may be
@@ -27,7 +28,7 @@ import com.sun.jna.platform.win32.WinBase;
  * @author widdis[at]gmail[dot]com
  */
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
-    Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("Kernel32", Kernel32.class);
+    Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, W32APIOptions.DEFAULT_OPTIONS);
 
     // TODO: Submit this change to JNA Kernel32 class
     /**
@@ -60,4 +61,17 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      * @return The number of milliseconds.
      */
     long GetTickCount64();
+
+    public static final int SEM_FAILCRITICALERRORS = 0x0001;
+
+    /**
+     * Controls whether the system will handle the specified types of serious
+     * errors or whether the process will handle them.
+     * 
+     * @param umode
+     *            The process error mode.
+     * @return The return value is the previous state of the error-mode bit
+     *         flags.
+     */
+    int SetErrorMode(int umode);
 }

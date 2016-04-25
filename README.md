@@ -41,11 +41,12 @@ Current supported features
 * OS Version (Version number, Codename, Build)
 
 ### Hardware ###
-* How much physical/available (free+reclaimable) RAM
+* How much physical/available (free+reclaimable) RAM, and total/used swap (pagefile)
 * How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
 * CPU temperature, fan speeds, voltage (if available; some OS's, some CPUs)
 * Battery state (% capacity, time remaining)
+* Disk drives (model, serial, size)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
 
@@ -80,13 +81,13 @@ Sensors:
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
- Floppy Disk Drive (A:) (Floppy Disk Drive) 1.1 MiB of 1.4 MiB free (82.4%)
- Local Disk (C:) (Local Disk) 27.3 GiB of 64.0 GiB free (42.7%)
- D:\ (CD Drive) 0 bytes of 0 bytes free 
- MobileBackups on 'psf' (W:) (Network Drive) 0 bytes of 697.5 GiB free (0.0%)
- MacData on 'psf' (X:) (Network Drive) 3.4 GiB of 4.4 GiB free (77.4%)
- Home on 'psf' (Y:) (Network Drive) 121.7 GiB of 697.5 GiB free (17.4%)
- Host on 'psf' (Z:) (Network Drive) 121.7 GiB of 697.5 GiB free (17.4%)
+ Floppy Disk Drive (A:) (Floppy Disk Drive) [FAT] 1.1 MiB of 1.4 MiB free (82.4%)
+ Local Disk (C:) (Local Disk) [NTFS] 27.3 GiB of 64.0 GiB free (42.7%)
+ D:\ (CD Drive) [unknown] 0 bytes of 0 bytes free 
+ MobileBackups on 'psf' (W:) (Network Drive) [PrlSF] 0 bytes of 697.5 GiB free (0.0%)
+ MacData on 'psf' (X:) (Network Drive) [PrlSF] 3.4 GiB of 4.4 GiB free (77.4%)
+ Home on 'psf' (Y:) (Network Drive) [PrlSF] 121.7 GiB of 697.5 GiB free (17.4%)
+ Host on 'psf' (Z:) (Network Drive) [PrlSF] 121.7 GiB of 697.5 GiB free (17.4%)
 Disks:
  \\.\PHYSICALDRIVE0: (model: Windows 7-0 ATA Device (Standard disk drives) - S/N:314143413454355748334d4445464d5938414a34) size: 640 GB, reads: ?, writes: ?
 Displays:
@@ -133,10 +134,10 @@ Sensors:
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
- / (Local Disk) 52.8 GiB of 60.9 GiB free (86.7%)
- Home (Mount Point) 134.5 GiB of 697.5 GiB free (19.3%)
- MacData (Mount Point) 3.4 GiB of 4.4 GiB free (77.4%)
- MobileBackups (Mount Point) 0 bytes of 697.5 GiB free (0.0%)
+ / (Local Disk) [ext4] 52.8 GiB of 60.9 GiB free (86.7%)
+ Home (Mount Point) [prl_fs] 134.5 GiB of 697.5 GiB free (19.3%)
+ MacData (Mount Point) [prl_fs] 3.4 GiB of 4.4 GiB free (77.4%)
+ MobileBackups (Mount Point) [prl_fs] 0 bytes of 697.5 GiB free (0.0%)
 Disks:
  /dev/sda: (model: Linux-0 - S/N: XQ1PCFXNN6YMN4JDF120) size: 480 GB, reads: 2.3 GiB, writes: 6.0 GiB 
  /dev/sr0: (model: Virtual_DVD-ROM__1_ - S/N: -_31415B265) size: 1.0 GB, reads: ?, writes: ? 
@@ -185,11 +186,11 @@ Sensors:
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:
- Data (Network Drive) 15.7 GiB of 1.8 TiB free (0.8%)
- MacData (Volume) 3.4 GiB of 4.4 GiB free (77.4%)
- Macintosh HD (/) (Local Disk) 134.4 GiB of 697.5 GiB free (19.3%)
- MobileBackups (Network Drive) 0 bytes of 697.5 GiB free (0.0%)
- Time Machine Backups (Local Disk) 134.4 GiB of 697.5 GiB free (19.3%)
+ Data (Network Drive) [smbfs] 15.7 GiB of 1.8 TiB free (0.8%)
+ MacData (Volume) [hfs] 3.4 GiB of 4.4 GiB free (77.4%)
+ Macintosh HD (/) (Local Disk) [hfs] 134.4 GiB of 697.5 GiB free (19.3%)
+ MobileBackups (Network Drive) [mtmfs] 0 bytes of 697.5 GiB free (0.0%)
+ Time Machine Backups (Local Disk) [hfs] 134.4 GiB of 697.5 GiB free (19.3%)
 Disks:
  disk0: (model: ST2000LM003 HN-M201RAD - S/N: S34RJ9FGB21964) size: 2.0 TB, reads: ?, writes: ? 
  disk1: (model: MATSHITADVD-R   UJ-8A8 - S/N: D0211230551DDPPAF) size: ?, reads: ?, writes: ? 
