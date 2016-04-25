@@ -227,6 +227,9 @@ public class SystemInfoTest {
         SystemInfo si = new SystemInfo();
         OSFileStore[] fs = si.getHardware().getFileStores();
         for (int f = 0; f < fs.length; f++) {
+            assertNotNull(fs[f].getName());
+            assertNotNull(fs[f].getDescription());
+            assertNotNull(fs[f].getType());
             assertTrue(fs[f].getTotalSpace() >= 0);
             assertTrue(fs[f].getUsableSpace() <= fs[f].getTotalSpace());
         }
@@ -350,9 +353,9 @@ public class SystemInfoTest {
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) %s of %s free (%.1f%%)%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), FormatUtil.formatBytes(usable),
-                    FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
+            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%)%n", fs.getName(),
+                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
         }
 
         // hardware: disks

@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.filechooser.FileSystemView;
@@ -30,6 +32,8 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -56,11 +60,27 @@ public class MacFileSystem extends AbstractFileSystem {
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     public OSFileStore[] getFileStores() {
+        // Use getfsstat to map filesystem paths to types
+        Map<String, String> fstype = new HashMap<>();
+        // Query with null to get total # required
+        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
+        if (numfs > 0) {
+            // Create array to hold results
+            Statfs[] fs = new Statfs[numfs];
+            // Fill array with results
+            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * (new Statfs()).size(), SystemB.MNT_NOWAIT);
+            for (int f = 0; f < numfs; f++) {
+                // Mount to name will match canonical path.
+                // Byte arrays are null-terminated strings
+                fstype.put(new String(fs[f].f_mntonname).trim(), new String(fs[f].f_fstypename).trim());
+            }
+        }
+        // Now list file systems
         List<OSFileStore> fsList = new ArrayList<>();
         FileSystemView fsv = FileSystemView.getFileSystemView();
         // Mac file systems are mounted in /Volumes
         File volumes = new File("/Volumes");
-        if (volumes.listFiles() != null)
+        if (volumes.listFiles() != null) {
             for (File f : volumes.listFiles()) {
                 // Everyone hates DS Store
                 if (f.getName().endsWith(".DS_Store")) {
@@ -68,8 +88,10 @@ public class MacFileSystem extends AbstractFileSystem {
                 }
                 String name = fsv.getSystemDisplayName(f);
                 String description = "Volume";
+                String type = "unknown";
                 try {
-                    if (f.getCanonicalPath().equals("/"))
+                    String cp = f.getCanonicalPath();
+                    if (cp.equals("/"))
                         name = name + " (/)";
                     FileStore fs = Files.getFileStore(f.toPath());
                     if (localDisk.matcher(fs.name()).matches()) {
@@ -78,12 +100,16 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (fs.name().startsWith("localhost:") || fs.name().startsWith("//")) {
                         description = "Network Drive";
                     }
+                    if (fstype.containsKey(cp)) {
+                        type = fstype.get(cp);
+                    }
                 } catch (IOException e) {
                     LOG.trace("", e);
                     continue;
                 }
-                fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));
+                fsList.add(new OSFileStore(name, description, type, f.getUsableSpace(), f.getTotalSpace()));
             }
+        }
         return fsList.toArray(new OSFileStore[fsList.size()]);
     }
 }
