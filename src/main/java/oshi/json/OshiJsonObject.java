@@ -21,7 +21,7 @@ import javax.json.JsonObject;
 
 public interface OshiJsonObject {
     /**
-     * Creates a compact JSON string containing all system information
+     * Creates a compact JSON string containing the information for this class
      * 
      * @return a compact JSON string
      */

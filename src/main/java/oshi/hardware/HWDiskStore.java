@@ -20,6 +20,7 @@ package oshi.hardware;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
 
@@ -129,6 +130,9 @@ public class HWDiskStore implements OshiJsonObject {
         this.writes = writes;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())

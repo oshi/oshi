@@ -4,7 +4,7 @@
  * Copyright (c) 2010 - 2016 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse public static License v1.0
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
@@ -125,7 +125,7 @@ public class SmcUtil {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            return strtoul(val.bytes, val.dataSize, 10);
+            return strtoul(val.bytes, val.dataSize);
         }
         // Read failed
         return 0;
@@ -198,7 +198,7 @@ public class SmcUtil {
         SMCKeyData inputStructure = new SMCKeyData();
         SMCKeyData outputStructure = new SMCKeyData();
 
-        inputStructure.key = strtoul(key, 4, 16);
+        inputStructure.key = strtoul(key, 4);
         int result;
         do {
             result = smcGetKeyInfo(inputStructure, outputStructure);
@@ -265,30 +265,23 @@ public class SmcUtil {
      *            A human readable string, up to 4 characters
      * @param size
      *            Size of the string
-     * @param base
-     *            Base of the conversion. If 16, the string will be treated as a
-     *            32-bit value. Otherwise the four 8-bit values will be summed
-     *            as unsigned bytes
      * @return An integer representing the string where each character is
      *         treated as a byte in a 32-bit number
      */
-    public static int strtoul(String str, int size, int base) {
-        return strtoul(str.getBytes(), size, base);
+    public static int strtoul(String str, int size) {
+        return strtoul(str.getBytes(), size);
     }
 
     /**
      * Convert a byte array to its integer representation.
      * 
      * @param bytes
-     *            An array of up to 4 bytes
+     *            An array of bytes no smaller than the size to be converted
      * @param size
-     *            Size of the array
-     * @param base
-     *            Base of the conversion. If 16, each byte is treated as signed.
-     *            Otherwise, the bytes are treated as unsigned.
+     *            Number of bytes to convert to the integer. May not exceed 4.
      * @return An integer representing the byte array as a 32-bit number
      */
-    public static int strtoul(byte[] bytes, int size, int base) {
+    public static int strtoul(byte[] bytes, int size) {
         if (size > 4) {
             throw new IllegalArgumentException("Can't convert more than 4 bytes to an int.");
         }
@@ -297,13 +290,7 @@ public class SmcUtil {
         }
         int total = 0;
         for (int i = 0; i < size; i++) {
-            if (base == 16) {
-                // signed bytes, shifted
-                total += bytes[i] << (size - 1 - i) * 8;
-            } else {
-                // unsigned bytes, shifted
-                total += (bytes[i] & 0xff) << (size - 1 - i) * 8;
-            }
+            total += (bytes[i] & 0xff) << (size - 1 - i) * 8;
         }
         return total;
     }
@@ -312,14 +299,14 @@ public class SmcUtil {
      * Convert a byte array to its floating point representation.
      * 
      * @param bytes
-     *            An array of up to 4 bytes
+     *            An array of bytes no smaller than the size to be converted
      * @param size
-     *            Size of the array
+     *            Number of bytes to convert to the float. May not exceed 4.
      * @param e
      *            Number of bits representing the decimal, up to 8
-     * @return An float; the integer representing the byte array as a 32-bit
-     *         number shifted by the bits specified in e; with the remaining
-     *         bits used as a decimal
+     * @return A float; the integer portion representing the byte array as a
+     *         32-bit number shifted by the bits specified in e; with the
+     *         remaining bits used as a decimal
      */
     public static float strtof(byte[] bytes, int size, int e) {
         if (size > 4) {

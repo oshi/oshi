@@ -26,10 +26,17 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 /**
- * Decorator class for JsonObjectBuilder that handles null values properly
+ * Decorator class for {@link javax.json.JsonObjectBuilder} that handles null
+ * values properly
  */
 public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
-    // Use the Factory Pattern to create an instance.
+    /**
+     * Wraps a {@link javax.json.JsonObjectBuilder}
+     * 
+     * @param builder
+     *            The builder to wrap
+     * @return A new instance of this class, wrapping the specified builder
+     */
     public static JsonObjectBuilder wrap(JsonObjectBuilder builder) {
         if (builder == null) {
             throw new IllegalArgumentException("Can't wrap nothing.");
@@ -40,10 +47,14 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     // Decorated object per Decorator Pattern.
     private final JsonObjectBuilder builder;
 
+    // Private constructor that wraps the builder
     private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {
         this.builder = builder;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, JsonValue arg1) {
         if (arg1 == null) {
@@ -54,6 +65,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, String arg1) {
         if (arg1 == null) {
@@ -64,6 +78,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, BigInteger arg1) {
         if (arg1 == null) {
@@ -74,6 +91,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, BigDecimal arg1) {
         if (arg1 == null) {
@@ -84,30 +104,45 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, int arg1) {
         builder.add(arg0, arg1);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, long arg1) {
         builder.add(arg0, arg1);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, double arg1) {
         builder.add(arg0, arg1);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, boolean arg1) {
         builder.add(arg0, arg1);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, JsonObjectBuilder arg1) {
         if (arg1 == null) {
@@ -118,6 +153,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder add(String arg0, JsonArrayBuilder arg1) {
         if (arg1 == null) {
@@ -128,12 +166,18 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObjectBuilder addNull(String arg0) {
         builder.addNull(arg0);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject build() {
         return builder.build();
