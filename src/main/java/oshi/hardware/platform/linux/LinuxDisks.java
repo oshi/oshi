@@ -69,14 +69,16 @@ public class LinuxDisks extends AbstractDisks {
                 oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
                         Udev.INSTANCE.udev_list_entry_get_name(entry));
-                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
+                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")
+                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
+                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
                     // Avoid model and serial in virtual environments
                     store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
                             ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                    store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
+                    store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null)
                             ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
                     store.setSize(
