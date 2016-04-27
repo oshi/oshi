@@ -77,7 +77,7 @@ public class MacSensors extends AbstractSensors {
         if (System.currentTimeMillis() - this.lastFanSpeedsTime > 900) {
             // If we don't have fan # try to get it
             if (this.numFans == 0) {
-                this.numFans = SmcUtil.smcGetInt(IOKit.SMC_KEY_FAN_NUM, 50);
+                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);
                 this.lastFanSpeeds = new int[this.numFans];
             }
             for (int i = 0; i < this.numFans; i++) {

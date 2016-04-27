@@ -113,19 +113,19 @@ public class SmcUtil {
     }
 
     /**
-     * Get a 32-bit integer value from SMC
+     * Get a 64-bit integer value from SMC
      * 
      * @param key
      *            The key to retrieve
      * @param retries
      *            Number of times to retry the key
-     * @return Int representing the value
+     * @return Long representing the value
      */
-    public static int smcGetInt(String key, int retries) {
+    public static long smcGetLong(String key, int retries) {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            return strtoul(val.bytes, val.dataSize);
+            return byteArrayToLong(val.bytes, val.dataSize);
         }
         // Read failed
         return 0;
@@ -145,7 +145,7 @@ public class SmcUtil {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            return strtof(val.bytes, val.dataSize, 2);
+            return byteArrayToFloat(val.bytes, val.dataSize, 2);
         }
         // Read failed
         return 0f;
@@ -198,7 +198,7 @@ public class SmcUtil {
         SMCKeyData inputStructure = new SMCKeyData();
         SMCKeyData outputStructure = new SMCKeyData();
 
-        inputStructure.key = strtoul(key, 4);
+        inputStructure.key = (int) strToLong(key, 4);
         int result;
         do {
             result = smcGetKeyInfo(inputStructure, outputStructure);
@@ -207,10 +207,8 @@ public class SmcUtil {
             }
 
             val.dataSize = outputStructure.keyInfo.dataSize;
-            val.dataType = new byte[5];
-            for (int i = 3; i >= 0; i--) {
-                val.dataType[i] = (byte) (outputStructure.keyInfo.dataType >> (8 * (3 - i)));
-            }
+            val.dataType = longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
+
             inputStructure.keyInfo.dataSize = val.dataSize;
             inputStructure.data8 = IOKit.SMC_CMD_READ_BYTES;
 
@@ -249,7 +247,8 @@ public class SmcUtil {
         int result = IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure,
                 structureInputSize, outputStructure, structureOutputSizePtr);
         if (result != 0) {
-            // This seems to be a common error, suppressing output
+            // This frequently resulted in kIOReturnIPCError in testing. TODO
+            // find out why!
             // LOG.error(String.format("Error: IOConnectCallStructMethod() =
             // 0x%08x", result));
             return result;
@@ -259,17 +258,40 @@ public class SmcUtil {
     }
 
     /**
+     * Convert an integer to a byte array
+     * 
+     * @param value
+     *            The (long) integer to be converted
+     * @param valueSize
+     *            Number of bytes representing the value
+     * @param length
+     *            Number of bytes to return
+     * @return A byte array of specified length representing the integer in the
+     *         first valueSize bytes
+     */
+    public static byte[] longToByteArray(long value, int valueSize, int length) {
+        if (valueSize > length) {
+            throw new IllegalArgumentException("Size can't be larger than array length.");
+        }
+        byte[] data = new byte[length];
+        for (int i = 0; i < valueSize; i++) {
+            data[i] = (byte) (value >> (8 * (valueSize - 1 - i)));
+        }
+        return data;
+    }
+
+    /**
      * Convert a string to an integer representation.
      * 
      * @param str
-     *            A human readable string, up to 4 characters
+     *            A human readable string, up to 8 characters
      * @param size
-     *            Size of the string
+     *            Number of characters to convert to the long. May not exceed 8.
      * @return An integer representing the string where each character is
-     *         treated as a byte in a 32-bit number
+     *         treated as a byte
      */
-    public static int strtoul(String str, int size) {
-        return strtoul(str.getBytes(), size);
+    public static long strToLong(String str, int size) {
+        return byteArrayToLong(str.getBytes(), size);
     }
 
     /**
@@ -278,19 +300,19 @@ public class SmcUtil {
      * @param bytes
      *            An array of bytes no smaller than the size to be converted
      * @param size
-     *            Number of bytes to convert to the integer. May not exceed 4.
-     * @return An integer representing the byte array as a 32-bit number
+     *            Number of bytes to convert to the long. May not exceed 8.
+     * @return An integer representing the byte array as a 64-bit number
      */
-    public static int strtoul(byte[] bytes, int size) {
-        if (size > 4) {
-            throw new IllegalArgumentException("Can't convert more than 4 bytes to an int.");
+    public static long byteArrayToLong(byte[] bytes, int size) {
+        if (size > 8) {
+            throw new IllegalArgumentException("Can't convert more than 8 bytes.");
         }
         if (size > bytes.length) {
             throw new IllegalArgumentException("Size can't be larger than array length.");
         }
-        int total = 0;
+        long total = 0L;
         for (int i = 0; i < size; i++) {
-            total += (bytes[i] & 0xff) << (size - 1 - i) * 8;
+            total = (total << 8) + (bytes[i] & 0xff);
         }
         return total;
     }
@@ -301,29 +323,14 @@ public class SmcUtil {
      * @param bytes
      *            An array of bytes no smaller than the size to be converted
      * @param size
-     *            Number of bytes to convert to the float. May not exceed 4.
-     * @param e
-     *            Number of bits representing the decimal, up to 8
-     * @return A float; the integer portion representing the byte array as a
-     *         32-bit number shifted by the bits specified in e; with the
+     *            Number of bytes to convert to the float. May not exceed 8.
+     * @param fpBits
+     *            Number of bits representing the decimal
+     * @return A float; the integer portion representing the byte array as an
+     *         integer shifted by the bits specified in fpBits; with the
      *         remaining bits used as a decimal
      */
-    public static float strtof(byte[] bytes, int size, int e) {
-        if (size > 4) {
-            throw new IllegalArgumentException("Can't convert more than 4 bytes to a float.");
-        }
-        if (e > 8) {
-            throw new IllegalArgumentException("Can't have more than 8 floating point bits.");
-        }
-        int total = 0;
-        // Add up bits to left of fractional bits
-        for (int i = 0; i < size; i++) {
-            if (i == (size - 1))
-                total += (bytes[i] & 0xff) >> e;
-            else
-                total += bytes[i] << (size - 1 - i) * (8 - e);
-        }
-        // Mask fractional bits and divide
-        return total + (bytes[size - 1] & (1 << e - 1)) / (float) (1 << e);
+    public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
+        return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
 }
