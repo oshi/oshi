@@ -18,6 +18,11 @@
  */
 package oshi.hardware.common;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.Enumeration;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
@@ -33,7 +38,42 @@ import oshi.json.NullAwareJsonObjectBuilder;
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public abstract class AbstractNetworks implements Networks {
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+
+    /**
+     *
+     * @param netint
+     * @return 
+     * @throws SocketException
+     */
+    protected HWNetworkStore setNetworkParameters(NetworkInterface netint) throws SocketException {
+        Enumeration<InetAddress> addresses;
+        HWNetworkStore netstore;
+        StringBuilder sb;
+        byte[] mac;
+
+        netstore = new HWNetworkStore();
+        
+        mac = netint.getHardwareAddress();
+        netstore.setName(netint.getDisplayName());
+        sb = new StringBuilder();
+        for (int i = 0; i < mac.length; i++) {
+            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
+        }
+        netstore.setMacaddr(sb.toString());
+
+        addresses = netint.getInetAddresses();
+        for (InetAddress address : Collections.list(addresses)) {
+            if (address.getHostAddress().contains(":")) {
+                netstore.setIpv6addr(address.getHostAddress());
+            } else {
+                netstore.setIpaddr(address.getHostAddress());
+            }
+        }
+        
+        return netstore;
+    }
 
     @Override
     public abstract HWNetworkStore[] getNetworks();
