@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WmiUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">WmiUtil.java</span></div><h1>WmiUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.util.platform.windows;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import oshi.util.ExecutingCommand;
+
+/**
+ * Provides access to WMI queries
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L32">public class WmiUtil {</span>
+
+    /**
+     * Get an integer value from WMI
+     * 
+     * @param path
+     *            Path for the query
+     * @param property
+     *            Property to retrieve value
+     * @return Integer value of the property if successful; -1 if failed
+     */
+    public static int getIntValue(String path, String property) {
+<span class="nc" id="L44">        int value = -1;</span>
+        // TODO: Replace wmic command line with COM call
+<span class="nc" id="L46">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, property));</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (String checkLine : data) {</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">            if (checkLine.length() == 0 || checkLine.toLowerCase().contains(property.toLowerCase())) {</span>
+<span class="nc" id="L49">                continue;</span>
+            } else {
+                // If successful this line is the desired value
+                try {
+<span class="nc" id="L53">                    value = Integer.parseInt(checkLine.trim());</span>
+<span class="nc" id="L54">                } catch (NumberFormatException e) {</span>
+                    // If we failed to parse, give up
+<span class="nc" id="L56">                    value = -1;</span>
+<span class="nc" id="L57">                }</span>
+<span class="nc" id="L58">                break;</span>
+            }
+        }
+<span class="nc" id="L61">        return value;</span>
+    }
+
+    /**
+     * Get String values from WMI
+     * 
+     * @param path
+     *            Path for the query
+     * @param properties
+     *            Comma-delimited properties to retrieve value
+     * @return Map with a key for each property and value a List of string
+     *         values of the property. All lists will contain the same elements
+     */
+    public static Map&lt;String, List&lt;String&gt;&gt; getStrValues(String path, String properties) {
+        // Set up map
+<span class="nc" id="L76">        Map&lt;String, List&lt;String&gt;&gt; values = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L77">        String[] props = properties.split(&quot;,&quot;);</span>
+        // If only one property, no header row is returned so we manually add it
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (props.length == 1) {</span>
+<span class="nc" id="L80">            values.put(props[0], new ArrayList&lt;String&gt;());</span>
+        }
+        // Get query
+        // TODO: Replace wmic command line with COM call
+<span class="nc" id="L84">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
+<span class="nc" id="L85">        String[] headers = new String[props.length];</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String checkLine : data) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (checkLine.length() == 0) {</span>
+<span class="nc" id="L88">                continue;</span>
+            }
+<span class="nc" id="L90">            String[] vals = checkLine.split(&quot;\\s\\s+&quot;);</span>
+            // First row is header
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (headers[0] == null) {</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">                for (int i = 0; i &lt; headers.length &amp;&amp; i &lt; vals.length; i++) {</span>
+<span class="nc" id="L94">                    headers[i] = vals[i];</span>
+<span class="nc" id="L95">                    values.put(headers[i], new ArrayList&lt;String&gt;());</span>
+                }
+<span class="nc" id="L97">                continue;</span>
+            }
+            // Values are in same order as headers
+<span class="nc bnc" id="L100" title="All 4 branches missed.">            for (int i = 0; i &lt; headers.length &amp;&amp; i &lt; vals.length; i++) {</span>
+<span class="nc" id="L101">                values.get(headers[i]).add(vals[i].trim());</span>
+            }
+<span class="nc" id="L103">        }</span>
+<span class="nc" id="L104">        return values;</span>
+    }
+
+    /**
+     * Get an array of String values from WMI when property matches a key
+     * 
+     * @param path
+     *            Path for the query
+     * @param key
+     *            Key to match against the first property
+     * @param properties
+     *            Comma-delimited string; the first property will be checked
+     *            against the key
+     * @return String value of the second property if the first property matches
+     */
+    public static String[] getStrValuesForKey(String path, String key, String properties) {
+<span class="nc" id="L120">        List&lt;String&gt; values = new ArrayList&lt;String&gt;();</span>
+        // TODO: Replace wmic command line with COM call
+<span class="nc" id="L122">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (String checkLine : data) {</span>
+<span class="nc" id="L124">            String[] keyValue = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (keyValue.length &lt; 2) {</span>
+<span class="nc" id="L126">                continue;</span>
+            }
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (keyValue[0].equals(key)) {</span>
+<span class="nc" id="L129">                values.add(keyValue[1]);</span>
+            }
+<span class="nc" id="L131">        }</span>
+<span class="nc" id="L132">        return values.toArray(new String[values.size()]);</span>
+    }
+
+    /**
+     * Get an array of double values from WMI when properties match keys
+     * 
+     * @param path
+     *            Path for the query
+     * @param key0
+     *            Key to match against the first property
+     * @param key1
+     *            Key to match against the second property
+     * @param properties
+     *            Comma-delimited string; the first and second properties will
+     *            be checked against the keys
+     * @return Array of doubles in the third property if the first two
+     *         properties match the keys
+     */
+    public static double[] wmiGetDoubleValuesForKeys(String path, String key0, String key1, String properties) {
+<span class="nc" id="L151">        List&lt;Double&gt; values = new ArrayList&lt;Double&gt;();</span>
+        // TODO: Replace wmic command line with COM call
+<span class="nc" id="L153">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        for (String checkLine : data) {</span>
+            double value;
+<span class="nc" id="L156">            String[] keyValue = checkLine.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (keyValue.length &lt; 3) {</span>
+<span class="nc" id="L158">                continue;</span>
+            }
+<span class="nc bnc" id="L160" title="All 6 branches missed.">            if ((key0 == null || keyValue[0].equals(key0)) &amp;&amp; keyValue[1].equals(key1)) {</span>
+                // If successful this line is the desired value
+                try {
+<span class="nc" id="L163">                    value = Double.parseDouble(keyValue[2]);</span>
+<span class="nc" id="L164">                } catch (NumberFormatException e) {</span>
+                    // If we failed to parse, do nothing
+<span class="nc" id="L166">                    continue;</span>
+<span class="nc" id="L167">                }</span>
+<span class="nc" id="L168">                values.add(value);</span>
+            }
+<span class="nc" id="L170">        }</span>
+<span class="nc" id="L171">        double[] valueArray = new double[values.size()];</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (int i = 0; i &lt; values.size(); i++) {</span>
+<span class="nc" id="L173">            valueArray[i] = values.get(i);</span>
+        }
+<span class="nc" id="L175">        return valueArray;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

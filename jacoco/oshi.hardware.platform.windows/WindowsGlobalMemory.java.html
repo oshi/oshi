@@ -1,75 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsGlobalMemory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsGlobalMemory.java</span></div><h1>WindowsGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
-
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinBase.MEMORYSTATUSEX;
+import com.sun.jna.ptr.PointerByReference;
 
-import oshi.hardware.GlobalMemory;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.Psapi;
+import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
+import oshi.util.platform.windows.PdhUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsGlobalMemory implements GlobalMemory {
+public class WindowsGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L40">    private MEMORYSTATUSEX _memory = new MEMORYSTATUSEX();</span>
+<span class="nc" id="L40">    private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
 
-<span class="nc" id="L42">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L42">    private long lastUpdate = 0;</span>
 
-<span class="nc" id="L44">    public WindowsGlobalMemory() {</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
-<span class="nc" id="L46">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L47">            this._memory = null;</span>
+    // Set up Performance Data Helper thread for % pagefile usage
+<span class="nc" id="L45">    private PointerByReference pagefileQuery = new PointerByReference();</span>
+<span class="nc" id="L46">    private PointerByReference pPagefile = new PointerByReference();;</span>
+
+<span class="nc" id="L48">    public WindowsGlobalMemory() {</span>
+        // Open Pagefile query
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (PdhUtil.openQuery(pagefileQuery)) {</span>
+            // \Paging File(_Total)\% Usage
+<span class="nc" id="L52">            PdhUtil.addCounter(pagefileQuery, &quot;\\Paging File(_Total)\\% Usage&quot;, pPagefile);</span>
+            // Initialize by collecting data the first time
+<span class="nc" id="L54">            Pdh.INSTANCE.PdhCollectQueryData(pagefileQuery.getValue());</span>
         }
-<span class="nc" id="L49">    }</span>
 
-    @Override
-    public long getAvailable() {
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GlobalMemoryStatusEx(this._memory)) {</span>
-<span class="nc" id="L54">            LOG.error(&quot;Failed to Initialize MemoryStatusEx. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L55">            this._memory = null;</span>
-<span class="nc" id="L56">            return 0L;</span>
+        // Set up hook to close the query on shutdown
+<span class="nc" id="L58">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+            @Override
+            public void run() {
+<span class="nc" id="L61">                Pdh.INSTANCE.PdhCloseQuery(pagefileQuery.getValue());</span>
+<span class="nc" id="L62">            }</span>
+        });
+<span class="nc" id="L64">    }</span>
+
+    /**
+     * Update the performance information no more frequently than every 100ms
+     */
+    protected void updateMeminfo() {
+<span class="nc" id="L70">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L73">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L74">                return;</span>
+            }
+<span class="nc" id="L76">            this.memAvailable = perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L77">            this.memTotal = perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L78">            this.swapTotal = perfInfo.PageSize.longValue()</span>
+<span class="nc" id="L79">                    * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
+<span class="nc" id="L80">            this.lastUpdate = now;</span>
         }
-<span class="nc" id="L58">        return this._memory.ullAvailPhys.longValue();</span>
-    }
+<span class="nc" id="L82">    }</span>
 
-    @Override
-    public long getTotal() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this._memory == null) {</span>
-<span class="nc" id="L64">            LOG.warn(&quot;MemoryStatusEx not initialized. No total memory data available&quot;);</span>
-<span class="nc" id="L65">            return 0L;</span>
+    /**
+     * {@inheritDoc}
+     */
+    protected void updateSwap() {
+<span class="nc" id="L88">        updateMeminfo();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!PdhUtil.updateCounters(pagefileQuery)) {</span>
+<span class="nc" id="L90">            return;</span>
         }
-<span class="nc" id="L67">        return this._memory.ullTotalPhys.longValue();</span>
-    }
-
-    @Override
-    public JsonObject toJSON() {
-<span class="nc" id="L72">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
-    }
+        // Returns results in 1000's of percent, e.g. 5% is 5000
+        // Multiply by page file size and Divide by 100 * 1000
+        // Putting division at end avoids need to cast division to double
+<span class="nc" id="L95">        this.swapUsed = this.swapTotal * PdhUtil.queryCounter(pPagefile) / 100000;</span>
+<span class="nc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

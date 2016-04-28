@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacDisks.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacDisks.java</span></div><h1>MacDisks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.common.AbstractDisks;
+import oshi.util.ExecutingCommand;
+
+/**
+ * Mac hard disk implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+<span class="fc" id="L32">public class MacDisks extends AbstractDisks {</span>
+
+    @Override
+    public HWDiskStore[] getDisks() {
+        List&lt;HWDiskStore&gt; result;
+<span class="fc" id="L37">        result = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L39">        String model = &quot;&quot;;</span>
+<span class="fc" id="L40">        String serial = &quot;&quot;;</span>
+<span class="fc" id="L41">        String capacity = &quot;&quot;;</span>
+<span class="fc" id="L42">        long size = 0L;</span>
+<span class="fc" id="L43">        int indent = 0;</span>
+
+<span class="fc" id="L45">        ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;system_profiler SPSerialATADataType&quot;);</span>
+        // Add a non-indented line to the end of the string to prompt List add
+<span class="fc" id="L47">        hwInfo.add(&quot;END&quot;);</span>
+        // Iterate the list and store info as it is found.
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (String checkLine : hwInfo) {</span>
+            // Ignore blank lines
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (checkLine.length() == 0) {</span>
+<span class="fc" id="L52">                continue;</span>
+            }
+            // If indentation backs up by more than 2 spaces, end of this entry
+<span class="fc" id="L55">            String s = checkLine.trim();</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (checkLine.indexOf(s) &lt; indent - 2) {</span>
+<span class="fc" id="L58">                HWDiskStore ds = new HWDiskStore();</span>
+<span class="fc" id="L59">                ds.setName(String.format(&quot;disk%d&quot;, result.size()));</span>
+<span class="fc" id="L60">                ds.setModel(model);</span>
+<span class="fc" id="L61">                ds.setSerial(serial);</span>
+<span class="fc" id="L62">                ds.setSize(size);</span>
+<span class="fc" id="L63">                result.add(ds);</span>
+
+                // Clear to prep for next
+<span class="fc" id="L66">                model = &quot;&quot;;</span>
+<span class="fc" id="L67">                serial = &quot;&quot;;</span>
+<span class="fc" id="L68">                capacity = &quot;&quot;;</span>
+<span class="fc" id="L69">                size = 0L;</span>
+            }
+<span class="fc" id="L71">            indent = checkLine.indexOf(s);</span>
+
+<span class="fc" id="L73">            String[] split = s.split(&quot;:&quot;);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (split.length &lt; 2) {</span>
+<span class="fc" id="L75">                continue;</span>
+            }
+<span class="pc bpc" id="L77" title="3 of 14 branches missed.">            switch (split[0]) {</span>
+            case &quot;Model&quot;:
+<span class="fc" id="L79">                model = split[1].trim();</span>
+<span class="fc" id="L80">                break;</span>
+            case &quot;Serial Number&quot;:
+<span class="fc" id="L82">                serial = split[1].trim();</span>
+<span class="fc" id="L83">                break;</span>
+            case &quot;Capacity&quot;:
+                // Only use the first Capacity we find
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (capacity.length() == 0) {</span>
+                    // Capacity: 209.7 MB (209,715,200 bytes)
+<span class="fc" id="L88">                    capacity = split[1].trim();</span>
+<span class="fc" id="L89">                    capacity = capacity.substring(capacity.indexOf(&quot;(&quot;) + 1, capacity.indexOf(&quot; bytes)&quot;))</span>
+<span class="fc" id="L90">                            .replaceAll(&quot;,&quot;, &quot;&quot;);</span>
+                    // If successful this line is the desired value
+                    try {
+<span class="fc" id="L93">                        size = Long.parseLong(capacity);</span>
+<span class="nc" id="L94">                    } catch (NumberFormatException e) {</span>
+                        // If we failed to parse, give up
+<span class="pc" id="L96">                    }</span>
+                }
+                break;
+            default:
+                // do nothing
+            }
+<span class="fc" id="L102">        }</span>
+
+<span class="fc" id="L104">        return result.toArray(new HWDiskStore[result.size()]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

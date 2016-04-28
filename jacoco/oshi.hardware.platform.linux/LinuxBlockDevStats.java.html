@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxBlockDevStats.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxBlockDevStats.java</span></div><h1>LinuxBlockDevStats.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import oshi.jna.platform.linux.Udev;
+import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.json.OshiJsonObject;
+
+/**
+ * POJO for mapping Linux block device stats info
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+public class LinuxBlockDevStats implements OshiJsonObject {
+
+<span class="nc" id="L34">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="nc" id="L36">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
+        String devstat;
+        String[] splitstats;
+
+<span class="nc" id="L40">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
+<span class="nc" id="L41">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
+
+<span class="nc" id="L43">        this.device = device;</span>
+<span class="nc" id="L44">        this.read_ops = Long.parseLong(splitstats[1]);</span>
+<span class="nc" id="L45">        this.read_merged = Long.parseLong(splitstats[2]);</span>
+<span class="nc" id="L46">        this.read_512bytes = Long.parseLong(splitstats[3]);</span>
+<span class="nc" id="L47">        this.read_waits_ms = Long.parseLong(splitstats[4]);</span>
+<span class="nc" id="L48">        this.write_ops = Long.parseLong(splitstats[5]);</span>
+<span class="nc" id="L49">        this.write_merged = Long.parseLong(splitstats[6]);</span>
+<span class="nc" id="L50">        this.write_512bytes = Long.parseLong(splitstats[7]);</span>
+<span class="nc" id="L51">        this.write_waits_ms = Long.parseLong(splitstats[8]);</span>
+<span class="nc" id="L52">        this.in_flight = Long.parseLong(splitstats[9]);</span>
+<span class="nc" id="L53">        this.active_ms = Long.parseLong(splitstats[10]);</span>
+<span class="nc" id="L54">        this.waits_ms = Long.parseLong(splitstats[11]);</span>
+<span class="nc" id="L55">    }</span>
+
+    // Device name
+    public final String device;
+    // Number of read I/Os processed
+    public final long read_ops;
+    // Number of read I/Os merged with in-queue I/O
+    public final long read_merged;
+    // Number of sectors read
+    public final long read_512bytes;
+    // Total wait time for read requests, milliseconds
+    public final long read_waits_ms;
+    // Number of write I/Os processed
+    public final long write_ops;
+    // Number of write I/Os merged with in-queue I/O
+    public final long write_merged;
+    // Number of sectors written
+    public final long write_512bytes;
+    // Total wait time for write requests, milliseconds */
+    public final long write_waits_ms;
+    // Number of I/Os currently in flight
+    public final long in_flight;
+    // Total active time, milliseconds
+    public final long active_ms;
+    // Total wait time, milliseconds
+    public final long waits_ms;
+
+    @Override
+    public JsonObject toJSON() {
+<span class="nc" id="L84">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;device&quot;, this.device)</span>
+<span class="nc" id="L85">                .add(&quot;read_ops&quot;, this.read_ops).add(&quot;read_merged&quot;, this.read_merged)</span>
+<span class="nc" id="L86">                .add(&quot;read_512bytes&quot;, this.read_512bytes).add(&quot;read_waits_ms&quot;, this.read_waits_ms)</span>
+<span class="nc" id="L87">                .add(&quot;write_ops&quot;, this.write_ops).add(&quot;write_merged&quot;, this.write_merged)</span>
+<span class="nc" id="L88">                .add(&quot;write_512bytes&quot;, this.write_512bytes).add(&quot;write_waits_ms&quot;, this.write_waits_ms)</span>
+<span class="nc" id="L89">                .add(&quot;in_flight&quot;, this.in_flight).add(&quot;active_ms&quot;, this.active_ms).add(&quot;waits_ms&quot;, this.waits_ms)</span>
+<span class="nc" id="L90">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

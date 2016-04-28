@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxSensors.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxSensors.java</span></div><h1>LinuxSensors.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
@@ -25,140 +26,133 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.FileUtil;
 
-public class LinuxSensors implements Sensors {
-<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(LinuxSensors.class);</span>
-
-<span class="nc" id="L43">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+public class LinuxSensors extends AbstractSensors {
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(LinuxSensors.class);</span>
 
     // Possible sensor types. See sysfs documentation for others, e.g. current
-<span class="nc" id="L46">    private static final String[] SENSORS = { &quot;temp&quot;, &quot;fan&quot;, &quot;in&quot; };</span>
+<span class="nc" id="L39">    private static final String[] SENSORS = { &quot;temp&quot;, &quot;fan&quot;, &quot;in&quot; };</span>
 
     // Base HWMON path, adds 0, 1, etc. to end for various sensors
     private static final String HWMON = &quot;/sys/class/hwmon/hwmon&quot;;
 
     // Map from sensor to path
-<span class="nc" id="L52">    private Map&lt;String, String&gt; hwmonMap = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L45">    private Map&lt;String, String&gt; hwmonMap = new HashMap&lt;String, String&gt;();</span>
 
-<span class="nc" id="L54">    public LinuxSensors() {</span>
+<span class="nc" id="L47">    public LinuxSensors() {</span>
         // Iterate over all hwmon* directories and look for sensor files
         // e.g. /sys/class/hwmon/hwmon0/temp1_input
-<span class="nc" id="L57">        int i = 0;</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        while (Files.isDirectory(Paths.get(HWMON + i))) {</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            for (String sensor : SENSORS) {</span>
-<span class="nc" id="L60">                String path = HWMON + i + &quot;/&quot; + sensor;</span>
-<span class="nc" id="L61">                File sensorFile = new File(path + &quot;1_input&quot;);</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (sensorFile.exists()) {</span>
-<span class="nc" id="L63">                    hwmonMap.put(sensor, path);</span>
+<span class="nc" id="L50">        int i = 0;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        while (Files.isDirectory(Paths.get(HWMON + i))) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            for (String sensor : SENSORS) {</span>
+<span class="nc" id="L53">                String path = HWMON + i + &quot;/&quot; + sensor;</span>
+<span class="nc" id="L54">                File sensorFile = new File(path + &quot;1_input&quot;);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                if (sensorFile.exists()) {</span>
+<span class="nc" id="L56">                    hwmonMap.put(sensor, path);</span>
                 }
             }
-<span class="nc" id="L66">            i++;</span>
+<span class="nc" id="L59">            i++;</span>
         }
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L61">    }</span>
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuTemperature() {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;temp&quot;)) {</span>
-<span class="nc" id="L73">            String hwmon = hwmonMap.get(&quot;temp&quot;);</span>
-<span class="nc" id="L74">            List&lt;String&gt; tempInfo = null;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;temp&quot;)) {</span>
+<span class="nc" id="L69">            String hwmon = hwmonMap.get(&quot;temp&quot;);</span>
+<span class="nc" id="L70">            List&lt;String&gt; tempInfo = null;</span>
             try {
-<span class="nc" id="L76">                tempInfo = FileUtil.readFile(hwmon + &quot;1_input&quot;);</span>
-<span class="nc" id="L77">            } catch (IOException e) {</span>
-<span class="nc" id="L78">                LOG.error(&quot;Problem with {}{}: {}&quot;, hwmon, &quot;1_input&quot;, e.getMessage());</span>
-<span class="nc" id="L79">                return 0d;</span>
-<span class="nc" id="L80">            }</span>
+<span class="nc" id="L72">                tempInfo = FileUtil.readFile(hwmon + &quot;1_input&quot;);</span>
+<span class="nc" id="L73">            } catch (IOException e) {</span>
+<span class="nc" id="L74">                LOG.error(&quot;Problem with {}{}: {}&quot;, hwmon, &quot;1_input&quot;, e.getMessage());</span>
+<span class="nc" id="L75">                return 0d;</span>
+<span class="nc" id="L76">            }</span>
             // Should return a single line of millidegrees Celsius
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (tempInfo.size() &gt; 0) {</span>
-<span class="nc" id="L83">                int millidegrees = 0;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (tempInfo.size() &gt; 0) {</span>
+<span class="nc" id="L79">                int millidegrees = 0;</span>
                 try {
-<span class="nc" id="L85">                    millidegrees = Integer.parseInt(tempInfo.get(0));</span>
-<span class="nc" id="L86">                } catch (NumberFormatException e) {</span>
-<span class="nc" id="L87">                    LOG.error(&quot;Invalid format for temperature: {}&quot;, tempInfo.get(0));</span>
-<span class="nc" id="L88">                }</span>
-<span class="nc" id="L89">                return millidegrees / 1000d;</span>
+<span class="nc" id="L81">                    millidegrees = Integer.parseInt(tempInfo.get(0));</span>
+<span class="nc" id="L82">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L83">                    LOG.error(&quot;Invalid format for temperature: {}&quot;, tempInfo.get(0));</span>
+<span class="nc" id="L84">                }</span>
+<span class="nc" id="L85">                return millidegrees / 1000d;</span>
             }
         }
-<span class="nc" id="L92">        return 0d;</span>
+<span class="nc" id="L88">        return 0d;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int[] getFanSpeeds() {
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;fan&quot;)) {</span>
-<span class="nc" id="L98">            String hwmon = hwmonMap.get(&quot;fan&quot;);</span>
-<span class="nc" id="L99">            List&lt;Integer&gt; speeds = new ArrayList&lt;Integer&gt;();</span>
-<span class="nc" id="L100">            int fan = 1;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;fan&quot;)) {</span>
+<span class="nc" id="L97">            String hwmon = hwmonMap.get(&quot;fan&quot;);</span>
+<span class="nc" id="L98">            List&lt;Integer&gt; speeds = new ArrayList&lt;Integer&gt;();</span>
+<span class="nc" id="L99">            int fan = 1;</span>
             for (;;) {
-<span class="nc" id="L102">                List&lt;String&gt; fanInfo = null;</span>
+<span class="nc" id="L101">                List&lt;String&gt; fanInfo = null;</span>
                 try {
-<span class="nc" id="L104">                    fanInfo = FileUtil.readFile(hwmon + fan + &quot;_input&quot;);</span>
-<span class="nc" id="L105">                } catch (IOException e) {</span>
+<span class="nc" id="L103">                    fanInfo = FileUtil.readFile(hwmon + fan + &quot;_input&quot;);</span>
+<span class="nc" id="L104">                } catch (IOException e) {</span>
                     // No file found, we've reached max fans
-<span class="nc" id="L107">                    break;</span>
-<span class="nc" id="L108">                }</span>
+<span class="nc" id="L106">                    break;</span>
+<span class="nc" id="L107">                }</span>
                 // Should return a single line of RPM
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (fanInfo.size() &gt; 0) {</span>
-<span class="nc" id="L111">                    int rpm = 0;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (fanInfo.size() &gt; 0) {</span>
+<span class="nc" id="L110">                    int rpm = 0;</span>
                     try {
-<span class="nc" id="L113">                        rpm = Integer.parseInt(fanInfo.get(0));</span>
-<span class="nc" id="L114">                    } catch (NumberFormatException e) {</span>
-<span class="nc" id="L115">                        LOG.error(&quot;Invalid format for fan speed: {}&quot;, fanInfo.get(0));</span>
-<span class="nc" id="L116">                    }</span>
-<span class="nc" id="L117">                    speeds.add(rpm);</span>
+<span class="nc" id="L112">                        rpm = Integer.parseInt(fanInfo.get(0));</span>
+<span class="nc" id="L113">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L114">                        LOG.error(&quot;Invalid format for fan speed: {}&quot;, fanInfo.get(0));</span>
+<span class="nc" id="L115">                    }</span>
+<span class="nc" id="L116">                    speeds.add(rpm);</span>
                 }
-<span class="nc" id="L119">            }</span>
-<span class="nc" id="L120">            int[] fanSpeeds = new int[speeds.size()];</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">            for (int i = 0; i &lt; speeds.size(); i++) {</span>
-<span class="nc" id="L122">                fanSpeeds[i] = speeds.get(i);</span>
+                // Done reading data for current fan, read next fan
+<span class="nc" id="L119">                fan++;</span>
+<span class="nc" id="L120">            }</span>
+<span class="nc" id="L121">            int[] fanSpeeds = new int[speeds.size()];</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            for (int i = 0; i &lt; speeds.size(); i++) {</span>
+<span class="nc" id="L123">                fanSpeeds[i] = speeds.get(i);</span>
             }
-<span class="nc" id="L124">            return fanSpeeds;</span>
+<span class="nc" id="L125">            return fanSpeeds;</span>
         }
-<span class="nc" id="L126">        return new int[0];</span>
+<span class="nc" id="L127">        return new int[0];</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getCpuVoltage() {
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;in&quot;)) {</span>
-<span class="nc" id="L132">            String hwmon = hwmonMap.get(&quot;in&quot;);</span>
-<span class="nc" id="L133">            List&lt;String&gt; voltInfo = null;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (hwmonMap.containsKey(&quot;in&quot;)) {</span>
+<span class="nc" id="L136">            String hwmon = hwmonMap.get(&quot;in&quot;);</span>
+<span class="nc" id="L137">            List&lt;String&gt; voltInfo = null;</span>
             try {
-<span class="nc" id="L135">                voltInfo = FileUtil.readFile(hwmon + &quot;1_input&quot;);</span>
-<span class="nc" id="L136">            } catch (IOException e) {</span>
-<span class="nc" id="L137">                LOG.error(&quot;Problem with {}{}: {}&quot;, hwmon, &quot;1_input&quot;, e.getMessage());</span>
-<span class="nc" id="L138">                return 0d;</span>
-<span class="nc" id="L139">            }</span>
+<span class="nc" id="L139">                voltInfo = FileUtil.readFile(hwmon + &quot;1_input&quot;);</span>
+<span class="nc" id="L140">            } catch (IOException e) {</span>
+<span class="nc" id="L141">                LOG.error(&quot;Problem with {}{}: {}&quot;, hwmon, &quot;1_input&quot;, e.getMessage());</span>
+<span class="nc" id="L142">                return 0d;</span>
+<span class="nc" id="L143">            }</span>
             // Should return a single line of millidegrees Celsius
-<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (voltInfo.size() &gt; 0) {</span>
-<span class="nc" id="L142">                int millivolts = 0;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (voltInfo.size() &gt; 0) {</span>
+<span class="nc" id="L146">                int millivolts = 0;</span>
                 try {
-<span class="nc" id="L144">                    millivolts = Integer.parseInt(voltInfo.get(0));</span>
-<span class="nc" id="L145">                } catch (NumberFormatException e) {</span>
-<span class="nc" id="L146">                    LOG.error(&quot;Invalid format for temperature: {}&quot;, voltInfo.get(0));</span>
-<span class="nc" id="L147">                }</span>
-<span class="nc" id="L148">                return millivolts / 1000d;</span>
+<span class="nc" id="L148">                    millivolts = Integer.parseInt(voltInfo.get(0));</span>
+<span class="nc" id="L149">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L150">                    LOG.error(&quot;Invalid format for temperature: {}&quot;, voltInfo.get(0));</span>
+<span class="nc" id="L151">                }</span>
+<span class="nc" id="L152">                return millivolts / 1000d;</span>
             }
         }
-<span class="nc" id="L151">        return 0d;</span>
-    }
-
-    @Override
-    public JsonObject toJSON() {
-<span class="nc" id="L156">        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (int speed : getFanSpeeds()) {</span>
-<span class="nc" id="L158">            fanSpeedsArrayBuilder.add(speed);</span>
-        }
-<span class="nc" id="L160">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;cpuTemperature&quot;, getCpuTemperature())</span>
-<span class="nc" id="L161">                .add(&quot;fanSpeeds&quot;, fanSpeedsArrayBuilder.build()).add(&quot;cpuVoltage&quot;, getCpuVoltage()).build();</span>
+<span class="nc" id="L155">        return 0d;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

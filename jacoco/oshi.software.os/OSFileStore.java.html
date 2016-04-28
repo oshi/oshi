@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OSFileStore.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSFileStore.java</span></div><h1>OSFileStore.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os;
@@ -19,9 +20,6 @@ package oshi.software.os;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
@@ -34,20 +32,21 @@ import oshi.json.OshiJsonObject;
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements OshiJsonObject {
-<span class="fc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
+
+<span class="fc" id="L36">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private String name;
 
     private String description;
 
+    private String fsType;
+
     private long usableSpace;
 
     private long totalSpace;
 
-<span class="fc" id="L47">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
-
     /**
-     * Creates a {@link OSFileStore} with the specified parameters.
+     * Creates an OSFileStore with the specified parameters.
      * 
      * @param newName
      *            Name of the filestore
@@ -58,13 +57,31 @@ public class OSFileStore implements OshiJsonObject {
      * @param newTotalSpace
      *            Total bytes
      */
-<span class="fc" id="L61">    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {</span>
-<span class="fc" id="L62">        this.setName(newName);</span>
-<span class="fc" id="L63">        this.setDescription(newDescription);</span>
-<span class="fc" id="L64">        this.setUsableSpace(newUsableSpace);</span>
-<span class="fc" id="L65">        this.setTotalSpace(newTotalSpace);</span>
-<span class="fc" id="L66">        LOG.debug(&quot;Initialized OSFileStore: {}&quot;, newName);</span>
-<span class="fc" id="L67">    }</span>
+    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
+<span class="nc" id="L61">        this(newName, newDescription, &quot;unknown&quot;, newUsableSpace, newTotalSpace);</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+<span class="fc" id="L78">    public OSFileStore(String newName, String newDescription, String newType, long newUsableSpace, long newTotalSpace) {</span>
+<span class="fc" id="L79">        this.setName(newName);</span>
+<span class="fc" id="L80">        this.setDescription(newDescription);</span>
+<span class="fc" id="L81">        this.setType(newType);</span>
+<span class="fc" id="L82">        this.setUsableSpace(newUsableSpace);</span>
+<span class="fc" id="L83">        this.setTotalSpace(newTotalSpace);</span>
+<span class="fc" id="L84">    }</span>
 
     /**
      * Name of the File System
@@ -72,7 +89,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return The file system name
      */
     public String getName() {
-<span class="nc" id="L75">        return this.name;</span>
+<span class="fc" id="L92">        return this.name;</span>
     }
 
     /**
@@ -82,8 +99,8 @@ public class OSFileStore implements OshiJsonObject {
      *            The name
      */
     public void setName(String value) {
-<span class="fc" id="L85">        this.name = value;</span>
-<span class="fc" id="L86">    }</span>
+<span class="fc" id="L102">        this.name = value;</span>
+<span class="fc" id="L103">    }</span>
 
     /**
      * Description of the File System
@@ -91,7 +108,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return The file system description
      */
     public String getDescription() {
-<span class="nc" id="L94">        return this.description;</span>
+<span class="fc" id="L111">        return this.description;</span>
     }
 
     /**
@@ -101,8 +118,27 @@ public class OSFileStore implements OshiJsonObject {
      *            The description
      */
     public void setDescription(String value) {
-<span class="fc" id="L104">        this.description = value;</span>
-<span class="fc" id="L105">    }</span>
+<span class="fc" id="L121">        this.description = value;</span>
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * Type of the File System (FAT, NTFS, etx2, ext4, etc)
+     * 
+     * @return The file system type
+     */
+    public String getType() {
+<span class="fc" id="L130">        return this.fsType;</span>
+    }
+
+    /**
+     * Sets the File System type
+     * 
+     * @param value
+     *            The type
+     */
+    public void setType(String value) {
+<span class="fc" id="L140">        this.fsType = value;</span>
+<span class="fc" id="L141">    }</span>
 
     /**
      * Usable space on the drive.
@@ -110,7 +146,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="fc" id="L113">        return this.usableSpace;</span>
+<span class="fc" id="L149">        return this.usableSpace;</span>
     }
 
     /**
@@ -120,8 +156,8 @@ public class OSFileStore implements OshiJsonObject {
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="fc" id="L123">        this.usableSpace = value;</span>
-<span class="fc" id="L124">    }</span>
+<span class="fc" id="L159">        this.usableSpace = value;</span>
+<span class="fc" id="L160">    }</span>
 
     /**
      * Total space/capacity of the drive.
@@ -129,7 +165,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="fc" id="L132">        return this.totalSpace;</span>
+<span class="fc" id="L168">        return this.totalSpace;</span>
     }
 
     /**
@@ -139,13 +175,17 @@ public class OSFileStore implements OshiJsonObject {
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="fc" id="L142">        this.totalSpace = value;</span>
-<span class="fc" id="L143">    }</span>
+<span class="fc" id="L178">        this.totalSpace = value;</span>
+<span class="fc" id="L179">    }</span>
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L147">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName()).add(&quot;description&quot;, getDescription())</span>
-<span class="nc" id="L148">                .add(&quot;usableSpace&quot;, getUsableSpace()).add(&quot;totalSpace&quot;, getTotalSpace()).build();</span>
+<span class="nc" id="L186">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
+<span class="nc" id="L187">                .add(&quot;description&quot;, getDescription()).add(&quot;fsType&quot;, getType()).add(&quot;usableSpace&quot;, getUsableSpace())</span>
+<span class="nc" id="L188">                .add(&quot;totalSpace&quot;, getTotalSpace()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

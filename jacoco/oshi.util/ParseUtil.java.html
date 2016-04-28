@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ParseUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ParseUtil.java</span></div><h1>ParseUtil.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.util;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -36,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author alessio.fachechi[at]gmail[dot]com
  */
-<span class="nc" id="L39">public abstract class ParseUtil {</span>
+<span class="nc" id="L41">public abstract class ParseUtil {</span>
 
-<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
+<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
     /**
      * Hertz related variables.
@@ -58,14 +60,24 @@ import org.slf4j.LoggerFactory;
     final private static Map&lt;String, Long&gt; multipliers;
 
     static {
-<span class="fc" id="L61">        multipliers = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L62">        multipliers.put(Hertz, 1L);</span>
-<span class="fc" id="L63">        multipliers.put(kiloHertz, 1000L);</span>
-<span class="fc" id="L64">        multipliers.put(megaHertz, 1000000L);</span>
-<span class="fc" id="L65">        multipliers.put(gigaHertz, 1000000000L);</span>
-<span class="fc" id="L66">        multipliers.put(teraHertz, 1000000000000L);</span>
-<span class="fc" id="L67">        multipliers.put(petaHertz, 1000000000000000L);</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L63">        multipliers = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L64">        multipliers.put(Hertz, 1L);</span>
+<span class="fc" id="L65">        multipliers.put(kiloHertz, 1000L);</span>
+<span class="fc" id="L66">        multipliers.put(megaHertz, 1000000L);</span>
+<span class="fc" id="L67">        multipliers.put(gigaHertz, 1000000000L);</span>
+<span class="fc" id="L68">        multipliers.put(teraHertz, 1000000000000L);</span>
+<span class="fc" id="L69">        multipliers.put(petaHertz, 1000000000000000L);</span>
+    }
+
+    /**
+     * Used for matching
+     */
+<span class="fc" id="L75">    final private static Pattern HERTZ = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
+
+    /**
+     * Used to check validity of a hexadecimal string
+     */
+<span class="fc" id="L80">    final private static Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
 
     /**
      * Parse hertz from a string, eg. &quot;2.00MHz&quot; in 2000000L.
@@ -75,24 +87,22 @@ import org.slf4j.LoggerFactory;
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-<span class="fc" id="L78">        Pattern pattern = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
-<span class="fc" id="L79">        Matcher matcher = pattern.matcher(hertz.trim());</span>
-
-<span class="pc bpc" id="L81" title="2 of 4 branches missed.">        if (matcher.find() &amp;&amp; (matcher.groupCount() == 3)) {</span>
+<span class="fc" id="L90">        Matcher matcher = HERTZ.matcher(hertz.trim());</span>
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
             try {
-<span class="fc" id="L83">                Double value = Double.valueOf(matcher.group(1));</span>
-<span class="fc" id="L84">                String unit = matcher.group(3);</span>
+<span class="fc" id="L93">                Double value = Double.valueOf(matcher.group(1));</span>
+<span class="fc" id="L94">                String unit = matcher.group(3);</span>
 
-<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                if (multipliers.containsKey(unit)) {</span>
-<span class="fc" id="L87">                    value = value * multipliers.get(unit);</span>
-<span class="fc" id="L88">                    return value.longValue();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (multipliers.containsKey(unit)) {</span>
+<span class="fc" id="L97">                    value = value * multipliers.get(unit);</span>
+<span class="fc" id="L98">                    return value.longValue();</span>
                 }
-<span class="nc" id="L90">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L91">                LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L92">            }</span>
+<span class="nc" id="L100">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L101">                LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L102">            }</span>
         }
 
-<span class="nc" id="L95">        return -1L;</span>
+<span class="nc" id="L105">        return -1L;</span>
     }
 
     /**
@@ -104,29 +114,134 @@ import org.slf4j.LoggerFactory;
      *            Default integer if not parsable
      * @return {@link Integer} value or the given default if not parsable
      */
-    public static int parseString(String s, int i) {
-<span class="fc" id="L108">        String[] ss = s.split(&quot;\\s+&quot;);</span>
-<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
-<span class="fc" id="L110">            return i;</span>
+    public static int parseLastInt(String s, int i) {
+<span class="fc" id="L118">        String[] ss = s.split(&quot;\\s+&quot;);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
+<span class="fc" id="L120">            return i;</span>
         } else {
-<span class="fc" id="L112">            return Integer.valueOf(ss[ss.length - 1]);</span>
+            try {
+<span class="fc" id="L123">                return Integer.parseInt(ss[ss.length - 1]);</span>
+<span class="nc" id="L124">            } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L125">                return i;</span>
+            }
         }
     }
 
     /**
-     * Parse a string representation of a hex array into a byte array
+     * Parse a string of hexadecimal digits into a byte array
      * 
-     * @param s
+     * @param digits
      *            The string to be parsed
      * @return a byte array with each pair of characters converted to a byte
      */
-    public static byte[] hexStringToByteArray(String s) {
-<span class="fc" id="L124">        int len = s.length();</span>
-<span class="fc" id="L125">        byte[] data = new byte[len / 2];</span>
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="fc" id="L127">            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) &lt;&lt; 4) + Character.digit(s.charAt(i + 1), 16));</span>
+    public static byte[] hexStringToByteArray(String digits) {
+        // Check if string is valid hex
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (!VALID_HEX.matcher(digits).matches()) {</span>
+<span class="nc" id="L140">            LOG.error(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
+<span class="nc" id="L141">            return null;</span>
         }
-<span class="fc" id="L129">        return data;</span>
+<span class="fc" id="L143">        int len = digits.length();</span>
+<span class="fc" id="L144">        byte[] data = new byte[len / 2];</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="fc" id="L146">            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) &lt;&lt; 4)</span>
+<span class="fc" id="L147">                    | Character.digit(digits.charAt(i + 1), 16));</span>
+        }
+<span class="fc" id="L149">        return data;</span>
+    }
+
+    /**
+     * Parse a human readable string into a byte array, truncating or padding
+     * with zeros (if necessary) so the array has the specified length.
+     * 
+     * @param text
+     *            The string to be parsed
+     * @param length
+     *            Length of the returned array.
+     * @return A byte array of specified length, with each of the first length
+     *         characters converted to a byte. If length is longer than the
+     *         provided string length, will be filled with zeroes.
+     */
+    public static byte[] stringToByteArray(String text, int length) {
+<span class="fc" id="L165">        return Arrays.copyOf(text.getBytes(), length);</span>
+    }
+
+    /**
+     * Convert a long value to a byte array using Big Endian, truncating or
+     * padding with zeros (if necessary) so the array has the specified length.
+     * 
+     * @param value
+     *            The value to be converted
+     * @param valueSize
+     *            Number of bytes representing the value
+     * @param length
+     *            Number of bytes to return
+     * @return A byte array of specified length representing the long in the
+     *         first valueSize bytes
+     */
+    public static byte[] longToByteArray(long value, int valueSize, int length) {
+        // Convert the long to 8-byte BE representation
+<span class="fc" id="L183">        byte[] b = new byte[8];</span>
+<span class="pc bpc" id="L184" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; value != 0L; i--) {</span>
+<span class="fc" id="L185">            b[i] = (byte) value;</span>
+<span class="fc" id="L186">            value &gt;&gt;&gt;= 8;</span>
+        }
+        // Then copy the rightmost valueSize bytes
+        // e.g., for an integer we want rightmost 4 bytes
+<span class="fc" id="L190">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
+    }
+
+    /**
+     * Convert a string to an integer representation.
+     * 
+     * @param str
+     *            A human readable string
+     * @param size
+     *            Number of characters to convert to the long. May not exceed 8.
+     * @return An integer representing the string where each character is
+     *         treated as a byte
+     */
+    public static long strToLong(String str, int size) {
+<span class="fc" id="L204">        return byteArrayToLong(str.getBytes(), size);</span>
+    }
+
+    /**
+     * Convert a byte array to its integer representation.
+     * 
+     * @param bytes
+     *            An array of bytes no smaller than the size to be converted
+     * @param size
+     *            Number of bytes to convert to the long. May not exceed 8.
+     * @return An integer representing the byte array as a 64-bit number
+     */
+    public static long byteArrayToLong(byte[] bytes, int size) {
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        if (size &gt; 8) {</span>
+<span class="nc" id="L218">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
+        }
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (size &gt; bytes.length) {</span>
+<span class="nc" id="L221">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
+        }
+<span class="fc" id="L223">        long total = 0L;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L225">            total = (total &lt;&lt; 8) | (bytes[i] &amp; 0xff);</span>
+        }
+<span class="fc" id="L227">        return total;</span>
+    }
+
+    /**
+     * Convert a byte array to its floating point representation.
+     * 
+     * @param bytes
+     *            An array of bytes no smaller than the size to be converted
+     * @param size
+     *            Number of bytes to convert to the float. May not exceed 8.
+     * @param fpBits
+     *            Number of bits representing the decimal
+     * @return A float; the integer portion representing the byte array as an
+     *         integer shifted by the bits specified in fpBits; with the
+     *         remaining bits used as a decimal
+     */
+    public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
+<span class="fc" id="L244">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
     }
 
     /**
@@ -140,17 +255,17 @@ import org.slf4j.LoggerFactory;
     public static String jsonPrettyPrint(JsonObject json) {
         // Pretty printing using JsonWriterFactory
         // Output stream
-<span class="nc" id="L143">        StringWriter stringWriter = new StringWriter();</span>
+<span class="nc" id="L258">        StringWriter stringWriter = new StringWriter();</span>
         // Config
-<span class="nc" id="L145">        Map&lt;String, Boolean&gt; config = new HashMap&lt;String, Boolean&gt;();</span>
-<span class="nc" id="L146">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
-<span class="nc" id="L147">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
+<span class="nc" id="L260">        Map&lt;String, Boolean&gt; config = new HashMap&lt;String, Boolean&gt;();</span>
+<span class="nc" id="L261">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
+<span class="nc" id="L262">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
         // Writer
-<span class="nc" id="L149">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
-<span class="nc" id="L150">        jsonWriter.write(json);</span>
-<span class="nc" id="L151">        jsonWriter.close();</span>
+<span class="nc" id="L264">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
+<span class="nc" id="L265">        jsonWriter.write(json);</span>
+<span class="nc" id="L266">        jsonWriter.close();</span>
         // Return
-<span class="nc" id="L153">        return stringWriter.toString();</span>
+<span class="nc" id="L268">        return stringWriter.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

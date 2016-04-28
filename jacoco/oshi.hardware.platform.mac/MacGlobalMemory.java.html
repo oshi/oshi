@@ -1,93 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacGlobalMemory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacGlobalMemory.java</span></div><h1>MacGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.mac;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import oshi.hardware.GlobalMemory;
-import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.mac.SystemB.XswUsage;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L42">public class MacGlobalMemory implements GlobalMemory {</span>
-<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
+public class MacGlobalMemory extends AbstractGlobalMemory {
+<span class="fc" id="L39">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="fc" id="L45">    long totalMemory = 0;</span>
+<span class="fc" id="L41">    private XswUsage xswUsage = new XswUsage();</span>
+<span class="fc" id="L42">    private long lastUpdateSwap = 0;</span>
 
-<span class="fc" id="L47">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L44">    private VMStatistics vmStats = new VMStatistics();</span>
+<span class="fc" id="L45">    private long lastUpdateAvail = 0;</span>
 
-    @Override
-    public long getAvailable() {
-<span class="fc" id="L51">        long availableMemory = 0;</span>
-<span class="fc" id="L52">        long pageSize = 4096;</span>
+<span class="fc" id="L47">    private long pageSize = 4096;</span>
 
-<span class="fc" id="L54">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
-
-<span class="fc" id="L56">        LongByReference pPageSize = new LongByReference();</span>
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(machPort, pPageSize)) {</span>
-<span class="nc" id="L58">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L59">            return 0L;</span>
+<span class="fc" id="L49">    public MacGlobalMemory() {</span>
+<span class="fc" id="L50">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (memory &gt;= 0) {</span>
+<span class="fc" id="L52">            this.memTotal = memory;</span>
         }
-<span class="fc" id="L61">        pageSize = pPageSize.getValue();</span>
 
-<span class="fc" id="L63">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="fc" id="L65">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L66">            LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L67">            return 0L;</span>
+<span class="fc" id="L55">        LongByReference pPageSize = new LongByReference();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L57">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L58">            return;</span>
         }
-<span class="fc" id="L69">        availableMemory = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
+<span class="fc" id="L60">        this.pageSize = pPageSize.getValue();</span>
+<span class="fc" id="L61">    }</span>
 
-<span class="fc" id="L71">        return availableMemory;</span>
-    }
-
-    @Override
-    public long getTotal() {
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (this.totalMemory == 0) {</span>
-<span class="fc" id="L77">            Pointer pMemSize = new Memory(SystemB.UINT64_SIZE);</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctlbyname(&quot;hw.memsize&quot;, pMemSize, new IntByReference(SystemB.UINT64_SIZE),</span>
-                    null, 0)) {
-<span class="nc" id="L80">                LOG.error(&quot;Failed to get memory size. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L81">                return 0L;</span>
+    /**
+     * Updates available memory no more often than every 100ms
+     */
+    protected void updateMeminfo() {
+<span class="fc" id="L67">        long now = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (now - lastUpdateAvail &gt; 100) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="fc" id="L70">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L71">                LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L72">                return;</span>
             }
-<span class="fc" id="L83">            this.totalMemory = pMemSize.getLong(0);</span>
+<span class="fc" id="L74">            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
+<span class="fc" id="L75">            lastUpdateAvail = now;</span>
         }
-<span class="fc" id="L85">        return this.totalMemory;</span>
-    }
+<span class="fc" id="L77">    }</span>
 
-    @Override
-    public JsonObject toJSON() {
-<span class="nc" id="L90">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable()).add(&quot;total&quot;, getTotal()).build();</span>
-    }
+    /**
+     * Updates swap file stats no more often than every 100ms
+     */
+    protected void updateSwap() {
+<span class="fc" id="L83">        long now = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (now - lastUpdateSwap &gt; 100) {</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
+<span class="nc" id="L86">                return;</span>
+            }
+<span class="fc" id="L88">            this.swapUsed = xswUsage.xsu_used;</span>
+<span class="fc" id="L89">            this.swapTotal = xswUsage.xsu_total;</span>
+<span class="fc" id="L90">            lastUpdateSwap = now;</span>
+        }
+<span class="fc" id="L92">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

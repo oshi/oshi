@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FormatUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FormatUtil.java</span></div><h1>FormatUtil.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.util;
@@ -24,76 +25,91 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author dblock[at]dblock[dot]org
  */
-<span class="nc" id="L27">public abstract class FormatUtil {</span>
+<span class="nc" id="L28">public abstract class FormatUtil {</span>
 
     /**
-     * Added these variable for easier reading Using the IEC Standard for naming
-     * the units.
+     * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+     * 
+     * Should be used for most representations of bytes
      */
-    final private static long kibiByte = 1024L;
-
-    final private static long mebiByte = kibiByte * kibiByte;
-
-    final private static long gibiByte = mebiByte * kibiByte;
-
-    final private static long tebiByte = gibiByte * kibiByte;
-
-    final private static long pebiByte = tebiByte * kibiByte;
-
-    final private static long exbiByte = pebiByte * kibiByte;
+    final private static long KIBI = 1L &lt;&lt; 10;
+    final private static long MEBI = 1L &lt;&lt; 20;
+    final private static long GIBI = 1L &lt;&lt; 30;
+    final private static long TEBI = 1L &lt;&lt; 40;
+    final private static long PEBI = 1L &lt;&lt; 50;
+    final private static long EXBI = 1L &lt;&lt; 60;
 
     /**
-     * Hertz related variables
+     * Decimal prefixes, used for Hz and other metric units and for bytes by
+     * hard drive manufacturers
      */
-    final private static long kiloHertz = 1000L;
-
-    final private static long megaHertz = kiloHertz * kiloHertz;
-
-    final private static long gigaHertz = megaHertz * kiloHertz;
-
-    final private static long teraHertz = gigaHertz * kiloHertz;
-
-    final private static long petaHertz = teraHertz * kiloHertz;
-
-    final private static long exaHertz = petaHertz * kiloHertz;
+    final private static long KILO = 1000L;
+    final private static long MEGA = 1000000L;
+    final private static long GIGA = 1000000000L;
+    final private static long TERA = 1000000000000L;
+    final private static long PETA = 1000000000000000L;
+    final private static long EXA = 1000000000000000000L;
 
     /**
      * Format bytes into a rounded string representation using IEC standard
-     * (matches Mac/Linux). To match Windows displays for KB, MB and GB, users
-     * can edit the returned string to display the (incorrect) JEDEC units.
+     * (matches Mac/Linux). For hard drive capacities, use @link
+     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and
+     * GB, in JEDEC units, edit the returned string to remove the 'i' to display
+     * the (incorrect) JEDEC units.
      * 
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytes(long bytes) {
-<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (bytes == 1) { // bytes</span>
-<span class="fc" id="L72">            return String.format(&quot;%d byte&quot;, bytes);</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        } else if (bytes &lt; kibiByte) { // bytes</span>
-<span class="fc" id="L74">            return String.format(&quot;%d bytes&quot;, bytes);</span>
-<span class="fc bfc" id="L75" title="All 4 branches covered.">        } else if (bytes &lt; mebiByte &amp;&amp; bytes % kibiByte == 0) { // KiB</span>
-<span class="fc" id="L76">            return String.format(&quot;%.0f KiB&quot;, (double) bytes / kibiByte);</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        } else if (bytes &lt; mebiByte) { // KiB</span>
-<span class="fc" id="L78">            return String.format(&quot;%.1f KiB&quot;, (double) bytes / kibiByte);</span>
-<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        } else if (bytes &lt; gibiByte &amp;&amp; bytes % mebiByte == 0) { // MiB</span>
-<span class="nc" id="L80">            return String.format(&quot;%.0f MiB&quot;, (double) bytes / mebiByte);</span>
-<span class="fc bfc" id="L81" title="All 2 branches covered.">        } else if (bytes &lt; gibiByte) { // MiB</span>
-<span class="fc" id="L82">            return String.format(&quot;%.1f MiB&quot;, (double) bytes / mebiByte);</span>
-<span class="fc bfc" id="L83" title="All 4 branches covered.">        } else if (bytes % gibiByte == 0 &amp;&amp; bytes &lt; tebiByte) { // GiB</span>
-<span class="fc" id="L84">            return String.format(&quot;%.0f GiB&quot;, (double) bytes / gibiByte);</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        } else if (bytes &lt; tebiByte) { // GiB</span>
-<span class="fc" id="L86">            return String.format(&quot;%.1f GiB&quot;, (double) bytes / gibiByte);</span>
-<span class="pc bpc" id="L87" title="1 of 4 branches missed.">        } else if (bytes % tebiByte == 0 &amp;&amp; bytes &lt; pebiByte) { // TiB</span>
-<span class="fc" id="L88">            return String.format(&quot;%.0f TiB&quot;, (double) bytes / tebiByte);</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        } else if (bytes &lt; pebiByte) { // TiB</span>
-<span class="fc" id="L90">            return String.format(&quot;%.1f TiB&quot;, (double) bytes / tebiByte);</span>
-<span class="nc bnc" id="L91" title="All 4 branches missed.">        } else if (bytes % pebiByte == 0 &amp;&amp; bytes &lt; exbiByte) { // PiB</span>
-<span class="nc" id="L92">            return String.format(&quot;%.0f PiB&quot;, (double) bytes / pebiByte);</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        } else if (bytes &lt; exbiByte) { // PiB</span>
-<span class="nc" id="L94">            return String.format(&quot;%.1f PiB&quot;, (double) bytes / pebiByte);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L67">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        } else if (bytes &lt; KIBI) { // bytes</span>
+<span class="fc" id="L69">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">        } else if (bytes % KIBI == 0 &amp;&amp; bytes &lt; MEBI) { // KiB</span>
+<span class="fc" id="L71">            return String.format(&quot;%.0f KiB&quot;, (double) bytes / KIBI);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        } else if (bytes &lt; MEBI) { // KiB</span>
+<span class="fc" id="L73">            return String.format(&quot;%.1f KiB&quot;, (double) bytes / KIBI);</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">        } else if (bytes % MEBI == 0 &amp;&amp; bytes &lt; GIBI) { // MiB</span>
+<span class="nc" id="L75">            return String.format(&quot;%.0f MiB&quot;, (double) bytes / MEBI);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        } else if (bytes &lt; GIBI) { // MiB</span>
+<span class="fc" id="L77">            return String.format(&quot;%.1f MiB&quot;, (double) bytes / MEBI);</span>
+<span class="fc bfc" id="L78" title="All 4 branches covered.">        } else if (bytes % GIBI == 0 &amp;&amp; bytes &lt; TEBI) { // GiB</span>
+<span class="fc" id="L79">            return String.format(&quot;%.0f GiB&quot;, (double) bytes / GIBI);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
+<span class="fc" id="L81">            return String.format(&quot;%.1f GiB&quot;, (double) bytes / GIBI);</span>
+<span class="pc bpc" id="L82" title="1 of 4 branches missed.">        } else if (bytes % TEBI == 0 &amp;&amp; bytes &lt; PEBI) { // TiB</span>
+<span class="fc" id="L83">            return String.format(&quot;%.0f TiB&quot;, (double) bytes / TEBI);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        } else if (bytes &lt; PEBI) { // TiB</span>
+<span class="fc" id="L85">            return String.format(&quot;%.1f TiB&quot;, (double) bytes / TEBI);</span>
+<span class="nc bnc" id="L86" title="All 4 branches missed.">        } else if (bytes % PEBI == 0 &amp;&amp; bytes &lt; EXBI) { // PiB</span>
+<span class="nc" id="L87">            return String.format(&quot;%.0f PiB&quot;, (double) bytes / PEBI);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        } else if (bytes &lt; EXBI) { // PiB</span>
+<span class="nc" id="L89">            return String.format(&quot;%.1f PiB&quot;, (double) bytes / PEBI);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        } else if (bytes % EXBI == 0) { // EiB</span>
+<span class="nc" id="L91">            return String.format(&quot;%.0f EiB&quot;, (double) bytes / EXBI);</span>
+        } else { // EiB
+<span class="nc" id="L93">            return String.format(&quot;%.1f EiB&quot;, (double) bytes / EXBI);</span>
+        }
+    }
+
+    /**
+     * Format bytes into a rounded string representation using decimal SI units.
+     * These are used by hard drive manufacturers for capacity. Most other
+     * storage should use {@link #formatBytes(long)}.
+     * 
+     * @param bytes
+     *            Bytes.
+     * @return Rounded string representation of the byte size.
+     */
+    public static String formatBytesDecimal(long bytes) {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L108">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        } else if (bytes &lt; KILO) { // bytes</span>
+<span class="fc" id="L110">            return String.format(&quot;%d bytes&quot;, bytes);</span>
         } else {
-<span class="nc" id="L96">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc" id="L112">            return formatValue(bytes, &quot;B&quot;);</span>
         }
     }
 
@@ -105,30 +121,44 @@ import java.util.concurrent.TimeUnit;
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
-<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (hertz &lt; kiloHertz) { // Hz</span>
-<span class="fc" id="L109">            return String.format(&quot;%d Hz&quot;, hertz);</span>
-<span class="pc bpc" id="L110" title="1 of 4 branches missed.">        } else if (hertz &lt; megaHertz &amp;&amp; hertz % kiloHertz == 0) { // KHz</span>
-<span class="fc" id="L111">            return String.format(&quot;%.0f kHz&quot;, (double) hertz / kiloHertz);</span>
-<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        } else if (hertz &lt; megaHertz) {</span>
-<span class="nc" id="L113">            return String.format(&quot;%.1f kHz&quot;, (double) hertz / kiloHertz);</span>
-<span class="pc bpc" id="L114" title="1 of 4 branches missed.">        } else if (hertz &lt; gigaHertz &amp;&amp; hertz % megaHertz == 0) { // MHz</span>
-<span class="fc" id="L115">            return String.format(&quot;%.0f MHz&quot;, (double) hertz / megaHertz);</span>
-<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        } else if (hertz &lt; gigaHertz) {</span>
-<span class="nc" id="L117">            return String.format(&quot;%.1f MHz&quot;, (double) hertz / megaHertz);</span>
-<span class="pc bpc" id="L118" title="1 of 4 branches missed.">        } else if (hertz &lt; teraHertz &amp;&amp; hertz % gigaHertz == 0) { // GHz</span>
-<span class="fc" id="L119">            return String.format(&quot;%.0f GHz&quot;, (double) hertz / gigaHertz);</span>
-<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        } else if (hertz &lt; teraHertz) {</span>
-<span class="nc" id="L121">            return String.format(&quot;%.1f GHz&quot;, (double) hertz / gigaHertz);</span>
-<span class="pc bpc" id="L122" title="2 of 4 branches missed.">        } else if (hertz &lt; petaHertz &amp;&amp; hertz % teraHertz == 0) { // THz</span>
-<span class="fc" id="L123">            return String.format(&quot;%.0f THz&quot;, (double) hertz / teraHertz);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        } else if (hertz &lt; petaHertz) {</span>
-<span class="nc" id="L125">            return String.format(&quot;%.1f THz&quot;, (double) hertz / teraHertz);</span>
-<span class="nc bnc" id="L126" title="All 4 branches missed.">        } else if (hertz &lt; exaHertz &amp;&amp; hertz % petaHertz == 0) { // EHz</span>
-<span class="nc" id="L127">            return String.format(&quot;%.0f EHz&quot;, (double) hertz / petaHertz);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        } else if (hertz &lt; exaHertz) {</span>
-<span class="nc" id="L129">            return String.format(&quot;%.1f EHz&quot;, (double) hertz / petaHertz);</span>
+<span class="fc" id="L124">        return formatValue(hertz, &quot;Hz&quot;);</span>
+    }
+
+    /**
+     * Format arbitrary units into a string to a rounded string representation.
+     * 
+     * @param value
+     *            The value
+     * @param unit
+     *            Units to append metric prefix to
+     * @return Rounded string representation of the value with metric prefix to
+     *         extension
+     */
+    public static String formatValue(long value, String unit) {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (value &lt; KILO) {</span>
+<span class="fc" id="L139">            return String.format(&quot;%d %s&quot;, value, unit);</span>
+<span class="fc bfc" id="L140" title="All 4 branches covered.">        } else if (value &lt; MEGA &amp;&amp; value % KILO == 0) { // K</span>
+<span class="fc" id="L141">            return String.format(&quot;%.0f K%s&quot;, (double) value / KILO, unit);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        } else if (value &lt; MEGA) {</span>
+<span class="fc" id="L143">            return String.format(&quot;%.1f K%s&quot;, (double) value / KILO, unit);</span>
+<span class="fc bfc" id="L144" title="All 4 branches covered.">        } else if (value &lt; GIGA &amp;&amp; value % MEGA == 0) { // M</span>
+<span class="fc" id="L145">            return String.format(&quot;%.0f M%s&quot;, (double) value / MEGA, unit);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        } else if (value &lt; GIGA) {</span>
+<span class="fc" id="L147">            return String.format(&quot;%.1f M%s&quot;, (double) value / MEGA, unit);</span>
+<span class="fc bfc" id="L148" title="All 4 branches covered.">        } else if (value &lt; TERA &amp;&amp; value % GIGA == 0) { // G</span>
+<span class="fc" id="L149">            return String.format(&quot;%.0f G%s&quot;, (double) value / GIGA, unit);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        } else if (value &lt; TERA) {</span>
+<span class="fc" id="L151">            return String.format(&quot;%.1f G%s&quot;, (double) value / GIGA, unit);</span>
+<span class="pc bpc" id="L152" title="1 of 4 branches missed.">        } else if (value &lt; PETA &amp;&amp; value % TERA == 0) { // T</span>
+<span class="fc" id="L153">            return String.format(&quot;%.0f T%s&quot;, (double) value / TERA, unit);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        } else if (value &lt; PETA) {</span>
+<span class="fc" id="L155">            return String.format(&quot;%.1f T%s&quot;, (double) value / TERA, unit);</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">        } else if (value &lt; EXA &amp;&amp; value % PETA == 0) { // E</span>
+<span class="nc" id="L157">            return String.format(&quot;%.0f E%s&quot;, (double) value / PETA, unit);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        } else if (value &lt; EXA) {</span>
+<span class="nc" id="L159">            return String.format(&quot;%.1f E%s&quot;, (double) value / PETA, unit);</span>
         } else {
-<span class="nc" id="L131">            return String.format(&quot;%d Hz&quot;, hertz);</span>
+<span class="nc" id="L161">            return String.format(&quot;%d %s&quot;, value, unit);</span>
         }
     }
 
@@ -140,15 +170,15 @@ import java.util.concurrent.TimeUnit;
      * @return A string representation of elapsed time
      */
     public static String formatElapsedSecs(long secs) {
-<span class="nc" id="L143">        long eTime = secs;</span>
-<span class="nc" id="L144">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
-<span class="nc" id="L145">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
-<span class="nc" id="L146">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
-<span class="nc" id="L147">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
-<span class="nc" id="L148">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
-<span class="nc" id="L149">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
-<span class="nc" id="L150">        final long sec = eTime;</span>
-<span class="nc" id="L151">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
+<span class="nc" id="L173">        long eTime = secs;</span>
+<span class="nc" id="L174">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
+<span class="nc" id="L175">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
+<span class="nc" id="L176">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
+<span class="nc" id="L177">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
+<span class="nc" id="L178">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
+<span class="nc" id="L179">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
+<span class="nc" id="L180">        final long sec = eTime;</span>
+<span class="nc" id="L181">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
     }
 
     /**
@@ -161,8 +191,8 @@ import java.util.concurrent.TimeUnit;
      * @return rounded result
      */
     public static float round(float d, int decimalPlace) {
-<span class="fc" id="L164">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);</span>
-<span class="fc" id="L165">        return bd.floatValue();</span>
+<span class="fc" id="L194">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);</span>
+<span class="fc" id="L195">        return bd.floatValue();</span>
     }
 
     /**
@@ -173,7 +203,7 @@ import java.util.concurrent.TimeUnit;
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
-<span class="fc" id="L176">        return x &amp; 0x00000000ffffffffL;</span>
+<span class="fc" id="L206">        return x &amp; 0x00000000ffffffffL;</span>
     }
 
 }

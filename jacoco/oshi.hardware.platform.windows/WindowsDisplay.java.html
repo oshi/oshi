@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsDisplay.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsDisplay.java</span></div><h1>WindowsDisplay.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,35 +34,20 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Display;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.util.EdidUtil;
+import oshi.hardware.common.AbstractDisplay;
 
 /**
  * A Display
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class WindowsDisplay implements Display {
-<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
+public class WindowsDisplay extends AbstractDisplay {
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
 
-    private byte[] edid;
-
-<span class="nc" id="L54">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
-
-<span class="nc" id="L56">    public WindowsDisplay(byte[] edid) {</span>
-<span class="nc" id="L57">        this.edid = edid;</span>
-<span class="nc" id="L58">        LOG.debug(&quot;Initialized WindowsDisplay&quot;);</span>
-<span class="nc" id="L59">    }</span>
-
-    @Override
-    public byte[] getEdid() {
-<span class="nc" id="L63">        return Arrays.copyOf(edid, edid.length);</span>
-    }
-
-    @Override
-    public JsonObject toJSON() {
-<span class="nc" id="L68">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;edid&quot;, EdidUtil.toString(getEdid())).build();</span>
-    }
+    public WindowsDisplay(byte[] edid) {
+<span class="nc" id="L48">        super(edid);</span>
+<span class="nc" id="L49">        LOG.debug(&quot;Initialized WindowsDisplay&quot;);</span>
+<span class="nc" id="L50">    }</span>
 
     /**
      * Gets Display Information
@@ -74,39 +55,39 @@ public class WindowsDisplay implements Display {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L77">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
+<span class="nc" id="L58">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
 
-<span class="nc" id="L79">        Guid.GUID monitorGuid = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
-<span class="nc" id="L80">        WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,</span>
-                (SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE));
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (!hDevInfo.equals(WinNT.INVALID_HANDLE_VALUE)) {</span>
-<span class="nc" id="L83">            SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();</span>
-<span class="nc" id="L84">            deviceInterfaceData.cbSize = deviceInterfaceData.size();</span>
+<span class="nc" id="L60">        Guid.GUID monitorGuid = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
+<span class="nc" id="L61">        WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,</span>
+                SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (!hDevInfo.equals(WinNT.INVALID_HANDLE_VALUE)) {</span>
+<span class="nc" id="L64">            SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();</span>
+<span class="nc" id="L65">            deviceInterfaceData.cbSize = deviceInterfaceData.size();</span>
 
             // build a DevInfo Data structure
-<span class="nc" id="L87">            SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();</span>
+<span class="nc" id="L68">            SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();</span>
 
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            for (int memberIndex = 0; SetupApi.INSTANCE.SetupDiEnumDeviceInfo(hDevInfo, memberIndex,</span>
-<span class="nc" id="L90">                    info); memberIndex++) {</span>
-<span class="nc" id="L91">                HKEY key = SetupApi.INSTANCE.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0,</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            for (int memberIndex = 0; SetupApi.INSTANCE.SetupDiEnumDeviceInfo(hDevInfo, memberIndex,</span>
+<span class="nc" id="L71">                    info); memberIndex++) {</span>
+<span class="nc" id="L72">                HKEY key = SetupApi.INSTANCE.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0,</span>
                         SetupApi.DIREG_DEV, WinNT.KEY_QUERY_VALUE);
 
-<span class="nc" id="L94">                byte[] edid = new byte[1];</span>
-<span class="nc" id="L95">                Advapi32 advapi32 = Advapi32.INSTANCE;</span>
-<span class="nc" id="L96">                IntByReference pType = new IntByReference();</span>
-<span class="nc" id="L97">                IntByReference lpcbData = new IntByReference();</span>
+<span class="nc" id="L75">                byte[] edid = new byte[1];</span>
+<span class="nc" id="L76">                Advapi32 advapi32 = Advapi32.INSTANCE;</span>
+<span class="nc" id="L77">                IntByReference pType = new IntByReference();</span>
+<span class="nc" id="L78">                IntByReference lpcbData = new IntByReference();</span>
 
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                if (advapi32.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
-<span class="nc" id="L100">                    edid = new byte[lpcbData.getValue()];</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">                    if (advapi32.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
-<span class="nc" id="L102">                        Display display = new WindowsDisplay(edid);</span>
-<span class="nc" id="L103">                        displays.add(display);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (advapi32.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
+<span class="nc" id="L81">                    edid = new byte[lpcbData.getValue()];</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                    if (advapi32.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
+<span class="nc" id="L83">                        Display display = new WindowsDisplay(edid);</span>
+<span class="nc" id="L84">                        displays.add(display);</span>
                     }
                 }
-<span class="nc" id="L106">                Advapi32.INSTANCE.RegCloseKey(key);</span>
+<span class="nc" id="L87">                Advapi32.INSTANCE.RegCloseKey(key);</span>
             }
         }
-<span class="nc" id="L109">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L90">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

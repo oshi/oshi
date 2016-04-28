@@ -8,10 +8,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.jna.platform.linux;
@@ -32,13 +33,13 @@ import com.sun.jna.Structure;
  */
 public interface Libc extends Library {
 
-<span class="nc" id="L35">    static final Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
+<span class="nc" id="L36">    Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
 
-<span class="nc" id="L37">    static final class Sysinfo extends Structure {</span>
+<span class="nc" id="L38">    class Sysinfo extends Structure {</span>
         public NativeLong uptime; // Seconds since boot
         // 1, 5, and 15 minute load averages
 
-<span class="nc" id="L41">        public NativeLong[] loads = new NativeLong[3];</span>
+<span class="nc" id="L42">        public NativeLong[] loads = new NativeLong[3];</span>
 
         public NativeLong totalram; // Total usable main memory size
 
@@ -60,17 +61,17 @@ public interface Libc extends Library {
 
         public int mem_unit; // Memory unit size in bytes
 
-<span class="nc" id="L63">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+<span class="nc" id="L64">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L67">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
+<span class="nc" id="L68">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
                     &quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; });
         }
     }
 
     int sysinfo(Sysinfo info);
-    
+
     // Native call for getting load average
     int getloadavg(double[] loadavg, int nelem);
 }

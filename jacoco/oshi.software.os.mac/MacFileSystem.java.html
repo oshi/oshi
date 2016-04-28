@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacFileSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacFileSystem.java</span></div><h1>MacFileSystem.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.mac;
@@ -21,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.filechooser.FileSystemView;
@@ -29,6 +32,9 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -39,12 +45,12 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L42">public class MacFileSystem {</span>
+<span class="fc" id="L48">public class MacFileSystem extends AbstractFileSystem {</span>
 
-<span class="fc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
+<span class="fc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
 
     // Regexp matcher for /dev/disk1 etc.
-<span class="fc" id="L47">    private static final Pattern localDisk = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
+<span class="fc" id="L53">    private static final Pattern localDisk = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
 
     /**
      * Gets File System Information.
@@ -53,36 +59,58 @@ import oshi.software.os.OSFileStore;
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
-<span class="fc" id="L57">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L58">        FileSystemView fsv = FileSystemView.getFileSystemView();</span>
-        // Mac file systems are mounted in /Volumes
-<span class="fc" id="L60">        File volumes = new File(&quot;/Volumes&quot;);</span>
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (volumes.listFiles() != null)</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">            for (File f : volumes.listFiles()) {</span>
-                // Everyone hates DS Store
-<span class="fc bfc" id="L64" title="All 2 branches covered.">                if (f.getName().endsWith(&quot;.DS_Store&quot;)) {</span>
-<span class="fc" id="L65">                    continue;</span>
-                }
-<span class="fc" id="L67">                String name = fsv.getSystemDisplayName(f);</span>
-<span class="fc" id="L68">                String description = &quot;Volume&quot;;</span>
-                try {
-<span class="fc bfc" id="L70" title="All 2 branches covered.">                    if (f.getCanonicalPath().equals(&quot;/&quot;))</span>
-<span class="fc" id="L71">                        name = name + &quot; (/)&quot;;</span>
-<span class="fc" id="L72">                    FileStore fs = Files.getFileStore(f.toPath());</span>
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                    if (localDisk.matcher(fs.name()).matches()) {</span>
-<span class="nc" id="L74">                        description = &quot;Local Disk&quot;;</span>
-                    }
-<span class="fc bfc" id="L76" title="All 4 branches covered.">                    if (fs.name().startsWith(&quot;localhost:&quot;) || fs.name().startsWith(&quot;//&quot;)) {</span>
-<span class="fc" id="L77">                        description = &quot;Network Drive&quot;;</span>
-                    }
-<span class="nc" id="L79">                } catch (IOException e) {</span>
-<span class="nc" id="L80">                    LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L81">                    continue;</span>
-<span class="fc" id="L82">                }</span>
-<span class="fc" id="L83">                fsList.add(new OSFileStore(name, description, f.getUsableSpace(), f.getTotalSpace()));</span>
+    public OSFileStore[] getFileStores() {
+        // Use getfsstat to map filesystem paths to types
+<span class="fc" id="L64">        Map&lt;String, String&gt; fstype = new HashMap&lt;&gt;();</span>
+        // Query with null to get total # required
+<span class="fc" id="L66">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (numfs &gt; 0) {</span>
+            // Create array to hold results
+<span class="fc" id="L69">            Statfs[] fs = new Statfs[numfs];</span>
+            // Fill array with results
+<span class="fc" id="L71">            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * (new Statfs()).size(), SystemB.MNT_NOWAIT);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            for (int f = 0; f &lt; numfs; f++) {</span>
+                // Mount to name will match canonical path.
+                // Byte arrays are null-terminated strings
+<span class="fc" id="L75">                fstype.put(new String(fs[f].f_mntonname).trim(), new String(fs[f].f_fstypename).trim());</span>
             }
-<span class="fc" id="L85">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+        }
+        // Now list file systems
+<span class="fc" id="L79">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L80">        FileSystemView fsv = FileSystemView.getFileSystemView();</span>
+        // Mac file systems are mounted in /Volumes
+<span class="fc" id="L82">        File volumes = new File(&quot;/Volumes&quot;);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (volumes != null) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            for (File f : volumes.listFiles()) {</span>
+                // Everyone hates DS Store
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (f.getName().endsWith(&quot;.DS_Store&quot;)) {</span>
+<span class="fc" id="L87">                    continue;</span>
+                }
+<span class="fc" id="L89">                String name = fsv.getSystemDisplayName(f);</span>
+<span class="fc" id="L90">                String description = &quot;Volume&quot;;</span>
+<span class="fc" id="L91">                String type = &quot;unknown&quot;;</span>
+                try {
+<span class="fc" id="L93">                    String cp = f.getCanonicalPath();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                    if (cp.equals(&quot;/&quot;))</span>
+<span class="fc" id="L95">                        name = name + &quot; (/)&quot;;</span>
+<span class="fc" id="L96">                    FileStore fs = Files.getFileStore(f.toPath());</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                    if (localDisk.matcher(fs.name()).matches()) {</span>
+<span class="nc" id="L98">                        description = &quot;Local Disk&quot;;</span>
+                    }
+<span class="fc bfc" id="L100" title="All 4 branches covered.">                    if (fs.name().startsWith(&quot;localhost:&quot;) || fs.name().startsWith(&quot;//&quot;)) {</span>
+<span class="fc" id="L101">                        description = &quot;Network Drive&quot;;</span>
+                    }
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                    if (fstype.containsKey(cp)) {</span>
+<span class="fc" id="L104">                        type = fstype.get(cp);</span>
+                    }
+<span class="nc" id="L106">                } catch (IOException e) {</span>
+<span class="nc" id="L107">                    LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L108">                    continue;</span>
+<span class="fc" id="L109">                }</span>
+<span class="fc" id="L110">                fsList.add(new OSFileStore(name, description, type, f.getUsableSpace(), f.getTotalSpace()));</span>
+            }
+        }
+<span class="fc" id="L113">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

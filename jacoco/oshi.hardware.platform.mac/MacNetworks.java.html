@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacNetworks.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacNetworks.java</span></div><h1>MacNetworks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.hardware.NetworkIF;
+import oshi.hardware.common.AbstractNetworks;
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.IFmsgHdr;
+import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
+
+/**
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="fc" id="L39">public class MacNetworks extends AbstractNetworks {</span>
+
+<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);</span>
+
+<span class="fc" id="L43">    private static int CTL_NET = 4;</span>
+<span class="fc" id="L44">    private static int PF_ROUTE = 17;</span>
+<span class="fc" id="L45">    private static int NET_RT_IFLIST2 = 6;</span>
+<span class="fc" id="L46">    private static int RTM_IFINFO2 = 0x12;</span>
+
+    /**
+     * Class to store a subset of IF data in the ifMap
+     */
+    private class IFdata {
+<span class="fc" id="L52">        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {</span>
+<span class="fc" id="L53">            this.oPackets = oPackets;</span>
+<span class="fc" id="L54">            this.iPackets = iPackets;</span>
+<span class="fc" id="L55">            this.oBytes = oBytes;</span>
+<span class="fc" id="L56">            this.iBytes = iBytes;</span>
+<span class="fc" id="L57">            this.speed = speed;</span>
+<span class="fc" id="L58">        }</span>
+
+        long oPackets;
+        long iPackets;
+        long oBytes;
+        long iBytes;
+        long speed;
+    }
+
+    /**
+     * Update map no more frequently than 200ms.
+     * 
+     * Key is the index of the IF.
+     */
+<span class="fc" id="L72">    private Map&lt;Integer, IFdata&gt; ifMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L73">    private long lastIFmapTime = 0L;</span>
+
+    /**
+     * Map all network interfaces. Ported from source code of &quot;netstat -ir&quot;. See
+     * http://opensource.apple.com/source/network_cmds/network_cmds-457/
+     * netstat.tproj/if.c
+     */
+    private void mapIFs() {
+<span class="fc" id="L81">        long now = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (now - lastIFmapTime &lt; 200L) {</span>
+            // Polled too recently; do nothing
+<span class="fc" id="L84">            return;</span>
+        }
+<span class="fc" id="L86">        lastIFmapTime = now;</span>
+
+        // Get buffer of all interface information
+<span class="fc" id="L89">        int mib[] = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="fc" id="L90">        IntByReference len = new IntByReference();</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L92">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L93">            return;</span>
+        }
+<span class="fc" id="L95">        Pointer buf = new Memory(len.getValue());</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L97">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L98">            return;</span>
+        }
+
+        // CLear out old hashmap
+<span class="fc" id="L102">        ifMap.clear();</span>
+
+        // Iterate offset from buf's pointer up to limit of buf
+<span class="fc" id="L105">        int lim = len.getValue();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        for (int next = 0; next &lt; lim;) {</span>
+            // Get pointer to current native part of buf
+<span class="fc" id="L108">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
+            // Cast pointer to if_msghdr
+<span class="fc" id="L110">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="fc" id="L111">            ifm.read();</span>
+            // Advance next
+<span class="fc" id="L113">            next += ifm.ifm_msglen;</span>
+            // Skip messages which are not the right format
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
+<span class="fc" id="L116">                continue;</span>
+            }
+            // Cast pointer to if_msghdr2
+<span class="fc" id="L119">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="fc" id="L120">            if2m.read();</span>
+
+            // Grab data to place in map using index as the key
+<span class="fc" id="L123">            ifMap.put(new Integer(if2m.ifm_index), new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets,</span>
+                    if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
+<span class="fc" id="L125">        }</span>
+<span class="fc" id="L126">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateNetworkStats(NetworkIF netIF) {
+        // Update data
+<span class="fc" id="L134">        mapIFs();</span>
+
+<span class="fc" id="L136">        Integer index = new Integer(netIF.getNetworkInterface().getIndex());</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (ifMap.containsKey(index)) {</span>
+            // Retrieve values from map and store
+<span class="fc" id="L139">            IFdata ifData = ifMap.get(index);</span>
+<span class="fc" id="L140">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="fc" id="L141">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="fc" id="L142">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="fc" id="L143">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="fc" id="L144">            netIF.setSpeed(ifData.speed);</span>
+        }
+<span class="fc" id="L146">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

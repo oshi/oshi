@@ -1,76 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacOperatingSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacOperatingSystem.java</span></div><h1>MacOperatingSystem.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.mac;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import oshi.software.common.AbstractOperatingSystem;
 
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystemVersion;
+public class MacOperatingSystem extends AbstractOperatingSystem {
 
-/**
- * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
- */
-
-<span class="fc" id="L32">public class MacOperatingSystem implements OperatingSystem {</span>
-    private String _family;
-
-    private OperatingSystemVersion _version;
-
-<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
-
-    @Override
-    public OperatingSystemVersion getVersion() {
-<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (this._version == null) {</span>
-<span class="fc" id="L42">            this._version = new MacOSVersionInfoEx();</span>
-        }
-<span class="fc" id="L44">        return this._version;</span>
-    }
-
-    @Override
-    public String getFamily() {
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (this._family == null)</span>
-<span class="fc" id="L50">            this._family = System.getProperty(&quot;os.name&quot;);</span>
-<span class="fc" id="L51">        return this._family;</span>
-    }
-
-    @Override
-    public String getManufacturer() {
-<span class="fc" id="L56">        return &quot;Apple&quot;;</span>
-    }
-
-    @Override
-    public JsonObject toJSON() {
-<span class="nc" id="L61">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer()).add(&quot;family&quot;, getFamily())</span>
-<span class="nc" id="L62">                .add(&quot;version&quot;, getVersion().toJSON()).build();</span>
-    }
-
-    @Override
-    public String toString() {
-<span class="fc" id="L67">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L68">        sb.append(getManufacturer());</span>
-<span class="fc" id="L69">        sb.append(&quot; &quot;);</span>
-<span class="fc" id="L70">        sb.append(getFamily());</span>
-<span class="fc" id="L71">        sb.append(&quot; &quot;);</span>
-<span class="fc" id="L72">        sb.append(getVersion().toString());</span>
-<span class="fc" id="L73">        return sb.toString();</span>
-    }
+<span class="fc" id="L24">    public MacOperatingSystem() {</span>
+<span class="fc" id="L25">        this.manufacturer = &quot;Apple&quot;;</span>
+<span class="fc" id="L26">        this.family = System.getProperty(&quot;os.name&quot;);</span>
+<span class="fc" id="L27">        this.version = new MacOSVersionInfoEx();</span>
+<span class="fc" id="L28">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

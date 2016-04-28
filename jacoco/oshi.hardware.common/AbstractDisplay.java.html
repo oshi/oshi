@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractDisplay.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractDisplay.java</span></div><h1>AbstractDisplay.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.common;
+
+import java.util.Arrays;
+
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
+import oshi.hardware.Display;
+import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.util.EdidUtil;
+
+/**
+ * A Display
+ */
+public abstract class AbstractDisplay implements Display {
+
+    protected byte[] edid;
+
+<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="fc" id="L39">    protected AbstractDisplay(byte[] edid) {</span>
+<span class="fc" id="L40">        this.edid = edid;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public byte[] getEdid() {
+<span class="fc" id="L48">        return Arrays.copyOf(edid, edid.length);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON() {
+<span class="nc" id="L56">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
+<span class="nc" id="L57">                .add(&quot;edid&quot;, EdidUtil.toString(getEdid())).build();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L62">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L63">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid)).append(&quot;, Product ID=&quot;)</span>
+<span class="nc" id="L64">                .append(EdidUtil.getProductID(edid)).append(&quot;, &quot;)</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                .append((EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;)).append(&quot;, Serial=&quot;)</span>
+<span class="nc" id="L66">                .append(EdidUtil.getSerialNo(edid)).append(&quot;, ManufDate=&quot;)</span>
+<span class="nc" id="L67">                .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + &quot;/&quot;).append(EdidUtil.getYear(edid)).append(&quot;, EDID v&quot;)</span>
+<span class="nc" id="L68">                .append(EdidUtil.getVersion(edid));</span>
+<span class="nc" id="L69">        int hSize = EdidUtil.getHcm(edid);</span>
+<span class="nc" id="L70">        int vSize = EdidUtil.getVcm(edid);</span>
+<span class="nc" id="L71">        sb.append(String.format(&quot;%n  %d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
+<span class="nc" id="L72">        byte[][] desc = EdidUtil.getDescriptors(edid);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (int d = 0; d &lt; desc.length; d++) {</span>
+<span class="nc bnc" id="L74" title="All 7 branches missed.">            switch (EdidUtil.getDescriptorType(desc[d])) {</span>
+            case 0xff:
+<span class="nc" id="L76">                sb.append(&quot;\n  Serial Number: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="nc" id="L77">                break;</span>
+            case 0xfe:
+<span class="nc" id="L79">                sb.append(&quot;\n  Unspecified Text: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="nc" id="L80">                break;</span>
+            case 0xfd:
+<span class="nc" id="L82">                sb.append(&quot;\n  Range Limits: &quot;).append(EdidUtil.getDescriptorRangeLimits(desc[d]));</span>
+<span class="nc" id="L83">                break;</span>
+            case 0xfc:
+<span class="nc" id="L85">                sb.append(&quot;\n  Monitor Name: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="nc" id="L86">                break;</span>
+            case 0xfb:
+<span class="nc" id="L88">                sb.append(&quot;\n  White Point Data: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
+<span class="nc" id="L89">                break;</span>
+            case 0xfa:
+<span class="nc" id="L91">                sb.append(&quot;\n  Standard Timing ID: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
+<span class="nc" id="L92">                break;</span>
+            default:
+<span class="nc bnc" id="L94" title="All 4 branches missed.">                if (EdidUtil.getDescriptorType(desc[d]) &lt;= 0x0f &amp;&amp; EdidUtil.getDescriptorType(desc[d]) &gt;= 0x00) {</span>
+<span class="nc" id="L95">                    sb.append(&quot;\n  Manufacturer Data: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
+                } else {
+<span class="nc" id="L97">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(desc[d]));</span>
+                }
+            }
+        }
+<span class="nc" id="L101">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

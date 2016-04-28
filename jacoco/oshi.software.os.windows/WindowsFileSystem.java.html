@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsFileSystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsFileSystem.java</span></div><h1>WindowsFileSystem.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.windows;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +29,8 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.windows.Kernel32;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -37,9 +41,14 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L40">public class WindowsFileSystem {</span>
+public class WindowsFileSystem extends AbstractFileSystem {
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);</span>
+
+<span class="nc" id="L48">    public WindowsFileSystem() {</span>
+        // Set error mode to fail rather than prompt for FLoppy/CD-Rom
+<span class="nc" id="L50">        Kernel32.INSTANCE.SetErrorMode(Kernel32.SEM_FAILCRITICALERRORS);</span>
+<span class="nc" id="L51">    }</span>
 
     /**
      * Gets File System Information.
@@ -48,34 +57,48 @@ import oshi.software.os.OSFileStore;
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
-    public static OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores() {
         // File.listRoots() has more information for Windows
         // than FileSystem.getDefalut().getFileStores()
-<span class="nc" id="L54">        final File[] roots = File.listRoots();</span>
+<span class="nc" id="L63">        final File[] roots = File.listRoots();</span>
         // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
         // problems
-<span class="nc" id="L57">        SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt; worker = new SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt;() {</span>
+<span class="nc" id="L66">        SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt; worker = new SwingWorker&lt;List&lt;OSFileStore&gt;, Void&gt;() {</span>
             @Override
             public List&lt;OSFileStore&gt; doInBackground() {
-<span class="nc" id="L60">                FileSystemView fsv = FileSystemView.getFileSystemView();</span>
-<span class="nc" id="L61">                List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">                for (File f : roots) {</span>
-<span class="nc" id="L63">                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f),</span>
-<span class="nc" id="L64">                            f.getUsableSpace(), f.getTotalSpace()));</span>
+<span class="nc" id="L69">                FileSystemView fsv = FileSystemView.getFileSystemView();</span>
+<span class="nc" id="L70">                List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                for (File f : roots) {</span>
+<span class="nc" id="L72">                    String type = &quot;unknown&quot;;</span>
+                    try {
+                        // add trailing slash to path if needed
+<span class="nc" id="L75">                        String path = f.getCanonicalPath();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                        if (path.charAt(path.length() - 1) != '\\') {</span>
+<span class="nc" id="L77">                            path = path + '\\';</span>
+                        }
+<span class="nc" id="L79">                        char[] fstype = new char[16];</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                        if (Kernel32.INSTANCE.GetVolumeInformation(path, null, 0, null, null, null, fstype, 16)) {</span>
+<span class="nc" id="L81">                            type = new String(fstype).trim();</span>
+                        }
+<span class="nc" id="L83">                    } catch (IOException e) {</span>
+<span class="nc" id="L84">                        LOG.error(&quot;Could not get canonical path for {}&quot;, f.toString());</span>
+<span class="nc" id="L85">                    }</span>
+<span class="nc" id="L86">                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), type,</span>
+<span class="nc" id="L87">                            f.getUsableSpace(), f.getTotalSpace()));</span>
                 }
-<span class="nc" id="L66">                return fsList;</span>
+<span class="nc" id="L89">                return fsList;</span>
             }
         };
-<span class="nc" id="L69">        worker.execute();</span>
-<span class="nc" id="L70">        List&lt;OSFileStore&gt; fs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L92">        worker.execute();</span>
+<span class="nc" id="L93">        List&lt;OSFileStore&gt; fs = new ArrayList&lt;&gt;();</span>
         try {
             // TODO: Consider a timeout version of this method that passes
             // timeout parameters which are used in this get()
-<span class="nc" id="L74">            fs = worker.get();</span>
-<span class="nc" id="L75">        } catch (InterruptedException | ExecutionException e) {</span>
-<span class="nc" id="L76">            LOG.error(&quot;&quot;, e);</span>
-<span class="nc" id="L77">        }</span>
-<span class="nc" id="L78">        return fs.toArray(new OSFileStore[fs.size()]);</span>
+<span class="nc" id="L97">            fs = worker.get();</span>
+<span class="nc" id="L98">        } catch (InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L99">            LOG.error(&quot;&quot;, e);</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">        return fs.toArray(new OSFileStore[fs.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

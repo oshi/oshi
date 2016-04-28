@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>WindowsOSSystemInfo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOSSystemInfo.java</span></div><h1>WindowsOSSystemInfo.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
- * 
+ *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
+ *
+ * Maintainers:
  * dblock[at]dblock[dot]org
- * alessandro[at]perucchi[dot]org
  * widdis[at]gmail[dot]com
+ *
+ * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.windows;
@@ -30,35 +31,33 @@ import com.sun.jna.ptr.IntByReference;
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsOSSystemInfo {
-<span class="nc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
+<span class="nc" id="L34">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
 
-<span class="nc" id="L35">    private SYSTEM_INFO _si = null;</span>
+<span class="nc" id="L36">    private SYSTEM_INFO _si = null;</span>
 
-<span class="nc" id="L37">    public WindowsOSSystemInfo() {</span>
+<span class="nc" id="L38">    public WindowsOSSystemInfo() {</span>
 
-<span class="nc" id="L39">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
-<span class="nc" id="L40">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
+<span class="nc" id="L40">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
+<span class="nc" id="L41">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
 
         try {
-<span class="nc" id="L43">            IntByReference isWow64 = new IntByReference();</span>
-<span class="nc" id="L44">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64)) {</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">                if (isWow64.getValue() &gt; 0) {</span>
-<span class="nc" id="L47">                    Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
-                }
+<span class="nc" id="L44">            IntByReference isWow64 = new IntByReference();</span>
+<span class="nc" id="L45">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) &amp;&amp; isWow64.getValue() &gt; 0) {</span>
+<span class="nc" id="L47">                Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
             }
-<span class="nc" id="L50">        } catch (UnsatisfiedLinkError e) {</span>
+<span class="nc" id="L49">        } catch (UnsatisfiedLinkError e) {</span>
             // no WOW64 support
-<span class="nc" id="L52">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L53">        }</span>
+<span class="nc" id="L51">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L52">        }</span>
 
-<span class="nc" id="L55">        this._si = si;</span>
-<span class="nc" id="L56">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L54">        this._si = si;</span>
+<span class="nc" id="L55">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
+<span class="nc" id="L56">    }</span>
 
-<span class="nc" id="L59">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
-<span class="nc" id="L60">        this._si = si;</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L58">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
+<span class="nc" id="L59">        this._si = si;</span>
+<span class="nc" id="L60">    }</span>
 
     /**
      * Number of processors.
@@ -66,7 +65,7 @@ public class WindowsOSSystemInfo {
      * @return Integer.
      */
     public int getNumberOfProcessors() {
-<span class="nc" id="L69">        return this._si.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L68">        return this._si.dwNumberOfProcessors.intValue();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
