@@ -62,7 +62,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      */
     long GetTickCount64();
 
-    public static final int SEM_FAILCRITICALERRORS = 0x0001;
+    int SEM_FAILCRITICALERRORS = 0x0001;
 
     /**
      * Controls whether the system will handle the specified types of serious

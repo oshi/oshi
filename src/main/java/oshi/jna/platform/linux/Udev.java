@@ -29,9 +29,9 @@ import com.sun.jna.PointerType;
  */
 public interface Udev extends Library {
 
-    public static final Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
+    Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
 
-    public static class UdevHandle extends PointerType {
+    class UdevHandle extends PointerType {
 
         public UdevHandle(Pointer address) {
             super(address);
@@ -42,7 +42,7 @@ public interface Udev extends Library {
         }
     };
 
-    public static final class UdevDevice extends PointerType {
+    final class UdevDevice extends PointerType {
 
         public UdevDevice(Pointer address) {
             super(address);
@@ -53,7 +53,7 @@ public interface Udev extends Library {
         }
     };
 
-    public static class UdevEnumerate extends PointerType {
+    class UdevEnumerate extends PointerType {
 
         public UdevEnumerate(Pointer address) {
             super(address);
@@ -64,7 +64,7 @@ public interface Udev extends Library {
         }
     };
 
-    public static class UdevListEntry extends PointerType {
+    class UdevListEntry extends PointerType {
 
         public UdevListEntry(Pointer address) {
             super(address);
@@ -75,7 +75,7 @@ public interface Udev extends Library {
         }
     };
 
-    public Udev.UdevHandle udev_new();
+    Udev.UdevHandle udev_new();
 
     void udev_unref(Udev.UdevHandle udev);
 
@@ -83,28 +83,28 @@ public interface Udev extends Library {
 
     void udev_enumerate_unref(Udev.UdevEnumerate udev_enumerate);
 
-    public Udev.UdevEnumerate udev_enumerate_new(Udev.UdevHandle udev);
+    Udev.UdevEnumerate udev_enumerate_new(Udev.UdevHandle udev);
 
-    public Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem,
+    Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem,
             String devtype);
 
-    public Udev.UdevDevice udev_device_new_from_syspath(Udev.UdevHandle udev, String syspath);
+    Udev.UdevDevice udev_device_new_from_syspath(Udev.UdevHandle udev, String syspath);
 
-    public Udev.UdevListEntry udev_list_entry_get_next(Udev.UdevListEntry list_entry);
+    Udev.UdevListEntry udev_list_entry_get_next(Udev.UdevListEntry list_entry);
 
-    public String udev_device_get_sysattr_value(final Udev.UdevDevice udev_device, final String sysattr);
+    String udev_device_get_sysattr_value(final Udev.UdevDevice udev_device, final String sysattr);
 
-    public int udev_enumerate_add_match_subsystem(Udev.UdevEnumerate udev_enumerate, String subsystem);
+    int udev_enumerate_add_match_subsystem(Udev.UdevEnumerate udev_enumerate, String subsystem);
 
-    public int udev_enumerate_scan_devices(Udev.UdevEnumerate udev_enumerate);
+    int udev_enumerate_scan_devices(Udev.UdevEnumerate udev_enumerate);
 
-    public Udev.UdevListEntry udev_enumerate_get_list_entry(Udev.UdevEnumerate udev_enumerate);
+    Udev.UdevListEntry udev_enumerate_get_list_entry(Udev.UdevEnumerate udev_enumerate);
 
-    public String udev_list_entry_get_name(Udev.UdevListEntry list_entry);
+    String udev_list_entry_get_name(Udev.UdevListEntry list_entry);
 
-    public String udev_device_get_devtype(Udev.UdevDevice udev_device);
+    String udev_device_get_devtype(Udev.UdevDevice udev_device);
 
-    public String udev_device_get_devnode(Udev.UdevDevice udev_device);
+    String udev_device_get_devnode(Udev.UdevDevice udev_device);
 
-    public String udev_device_get_property_value(Udev.UdevDevice udev_device, String key);
+    String udev_device_get_property_value(Udev.UdevDevice udev_device, String key);
 }

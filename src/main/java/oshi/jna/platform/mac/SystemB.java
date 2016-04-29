@@ -33,10 +33,10 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     SystemB INSTANCE = (SystemB) Native.loadLibrary("System", SystemB.class);
 
     // proc_info.h
-    final static int PROC_ALL_PIDS = 1;
-    final static int PROC_PIDTASKINFO = 4;
+    int PROC_ALL_PIDS = 1;
+    int PROC_PIDTASKINFO = 4;
 
-    static class ProcTaskInfo extends Structure {
+    class ProcTaskInfo extends Structure {
         public long pti_virtual_size; /* virtual memory size (bytes) */
         public long pti_resident_size; /* resident memory size (bytes) */
         public long pti_total_user; /* total time */
@@ -66,17 +66,17 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     };
 
     // length of fs type name including null
-    static final int MAXPATHLEN = 1024;
-    static final int MFSTYPENAMELEN = 16;
+    int MAXPATHLEN = 1024;
+    int MFSTYPENAMELEN = 16;
     // length of buffer for returned name
-    static final int MNAMELEN = MAXPATHLEN;
+    int MNAMELEN = MAXPATHLEN;
 
     /**
      * The statfs() routine returns information about a mounted file system. The
      * path argument is the path name of any file or directory within the
      * mounted file system. The buf argument is a pointer to a statfs structure.
      */
-    static class Statfs extends Structure {
+    class Statfs extends Structure {
         public int f_bsize; /* fundamental file system block size */
         public int f_iosize; /* optimal transfer block size */
         public long f_blocks; /* total data blocks in file system */
@@ -108,7 +108,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Return type for sysctl vm.swapusage
      */
-    static class XswUsage extends Structure {
+    class XswUsage extends Structure {
         public long xsu_total;
         public long xsu_avail;
         public long xsu_used;
@@ -125,7 +125,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Return type for sysctl kern.boottime
      */
-    static class Timeval extends Structure {
+    class Timeval extends Structure {
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
 
@@ -178,9 +178,9 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      */
     int proc_pidinfo(int pid, int flavor, long arg, Structure buffer, int buffersize);
 
-    static final int MNT_WAIT = 0x0001;
-    static final int MNT_NOWAIT = 0x0010;
-    static final int MNT_DWAIT = 0x0100;
+    int MNT_WAIT = 0x0001;
+    int MNT_NOWAIT = 0x0010;
+    int MNT_DWAIT = 0x0100;
 
     /**
      * The getfsstat() function returns information about all mounted file

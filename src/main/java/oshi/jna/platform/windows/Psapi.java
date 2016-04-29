@@ -35,7 +35,7 @@ public interface Psapi extends com.sun.jna.platform.win32.Psapi {
     Psapi INSTANCE = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
 
     // TODO: Submit this change to JNA Psapi class
-    static class PERFORMANCE_INFORMATION extends Structure {
+    class PERFORMANCE_INFORMATION extends Structure {
         public DWORD cb;
         public SIZE_T CommitTotal;
         public SIZE_T CommitLimit;

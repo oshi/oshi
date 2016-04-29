@@ -23,33 +23,33 @@ public interface OperatingSystemVersion extends OshiJsonObject {
     /**
      * @return the version
      */
-    public String getVersion();
+    String getVersion();
 
     /**
      * @param version
      *            the version to set
      */
-    public void setVersion(String version);
+    void setVersion(String version);
 
     /**
      * @return the codeName
      */
-    public String getCodeName();
+    String getCodeName();
 
     /**
      * @param codeName
      *            the codeName to set
      */
-    public void setCodeName(String codeName);
+    void setCodeName(String codeName);
 
     /**
      * @return the build number
      */
-    public String getBuildNumber();
+    String getBuildNumber();
 
     /**
      * @param buildNumber
      *            the build number to set
      */
-    public void setBuildNumber(String buildNumber);
+    void setBuildNumber(String buildNumber);
 }

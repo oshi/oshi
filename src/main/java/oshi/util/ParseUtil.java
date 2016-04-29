@@ -69,9 +69,14 @@ public abstract class ParseUtil {
     }
 
     /**
+     * Used for matching
+     */
+    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
+
+    /**
      * Used to check validity of a hexadecimal string
      */
-    final private static Pattern validHex = Pattern.compile("[0-9a-fA-F]+");
+    final private static Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
     /**
      * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
@@ -81,10 +86,8 @@ public abstract class ParseUtil {
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-        Pattern pattern = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
-        Matcher matcher = pattern.matcher(hertz.trim());
-
-        if (matcher.find() && (matcher.groupCount() == 3)) {
+        Matcher matcher = HERTZ.matcher(hertz.trim());
+        if (matcher.find() && matcher.groupCount() == 3) {
             try {
                 Double value = Double.valueOf(matcher.group(1));
                 String unit = matcher.group(3);
@@ -132,7 +135,7 @@ public abstract class ParseUtil {
      */
     public static byte[] hexStringToByteArray(String s) {
         // Check if string is valid hex
-        if (!validHex.matcher(s).matches()) {
+        if (!VALID_HEX.matcher(s).matches()) {
             LOG.error("Invalid hexadecimal string: {}", s);
             return null;
         }

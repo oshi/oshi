@@ -115,13 +115,11 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
                 version = "2000";
             } else if (getMajor() == 4) {
                 version = "NT 4";
-                if ("Service Pack 6".equals(getServicePack())) {
-                    if (Advapi32Util.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE,
-                            "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
-                        return "NT4 SP6a";
-                    }
+                if ("Service Pack 6".equals(getServicePack())
+                        && Advapi32Util.registryKeyExists(WinReg.HKEY_LOCAL_MACHINE,
+                                "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009")) {
+                    return "NT4 SP6a";
                 }
-
             } else {
                 throw new RuntimeException("Unsupported Windows NT version: " + this.versionInfo.toString());
             }

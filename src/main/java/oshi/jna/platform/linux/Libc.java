@@ -33,9 +33,9 @@ import com.sun.jna.Structure;
  */
 public interface Libc extends Library {
 
-    static final Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
+    Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
 
-    static final class Sysinfo extends Structure {
+    class Sysinfo extends Structure {
         public NativeLong uptime; // Seconds since boot
         // 1, 5, and 15 minute load averages
 

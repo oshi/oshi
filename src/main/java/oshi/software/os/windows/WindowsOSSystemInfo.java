@@ -43,10 +43,8 @@ public class WindowsOSSystemInfo {
         try {
             IntByReference isWow64 = new IntByReference();
             HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
-            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64)) {
-                if (isWow64.getValue() > 0) {
-                    Kernel32.INSTANCE.GetNativeSystemInfo(si);
-                }
+            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) && isWow64.getValue() > 0) {
+                Kernel32.INSTANCE.GetNativeSystemInfo(si);
             }
         } catch (UnsatisfiedLinkError e) {
             // no WOW64 support

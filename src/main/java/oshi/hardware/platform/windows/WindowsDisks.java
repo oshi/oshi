@@ -48,6 +48,8 @@ public class WindowsDisks extends AbstractDisks {
                 ds.setSize(Long.parseLong(vals.get("Size").get(i)));
             } catch (NumberFormatException e) {
                 // If we failed to parse, give up
+                // This is expected for an empty string on some drives
+                ds.setSize(0L);
             }
             result.add(ds);
         }

@@ -31,5 +31,5 @@ public interface Disks extends OshiJsonObject {
      * 
      * @return Array of {@link HWDiskStore} objects
      */
-    public HWDiskStore[] getDisks();
+    HWDiskStore[] getDisks();
 }

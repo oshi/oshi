@@ -362,7 +362,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         long idle = curTicks[3] - prevTicks[3];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
-        return (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+        return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
     }
 
     /**
@@ -454,7 +454,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
             LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
-            load[cpu] = (total > 0 && idle >= 0) ? (double) (total - idle) / total : 0d;
+            load[cpu] = total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
         }
         return load;
     }

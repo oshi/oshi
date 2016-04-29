@@ -25,5 +25,5 @@ public interface OshiJsonObject {
      * 
      * @return a compact JSON string
      */
-    public JsonObject toJSON();
+    JsonObject toJSON();
 }

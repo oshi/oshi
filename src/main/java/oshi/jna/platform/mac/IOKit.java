@@ -40,32 +40,32 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 public interface IOKit extends Library {
     IOKit INSTANCE = (IOKit) Native.loadLibrary("IOKit", IOKit.class);
 
-    static final CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
+    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
 
-    static final CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString("Is Present");
+    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString("Is Present");
 
-    static final CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString("Current Capacity");
+    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString("Current Capacity");
 
-    static final CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString("Max Capacity");
+    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString("Max Capacity");
 
-    static final String SMC_KEY_FAN_NUM = "FNum";
+    String SMC_KEY_FAN_NUM = "FNum";
 
-    static final String SMC_KEY_FAN_SPEED = "F%dAc";
+    String SMC_KEY_FAN_SPEED = "F%dAc";
 
-    static final String SMC_KEY_CPU_TEMP = "TC0P";
+    String SMC_KEY_CPU_TEMP = "TC0P";
 
-    static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
+    String SMC_KEY_CPU_VOLTAGE = "VC0C";
 
-    static final byte SMC_CMD_READ_BYTES = 5;
+    byte SMC_CMD_READ_BYTES = 5;
 
-    static final byte SMC_CMD_READ_KEYINFO = 9;
+    byte SMC_CMD_READ_KEYINFO = 9;
 
-    static final int KERNEL_INDEX_SMC = 2;
+    int KERNEL_INDEX_SMC = 2;
 
     /**
      * Holds the return value of SMC version query.
      */
-    static class SMCKeyDataVers extends Structure {
+    class SMCKeyDataVers extends Structure {
         public byte major;
         public byte minor;
         public byte build;
@@ -81,7 +81,7 @@ public interface IOKit extends Library {
     /**
      * Holds the return value of SMC pLimit query.
      */
-    static class SMCKeyDataPLimitData extends Structure {
+    class SMCKeyDataPLimitData extends Structure {
         public short version;
         public short length;
         public int cpuPLimit;
@@ -97,7 +97,7 @@ public interface IOKit extends Library {
     /**
      * Holds the return value of SMC KeyInfo query.
      */
-    static class SMCKeyDataKeyInfo extends Structure {
+    class SMCKeyDataKeyInfo extends Structure {
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
@@ -111,7 +111,7 @@ public interface IOKit extends Library {
     /**
      * Holds the return value of SMC query.
      */
-    static class SMCKeyData extends Structure {
+    class SMCKeyData extends Structure {
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -132,7 +132,7 @@ public interface IOKit extends Library {
     /**
      * Holds an SMC value
      */
-    static class SMCVal extends Structure {
+    class SMCVal extends Structure {
         public byte[] key = new byte[5];
         public int dataSize;
         public byte[] dataType = new byte[5];

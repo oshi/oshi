@@ -143,7 +143,7 @@ public abstract class EdidUtil {
      */
     public static boolean isDigital(byte[] edid) {
         // Byte 20 is Video input params
-        return (1 == edid[20] >> 7);
+        return 1 == edid[20] >> 7;
     }
 
     /**

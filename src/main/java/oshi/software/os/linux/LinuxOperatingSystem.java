@@ -91,10 +91,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     protected static String getReleaseFilename() {
         // Check for existence of primary sources of info:
-        if ((new File("/etc/os-release")).exists()) {
+        if (new File("/etc/os-release").exists()) {
             return "/etc/os-release";
         }
-        if ((new File("/etc/lsb-release")).exists()) {
+        if (new File("/etc/lsb-release").exists()) {
             return "/etc/lsb-release";
         }
         // Look for any /etc/*-release, *-version, and variants
@@ -102,14 +102,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         File[] files = etc.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return (name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_release")
-                        || name.endsWith("_version"));
+                return name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_release")
+                        || name.endsWith("_version");
             }
         });
         if (files != null && files.length > 0) {
             return files[0].getPath();
         }
-        if ((new File("/etc/release")).exists()) {
+        if (new File("/etc/release").exists()) {
             return "/etc/release";
         }
         // If all else fails, try this

@@ -59,7 +59,7 @@ public class WindowsDisplay extends AbstractDisplay {
 
         Guid.GUID monitorGuid = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
         WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,
-                (SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE));
+                SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
         if (!hDevInfo.equals(WinNT.INVALID_HANDLE_VALUE)) {
             SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();
             deviceInterfaceData.cbSize = deviceInterfaceData.size();

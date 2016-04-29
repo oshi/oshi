@@ -78,7 +78,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                         }
                         char[] fstype = new char[16];
                         if (Kernel32.INSTANCE.GetVolumeInformation(path, null, 0, null, null, null, fstype, 16)) {
-                            type = (new String(fstype)).trim();
+                            type = new String(fstype).trim();
                         }
                     } catch (IOException e) {
                         LOG.error("Could not get canonical path for {}", f.toString());

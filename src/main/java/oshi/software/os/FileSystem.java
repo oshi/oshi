@@ -26,5 +26,5 @@ public interface FileSystem extends OshiJsonObject {
      * 
      * @return Array of {@link OSFileStore} objects
      */
-    public OSFileStore[] getFileStores();
+    OSFileStore[] getFileStores();
 }

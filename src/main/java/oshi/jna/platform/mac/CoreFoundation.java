@@ -33,7 +33,7 @@ import com.sun.jna.PointerType;
 public interface CoreFoundation extends Library {
     CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary("CoreFoundation", CoreFoundation.class);
 
-    static final int UTF_8 = 0x08000100;
+    int UTF_8 = 0x08000100;
 
     int CFArrayGetCount(CFArrayRef array);
 

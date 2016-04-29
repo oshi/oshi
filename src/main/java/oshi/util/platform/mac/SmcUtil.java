@@ -112,10 +112,8 @@ public class SmcUtil {
     public static double smcGetSp78(String key, int retries) {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
-        if (result == 0) {
-            if (val.dataSize > 0 && Arrays.equals(val.dataType, DATATYPE_SP78)) {
-                return val.bytes[0] + val.bytes[1] / 256d;
-            }
+        if (result == 0 && val.dataSize > 0 && Arrays.equals(val.dataType, DATATYPE_SP78)) {
+            return val.bytes[0] + val.bytes[1] / 256d;
         }
         // Read failed
         return 0d;
@@ -223,10 +221,10 @@ public class SmcUtil {
 
             Util.sleep(4);
             result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
-            if (result != 0) {
-                continue;
+            // If we got success, exit!
+            if (result == 0) {
+                break;
             }
-            break;
         } while (--retries > 0);
         // If we errored out return code
         if (result != 0) {

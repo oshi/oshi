@@ -82,7 +82,7 @@ public class WindowsSensors extends AbstractSensors {
         }
         // Convert K to C and return result
         if (tempK > 0) {
-            tempC = (tempK / 10d) - 273.15;
+            tempC = tempK / 10d - 273.15;
         }
         if (tempC <= 0d) {
             // Unable to get temperature via WMI. Future attempts will be
