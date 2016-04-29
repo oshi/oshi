@@ -62,8 +62,6 @@ public interface IOKit extends Library {
 
     static final int KERNEL_INDEX_SMC = 2;
 
-    static final byte[] DATATYPE_SP78 = { (byte) 's', (byte) 'p', (byte) '7', (byte) '8', 0 };
-
     /**
      * Holds the return value of SMC version query.
      */

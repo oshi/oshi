@@ -133,7 +133,13 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         if (memorySplit.length < 2) {
             return 0l;
         }
-        long memory = Long.valueOf(memorySplit[1]);
+        long memory = 0L;
+        try {
+            memory = Long.parseLong(memorySplit[1]);
+        } catch (NumberFormatException nfe) {
+            LOG.error("Unable to parse {} to a long integer.", memorySplit[1]);
+            return 0L;
+        }
         if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
             memory *= 1024;
         }

@@ -44,8 +44,17 @@ public class SmcUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
 
     private static IOConnect conn = new IOConnect();
-    // Cache the first key query
+
+    /**
+     * Map for caching info retrieved by a key necessary for subsequent calls.
+     */
     private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new HashMap<Integer, SMCKeyDataKeyInfo>();
+
+    /**
+     * Byte array containing the equivalent of string "sp78" used for matching
+     * return type
+     */
+    private final static byte[] DATATYPE_SP78 = { (byte) 's', (byte) 'p', (byte) '7', (byte) '8', 0 };
 
     /**
      * Open a connection to SMC
@@ -104,7 +113,7 @@ public class SmcUtil {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            if (val.dataSize > 0 && Arrays.equals(val.dataType, IOKit.DATATYPE_SP78)) {
+            if (val.dataSize > 0 && Arrays.equals(val.dataType, DATATYPE_SP78)) {
                 return val.bytes[0] + val.bytes[1] / 256d;
             }
         }

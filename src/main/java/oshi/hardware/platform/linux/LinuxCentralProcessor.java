@@ -131,7 +131,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             for (String cpu : procCpu) {
                 if (cpu.startsWith("siblings")) {
                     // if siblings = 1, no hyperthreading
-                    siblings = ParseUtil.parseString(cpu, 1);
+                    siblings = ParseUtil.parseLastElementOfStringToInt(cpu, 1);
                     if (siblings == 1) {
                         this.physicalProcessorCount = this.logicalProcessorCount;
                         break;
@@ -139,7 +139,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 if (cpu.startsWith("cpu cores")) {
                     // if siblings > 1, ratio with cores
-                    cpucores = ParseUtil.parseString(cpu, 1);
+                    cpucores = ParseUtil.parseLastElementOfStringToInt(cpu, 1);
                     if (siblings > 1) {
                         this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;
                         break;
@@ -148,9 +148,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // If siblings and cpu cores don't define it, count unique
                 // combinations of core id and physical id.
                 if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                    uniqueID[0] = ParseUtil.parseString(cpu, 0);
+                    uniqueID[0] = ParseUtil.parseLastElementOfStringToInt(cpu, 0);
                 } else if (cpu.startsWith("physical id")) {
-                    uniqueID[1] = ParseUtil.parseString(cpu, 0);
+                    uniqueID[1] = ParseUtil.parseLastElementOfStringToInt(cpu, 0);
                 }
                 if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
                     ids.add(uniqueID[0] + " " + uniqueID[1]);
@@ -179,7 +179,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    public synchronized long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[curTicks.length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
@@ -339,6 +339,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 LOG.error("Failed to get system uptime. Error code: " + Native.getLastError());
                 return 0L;
             }
+            // If sysinfo() returned 0, the info structure has been written
             return info.uptime.longValue();
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
             LOG.error("Failed to get uptime from sysinfo. {}", e.getMessage());
@@ -399,7 +400,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 return p.matcher(file.getName()).matches();
             }
         });
-        return pids.length;
+        return pids == null ? 0 : pids.length;
     }
 
     /**

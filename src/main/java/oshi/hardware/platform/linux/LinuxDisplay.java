@@ -49,6 +49,8 @@ public class LinuxDisplay extends AbstractDisplay {
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<Display>();
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
+        // xrandr reports edid in multiple lines. After seeing a line containing
+        // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr != null) {
             boolean foundEdid = false;
             StringBuilder sb = new StringBuilder();
@@ -63,8 +65,10 @@ public class LinuxDisplay extends AbstractDisplay {
                     if (sb.length() >= 256) {
                         String edidStr = sb.toString();
                         LOG.debug("Parsed EDID: {}", edidStr);
-                        Display display = new LinuxDisplay(ParseUtil.hexStringToByteArray(edidStr));
-                        displays.add(display);
+                        byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
+                        if (edid != null) {
+                            displays.add(new LinuxDisplay(edid));
+                        }
                         foundEdid = false;
                     }
                 }

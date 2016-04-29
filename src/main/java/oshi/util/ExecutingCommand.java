@@ -53,7 +53,8 @@ public class ExecutingCommand {
      * 
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command
+     * @return A list of Strings representing the result of the command, or null
+     *         if the command failed
      */
     public static ArrayList<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
@@ -64,10 +65,9 @@ public class ExecutingCommand {
             return null;
         }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = "";
         ArrayList<String> sa = new ArrayList<>();
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String line;
             while ((line = reader.readLine()) != null) {
                 sa.add(line);
             }

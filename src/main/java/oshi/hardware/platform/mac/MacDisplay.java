@@ -53,8 +53,10 @@ public class MacDisplay extends AbstractDisplay {
             if (s.contains("IODisplayEDID")) {
                 String edidStr = s.substring(s.indexOf("<") + 1, s.indexOf(">"));
                 LOG.debug("Parsed EDID: {}", edidStr);
-                Display display = new MacDisplay(ParseUtil.hexStringToByteArray(edidStr));
-                displays.add(display);
+                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
+                if (edid != null) {
+                    displays.add(new MacDisplay(edid));
+                }
             }
         }
 

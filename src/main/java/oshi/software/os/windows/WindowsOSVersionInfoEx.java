@@ -63,6 +63,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         if (this.versionInfo == null) {
             LOG.warn("OSVersionInfoEx not initialized. No build number available");
             setBuildNumber("");
+            return;
         }
         setBuildNumber(this.versionInfo.dwBuildNumber.toString());
     }
@@ -239,25 +240,25 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private String parseCodeName() {
         List<String> suites = new ArrayList<String>();
         int bitmask = getSuiteMask();
-        if ((bitmask & 0x00000004) > 0) {
+        if ((bitmask & 0x00000004) != 0) {
             suites.add("BackOffice");
         }
-        if ((bitmask & 0x00000400) > 0) {
+        if ((bitmask & 0x00000400) != 0) {
             suites.add("Web Edition");
         }
-        if ((bitmask & 0x00004000) > 0) {
+        if ((bitmask & 0x00004000) != 0) {
             suites.add("Compute Cluster");
         }
-        if ((bitmask & 0x00000080) > 0) {
+        if ((bitmask & 0x00000080) != 0) {
             suites.add("Datacenter");
         }
-        if ((bitmask & 0x00000002) > 0) {
+        if ((bitmask & 0x00000002) != 0) {
             suites.add("Enterprise");
         }
-        if ((bitmask & 0x00000200) > 0) {
+        if ((bitmask & 0x00000200) != 0) {
             suites.add("Home");
         }
-        if ((bitmask & 0x00008000) > 0) {
+        if ((bitmask & 0x00008000) != 0) {
             suites.add("Home Server");
         }
         String separator = "";

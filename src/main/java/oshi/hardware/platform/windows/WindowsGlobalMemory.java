@@ -71,7 +71,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         if (now - this.lastUpdate > 100) {
             if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-                this.perfInfo = null;
+                return;
             }
             this.memAvailable = perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();
             this.memTotal = perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();

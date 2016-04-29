@@ -80,7 +80,7 @@ public class MacFileSystem extends AbstractFileSystem {
         FileSystemView fsv = FileSystemView.getFileSystemView();
         // Mac file systems are mounted in /Volumes
         File volumes = new File("/Volumes");
-        if (volumes.listFiles() != null) {
+        if (volumes != null) {
             for (File f : volumes.listFiles()) {
                 // Everyone hates DS Store
                 if (f.getName().endsWith(".DS_Store")) {

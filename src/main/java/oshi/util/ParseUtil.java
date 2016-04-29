@@ -69,6 +69,11 @@ public abstract class ParseUtil {
     }
 
     /**
+     * Used to check validity of a hexadecimal string
+     */
+    final private static Pattern validHex = Pattern.compile("[0-9a-fA-F]+");
+
+    /**
      * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
      * 
      * @param hertz
@@ -105,12 +110,16 @@ public abstract class ParseUtil {
      *            Default integer if not parsable
      * @return {@link Integer} value or the given default if not parsable
      */
-    public static int parseString(String s, int i) {
+    public static int parseLastElementOfStringToInt(String s, int i) {
         String[] ss = s.split("\\s+");
         if (ss.length < 2) {
             return i;
         } else {
-            return Integer.valueOf(ss[ss.length - 1]);
+            try {
+                return Integer.parseInt(ss[ss.length - 1]);
+            } catch (NumberFormatException nfe) {
+                return i;
+            }
         }
     }
 
@@ -122,6 +131,11 @@ public abstract class ParseUtil {
      * @return a byte array with each pair of characters converted to a byte
      */
     public static byte[] hexStringToByteArray(String s) {
+        // Check if string is valid hex
+        if (!validHex.matcher(s).matches()) {
+            LOG.error("Invalid hexadecimal string: {}", s);
+            return null;
+        }
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

@@ -17,6 +17,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.Arrays;
+
 import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
@@ -88,7 +90,8 @@ public class MacSensors extends AbstractSensors {
                 }
             }
         }
-        return this.lastFanSpeeds;
+        // Make a copy to return
+        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);
     }
 
     /**

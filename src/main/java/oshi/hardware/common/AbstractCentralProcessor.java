@@ -45,17 +45,29 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
 
-    // MXBean getSystemCpuLoad() returns NaN if not enough time has elapsed
-    private static double lastCpuLoad = 0d;
-    private static long lastCpuLoadTime = 0;
+    /**
+     * Instantiate an OperatingSystemMXBean for future convenience
+     */
+    private final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory.getOperatingSystemMXBean();
 
-    // Determine whether MXBean supports Oracle JVM methods
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
+    /**
+     * Calling OperatingSystemMxBean too rapidly results in NaN. Store the
+     * latest value to return if polling is too rapid
+     */
+    private double lastCpuLoad = 0d;
 
-    private static boolean sunMXBean;
+    /**
+     * Keep track of last CPU Load poll to OperatingSystemMXBean to ensure
+     * enough time has elapsed
+     */
+    private long lastCpuLoadTime = 0;
 
-    static {
+    /**
+     * Keep track whether MXBean supports Oracle JVM methods
+     */
+    private boolean sunMXBean;
+
+    {
         try {
             Class.forName("com.sun.management.OperatingSystemMXBean");
             // Initialize CPU usage
@@ -122,7 +134,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * Initializes tick arrays
      */
-    protected void initTicks() {
+    protected synchronized void initTicks() {
         // System ticks
         this.prevTicks = new long[4];
         this.curTicks = new long[4];

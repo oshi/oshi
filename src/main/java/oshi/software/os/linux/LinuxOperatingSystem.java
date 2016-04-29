@@ -106,7 +106,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                         || name.endsWith("_version"));
             }
         });
-        if (files.length > 0) {
+        if (files != null && files.length > 0) {
             return files[0].getPath();
         }
         if ((new File("/etc/release")).exists()) {
