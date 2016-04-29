@@ -44,7 +44,8 @@ public class LinuxNetworks extends AbstractNetworks {
             interfaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netint : Collections.list(interfaces)) {
                 if (!netint.getDisplayName().equals("lo")) {
-                    netstore = this.setNetworkParameters(netint);
+                    netstore = new HWNetworkStore();
+                    this.setNetworkParameters(netstore, netint);
                     result.add(netstore);
                 }
             }

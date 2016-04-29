@@ -42,19 +42,16 @@ public abstract class AbstractNetworks implements Networks {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
-     *
-     * @param netint
-     * @return 
+     * Set network parameters in store
+     * @param netstore Store which set network parameters
+     * @param netint Network interface examined
      * @throws SocketException
      */
-    protected HWNetworkStore setNetworkParameters(NetworkInterface netint) throws SocketException {
+    protected void setNetworkParameters(HWNetworkStore netstore, NetworkInterface netint) throws SocketException {
         Enumeration<InetAddress> addresses;
-        HWNetworkStore netstore;
         StringBuilder sb;
         byte[] mac;
 
-        netstore = new HWNetworkStore();
-        
         mac = netint.getHardwareAddress();
         netstore.setName(netint.getDisplayName());
         sb = new StringBuilder();
@@ -71,8 +68,6 @@ public abstract class AbstractNetworks implements Networks {
                 netstore.setIpaddr(address.getHostAddress());
             }
         }
-        
-        return netstore;
     }
 
     @Override
