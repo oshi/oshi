@@ -395,6 +395,21 @@ public class SystemInfoTest {
                     dsk.getWrites() > 0 ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
         }
 
+        // hardware: network interfaces
+        LOG.info("Checking Network interfaces...");
+        System.out.println("Network interfaces:");
+        
+        HWNetworkStore[] netArray = hal.getNetworkStores();
+        for (HWNetworkStore net : netArray) {
+            System.out.format(" %s (mac: %s, IP: %s, IPv6: %s) traffic: received %s packets/%s bytes; transmitted %s packets/%s bytes %n", 
+                    net.getName(), net.getMacaddr(), net.getIpaddr(), net.getIpv6addr(),
+                    net.getPacketsRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsRecv()) : "?",
+                    net.getBytesRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getBytesRecv()) : "?",
+                    net.getPacketsSent()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsSent()) : "?",
+                    net.getBytesSent()> 0 ? FormatUtil.formatBytesDecimal(net.getBytesSent()) : "?"
+            );
+        }
+        
         // hardware: displays
         LOG.info("Checking Displays...");
         System.out.println("Displays:");
