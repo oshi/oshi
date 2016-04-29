@@ -63,7 +63,7 @@ public abstract class AbstractNetworks implements Networks {
         addresses = netint.getInetAddresses();
         for (InetAddress address : Collections.list(addresses)) {
             if (address.getHostAddress().contains(":")) {
-                netstore.setIpv6addr(address.getHostAddress());
+                netstore.setIpv6addr(address.getHostAddress().split("%")[0]);
             } else {
                 netstore.setIpaddr(address.getHostAddress());
             }
