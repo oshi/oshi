@@ -40,6 +40,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -137,6 +138,29 @@ public class SystemInfoTest {
         }
     }
 
+    /**
+     * Test network interfaces extraction.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Test
+    public void testNetworkInterfaces() throws IOException {
+        SystemInfo si = new SystemInfo();
+
+        for (HWNetworkStore net : si.getHardware().getNetworkStores()) {
+            assertNotNull(net.getName());
+            assertNotNull(net.getMacaddr());
+            // FIXME: this test is wrong (IP address cannot be assigned)
+            assertNotNull(net.getIpaddr());
+            // FIXME: this test is wrong (IPv6 address cannot be assigned)
+            assertNotNull(net.getIpv6addr());
+            assertTrue(net.getBytesRecv() >= 0);
+            assertTrue(net.getBytesSent() >= 0);
+            assertTrue(net.getPacketsRecv()>= 0);
+            assertTrue(net.getPacketsSent()>= 0);
+        }
+    }
+    
     /**
      * Test displays
      */
