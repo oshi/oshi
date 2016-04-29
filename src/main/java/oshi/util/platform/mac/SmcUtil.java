@@ -33,6 +33,7 @@ import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.jna.platform.mac.SystemB;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -51,10 +52,9 @@ public class SmcUtil {
     private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new HashMap<Integer, SMCKeyDataKeyInfo>();
 
     /**
-     * Byte array containing the equivalent of string "sp78" used for matching
-     * return type
+     * Byte array used for matching return type
      */
-    private final static byte[] DATATYPE_SP78 = { (byte) 's', (byte) 'p', (byte) '7', (byte) '8', 0 };
+    private final static byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
 
     /**
      * Open a connection to SMC
@@ -132,7 +132,7 @@ public class SmcUtil {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            return byteArrayToLong(val.bytes, val.dataSize);
+            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
         }
         // Read failed
         return 0;
@@ -152,7 +152,7 @@ public class SmcUtil {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
-            return byteArrayToFloat(val.bytes, val.dataSize, 2);
+            return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
         }
         // Read failed
         return 0f;
@@ -205,7 +205,7 @@ public class SmcUtil {
         SMCKeyData inputStructure = new SMCKeyData();
         SMCKeyData outputStructure = new SMCKeyData();
 
-        inputStructure.key = (int) strToLong(key, 4);
+        inputStructure.key = (int) ParseUtil.strToLong(key, 4);
         int result;
         do {
             result = smcGetKeyInfo(inputStructure, outputStructure);
@@ -214,7 +214,7 @@ public class SmcUtil {
             }
 
             val.dataSize = outputStructure.keyInfo.dataSize;
-            val.dataType = longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
+            val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
 
             inputStructure.keyInfo.dataSize = val.dataSize;
             inputStructure.data8 = IOKit.SMC_CMD_READ_BYTES;
@@ -262,82 +262,5 @@ public class SmcUtil {
         }
         // Success
         return result;
-    }
-
-    /**
-     * Convert an integer to a byte array
-     * 
-     * @param value
-     *            The (long) integer to be converted
-     * @param valueSize
-     *            Number of bytes representing the value
-     * @param length
-     *            Number of bytes to return
-     * @return A byte array of specified length representing the integer in the
-     *         first valueSize bytes
-     */
-    public static byte[] longToByteArray(long value, int valueSize, int length) {
-        if (valueSize > length) {
-            throw new IllegalArgumentException("Size can't be larger than array length.");
-        }
-        byte[] data = new byte[length];
-        for (int i = 0; i < valueSize; i++) {
-            data[i] = (byte) (value >> (8 * (valueSize - 1 - i)));
-        }
-        return data;
-    }
-
-    /**
-     * Convert a string to an integer representation.
-     * 
-     * @param str
-     *            A human readable string, up to 8 characters
-     * @param size
-     *            Number of characters to convert to the long. May not exceed 8.
-     * @return An integer representing the string where each character is
-     *         treated as a byte
-     */
-    public static long strToLong(String str, int size) {
-        return byteArrayToLong(str.getBytes(), size);
-    }
-
-    /**
-     * Convert a byte array to its integer representation.
-     * 
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the long. May not exceed 8.
-     * @return An integer representing the byte array as a 64-bit number
-     */
-    public static long byteArrayToLong(byte[] bytes, int size) {
-        if (size > 8) {
-            throw new IllegalArgumentException("Can't convert more than 8 bytes.");
-        }
-        if (size > bytes.length) {
-            throw new IllegalArgumentException("Size can't be larger than array length.");
-        }
-        long total = 0L;
-        for (int i = 0; i < size; i++) {
-            total = (total << 8) + (bytes[i] & 0xff);
-        }
-        return total;
-    }
-
-    /**
-     * Convert a byte array to its floating point representation.
-     * 
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the float. May not exceed 8.
-     * @param fpBits
-     *            Number of bits representing the decimal
-     * @return A float; the integer portion representing the byte array as an
-     *         integer shifted by the bits specified in fpBits; with the
-     *         remaining bits used as a decimal
-     */
-    public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
-        return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
 }

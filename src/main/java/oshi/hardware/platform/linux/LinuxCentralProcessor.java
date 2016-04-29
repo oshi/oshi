@@ -131,7 +131,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             for (String cpu : procCpu) {
                 if (cpu.startsWith("siblings")) {
                     // if siblings = 1, no hyperthreading
-                    siblings = ParseUtil.parseLastElementOfStringToInt(cpu, 1);
+                    siblings = ParseUtil.parseLastInt(cpu, 1);
                     if (siblings == 1) {
                         this.physicalProcessorCount = this.logicalProcessorCount;
                         break;
@@ -139,7 +139,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 if (cpu.startsWith("cpu cores")) {
                     // if siblings > 1, ratio with cores
-                    cpucores = ParseUtil.parseLastElementOfStringToInt(cpu, 1);
+                    cpucores = ParseUtil.parseLastInt(cpu, 1);
                     if (siblings > 1) {
                         this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;
                         break;
@@ -148,9 +148,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // If siblings and cpu cores don't define it, count unique
                 // combinations of core id and physical id.
                 if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                    uniqueID[0] = ParseUtil.parseLastElementOfStringToInt(cpu, 0);
+                    uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);
                 } else if (cpu.startsWith("physical id")) {
-                    uniqueID[1] = ParseUtil.parseLastElementOfStringToInt(cpu, 0);
+                    uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);
                 }
                 if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
                     ids.add(uniqueID[0] + " " + uniqueID[1]);

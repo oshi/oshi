@@ -47,17 +47,62 @@ public class ParseUtilTest {
      * Test parse string.
      */
     @Test
-    public void testParseString() {
-        assertEquals(1, ParseUtil.parseLastElementOfStringToInt("foo : 1", 0));
-        assertEquals(2, ParseUtil.parseLastElementOfStringToInt("foo", 2));
+    public void testParseLastInt() {
+        assertEquals(1, ParseUtil.parseLastInt("foo : 1", 0));
+        assertEquals(2, ParseUtil.parseLastInt("foo", 2));
     }
 
     /**
-     * Test parse string.
+     * Test hex string to byte array.
      */
     @Test
     public void testHexStringToByteArray() {
         byte[] temp = { (byte) 0x12, (byte) 0xaf };
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
+    }
+
+    /**
+     * Test string to byte array.
+     */
+    @Test
+    public void testStringToByteArray() {
+        byte[] temp = { (byte) '1', (byte) '2', (byte) 'a', (byte) 'f', (byte) 0 };
+        assertTrue(Arrays.equals(temp, ParseUtil.stringToByteArray("12af", 5)));
+    }
+
+    /**
+     * Test long to byte array.
+     */
+    @Test
+    public void testLongToByteArray() {
+        byte[] temp = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0 };
+        assertTrue(Arrays.equals(temp, ParseUtil.longToByteArray(0x12345678, 4, 5)));
+    }
+
+    /**
+     * Test string and byte array to long.
+     */
+    @Test
+    public void testStringAndByteArrayToLong() {
+        byte[] temp = { (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd', (byte) 'e' };
+        long abcde = (long) temp[0] << 32 | temp[1] << 24 | temp[2] << 16 | temp[3] << 8 | temp[4];
+        // Test string
+        assertEquals(abcde, ParseUtil.strToLong("abcde", 5));
+        // Test byte array
+        assertEquals(abcde, ParseUtil.byteArrayToLong(temp, 5));
+    }
+
+    /**
+     * Test string to long.
+     */
+    @Test
+    public void testByteArrayToFloat() {
+        byte[] temp = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a };
+        float f = (temp[0] << 22 | temp[1] << 14 | temp[2] << 6 | temp[3] >>> 2) + (float) (temp[3] & 0x3) / 0x4;
+        assertEquals(f, ParseUtil.byteArrayToFloat(temp, 4, 2), Float.MIN_VALUE);
+        f = 0x12345 + (float) 0x6 / 0x10;
+        assertEquals(f, ParseUtil.byteArrayToFloat(temp, 3, 4), Float.MIN_VALUE);
+        f = 0x123 + (float) 0x4 / 0x10;
+        assertEquals(f, ParseUtil.byteArrayToFloat(temp, 2, 4), Float.MIN_VALUE);
     }
 }

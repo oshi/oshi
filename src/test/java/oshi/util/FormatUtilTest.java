@@ -71,6 +71,34 @@ public class FormatUtilTest {
     }
 
     /**
+     * Test format decimal bytes.
+     */
+    @Test
+    public void testFormatBytesDecimal() {
+        assertEquals("0 bytes", FormatUtil.formatBytesDecimal(0));
+        assertEquals("1 byte", FormatUtil.formatBytesDecimal(1));
+        assertEquals("532 bytes", FormatUtil.formatBytesDecimal(532));
+        assertEquals("1 KB", FormatUtil.formatBytesDecimal(1000));
+        assertEquals("1 GB", FormatUtil.formatBytesDecimal(1000 * 1000 * 1000));
+        assertEquals("1 TB", FormatUtil.formatBytesDecimal(1000000000000L));
+    }
+
+    /**
+     * Test format decimal bytes with decimal separator.
+     */
+    @Test
+    public void testFormatBytesDecimalWithDecimalSeparator() {
+        String expected1 = "1" + DECIMAL_SEPARATOR + "3 KB";
+        String expected2 = "2" + DECIMAL_SEPARATOR + "3 MB";
+        String expected3 = "2" + DECIMAL_SEPARATOR + "2 GB";
+        String expected4 = "1" + DECIMAL_SEPARATOR + "1 TB";
+        assertEquals(expected1, FormatUtil.formatBytesDecimal(1300));
+        assertEquals(expected2, FormatUtil.formatBytesDecimal(2300000));
+        assertEquals(expected3, FormatUtil.formatBytesDecimal(2200000000L));
+        assertEquals(expected4, FormatUtil.formatBytesDecimal(1100000000000L));
+    }
+
+    /**
      * Test format hertz.
      */
     @Test
@@ -103,5 +131,13 @@ public class FormatUtilTest {
         assertEquals(42.43, FormatUtil.round(42.425f, 2), 0.00001f);
         assertEquals(42.5, FormatUtil.round(42.499f, 2), 0.00001f);
         assertEquals(42, FormatUtil.round(42, 2), 0.00001f);
+    }
+
+    /**
+     * Test unsigned int to long.
+     */
+    @Test
+    public void testGetUnsignedInt() {
+        assertEquals(4294967295L, FormatUtil.getUnsignedInt(-1));
     }
 }

@@ -18,6 +18,7 @@
 package oshi.util;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -113,7 +114,7 @@ public abstract class ParseUtil {
      *            Default integer if not parsable
      * @return {@link Integer} value or the given default if not parsable
      */
-    public static int parseLastElementOfStringToInt(String s, int i) {
+    public static int parseLastInt(String s, int i) {
         String[] ss = s.split("\\s+");
         if (ss.length < 2) {
             return i;
@@ -127,24 +128,120 @@ public abstract class ParseUtil {
     }
 
     /**
-     * Parse a string representation of a hex array into a byte array
+     * Parse a string of hexadecimal digits into a byte array
      * 
-     * @param s
+     * @param digits
      *            The string to be parsed
      * @return a byte array with each pair of characters converted to a byte
      */
-    public static byte[] hexStringToByteArray(String s) {
+    public static byte[] hexStringToByteArray(String digits) {
         // Check if string is valid hex
-        if (!VALID_HEX.matcher(s).matches()) {
-            LOG.error("Invalid hexadecimal string: {}", s);
+        if (!VALID_HEX.matcher(digits).matches()) {
+            LOG.error("Invalid hexadecimal string: {}", digits);
             return null;
         }
-        int len = s.length();
+        int len = digits.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) << 4)
+                    | Character.digit(digits.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    /**
+     * Parse a human readable string into a byte array, truncating or padding
+     * with zeros (if necessary) so the array has the specified length.
+     * 
+     * @param text
+     *            The string to be parsed
+     * @param length
+     *            Length of the returned array.
+     * @return A byte array of specified length, with each of the first length
+     *         characters converted to a byte. If length is longer than the
+     *         provided string length, will be filled with zeroes.
+     */
+    public static byte[] stringToByteArray(String text, int length) {
+        return Arrays.copyOf(text.getBytes(), length);
+    }
+
+    /**
+     * Convert a long value to a byte array using Big Endian, truncating or
+     * padding with zeros (if necessary) so the array has the specified length.
+     * 
+     * @param value
+     *            The value to be converted
+     * @param valueSize
+     *            Number of bytes representing the value
+     * @param length
+     *            Number of bytes to return
+     * @return A byte array of specified length representing the long in the
+     *         first valueSize bytes
+     */
+    public static byte[] longToByteArray(long value, int valueSize, int length) {
+        // Convert the long to 8-byte BE representation
+        byte[] b = new byte[8];
+        for (int i = 7; i >= 0 && value != 0L; i--) {
+            b[i] = (byte) value;
+            value >>>= 8;
+        }
+        // Then copy the rightmost valueSize bytes
+        // e.g., for an integer we want rightmost 4 bytes
+        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);
+    }
+
+    /**
+     * Convert a string to an integer representation.
+     * 
+     * @param str
+     *            A human readable string
+     * @param size
+     *            Number of characters to convert to the long. May not exceed 8.
+     * @return An integer representing the string where each character is
+     *         treated as a byte
+     */
+    public static long strToLong(String str, int size) {
+        return byteArrayToLong(str.getBytes(), size);
+    }
+
+    /**
+     * Convert a byte array to its integer representation.
+     * 
+     * @param bytes
+     *            An array of bytes no smaller than the size to be converted
+     * @param size
+     *            Number of bytes to convert to the long. May not exceed 8.
+     * @return An integer representing the byte array as a 64-bit number
+     */
+    public static long byteArrayToLong(byte[] bytes, int size) {
+        if (size > 8) {
+            throw new IllegalArgumentException("Can't convert more than 8 bytes.");
+        }
+        if (size > bytes.length) {
+            throw new IllegalArgumentException("Size can't be larger than array length.");
+        }
+        long total = 0L;
+        for (int i = 0; i < size; i++) {
+            total = (total << 8) | (bytes[i] & 0xff);
+        }
+        return total;
+    }
+
+    /**
+     * Convert a byte array to its floating point representation.
+     * 
+     * @param bytes
+     *            An array of bytes no smaller than the size to be converted
+     * @param size
+     *            Number of bytes to convert to the float. May not exceed 8.
+     * @param fpBits
+     *            Number of bits representing the decimal
+     * @return A float; the integer portion representing the byte array as an
+     *         integer shifted by the bits specified in fpBits; with the
+     *         remaining bits used as a decimal
+     */
+    public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
+        return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
 
     /**
