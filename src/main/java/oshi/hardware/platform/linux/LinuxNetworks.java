@@ -11,6 +11,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.hardware.stores.HWNetworkStore;
+import oshi.util.FileUtil;
 
 /**
  *
@@ -29,6 +31,34 @@ import oshi.hardware.stores.HWNetworkStore;
 public class LinuxNetworks extends AbstractNetworks {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
+
+    private void setNetworkStats(HWNetworkStore netstore) {
+        String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath;
+        List<String> read;
+
+        txBytesPath = "/sys/class/net/" + netstore.getName() + "/statistics/tx_bytes";
+        rxBytesPath = "/sys/class/net/" + netstore.getName() + "/statistics/rx_bytes";
+        txPacketsPath = "/sys/class/net/" + netstore.getName() + "/statistics/tx_packets";
+        rxPacketsPath = "/sys/class/net/" + netstore.getName() + "/statistics/rx_packets";
+
+        try {
+            read = FileUtil.readFile(txBytesPath);
+            netstore.setBytesSent(Integer.parseInt(read.get(0)));
+
+            read = FileUtil.readFile(rxBytesPath);
+            netstore.setBytesRecv(Integer.parseInt(read.get(0)));
+
+            read = FileUtil.readFile(txPacketsPath);
+            netstore.setPacketsSent(Integer.parseInt(read.get(0)));
+
+            read = FileUtil.readFile(rxPacketsPath);
+            netstore.setPacketsRecv(Integer.parseInt(read.get(0)));
+        } catch (IOException ex) {
+            LOG.error("Error when retrieving network statistics for interface " + netstore.getName());
+            LOG.debug("Error message: " + ex.getMessage());
+        }
+
+    }
 
     @Override
     public HWNetworkStore[] getNetworks() {
@@ -46,6 +76,7 @@ public class LinuxNetworks extends AbstractNetworks {
                 if (!netint.getDisplayName().equals("lo")) {
                     netstore = new HWNetworkStore();
                     this.setNetworkParameters(netstore, netint);
+                    this.setNetworkStats(netstore);
                     result.add(netstore);
                 }
             }
