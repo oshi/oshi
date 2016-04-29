@@ -30,7 +30,10 @@ public class HWNetworkStore implements OshiJsonObject {
     private String macaddr;
     private String ipaddr;
     private String ipv6addr;
-    // TODO: add more data
+    private long bytesRecv;
+    private long bytesSent;
+    private long packetsRecv;
+    private long packetsSent;
 
     /**
      * @return the interface name
@@ -88,6 +91,62 @@ public class HWNetworkStore implements OshiJsonObject {
         this.ipv6addr = ipv6addr;
     }
 
+    /**
+     * @return The Bytes Received
+     */
+    public long getBytesRecv() {
+        return bytesRecv;
+    }
+
+    /**
+     * @param bytesRecv Set Bytes Received
+     */
+    public void setBytesRecv(long bytesRecv) {
+        this.bytesRecv = bytesRecv;
+    }
+
+    /**
+     * @return The Bytes Sent
+     */
+    public long getBytesSent() {
+        return bytesSent;
+    }
+
+    /**
+     * @param bytesSent Set the Bytes Sent
+     */
+    public void setBytesSent(long bytesSent) {
+        this.bytesSent = bytesSent;
+    }
+    
+        /**
+     * @return The Packets Received
+     */
+    public long getPacketsRecv() {
+        return packetsRecv;
+    }
+
+    /**
+     * @param packetsRecv Set The Packets Received
+     */
+    public void setPacketsRecv(long packetsRecv) {
+        this.packetsRecv = packetsRecv;
+    }
+
+    /**
+     * @return The Packets Sent
+     */
+    public long getPacketsSent() {
+        return packetsSent;
+    }
+
+    /**
+     * @param packetsSent Set The Packets Sent
+     */
+    public void setPacketsSent(long packetsSent) {
+        this.packetsSent = packetsSent;
+    }
+
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
@@ -95,8 +154,11 @@ public class HWNetworkStore implements OshiJsonObject {
                 .add("mac", this.getMacaddr())
                 .add("ip", this.getIpaddr())
                 .add("ipv6", this.getIpv6addr())
+                .add("bytesrecv", this.getBytesRecv())
+                .add("bytessent", this.getBytesSent())
+                .add("packetsrecv", this.getPacketsRecv())
+                .add("packetssent", this.getPacketsSent())
                 .build();
-        
-    }
 
+    }
 }
