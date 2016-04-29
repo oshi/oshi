@@ -29,6 +29,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.stores.HWNetworkStore;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 
@@ -100,6 +101,10 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         for (HWDiskStore diskStore : getDiskStores()) {
             diskStoreArrayBuilder.add(diskStore.toJSON());
         }
+        JsonArrayBuilder netStoreArrayBuilder = jsonFactory.createArrayBuilder();
+        for (HWNetworkStore netStore : getNetworkStores()) {
+            netStoreArrayBuilder.add(netStore.toJSON());
+        }
         JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
@@ -107,7 +112,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
                 .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
-                .add("disks", diskStoreArrayBuilder.build()).add("displays", displayArrayBuilder.build())
+                .add("disks", diskStoreArrayBuilder.build())
+                .add("networks", netStoreArrayBuilder.build())
+                .add("displays", displayArrayBuilder.build())
                 .add("sensors", getSensors().toJSON()).build();
     }
 }
