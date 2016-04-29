@@ -24,6 +24,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
@@ -89,5 +90,13 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
             this.sensors = new WindowsSensors();
         }
         return this.sensors;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HWNetworkStore[] getNetworkStores() {
+        return new WindowsNetworks().getNetworks();
     }
 }

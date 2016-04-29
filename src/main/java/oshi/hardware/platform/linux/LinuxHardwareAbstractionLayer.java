@@ -24,6 +24,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 
@@ -92,5 +93,13 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
             this.sensors = new LinuxSensors();
         }
         return this.sensors;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HWNetworkStore[] getNetworkStores() {
+        return new LinuxNetworks().getNetworks();
     }
 }
