@@ -43,16 +43,16 @@ public class LinuxNetworks extends AbstractNetworks {
 
         try {
             read = FileUtil.readFile(txBytesPath);
-            netstore.setBytesSent(Integer.parseInt(read.get(0)));
+            netstore.setBytesSent(Long.parseLong(read.get(0)));
 
             read = FileUtil.readFile(rxBytesPath);
-            netstore.setBytesRecv(Integer.parseInt(read.get(0)));
+            netstore.setBytesRecv(Long.parseLong(read.get(0)));
 
             read = FileUtil.readFile(txPacketsPath);
-            netstore.setPacketsSent(Integer.parseInt(read.get(0)));
+            netstore.setPacketsSent(Long.parseLong(read.get(0)));
 
             read = FileUtil.readFile(rxPacketsPath);
-            netstore.setPacketsRecv(Integer.parseInt(read.get(0)));
+            netstore.setPacketsRecv(Long.parseLong(read.get(0)));
         } catch (IOException ex) {
             LOG.error("Error when retrieving network statistics for interface " + netstore.getName());
             LOG.debug("Error message: " + ex.getMessage());
