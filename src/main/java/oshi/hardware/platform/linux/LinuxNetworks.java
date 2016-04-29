@@ -66,7 +66,6 @@ public class LinuxNetworks extends AbstractNetworks {
         HWNetworkStore netstore;
         List<HWNetworkStore> result;
         StringBuilder sb;
-        byte[] mac;
 
         result = new ArrayList<>();
 
