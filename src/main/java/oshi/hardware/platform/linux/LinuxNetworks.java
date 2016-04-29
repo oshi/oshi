@@ -30,7 +30,7 @@ import oshi.util.FileUtil;
  */
 public class LinuxNetworks extends AbstractNetworks {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworks.class);
 
     private void setNetworkStats(HWNetworkStore netstore) {
         String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath;
