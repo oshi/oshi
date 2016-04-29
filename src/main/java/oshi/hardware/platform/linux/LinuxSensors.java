@@ -115,6 +115,7 @@ public class LinuxSensors extends AbstractSensors {
                     }
                     speeds.add(rpm);
                 }
+                fan++;
             }
             int[] fanSpeeds = new int[speeds.size()];
             for (int i = 0; i < speeds.size(); i++) {
