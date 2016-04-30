@@ -53,7 +53,7 @@ public class LinuxNetworks extends AbstractNetworks {
 
             read = FileUtil.readFile(rxPacketsPath);
             netstore.setPacketsRecv(Long.parseLong(read.get(0)));
-        } catch (IOException ex) {
+        } catch (NumberFormatException | IOException ex) {
             LOG.error("Error when retrieving network statistics for interface " + netstore.getName());
             LOG.debug("Error message: " + ex.getMessage());
         }
