@@ -50,17 +50,19 @@ public class LinuxNetworks extends AbstractNetworks {
     }
 
     private void setNetworkStats(HWNetworkStore netstore) {
-        String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath;
+        String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath, speed;
 
         txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netstore.getName());
         rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netstore.getName());
         txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netstore.getName());
         rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netstore.getName());
+        speed = String.format("/sys/class/net/%s/speed", netstore.getName());
 
         netstore.setBytesSent(this.readFile(txBytesPath));
         netstore.setBytesRecv(this.readFile(rxBytesPath));
         netstore.setPacketsSent(this.readFile(txPacketsPath));
         netstore.setPacketsRecv(this.readFile(rxPacketsPath));
+        netstore.setSpeed(this.readFile(speed));
     }
 
     @Override
