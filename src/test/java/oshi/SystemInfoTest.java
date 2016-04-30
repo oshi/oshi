@@ -150,9 +150,7 @@ public class SystemInfoTest {
         for (HWNetworkStore net : si.getHardware().getNetworkStores()) {
             assertNotNull(net.getName());
             assertNotNull(net.getMacaddr());
-            // FIXME: this test is wrong (IP address could not be assigned)
             assertNotNull(net.getIpaddr());
-            // FIXME: this test is wrong (IPv6 address could not be assigned)
             assertNotNull(net.getIpv6addr());
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);

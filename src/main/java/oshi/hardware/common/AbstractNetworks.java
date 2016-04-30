@@ -43,6 +43,7 @@ public abstract class AbstractNetworks implements Networks {
 
     /**
      * Set network parameters in store
+     *
      * @param netstore Store which set network parameters
      * @param netint Network interface examined
      * @throws SocketException
@@ -63,9 +64,13 @@ public abstract class AbstractNetworks implements Networks {
         addresses = netint.getInetAddresses();
         for (InetAddress address : Collections.list(addresses)) {
             if (address.getHostAddress().contains(":")) {
-                netstore.setIpv6addr(address.getHostAddress().split("%")[0]);
+                netstore.setIpv6addr(
+                        (address.getHostAddress().split("%")[0] == null) ? "Unknown"
+                        : address.getHostAddress().split("%")[0]);
             } else {
-                netstore.setIpaddr(address.getHostAddress());
+                netstore.setIpaddr(
+                        (address.getHostAddress() == null) ? "Unknown"
+                                : address.getHostAddress());
             }
         }
     }
