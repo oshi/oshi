@@ -24,6 +24,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
@@ -89,5 +90,13 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
     @Override
     public HWDiskStore[] getDiskStores() {
         return new MacDisks().getDisks();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HWNetworkStore[] getNetworkStores() {
+        return new MacNetworks().getNetworks();
     }
 }
