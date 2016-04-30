@@ -36,10 +36,10 @@ public class LinuxNetworks extends AbstractNetworks {
         String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath;
         List<String> read;
 
-        txBytesPath = "/sys/class/net/" + netstore.getName() + "/statistics/tx_bytes";
-        rxBytesPath = "/sys/class/net/" + netstore.getName() + "/statistics/rx_bytes";
-        txPacketsPath = "/sys/class/net/" + netstore.getName() + "/statistics/tx_packets";
-        rxPacketsPath = "/sys/class/net/" + netstore.getName() + "/statistics/rx_packets";
+        txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netstore.getName());
+        rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netstore.getName());
+        txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netstore.getName());
+        rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netstore.getName());
 
         try {
             read = FileUtil.readFile(txBytesPath);
