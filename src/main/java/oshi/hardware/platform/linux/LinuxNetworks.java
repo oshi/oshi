@@ -80,6 +80,7 @@ public class LinuxNetworks extends AbstractNetworks {
                     netstore = new HWNetworkStore();
                     this.setNetworkParameters(netstore, netint);
                     this.setNetworkStats(netstore);
+                    netstore.setMTU(netint.getMTU());
                     result.add(netstore);
                 }
             }
