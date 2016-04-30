@@ -149,6 +149,7 @@ public class SystemInfoTest {
 
         for (HWNetworkStore net : si.getHardware().getNetworkStores()) {
             assertNotNull(net.getName());
+            assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
             assertNotNull(net.getIpaddr());
             assertNotNull(net.getIpv6addr());
@@ -156,6 +157,8 @@ public class SystemInfoTest {
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv()>= 0);
             assertTrue(net.getPacketsSent()>= 0);
+            assertTrue(net.getSpeed() >= 0);
+            assertTrue(net.getMTU() >= 0);
         }
     }
     
@@ -399,8 +402,14 @@ public class SystemInfoTest {
         
         HWNetworkStore[] netArray = hal.getNetworkStores();
         for (HWNetworkStore net : netArray) {
-            System.out.format(" %s (mac: %s, IP: %s, IPv6: %s) traffic: received %s packets/%s bytes; transmitted %s packets/%s bytes %n", 
-                    net.getName(), net.getMacaddr(), net.getIpaddr(), net.getIpv6addr(),
+            System.out.format(" Name: %s %n", net.getName());
+            System.out.format("   Name displayed: %s %n", net.getDisplayName());
+            System.out.format("   MAC Address: %s %n", net.getMacaddr());
+            System.out.format("   Speed: %s %n", net.getSpeed());
+            System.out.format("   MTU: %s %n", net.getMTU());
+            System.out.format("   IP: %s %n",net.getIpaddr());
+            System.out.format("   IPv6: %s %n", net.getIpv6addr());
+            System.out.format("   Traffic: received %s packets/%s bytes; transmitted %s packets/%s bytes %n",
                     net.getPacketsRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsRecv()) : "?",
                     net.getBytesRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getBytesRecv()) : "?",
                     net.getPacketsSent()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsSent()) : "?",
