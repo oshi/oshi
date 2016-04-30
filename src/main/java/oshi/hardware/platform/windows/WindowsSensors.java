@@ -75,6 +75,11 @@ public class WindowsSensors extends AbstractSensors {
                 this.wmiTempProperty = "CurrentTemperature";
                 tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
             }
+            if (tempK < 0) {
+                this.wmiTempPath = "/namespace:\\\\root\\cimv2 PATH Win32_PerfFormattedData_Counters_ThermalZoneInformation";
+                this.wmiTempProperty = "Temperature";
+                tempK = WmiUtil.getIntValue(this.wmiTempPath, this.wmiTempProperty);
+            }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
