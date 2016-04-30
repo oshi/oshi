@@ -45,7 +45,7 @@ public class MacNetworks extends AbstractNetworks {
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netint : Collections.list(interfaces)) {
-                if (!netint.getDisplayName().equals("lo0")) {
+                if (!netint.isLoopback()) {
                     netstore = new HWNetworkStore();
                     this.setNetworkParameters(netstore, netint);
                     this.setNetworkStats(netstore);

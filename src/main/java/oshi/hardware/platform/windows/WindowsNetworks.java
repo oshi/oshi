@@ -45,7 +45,7 @@ public class WindowsNetworks extends AbstractNetworks {
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netint : Collections.list(interfaces)) {
-                if (!netint.getDisplayName().equals("lo")) {
+                if (!netint.isLoopback()) {
                     netstore = new HWNetworkStore();
                     this.setNetworkParameters(netstore, netint);
                     this.setNetworkStats(netstore);
