@@ -65,7 +65,6 @@ public class LinuxNetworks extends AbstractNetworks {
         Enumeration<NetworkInterface> interfaces;
         HWNetworkStore netstore;
         List<HWNetworkStore> result;
-        StringBuilder sb;
 
         result = new ArrayList<>();
 

@@ -39,8 +39,6 @@ public class MacNetworks extends AbstractNetworks {
         Enumeration<NetworkInterface> interfaces;
         HWNetworkStore netstore;
         List<HWNetworkStore> result;
-        StringBuilder sb;
-        byte[] mac;
 
         result = new ArrayList<>();
 
