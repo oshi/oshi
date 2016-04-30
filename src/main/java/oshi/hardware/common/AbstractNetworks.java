@@ -55,22 +55,21 @@ public abstract class AbstractNetworks implements Networks {
 
         mac = netint.getHardwareAddress();
         netstore.setName(netint.getDisplayName());
+
         sb = new StringBuilder();
         for (int i = 0; i < mac.length; i++) {
             sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
         }
         netstore.setMacaddr(sb.toString());
 
+        netstore.setIpaddr("Unknown");
+        netstore.setIpv6addr("unknown");
         addresses = netint.getInetAddresses();
         for (InetAddress address : Collections.list(addresses)) {
             if (address.getHostAddress().contains(":")) {
-                netstore.setIpv6addr(
-                        (address.getHostAddress().split("%")[0] == null) ? "Unknown"
-                        : address.getHostAddress().split("%")[0]);
+                netstore.setIpv6addr(address.getHostAddress().split("%")[0]);
             } else {
-                netstore.setIpaddr(
-                        (address.getHostAddress() == null) ? "Unknown"
-                                : address.getHostAddress());
+                netstore.setIpaddr(address.getHostAddress());
             }
         }
     }
