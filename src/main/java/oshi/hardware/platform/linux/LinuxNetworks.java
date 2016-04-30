@@ -32,32 +32,35 @@ public class LinuxNetworks extends AbstractNetworks {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworks.class);
 
+    private long readFile(String file) {
+        List<String> read;
+
+        try {
+            read = FileUtil.readFile(file);
+            if (!read.isEmpty()) {
+                return Long.parseLong(read.get(0));
+            } else {
+                return 0L;
+            }
+        } catch (NumberFormatException | IOException ex) {
+            LOG.error("Error when retrieving network statistics for interface ");
+            LOG.debug("Error message: " + ex.getMessage());
+            return 0L;
+        }
+    }
+
     private void setNetworkStats(HWNetworkStore netstore) {
         String txBytesPath, rxBytesPath, txPacketsPath, rxPacketsPath;
-        List<String> read;
 
         txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netstore.getName());
         rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netstore.getName());
         txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netstore.getName());
         rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netstore.getName());
 
-        try {
-            read = FileUtil.readFile(txBytesPath);
-            netstore.setBytesSent(Long.parseLong(read.get(0)));
-
-            read = FileUtil.readFile(rxBytesPath);
-            netstore.setBytesRecv(Long.parseLong(read.get(0)));
-
-            read = FileUtil.readFile(txPacketsPath);
-            netstore.setPacketsSent(Long.parseLong(read.get(0)));
-
-            read = FileUtil.readFile(rxPacketsPath);
-            netstore.setPacketsRecv(Long.parseLong(read.get(0)));
-        } catch (NumberFormatException | IOException ex) {
-            LOG.error("Error when retrieving network statistics for interface " + netstore.getName());
-            LOG.debug("Error message: " + ex.getMessage());
-        }
-
+        netstore.setBytesSent(this.readFile(txBytesPath));
+        netstore.setBytesRecv(this.readFile(rxBytesPath));
+        netstore.setPacketsSent(this.readFile(txPacketsPath));
+        netstore.setPacketsRecv(this.readFile(rxPacketsPath));
     }
 
     @Override
