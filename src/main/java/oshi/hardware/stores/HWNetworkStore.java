@@ -27,7 +27,7 @@ public class HWNetworkStore implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
-    private String description;
+    private String displayName;
     private String macaddr;
     private String ipaddr;
     private String ipv6addr;
@@ -160,15 +160,15 @@ public class HWNetworkStore implements OshiJsonObject {
     /**
      * @return The description of the network interface
      */
-    public String getDescription() {
-        return description;
+    public String getDisplayName() {
+        return displayName;
     }
 
     /**
-     * @param description Set the description of the network interface
+     * @param displayName Set the description of the network interface
      */
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     /**

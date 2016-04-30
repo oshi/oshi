@@ -55,7 +55,7 @@ public abstract class AbstractNetworks implements Networks {
 
         mac = netint.getHardwareAddress();
         netstore.setName(netint.getName());
-        netstore.setDescription(netint.getDisplayName());
+        netstore.setDisplayName(netint.getDisplayName());
 
         sb = new StringBuilder();
         for (int i = 0; i < mac.length; i++) {
