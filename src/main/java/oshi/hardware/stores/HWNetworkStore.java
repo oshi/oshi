@@ -203,6 +203,7 @@ public class HWNetworkStore implements OshiJsonObject {
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("name", this.getName())
+                .add("displayName", this.getDisplayName())
                 .add("mac", this.getMacaddr())
                 .add("ip", this.getIpaddr())
                 .add("ipv6", this.getIpv6addr())
@@ -210,6 +211,8 @@ public class HWNetworkStore implements OshiJsonObject {
                 .add("bytessent", this.getBytesSent())
                 .add("packetsrecv", this.getPacketsRecv())
                 .add("packetssent", this.getPacketsSent())
+                .add("speed", this.getSpeed())
+                .add("mtu", this.getMTU())
                 .build();
     }
 }
