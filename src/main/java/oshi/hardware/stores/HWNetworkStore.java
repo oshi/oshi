@@ -27,6 +27,7 @@ public class HWNetworkStore implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
+    private String description;
     private String macaddr;
     private String ipaddr;
     private String ipv6addr;
@@ -34,6 +35,8 @@ public class HWNetworkStore implements OshiJsonObject {
     private long bytesSent;
     private long packetsRecv;
     private long packetsSent;
+    private int mtu;
+    private long speed;
 
     /**
      * @return the interface name
@@ -118,8 +121,8 @@ public class HWNetworkStore implements OshiJsonObject {
     public void setBytesSent(long bytesSent) {
         this.bytesSent = bytesSent;
     }
-    
-        /**
+
+    /**
      * @return The Packets Received
      */
     public long getPacketsRecv() {
@@ -147,6 +150,55 @@ public class HWNetworkStore implements OshiJsonObject {
         this.packetsSent = packetsSent;
     }
 
+    /**
+     * @return the jsonFactory
+     */
+    public JsonBuilderFactory getJsonFactory() {
+        return jsonFactory;
+    }
+
+    /**
+     * @return The description of the network interface
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description Set the description of the network interface
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return The MTU of the network interface
+     */
+    public int getMTU() {
+        return mtu;
+    }
+
+    /**
+     * @param mtu Set the MTU of the network interface
+     */
+    public void setMTU(int mtu) {
+        this.mtu = mtu;
+    }
+
+    /**
+     * @return The speed of the network interface
+     */
+    public long getSpeed() {
+        return speed;
+    }
+
+    /**
+     * @param speed Set the speed of the network interface
+     */
+    public void setSpeed(long speed) {
+        this.speed = speed;
+    }
+
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
@@ -159,6 +211,5 @@ public class HWNetworkStore implements OshiJsonObject {
                 .add("packetsrecv", this.getPacketsRecv())
                 .add("packetssent", this.getPacketsSent())
                 .build();
-
     }
 }
