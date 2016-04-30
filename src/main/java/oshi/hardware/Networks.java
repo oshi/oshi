@@ -33,5 +33,5 @@ public interface Networks extends OshiJsonObject {
      * 
      * @return Array of {@link HWNetworkStore} objects
      */
-    public HWNetworkStore[] getNetworks();
+    HWNetworkStore[] getNetworks();
 }
