@@ -11,25 +11,29 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
- * enrico[dot]bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.common;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.NetworkIF;
 import oshi.hardware.Networks;
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
@@ -39,49 +43,39 @@ import oshi.json.NullAwareJsonObjectBuilder;
  */
 public abstract class AbstractNetworks implements Networks {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
-     * Set network parameters in store
-     *
-     * @param netstore Store which set network parameters
-     * @param netint Network interface examined
-     * @throws SocketException
+     * {@inheritDoc}
      */
-    protected void setNetworkParameters(HWNetworkStore netstore, NetworkInterface netint) throws SocketException {
-        Enumeration<InetAddress> addresses;
-        StringBuilder sb;
-        byte[] mac;
-
-        mac = netint.getHardwareAddress();
-        netstore.setName(netint.getName());
-        netstore.setDisplayName(netint.getDisplayName());
-
-        sb = new StringBuilder();
-        for (int i = 0; i < mac.length; i++) {
-            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
-        }
-        netstore.setMacaddr(sb.toString());
-
-        netstore.setIpaddr("Unknown");
-        netstore.setIpv6addr("unknown");
-        addresses = netint.getInetAddresses();
-        for (InetAddress address : Collections.list(addresses)) {
-            if (address.getHostAddress().contains(":")) {
-                netstore.setIpv6addr(address.getHostAddress().split("%")[0]);
-            } else {
-                netstore.setIpaddr(address.getHostAddress());
+    @Override
+    public NetworkIF[] getNetworks() {
+        List<NetworkIF> result = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netint : Collections.list(interfaces)) {
+                if (!netint.isLoopback()) {
+                    NetworkIF netIF = new NetworkIF();
+                    netIF.setNetworkInterface(netint);
+                    this.updateNetworkStats(netIF);
+                    result.add(netIF);
+                }
             }
+        } catch (SocketException ex) {
+            LOG.error("Socket exception when retrieving network interfaces: " + ex.getMessage());
         }
+        return result.toArray(new NetworkIF[result.size()]);
     }
 
-    @Override
-    public abstract HWNetworkStore[] getNetworks();
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
         JsonArrayBuilder netArray = jsonFactory.createArrayBuilder();
-        for (HWNetworkStore store : getNetworks()) {
+        for (NetworkIF store : getNetworks()) {
             netArray.add(store.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("networks", netArray).build();

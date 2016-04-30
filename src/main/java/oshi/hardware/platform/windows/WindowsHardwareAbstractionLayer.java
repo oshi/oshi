@@ -21,10 +21,10 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
@@ -96,7 +96,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      * {@inheritDoc}
      */
     @Override
-    public HWNetworkStore[] getNetworkStores() {
+    public NetworkIF[] getNetworkIFs() {
         return new WindowsNetworks().getNetworks();
     }
 }

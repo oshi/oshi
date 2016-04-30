@@ -27,17 +27,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Read an entire file at one time and return a list of Strings for each line.
- * Intended primarily for Linux /proc filesystem to avoid recalculating file
- * contents on iterative reads.
+ * File reading methods
  * 
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
+    /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     * 
+     * @param filename
+     *            The file to read
+     * 
+     * @return A list of Strings representing each line of the file
+     * @throws IOException
+     *             if there is an error reading the file
+     */
     public static List<String> readFile(String filename) throws IOException {
         LOG.debug("Reading file {}", filename);
         return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Read a file and return the long value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise zero
+     */
+    public static long getLongFromFile(String filename) {
+        LOG.debug("Reading file {}", filename);
+        try {
+            List<String> read = FileUtil.readFile(filename);
+            if (!read.isEmpty()) {
+                LOG.trace("Read {}", read.get(0));
+                return Long.parseLong(read.get(0));
+            }
+        } catch (NumberFormatException | IOException ex) {
+            LOG.debug("Unable to read value from {}", filename);
+        }
+        return 0L;
     }
 }

@@ -11,14 +11,12 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
- * enrico[dot]bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware;
 
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.json.OshiJsonObject;
 
 /**
@@ -31,7 +29,16 @@ public interface Networks extends OshiJsonObject {
     /**
      * Get network interfaces on this machine
      * 
-     * @return Array of {@link HWNetworkStore} objects
+     * @return Array of {@link NetworkIF} objects
      */
-    HWNetworkStore[] getNetworks();
+    NetworkIF[] getNetworks();
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     * 
+     * @param netIF
+     *            The interface on which to update statistics
+     */
+    void updateNetworkStats(NetworkIF netIF);
 }

@@ -17,7 +17,6 @@
  */
 package oshi.hardware;
 
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.json.OshiJsonObject;
 import oshi.software.os.OSFileStore;
 
@@ -73,13 +72,13 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     HWDiskStore[] getDiskStores();
 
     /**
-     * Instantiates an array of {@link HWNetworkStore} objects, representing a
+     * Instantiates an array of {@link NetworkIF} objects, representing a
      * network interfaces pool
      * 
      * @return An array of HWNetworkStore objects or an empty array if none are
      *         present.
      */
-    HWNetworkStore[] getNetworkStores();
+    NetworkIF[] getNetworkIFs();
     
     /**
      * Instantiates an array of {@link Display} objects, representing monitors

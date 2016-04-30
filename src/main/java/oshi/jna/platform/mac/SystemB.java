@@ -135,6 +135,69 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         }
     };
 
+    /**
+     * Data type as part of IFmsgHdr
+     */
+    class IFdata64 extends Structure {
+        public byte ifi_type;
+        public byte ifi_typelen;
+        public byte ifi_physical;
+        public byte ifi_addrlen;
+        public byte ifi_hdrlen;
+        public byte ifi_recvquota;
+        public byte ifi_xmitquota;
+        public byte ifi_unused1;
+        public int ifi_mtu;
+        public int ifi_metric;
+        public long ifi_baudrate;
+        public long ifi_ipackets;
+        public long ifi_ierrors;
+        public long ifi_opackets;
+        public long ifi_oerrors;
+        public long ifi_collisions;
+        public long ifi_ibytes;
+        public long ifi_obytes;
+        public long ifi_imcasts;
+        public long ifi_omcasts;
+        public long ifi_iqdrops;
+        public long ifi_noproto;
+        public int ifi_recvtiming;
+        public int ifi_xmittiming;
+        public Timeval ifi_lastchange;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ifi_type", "ifi_typelen", "ifi_physical", "ifi_addrlen", "ifi_hdrlen",
+                    "ifi_recvquota", "ifi_xmitquota", "ifi_unused1", "ifi_mtu", "ifi_metric", "ifi_baudrate",
+                    "ifi_ipackets", "ifi_ierrors", "ifi_opackets", "ifi_oerrors", "ifi_collisions", "ifi_ibytes",
+                    "ifi_obytes", "ifi_imcasts", "ifi_omcasts", "ifi_iqdrops", "ifi_noproto", "ifi_recvtiming",
+                    "ifi_xmittiming", "ifi_lastchange" });
+        }
+    }
+
+    /**
+     * Return type for sysctl CTL_NET,PF_ROUTE
+     */
+    class IFmsgHdr2 extends Structure {
+        public short ifm_msglen;
+        public byte ifm_version;
+        public byte ifm_type;
+        public int ifm_addrs;
+        public int ifm_flags;
+        public short ifm_index;
+        public int ifm_snd_len;
+        public int ifm_snd_maxlen;
+        public int ifm_snd_drops;
+        public int ifm_timer;
+        public IFdata64 ifm_data;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ifm_msglen", "ifm_version", "ifm_type", "ifm_addrs", "ifm_flags",
+                    "ifm_index", "ifm_snd_len", "ifm_snd_maxlen", "ifm_snd_drops", "ifm_timer", "ifm_data" });
+        }
+    }
+
     int mach_task_self();
 
     // Native call for getting load average

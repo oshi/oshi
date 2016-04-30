@@ -38,9 +38,9 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -141,27 +141,28 @@ public class SystemInfoTest {
     /**
      * Test network interfaces extraction.
      *
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     @Test
     public void testNetworkInterfaces() throws IOException {
         SystemInfo si = new SystemInfo();
 
-        for (HWNetworkStore net : si.getHardware().getNetworkStores()) {
+        for (NetworkIF net : si.getHardware().getNetworkIFs()) {
             assertNotNull(net.getName());
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
-            assertNotNull(net.getIpaddr());
-            assertNotNull(net.getIpv6addr());
+            assertNotNull(net.getIPv4addr());
+            assertNotNull(net.getIPv6addr());
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
-            assertTrue(net.getPacketsRecv()>= 0);
-            assertTrue(net.getPacketsSent()>= 0);
+            assertTrue(net.getPacketsRecv() >= 0);
+            assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
         }
     }
-    
+
     /**
      * Test displays
      */
@@ -399,24 +400,21 @@ public class SystemInfoTest {
         // hardware: network interfaces
         LOG.info("Checking Network interfaces...");
         System.out.println("Network interfaces:");
-        
-        HWNetworkStore[] netArray = hal.getNetworkStores();
-        for (HWNetworkStore net : netArray) {
-            System.out.format(" Name: %s %n", net.getName());
-            System.out.format("   Name displayed: %s %n", net.getDisplayName());
+
+        NetworkIF[] netArray = hal.getNetworkIFs();
+        for (NetworkIF net : netArray) {
+            System.out.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName());
             System.out.format("   MAC Address: %s %n", net.getMacaddr());
-            System.out.format("   Speed: %s %n", net.getSpeed());
-            System.out.format("   MTU: %s %n", net.getMTU());
-            System.out.format("   IP: %s %n",net.getIpaddr());
-            System.out.format("   IPv6: %s %n", net.getIpv6addr());
-            System.out.format("   Traffic: received %s packets/%s bytes; transmitted %s packets/%s bytes %n",
-                    net.getPacketsRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsRecv()) : "?",
-                    net.getBytesRecv()> 0 ? FormatUtil.formatBytesDecimal(net.getBytesRecv()) : "?",
-                    net.getPacketsSent()> 0 ? FormatUtil.formatBytesDecimal(net.getPacketsSent()) : "?",
-                    net.getBytesSent()> 0 ? FormatUtil.formatBytesDecimal(net.getBytesSent()) : "?"
-            );
+            System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
+            System.out.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr()));
+            System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
+            System.out.format("   Traffic: received %s/%s; transmitted %s/%s %n",
+                    net.getPacketsRecv() > 0 ? FormatUtil.formatValue(net.getPacketsRecv(), "packets") : "?",
+                    net.getBytesRecv() > 0 ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
+                    net.getPacketsSent() > 0 ? FormatUtil.formatValue(net.getPacketsSent(), "packets") : "?",
+                    net.getBytesSent() > 0 ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
-        
+
         // hardware: displays
         LOG.info("Checking Displays...");
         System.out.println("Displays:");

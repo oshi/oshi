@@ -104,34 +104,12 @@ public abstract class FormatUtil {
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytesDecimal(long bytes) {
-        if (bytes == 1) { // bytes
+        if (bytes == 1L) { // bytes
             return String.format("%d byte", bytes);
         } else if (bytes < KILO) { // bytes
             return String.format("%d bytes", bytes);
-        } else if (bytes % KILO == 0 && bytes < MEGA) { // KB
-            return String.format("%.0f KB", (double) bytes / KILO);
-        } else if (bytes < MEGA) { // KB
-            return String.format("%.1f KB", (double) bytes / KILO);
-        } else if (bytes % MEGA == 0 && bytes < GIGA) { // MB
-            return String.format("%.0f MB", (double) bytes / MEGA);
-        } else if (bytes < GIGA) { // MB
-            return String.format("%.1f MB", (double) bytes / MEGA);
-        } else if (bytes % GIGA == 0 && bytes < TERA) { // GB
-            return String.format("%.0f GB", (double) bytes / GIGA);
-        } else if (bytes < TERA) { // GB
-            return String.format("%.1f GB", (double) bytes / GIGA);
-        } else if (bytes % TERA == 0 && bytes < PETA) { // TB
-            return String.format("%.0f TB", (double) bytes / TERA);
-        } else if (bytes < PETA) { // TB
-            return String.format("%.1f TB", (double) bytes / TERA);
-        } else if (bytes % PETA == 0 && bytes < EXA) { // PB
-            return String.format("%.0f PB", (double) bytes / PETA);
-        } else if (bytes < EXA) { // PB
-            return String.format("%.1f PB", (double) bytes / PETA);
-        } else if (bytes % EXA == 0) { // EB
-            return String.format("%.0f EB", (double) bytes / EXA);
-        } else { // EB
-            return String.format("%.1f EB", (double) bytes / EXA);
+        } else {
+            return formatValue(bytes, "B");
         }
     }
 
@@ -143,30 +121,44 @@ public abstract class FormatUtil {
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
-        if (hertz < KILO) { // Hz
-            return String.format("%d Hz", hertz);
-        } else if (hertz < MEGA && hertz % KILO == 0) { // KHz
-            return String.format("%.0f kHz", (double) hertz / KILO);
-        } else if (hertz < MEGA) {
-            return String.format("%.1f kHz", (double) hertz / KILO);
-        } else if (hertz < GIGA && hertz % MEGA == 0) { // MHz
-            return String.format("%.0f MHz", (double) hertz / MEGA);
-        } else if (hertz < GIGA) {
-            return String.format("%.1f MHz", (double) hertz / MEGA);
-        } else if (hertz < TERA && hertz % GIGA == 0) { // GHz
-            return String.format("%.0f GHz", (double) hertz / GIGA);
-        } else if (hertz < TERA) {
-            return String.format("%.1f GHz", (double) hertz / GIGA);
-        } else if (hertz < PETA && hertz % TERA == 0) { // THz
-            return String.format("%.0f THz", (double) hertz / TERA);
-        } else if (hertz < PETA) {
-            return String.format("%.1f THz", (double) hertz / TERA);
-        } else if (hertz < EXA && hertz % PETA == 0) { // EHz
-            return String.format("%.0f EHz", (double) hertz / PETA);
-        } else if (hertz < EXA) {
-            return String.format("%.1f EHz", (double) hertz / PETA);
+        return formatValue(hertz, "Hz");
+    }
+
+    /**
+     * Format arbitrary units into a string to a rounded string representation.
+     * 
+     * @param value
+     *            The value
+     * @param unit
+     *            Units to append metric prefix to
+     * @return Rounded string representation of the value with metric prefix to
+     *         extension
+     */
+    public static String formatValue(long value, String unit) {
+        if (value < KILO) {
+            return String.format("%d %s", value, unit);
+        } else if (value < MEGA && value % KILO == 0) { // K
+            return String.format("%.0f K%s", (double) value / KILO, unit);
+        } else if (value < MEGA) {
+            return String.format("%.1f K%s", (double) value / KILO, unit);
+        } else if (value < GIGA && value % MEGA == 0) { // M
+            return String.format("%.0f M%s", (double) value / MEGA, unit);
+        } else if (value < GIGA) {
+            return String.format("%.1f M%s", (double) value / MEGA, unit);
+        } else if (value < TERA && value % GIGA == 0) { // G
+            return String.format("%.0f G%s", (double) value / GIGA, unit);
+        } else if (value < TERA) {
+            return String.format("%.1f G%s", (double) value / GIGA, unit);
+        } else if (value < PETA && value % TERA == 0) { // T
+            return String.format("%.0f T%s", (double) value / TERA, unit);
+        } else if (value < PETA) {
+            return String.format("%.1f T%s", (double) value / TERA, unit);
+        } else if (value < EXA && value % PETA == 0) { // E
+            return String.format("%.0f E%s", (double) value / PETA, unit);
+        } else if (value < EXA) {
+            return String.format("%.1f E%s", (double) value / PETA, unit);
         } else {
-            return String.format("%d Hz", hertz);
+            return String.format("%d %s", value, unit);
         }
     }
 

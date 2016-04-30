@@ -26,10 +26,10 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.stores.HWNetworkStore;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSFileStore;
 
@@ -102,7 +102,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
             diskStoreArrayBuilder.add(diskStore.toJSON());
         }
         JsonArrayBuilder netStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (HWNetworkStore netStore : getNetworkStores()) {
+        for (NetworkIF netStore : getNetworkIFs()) {
             netStoreArrayBuilder.add(netStore.toJSON());
         }
         JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
