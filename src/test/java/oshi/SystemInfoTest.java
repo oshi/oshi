@@ -408,11 +408,13 @@ public class SystemInfoTest {
             System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
             System.out.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr()));
             System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
+            boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
+                    || net.getPacketsSent() > 0;
             System.out.format("   Traffic: received %s/%s; transmitted %s/%s %n",
-                    net.getPacketsRecv() > 0 ? FormatUtil.formatValue(net.getPacketsRecv(), "packets") : "?",
-                    net.getBytesRecv() > 0 ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
-                    net.getPacketsSent() > 0 ? FormatUtil.formatValue(net.getPacketsSent(), "packets") : "?",
-                    net.getBytesSent() > 0 ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
+                    hasData ? net.getPacketsRecv() + " packets" : "?",
+                    hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
+                    hasData ? net.getPacketsSent() + " packets" : "?",
+                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
 
         // hardware: displays

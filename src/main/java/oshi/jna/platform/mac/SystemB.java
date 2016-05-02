@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
@@ -126,8 +127,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      * Return type for sysctl kern.boottime
      */
     class Timeval extends Structure {
-        public long tv_sec; // seconds
-        public long tv_usec; // microseconds
+        public int tv_sec; // seconds
+        public int tv_usec; // microseconds
 
         @Override
         protected List<String> getFieldOrder() {
@@ -138,32 +139,104 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Data type as part of IFmsgHdr
      */
+    class IFdata extends Structure {
+        public byte ifi_type; // ethernet, tokenring, etc
+        public byte ifi_typelen; // Length of frame type id
+        public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
+        public byte ifi_addrlen; // media address length
+        public byte ifi_hdrlen; // media header length
+        public byte ifi_recvquota; // polling quota for receive intrs
+        public byte ifi_xmitquota; // polling quota for xmit intrs
+        public byte ifi_unused1; // for future use
+        public int ifi_mtu; // maximum transmission unit
+        public int ifi_metric; // routing metric (external only)
+        public int ifi_baudrate; // linespeed
+        public int ifi_ipackets; // packets received on interface
+        public int ifi_ierrors; // input errors on interface
+        public int ifi_opackets; // packets sent on interface
+        public int ifi_oerrors; // output errors on interface
+        public int ifi_collisions; // collisions on csma interfaces
+        public int ifi_ibytes; // total number of octets received
+        public int ifi_obytes; // total number of octets sent
+        public int ifi_imcasts; // packets received via multicast
+        public int ifi_omcasts; // packets sent via multicast
+        public int ifi_iqdrops; // dropped on input, this interface
+        public int ifi_noproto; // destined for unsupported protocol
+        public int ifi_recvtiming; // usec spent receiving when timing
+        public int ifi_xmittiming; // usec spent xmitting when timing
+        public Timeval ifi_lastchange; // time of last administrative change
+        public int ifi_unused2; // used to be the default_proto
+        public int ifi_hwassist; // HW offload capabilities
+        public int ifi_reserved1; // for future use
+        public int ifi_reserved2; // for future use
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ifi_type", "ifi_typelen", "ifi_physical", "ifi_addrlen", "ifi_hdrlen",
+                    "ifi_recvquota", "ifi_xmitquota", "ifi_unused1", "ifi_mtu", "ifi_metric", "ifi_baudrate",
+                    "ifi_ipackets", "ifi_ierrors", "ifi_opackets", "ifi_oerrors", "ifi_collisions", "ifi_ibytes",
+                    "ifi_obytes", "ifi_imcasts", "ifi_omcasts", "ifi_iqdrops", "ifi_noproto", "ifi_recvtiming",
+                    "ifi_xmittiming", "ifi_lastchange", "ifi_unused2", "ifi_hwassist", "ifi_reserved1",
+                    "ifi_reserved2" });
+        }
+    }
+
+    /**
+     * Return type for sysctl CTL_NET,PF_ROUTE
+     */
+    class IFmsgHdr extends Structure {
+        public short ifm_msglen; // to skip over non-understood messages
+        public byte ifm_version; // future binary compatability
+        public byte ifm_type; // message type
+        public int ifm_addrs; // like rtm_addrs
+        public int ifm_flags; // value of if_flags
+        public short ifm_index; // index for associated ifp
+        public IFdata ifm_data; // statistics and other data about if
+
+        public IFmsgHdr() {
+            super();
+        }
+
+        public IFmsgHdr(Pointer p) {
+            super(p);
+        }
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ifm_msglen", "ifm_version", "ifm_type", "ifm_addrs", "ifm_flags",
+                    "ifm_index", "ifm_data" });
+        }
+    }
+
+    /**
+     * Data type as part of IFmsgHdr
+     */
     class IFdata64 extends Structure {
-        public byte ifi_type;
-        public byte ifi_typelen;
-        public byte ifi_physical;
-        public byte ifi_addrlen;
-        public byte ifi_hdrlen;
-        public byte ifi_recvquota;
-        public byte ifi_xmitquota;
-        public byte ifi_unused1;
-        public int ifi_mtu;
-        public int ifi_metric;
-        public long ifi_baudrate;
-        public long ifi_ipackets;
-        public long ifi_ierrors;
-        public long ifi_opackets;
-        public long ifi_oerrors;
-        public long ifi_collisions;
-        public long ifi_ibytes;
-        public long ifi_obytes;
-        public long ifi_imcasts;
-        public long ifi_omcasts;
-        public long ifi_iqdrops;
-        public long ifi_noproto;
-        public int ifi_recvtiming;
-        public int ifi_xmittiming;
-        public Timeval ifi_lastchange;
+        public byte ifi_type; // ethernet, tokenring, etc
+        public byte ifi_typelen; // Length of frame type id
+        public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
+        public byte ifi_addrlen; // media address length
+        public byte ifi_hdrlen; // media header length
+        public byte ifi_recvquota; // polling quota for receive intrs
+        public byte ifi_xmitquota; // polling quota for xmit intrs
+        public byte ifi_unused1; // for future use
+        public int ifi_mtu; // maximum transmission unit
+        public int ifi_metric; // routing metric (external only)
+        public long ifi_baudrate; // linespeed
+        public long ifi_ipackets; // packets received on interface
+        public long ifi_ierrors; // input errors on interface
+        public long ifi_opackets; // packets sent on interface
+        public long ifi_oerrors; // output errors on interface
+        public long ifi_collisions; // collisions on csma interfaces
+        public long ifi_ibytes; // total number of octets received
+        public long ifi_obytes; // total number of octets sent
+        public long ifi_imcasts; // packets received via multicast
+        public long ifi_omcasts; // packets sent via multicast
+        public long ifi_iqdrops; // dropped on input, this interface
+        public long ifi_noproto; // destined for unsupported protocol
+        public int ifi_recvtiming; // usec spent receiving when timing
+        public int ifi_xmittiming; // usec spent xmitting when timing
+        public Timeval ifi_lastchange; // time of last administrative change
 
         @Override
         protected List<String> getFieldOrder() {
@@ -179,17 +252,21 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      * Return type for sysctl CTL_NET,PF_ROUTE
      */
     class IFmsgHdr2 extends Structure {
-        public short ifm_msglen;
-        public byte ifm_version;
-        public byte ifm_type;
-        public int ifm_addrs;
-        public int ifm_flags;
-        public short ifm_index;
-        public int ifm_snd_len;
-        public int ifm_snd_maxlen;
-        public int ifm_snd_drops;
-        public int ifm_timer;
-        public IFdata64 ifm_data;
+        public short ifm_msglen; // to skip over non-understood messages
+        public byte ifm_version; // future binary compatability
+        public byte ifm_type; // message type
+        public int ifm_addrs; // like rtm_addrs
+        public int ifm_flags; // value of if_flags
+        public short ifm_index; // index for associated ifp
+        public int ifm_snd_len; // instantaneous length of send queue
+        public int ifm_snd_maxlen; // maximum length of send queue
+        public int ifm_snd_drops; // number of drops in send queue
+        public int ifm_timer; // time until if_watchdog called
+        public IFdata64 ifm_data; // statistics and other data about if
+
+        public IFmsgHdr2(Pointer p) {
+            super(p);
+        }
 
         @Override
         protected List<String> getFieldOrder() {
