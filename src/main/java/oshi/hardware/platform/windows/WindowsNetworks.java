@@ -17,24 +17,40 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
 
 /**
- * @author enrico[dot]bianchi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 public class WindowsNetworks extends AbstractNetworks {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void updateNetworkStats(NetworkIF netIF) {
-        // TODO: set network stats on Windows
-        netIF.setBytesSent(0);
-        netIF.setBytesRecv(0);
-        netIF.setPacketsSent(0);
-        netIF.setPacketsRecv(0);
-        netIF.setSpeed(0);
+        // Create new MIB_IFROW and set index to this interface index
+        MIB_IFROW ifRow = new MIB_IFROW();
+        ifRow.dwIndex = netIF.getNetworkInterface().getIndex();
+        if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
+            // Error, abort
+            LOG.error("Failed to retrieve data for interface {}, {}", netIF.getNetworkInterface().getIndex(),
+                    netIF.getName());
+            return;
+        }
+
+        netIF.setBytesSent(ifRow.dwOutOctets);
+        netIF.setBytesRecv(ifRow.dwInOctets);
+        netIF.setPacketsSent(ifRow.dwOutUcastPkts);
+        netIF.setPacketsRecv(ifRow.dwInUcastPkts);
+        netIF.setSpeed(ifRow.dwSpeed);
     }
+
 }

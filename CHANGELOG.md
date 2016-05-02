@@ -5,6 +5,7 @@
 * [#145](https://github.com/dblock/oshi/pull/145): Refactored common code to abstract classes - [@dbwiddis](https://github.com/dbwiddis).
 * [#147](https://github.com/dblock/oshi/pull/147), [#149](https://github.com/dblock/oshi/pull/149): Added disk information and statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
 * [#150](https://github.com/dblock/oshi/pull/150): Added filesystem types - [@dbwiddis](https://github.com/dbwiddis).
+* [#155](https://github.com/dblock/oshi/pull/155), [#157](https://github.com/dblock/oshi/pull/157): Added network interface statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.3 (4/14/2016)

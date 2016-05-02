@@ -90,6 +90,13 @@ File System:
  Host on 'psf' (Z:) (Network Drive) [PrlSF] 121.7 GiB of 697.5 GiB free (17.4%)
 Disks:
  \\.\PHYSICALDRIVE0: (model: Windows 7-0 ATA Device (Standard disk drives) - S/N:314143413454355748334d4445464d5938414a34) size: 640 GB, reads: ?, writes: ?
+Network interfaces:
+ Name: eth3 (Intel(R) PRO/1000 MT Network Connection)
+   MAC Address: 00:1c:42:26:e6:7e 
+   MTU: 1500, Speed: 1 Gbps 
+   IPv4: [10.211.55.90] 
+   IPv6: [fec0:0:0:fea9:24e8:b9ac:d458:856c, fe80:0:0:0:24e8:b9ac:d458:856c] 
+   Traffic: received 1 packets/5.4 KiB; transmitted 39 packets/19.2 KiB 
 Displays:
  Display 0:
   Manuf. ID=DEL, Product ID=4014, Analog, Serial=BENG, ManufDate=3/2006, EDID v1.3
@@ -141,6 +148,13 @@ File System:
 Disks:
  /dev/sda: (model: Linux-0 - S/N: XQ1PCFXNN6YMN4JDF120) size: 480 GB, reads: 2.3 GiB, writes: 6.0 GiB 
  /dev/sr0: (model: Virtual_DVD-ROM__1_ - S/N: -_31415B265) size: 1.0 GB, reads: ?, writes: ? 
+Network interfaces:
+ Name: eth0 (eth0)
+   MAC Address: 00:1c:42:7a:b7:6a 
+   MTU: 1500, Speed: 0 bps 
+   IPv4: [10.211.55.83] 
+   IPv6: [fe80:0:0:0:21c:42ff:fe76:672a, fec0:0:0:fea9:60f6:5ef0:fb39:38c5, fec0:0:0:fea9:21c:42ff:fe76:672a] 
+   Traffic: received 765757 packets/759.6 MiB; transmitted 263178 packets/14.4 MiB 
 Displays:
  Display 0:
   Manuf. ID=SAM, Product ID=2ad, Analog, Serial=HA19, ManufDate=3/2008, EDID v1.3
@@ -194,6 +208,19 @@ File System:
 Disks:
  disk0: (model: ST2000LM003 HN-M201RAD - S/N: S34RJ9FGB21964) size: 2.0 TB, reads: ?, writes: ? 
  disk1: (model: MATSHITADVD-R   UJ-8A8 - S/N: D0211230551DDPPAF) size: ?, reads: ?, writes: ? 
+Network interfaces:
+ Name: en5 (en5)
+   MAC Address: a8:20:66:a5:8c:9f 
+   MTU: 1500, Speed: 100 Mbps 
+   IPv4: [192.168.1.31] 
+   IPv6: [fe80:0:0:0:aa20:66ff:fea5:8c9f] 
+   Traffic: received 249144 packets/126.0 MiB; transmitted 244581 packets/37.1 MiB 
+ Name: en1 (en1)
+   MAC Address: e0:f8:47:5c:b3:2a 
+   MTU: 1500, Speed: 11.5 Mbps 
+   IPv4: [192.168.1.7] 
+   IPv6: [fe80:0:0:0:e2f8:47ff:fe5c:b32a] 
+   Traffic: received 144068145 packets/62.9 GiB; transmitted 473788124 packets/348.4 GiB 
 Displays:
  Display 0:
   Manuf. ID=A, Product ID=9cb6, Analog, Serial=00000000, ManufDate=6/2009, EDID v1.3
