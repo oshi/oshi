@@ -6,9 +6,11 @@ Most methods return a "snapshot" of current levels.  To display values which cha
 
 Is the API backwards compatible?
 ========
-The interfaces in `oshi.hardware` and `oshi.software.os` are guaranteed to be compatible with the same major version.  Differences between major versions can be found in the [UPGRADING.md](UPGRADING.md) document.  Most of the platform-specific implementations of these APIs in lower level packages will remain the same as well.
+The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version.  Differences between major versions can be found in the [UPGRADING.md](UPGRADING.md) document.  
 
-Supporting code in the `oshi.util` package may, rarely, change between minor versions.  Code in the platform-specific `oshi.jna.*` packages will be removed when that respective code is included in the JNA project.
+Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same as well, although it is not intended that users access platform-specific code and some changes may occur between minor versions. Supporting code in the `oshi.util` package may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
+
+Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
 Which operating systems are supported?
 ========
