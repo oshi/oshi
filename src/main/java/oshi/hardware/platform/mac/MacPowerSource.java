@@ -23,7 +23,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
@@ -34,6 +33,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.CfUtil;
 
 /**
  * A Power Source
@@ -81,12 +81,9 @@ public class MacPowerSource extends AbstractPowerSource {
                 continue;
             }
 
-            // Name
-            Pointer name = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY);
-            long length = CoreFoundation.INSTANCE.CFStringGetLength(name);
-            long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);
-            Pointer nameBuf = new Memory(maxSize);
-            CoreFoundation.INSTANCE.CFStringGetCString(name, nameBuf, maxSize, CoreFoundation.UTF_8);
+            // Get name
+            String name = CfUtil
+                    .cfPointerToString(CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY));
 
             // Remaining Capacity = current / max
             IntByReference currentCapacity = new IntByReference();
@@ -101,8 +98,8 @@ public class MacPowerSource extends AbstractPowerSource {
             }
 
             // Add to list
-            psList.add(new MacPowerSource(nameBuf.getString(0),
-                    (double) currentCapacity.getValue() / maxCapacity.getValue(), timeRemaining));
+            psList.add(new MacPowerSource(name, (double) currentCapacity.getValue() / maxCapacity.getValue(),
+                    timeRemaining));
         }
         // Release the blob
         CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);
