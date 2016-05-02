@@ -25,6 +25,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -174,4 +175,6 @@ public interface IOKit extends Library {
     // Requires OS X 10.5+
     int IOConnectCallStructMethod(int connection, int selector, Structure inputStructure, int structureInputSize,
             Structure outputStructure, IntByReference structureOutputSize);
+
+    CFTypeRef IORegistryEntryCreateCFProperty(int entry, CFStringRef key, CFAllocatorRef allocator, int options);
 }

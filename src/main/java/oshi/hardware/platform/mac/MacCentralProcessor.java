@@ -17,8 +17,6 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +26,16 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.Timeval;
-import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
+import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -193,27 +196,25 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("system_profiler SPHardwareDataType");
-            // Mavericks and later
-            for (String checkLine : hwInfo) {
-                if (checkLine.contains("Serial Number (system)")) {
-                    String[] snSplit = checkLine.split("\\s+");
-                    this.cpuSerialNumber = snSplit[snSplit.length - 1];
-                    break;
-                }
-            }
-            // Panther and later
-            if (this.cpuSerialNumber == null) {
-                for (String checkLine : hwInfo) {
-                    if (checkLine.contains("r (system)")) {
-                        String[] snSplit = checkLine.split("\\s+");
-                        this.cpuSerialNumber = snSplit[snSplit.length - 1];
-                        break;
-                    }
-                }
-            }
-            if (this.cpuSerialNumber == null) {
+            int service = 0;
+            MachPort masterPort = new MachPort();
+            int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
+            if (result != 0) {
+                LOG.error(String.format("Error: IOMasterPort() = %08x", result));
                 this.cpuSerialNumber = "unknown";
+            } else {
+                service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort.getValue(),
+                        IOKit.INSTANCE.IOServiceMatching("IOPlatformExpertDevice"));
+                if (service == 0) {
+                    this.cpuSerialNumber = "unknown";
+                } else {
+                    // Fetch the serial number
+                    CFTypeRef serialNumberAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(service,
+                            CFStringRef.toCFString("IOPlatformSerialNumber"),
+                            CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+                    IOKit.INSTANCE.IOObjectRelease(service);
+                    this.cpuSerialNumber = CfUtil.cfPointerToString(serialNumberAsCFString.getPointer());
+                }
             }
         }
         return this.cpuSerialNumber;
