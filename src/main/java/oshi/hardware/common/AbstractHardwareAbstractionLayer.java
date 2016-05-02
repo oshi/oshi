@@ -112,9 +112,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
                 .add("powerSources", powerSourceArrayBuilder.build()).add("fileStores", fileStoreArrayBuilder.build())
-                .add("disks", diskStoreArrayBuilder.build())
-                .add("networks", netStoreArrayBuilder.build())
-                .add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
+                .add("disks", diskStoreArrayBuilder.build()).add("networks", netStoreArrayBuilder.build())
+                .add("displays", displayArrayBuilder.build()).add("sensors", getSensors().toJSON()).build();
     }
 }

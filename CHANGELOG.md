@@ -1,4 +1,8 @@
-2.4 (in-progress)
+2.5 (in-progress)
+================
+* Your contribution here.
+
+2.4 (5/02/2016)
 ================
 * [#140](https://github.com/dblock/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
 * [#142](https://github.com/dblock/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
@@ -6,7 +10,6 @@
 * [#147](https://github.com/dblock/oshi/pull/147), [#149](https://github.com/dblock/oshi/pull/149): Added disk information and statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
 * [#150](https://github.com/dblock/oshi/pull/150): Added filesystem types - [@dbwiddis](https://github.com/dbwiddis).
 * [#155](https://github.com/dblock/oshi/pull/155), [#157](https://github.com/dblock/oshi/pull/157): Added network interface statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 2.3 (4/14/2016)
 ================

@@ -10,9 +10,10 @@ Oshi is a free JNA-based (native) operating system information library for Java.
 Essentials
 ----------
 * [Find Oshi on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download Oshi 2.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.3&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download Oshi 2.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.4-SNAPSHOT&amp;e=jar)
+* [Download Oshi 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.4&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download Oshi 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.5-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/)
+* [View the FAQ](FAQ.md)
 * [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
@@ -20,6 +21,7 @@ Essentials
 	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for Oshi
+	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
 
 Where are we?
 -------------
@@ -40,11 +42,12 @@ Current supported features
 * OS Version (Version number, Codename, Build)
 
 ### Hardware ###
-* How much physical/available (free+reclaimable) RAM
+* How much physical/available (free+reclaimable) RAM, and total/used swap (pagefile)
 * How many Physical (core) and Logical (core * thread) CPUs 
 * CPU uptime, load % and tick counters
 * CPU temperature, fan speeds, voltage (if available; some OS's, some CPUs)
 * Battery state (% capacity, time remaining)
+* Disk drives (model, serial, size)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
 
@@ -61,7 +64,8 @@ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  2 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
-Memory: 532.1 MB/2.0 GB
+Memory: 1.3 GiB/2.7 GiB
+Swap used: 278 MiB/2.7 GiB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[26579029, 0, 21746695, 549739287], 672432, [520882, 156271]
 CPU, IOWait, and IRQ ticks @ 1 sec:[26579060, 0, 21746695, 549740254], 672435, [520883, 156271]
@@ -70,6 +74,7 @@ CPU load: 3.3% (counting ticks)
 CPU load: 3.2% (OS MXBean)
 CPU load averages: N/A N/A N/A
 CPU load per processor: 3.8% 4.0%
+Processes: 45, Threads: 652
 Sensors:
  CPU Temperature: 73.5°C
  Fan Speeds:[0]
@@ -77,13 +82,22 @@ Sensors:
 Power: 2:42 remaining
  System Battery @ 97.0%
 File System:
- Floppy Disk Drive (A:) (Floppy Disk Drive) 1.1 MB of 1.4 MB free (82.4%)
- Local Disk (C:) (Local Disk) 27.3 GB of 64.0 GB free (42.7%)
- D:\ (CD Drive) 0 bytes of 0 bytes free 
- MobileBackups on 'psf' (W:) (Network Drive) 0 bytes of 697.5 GB free (0.0%)
- MacData on 'psf' (X:) (Network Drive) 3.4 GB of 4.4 GB free (77.4%)
- Home on 'psf' (Y:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
- Host on 'psf' (Z:) (Network Drive) 121.7 GB of 697.5 GB free (17.4%)
+ Floppy Disk Drive (A:) (Floppy Disk Drive) [FAT] 1.1 MiB of 1.4 MiB free (82.4%)
+ Local Disk (C:) (Local Disk) [NTFS] 27.3 GiB of 64.0 GiB free (42.7%)
+ D:\ (CD Drive) [unknown] 0 bytes of 0 bytes free 
+ MobileBackups on 'psf' (W:) (Network Drive) [PrlSF] 0 bytes of 697.5 GiB free (0.0%)
+ MacData on 'psf' (X:) (Network Drive) [PrlSF] 3.4 GiB of 4.4 GiB free (77.4%)
+ Home on 'psf' (Y:) (Network Drive) [PrlSF] 121.7 GiB of 697.5 GiB free (17.4%)
+ Host on 'psf' (Z:) (Network Drive) [PrlSF] 121.7 GiB of 697.5 GiB free (17.4%)
+Disks:
+ \\.\PHYSICALDRIVE0: (model: Windows 7-0 ATA Device (Standard disk drives) - S/N:314143413454355748334d4445464d5938414a34) size: 640 GB, reads: ?, writes: ?
+Network interfaces:
+ Name: eth3 (Intel(R) PRO/1000 MT Network Connection)
+   MAC Address: 00:1c:42:26:e6:7e 
+   MTU: 1500, Speed: 1 Gbps 
+   IPv4: [10.211.55.90] 
+   IPv6: [fec0:0:0:fea9:24e8:b9ac:d458:856c, fe80:0:0:0:24e8:b9ac:d458:856c] 
+   Traffic: received 1 packets/5.4 KiB; transmitted 39 packets/19.2 KiB 
 Displays:
  Display 0:
   Manuf. ID=DEL, Product ID=4014, Analog, Serial=BENG, ManufDate=3/2006, EDID v1.3
@@ -110,7 +124,8 @@ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
  8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: CN123456789098
-Memory: 21.0 GB/31.0 GB
+Memory: 21.8 GiB/31 GiB
+Swap used: 836 MiB/2 GiB[
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
 CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
@@ -119,6 +134,7 @@ CPU load: 14.5% (counting ticks)
 CPU load: 14.3% (OS MXBean)
 CPU load averages: 1.13 1.19 0.97
 CPU load per processor: 21.4% 4.9% 19.5% 4.0% 27.5% 4.6% 19.9% 4.8%
+Processes: 251, Threads: 468
 Sensors:
  CPU Temperature: 62.0°C
  Fan Speeds:[2339, 2344]
@@ -126,10 +142,20 @@ Sensors:
 Power: 2:42 remaining
  BAT0 @ 97.0%
 File System:
- / (Local Disk) 52.8 GB of 60.9 GB free (86.7%)
- Home (Mount Point) 134.5 GB of 697.5 GB free (19.3%)
- MacData (Mount Point) 3.4 GB of 4.4 GB free (77.4%)
- MobileBackups (Mount Point) 0 bytes of 697.5 GB free (0.0%)
+ / (Local Disk) [ext4] 52.8 GiB of 60.9 GiB free (86.7%)
+ Home (Mount Point) [prl_fs] 134.5 GiB of 697.5 GiB free (19.3%)
+ MacData (Mount Point) [prl_fs] 3.4 GiB of 4.4 GiB free (77.4%)
+ MobileBackups (Mount Point) [prl_fs] 0 bytes of 697.5 GiB free (0.0%)
+Disks:
+ /dev/sda: (model: Linux-0 - S/N: XQ1PCFXNN6YMN4JDF120) size: 480 GB, reads: 2.3 GiB, writes: 6.0 GiB 
+ /dev/sr0: (model: Virtual_DVD-ROM__1_ - S/N: -_31415B265) size: 1.0 GB, reads: ?, writes: ? 
+Network interfaces:
+ Name: eth0 (eth0)
+   MAC Address: 00:1c:42:7a:b7:6a 
+   MTU: 1500, Speed: 0 bps 
+   IPv4: [10.211.55.83] 
+   IPv6: [fe80:0:0:0:21c:42ff:fe76:672a, fec0:0:0:fea9:60f6:5ef0:fb39:38c5, fec0:0:0:fea9:21c:42ff:fe76:672a] 
+   Traffic: received 765757 packets/759.6 MiB; transmitted 263178 packets/14.4 MiB 
 Displays:
  Display 0:
   Manuf. ID=SAM, Product ID=2ad, Analog, Serial=HA19, ManufDate=3/2008, EDID v1.3
@@ -157,7 +183,8 @@ Intel(R) Core(TM) i7-2820QM CPU @ 2.30GHz
  4 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: C02FG3HIJK45
-Memory: 17.3 MB/4 GB
+Memory: 4.8 GiB/16 GiB
+Swap used: 836 MiB/2 GiB
 Uptime: 12 days, 11:00:17
 CPU, IOWait, and IRQ ticks @ 0 sec:[15973594, 0, 21796209, 286595204], 0, [0, 0]
 CPU, IOWait, and IRQ ticks @ 1 sec:[15973619, 0, 21796271, 286595920], 0, [0, 0]
@@ -165,7 +192,8 @@ User: 3.1% Nice: 0.0% System: 7.7% Idle: 89.2%
 CPU load: 11.3% (counting ticks)
 CPU load: 11.4% (OS MXBean)
 CPU load average: 1.64 1.70 1.30
-CPU load per processor: 25.2% 1.9% 17.3% 1.9% 
+CPU load per processor: 25.2% 1.9% 17.3% 1.9%
+Processes: 266, Threads: 1733
 Sensors:
  CPU Temperature: 67.0°C
  Fan Speeds:[3402, 3399]
@@ -173,11 +201,27 @@ Sensors:
 Power: 2:42 remaining
  InternalBattery-0 @ 96.0%
 File System:
- Data (Network Drive) 15.7 GB of 1.8 TiB free (0.8%)
- MacData (Volume) 3.4 GB of 4.4 GB free (77.4%)
- Macintosh HD (/) (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
- MobileBackups (Network Drive) 0 bytes of 697.5 GB free (0.0%)
- Time Machine Backups (Local Disk) 134.4 GB of 697.5 GB free (19.3%)
+ Data (Network Drive) [smbfs] 15.7 GiB of 1.8 TiB free (0.8%)
+ MacData (Volume) [hfs] 3.4 GiB of 4.4 GiB free (77.4%)
+ Macintosh HD (/) (Local Disk) [hfs] 134.4 GiB of 697.5 GiB free (19.3%)
+ MobileBackups (Network Drive) [mtmfs] 0 bytes of 697.5 GiB free (0.0%)
+ Time Machine Backups (Local Disk) [hfs] 134.4 GiB of 697.5 GiB free (19.3%)
+Disks:
+ disk0: (model: ST2000LM003 HN-M201RAD - S/N: S34RJ9FGB21964) size: 2.0 TB, reads: ?, writes: ? 
+ disk1: (model: MATSHITADVD-R   UJ-8A8 - S/N: D0211230551DDPPAF) size: ?, reads: ?, writes: ? 
+Network interfaces:
+ Name: en5 (en5)
+   MAC Address: a8:20:66:a5:8c:9f 
+   MTU: 1500, Speed: 100 Mbps 
+   IPv4: [192.168.1.31] 
+   IPv6: [fe80:0:0:0:aa20:66ff:fea5:8c9f] 
+   Traffic: received 249144 packets/126.0 MiB; transmitted 244581 packets/37.1 MiB 
+ Name: en1 (en1)
+   MAC Address: e0:f8:47:5c:b3:2a 
+   MTU: 1500, Speed: 11.5 Mbps 
+   IPv4: [192.168.1.7] 
+   IPv6: [fe80:0:0:0:e2f8:47ff:fe5c:b32a] 
+   Traffic: received 144068145 packets/62.9 GiB; transmitted 473788124 packets/348.4 GiB 
 Displays:
  Display 0:
   Manuf. ID=A, Product ID=9cb6, Analog, Serial=00000000, ManufDate=6/2009, EDID v1.3
@@ -202,6 +246,10 @@ How is this different from ...
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. Oshi uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
 	* The last stable release of Sigar (1.6.4) was in 2010. Oshi is under active development as-of 2016.
+* [jHardware](https://github.com/profesorfalken/jHardware):
+	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing.  Oshi uses some command line parsing but attempts to use native commands whenever possible.
+	* jHardware presently only supports Windows and Unix systems.
+	* jHardware is licensed under Apache 2.0 license. Oshi is distributed under the EPL license.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
 	* The `MXBean` has very few methods that address system-wide statistics.

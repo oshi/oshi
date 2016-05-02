@@ -79,7 +79,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      *         present.
      */
     NetworkIF[] getNetworkIFs();
-    
+
     /**
      * Instantiates an array of {@link Display} objects, representing monitors
      * or other video output devices.
