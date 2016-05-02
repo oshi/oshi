@@ -30,12 +30,12 @@ import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.Timeval;
 import oshi.util.FormatUtil;
 import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -196,25 +196,16 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
-            int service = 0;
-            MachPort masterPort = new MachPort();
-            int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
-            if (result != 0) {
-                LOG.error(String.format("Error: IOMasterPort() = %08x", result));
+            int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+            if (service == 0) {
                 this.cpuSerialNumber = "unknown";
             } else {
-                service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort.getValue(),
-                        IOKit.INSTANCE.IOServiceMatching("IOPlatformExpertDevice"));
-                if (service == 0) {
-                    this.cpuSerialNumber = "unknown";
-                } else {
-                    // Fetch the serial number
-                    CFTypeRef serialNumberAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(service,
-                            CFStringRef.toCFString("IOPlatformSerialNumber"),
-                            CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
-                    IOKit.INSTANCE.IOObjectRelease(service);
-                    this.cpuSerialNumber = CfUtil.cfPointerToString(serialNumberAsCFString.getPointer());
-                }
+                // Fetch the serial number
+                CFTypeRef serialNumberAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(service,
+                        CFStringRef.toCFString("IOPlatformSerialNumber"),
+                        CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+                IOKit.INSTANCE.IOObjectRelease(service);
+                this.cpuSerialNumber = CfUtil.cfPointerToString(serialNumberAsCFString.getPointer());
             }
         }
         return this.cpuSerialNumber;

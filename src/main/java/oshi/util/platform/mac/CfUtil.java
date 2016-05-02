@@ -28,6 +28,13 @@ import oshi.jna.platform.mac.CoreFoundation;
  * @author widdis[at]gmail[dot]com
  */
 public class CfUtil {
+    /**
+     * Convert a pointer representing a Core Foundations String into its string
+     * 
+     * @param p
+     *            The pointer to a CFString
+     * @return The corresponding string
+     */
     public static String cfPointerToString(Pointer p) {
         long length = CoreFoundation.INSTANCE.CFStringGetLength(p);
         long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);

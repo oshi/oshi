@@ -28,7 +28,6 @@ import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.IOConnect;
-import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
@@ -62,23 +61,13 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcOpen() {
-        int service = 0;
-        MachPort masterPort = new MachPort();
-
-        int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
-        if (result != 0) {
-            LOG.error(String.format("Error: IOMasterPort() = %08x", result));
-            return result;
-        }
-
-        service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort.getValue(),
-                IOKit.INSTANCE.IOServiceMatching("AppleSMC"));
+        int service = IOKitUtil.getMatchingService("AppleSMC");
         if (service == 0) {
-            LOG.error("Error: no SMC found\n");
-            return result;
+            LOG.error("Error: no SMC found");
+            return 1;
         }
 
-        result = IOKit.INSTANCE.IOServiceOpen(service, SystemB.INSTANCE.mach_task_self(), 0, conn);
+        int result = IOKit.INSTANCE.IOServiceOpen(service, SystemB.INSTANCE.mach_task_self(), 0, conn);
         IOKit.INSTANCE.IOObjectRelease(service);
         if (result != 0) {
             LOG.error(String.format("Error: IOServiceOpen() = 0x%08x", result));

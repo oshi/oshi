@@ -48,7 +48,7 @@ public class MacNetworks extends AbstractNetworks {
     /**
      * Class to store a subset of IF data in the ifMap
      */
-    private class IFdata {
+    private static class IFdata {
         IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {
             this.oPackets = oPackets;
             this.iPackets = iPackets;
@@ -120,8 +120,9 @@ public class MacNetworks extends AbstractNetworks {
             if2m.read();
 
             // Grab data to place in map using index as the key
-            ifMap.put(new Integer(if2m.ifm_index), new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets,
-                    if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
+            ifMap.put(Integer.valueOf(if2m.ifm_index),
+                    new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
         }
     }
 
@@ -133,7 +134,7 @@ public class MacNetworks extends AbstractNetworks {
         // Update data
         mapIFs();
 
-        Integer index = new Integer(netIF.getNetworkInterface().getIndex());
+        Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());
         if (ifMap.containsKey(index)) {
             // Retrieve values from map and store
             IFdata ifData = ifMap.get(index);

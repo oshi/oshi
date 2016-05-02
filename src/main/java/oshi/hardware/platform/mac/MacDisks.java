@@ -91,7 +91,7 @@ public class MacDisks extends AbstractDisks {
                     // If successful this line is the desired value
                     try {
                         size = Long.parseLong(capacity);
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) { // NOPMD
                         // If we failed to parse, give up
                     }
                 }
