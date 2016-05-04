@@ -51,6 +51,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
+    @Override
     public OSFileStore[] getFileStores() {
         // Parse /proc/self/mounts to map filesystem paths to types
         Map<String, String> fstype = new HashMap<>();
@@ -63,8 +64,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 if (split.length < 6) {
                     continue;
                 }
-                fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
-            }
+                    fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
+                }
         } catch (IOException e) {
             LOG.error("Error reading /proc/self/mounts. Can't detect filetypes.");
         }
@@ -76,8 +77,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
             String path = store.toString().replace(" (" + store.name() + ")", "");
             // Exclude special directories
-            if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run") || path.equals("/dev")
-                    || path.equals("/dev/pts"))
+            if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run")
+                    || path.startsWith("/dev"))
                 continue;
             String name = store.name();
             if (path.equals("/"))
