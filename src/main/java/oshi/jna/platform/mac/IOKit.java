@@ -172,9 +172,19 @@ public interface IOKit extends Library {
 
     void IOObjectRelease(int object);
 
+    int IOIteratorNext(int iterator);
+
     // Requires OS X 10.5+
     int IOConnectCallStructMethod(int connection, int selector, Structure inputStructure, int structureInputSize,
             Structure outputStructure, IntByReference structureOutputSize);
 
     CFTypeRef IORegistryEntryCreateCFProperty(int entry, CFStringRef key, CFAllocatorRef allocator, int options);
+
+    int IORegistryEntryCreateCFProperties(int entry, CFMutableDictionaryRef serviceProperties, CFAllocatorRef allocator,
+            int options);
+
+    int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
+
+    CFStringRef CFCopyDescription(CFTypeRef type);
+
 }
