@@ -37,7 +37,6 @@ import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.util.ExecutingCommand;
 import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
 
