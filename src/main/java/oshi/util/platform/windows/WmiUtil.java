@@ -62,6 +62,23 @@ public class WmiUtil {
     }
 
     /**
+     * Get a string value from WMI
+     * 
+     * @param path
+     *            Path for the query
+     * @param properties
+     *            Property to retrieve value
+     * @return A list of string values for the property
+     */
+    public static List<String> getStringValue(String path, String property) {
+        Map<String, List<String>> map = getStrValues(path, property);
+        if (map.containsKey(property)) {
+            return map.get(property);
+        }
+        return new ArrayList<String>();
+    }
+
+    /**
      * Get String values from WMI
      * 
      * @param path

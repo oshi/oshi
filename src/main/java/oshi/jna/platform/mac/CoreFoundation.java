@@ -23,6 +23,7 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * CoreFoundation framework for power supply stats. This class should be
@@ -108,4 +109,11 @@ public interface CoreFoundation extends Library {
     long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
     CFAllocatorRef CFAllocatorGetDefault();
+
+    class CFDataRef extends CFTypeRef {
+    }
+
+    int CFDataGetLength(CFTypeRef theData);
+
+    PointerByReference CFDataGetBytePtr(CFTypeRef theData);
 }

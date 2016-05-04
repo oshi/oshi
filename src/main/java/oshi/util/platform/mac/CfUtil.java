@@ -23,6 +23,7 @@ import com.sun.jna.PointerType;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 
 /**
  * Provides utilities for Core Foundations
@@ -30,6 +31,7 @@ import oshi.jna.platform.mac.CoreFoundation;
  * @author widdis[at]gmail[dot]com
  */
 public class CfUtil {
+    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to

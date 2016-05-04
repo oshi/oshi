@@ -29,7 +29,6 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
@@ -51,8 +50,6 @@ import oshi.util.platform.mac.IOKitUtil;
 public class MacDisks extends AbstractDisks {
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    private static final CFAllocatorRef allocatorDefault = CoreFoundation.INSTANCE.CFAllocatorGetDefault();
-
     private static final CFStringRef cfModel = CFStringRef.toCFString("Model");
     private static final CFStringRef cfIOPropertyMatch = CFStringRef.toCFString("IOPropertyMatch");
     private static final CFStringRef cfDADeviceModel = CFStringRef.toCFString("DADeviceModel");
@@ -71,7 +68,7 @@ public class MacDisks extends AbstractDisks {
         numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
 
         // Open a DiskArbitration session to get model and size of disks
-        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(allocatorDefault);
+        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
         if (session == null) {
             LOG.error("Unable to open session to DiskArbitration framework.");
             return new HWDiskStore[0];
@@ -89,7 +86,7 @@ public class MacDisks extends AbstractDisks {
             }
             String name = split[1];
             String path = "/dev/" + name;
-            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(allocatorDefault, session, path);
+            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);
 
             if (disk != null) {
                 // Get the DiskArbitration dictionary for this disk, which
@@ -107,10 +104,10 @@ public class MacDisks extends AbstractDisks {
                     if (!model.equals("Disk Image")) {
                         CFStringRef modelNameRef = CFStringRef.toCFString(model);
                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
-                                .CFDictionaryCreateMutable(allocatorDefault, 0, null, null);
+                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
                         CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, cfModel, modelNameRef);
                         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE
-                                .CFDictionaryCreateMutable(allocatorDefault, 0, null, null);
+                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
                         CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, cfIOPropertyMatch, propertyDict);
 
                         // search for all IOservices that match the model
@@ -123,7 +120,7 @@ public class MacDisks extends AbstractDisks {
                         while (sdService != 0) {
                             // look up the serial number
                             CFTypeRef serNo = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(sdService, cfSerialNumber,
-                                    allocatorDefault, 0);
+                                    CfUtil.ALLOCATOR, 0);
                             if (serNo != null) {
                                 serial = CfUtil.cfPointerToString(serNo.getPointer());
                                 CfUtil.release(serNo);

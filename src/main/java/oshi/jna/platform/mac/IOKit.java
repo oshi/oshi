@@ -183,8 +183,7 @@ public interface IOKit extends Library {
     int IORegistryEntryCreateCFProperties(int entry, CFMutableDictionaryRef serviceProperties, CFAllocatorRef allocator,
             int options);
 
-    int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
-
     CFStringRef CFCopyDescription(CFTypeRef type);
 
+    int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
 }

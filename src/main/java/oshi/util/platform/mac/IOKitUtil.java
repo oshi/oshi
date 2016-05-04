@@ -74,6 +74,24 @@ public class IOKitUtil {
     /**
      * Convenience method to get matching IOService objects
      * 
+     * @param serviceName
+     *            The service name to match
+     * @param serviceIterator
+     *            An interator over matching items, set on return
+     * @return 0 if successful, an error code if failed.
+     */
+    public static int getMatchingServices(String serviceName, IntByReference serviceIterator) {
+        int setMasterPort = setMasterPort();
+        if (setMasterPort == 0) {
+            return IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort.getValue(),
+                    IOKit.INSTANCE.IOServiceMatching(serviceName), serviceIterator);
+        }
+        return setMasterPort;
+    }
+
+    /**
+     * Convenience method to get matching IOService objects
+     * 
      * @param matchingDictionary
      *            The dictionary to match
      * @param serviceIterator
