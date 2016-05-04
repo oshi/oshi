@@ -17,7 +17,7 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +37,8 @@ import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.util.ExecutingCommand;
 import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * A CPU as defined in Windows registry.
@@ -361,7 +361,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
             // This should always work
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("wmic bios get serialnumber");
+            List<String> hwInfo = WmiUtil.getStringValue("bios", "serialnumber");
             for (String checkLine : hwInfo) {
                 if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
                     continue;
@@ -372,7 +372,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             }
             // Just in case the above doesn't
             if (this.cpuSerialNumber == null || this.cpuSerialNumber.length() == 0) {
-                hwInfo = ExecutingCommand.runNative("wmic csproduct get identifyingnumber");
+                hwInfo = WmiUtil.getStringValue("csproduct", "identifyingnumber");
                 for (String checkLine : hwInfo) {
                     if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
                         continue;

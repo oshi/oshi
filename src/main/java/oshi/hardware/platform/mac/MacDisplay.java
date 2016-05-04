@@ -23,10 +23,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
@@ -35,6 +42,8 @@ import oshi.util.ParseUtil;
  */
 public class MacDisplay extends AbstractDisplay {
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
+
+    private static final CFStringRef cfEdid = CFStringRef.toCFString("IODisplayEDID");
 
     public MacDisplay(byte[] edid) {
         super(edid);
@@ -48,18 +57,29 @@ public class MacDisplay extends AbstractDisplay {
      */
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<Display>();
-        ArrayList<String> ioReg = ExecutingCommand.runNative("ioreg -lw0 -r -c IODisplayConnect");
-        for (String s : ioReg) {
-            if (s.contains("IODisplayEDID")) {
-                String edidStr = s.substring(s.indexOf("<") + 1, s.indexOf(">"));
-                LOG.debug("Parsed EDID: {}", edidStr);
-                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
+        // Iterate IO Registry IODisplayConnect
+        IntByReference serviceIterator = new IntByReference();
+        IOKitUtil.getMatchingServices("IODisplayConnect", serviceIterator);
+        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+        while (sdService != 0) {
+            // Display properties are in a child entry
+            IntByReference properties = new IntByReference();
+            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", properties);
+            if (ret == 0) {
+                // look up the edid by key
+                CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,
+                        CfUtil.ALLOCATOR, 0);
                 if (edid != null) {
-                    displays.add(new MacDisplay(edid));
+                    // Edid is a byte array of 128 bytes
+                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid);
+                    PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
+                    displays.add(new MacDisplay(p.getPointer().getByteArray(0, length)));
+                    CfUtil.release(edid);
                 }
             }
+            // iterate
+            sdService = IOKit.INSTANCE.IOIteratorNext(sdService);
         }
-
         return displays.toArray(new Display[displays.size()]);
     }
 }

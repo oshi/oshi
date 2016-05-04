@@ -65,6 +65,7 @@ public class LinuxDisks extends AbstractDisks {
 
         entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
         while (true) {
+            store = new HWDiskStore();
             try {
                 oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
@@ -72,7 +73,6 @@ public class LinuxDisks extends AbstractDisks {
                 if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")
                         && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
                         && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
-                    store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
                     // Avoid model and serial in virtual environments
@@ -88,6 +88,9 @@ public class LinuxDisks extends AbstractDisks {
                     result.add(store);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
+            } catch (NumberFormatException nfe) {
+                LOG.error("Problem parsing sector size for {}", store.getName());
+                break;
             } catch (Exception ex) {
                 LOG.debug("Reached all disks. Exiting ");
                 break;

@@ -41,6 +41,54 @@ public class HWDiskStore implements OshiJsonObject {
     private long writes;
 
     /**
+     * Create an object with empty/default values
+     */
+    public HWDiskStore() {
+        this("", "", "", 0L, 0L, 0L);
+    }
+
+    /**
+     * Create an object with empty/default read/write values
+     * 
+     * @param name
+     *            Name of the disk (e.g., /dev/disk1)
+     * @param model
+     *            Model of the disk
+     * @param serial
+     *            Disk serial number, if available
+     * @param size
+     *            Disk capacity in bytes
+     */
+    public HWDiskStore(String name, String model, String serial, long size) {
+        this(name, model, serial, size, 0L, 0L);
+    }
+
+    /**
+     * Create an object with all values
+     * 
+     * @param name
+     *            Name of the disk (e.g., /dev/disk1)
+     * @param model
+     *            Model of the disk
+     * @param serial
+     *            Disk serial number, if available
+     * @param size
+     *            Disk capacity in bytes
+     * @param reads
+     *            Number of reads from the disk
+     * @param writes
+     *            Number of writes to the disk
+     */
+    public HWDiskStore(String name, String model, String serial, long size, long reads, long writes) {
+        setName(name);
+        setModel(model);
+        setSerial(serial);
+        setSize(size);
+        setReads(reads);
+        setWrites(writes);
+    }
+
+    /**
      * @return the name
      */
     public String getName() {

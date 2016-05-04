@@ -20,6 +20,9 @@ package oshi.util.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.MachPort;
 
@@ -31,27 +34,76 @@ import oshi.jna.platform.mac.IOKit.MachPort;
 public class IOKitUtil {
     private static final Logger LOG = LoggerFactory.getLogger(IOKitUtil.class);
 
+    private static MachPort masterPort = new MachPort();
+
+    /**
+     * Sets the masterPort value
+     * 
+     * @return 0 if the value was successfully set, error value otherwise
+     */
+    private static int setMasterPort() {
+        if (masterPort.getValue() == 0) {
+            int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
+            if (result != 0) {
+                LOG.error(String.format("Error: IOMasterPort() = %08x", result));
+                return result;
+            }
+        }
+        return 0;
+    }
+
     /**
      * Opens an IOService matching the given name
      * 
      * @param serviceName
      *            The service name to match
-     * @return an IOService if successful, 0 if failed
+     * @return an int handle to an IOService if successful, 0 if failed
      */
     public static int getMatchingService(String serviceName) {
-        MachPort masterPort = new MachPort();
-
-        int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
-        if (result != 0) {
-            LOG.error(String.format("Error: IOMasterPort() = %08x", result));
-            return 0;
+        if (setMasterPort() == 0) {
+            int service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort.getValue(),
+                    IOKit.INSTANCE.IOServiceMatching(serviceName));
+            if (service == 0) {
+                LOG.error("No service found: {}", serviceName);
+            }
+            return service;
         }
+        return 0;
+    }
 
-        int service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort.getValue(),
-                IOKit.INSTANCE.IOServiceMatching(serviceName));
-        if (service == 0) {
-            LOG.error("No service found: {}", serviceName);
+    /**
+     * Convenience method to get matching IOService objects
+     * 
+     * @param serviceName
+     *            The service name to match
+     * @param serviceIterator
+     *            An interator over matching items, set on return
+     * @return 0 if successful, an error code if failed.
+     */
+    public static int getMatchingServices(String serviceName, IntByReference serviceIterator) {
+        int setMasterPort = setMasterPort();
+        if (setMasterPort == 0) {
+            return IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort.getValue(),
+                    IOKit.INSTANCE.IOServiceMatching(serviceName), serviceIterator);
         }
-        return service;
+        return setMasterPort;
+    }
+
+    /**
+     * Convenience method to get matching IOService objects
+     * 
+     * @param matchingDictionary
+     *            The dictionary to match
+     * @param serviceIterator
+     *            An interator over matching items, set on return
+     * @return 0 if successful, an error code if failed.
+     */
+    public static int getMatchingServices(CFMutableDictionaryRef matchingDictionary, IntByReference serviceIterator) {
+        int setMasterPort = setMasterPort();
+        if (setMasterPort == 0) {
+            return IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort.getValue(), matchingDictionary,
+                    serviceIterator);
+        }
+        return setMasterPort;
     }
 }
