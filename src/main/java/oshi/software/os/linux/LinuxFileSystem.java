@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,16 +38,40 @@ import oshi.util.FileUtil;
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
+    // Linux defines a set of virtual file systems
+    private final String[] pseudofs = new String[]{
+        "sysfs", // SysFS file system
+        "proc", // Proc file system
+        "devtmpfs", // Dev temporary file system
+        "devpts", // Dev pseudo terminal devices file system
+        "securityfs", // Kernel security file system
+        "tmpfs", // Temporary file system
+        "cgroup", // Cgroup file system
+        "pstore", // Pstore file system
+        "hugetlbfs", // Huge pages support file system
+        "configfs", // Config file system
+        "selinuxfs", // SELinux file system
+        "systemd-1", // Systemd file system
+        "binfmt_misc", // Binary format support file system
+        "mqueue", // Message queue file system
+        "debugfs", // Debug file system
+        "nfsd", // NFS file system
+        "sunrpc", // Sun RPC file system
+        "fusectl", // FUSE control file system
+        // NOTE: FUSE's fuseblk is not evalued because used as file system representation of a FUSE block storage
+        //"fuseblk" // FUSE block file system
+    };
+
     /**
      * Gets File System Information.
-     * 
+     *
      * @return An array of {@link FileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
@@ -64,8 +89,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 if (split.length < 6) {
                     continue;
                 }
-                    fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
-                }
+                fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
+            }
         } catch (IOException e) {
             LOG.error("Error reading /proc/self/mounts. Can't detect filetypes.");
         }
@@ -76,9 +101,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // FileStore toString starts with path, then a space, then name in
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
             String path = store.toString().replace(" (" + store.name() + ")", "");
-            // Exclude special directories
-            if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run")
-                    || path.startsWith("/dev"))
+            // Exclude pseudo file systems
+            if (Arrays.asList(this.pseudofs).contains(store.name()))
                 continue;
             String name = store.name();
             if (path.equals("/"))
