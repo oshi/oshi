@@ -1,5 +1,6 @@
 2.5 (in-progress)
 ================
+* [#163](https://github.com/dblock/oshi/pull/163): Reviewing getFileStores() method [@henryx](https://github.com/henryx),
 * Your contribution here.
 
 2.4 (5/02/2016)

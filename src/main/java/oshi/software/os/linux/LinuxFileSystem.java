@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -46,7 +47,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems
-    private final String[] pseudofs = new String[]{
+    private final List<String> pseudofs = Arrays.asList(new String[]{
         "sysfs", // SysFS file system
         "proc", // Proc file system
         "devtmpfs", // Dev temporary file system
@@ -67,7 +68,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
         "fusectl", // FUSE control file system
         // NOTE: FUSE's fuseblk is not evalued because used as file system representation of a FUSE block storage
         //"fuseblk" // FUSE block file system
-    };
+    });
 
     /**
      * Gets File System Information.
@@ -102,7 +103,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
             String path = store.toString().replace(" (" + store.name() + ")", "");
             // Exclude pseudo file systems
-            if (Arrays.asList(this.pseudofs).contains(store.name()))
+            if (this.pseudofs.contains(store.name()))
                 continue;
             String name = store.name();
             if (path.equals("/"))
