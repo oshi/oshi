@@ -111,6 +111,17 @@ public class LinuxFileSystem extends AbstractFileSystem {
         return getFileDescriptors(2);
     }
 
+    /**
+     * Returns a value from the Linux system file /proc/sys/fs/file-nr.
+     *
+     * @param index
+     *            The index of the value to retrieve. 0 returns the total
+     *            allocated file descriptors. 1 returns the number of used
+     *            file descriptors for kernel 2.4, or the number of unused
+     *            file descriptors for kernel 2.6. 2 returns the maximum
+     *            number of file descriptors that can be allocated.
+     * @return Corresponding file descriptor value from the Linux system file.
+     */
     private long getFileDescriptors(int index) {
         if (new File("/proc/sys/fs/file-nr").exists()) {
             try {
