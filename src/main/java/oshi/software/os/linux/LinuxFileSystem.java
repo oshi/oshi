@@ -123,7 +123,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
-        if (new File("/proc/sys/fs/file-nr").exists()) {
+        if ( index < 0 || index > 2 ) {
+            throw new IllegalArgumentException("Index must be between 0 and 2.");
+        } else if (new File("/proc/sys/fs/file-nr").exists()) {
             try {
                 List<String> osDescriptors = FileUtil.readFile("/proc/sys/fs/file-nr");
                 for (String line : osDescriptors) {
