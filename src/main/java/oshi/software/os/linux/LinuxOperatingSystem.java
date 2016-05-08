@@ -46,6 +46,32 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         this.version = (osRelease != null) ? new LinuxOSVersionInfoEx(osRelease) : new LinuxOSVersionInfoEx();
     }
 
+    @Override
+    public long getOpenDescriptors() {
+        return getDescriptors(0);
+    }
+
+    @Override
+    public long getMaxDescriptors() {
+        return getDescriptors(2);
+    }
+
+    private long getDescriptors(int index) {
+        if (new File("/proc/sys/fs/file-nr").exists()) {
+            try {
+                List<String> osDescriptors = FileUtil.readFile("/proc/sys/fs/file-nr");
+                for (String line : osDescriptors) {
+                    line = line.replaceAll("[^0-9]+", " ");
+                    String [] splittedLine = line.split(" ");
+                    return Long.parseLong(splittedLine[index]);
+                }
+            } catch (Exception e) {
+                LOG.trace("", e);
+            }
+        }
+        return -1L;
+    }
+
     private String parseFamily() {
         if (this.family == null) {
             String etcOsRelease = getReleaseFilename();
