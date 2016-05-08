@@ -126,8 +126,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             try {
                 List<String> osDescriptors = FileUtil.readFile(filename);
                 for (String line : osDescriptors) {
-                    line = line.replaceAll("[^0-9]+", " ");
-                    String [] splittedLine = line.split(" ");
+                    String [] splittedLine = line.split("\\D+");
                     return Long.parseLong(splittedLine[index]);
                 }
             } catch (NumberFormatException e) {
