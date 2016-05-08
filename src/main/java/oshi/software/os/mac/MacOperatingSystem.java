@@ -27,14 +27,4 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         this.family = System.getProperty("os.name");
         this.version = new MacOSVersionInfoEx();
     }
-
-    @Override
-    public long getOpenDescriptors() {
-        return SysctlUtil.sysctl("kern.num_files", -1);
-    }
-
-    @Override
-    public long getMaxDescriptors() {
-        return SysctlUtil.sysctl("kern.maxfiles", -1);
-    }
 }

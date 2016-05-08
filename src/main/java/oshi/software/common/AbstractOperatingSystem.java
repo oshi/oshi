@@ -63,8 +63,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
-                .add("family", getFamily()).add("version", getVersion().toJSON())
-                .add("openDescriptors", getOpenDescriptors()).add("maxDescriptors", getMaxDescriptors()).build();
+                .add("family", getFamily()).add("version", getVersion().toJSON()).build();
     }
 
     @Override

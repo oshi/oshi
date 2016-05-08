@@ -26,14 +26,4 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         this.family = "Windows";
         this.version = new WindowsOSVersionInfoEx();
     }
-
-    @Override
-    public long getOpenDescriptors() {
-        return -1L;
-    }
-
-    @Override
-    public long getMaxDescriptors() {
-        return -1L;
-    }
 }

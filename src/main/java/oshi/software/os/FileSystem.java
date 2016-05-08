@@ -27,4 +27,18 @@ public interface FileSystem extends OshiJsonObject {
      * @return Array of {@link OSFileStore} objects
      */
     OSFileStore[] getFileStores();
+
+    /**
+     * Open file descriptors.
+     *
+     * @return long
+     */
+    long getOpenFileDescriptors();
+
+    /**
+     * Maximum file descriptors.
+     *
+     * @return long
+     */
+    long getMaxFileDescriptors();
 }

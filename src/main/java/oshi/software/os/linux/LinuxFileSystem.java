@@ -17,6 +17,7 @@
  */
 package oshi.software.os.linux;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
@@ -98,5 +99,31 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return getFileDescriptors(0);
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return getFileDescriptors(2);
+    }
+
+    private long getFileDescriptors(int index) {
+        if (new File("/proc/sys/fs/file-nr").exists()) {
+            try {
+                List<String> osDescriptors = FileUtil.readFile("/proc/sys/fs/file-nr");
+                for (String line : osDescriptors) {
+                    line = line.replaceAll("[^0-9]+", " ");
+                    String [] splittedLine = line.split(" ");
+                    return Long.parseLong(splittedLine[index]);
+                }
+            } catch (Exception e) {
+                LOG.trace("", e);
+            }
+        }
+        return 0L;
     }
 }

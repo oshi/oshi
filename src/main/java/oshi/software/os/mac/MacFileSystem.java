@@ -36,6 +36,7 @@ import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -111,5 +112,15 @@ public class MacFileSystem extends AbstractFileSystem {
             }
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return SysctlUtil.sysctl("kern.num_files", 0);
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return SysctlUtil.sysctl("kern.maxfiles", 0);
     }
 }
