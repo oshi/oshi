@@ -1,5 +1,6 @@
 2.5 (in-progress)
 ================
+* [#165](https://github.com/dblock/oshi/pull/165): Added system-wide file descriptor counts - [@cholland1989](https://github.com/cholland1989)
 * Your contribution here.
 
 2.4 (5/02/2016)
