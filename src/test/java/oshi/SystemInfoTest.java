@@ -240,6 +240,8 @@ public class SystemInfoTest {
         assertNotNull(version.getVersion());
         assertNotNull(version.getCodeName());
         assertNotNull(version.getBuildNumber());
+        assertTrue(os.getOpenDescriptors() >= -1L);
+        assertTrue(os.getMaxDescriptors() >= -1L);
     }
 
     /**
@@ -284,6 +286,7 @@ public class SystemInfoTest {
         // software: operating system
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
+        System.out.format("File Descriptors: %d/%d%n", os.getOpenDescriptors(), os.getMaxDescriptors());
 
         LOG.info("Initializing Hardware...");
         // hardware
