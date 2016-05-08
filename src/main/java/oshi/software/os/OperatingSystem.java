@@ -48,4 +48,18 @@ public interface OperatingSystem extends OshiJsonObject {
      * @return Version.
      */
     OperatingSystemVersion getVersion();
+
+    /**
+     * Open file descriptors.
+     *
+     * @return long
+     */
+    long getOpenDescriptors();
+
+    /**
+     * Maximum file descriptors.
+     *
+     * @return long
+     */
+    long getMaxDescriptors();
 }
