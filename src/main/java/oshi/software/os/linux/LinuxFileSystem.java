@@ -123,17 +123,18 @@ public class LinuxFileSystem extends AbstractFileSystem {
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
+        String filename = "/proc/sys/fs/file-nr";
         if ( index < 0 || index > 2 ) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
-        } else if (new File("/proc/sys/fs/file-nr").exists()) {
+        } else if (new File(filename).exists()) {
             try {
-                List<String> osDescriptors = FileUtil.readFile("/proc/sys/fs/file-nr");
+                List<String> osDescriptors = FileUtil.readFile(filename);
                 for (String line : osDescriptors) {
                     String [] splittedLine = line.split("\\D+");
                     return Long.parseLong(splittedLine[index]);
                 }
-            } catch (Exception e) {
-                LOG.trace("", e);
+            } catch (NumberFormatException | IOException e) {
+                LOG.trace("Unable to read value from {}", filename, e);
             }
         }
         return 0L;
