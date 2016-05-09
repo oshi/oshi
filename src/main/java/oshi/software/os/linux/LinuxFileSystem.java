@@ -69,7 +69,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
         // NOTE: FUSE's fuseblk is not evalued because used as file system representation of a FUSE block storage
         //"fuseblk" // FUSE block file system
     });
-
+    
     /**
      * Gets File System Information.
      *
@@ -116,7 +116,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 type = fstype.get(path);
             }
             try {
-                fsList.add(new OSFileStore(name, description, type, store.getUsableSpace(), store.getTotalSpace()));
+                fsList.add(new OSFileStore(name, path, description, type, store.getUsableSpace(), store.getTotalSpace()));
             } catch (IOException e) {
                 // get*Space() may fail for ejected CD-ROM, etc.
                 LOG.trace("", e);

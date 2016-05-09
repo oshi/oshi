@@ -36,6 +36,8 @@ public class OSFileStore implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
+    
+    private String mount;
 
     private String description;
 
@@ -58,7 +60,7 @@ public class OSFileStore implements OshiJsonObject {
      *            Total bytes
      */
     public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        this(newName, newDescription, "unknown", newUsableSpace, newTotalSpace);
+        this(newName, "unknown", newDescription, "unknown", newUsableSpace, newTotalSpace);
     }
 
     /**
@@ -66,6 +68,26 @@ public class OSFileStore implements OshiJsonObject {
      * 
      * @param newName
      *            Name of the filestore
+     * @param newMount
+     *             Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newMount, String newDescription, long newUsableSpace, long newTotalSpace) {
+        this(newName, newMount, newDescription, "unknown", newUsableSpace, newTotalSpace);
+    }
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newMount
+     *             Mountpoint of the filestore
      * @param newDescription
      *            Description of the file store
      * @param newType
@@ -75,8 +97,9 @@ public class OSFileStore implements OshiJsonObject {
      * @param newTotalSpace
      *            Total bytes
      */
-    public OSFileStore(String newName, String newDescription, String newType, long newUsableSpace, long newTotalSpace) {
+    public OSFileStore(String newName, String newMount, String newDescription, String newType, long newUsableSpace, long newTotalSpace) {
         this.setName(newName);
+        this.setMount(newMount);
         this.setDescription(newDescription);
         this.setType(newType);
         this.setUsableSpace(newUsableSpace);
@@ -100,6 +123,25 @@ public class OSFileStore implements OshiJsonObject {
      */
     public void setName(String value) {
         this.name = value;
+    }
+
+    /**
+     * Mountpoint of the File System
+     * 
+     * @return The mountpoint of the file system
+     */
+    public String getMount() {
+        return this.mount;
+    }
+
+    /**
+     * Sets the mountpoint of the File System
+     * 
+     * @param value
+     *            The mountpoint
+     */
+    public void setMount(String value) {
+        this.mount = value;
     }
 
     /**
