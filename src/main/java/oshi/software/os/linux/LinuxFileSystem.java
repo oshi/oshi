@@ -55,15 +55,19 @@ public class LinuxFileSystem extends AbstractFileSystem {
     public OSFileStore[] getFileStores() {
         // Parse /proc/self/mounts to map filesystem paths to types
         Map<String, String> fstype = new HashMap<>();
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
-        for (String mount : mounts) {
-            String[] split = mount.split(" ");
-            // 2nd field is path with spaces escaped as \040
-            // 3rd field is fs type
-            if (split.length < 6) {
-                continue;
+        try {
+            List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+            for (String mount : mounts) {
+                String[] split = mount.split(" ");
+                // 2nd field is path with spaces escaped as \040
+                // 3rd field is fs type
+                if (split.length < 6) {
+                    continue;
+                }
+                fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
             }
-            fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
+        } catch (IOException e) {
+            LOG.error("Error reading /proc/self/mounts. Can't detect filetypes.");
         }
         // Format
         // Now list file systems
@@ -119,18 +123,17 @@ public class LinuxFileSystem extends AbstractFileSystem {
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
-        String filename = "/proc/sys/fs/file-nr";
         if ( index < 0 || index > 2 ) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
-        } else if (new File(filename).exists()) {
+        } else if (new File("/proc/sys/fs/file-nr").exists()) {
             try {
-                List<String> osDescriptors = FileUtil.readFile(filename);
+                List<String> osDescriptors = FileUtil.readFile("/proc/sys/fs/file-nr");
                 for (String line : osDescriptors) {
                     String [] splittedLine = line.split("\\D+");
                     return Long.parseLong(splittedLine[index]);
                 }
-            } catch (NumberFormatException e) {
-                LOG.trace("Unable to parse value from {}", filename, e);
+            } catch (Exception e) {
+                LOG.trace("", e);
             }
         }
         return 0L;
