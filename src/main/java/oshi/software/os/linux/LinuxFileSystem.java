@@ -70,6 +70,22 @@ public class LinuxFileSystem extends AbstractFileSystem {
         //"fuseblk" // FUSE block file system
     });
     
+    // System path mounted as tmpfs
+    private final List<String> tmpfsPaths = Arrays.asList(new String[]{
+        "/dev/shm",
+        "/run",
+        "/sys/fs/cgroup",
+    });
+
+    private Boolean listElementStarts(List<String> aList, String charSeq) {
+        for (String match : aList) {
+            if (match.startsWith(match)){
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+    
     /**
      * Gets File System Information.
      *
@@ -102,9 +118,19 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // FileStore toString starts with path, then a space, then name in
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
             String path = store.toString().replace(" (" + store.name() + ")", "");
+
             // Exclude pseudo file systems
-            if (this.pseudofs.contains(store.name()))
-                continue;
+            if (this.pseudofs.contains(store.name())) {
+                if (store.name().equals("tmpfs")) {
+                    // Exclude tmpfs system paths
+                    if (listElementStarts(this.tmpfsPaths, path)) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+            }
+
             String name = store.name();
             if (path.equals("/"))
                 name = "/";
