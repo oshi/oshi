@@ -18,6 +18,7 @@
 package oshi.hardware;
 
 import oshi.json.OshiJsonObject;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
 /**
@@ -51,6 +52,13 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      *         present.
      */
     PowerSource[] getPowerSources();
+
+    /**
+     * Instantiates a {@link FileSystem} object.
+     *
+     * @return A {@link FileSystem} object.
+     */
+    FileSystem getFileSystem();
 
     /**
      * Instantiates an array of {@link OSFileStore} objects, representing a

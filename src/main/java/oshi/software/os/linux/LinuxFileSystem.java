@@ -17,6 +17,7 @@
  */
 package oshi.software.os.linux;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
@@ -98,5 +99,44 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return getFileDescriptors(0);
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return getFileDescriptors(2);
+    }
+
+    /**
+     * Returns a value from the Linux system file /proc/sys/fs/file-nr.
+     *
+     * @param index
+     *            The index of the value to retrieve. 0 returns the total
+     *            allocated file descriptors. 1 returns the number of used
+     *            file descriptors for kernel 2.4, or the number of unused
+     *            file descriptors for kernel 2.6. 2 returns the maximum
+     *            number of file descriptors that can be allocated.
+     * @return Corresponding file descriptor value from the Linux system file.
+     */
+    private long getFileDescriptors(int index) {
+        String filename = "/proc/sys/fs/file-nr";
+        if ( index < 0 || index > 2 ) {
+            throw new IllegalArgumentException("Index must be between 0 and 2.");
+        } else if (new File(filename).exists()) {
+            try {
+                List<String> osDescriptors = FileUtil.readFile(filename);
+                for (String line : osDescriptors) {
+                    String [] splittedLine = line.split("\\D+");
+                    return Long.parseLong(splittedLine[index]);
+                }
+            } catch (NumberFormatException | IOException e) {
+                LOG.trace("Unable to read value from {}", filename, e);
+            }
+        }
+        return 0L;
     }
 }

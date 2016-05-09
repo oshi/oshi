@@ -27,4 +27,34 @@ public interface FileSystem extends OshiJsonObject {
      * @return Array of {@link OSFileStore} objects
      */
     OSFileStore[] getFileStores();
+
+    /**
+     * The current number of open file descriptors. A file descriptor is an
+     * abstract handle used to access I/O resources such as files and network
+     * connections. On UNIX-based systems there is a system-wide limit on the
+     * number of open file descriptors.
+     *
+     * On Windows systems, this method returns 0. While Windows handles are
+     * conceptually similar to file descriptors, they may also refer to a
+     * number of non-I/O related objects, and there does not appear to be a
+     * system-wide limit for open handles.
+     *
+     * @return The number of open file descriptors if available, 0 otherwise.
+     */
+    long getOpenFileDescriptors();
+
+    /**
+     * The maximum number of open file descriptors. A file descriptor is an
+     * abstract handle used to access I/O resources such as files and network
+     * connections. On UNIX-based systems there is a system-wide limit on the
+     * number of open file descriptors.
+     *
+     * On Windows systems, this method returns 0. While Windows handles are
+     * conceptually similar to file descriptors, they may also refer to a
+     * number of non-I/O related objects, and there does not appear to be a
+     * system-wide limit for open handles.
+     *
+     * @return The maximum number of file descriptors if available, 0 otherwise.
+     */
+    long getMaxFileDescriptors();
 }

@@ -18,6 +18,7 @@
 package oshi.software.os.mac;
 
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
