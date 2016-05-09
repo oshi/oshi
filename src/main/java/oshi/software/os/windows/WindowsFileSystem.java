@@ -100,4 +100,14 @@ public class WindowsFileSystem extends AbstractFileSystem {
         }
         return fs.toArray(new OSFileStore[fs.size()]);
     }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return 0L;
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return 0L;
+    }
 }

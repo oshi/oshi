@@ -17,7 +17,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -62,10 +61,8 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
             List<String> memInfo = null;
-            try {
-                memInfo = FileUtil.readFile("/proc/meminfo");
-            } catch (IOException e) {
-                LOG.error("Problem with /proc/meminfo: {}", e.getMessage());
+            memInfo = FileUtil.readFile("/proc/meminfo");
+            if (memInfo.isEmpty()) {
                 return;
             }
             boolean found = false;

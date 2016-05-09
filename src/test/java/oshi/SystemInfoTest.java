@@ -41,6 +41,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -251,6 +252,9 @@ public class SystemInfoTest {
     @Test
     public void testFileSystem() throws IOException {
         SystemInfo si = new SystemInfo();
+        FileSystem filesystem = si.getHardware().getFileSystem();
+        assertTrue(filesystem.getOpenFileDescriptors() >= 0L);
+        assertTrue(filesystem.getMaxFileDescriptors() >= 0L);
         OSFileStore[] fs = si.getHardware().getFileStores();
         for (int f = 0; f < fs.length; f++) {
             assertNotNull(fs[f].getName());
@@ -374,6 +378,10 @@ public class SystemInfoTest {
         // hardware: file system
         LOG.info("Checking File System...");
         System.out.println("File System:");
+
+        FileSystem filesystem = hal.getFileSystem();
+        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
+                filesystem.getMaxFileDescriptors());
 
         OSFileStore[] fsArray = hal.getFileStores();
         for (OSFileStore fs : fsArray) {

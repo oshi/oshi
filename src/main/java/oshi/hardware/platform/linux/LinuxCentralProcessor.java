@@ -19,7 +19,6 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -63,12 +62,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private void initVars() {
         List<String> cpuInfo = null;
-        try {
-            cpuInfo = FileUtil.readFile("/proc/cpuinfo");
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
-            return;
-        }
+        cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
             String[] splitLine = line.split("\\s+:\\s");
             if (splitLine.length < 2) {
@@ -111,58 +105,54 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
     protected void calculateProcessorCounts() {
-        try {
-            List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
-            // Get number of logical processors
-            for (String cpu : procCpu) {
-                if (cpu.startsWith("processor")) {
-                    this.logicalProcessorCount++;
-                }
+        List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
+        // Get number of logical processors
+        for (String cpu : procCpu) {
+            if (cpu.startsWith("processor")) {
+                this.logicalProcessorCount++;
             }
-            // Get number of physical processors
-            int siblings = 0;
-            int cpucores = 0;
-            int[] uniqueID = new int[2];
-            uniqueID[0] = -1;
-            uniqueID[1] = -1;
+        }
+        // Get number of physical processors
+        int siblings = 0;
+        int cpucores = 0;
+        int[] uniqueID = new int[2];
+        uniqueID[0] = -1;
+        uniqueID[1] = -1;
 
-            Set<String> ids = new HashSet<String>();
+        Set<String> ids = new HashSet<String>();
 
-            for (String cpu : procCpu) {
-                if (cpu.startsWith("siblings")) {
-                    // if siblings = 1, no hyperthreading
-                    siblings = ParseUtil.parseLastInt(cpu, 1);
-                    if (siblings == 1) {
-                        this.physicalProcessorCount = this.logicalProcessorCount;
-                        break;
-                    }
-                }
-                if (cpu.startsWith("cpu cores")) {
-                    // if siblings > 1, ratio with cores
-                    cpucores = ParseUtil.parseLastInt(cpu, 1);
-                    if (siblings > 1) {
-                        this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;
-                        break;
-                    }
-                }
-                // If siblings and cpu cores don't define it, count unique
-                // combinations of core id and physical id.
-                if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                    uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);
-                } else if (cpu.startsWith("physical id")) {
-                    uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);
-                }
-                if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
-                    ids.add(uniqueID[0] + " " + uniqueID[1]);
-                    uniqueID[0] = -1;
-                    uniqueID[1] = -1;
+        for (String cpu : procCpu) {
+            if (cpu.startsWith("siblings")) {
+                // if siblings = 1, no hyperthreading
+                siblings = ParseUtil.parseLastInt(cpu, 1);
+                if (siblings == 1) {
+                    this.physicalProcessorCount = this.logicalProcessorCount;
+                    break;
                 }
             }
-            if (this.physicalProcessorCount == 0) {
-                this.physicalProcessorCount = ids.size();
+            if (cpu.startsWith("cpu cores")) {
+                // if siblings > 1, ratio with cores
+                cpucores = ParseUtil.parseLastInt(cpu, 1);
+                if (siblings > 1) {
+                    this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;
+                    break;
+                }
             }
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/cpuinfo: {}", e.getMessage());
+            // If siblings and cpu cores don't define it, count unique
+            // combinations of core id and physical id.
+            if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
+                uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);
+            } else if (cpu.startsWith("physical id")) {
+                uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);
+            }
+            if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
+                ids.add(uniqueID[0] + " " + uniqueID[1]);
+                uniqueID[0] = -1;
+                uniqueID[1] = -1;
+            }
+        }
+        if (this.physicalProcessorCount == 0) {
+            this.physicalProcessorCount = ids.size();
         }
         // Force at least one processor
         if (this.logicalProcessorCount < 1) {
@@ -185,13 +175,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr = "";
-        try {
-            List<String> procStat = FileUtil.readFile("/proc/stat");
-            if (!procStat.isEmpty()) {
-                tickStr = procStat.get(0);
-            }
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/stat: {}", e.getMessage());
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        if (!procStat.isEmpty()) {
+            tickStr = procStat.get(0);
+        } else {
             return ticks;
         }
         String[] tickArr = tickStr.split("\\s+");
@@ -222,12 +209,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr = "";
-        try {
-            List<String> procStat = FileUtil.readFile("/proc/stat");
-            if (!procStat.isEmpty())
-                tickStr = procStat.get(0);
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/stat: {}", e.getMessage());
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        if (!procStat.isEmpty()) {
+            tickStr = procStat.get(0);
+        } else {
             return 0;
         }
         String[] tickArr = tickStr.split("\\s+");
@@ -247,12 +232,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // cpu 3357 0 4313 1362393 ...
         String tickStr = "";
         long[] ticks = new long[2];
-        try {
-            List<String> procStat = FileUtil.readFile("/proc/stat");
-            if (!procStat.isEmpty())
-                tickStr = procStat.get(0);
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/stat: {}", e.getMessage());
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        if (!procStat.isEmpty()) {
+            tickStr = procStat.get(0);
+        } else {
             return ticks;
         }
         String[] tickArr = tickStr.split("\\s+");
@@ -294,38 +277,35 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[logicalProcessorCount][4];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
-        // cpu 3357 0 4313 1362393 ...
+        // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {
         // per-processor subsequent lines for cpu0, cpu1, etc.
-        try {
-            int cpu = 0;
-            List<String> procStat = FileUtil.readFile("/proc/stat");
-            for (String stat : procStat) {
-                if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
-                    String[] tickArr = stat.split("\\s+");
-                    if (tickArr.length < 5) {
-                        break;
-                    }
-                    // Note tickArr is offset by 1
-                    for (int i = 0; i < 4; i++) {
-                        ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
-                    }
-                    if (tickArr.length > 5) {
-                        // Add iowait to idle
-                        ticks[cpu][3] += Long.parseLong(tickArr[5]);
-                        // Add other fields to system
-                        for (int i = 6; i < tickArr.length; i++) {
-                            ticks[cpu][2] += Long.parseLong(tickArr[i]);
-                        }
-                    }
-                    if (++cpu >= logicalProcessorCount) {
-                        break;
+        int cpu = 0;
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
+                String[] tickArr = stat.split("\\s+");
+                if (tickArr.length < 5) {
+                    break;
+                }
+                // Note tickArr is offset by 1
+                for (int i = 0; i < 4; i++) {
+                    ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
+                }
+                if (tickArr.length > 5) {
+                    // Add iowait to idle
+                    ticks[cpu][3] += Long.parseLong(tickArr[5]);
+                    // Add other fields to system
+                    for (int i = 6; i < tickArr.length; i++) {
+                        ticks[cpu][2] += Long.parseLong(tickArr[i]);
                     }
                 }
+                if (++cpu >= logicalProcessorCount) {
+                    break;
+                }
             }
-        } catch (IOException e) {
-            LOG.error("Problem with /proc/stat: {}", e.getMessage());
         }
         return ticks;
+
     }
 
     /**

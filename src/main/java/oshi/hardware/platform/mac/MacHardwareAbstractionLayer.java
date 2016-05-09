@@ -25,6 +25,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
@@ -58,6 +59,14 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
     @Override
     public PowerSource[] getPowerSources() {
         return MacPowerSource.getPowerSources();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+        return new MacFileSystem();
     }
 
     /**

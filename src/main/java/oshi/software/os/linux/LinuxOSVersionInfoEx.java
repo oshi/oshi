@@ -17,8 +17,6 @@
  */
 package oshi.software.os.linux;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -34,12 +32,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     public LinuxOSVersionInfoEx() {
         String etcOsRelease = LinuxOperatingSystem.getReleaseFilename();
         List<String> osRelease;
-        try {
-            osRelease = FileUtil.readFile(etcOsRelease);
-        } catch (IOException e) {
-            LOG.trace("", e);
-            osRelease = new ArrayList<String>();
-        }
+        osRelease = FileUtil.readFile(etcOsRelease);
         init(osRelease);
     }
 
@@ -55,6 +48,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
                 continue;
             }
             if (splittedLine[0].equals("VERSION_ID") || splittedLine[0].equals("DISTRIB_RELEASE")) {
+                LOG.debug("Release: {}", line);
                 // remove beginning and ending '"' characters, etc from
                 // VERSION_ID="14.04"
                 setVersion(splittedLine[1].replaceAll("^\"|\"$", ""));
@@ -116,14 +110,8 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
             setCodeName("");
         }
         List<String> procVersion = null;
-        try {
-            procVersion = FileUtil.readFile("/proc/version");
-        } catch (IOException e) {
-            LOG.trace("", e);
-            setBuildNumber("");
-            return;
-        }
-        if (procVersion.size() > 0) {
+        procVersion = FileUtil.readFile("/proc/version");
+        if (!procVersion.isEmpty()) {
             String[] split = procVersion.get(0).split("\\s+");
             for (String s : split) {
                 if (!s.equals("Linux") && !s.equals("version")) {

@@ -19,7 +19,6 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,40 +48,36 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private String parseFamily() {
         if (this.family == null) {
             String etcOsRelease = getReleaseFilename();
-            try {
-                this.osRelease = FileUtil.readFile(etcOsRelease);
-                for (String line : this.osRelease) {
-                    String[] splittedLine = line.split("=");
-                    if ((splittedLine[0].equals("NAME") || splittedLine[0].equals("DISTRIB_ID"))
-                            && splittedLine.length > 1) {
-                        // remove beginning and ending '"' characters, etc from
-                        // NAME="Ubuntu"
-                        this.family = splittedLine[1].replaceAll("^\"|\"$", "");
-                        break;
-                    }
+            this.osRelease = FileUtil.readFile(etcOsRelease);
+            for (String line : this.osRelease) {
+                String[] splittedLine = line.split("=");
+                if ((splittedLine[0].equals("NAME") || splittedLine[0].equals("DISTRIB_ID"))
+                        && splittedLine.length > 1) {
+                    LOG.debug("OS Name/Distribution: {}", line);
+                    // remove beginning and ending '"' characters, etc from
+                    // NAME="Ubuntu"
+                    this.family = splittedLine[1].replaceAll("^\"|\"$", "");
+                    break;
                 }
-                // If we couldn't parse the os-release or lsb-release formats,
-                // see if we can parse first line of /etc/*-release
-                if (this.family == null && this.osRelease.size() > 0) {
-                    // Get everything before " release" or " VERSION"
-                    String[] split = this.osRelease.get(0).split("release");
+            }
+            // If we couldn't parse the os-release or lsb-release formats,
+            // see if we can parse first line of /etc/*-release
+            if (this.family == null && this.osRelease.size() > 0) {
+                // Get everything before " release" or " VERSION"
+                String[] split = this.osRelease.get(0).split("release");
+                if (split.length > 1) {
+                    this.family = split[0].trim();
+                } else {
+                    split = this.osRelease.get(0).split("VERSION");
                     if (split.length > 1) {
                         this.family = split[0].trim();
-                    } else {
-                        split = this.osRelease.get(0).split("VERSION");
-                        if (split.length > 1) {
-                            this.family = split[0].trim();
-                        }
                     }
                 }
-                // If we've gotten to the end without matching, use the filename
-                if (this.family == null) {
-                    this.family = filenameToFamily(etcOsRelease.replace("/etc/", "").replace("release", "")
-                            .replace("version", "").replace("-", "").replace("_", ""));
-                }
-            } catch (IOException e) {
-                LOG.trace("", e);
-                return "";
+            }
+            // If we've gotten to the end without matching, use the filename
+            if (this.family == null) {
+                this.family = filenameToFamily(etcOsRelease.replace("/etc/", "").replace("release", "")
+                        .replace("version", "").replace("-", "").replace("_", ""));
             }
         }
         return this.family;

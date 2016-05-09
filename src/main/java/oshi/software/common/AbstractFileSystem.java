@@ -17,8 +17,11 @@
  */
 package oshi.software.common;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -31,12 +34,21 @@ import oshi.software.os.OSFileStore;
  */
 public abstract class AbstractFileSystem implements FileSystem {
 
+    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
-        // TODO Auto-generated method stub
-        return null;
+        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
+                .add("openFileDescriptors", getOpenFileDescriptors()).add("maxFileDescriptors", getMaxFileDescriptors())
+                .build();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public abstract OSFileStore[] getFileStores();
 
