@@ -118,6 +118,7 @@ public class SystemInfo implements OshiJsonObject {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
+                .add("platform", this.currentPlatformEnum.toString())
                 .add("operatingSystem", getOperatingSystem().toJSON()).add("hardware", getHardware().toJSON()).build();
     }
 }

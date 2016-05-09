@@ -380,7 +380,8 @@ public class SystemInfoTest {
         System.out.println("File System:");
 
         FileSystem filesystem = hal.getFileSystem();
-        System.out.format("File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(), filesystem.getMaxFileDescriptors());
+        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
+                filesystem.getMaxFileDescriptors());
 
         OSFileStore[] fsArray = hal.getFileStores();
         for (OSFileStore fs : fsArray) {

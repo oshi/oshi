@@ -36,13 +36,19 @@ public abstract class AbstractFileSystem implements FileSystem {
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("openFileDescriptors", getOpenFileDescriptors())
-                .add("maxFileDescriptors", getMaxFileDescriptors()).build();
+                .add("openFileDescriptors", getOpenFileDescriptors()).add("maxFileDescriptors", getMaxFileDescriptors())
+                .build();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public abstract OSFileStore[] getFileStores();
 
