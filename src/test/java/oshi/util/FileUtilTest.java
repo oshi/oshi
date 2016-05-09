@@ -19,7 +19,6 @@ package oshi.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -38,12 +37,7 @@ public class FileUtilTest {
     @Test
     public void testReadFile() {
         List<String> thisFile = null;
-        try {
-            thisFile = FileUtil.readFile(THISCLASS);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        thisFile = FileUtil.readFile(THISCLASS);
         // Comment ONE line
         int lineOne = 0;
         // Comment TWO line

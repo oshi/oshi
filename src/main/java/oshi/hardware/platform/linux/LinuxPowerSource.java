@@ -18,7 +18,6 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,10 +63,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 continue;
             // Skip if can't read uevent file
             List<String> psInfo;
-            try {
-                psInfo = FileUtil.readFile(PS_PATH + psName + "/uevent");
-            } catch (IOException e) {
-                LOG.trace("", e);
+            psInfo = FileUtil.readFile(PS_PATH + psName + "/uevent", false);
+            if (psInfo.isEmpty()) {
                 continue;
             }
             // Initialize defaults

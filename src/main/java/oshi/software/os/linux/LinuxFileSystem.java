@@ -17,7 +17,6 @@
  */
 package oshi.software.os.linux;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
@@ -55,19 +54,15 @@ public class LinuxFileSystem extends AbstractFileSystem {
     public OSFileStore[] getFileStores() {
         // Parse /proc/self/mounts to map filesystem paths to types
         Map<String, String> fstype = new HashMap<>();
-        try {
-            List<String> mounts = FileUtil.readFile("/proc/self/mounts");
-            for (String mount : mounts) {
-                String[] split = mount.split(" ");
-                // 2nd field is path with spaces escaped as \040
-                // 3rd field is fs type
-                if (split.length < 6) {
-                    continue;
-                }
-                fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
+        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        for (String mount : mounts) {
+            String[] split = mount.split(" ");
+            // 2nd field is path with spaces escaped as \040
+            // 3rd field is fs type
+            if (split.length < 6) {
+                continue;
             }
-        } catch (IOException e) {
-            LOG.error("Error reading /proc/self/mounts. Can't detect filetypes.");
+            fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
         }
         // Format
         // Now list file systems
@@ -116,26 +111,25 @@ public class LinuxFileSystem extends AbstractFileSystem {
      *
      * @param index
      *            The index of the value to retrieve. 0 returns the total
-     *            allocated file descriptors. 1 returns the number of used
-     *            file descriptors for kernel 2.4, or the number of unused
-     *            file descriptors for kernel 2.6. 2 returns the maximum
-     *            number of file descriptors that can be allocated.
+     *            allocated file descriptors. 1 returns the number of used file
+     *            descriptors for kernel 2.4, or the number of unused file
+     *            descriptors for kernel 2.6. 2 returns the maximum number of
+     *            file descriptors that can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
         String filename = "/proc/sys/fs/file-nr";
-        if ( index < 0 || index > 2 ) {
+        if (index < 0 || index > 2) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
-        } else if (new File(filename).exists()) {
-            try {
-                List<String> osDescriptors = FileUtil.readFile(filename);
-                for (String line : osDescriptors) {
-                    String [] splittedLine = line.split("\\D+");
-                    return Long.parseLong(splittedLine[index]);
-                }
-            } catch (NumberFormatException | IOException e) {
-                LOG.trace("Unable to read value from {}", filename, e);
+        }
+        try {
+            List<String> osDescriptors = FileUtil.readFile(filename);
+            if (!osDescriptors.isEmpty()) {
+                String[] splittedLine = osDescriptors.get(0).split("\\D+");
+                return Long.parseLong(splittedLine[index]);
             }
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            LOG.trace("Unable to read value from {}", filename, e);
         }
         return 0L;
     }

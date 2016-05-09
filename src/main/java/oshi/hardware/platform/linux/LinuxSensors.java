@@ -18,7 +18,6 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -68,14 +67,9 @@ public class LinuxSensors extends AbstractSensors {
         if (hwmonMap.containsKey("temp")) {
             String hwmon = hwmonMap.get("temp");
             List<String> tempInfo = null;
-            try {
-                tempInfo = FileUtil.readFile(hwmon + "1_input");
-            } catch (IOException e) {
-                LOG.error("Problem with {}{}: {}", hwmon, "1_input", e.getMessage());
-                return 0d;
-            }
+            tempInfo = FileUtil.readFile(hwmon + "1_input", false);
             // Should return a single line of millidegrees Celsius
-            if (tempInfo.size() > 0) {
+            if (!tempInfo.isEmpty()) {
                 int millidegrees = 0;
                 try {
                     millidegrees = Integer.parseInt(tempInfo.get(0));
@@ -99,9 +93,8 @@ public class LinuxSensors extends AbstractSensors {
             int fan = 1;
             for (;;) {
                 List<String> fanInfo = null;
-                try {
-                    fanInfo = FileUtil.readFile(hwmon + fan + "_input");
-                } catch (IOException e) {
+                fanInfo = FileUtil.readFile(hwmon + fan + "_input", false);
+                if (fanInfo.isEmpty()) {
                     // No file found, we've reached max fans
                     break;
                 }
@@ -135,14 +128,9 @@ public class LinuxSensors extends AbstractSensors {
         if (hwmonMap.containsKey("in")) {
             String hwmon = hwmonMap.get("in");
             List<String> voltInfo = null;
-            try {
-                voltInfo = FileUtil.readFile(hwmon + "1_input");
-            } catch (IOException e) {
-                LOG.error("Problem with {}{}: {}", hwmon, "1_input", e.getMessage());
-                return 0d;
-            }
+            voltInfo = FileUtil.readFile(hwmon + "1_input", false);
             // Should return a single line of millidegrees Celsius
-            if (voltInfo.size() > 0) {
+            if (!voltInfo.isEmpty()) {
                 int millivolts = 0;
                 try {
                     millivolts = Integer.parseInt(voltInfo.get(0));

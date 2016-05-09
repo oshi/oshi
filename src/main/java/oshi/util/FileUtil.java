@@ -17,10 +17,12 @@
  */
 package oshi.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -41,13 +43,39 @@ public class FileUtil {
      * @param filename
      *            The file to read
      * 
-     * @return A list of Strings representing each line of the file
-     * @throws IOException
-     *             if there is an error reading the file
+     * @return A list of Strings representing each line of the file, or an empty
+     *         list if file could not be read or is empty
      */
-    public static List<String> readFile(String filename) throws IOException {
-        LOG.debug("Reading file {}", filename);
-        return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+    public static List<String> readFile(String filename) {
+        return readFile(filename, true);
+    }
+
+    /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     * 
+     * @param filename
+     *            The file to read
+     * @param reportError
+     *            Whether to log errors reading the file
+     * 
+     * @return A list of Strings representing each line of the file, or an empty
+     *         list if file could not be read or is empty
+     */
+    public static List<String> readFile(String filename, boolean reportError) {
+        if (new File(filename).exists()) {
+            LOG.debug("Reading file {}", filename);
+            try {
+                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                if (reportError) {
+                    LOG.error("Error reading file {}", filename);
+                }
+            }
+        } else if (reportError) {
+            LOG.warn("File not found: {}", filename);
+        }
+        return new ArrayList<String>();
     }
 
     /**
@@ -61,12 +89,12 @@ public class FileUtil {
     public static long getLongFromFile(String filename) {
         LOG.debug("Reading file {}", filename);
         try {
-            List<String> read = FileUtil.readFile(filename);
+            List<String> read = FileUtil.readFile(filename, false);
             if (!read.isEmpty()) {
                 LOG.trace("Read {}", read.get(0));
                 return Long.parseLong(read.get(0));
             }
-        } catch (NumberFormatException | IOException ex) {
+        } catch (NumberFormatException ex) {
             LOG.debug("Unable to read value from {}", filename);
         }
         return 0L;
