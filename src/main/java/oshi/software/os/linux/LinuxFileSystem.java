@@ -79,7 +79,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     private Boolean listElementStarts(List<String> aList, String charSeq) {
         for (String match : aList) {
-            if (match.startsWith(match)){
+            if (match.startsWith(charSeq)){
                 return Boolean.TRUE;
             }
         }
