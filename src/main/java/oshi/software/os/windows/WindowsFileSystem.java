@@ -70,9 +70,10 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 List<OSFileStore> fsList = new ArrayList<>();
                 for (File f : roots) {
                     String type = "unknown";
+                    String path = "unknown";
                     try {
                         // add trailing slash to path if needed
-                        String path = f.getCanonicalPath();
+                        path = f.getCanonicalPath();
                         if (path.charAt(path.length() - 1) != '\\') {
                             path = path + '\\';
                         }
@@ -83,7 +84,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     } catch (IOException e) {
                         LOG.error("Could not get canonical path for {}", f.toString());
                     }
-                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), fsv.getSystemTypeDescription(f), type,
+                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), path, fsv.getSystemTypeDescription(f), type,
                             f.getUsableSpace(), f.getTotalSpace()));
                 }
                 return fsList;

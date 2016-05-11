@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,24 +38,72 @@ import oshi.util.FileUtil;
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
+    // Linux defines a set of virtual file systems
+    private final List<String> pseudofs = Arrays.asList(new String[] { //
+            "sysfs", // SysFS file system
+            "proc", // Proc file system
+            "devtmpfs", // Dev temporary file system
+            "devpts", // Dev pseudo terminal devices file system
+            "securityfs", // Kernel security file system
+            "tmpfs", // Temporary file system
+            "cgroup", // Cgroup file system
+            "pstore", // Pstore file system
+            "hugetlbfs", // Huge pages support file system
+            "configfs", // Config file system
+            "selinuxfs", // SELinux file system
+            "systemd-1", // Systemd file system
+            "binfmt_misc", // Binary format support file system
+            "mqueue", // Message queue file system
+            "debugfs", // Debug file system
+            "nfsd", // NFS file system
+            "sunrpc", // Sun RPC file system
+            "fusectl", // FUSE control file system
+            // NOTE: FUSE's fuseblk is not evalued because used as file system
+            // representation of a FUSE block storage
+            // "fuseblk" // FUSE block file system
+    });
+
+    // System path mounted as tmpfs
+    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/dev/shm", "/run", "/sys", "/proc" });
+
+    /**
+     * Checks if file path equals or starts with an element in the given list
+     * 
+     * @param aList
+     *            A list of path prefixes
+     * @param charSeq
+     *            a path to check
+     * @return true if the charSeq exactly equals, or starts with the directory
+     *         in aList
+     */
+    private boolean listElementStartsWith(List<String> aList, String charSeq) {
+        for (String match : aList) {
+            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Gets File System Information.
-     * 
+     *
      * @return An array of {@link FileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
+    @Override
     public OSFileStore[] getFileStores() {
         // Parse /proc/self/mounts to map filesystem paths to types
         Map<String, String> fstype = new HashMap<>();
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        List<String> mounts = FileUtil.readFile("/proc/mounts");
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // 2nd field is path with spaces escaped as \040
@@ -71,10 +120,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // FileStore toString starts with path, then a space, then name in
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
             String path = store.toString().replace(" (" + store.name() + ")", "");
-            // Exclude special directories
-            if (path.startsWith("/proc") || path.startsWith("/sys") || path.startsWith("/run") || path.equals("/dev")
-                    || path.equals("/dev/pts"))
+
+            // Exclude pseudo file systems
+            if (this.pseudofs.contains(store.name()) || path.equals("/dev")
+                    || listElementStartsWith(this.tmpfsPaths, path)) {
                 continue;
+            }
+
             String name = store.name();
             if (path.equals("/"))
                 name = "/";
@@ -86,7 +138,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 type = fstype.get(path);
             }
             try {
-                fsList.add(new OSFileStore(name, description, type, store.getUsableSpace(), store.getTotalSpace()));
+                fsList.add(
+                        new OSFileStore(name, path, description, type, store.getUsableSpace(), store.getTotalSpace()));
             } catch (IOException e) {
                 // get*Space() may fail for ejected CD-ROM, etc.
                 LOG.trace("", e);

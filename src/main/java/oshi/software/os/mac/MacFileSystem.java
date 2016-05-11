@@ -90,9 +90,10 @@ public class MacFileSystem extends AbstractFileSystem {
                 String name = fsv.getSystemDisplayName(f);
                 String description = "Volume";
                 String type = "unknown";
+                String path = "unknown";
                 try {
-                    String cp = f.getCanonicalPath();
-                    if (cp.equals("/"))
+                    path = f.getCanonicalPath();
+                    if (path.equals("/"))
                         name = name + " (/)";
                     FileStore fs = Files.getFileStore(f.toPath());
                     if (localDisk.matcher(fs.name()).matches()) {
@@ -101,14 +102,14 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (fs.name().startsWith("localhost:") || fs.name().startsWith("//")) {
                         description = "Network Drive";
                     }
-                    if (fstype.containsKey(cp)) {
-                        type = fstype.get(cp);
+                    if (fstype.containsKey(path)) {
+                        type = fstype.get(path);
                     }
                 } catch (IOException e) {
                     LOG.trace("", e);
                     continue;
                 }
-                fsList.add(new OSFileStore(name, description, type, f.getUsableSpace(), f.getTotalSpace()));
+                fsList.add(new OSFileStore(name, path, description, type, f.getUsableSpace(), f.getTotalSpace()));
             }
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
