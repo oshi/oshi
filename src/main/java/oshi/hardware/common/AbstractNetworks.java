@@ -56,7 +56,7 @@ public abstract class AbstractNetworks implements Networks {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netint : Collections.list(interfaces)) {
-                if (!netint.isLoopback()) {
+                if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
                     NetworkIF netIF = new NetworkIF();
                     netIF.setNetworkInterface(netint);
                     this.updateNetworkStats(netIF);
