@@ -17,8 +17,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -361,28 +359,12 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
             // This should always work
-            List<String> hwInfo = WmiUtil.getStringValue("bios", "serialnumber");
-            for (String checkLine : hwInfo) {
-                if (checkLine.length() == 0 || checkLine.toLowerCase().contains("serialnumber")) {
-                    continue;
-                } else {
-                    this.cpuSerialNumber = checkLine.trim();
-                    break;
-                }
+            this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_BIOS", "SerialNumber", null);
+            // If the above doesn't work, this might
+            if (this.cpuSerialNumber.equals("")) {
+                this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_Csproduct", "IdentifyingNumber", null);
             }
-            // Just in case the above doesn't
-            if (this.cpuSerialNumber == null || this.cpuSerialNumber.length() == 0) {
-                hwInfo = WmiUtil.getStringValue("csproduct", "identifyingnumber");
-                for (String checkLine : hwInfo) {
-                    if (checkLine.length() == 0 || checkLine.toLowerCase().contains("identifyingnumber")) {
-                        continue;
-                    } else {
-                        this.cpuSerialNumber = checkLine.trim();
-                        break;
-                    }
-                }
-            }
-            if (this.cpuSerialNumber == null) {
+            if (this.cpuSerialNumber.equals("")) {
                 this.cpuSerialNumber = "unknown";
             }
         }

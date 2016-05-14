@@ -37,7 +37,8 @@ public class WindowsDisks extends AbstractDisks {
         List<HWDiskStore> result;
         result = new ArrayList<>();
 
-        Map<String, List<String>> vals = WmiUtil.getStrValues("DiskDrive", "Name,Manufacturer,Model,SerialNumber,Size");
+        Map<String, List<String>> vals = WmiUtil.selectStringsFrom(null, "Win32_DiskDrive",
+                "Name,Manufacturer,Model,SerialNumber,Size", null);
         for (int i = 0; i < vals.get("Name").size(); i++) {
             HWDiskStore ds = new HWDiskStore();
             ds.setName(vals.get("Name").get(i));
