@@ -35,9 +35,9 @@ public interface FileSystem extends OshiJsonObject {
      * number of open file descriptors.
      *
      * On Windows systems, this method returns 0. While Windows handles are
-     * conceptually similar to file descriptors, they may also refer to a
-     * number of non-I/O related objects, and there does not appear to be a
-     * system-wide limit for open handles.
+     * conceptually similar to file descriptors, they may also refer to a number
+     * of non-I/O related objects, and there does not appear to be a system-wide
+     * limit for open handles.
      *
      * @return The number of open file descriptors if available, 0 otherwise.
      */
@@ -50,9 +50,9 @@ public interface FileSystem extends OshiJsonObject {
      * number of open file descriptors.
      *
      * On Windows systems, this method returns 0. While Windows handles are
-     * conceptually similar to file descriptors, they may also refer to a
-     * number of non-I/O related objects, and there does not appear to be a
-     * system-wide limit for open handles.
+     * conceptually similar to file descriptors, they may also refer to a number
+     * of non-I/O related objects, and there does not appear to be a system-wide
+     * limit for open handles.
      *
      * @return The maximum number of file descriptors if available, 0 otherwise.
      */

@@ -15,15 +15,9 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.mac;
-
-import oshi.software.common.AbstractOperatingSystem;
-
-public class MacOperatingSystem extends AbstractOperatingSystem {
-
-    public MacOperatingSystem() {
-        this.manufacturer = "Apple";
-        this.family = System.getProperty("os.name");
-        this.version = new MacOSVersionInfoEx();
-    }
-}
+/**
+ * Provides implementation of COM objects for Windows. These classes should be
+ * considered non-API as they may be removed if/when their code is incorporated
+ * into the JNA project.
+ */
+package oshi.jna.platform.windows.COM;
