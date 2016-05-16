@@ -11,7 +11,7 @@ Essentials
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download OSHI 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.4&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.5-SNAPSHOT&e=jar)
-* [View the API](http://dblock.github.io/OSHI/apidocs/) - [View the FAQ](FAQ.md) - [View the Site](http://dblock.github.io/OSHI/)
+* [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
@@ -45,7 +45,7 @@ Output
 OSHI provides output directly via java methods or in JSON format for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
-The `main()` method of [SystemInfoTest](https://github.com/dblock/OSHI/blob/master/src/test/java/OSHI/SystemInfoTest.java) provides sample code demonstrating
+The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/src/test/java/oshi/SystemInfoTest.java) provides sample code demonstrating
 the use of the interfaces to retrieve information and calculate additional metrics such as the below examples.
 
 General information about the operating system and processor.
