@@ -33,9 +33,59 @@ import com.sun.jna.Structure;
 public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     SystemB INSTANCE = (SystemB) Native.loadLibrary("System", SystemB.class);
 
+    // params.h
+    int MAXCOMLEN = 16;
+    int MAXPATHLEN = 1024;
+    int PROC_PIDPATHINFO_MAXSIZE = MAXPATHLEN * 4;
+
     // proc_info.h
     int PROC_ALL_PIDS = 1;
+    int PROC_PIDTASKALLINFO = 2;
+    int PROC_PIDTBSDINFO = 3;
     int PROC_PIDTASKINFO = 4;
+
+    class ProcTaskAllInfo extends Structure {
+        public ProcBsdInfo pbsd;
+        public ProcTaskInfo ptinfo;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "pbsd", "ptinfo" });
+        }
+    }
+
+    class ProcBsdInfo extends Structure {
+        public int pbi_flags;
+        public int pbi_status;
+        public int pbi_xstatus;
+        public int pbi_pid;
+        public int pbi_ppid;
+        public int pbi_uid;
+        public int pbi_gid;
+        public int pbi_ruid;
+        public int pbi_rgid;
+        public int pbi_svuid;
+        public int pbi_svgid;
+        public int rfu_1;
+        public byte[] pbi_comm = new byte[MAXCOMLEN];
+        public byte[] pbi_name = new byte[2 * MAXCOMLEN];
+        public int pbi_nfiles;
+        public int pbi_pgid;
+        public int pbi_pjobc;
+        public int e_tdev;
+        public int e_tpgid;
+        public int pbi_nice;
+        public long pbi_start_tvsec;
+        public long pbi_start_tvusec;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "pbi_flags", "pbi_status", "pbi_xstatus", "pbi_pid", "pbi_ppid",
+                    "pbi_uid", "pbi_gid", "pbi_ruid", "pbi_rgid", "pbi_svuid", "pbi_svgid", "rfu_1", "pbi_comm",
+                    "pbi_name", "pbi_nfiles", "pbi_pgid", "pbi_pjobc", "e_tdev", "e_tpgid", "pbi_nice",
+                    "pbi_start_tvsec", "pbi_start_tvusec" });
+        }
+    }
 
     class ProcTaskInfo extends Structure {
         public long pti_virtual_size; /* virtual memory size (bytes) */
@@ -67,7 +117,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     };
 
     // length of fs type name including null
-    int MAXPATHLEN = 1024;
     int MFSTYPENAMELEN = 16;
     // length of buffer for returned name
     int MNAMELEN = MAXPATHLEN;
@@ -317,6 +366,20 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *         if an error was encountered;
      */
     int proc_pidinfo(int pid, int flavor, long arg, Structure buffer, int buffersize);
+
+    /**
+     * Return in buffer the name of the specified process
+     * 
+     * @param pid
+     *            the process identifier
+     * @param buffer
+     *            holds results
+     * @param buffersize
+     *            size of results
+     * @return the length of the name returned in buffer if successful; 0
+     *         otherwise
+     */
+    int proc_pidpath(int pid, Pointer buffer, int buffersize);
 
     int MNT_WAIT = 0x0001;
     int MNT_NOWAIT = 0x0010;

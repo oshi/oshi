@@ -35,6 +35,7 @@ import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
+import oshi.software.os.OSProcess;
 import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -371,6 +372,27 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return this.cpuSerialNumber;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getProcesses() {
+        // TODO Build this out
+        return new OSProcess[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+        // TODO Build this out
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getProcessCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -381,6 +403,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return perfInfo.ProcessCount.intValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getThreadCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();

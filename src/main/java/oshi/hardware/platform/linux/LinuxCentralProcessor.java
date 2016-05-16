@@ -33,6 +33,7 @@ import com.sun.jna.Native;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -364,6 +365,24 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return this.cpuSerialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getProcesses() {
+        // TODO Build this out
+        return new OSProcess[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+        // TODO Build this out
+        return null;
     }
 
     /**
