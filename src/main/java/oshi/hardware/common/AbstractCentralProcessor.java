@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
 import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.software.os.OSProcess;
 import oshi.util.ParseUtil;
 
 /**
@@ -554,6 +555,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         for (long ticks : getSystemIrqTicks()) {
             systemIrqTicksArrayBuilder.add(ticks);
         }
+        JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
+        for (OSProcess proc : getProcesses()) {
+            processArrayBuilder.add(proc.toJSON());
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -569,7 +574,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).add("processID", getProcessId())
-                .add("processes", getProcessCount()).add("threads", getThreadCount()).build();
+                .add("processCount", getProcessCount()).add("threadCount", getThreadCount())
+                .add("processes", processArrayBuilder.build()).build();
     }
 
     @Override

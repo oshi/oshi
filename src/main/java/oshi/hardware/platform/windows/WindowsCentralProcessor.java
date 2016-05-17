@@ -409,6 +409,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     private List<OSProcess> processMapToList(Map<String, List<Object>> procs) {
+        long now = System.currentTimeMillis();
         List<OSProcess> procList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         for (int p = 0; p < procs.get("Name").size(); p++) {
@@ -422,9 +423,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                                 ((Long) procs.get("Priority").get(p)).intValue(),
                                 Long.parseLong((String) procs.get("VirtualSize").get(p)),
                                 Long.parseLong((String) procs.get("WorkingSetSize").get(p)),
-                                Long.parseLong((String) procs.get("KernelModeTime").get(p)),
-                                Long.parseLong((String) procs.get("UserModeTime").get(p)),
-                                ((Date) procs.get("CreationDate").get(p)).getTime()));
+                                // Kernel and User time units are 100ns
+                                Long.parseLong((String) procs.get("KernelModeTime").get(p)) / 10000L,
+                                Long.parseLong((String) procs.get("UserModeTime").get(p)) / 10000L,
+                                ((Date) procs.get("CreationDate").get(p)).getTime(), now));
             } catch (NumberFormatException nfe) {
                 // Ignore errors, just don't add
                 LOG.debug("Parse Exception");

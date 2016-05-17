@@ -90,7 +90,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     class ProcTaskInfo extends Structure {
         public long pti_virtual_size; /* virtual memory size (bytes) */
         public long pti_resident_size; /* resident memory size (bytes) */
-        public long pti_total_user; /* total time */
+        public long pti_total_user; /* total time (nanoseconds) */
         public long pti_total_system;
         public long pti_threads_user; /* existing threads only */
         public long pti_threads_system;

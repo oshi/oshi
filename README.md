@@ -11,7 +11,7 @@ Essentials
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download OSHI 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.4&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.5-SNAPSHOT&e=jar)
-* [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
+* [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
@@ -20,11 +20,11 @@ Essentials
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
 	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
 
-Currently supported platforms <img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+Currently supported platforms 
 --------------------------- 
 * Windows
 * Linux
-* Mac OS X
+* Mac OS X<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
 Currently supported features
 --------------------------
@@ -66,6 +66,15 @@ Sensors:
  Fan Speeds:[4685, 4687]
  CPU Voltage: 3.9V
 ```
+Process information is available
+```
+Processes: 401, Threads: 1159
+   PID  %CPU %MEM       VSZ       RSS Name
+ 55977  27.9  0.2   6.8 GiB  34.3 MiB java
+ 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
+ 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
+ 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
+ ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.
 ```

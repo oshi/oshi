@@ -28,15 +28,19 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.software.os.OSProcess;
+import oshi.software.os.linux.LinuxProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -323,9 +327,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             // If sysinfo() returned 0, the info structure has been written
             return info.uptime.longValue();
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get uptime from sysinfo. {}", e.getMessage());
+            LOG.debug("Failed to get uptime from sysinfo. {}", e.getMessage());
         }
-        return 0L;
+        // Parse /proc/uptime instead
+        return (long) ProcUtil.getSystemUptimeFromProc();
     }
 
     /**
@@ -372,8 +377,26 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess[] getProcesses() {
-        // TODO Build this out
-        return new OSProcess[0];
+        List<OSProcess> procs = new ArrayList<>();
+        // Get all filenames in /proc directory with only digits (pids)
+        File procdir = new File("/proc");
+        final Pattern p = Pattern.compile("\\d+");
+        File[] pids = procdir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return p.matcher(file.getName()).matches();
+            }
+        });
+        // now for each file (with digit name) get process info
+        for (File pid : pids) {
+            try {
+                procs.add(getProcess(Integer.parseInt(pid.getName())));
+            } catch (NumberFormatException nfe) {
+                // Since we regexp matched digits this shouldn't ever get here
+                LOG.error("Couldn't parse {} to an integer.", pid.getName());
+            }
+        }
+        return procs.toArray(new OSProcess[procs.size()]);
     }
 
     /**
@@ -381,8 +404,38 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        // TODO Build this out
+        List<String> stat = FileUtil.readFile(String.format("/proc/%d/stat", pid));
+        if (stat.size() != 0) {
+            String path = "";
+            String[] split = stat.get(0).split("\\s+");
+            Pointer buf = new Memory(1024);
+            int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
+            if (size > 0) {
+                path = buf.getString(0).substring(0, size);
+            }
+            try {
+                return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
+                        // See man proc for how to parse /proc/[pid]/stat
+                        path, // path
+                        split[2].charAt(0), // state, one of RSDZTW
+                        pid, // also split[0] but we already have
+                        Integer.parseInt(split[3]), // ppid
+                        Integer.parseInt(split[19]), // thread count
+                        Integer.parseInt(split[17]), // priority
+                        Long.parseLong(split[22]), // VSZ
+                        Long.parseLong(split[23]), // RSS
+                        // The below values are in jiffies
+                        Long.parseLong(split[14]), // kernelTime
+                        Long.parseLong(split[13]), // userTime
+                        Long.parseLong(split[21]), // startTime (after uptime)
+                        System.currentTimeMillis() //
+                );
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                LOG.error("Unable to parse /proc/{}/stat", pid);
+            }
+        }
         return null;
+
     }
 
     /**

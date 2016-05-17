@@ -41,7 +41,8 @@ public class MacProcess extends AbstractProcess {
     private static final int SSTOP = 6; // process being traced
 
     public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime) {
+            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
+            long now) {
         this.name = name;
         this.path = path;
         switch (osXState) {
@@ -76,6 +77,7 @@ public class MacProcess extends AbstractProcess {
         this.kernelTime = kernelTime;
         this.userTime = userTime;
         this.startTime = startTime;
+        this.upTime = now - startTime;
     }
 
 }

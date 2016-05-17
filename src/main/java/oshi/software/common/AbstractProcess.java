@@ -48,89 +48,100 @@ public class AbstractProcess implements OSProcess {
     protected long kernelTime;
     protected long userTime;
     protected long startTime;
+    protected long upTime;
 
     /**
      * {@inheritDoc}
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
      * {@inheritDoc}
      */
     public String getPath() {
-        return path;
+        return this.path;
     }
 
     /**
      * {@inheritDoc}
      */
     public State getState() {
-        return state;
+        return this.state;
     }
 
     /**
      * {@inheritDoc}
      */
     public int getProcessID() {
-        return processID;
+        return this.processID;
     }
 
     /**
      * {@inheritDoc}
      */
     public int getParentProcessID() {
-        return parentProcessID;
+        return this.parentProcessID;
     }
 
     /**
      * {@inheritDoc}
      */
     public int getThreadCount() {
-        return threadCount;
+        return this.threadCount;
     }
 
     /**
      * {@inheritDoc}
      */
     public int getPriority() {
-        return priority;
+        return this.priority;
     }
 
     /**
      * {@inheritDoc}
      */
     public long getVirtualSize() {
-        return virtualSize;
+        return this.virtualSize;
     }
 
     /**
      * {@inheritDoc}
      */
     public long getResidentSetSize() {
-        return residentSetSize;
+        return this.residentSetSize;
     }
 
     /**
      * {@inheritDoc}
      */
     public long getKernelTime() {
-        return kernelTime;
+        return this.kernelTime;
     }
 
     /**
      * {@inheritDoc}
      */
     public long getUserTime() {
-        return userTime;
+        return this.userTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getUpTime() {
+        if (this.upTime < this.kernelTime + this.userTime) {
+            return this.kernelTime + this.userTime;
+        }
+        return this.upTime;
     }
 
     /**
      * {@inheritDoc}
      */
     public long getStartTime() {
-        return startTime;
+        return this.startTime;
     }
 
     /**
@@ -143,6 +154,6 @@ public class AbstractProcess implements OSProcess {
                 .add("parentProcessID", getParentProcessID()).add("threadCount", getThreadCount())
                 .add("priority", getPriority()).add("virtualSize", getVirtualSize())
                 .add("residentSetSize", getResidentSetSize()).add("kernelTime", getKernelTime())
-                .add("userTime", getUserTime()).add("startTime", getStartTime()).build();
+                .add("userTime", getUserTime()).add("upTime", getUpTime()).add("startTime", getStartTime()).build();
     }
 }

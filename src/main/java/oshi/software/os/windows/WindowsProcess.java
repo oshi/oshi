@@ -44,7 +44,8 @@ public class WindowsProcess extends AbstractProcess {
     private static final int GROWING = 9;
 
     public WindowsProcess(String name, String path, int winState, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime) {
+            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
+            long now) {
         this.name = name;
         this.path = path;
         switch (winState) {
@@ -83,6 +84,7 @@ public class WindowsProcess extends AbstractProcess {
         this.kernelTime = kernelTime;
         this.userTime = userTime;
         this.startTime = startTime;
+        this.upTime = now - startTime;
     }
 
 }

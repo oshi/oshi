@@ -49,7 +49,7 @@ public class SysctlUtil {
         IntByReference size = new IntByReference(SystemB.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
+            LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
             return def;
         }
         return p.getInt(0);

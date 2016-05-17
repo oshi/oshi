@@ -141,6 +141,11 @@ public interface OSProcess extends OshiJsonObject {
     public long getUserTime();
 
     /**
+     * @return Returns the number of milliseconds since the process started.
+     */
+    public long getUpTime();
+
+    /**
      * @return Returns the start time of the process in number of milliseconds
      *         since January 1, 1970.
      */

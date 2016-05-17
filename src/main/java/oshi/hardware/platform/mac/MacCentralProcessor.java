@@ -205,15 +205,16 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
             int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
-            if (service == 0) {
-                this.cpuSerialNumber = "unknown";
-            } else {
+            if (service != 0) {
                 // Fetch the serial number
                 CFTypeRef serialNumberAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(service,
                         CFStringRef.toCFString("IOPlatformSerialNumber"),
                         CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
                 IOKit.INSTANCE.IOObjectRelease(service);
                 this.cpuSerialNumber = CfUtil.cfPointerToString(serialNumberAsCFString.getPointer());
+            }
+            if (this.cpuSerialNumber == null) {
+                this.cpuSerialNumber = "unknown";
             }
         }
         return this.cpuSerialNumber;
@@ -257,6 +258,10 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
                 name = pathSplit[pathSplit.length - 1];
             }
         }
+        // If process is gone, return null
+        if (taskAllInfo.ptinfo.pti_threadnum < 1) {
+            return null;
+        }
         if (name == null) {
             // pbi_comm contains first 16 characters of name
             // null terminated
@@ -269,9 +274,10 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         }
         return new MacProcess(name, path, taskAllInfo.pbsd.pbi_status, pid, taskAllInfo.pbsd.pbi_ppid,
                 taskAllInfo.ptinfo.pti_threadnum, taskAllInfo.ptinfo.pti_priority, taskAllInfo.ptinfo.pti_virtual_size,
-                taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system,
-                taskAllInfo.ptinfo.pti_total_user,
-                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L);
+                taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system / 1000000L,
+                taskAllInfo.ptinfo.pti_total_user / 1000000L,
+                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L,
+                System.currentTimeMillis());
     }
 
     /**

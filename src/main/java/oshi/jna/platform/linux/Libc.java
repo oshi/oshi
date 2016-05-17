@@ -23,6 +23,7 @@ import java.util.List;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
@@ -34,6 +35,8 @@ import com.sun.jna.Structure;
 public interface Libc extends Library {
 
     Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
+
+    public static final int _SC_CLK_TCK = 3; // for sysconf
 
     class Sysinfo extends Structure {
         public NativeLong uptime; // Seconds since boot
@@ -82,4 +85,22 @@ public interface Libc extends Library {
      * @return the process ID of the calling process.
      */
     int getpid();
+
+    /**
+     * Places the contents of the symbolic link path in the buffer buf, which
+     * has size bufsiz.
+     * 
+     * @param path
+     *            A symbolic link
+     * @param buf
+     *            Holds actual path to location pointed to by symlink
+     * @param bufsize
+     *            size of data in buffer
+     * @return readlink() places the contents of the symbolic link path in the
+     *         buffer buf, which has size bufsiz. readlink() does not append a
+     *         null byte to buf. It will truncate the contents (to a length of
+     *         bufsiz characters), in case the buffer is too small to hold all
+     *         of the contents.
+     */
+    int readlink(String path, Pointer buf, int bufsize);
 }
