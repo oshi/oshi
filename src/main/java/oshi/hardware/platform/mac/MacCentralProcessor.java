@@ -225,9 +225,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public OSProcess[] getProcesses() {
         List<OSProcess> procs = new ArrayList<>();
-        // Get current pids, then slightly pad in case new process starts while
-        // allocating array space
-        int[] pids = new int[getProcessCount() + 10];
+        int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
                 / SystemB.INT_SIZE;
         for (int i = 0; i < numberOfProcesses; i++) {
@@ -276,11 +274,25 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
                 taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+        return SystemB.INSTANCE.getpid();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
@@ -296,4 +308,5 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         }
         return numberOfThreads;
     }
+
 }

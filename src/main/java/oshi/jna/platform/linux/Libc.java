@@ -74,4 +74,12 @@ public interface Libc extends Library {
 
     // Native call for getting load average
     int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
 }

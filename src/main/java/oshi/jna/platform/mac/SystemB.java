@@ -413,4 +413,12 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *         is set to indicate the error.
      */
     int getfsstat64(Statfs[] buf, int bufsize, int flags);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
 }

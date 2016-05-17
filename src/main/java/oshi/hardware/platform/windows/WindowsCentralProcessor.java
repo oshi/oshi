@@ -17,6 +17,11 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +41,10 @@ import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.software.os.OSProcess;
+import oshi.software.os.windows.WindowsProcess;
 import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
 
 /**
  * A CPU as defined in Windows registry.
@@ -73,6 +80,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private PointerByReference pIrq = new PointerByReference();
     private PointerByReference pDpc = new PointerByReference();
     private long[] irqTicks = new long[2];
+
+    // For WMI Process queries
+    private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
+            + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate";
+    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.LONG,
+            ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.STRING, ValueType.STRING,
+            ValueType.STRING, ValueType.STRING, ValueType.DATETIME };
 
     /**
      * Create a Processor
@@ -377,8 +391,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess[] getProcesses() {
-        // TODO Build this out
-        return new OSProcess[0];
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, null,
+                processPropertyTypes);
+        List<OSProcess> procList = processMapToList(procs);
+        return procList.toArray(new OSProcess[procList.size()]);
     }
 
     /**
@@ -386,8 +402,44 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        // TODO Build this out
-        return null;
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
+                String.format("WHERE ProcessId=%d", pid), processPropertyTypes);
+        List<OSProcess> procList = processMapToList(procs);
+        return procList.size() > 0 ? procList.get(0) : null;
+    }
+
+    private List<OSProcess> processMapToList(Map<String, List<Object>> procs) {
+        List<OSProcess> procList = new ArrayList<>();
+        // All map lists should be the same length. Pick one size and iterate
+        for (int p = 0; p < procs.get("Name").size(); p++) {
+            try {
+                procList.add(
+                        new WindowsProcess((String) procs.get("Name").get(p), (String) procs.get("CommandLine").get(p),
+                                ((Long) procs.get("ExecutionState").get(p)).intValue(),
+                                ((Long) procs.get("ProcessID").get(p)).intValue(),
+                                ((Long) procs.get("ParentProcessId").get(p)).intValue(),
+                                ((Long) procs.get("ThreadCount").get(p)).intValue(),
+                                ((Long) procs.get("Priority").get(p)).intValue(),
+                                Long.parseLong((String) procs.get("VirtualSize").get(p)),
+                                Long.parseLong((String) procs.get("WorkingSetSize").get(p)),
+                                Long.parseLong((String) procs.get("KernelModeTime").get(p)),
+                                Long.parseLong((String) procs.get("UserModeTime").get(p)),
+                                ((Date) procs.get("CreationDate").get(p)).getTime()));
+            } catch (NumberFormatException nfe) {
+                // Ignore errors, just don't add
+                LOG.debug("Parse Exception");
+            }
+        }
+
+        return procList;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+        return Kernel32.INSTANCE.GetCurrentProcessId();
     }
 
     /**

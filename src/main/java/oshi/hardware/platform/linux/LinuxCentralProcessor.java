@@ -389,6 +389,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    public int getProcessId() {
+        return Libc.INSTANCE.getpid();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int getProcessCount() {
         // Get all filenames in /proc directory with only digits (pids)
         File procdir = new File("/proc");

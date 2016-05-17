@@ -568,8 +568,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).add("processes", getProcessCount())
-                .add("threads", getThreadCount()).build();
+                .add("systemUptime", getSystemUptime()).add("processID", getProcessId())
+                .add("processes", getProcessCount()).add("threads", getThreadCount()).build();
     }
 
     @Override

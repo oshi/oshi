@@ -17,7 +17,10 @@
  */
 package oshi.util.platform.windows;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,9 +70,14 @@ public class WmiUtil {
     /**
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
-    private enum ValueType {
-        STRING, LONG, FLOAT
+    public enum ValueType {
+        STRING, LONG, FLOAT, DATETIME
     }
+
+    /*
+     * Format for parsing DATETIME 20160513072950.782000-420
+     */
+    private static final SimpleDateFormat cimDateFormat = new SimpleDateFormat("yyyyMMddHHmmss.S");
 
     /**
      * Get a single Long value from WMI
@@ -228,6 +236,32 @@ public class WmiUtil {
     }
 
     /**
+     * Get multiple individually typed values from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @param propertyTypes
+     *            An array of types corresponding to the properties
+     * @return A map, with each property as the key, containing Objects with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists. The type of the objects is identified by the
+     *         propertyTypes array. It is the responsibility of the caller to
+     *         cast the returned objects.
+     */
+    public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String properties,
+            String whereClause, ValueType[] propertyTypes) {
+        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
+                wmiClass, whereClause, propertyTypes);
+        return result;
+    }
+
+    /**
      * Query WMI for values
      * 
      * @param namespace
@@ -248,6 +282,35 @@ public class WmiUtil {
     private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
             String whereClause, ValueType valType) {
         // Set up empty map
+        String[] props = properties.split(",");
+        ValueType[] propertyTypes = new ValueType[props.length];
+        for (int i = 0; i < props.length; i++) {
+            propertyTypes[i] = valType;
+        }
+        return queryWMI(namespace, properties, wmiClass, whereClause, propertyTypes);
+    }
+
+    /**
+     * Query WMI for values
+     * 
+     * @param namespace
+     *            The namespace to query
+     * @param properties
+     *            A single property or comma-delimited list of properties to
+     *            enumerate
+     * @param wmiClass
+     *            The WMI class to query
+     * @param propertyTypes
+     *            An array corresponding to the properties, containing the type
+     *            of data being queried, to control how VARIANT is parsed
+     * @return A map, with the string value of each property as the key,
+     *         containing a list of Objects which can be cast appropriately per
+     *         valType. The order of objects in each list corresponds to the
+     *         other lists.
+     */
+    private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
+            String whereClause, ValueType[] propertyTypes) {
+        // Set up empty map
         Map<String, List<Object>> values = new HashMap<>();
         String[] props = properties.split(",");
         for (int i = 0; i < props.length; i++) {
@@ -266,12 +329,13 @@ public class WmiUtil {
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
 
-        enumerateProperties(values, enumerator, props, valType);
+        enumerateProperties(values, enumerator, props, propertyTypes);
 
         enumerator.Release();
         svc.Release();
         return values;
     }
+
     /*
      * Getting WMI Data from Local Computer
      * 
@@ -353,7 +417,10 @@ public class WmiUtil {
     }
 
     private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
-            String[] properties, ValueType valType) {
+            String[] properties, ValueType[] propertyTypes) {
+        if (properties.length != propertyTypes.length) {
+            throw new IllegalArgumentException("Property type array size must equal properties array size.");
+        }
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
@@ -370,10 +437,11 @@ public class WmiUtil {
 
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
-            for (String property : properties) {
+            for (int p = 0; p < properties.length; p++) {
+                String property = properties[p];
                 hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
 
-                switch (valType) {
+                switch (propertyTypes[p]) {
                 case STRING:
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
@@ -383,6 +451,19 @@ public class WmiUtil {
                     break;
                 case FLOAT:
                     values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
+                    break;
+                case DATETIME:
+                    // Read a string in format 20160513072950.782000-420 and
+                    // parse to a long representing Date.getTime()
+                    if (vtProp.getValue() != null) {
+                        // Parse the date including milliseconds
+                        Date date = cimDateFormat.parse(vtProp.stringValue().substring(0, 18), new ParsePosition(0));
+                        if (date != null) {
+                            values.get(property).add(date);
+                            break;
+                        }
+                    }
+                    values.get(property).add(new Date(0));
                     break;
                 default:
                     // Should never get here!

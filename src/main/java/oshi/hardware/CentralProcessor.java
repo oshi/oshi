@@ -333,6 +333,13 @@ public interface CentralProcessor extends OshiJsonObject {
     OSProcess getProcess(int pid);
 
     /**
+     * Gets the current process ID
+     * 
+     * @return the Process ID of the current process
+     */
+    int getProcessId();
+
+    /**
      * Get the number of processes currently running
      * 
      * @return The number of processes running
