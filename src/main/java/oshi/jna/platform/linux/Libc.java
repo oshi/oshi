@@ -23,6 +23,7 @@ import java.util.List;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
@@ -72,6 +73,45 @@ public interface Libc extends Library {
 
     int sysinfo(Sysinfo info);
 
-    // Native call for getting load average
+    /**
+     * The getloadavg() function returns the number of processes in the system
+     * run queue averaged over various periods of time. Up to nelem samples are
+     * retrieved and assigned to successive elements of loadavg[]. The system
+     * imposes a maximum of 3 samples, representing averages over the last 1, 5,
+     * and 15 minutes, respectively.
+     * 
+     * @param loadavg
+     *            array to be filled
+     * @param nelem
+     *            number of elements in the array to fill
+     * @return If the load average was unobtainable, -1 is returned; otherwise,
+     *         the number of samples actually retrieved is returned.
+     */
     int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
+
+    /**
+     * Places the contents of the symbolic link path in the buffer buf, which
+     * has size bufsiz.
+     * 
+     * @param path
+     *            A symbolic link
+     * @param buf
+     *            Holds actual path to location pointed to by symlink
+     * @param bufsize
+     *            size of data in buffer
+     * @return readlink() places the contents of the symbolic link path in the
+     *         buffer buf, which has size bufsiz. readlink() does not append a
+     *         null byte to buf. It will truncate the contents (to a length of
+     *         bufsiz characters), in case the buffer is too small to hold all
+     *         of the contents.
+     */
+    int readlink(String path, Pointer buf, int bufsize);
 }
