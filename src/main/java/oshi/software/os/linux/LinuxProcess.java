@@ -18,9 +18,7 @@
 package oshi.software.os.linux;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,18 +62,9 @@ public class LinuxProcess extends AbstractProcess {
         // Search through all processes to find the youngest one, with the
         // latest start time since boot.
 
-        // Get all filenames in /proc directory with only digits (pids)
-        File procdir = new File("/proc");
-        final Pattern p = Pattern.compile("\\d+");
-        File[] pids = procdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
-            }
-        });
-
         // Iterate /proc/[pid]/stat checking the creation time (field 22,
         // jiffies since boot) for the largest value
+        File[] pids = ProcUtil.getPidFiles();
         long youngestJiffies = 0L;
         int youngestPid = 0;
         for (File pidFile : pids) {

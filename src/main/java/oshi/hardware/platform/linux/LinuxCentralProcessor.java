@@ -18,12 +18,10 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -366,19 +364,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public OSProcess[] getProcesses() {
         List<OSProcess> procs = new ArrayList<>();
-        // Get all filenames in /proc directory with only digits (pids)
-        File procdir = new File("/proc");
-        final Pattern p = Pattern.compile("\\d+");
-        File[] pids = procdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
-            }
-        });
+        File[] pids = ProcUtil.getPidFiles();
         // now for each file (with digit name) get process info
         for (File pid : pids) {
             try {
-                procs.add(getProcess(Integer.parseInt(pid.getName())));
+                OSProcess proc = getProcess(Integer.parseInt(pid.getName()));
+                if (proc != null) {
+                    procs.add(proc);
+                }
             } catch (NumberFormatException nfe) {
                 // Since we regexp matched digits this shouldn't ever get here
                 LOG.error("Couldn't parse {} to an integer.", pid.getName());
@@ -392,38 +385,37 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        List<String> stat = FileUtil.readFile(String.format("/proc/%d/stat", pid));
-        if (stat.size() != 0) {
-            String path = "";
-            String[] split = stat.get(0).split("\\s+");
-            Pointer buf = new Memory(1024);
-            int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
-            if (size > 0) {
-                path = buf.getString(0).substring(0, size);
-            }
-            try {
-                return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
-                        // See man proc for how to parse /proc/[pid]/stat
-                        path, // path
-                        split[2].charAt(0), // state, one of RSDZTW
-                        pid, // also split[0] but we already have
-                        Integer.parseInt(split[3]), // ppid
-                        Integer.parseInt(split[19]), // thread count
-                        Integer.parseInt(split[17]), // priority
-                        Long.parseLong(split[22]), // VSZ
-                        Long.parseLong(split[23]), // RSS
-                        // The below values are in jiffies
-                        Long.parseLong(split[14]), // kernelTime
-                        Long.parseLong(split[13]), // userTime
-                        Long.parseLong(split[21]), // startTime (after uptime)
-                        System.currentTimeMillis() //
-                );
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                LOG.error("Unable to parse /proc/{}/stat", pid);
-            }
+        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
+        if (split.length < 24) {
+            return null;
+        }
+        String path = "";
+        Pointer buf = new Memory(1024);
+        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
+        if (size > 0) {
+            path = buf.getString(0).substring(0, size);
+        }
+        try {
+            return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
+                    // See man proc for how to parse /proc/[pid]/stat
+                    path, // path
+                    split[2].charAt(0), // state, one of RSDZTW
+                    pid, // also split[0] but we already have
+                    Integer.parseInt(split[3]), // ppid
+                    Integer.parseInt(split[19]), // thread count
+                    Integer.parseInt(split[17]), // priority
+                    Long.parseLong(split[22]), // VSZ
+                    Long.parseLong(split[23]), // RSS
+                    // The below values are in jiffies
+                    Long.parseLong(split[14]), // kernelTime
+                    Long.parseLong(split[13]), // userTime
+                    Long.parseLong(split[21]), // startTime (after uptime)
+                    System.currentTimeMillis() //
+            );
+        } catch (NumberFormatException e) {
+            LOG.error("Unable to parse /proc/{}/stat", pid);
         }
         return null;
-
     }
 
     /**
@@ -439,16 +431,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public int getProcessCount() {
-        // Get all filenames in /proc directory with only digits (pids)
-        File procdir = new File("/proc");
-        final Pattern p = Pattern.compile("\\d+");
-        File[] pids = procdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
-            }
-        });
-        return pids == null ? 0 : pids.length;
+        return ProcUtil.getPidFiles().length;
     }
 
     /**
