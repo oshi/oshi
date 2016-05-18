@@ -17,7 +17,9 @@
  */
 package oshi.util.platform.linux;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileFilter;
+import java.util.regex.Pattern;
 
 import oshi.util.FileUtil;
 
@@ -33,17 +35,32 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static float getSystemUptimeFromProc() {
-        List<String> procUptime = FileUtil.readFile("/proc/uptime");
-        if (procUptime.size() > 0) {
-            String[] split = procUptime.get(0).split("\\s+");
-            if (split.length > 0) {
-                try {
-                    return Float.parseFloat(split[0]);
-                } catch (NumberFormatException nfe) {
-                    return 0f;
-                }
+        String[] split = FileUtil.getSplitFromFile("/proc/uptime");
+        if (split.length > 0) {
+            try {
+                return Float.parseFloat(split[0]);
+            } catch (NumberFormatException nfe) {
+                return 0f;
             }
         }
         return 0f;
+    }
+
+    /**
+     * Gets an array of files in the /proc directory with only numeric digit
+     * filenames, corresponding to processes
+     * 
+     * @return An array of File objects for the process files
+     */
+    public static File[] getPidFiles() {
+        File procdir = new File("/proc");
+        final Pattern p = Pattern.compile("\\d+");
+        File[] pids = procdir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return p.matcher(file.getName()).matches();
+            }
+        });
+        return pids != null ? pids : new File[0];
     }
 }
