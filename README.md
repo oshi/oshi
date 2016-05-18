@@ -19,6 +19,7 @@ Essentials
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
 	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
+	* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
 
 Currently supported platforms 
 --------------------------- 
@@ -26,12 +27,13 @@ Currently supported platforms
 * Linux
 * Mac OS X<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
-Currently supported features
+Currently supported features 
 --------------------------
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs 
 * System and per-processor load % and tick counters
 * CPU uptime, processes, and threads
+* Process uptime, cpu, memory usage
 * Physical and virtual memory used/available
 * Network interfaces (IPs, bandwidth in/out)
 * Battery state (% capacity, time remaining)
