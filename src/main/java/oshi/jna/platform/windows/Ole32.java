@@ -39,6 +39,8 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
     public static final int RPC_C_AUTHZ_NONE = 0;
     public static final int RPC_C_AUTHN_LEVEL_CALL = 3;
 
+    public static final int RPC_E_TOO_LATE = 0x80010119;
+
     public static final int EOAC_NONE = 0;
 
     // TODO: Submit this change to JNA Ole32 class

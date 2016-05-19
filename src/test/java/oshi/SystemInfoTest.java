@@ -50,7 +50,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -472,9 +471,9 @@ public class SystemInfoTest {
         }
         LOG.info("Printing JSON:");
         // Compact JSON
-        // System.out.println(si.toJSON().toString());
+        System.out.println(si.toJSON().toString());
 
         // Pretty JSON
-        System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
+        // System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
     }
 }
