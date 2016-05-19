@@ -101,6 +101,28 @@ public class FileUtil {
     }
 
     /**
+     * Read a file and return the int value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise zero
+     */
+    public static int getIntFromFile(String filename) {
+        LOG.debug("Reading file {}", filename);
+        try {
+            List<String> read = FileUtil.readFile(filename, false);
+            if (!read.isEmpty()) {
+                LOG.trace("Read {}", read.get(0));
+                return Integer.parseInt(read.get(0));
+            }
+        } catch (NumberFormatException ex) {
+            LOG.debug("Unable to read value from {}", filename);
+        }
+        return 0;
+    }
+
+    /**
      * Read a file and return an array of whitespace-delimited string values
      * contained therein. Intended primarily for Linux /proc
      * 
