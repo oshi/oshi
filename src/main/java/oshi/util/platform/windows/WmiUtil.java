@@ -17,8 +17,6 @@
  */
 package oshi.util.platform.windows;
 
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +41,7 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
+import oshi.util.ParseUtil;
 
 /**
  * Provides access to WMI queries
@@ -73,11 +72,6 @@ public class WmiUtil {
     public enum ValueType {
         STRING, LONG, FLOAT, DATETIME
     }
-
-    /*
-     * Format for parsing DATETIME 20160513072950.782000-420
-     */
-    private static final SimpleDateFormat cimDateFormat = new SimpleDateFormat("yyyyMMddHHmmss.S");
 
     /**
      * Get a single Long value from WMI
@@ -457,7 +451,7 @@ public class WmiUtil {
                     // parse to a long representing Date.getTime()
                     if (vtProp.getValue() != null) {
                         // Parse the date including milliseconds
-                        Date date = cimDateFormat.parse(vtProp.stringValue().substring(0, 18), new ParsePosition(0));
+                        Date date = ParseUtil.cimDateTimeToDate(vtProp.stringValue());
                         if (date != null) {
                             values.get(property).add(date);
                             break;
