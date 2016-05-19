@@ -18,7 +18,10 @@
 package oshi.util;
 
 import java.io.StringWriter;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -266,5 +269,28 @@ public abstract class ParseUtil {
         jsonWriter.close();
         // Return
         return stringWriter.toString();
+    }
+
+    /*
+     * Format for parsing DATETIME originally 20160513072950.782000-420,
+     * modified to 20160513072950.782-0700
+     */
+    private static final SimpleDateFormat cimDateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSSX");
+
+    /**
+     * Parses a CIM_DateTime format (from WMI) to a Java Date. See
+     * https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
+     * 
+     * @param cimDate
+     *            A string containing the CIM_DateTime
+     * @return The corresponding date
+     */
+    public static Date cimDateTimeToDate(String cimDate) {
+        // Keep first 18 digits; ignore next 3
+        // Keep + or - sign of timezone
+        // Parse last 3 digits from minutes to HH:mm
+        int tzMinutes = Integer.parseInt(cimDate.substring(22));
+        return cimDateFormat.parse(String.format("%s%c%02d%02d", cimDate.substring(0, 18), cimDate.charAt(21),
+                tzMinutes / 60, tzMinutes % 60), new ParsePosition(0));
     }
 }

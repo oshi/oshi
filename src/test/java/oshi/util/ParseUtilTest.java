@@ -105,4 +105,13 @@ public class ParseUtilTest {
         f = 0x123 + (float) 0x4 / 0x10;
         assertEquals(f, ParseUtil.byteArrayToFloat(temp, 2, 4), Float.MIN_VALUE);
     }
+
+    /**
+     * Test string to long.
+     */
+    @Test
+    public void testCimDateTimeToDate() {
+        assertEquals(ParseUtil.cimDateTimeToDate("20160513072950.782000-420").getTime(), 1463149790782L);
+    }
+
 }
