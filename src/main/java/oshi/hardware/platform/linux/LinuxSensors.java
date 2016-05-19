@@ -18,6 +18,7 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,17 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.FileUtil;
 
 public class LinuxSensors extends AbstractSensors {
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxSensors.class);
-
     // Possible sensor types. See sysfs documentation for others, e.g. current
-    private static final String[] SENSORS = { "temp", "fan", "in" };
+    private static final String TEMP = "temp";
+    private static final String FAN = "fan";
+    private static final String VOLTAGE = "in";
+    private static final String[] SENSORS = { TEMP, FAN, VOLTAGE };
 
     // Base HWMON path, adds 0, 1, etc. to end for various sensors
     private static final String HWMON = "/sys/class/hwmon/hwmon";
@@ -49,10 +48,18 @@ public class LinuxSensors extends AbstractSensors {
         int i = 0;
         while (Files.isDirectory(Paths.get(HWMON + i))) {
             for (String sensor : SENSORS) {
-                String path = HWMON + i + "/" + sensor;
-                File sensorFile = new File(path + "1_input");
-                if (sensorFile.exists()) {
-                    hwmonMap.put(sensor, path);
+                String path = String.format("%s%d", HWMON, i);
+                // Final to pass to anonymous class
+                final String prefix = sensor;
+                // Find any *_input files in that path
+                File dir = new File(path);
+                File[] matchingFiles = dir.listFiles(new FileFilter() {
+                    public boolean accept(File pathname) {
+                        return pathname.getName().startsWith(prefix) && pathname.getName().endsWith("_input");
+                    }
+                });
+                if (matchingFiles != null && matchingFiles.length > 0) {
+                    hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
                 }
             }
             i++;
@@ -64,19 +71,28 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (hwmonMap.containsKey("temp")) {
-            String hwmon = hwmonMap.get("temp");
-            List<String> tempInfo = null;
-            tempInfo = FileUtil.readFile(hwmon + "1_input", false);
+        if (hwmonMap.containsKey(TEMP)) {
+            String hwmon = hwmonMap.get(TEMP);
+            // First attempt should be CPU temperature at index 1, if available
+            long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
             // Should return a single line of millidegrees Celsius
-            if (!tempInfo.isEmpty()) {
-                int millidegrees = 0;
-                try {
-                    millidegrees = Integer.parseInt(tempInfo.get(0));
-                } catch (NumberFormatException e) {
-                    LOG.error("Invalid format for temperature: {}", tempInfo.get(0));
-                }
+            if (millidegrees > 0) {
                 return millidegrees / 1000d;
+            } else {
+                // If temp1_input doesn't exist, iterate over temp2..temp6_input
+                // and average
+                int sum = 0;
+                int count = 0;
+                for (int i = 2; i <= 6; i++) {
+                    millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
+                    if (millidegrees > 0) {
+                        sum += millidegrees;
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    return sum / (count * 1000d);
+                }
             }
         }
         return 0d;
@@ -87,27 +103,18 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (hwmonMap.containsKey("fan")) {
-            String hwmon = hwmonMap.get("fan");
+        if (hwmonMap.containsKey(FAN)) {
+            String hwmon = hwmonMap.get(FAN);
             List<Integer> speeds = new ArrayList<Integer>();
             int fan = 1;
             for (;;) {
-                List<String> fanInfo = null;
-                fanInfo = FileUtil.readFile(hwmon + fan + "_input", false);
-                if (fanInfo.isEmpty()) {
+                String fanPath = String.format("%s%d_input", hwmon, fan);
+                if (!new File(fanPath).exists()) {
                     // No file found, we've reached max fans
                     break;
                 }
                 // Should return a single line of RPM
-                if (fanInfo.size() > 0) {
-                    int rpm = 0;
-                    try {
-                        rpm = Integer.parseInt(fanInfo.get(0));
-                    } catch (NumberFormatException e) {
-                        LOG.error("Invalid format for fan speed: {}", fanInfo.get(0));
-                    }
-                    speeds.add(rpm);
-                }
+                speeds.add(FileUtil.getIntFromFile(fanPath));
                 // Done reading data for current fan, read next fan
                 fan++;
             }
@@ -125,20 +132,10 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (hwmonMap.containsKey("in")) {
-            String hwmon = hwmonMap.get("in");
-            List<String> voltInfo = null;
-            voltInfo = FileUtil.readFile(hwmon + "1_input", false);
+        if (hwmonMap.containsKey(VOLTAGE)) {
+            String hwmon = hwmonMap.get(VOLTAGE);
             // Should return a single line of millidegrees Celsius
-            if (!voltInfo.isEmpty()) {
-                int millivolts = 0;
-                try {
-                    millivolts = Integer.parseInt(voltInfo.get(0));
-                } catch (NumberFormatException e) {
-                    LOG.error("Invalid format for temperature: {}", voltInfo.get(0));
-                }
-                return millivolts / 1000d;
-            }
+            return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
         }
         return 0d;
     }
