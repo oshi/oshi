@@ -11,20 +11,17 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico[dot]bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.os.windows;
 
-import java.io.File;
-import java.io.IOException;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinNT;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileSystemView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,7 @@ import oshi.software.os.OSFileStore;
  * pool, device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Windows, these are represented by a drive
  * letter, e.g., "A:\" and "C:\"
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsFileSystem extends AbstractFileSystem {
@@ -52,53 +49,44 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     /**
      * Gets File System Information.
-     * 
+     *
      * @return An array of {@link OSFileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     public OSFileStore[] getFileStores() {
-        // File.listRoots() has more information for Windows
-        // than FileSystem.getDefalut().getFileStores()
-        final File[] roots = File.listRoots();
-        // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
-        // problems
-        SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
-            @Override
-            public List<OSFileStore> doInBackground() {
-                FileSystemView fsv = FileSystemView.getFileSystemView();
-                List<OSFileStore> fsList = new ArrayList<>();
-                for (File f : roots) {
-                    String type = "unknown";
-                    String path = "unknown";
-                    try {
-                        // add trailing slash to path if needed
-                        path = f.getCanonicalPath();
-                        if (path.charAt(path.length() - 1) != '\\') {
-                            path = path + '\\';
-                        }
-                        char[] fstype = new char[16];
-                        if (Kernel32.INSTANCE.GetVolumeInformation(path, null, 0, null, null, null, fstype, 16)) {
-                            type = new String(fstype).trim();
-                        }
-                    } catch (IOException e) {
-                        LOG.error("Could not get canonical path for {}", f.toString());
-                    }
-                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), path, fsv.getSystemTypeDescription(f), type,
-                            f.getUsableSpace(), f.getTotalSpace()));
-                }
-                return fsList;
-            }
-        };
-        worker.execute();
         List<OSFileStore> fs = new ArrayList<>();
-        try {
-            // TODO: Consider a timeout version of this method that passes
-            // timeout parameters which are used in this get()
-            fs = worker.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("", e);
+        WinDef.DWORD LENGTH = new WinDef.DWORD(255L);
+        char[] volume = new char[LENGTH.intValue()];
+
+        WinNT.HANDLE hVol = Kernel32.INSTANCE.FindFirstVolume(volume, LENGTH.intValue());
+        if (hVol == WinNT.INVALID_HANDLE_VALUE) {
+            return fs.toArray(new OSFileStore[0]);
         }
+
+        while (true) {
+            char[] fstype = new char[16];
+            char[] name = new char[LENGTH.intValue()];
+            char[] mount = new char[LENGTH.intValue()];
+            WinNT.LARGE_INTEGER userFreeBytes = new WinNT.LARGE_INTEGER(0L);
+            WinNT.LARGE_INTEGER totalBytes = new WinNT.LARGE_INTEGER(0L);
+            WinNT.LARGE_INTEGER systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
+        
+            Kernel32.INSTANCE.GetVolumeInformation(new String(volume).trim(), name, 255, null, null, null, fstype, 16);
+            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(new String(volume).trim(), mount, 255, null);
+            Kernel32.INSTANCE.GetDiskFreeSpaceEx(new String(volume).trim(), userFreeBytes, totalBytes, systemFreeBytes);
+
+            fs.add(new OSFileStore(new String(volume).trim(), new String(mount).trim(),
+                    new String(name).trim(), new String(fstype).trim(),
+                    systemFreeBytes.getValue(), totalBytes.getValue()));
+
+            boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, volume, 255);
+            if (!retVal) {
+                Kernel32.INSTANCE.FindVolumeClose(hVol);
+                break;
+            }
+        }
+
         return fs.toArray(new OSFileStore[fs.size()]);
     }
 
