@@ -56,9 +56,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
     public OSFileStore[] getFileStores() {
         List<OSFileStore> fs = new ArrayList<>();
         final int LENGTH = 255;
-        char[] volume = new char[LENGTH];
+        char[] aVolume = new char[LENGTH];
 
-        WinNT.HANDLE hVol = Kernel32.INSTANCE.FindFirstVolume(volume, LENGTH);
+        WinNT.HANDLE hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, LENGTH);
         if (hVol == WinNT.INVALID_HANDLE_VALUE) {
             return fs.toArray(new OSFileStore[0]);
         }
@@ -67,19 +67,21 @@ public class WindowsFileSystem extends AbstractFileSystem {
             char[] fstype = new char[16];
             char[] name = new char[LENGTH];
             char[] mount = new char[LENGTH];
+
             WinNT.LARGE_INTEGER userFreeBytes = new WinNT.LARGE_INTEGER(0L);
             WinNT.LARGE_INTEGER totalBytes = new WinNT.LARGE_INTEGER(0L);
             WinNT.LARGE_INTEGER systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
         
-            Kernel32.INSTANCE.GetVolumeInformation(new String(volume).trim(), name, LENGTH, null, null, null, fstype, 16);
-            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(new String(volume).trim(), mount, LENGTH, null);
-            Kernel32.INSTANCE.GetDiskFreeSpaceEx(new String(volume).trim(), userFreeBytes, totalBytes, systemFreeBytes);
+            String volume = new String(aVolume).trim();
+            Kernel32.INSTANCE.GetVolumeInformation(volume, name, LENGTH, null, null, null, fstype, 16);
+            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, LENGTH, null);
+            Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
 
-            fs.add(new OSFileStore(new String(volume).trim(), new String(mount).trim(),
+            fs.add(new OSFileStore(volume, new String(mount).trim(),
                     new String(name).trim(), new String(fstype).trim(),
                     systemFreeBytes.getValue(), totalBytes.getValue()));
 
-            boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, volume, LENGTH);
+            boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, LENGTH);
             if (!retVal) {
                 Kernel32.INSTANCE.FindVolumeClose(hVol);
                 break;
