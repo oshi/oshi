@@ -11,7 +11,6 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
- * enrico[dot]bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -36,7 +35,7 @@ import oshi.software.os.OSFileStore;
  * specific means of file storage. In Windows, these are represented by a drive
  * letter, e.g., "A:\" and "C:\"
  *
- * @author widdis[at]gmail[dot]com
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class WindowsFileSystem extends AbstractFileSystem {
 
