@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,10 +46,10 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -115,7 +118,10 @@ public class SystemInfoTest {
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
         assertTrue(p.getProcessCount() >= 1);
-        assertTrue(p.getThreadCount() >= p.getProcessCount());
+        assertTrue(p.getThreadCount() >= 1);
+        assertTrue(p.getProcessId() > 0);
+        assertNotNull(p.getProcesses());
+        assertEquals(p.getProcess(p.getProcessId()).getProcessID(), p.getProcessId());
     }
 
     /**
@@ -345,8 +351,37 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
+
+        // Processes
         System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
                 + hal.getProcessor().getThreadCount());
+        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses());
+        // Sort by highest CPU
+        Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
+            @Override
+            public int compare(OSProcess o1, OSProcess o2) {
+                double diff = (o1.getKernelTime() + o1.getUserTime()) / (double) o1.getUpTime()
+                        - (o2.getKernelTime() + o2.getUserTime()) / (double) o2.getUpTime();
+                if (diff < 0) {
+                    return 1;
+                } else if (diff > 0) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        };
+        Collections.sort(procs, cpuDescOrder);
+        System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
+        for (int i = 0; i < procs.size() && i < 5; i++) {
+            OSProcess p = procs.get(i);
+            System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
+                    100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+                    100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
+                    FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
+                    p.getName());
+        }
+
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");
@@ -436,9 +471,9 @@ public class SystemInfoTest {
         }
         LOG.info("Printing JSON:");
         // Compact JSON
-        // System.out.println(si.toJSON().toString());
+        System.out.println(si.toJSON().toString());
 
         // Pretty JSON
-        System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
+        // System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
     }
 }

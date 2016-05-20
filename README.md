@@ -11,7 +11,7 @@ Essentials
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download OSHI 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.4&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.5-SNAPSHOT&e=jar)
-* [View the API](http://dblock.github.io/OSHI/apidocs/) - [View the FAQ](FAQ.md) - [View the Site](http://dblock.github.io/OSHI/)
+* [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
@@ -19,19 +19,21 @@ Essentials
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
 	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
+	* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
 
-Currently supported platforms <img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+Currently supported platforms 
 --------------------------- 
 * Windows
 * Linux
-* Mac OS X
+* Mac OS X<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
-Currently supported features
+Currently supported features 
 --------------------------
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs 
 * System and per-processor load % and tick counters
 * CPU uptime, processes, and threads
+* Process uptime, cpu, memory usage
 * Physical and virtual memory used/available
 * Network interfaces (IPs, bandwidth in/out)
 * Battery state (% capacity, time remaining)
@@ -45,7 +47,7 @@ Output
 OSHI provides output directly via java methods or in JSON format for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
-The `main()` method of [SystemInfoTest](https://github.com/dblock/OSHI/blob/master/src/test/java/OSHI/SystemInfoTest.java) provides sample code demonstrating
+The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/src/test/java/oshi/SystemInfoTest.java) provides sample code demonstrating
 the use of the interfaces to retrieve information and calculate additional metrics such as the below examples.
 
 General information about the operating system and processor.
@@ -66,6 +68,15 @@ Sensors:
  Fan Speeds:[4685, 4687]
  CPU Voltage: 3.9V
 ```
+Process information is available
+```
+Processes: 401, Threads: 1159
+   PID  %CPU %MEM       VSZ       RSS Name
+ 55977  27.9  0.2   6.8 GiB  34.3 MiB java
+ 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
+ 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
+ 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
+ ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.
 ```

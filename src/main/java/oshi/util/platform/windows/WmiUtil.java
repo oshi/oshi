@@ -18,6 +18,7 @@
 package oshi.util.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
+import oshi.util.ParseUtil;
 
 /**
  * Provides access to WMI queries
@@ -51,24 +53,13 @@ public class WmiUtil {
 
     public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
 
-    static {
-        // Initialize COM
-        initCOM();
-
-        // Set up hook to un-initialize COM on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                Ole32.INSTANCE.CoUninitialize();
-            }
-        });
-    }
+    private static boolean securityInitialized = false;
 
     /**
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
-    private enum ValueType {
-        STRING, LONG, FLOAT
+    public enum ValueType {
+        STRING, LONG, FLOAT, DATETIME
     }
 
     /**
@@ -228,6 +219,32 @@ public class WmiUtil {
     }
 
     /**
+     * Get multiple individually typed values from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @param propertyTypes
+     *            An array of types corresponding to the properties
+     * @return A map, with each property as the key, containing Objects with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists. The type of the objects is identified by the
+     *         propertyTypes array. It is the responsibility of the caller to
+     *         cast the returned objects.
+     */
+    public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String properties,
+            String whereClause, ValueType[] propertyTypes) {
+        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
+                wmiClass, whereClause, propertyTypes);
+        return result;
+    }
+
+    /**
      * Query WMI for values
      * 
      * @param namespace
@@ -248,30 +265,71 @@ public class WmiUtil {
     private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
             String whereClause, ValueType valType) {
         // Set up empty map
+        String[] props = properties.split(",");
+        ValueType[] propertyTypes = new ValueType[props.length];
+        for (int i = 0; i < props.length; i++) {
+            propertyTypes[i] = valType;
+        }
+        return queryWMI(namespace, properties, wmiClass, whereClause, propertyTypes);
+    }
+
+    /**
+     * Query WMI for values
+     * 
+     * @param namespace
+     *            The namespace to query
+     * @param properties
+     *            A single property or comma-delimited list of properties to
+     *            enumerate
+     * @param wmiClass
+     *            The WMI class to query
+     * @param propertyTypes
+     *            An array corresponding to the properties, containing the type
+     *            of data being queried, to control how VARIANT is parsed
+     * @return A map, with the string value of each property as the key,
+     *         containing a list of Objects which can be cast appropriately per
+     *         valType. The order of objects in each list corresponds to the
+     *         other lists.
+     */
+    private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
+            String whereClause, ValueType[] propertyTypes) {
+        // Set up empty map
         Map<String, List<Object>> values = new HashMap<>();
         String[] props = properties.split(",");
         for (int i = 0; i < props.length; i++) {
             values.put(props[i], new ArrayList<Object>());
         }
 
+        // Initialize COM
+        if (!initCOM()) {
+            Ole32.INSTANCE.CoUninitialize();
+            return values;
+        }
+
         PointerByReference pSvc = new PointerByReference();
         if (!connectServer(namespace, pSvc)) {
+            Ole32.INSTANCE.CoUninitialize();
             return values;
         }
         WbemServices svc = new WbemServices(pSvc.getValue());
 
         PointerByReference pEnumerator = new PointerByReference();
         if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {
+            svc.Release();
+            Ole32.INSTANCE.CoUninitialize();
             return values;
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
 
-        enumerateProperties(values, enumerator, props, valType);
+        enumerateProperties(values, enumerator, props, propertyTypes);
 
+        // Cleanup
         enumerator.Release();
         svc.Release();
+        Ole32.INSTANCE.CoUninitialize();
         return values;
     }
+
     /*
      * Getting WMI Data from Local Computer
      * 
@@ -279,7 +337,6 @@ public class WmiUtil {
      * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
      */
 
-    // PERFORM ONLY ONCE PER PROCESS
     private static boolean initCOM() {
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
@@ -288,14 +345,20 @@ public class WmiUtil {
             LOG.error(String.format("Failed to initialize COM library. Error code = 0x%08x", hres.intValue()));
             return false;
         }
+        if (securityInitialized) {
+            // Only run CoInitializeSecuirty once
+            return true;
+        }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
         hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,
                 Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-        if (COMUtils.FAILED(hres)) {
+        if (COMUtils.FAILED(hres) && hres.intValue() != Ole32.RPC_E_TOO_LATE) {
             LOG.error(String.format("Failed to initialize security. Error code = 0x%08x", hres.intValue()));
+            Ole32.INSTANCE.CoUninitialize();
             return false;
         }
+        securityInitialized = true;
         return true;
     }
 
@@ -315,11 +378,11 @@ public class WmiUtil {
             LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
                     hres.intValue()));
             loc.Release();
+            Ole32.INSTANCE.CoUninitialize();
             return false;
         }
-        // Done with locator
-        loc.Release();
         LOG.debug("Connected to {} WMI namespace", namespace);
+        loc.Release();
 
         // Step 5: --------------------------------------------------
         // Set security levels on the proxy -------------------------
@@ -328,6 +391,7 @@ public class WmiUtil {
         if (COMUtils.FAILED(hres)) {
             LOG.error(String.format("Could not set proxy blanket. Error code = 0x%08x", hres.intValue()));
             new WbemServices(pSvc.getValue()).Release();
+            Ole32.INSTANCE.CoUninitialize();
             return false;
         }
         return true;
@@ -347,13 +411,17 @@ public class WmiUtil {
         if (COMUtils.FAILED(hres)) {
             LOG.error(String.format("Query '%s' failed. Error code = 0x%08x", query, hres.intValue()));
             svc.Release();
+            Ole32.INSTANCE.CoUninitialize();
             return false;
         }
         return true;
     }
 
     private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
-            String[] properties, ValueType valType) {
+            String[] properties, ValueType[] propertyTypes) {
+        if (properties.length != propertyTypes.length) {
+            throw new IllegalArgumentException("Property type array size must equal properties array size.");
+        }
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
@@ -370,10 +438,11 @@ public class WmiUtil {
 
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
-            for (String property : properties) {
+            for (int p = 0; p < properties.length; p++) {
+                String property = properties[p];
                 hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
 
-                switch (valType) {
+                switch (propertyTypes[p]) {
                 case STRING:
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
@@ -383,6 +452,19 @@ public class WmiUtil {
                     break;
                 case FLOAT:
                     values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
+                    break;
+                case DATETIME:
+                    // Read a string in format 20160513072950.782000-420 and
+                    // parse to a long representing Date.getTime()
+                    if (vtProp.getValue() != null) {
+                        // Parse the date including milliseconds
+                        Date date = ParseUtil.cimDateTimeToDate(vtProp.stringValue());
+                        if (date != null) {
+                            values.get(property).add(date);
+                            break;
+                        }
+                    }
+                    values.get(property).add(new Date(0));
                     break;
                 default:
                     // Should never get here!
