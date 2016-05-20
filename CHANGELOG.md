@@ -2,6 +2,7 @@
 ================
 * [#163](https://github.com/dblock/oshi/pull/163): Update getFileStores() method to include mount point [@henryx](https://github.com/henryx),
 * [#165](https://github.com/dblock/oshi/pull/165): Added system-wide file descriptor counts - [@cholland1989](https://github.com/cholland1989)
+* [#176](https://github.com/dblock/oshi/pull/176):  Fix issue #169 - [@henryx](https://github.com/henryx).
 * Your contribution here.
 
 2.4 (5/02/2016)
