@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -43,7 +44,7 @@ public class LinuxProcess extends AbstractProcess {
     /**
      * Jiffies per second, used for process time counters.
      */
-    private static long hz = 1L;
+    private static long hz = 1000L;
 
     /**
      * Boot time in MS.
@@ -66,10 +67,9 @@ public class LinuxProcess extends AbstractProcess {
         // jiffies since boot) for the largest value
         File[] pids = ProcUtil.getPidFiles();
         long youngestJiffies = 0L;
-        int youngestPid = 0;
-        for (File pidFile : pids) {
-            int pid = Integer.parseInt(pidFile.getName());
-            List<String> stat = FileUtil.readFile(String.format("/proc/%d/stat", pid));
+        String youngestPid = "";
+        for (File pid : pids) {
+            List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()));
             if (stat.size() != 0) {
                 String[] split = stat.get(0).split("\\s+");
                 if (split.length < 22) {
@@ -78,7 +78,7 @@ public class LinuxProcess extends AbstractProcess {
                 long jiffies = Long.parseLong(split[21]);
                 if (jiffies > youngestJiffies) {
                     youngestJiffies = jiffies;
-                    youngestPid = pid;
+                    youngestPid = pid.getName();
                 }
             }
         }
@@ -99,7 +99,7 @@ public class LinuxProcess extends AbstractProcess {
 
         // This takes advantage of the fact that ps does all the heavy lifting
         // of sorting out HZ internally.
-        String etime = ExecutingCommand.getFirstAnswer(String.format("ps -p %d -o etimes=", youngestPid));
+        String etime = ExecutingCommand.getFirstAnswer(String.format("ps -p %s -o etimes=", youngestPid));
         // Since we picked the youngest process, it's safe to assume an
         // etime close to 0 in case this command fails; the longer the system
         // has been up, the less impact this assumption will have
@@ -117,7 +117,7 @@ public class LinuxProcess extends AbstractProcess {
             return;
         }
 
-        // divizd jiffies (since boot) by seconds (since boot)
+        // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
     }
 
