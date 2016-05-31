@@ -295,8 +295,8 @@ public abstract class ParseUtil {
         try {
             int tzInMinutes = Integer.parseInt(cimDate.substring(22));
             LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);
-            OffsetDateTime dateTime = OffsetDateTime.parse(String.format("%s%s", cimDate.substring(0, 22),
-                    offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME)), CIM_FORMAT);
+            OffsetDateTime dateTime = OffsetDateTime.parse(
+                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);
             return dateTime.toInstant().toEpochMilli();
         } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
                 | NumberFormatException // if TZ minutes doesn't parse
