@@ -19,7 +19,6 @@
 package oshi.util.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -456,16 +455,8 @@ public class WmiUtil {
                     break;
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
-                    // parse to a long representing Date.getTime()
-                    if (vtProp.getValue() != null) {
-                        // Parse the date including milliseconds
-                        Date date = ParseUtil.cimDateTimeToDate(vtProp.stringValue());
-                        if (date != null) {
-                            values.get(property).add(date);
-                            break;
-                        }
-                    }
-                    values.get(property).add(new Date(0));
+                    // parse to a long representing ms since eopch
+                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
                 default:
                     // Should never get here!
