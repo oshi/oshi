@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -18,11 +19,14 @@
 package oshi.util;
 
 import java.io.StringWriter;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -273,24 +277,32 @@ public abstract class ParseUtil {
 
     /*
      * Format for parsing DATETIME originally 20160513072950.782000-420,
-     * modified to 20160513072950.782-0700
+     * modified to 20160513072950.782000-07:00
      */
-    private static final SimpleDateFormat cimDateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSSX");
+    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
 
     /**
-     * Parses a CIM_DateTime format (from WMI) to a Java Date. See
-     * https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
+     * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
+     * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
      * 
      * @param cimDate
      *            A string containing the CIM_DateTime
-     * @return The corresponding date
+     * @return The corresponding DateTime as a number of milliseconds since the
+     *         epoch
      */
-    public static Date cimDateTimeToDate(String cimDate) {
-        // Keep first 18 digits; ignore next 3
-        // Keep + or - sign of timezone
-        // Parse last 3 digits from minutes to HH:mm
-        int tzMinutes = Integer.parseInt(cimDate.substring(22));
-        return cimDateFormat.parse(String.format("%s%c%02d%02d", cimDate.substring(0, 18), cimDate.charAt(21),
-                tzMinutes / 60, tzMinutes % 60), new ParsePosition(0));
+    public static long cimDateTimeToMillis(String cimDate) {
+        // Keep first 22 characters: digits, decimal, and + or - sign of
+        // time zone. Parse last 3 digits from minutes to HH:mm
+        try {
+            int tzInMinutes = Integer.parseInt(cimDate.substring(22));
+            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);
+            OffsetDateTime dateTime = OffsetDateTime.parse(
+                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);
+            return dateTime.toInstant().toEpochMilli();
+        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
+                | NumberFormatException // if TZ minutes doesn't parse
+                | DateTimeParseException e) {
+            return 0L;
+        }
     }
 }

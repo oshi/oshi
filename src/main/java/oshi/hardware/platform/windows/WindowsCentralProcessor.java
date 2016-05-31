@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -18,7 +19,6 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -426,7 +426,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                                 // Kernel and User time units are 100ns
                                 Long.parseLong((String) procs.get("KernelModeTime").get(p)) / 10000L,
                                 Long.parseLong((String) procs.get("UserModeTime").get(p)) / 10000L,
-                                ((Date) procs.get("CreationDate").get(p)).getTime(), now));
+                                ((Long) procs.get("CreationDate").get(p)), now));
             } catch (NumberFormatException nfe) {
                 // Ignore errors, just don't add
                 LOG.debug("Parse Exception");

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -455,16 +456,8 @@ public class WmiUtil {
                     break;
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
-                    // parse to a long representing Date.getTime()
-                    if (vtProp.getValue() != null) {
-                        // Parse the date including milliseconds
-                        Date date = ParseUtil.cimDateTimeToDate(vtProp.stringValue());
-                        if (date != null) {
-                            values.get(property).add(date);
-                            break;
-                        }
-                    }
-                    values.get(property).add(new Date(0));
+                    // parse to a long representing ms since eopch
+                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
                 default:
                     // Should never get here!
