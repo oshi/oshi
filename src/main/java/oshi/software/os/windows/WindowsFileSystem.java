@@ -96,7 +96,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
 
             fs.add(new OSFileStore(volume, new String(mount).trim(),
-                    new String(name).trim(), new String(fstype).trim(),
+                    getDriveType(new String(mount).trim()), new String(fstype).trim(),
                     systemFreeBytes.getValue(), totalBytes.getValue()));
 
             boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
@@ -128,12 +128,29 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
             fs.add(new OSFileStore(String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
                     drives.get("Name").get(i),
-                    drives.get("Description").get(i),
+                    getDriveType(drives.get("Name").get(i)),
                     drives.get("FileSystem").get(i),
                     free,
                     total));
         }
         return fs;
+    }
+    
+    private String getDriveType(String drive) {
+        switch (Kernel32.INSTANCE.GetDriveType(drive)) {
+            case 2:
+                return "Removable drive";
+            case 3:
+                return "Fixed drive";
+            case 4:
+                return "Network drive";
+            case 5:
+                return "CD-ROM";
+            case 6:
+                return "RAM drive";
+            default:
+                return "Unknown drive type";
+        }
     }
 
     @Override
