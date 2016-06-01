@@ -18,14 +18,10 @@
  */
 package oshi.software.os.windows;
 
-import java.io.File;
-import java.io.IOException;
+import com.sun.jna.platform.win32.WinNT;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileSystemView;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +29,22 @@ import org.slf4j.LoggerFactory;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * The Windows File System contains {@link OSFileStore}s which are a storage
  * pool, device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Windows, these are represented by a drive
  * letter, e.g., "A:\" and "C:\"
- * 
- * @author widdis[at]gmail[dot]com
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+    private final int BUFSIZE = 255;
 
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
@@ -55,54 +53,139 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     /**
      * Gets File System Information.
-     * 
+     *
      * @return An array of {@link OSFileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     public OSFileStore[] getFileStores() {
-        // File.listRoots() has more information for Windows
-        // than FileSystem.getDefalut().getFileStores()
-        final File[] roots = File.listRoots();
-        // Need to call FileSystemView on Swing's Event Dispatch Thread to avoid
-        // problems
-        SwingWorker<List<OSFileStore>, Void> worker = new SwingWorker<List<OSFileStore>, Void>() {
-            @Override
-            public List<OSFileStore> doInBackground() {
-                FileSystemView fsv = FileSystemView.getFileSystemView();
-                List<OSFileStore> fsList = new ArrayList<>();
-                for (File f : roots) {
-                    String type = "unknown";
-                    String path = "unknown";
-                    try {
-                        // add trailing slash to path if needed
-                        path = f.getCanonicalPath();
-                        if (path.charAt(path.length() - 1) != '\\') {
-                            path = path + '\\';
-                        }
-                        char[] fstype = new char[16];
-                        if (Kernel32.INSTANCE.GetVolumeInformation(path, null, 0, null, null, null, fstype, 16)) {
-                            type = new String(fstype).trim();
-                        }
-                    } catch (IOException e) {
-                        LOG.error("Could not get canonical path for {}", f.toString());
-                    }
-                    fsList.add(new OSFileStore(fsv.getSystemDisplayName(f), path, fsv.getSystemTypeDescription(f), type,
-                            f.getUsableSpace(), f.getTotalSpace()));
-                }
-                return fsList;
-            }
-        };
-        worker.execute();
-        List<OSFileStore> fs = new ArrayList<>();
-        try {
-            // TODO: Consider a timeout version of this method that passes
-            // timeout parameters which are used in this get()
-            fs = worker.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("", e);
+        List<OSFileStore> locals, networks;
+        ArrayList<OSFileStore> result;
+
+        result = new ArrayList<>();
+        locals = this.getLocalVolumes();
+        networks = this.getNetworkVolumes();
+
+        result.addAll(locals);
+        result.addAll(networks);
+
+        return result.toArray(new OSFileStore[result.size()]);
+    }
+
+    /**
+     * Private method for getting all mounted local drives.
+     * 
+     * @return A list of {@link OSFileStore} objects representing all local
+     *         mounted volumes
+     */
+    private List<OSFileStore> getLocalVolumes() {
+        List<OSFileStore> fs;
+        String volume, strFsType, strName, strMount;
+        WinNT.HANDLE hVol;
+        WinNT.LARGE_INTEGER userFreeBytes, totalBytes, systemFreeBytes;
+        boolean retVal;
+        char[] aVolume, fstype, name, mount;
+
+        fs = new ArrayList<>();
+        aVolume = new char[BUFSIZE];
+
+        hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
+        if (hVol == WinNT.INVALID_HANDLE_VALUE) {
+            return fs;
         }
-        return fs.toArray(new OSFileStore[fs.size()]);
+
+        while (true) {
+            fstype = new char[16];
+            name = new char[BUFSIZE];
+            mount = new char[BUFSIZE];
+
+            userFreeBytes = new WinNT.LARGE_INTEGER(0L);
+            totalBytes = new WinNT.LARGE_INTEGER(0L);
+            systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
+
+            volume = new String(aVolume).trim();
+            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, null, fstype, 16);
+            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
+            Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+
+            strMount = new String(mount).trim();
+            strName = new String(name).trim();
+            strFsType = new String(fstype).trim();
+            
+            if (!strMount.isEmpty()) {
+                // Volume is mounted
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
+                        strMount, getDriveType(strMount), strFsType,
+                        systemFreeBytes.getValue(), totalBytes.getValue()));
+            }
+            retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
+            if (!retVal) {
+                Kernel32.INSTANCE.FindVolumeClose(hVol);
+                break;
+            }
+        }
+
+        return fs;
+    }
+
+    /**
+     * Private method for getting all mounted network drives.
+     *
+     * @return A list of {@link OSFileStore} objects representing all network
+     *         mounted volumes
+     */
+    private List<OSFileStore> getNetworkVolumes() {
+        Map<String, List<String>> drives;
+        List<OSFileStore> fs;
+        long free, total;
+
+        fs = new ArrayList<>();
+
+        drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
+                "Name,Description,ProviderName,FileSystem,Freespace,Size", "WHERE DriveType = 4");
+
+        for (int i = 0; i < drives.get("Name").size(); i++) {
+            free = 0L;
+            total = 0L;
+            try {
+                free = Long.parseLong(drives.get("Freespace").get(i));
+                total = Long.parseLong(drives.get("Size").get(i));
+            } catch (NumberFormatException e) {
+                LOG.error("Failed to parse drive space.");
+                // leave as zero
+            }
+
+            fs.add(new OSFileStore(String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
+                    drives.get("Name").get(i),
+                    getDriveType(drives.get("Name").get(i)),
+                    drives.get("FileSystem").get(i),
+                    free,
+                    total));
+        }
+        return fs;
+    }
+    
+    /**
+     * Private method for getting mounted drive type.
+     *
+     * @param drive Mounted drive
+     * @return A drive type description
+     */
+    private String getDriveType(String drive) {
+        switch (Kernel32.INSTANCE.GetDriveType(drive)) {
+            case 2:
+                return "Removable drive";
+            case 3:
+                return "Fixed drive";
+            case 4:
+                return "Network drive";
+            case 5:
+                return "CD-ROM";
+            case 6:
+                return "RAM drive";
+            default:
+                return "Unknown drive type";
+        }
     }
 
     @Override
