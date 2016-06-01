@@ -36,6 +36,9 @@ import oshi.util.platform.windows.PdhUtil;
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsGlobalMemory extends AbstractGlobalMemory {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
     private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();

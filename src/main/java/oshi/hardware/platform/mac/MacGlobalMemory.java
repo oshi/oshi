@@ -37,6 +37,9 @@ import oshi.util.platform.mac.SysctlUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class MacGlobalMemory extends AbstractGlobalMemory {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
     private XswUsage xswUsage = new XswUsage();

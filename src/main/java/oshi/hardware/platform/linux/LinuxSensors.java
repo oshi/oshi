@@ -31,6 +31,9 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.util.FileUtil;
 
 public class LinuxSensors extends AbstractSensors {
+
+    private static final long serialVersionUID = 1L;
+
     // Possible sensor types. See sysfs documentation for others, e.g. current
     private static final String TEMP = "temp";
     private static final String FAN = "fan";

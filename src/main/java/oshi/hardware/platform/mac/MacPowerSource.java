@@ -42,6 +42,9 @@ import oshi.util.platform.mac.CfUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class MacPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
 
     public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {

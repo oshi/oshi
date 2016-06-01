@@ -33,6 +33,9 @@ import oshi.json.NullAwareJsonObjectBuilder;
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public abstract class AbstractDisks implements Disks {
+
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     @Override

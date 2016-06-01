@@ -54,6 +54,9 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsCentralProcessor extends AbstractCentralProcessor {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
     // PDH counters only give increments between calls so we maintain our own

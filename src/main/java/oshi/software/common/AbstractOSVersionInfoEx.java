@@ -32,6 +32,8 @@ import oshi.software.os.OperatingSystemVersion;
  */
 public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
 
+    private static final long serialVersionUID = 1L;
+
     protected String version;
 
     protected String codeName;

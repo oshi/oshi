@@ -22,6 +22,8 @@ import oshi.software.common.AbstractOperatingSystem;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
+    private static final long serialVersionUID = 1L;
+
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
         this.family = System.getProperty("os.name");

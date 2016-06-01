@@ -30,6 +30,9 @@ import oshi.software.os.OSProcess;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsProcess extends AbstractProcess {
+
+    private static final long serialVersionUID = 1L;
+
     /*
      * Windows Execution States:
      */

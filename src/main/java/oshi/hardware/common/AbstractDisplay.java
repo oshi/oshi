@@ -33,6 +33,8 @@ import oshi.util.EdidUtil;
  */
 public abstract class AbstractDisplay implements Display {
 
+    private static final long serialVersionUID = 1L;
+
     protected byte[] edid;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);

@@ -26,6 +26,8 @@ import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsSensors extends AbstractSensors {
 
+    private static final long serialVersionUID = 1L;
+
     // If null, haven't attempted OHM.
     private String tempIdentifierStr = null;
     // Successful (?) WMI namespace, path and property

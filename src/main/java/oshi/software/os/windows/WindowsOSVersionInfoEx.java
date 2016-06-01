@@ -36,6 +36,9 @@ import com.sun.jna.platform.win32.WinUser;
 import oshi.software.common.AbstractOSVersionInfoEx;
 
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
     private OSVERSIONINFOEX versionInfo = null;

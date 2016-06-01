@@ -25,6 +25,9 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 
     public MacOSVersionInfoEx() {

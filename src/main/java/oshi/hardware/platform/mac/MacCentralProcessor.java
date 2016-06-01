@@ -55,6 +55,9 @@ import oshi.util.platform.mac.SysctlUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class MacCentralProcessor extends AbstractCentralProcessor {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private int maxProc = 1024;
