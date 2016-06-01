@@ -95,7 +95,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
             Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
             Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
 
-            fs.add(new OSFileStore(volume, new String(mount).trim(),
+            fs.add(new OSFileStore(String.format("%s (%s)", new String(name).trim(), new String(mount).trim()),
+                    new String(mount).trim(),
                     getDriveType(new String(mount).trim()), new String(fstype).trim(),
                     systemFreeBytes.getValue(), totalBytes.getValue()));
 
