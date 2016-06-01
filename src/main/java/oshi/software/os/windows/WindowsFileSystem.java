@@ -74,24 +74,29 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     private List<OSFileStore> getLocalVolumes() {
         List<OSFileStore> fs = new ArrayList<>();
-        String strFsType, strName, strMount;
-        char[] aVolume = new char[BUFSIZE];
+        String volume, strFsType, strName, strMount;
+        WinNT.HANDLE hVol;
+        WinNT.LARGE_INTEGER userFreeBytes, totalBytes, systemFreeBytes;
+        boolean retVal;
+        char[] aVolume, fstype, name, mount;
+        
+        aVolume = new char[BUFSIZE];
 
-        WinNT.HANDLE hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
+        hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
         if (hVol == WinNT.INVALID_HANDLE_VALUE) {
             return fs;
         }
 
         while (true) {
-            char[] fstype = new char[16];
-            char[] name = new char[BUFSIZE];
-            char[] mount = new char[BUFSIZE];
+            fstype = new char[16];
+            name = new char[BUFSIZE];
+            mount = new char[BUFSIZE];
 
-            WinNT.LARGE_INTEGER userFreeBytes = new WinNT.LARGE_INTEGER(0L);
-            WinNT.LARGE_INTEGER totalBytes = new WinNT.LARGE_INTEGER(0L);
-            WinNT.LARGE_INTEGER systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
+            userFreeBytes = new WinNT.LARGE_INTEGER(0L);
+            totalBytes = new WinNT.LARGE_INTEGER(0L);
+            systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
 
-            String volume = new String(aVolume).trim();
+            volume = new String(aVolume).trim();
             Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, null, fstype, 16);
             Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
             Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
@@ -104,7 +109,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     strMount, getDriveType(strMount), strFsType,
                     systemFreeBytes.getValue(), totalBytes.getValue()));
 
-            boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
+            retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
                 Kernel32.INSTANCE.FindVolumeClose(hVol);
                 break;
@@ -115,14 +120,18 @@ public class WindowsFileSystem extends AbstractFileSystem {
     }
 
     private List<OSFileStore> getNetworkVolumes() {
-        List<OSFileStore> fs = new ArrayList<>();
+        Map<String, List<String>> drives;
+        List<OSFileStore> fs;
+        long free, total;
+        
+        fs = new ArrayList<>();
 
-        Map<String, List<String>> drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
+        drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
                 "Name,Description,ProviderName,FileSystem,Freespace,Size", "WHERE DriveType = 4");
 
         for (int i = 0; i < drives.get("Name").size(); i++) {
-            long free = 0L;
-            long total = 0L;
+            free = 0L;
+            total = 0L;
             try {
                 free = Long.parseLong(drives.get("Freespace").get(i));
                 total = Long.parseLong(drives.get("Size").get(i));
