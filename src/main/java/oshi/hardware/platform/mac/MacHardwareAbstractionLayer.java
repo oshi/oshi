@@ -32,6 +32,8 @@ import oshi.software.os.mac.MacFileSystem;
 
 public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */

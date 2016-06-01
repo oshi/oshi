@@ -33,6 +33,8 @@ import oshi.util.platform.windows.WmiUtil;
  */
 public class WindowsDisks extends AbstractDisks {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;

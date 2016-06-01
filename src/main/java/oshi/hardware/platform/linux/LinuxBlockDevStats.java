@@ -21,6 +21,7 @@ package oshi.hardware.platform.linux;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+
 import oshi.jna.platform.linux.Udev;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
@@ -31,6 +32,8 @@ import oshi.json.OshiJsonObject;
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class LinuxBlockDevStats implements OshiJsonObject {
+
+    private static final long serialVersionUID = 1L;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 

@@ -22,6 +22,8 @@ import oshi.software.common.AbstractOperatingSystem;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
+    private static final long serialVersionUID = 1L;
+
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
         this.family = "Windows";

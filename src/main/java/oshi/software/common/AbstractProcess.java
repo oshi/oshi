@@ -35,6 +35,8 @@ import oshi.software.os.OSProcess;
  */
 public class AbstractProcess implements OSProcess {
 
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     protected String name;

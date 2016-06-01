@@ -28,6 +28,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
 
 public abstract class AbstractSensors implements Sensors {
 
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**

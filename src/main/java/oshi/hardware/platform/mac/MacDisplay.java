@@ -42,6 +42,9 @@ import oshi.util.platform.mac.IOKitUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
 
     private static final CFStringRef cfEdid = CFStringRef.toCFString("IODisplayEDID");

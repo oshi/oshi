@@ -34,6 +34,9 @@ import oshi.jna.platform.linux.Udev;
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class LinuxDisks extends AbstractDisks {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
     private final int SECTORSIZE = 512;
