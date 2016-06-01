@@ -105,10 +105,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
             strName = new String(name).trim();
             strFsType = new String(fstype).trim();
 
-            fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
-                    strMount, getDriveType(strMount), strFsType,
-                    systemFreeBytes.getValue(), totalBytes.getValue()));
-
+            if (!strMount.isEmpty()) {
+                // Volume is mounted
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
+                        strMount, getDriveType(strMount), strFsType,
+                        systemFreeBytes.getValue(), totalBytes.getValue()));
+            }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
                 Kernel32.INSTANCE.FindVolumeClose(hVol);
