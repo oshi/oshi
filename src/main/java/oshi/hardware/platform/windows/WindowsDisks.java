@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.DatatypeConverter;
+
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
 import oshi.util.platform.windows.WmiUtil;
@@ -46,7 +48,13 @@ public class WindowsDisks extends AbstractDisks {
             HWDiskStore ds = new HWDiskStore();
             ds.setName(vals.get("Name").get(i));
             ds.setModel(String.format("%s %s", vals.get("Model").get(i), vals.get("Manufacturer").get(i)).trim());
-            ds.setSerial(vals.get("SerialNumber").get(i));
+            // Most vendors store serial # as a hex string; convert
+            try {
+                ds.setSerial(new String(DatatypeConverter.parseHexBinary(vals.get("SerialNumber").get(i))));
+            } catch (IllegalArgumentException e) {
+                // Hex failed to parse, just save the existing string
+                ds.setSerial(vals.get("SerialNumber").get(i));
+            }
             // If successful this line is the desired value
             try {
                 ds.setSize(Long.parseLong(vals.get("Size").get(i)));

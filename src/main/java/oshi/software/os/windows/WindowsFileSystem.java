@@ -18,13 +18,15 @@
  */
 package oshi.software.os.windows;
 
-import com.sun.jna.platform.win32.WinNT;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.WinNT;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractFileSystem;
@@ -59,15 +61,30 @@ public class WindowsFileSystem extends AbstractFileSystem {
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     public OSFileStore[] getFileStores() {
-        List<OSFileStore> locals, networks;
+        // Create list to hold results
         ArrayList<OSFileStore> result;
 
-        result = new ArrayList<>();
-        locals = this.getLocalVolumes();
-        networks = this.getNetworkVolumes();
+        // Begin with all the local volumes
+        result = getLocalVolumes();
 
-        result.addAll(locals);
-        result.addAll(networks);
+        // Build a map of existing mount point to OSFileStore
+        Map<String, OSFileStore> volumeMap = new HashMap<>();
+        for (OSFileStore volume : result) {
+            volumeMap.put(volume.getMount(), volume);
+        }
+
+        // Iterate through volumes in WMI and update description (if it exists)
+        // or add new if it doesn't (expected for network drives)
+        for (OSFileStore wmiVolume : getWmiVolumes()) {
+            if (volumeMap.containsKey(wmiVolume.getMount())) {
+                // If the volume is already in our list, update the name field
+                // using WMI's more verbose name
+                volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());
+            } else {
+                // Otherwise add the new volume in its entirety
+                result.add(wmiVolume);
+            }
+        }
 
         return result.toArray(new OSFileStore[result.size()]);
     }
@@ -78,8 +95,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
      * @return A list of {@link OSFileStore} objects representing all local
      *         mounted volumes
      */
-    private List<OSFileStore> getLocalVolumes() {
-        List<OSFileStore> fs;
+    private ArrayList<OSFileStore> getLocalVolumes() {
+        ArrayList<OSFileStore> fs;
         String volume, strFsType, strName, strMount;
         WinNT.HANDLE hVol;
         WinNT.LARGE_INTEGER userFreeBytes, totalBytes, systemFreeBytes;
@@ -111,12 +128,11 @@ public class WindowsFileSystem extends AbstractFileSystem {
             strMount = new String(mount).trim();
             strName = new String(name).trim();
             strFsType = new String(fstype).trim();
-            
+
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
-                        strMount, getDriveType(strMount), strFsType,
-                        systemFreeBytes.getValue(), totalBytes.getValue()));
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), strMount, getDriveType(strMount),
+                        strFsType, systemFreeBytes.getValue(), totalBytes.getValue()));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -129,12 +145,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Private method for getting all mounted network drives.
+     * Private method for getting logical drives listed in WMI.
      *
      * @return A list of {@link OSFileStore} objects representing all network
      *         mounted volumes
      */
-    private List<OSFileStore> getNetworkVolumes() {
+    private List<OSFileStore> getWmiVolumes() {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
         long free, total;
@@ -142,49 +158,51 @@ public class WindowsFileSystem extends AbstractFileSystem {
         fs = new ArrayList<>();
 
         drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
-                "Name,Description,ProviderName,FileSystem,Freespace,Size", "WHERE DriveType = 4");
+                "Name,Description,ProviderName,FileSystem,Freespace,Size", null);
 
         for (int i = 0; i < drives.get("Name").size(); i++) {
             free = 0L;
             total = 0L;
+            String s;
             try {
-                free = Long.parseLong(drives.get("Freespace").get(i));
-                total = Long.parseLong(drives.get("Size").get(i));
+                s = drives.get("Freespace").get(i);
+                free = s.equals("unknown") ? 0L : Long.parseLong(s);
+                s = drives.get("Size").get(i);
+                total = s.equals("unknown") ? 0L : Long.parseLong(s);
             } catch (NumberFormatException e) {
                 LOG.error("Failed to parse drive space.");
                 // leave as zero
             }
 
-            fs.add(new OSFileStore(String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
-                    drives.get("Name").get(i),
-                    getDriveType(drives.get("Name").get(i)),
-                    drives.get("FileSystem").get(i),
-                    free,
-                    total));
+            fs.add(new OSFileStore(
+                    String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
+                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
+                    drives.get("FileSystem").get(i), free, total));
         }
         return fs;
     }
-    
+
     /**
      * Private method for getting mounted drive type.
      *
-     * @param drive Mounted drive
+     * @param drive
+     *            Mounted drive
      * @return A drive type description
      */
     private String getDriveType(String drive) {
         switch (Kernel32.INSTANCE.GetDriveType(drive)) {
-            case 2:
-                return "Removable drive";
-            case 3:
-                return "Fixed drive";
-            case 4:
-                return "Network drive";
-            case 5:
-                return "CD-ROM";
-            case 6:
-                return "RAM drive";
-            default:
-                return "Unknown drive type";
+        case 2:
+            return "Removable drive";
+        case 3:
+            return "Fixed drive";
+        case 4:
+            return "Network drive";
+        case 5:
+            return "CD-ROM";
+        case 6:
+            return "RAM drive";
+        default:
+            return "Unknown drive type";
         }
     }
 

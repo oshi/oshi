@@ -35,7 +35,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 
 /**
- * The Mac File System contains {@link OSFileStore}s which are a storage pool,
+ * The Linux File System contains {@link OSFileStore}s which are a storage pool,
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
@@ -104,21 +104,11 @@ public class LinuxFileSystem extends AbstractFileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        // Parse /proc/self/mounts to map filesystem paths to types
-        Map<String, String> fstype = new HashMap<>();
-        List<String> mounts = FileUtil.readFile("/proc/mounts");
-        for (String mount : mounts) {
-            String[] split = mount.split(" ");
-            // 2nd field is path with spaces escaped as \040
-            // 3rd field is fs type
-            if (split.length < 6) {
-                continue;
-            }
-            fstype.put(split[1].replaceAll("\\\\040", " "), split[2]);
-        }
-        // Format
-        // Now list file systems
+        // List file systems
         List<OSFileStore> fsList = new ArrayList<>();
+        // Map with path as key for later /proc/mount parsing
+        Map<String, OSFileStore> fsMap = new HashMap<>();
+
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             // FileStore toString starts with path, then a space, then name in
             // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
@@ -136,19 +126,33 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String description = "Mount Point";
             if (store.name().startsWith("/dev"))
                 description = "Local Disk";
-            String type = "unknown";
-            if (fstype.containsKey(path)) {
-                type = fstype.get(path);
-            }
             try {
-                fsList.add(
-                        new OSFileStore(name, path, description, type, store.getUsableSpace(), store.getTotalSpace()));
+                OSFileStore osStore = new OSFileStore(name, path, description, "", store.getUsableSpace(),
+                        store.getTotalSpace());
+                fsList.add(osStore);
+                fsMap.put(path, osStore);
             } catch (IOException e) {
                 // get*Space() may fail for ejected CD-ROM, etc.
                 LOG.trace("", e);
                 continue;
             }
         }
+        // Parse /proc/self/mounts to get fs types
+        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        for (String mount : mounts) {
+            String[] split = mount.split(" ");
+            // 1st field is name
+            // 2nd field is path with spaces escaped as \040
+            // 3rd field is fs type
+            if (split.length < 6) {
+                continue;
+            }
+            String path = split[1].replaceAll("\\\\040", " ");
+            if (fsMap.containsKey(path)) {
+                fsMap.get(path).setType(split[2]);
+            }
+        }
+
         return fsList.toArray(new OSFileStore[fsList.size()]);
     }
 
