@@ -34,6 +34,8 @@ import oshi.json.OshiJsonObject;
  */
 public class OSFileStore implements OshiJsonObject {
 
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;

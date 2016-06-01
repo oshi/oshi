@@ -43,6 +43,9 @@ import oshi.hardware.common.AbstractDisplay;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsDisplay extends AbstractDisplay {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
 
     public WindowsDisplay(byte[] edid) {

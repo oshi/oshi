@@ -44,6 +44,9 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo implements OshiJsonObject {
+
+    private static final long serialVersionUID = 1L;
+
     private OperatingSystem _os = null;
 
     private HardwareAbstractionLayer _hardware = null;

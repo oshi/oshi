@@ -49,6 +49,9 @@ import oshi.util.platform.mac.IOKitUtil;
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class MacDisks extends AbstractDisks {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
     private static final CFStringRef cfModel = CFStringRef.toCFString("Model");

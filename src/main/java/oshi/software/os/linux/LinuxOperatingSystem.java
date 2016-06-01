@@ -36,6 +36,8 @@ import oshi.util.FileUtil;
  */
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
     private List<String> osRelease;

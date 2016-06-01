@@ -18,9 +18,11 @@
  */
 package oshi.json;
 
+import java.io.Serializable;
+
 import javax.json.JsonObject;
 
-public interface OshiJsonObject {
+public interface OshiJsonObject extends Serializable {
     /**
      * Creates a compact JSON string containing the information for this class
      * 

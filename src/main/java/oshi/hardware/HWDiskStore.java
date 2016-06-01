@@ -32,6 +32,8 @@ import oshi.json.OshiJsonObject;
  */
 public class HWDiskStore implements OshiJsonObject {
 
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;

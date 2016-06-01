@@ -28,6 +28,8 @@ import oshi.software.os.OperatingSystemVersion;
 
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
+    private static final long serialVersionUID = 1L;
+
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
