@@ -39,6 +39,9 @@ import oshi.util.platform.linux.ProcUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxProcess extends AbstractProcess {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxProcess.class);
 
     /**

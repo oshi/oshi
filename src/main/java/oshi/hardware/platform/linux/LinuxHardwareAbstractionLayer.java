@@ -32,6 +32,8 @@ import oshi.software.os.linux.LinuxFileSystem;
 
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */

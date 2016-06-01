@@ -25,6 +25,9 @@ import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
 public class MacSensors extends AbstractSensors {
+
+    private static final long serialVersionUID = 1L;
+
     // Store some things to throttle SMC queries
     private double lastTemp = 0d;
 

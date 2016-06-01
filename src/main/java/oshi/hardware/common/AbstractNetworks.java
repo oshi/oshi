@@ -44,6 +44,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
  */
 public abstract class AbstractNetworks implements Networks {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);

@@ -34,6 +34,8 @@ import oshi.util.FileUtil;
  */
 public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     // Values read from /proc/meminfo used for other calculations

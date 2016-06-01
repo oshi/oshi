@@ -35,6 +35,9 @@ import oshi.util.FormatUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {

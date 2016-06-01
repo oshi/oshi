@@ -36,6 +36,9 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
+
+    private static final long serialVersionUID = 1L;
+
     protected CentralProcessor processor;
 
     protected GlobalMemory memory;
