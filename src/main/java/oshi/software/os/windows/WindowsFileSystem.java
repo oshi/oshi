@@ -115,6 +115,24 @@ public class WindowsFileSystem extends AbstractFileSystem {
         Map<String, List<String>> drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
                 "Name,Description,ProviderName,FileSystem,Freespace,Size", "WHERE DriveType = 4");
 
+        for (int i = 0; i < drives.get("Name").size(); i++) {
+            long free = 0L;
+            long total = 0L;
+            try {
+                free = Long.parseLong(drives.get("Freespace").get(i));
+                total = Long.parseLong(drives.get("Size").get(i));
+            } catch (NumberFormatException e) {
+                LOG.error("Failed to parse drive space.");
+                // leave as zero
+            }
+
+            fs.add(new OSFileStore(String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
+                    drives.get("Name").get(i),
+                    drives.get("Description").get(i),
+                    drives.get("FileSystem").get(i),
+                    free,
+                    total));
+        }
         return fs;
     }
 
