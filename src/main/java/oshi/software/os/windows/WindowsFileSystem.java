@@ -74,6 +74,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     private List<OSFileStore> getLocalVolumes() {
         List<OSFileStore> fs = new ArrayList<>();
+        String strFsType, strName, strMount;
         char[] aVolume = new char[BUFSIZE];
 
         WinNT.HANDLE hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
@@ -95,9 +96,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
             Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
             Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
 
-            fs.add(new OSFileStore(String.format("%s (%s)", new String(name).trim(), new String(mount).trim()),
-                    new String(mount).trim(),
-                    getDriveType(new String(mount).trim()), new String(fstype).trim(),
+            strMount = new String(mount).trim();
+            strName = new String(name).trim();
+            strFsType = new String(fstype).trim();
+
+            fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
+                    strMount, getDriveType(strMount), strFsType,
                     systemFreeBytes.getValue(), totalBytes.getValue()));
 
             boolean retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
