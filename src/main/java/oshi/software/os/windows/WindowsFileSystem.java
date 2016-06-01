@@ -72,6 +72,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
         return result.toArray(new OSFileStore[result.size()]);
     }
 
+    /**
+     * Private method for getting all mounted local drives.
+     * 
+     * @return A list of {@link OSFileStore} objects representing all local
+     *         mounted volumes
+     */
     private List<OSFileStore> getLocalVolumes() {
         List<OSFileStore> fs = new ArrayList<>();
         String volume, strFsType, strName, strMount;
@@ -121,6 +127,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
         return fs;
     }
 
+    /**
+     * Private method for getting all mounted network drives.
+     * 
+     * @return A list of {@link OSFileStore} objects representing all network
+     *         mounted volumes
+     */
     private List<OSFileStore> getNetworkVolumes() {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
@@ -152,6 +164,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
         return fs;
     }
     
+    /**
+     * Private method for getting mounted drive type.
+     * 
+     * @param drive Mounted drive 
+     * @return A drive type description
+     */
     private String getDriveType(String drive) {
         switch (Kernel32.INSTANCE.GetDriveType(drive)) {
             case 2:
