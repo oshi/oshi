@@ -79,13 +79,14 @@ public class WindowsFileSystem extends AbstractFileSystem {
      *         mounted volumes
      */
     private List<OSFileStore> getLocalVolumes() {
-        List<OSFileStore> fs = new ArrayList<>();
+        List<OSFileStore> fs;
         String volume, strFsType, strName, strMount;
         WinNT.HANDLE hVol;
         WinNT.LARGE_INTEGER userFreeBytes, totalBytes, systemFreeBytes;
         boolean retVal;
         char[] aVolume, fstype, name, mount;
-        
+
+        fs = new ArrayList<>();
         aVolume = new char[BUFSIZE];
 
         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
@@ -110,7 +111,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             strMount = new String(mount).trim();
             strName = new String(name).trim();
             strFsType = new String(fstype).trim();
-
+            
             if (!strMount.isEmpty()) {
                 // Volume is mounted
                 fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount),
@@ -129,7 +130,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     /**
      * Private method for getting all mounted network drives.
-     * 
+     *
      * @return A list of {@link OSFileStore} objects representing all network
      *         mounted volumes
      */
@@ -137,7 +138,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
         long free, total;
-        
+
         fs = new ArrayList<>();
 
         drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
@@ -166,8 +167,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
     
     /**
      * Private method for getting mounted drive type.
-     * 
-     * @param drive Mounted drive 
+     *
+     * @param drive Mounted drive
      * @return A drive type description
      */
     private String getDriveType(String drive) {
