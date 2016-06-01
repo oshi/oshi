@@ -30,6 +30,9 @@ import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsNetworks extends AbstractNetworks {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     /**

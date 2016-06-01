@@ -33,6 +33,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
  */
 public abstract class AbstractGlobalMemory implements GlobalMemory {
 
+    private static final long serialVersionUID = 1L;
+
     protected long memTotal = 0L;
     protected long memAvailable = 0L;
     protected long swapTotal = 0L;

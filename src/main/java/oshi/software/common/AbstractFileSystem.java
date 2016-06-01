@@ -35,6 +35,8 @@ import oshi.software.os.OSFileStore;
  */
 public abstract class AbstractFileSystem implements FileSystem {
 
+    private static final long serialVersionUID = 1L;
+
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**

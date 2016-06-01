@@ -45,6 +45,8 @@ import oshi.util.ParseUtil;
 @SuppressWarnings("restriction")
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
 
     /**

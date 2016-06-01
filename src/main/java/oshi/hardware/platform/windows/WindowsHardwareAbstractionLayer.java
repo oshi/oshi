@@ -32,6 +32,8 @@ import oshi.software.os.windows.WindowsFileSystem;
 
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */

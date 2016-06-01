@@ -30,6 +30,8 @@ import oshi.software.os.OSProcess;
  * @author widdis[at]gmail[dot]com
  */
 public class MacProcess extends AbstractProcess {
+
+    private static final long serialVersionUID = 1L;
     /*
      * OS X States:
      */

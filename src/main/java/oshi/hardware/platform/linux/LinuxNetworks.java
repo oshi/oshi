@@ -27,6 +27,8 @@ import oshi.util.FileUtil;
  */
 public class LinuxNetworks extends AbstractNetworks {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */

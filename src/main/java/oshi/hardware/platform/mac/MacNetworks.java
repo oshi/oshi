@@ -39,6 +39,8 @@ import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
  */
 public class MacNetworks extends AbstractNetworks {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);
 
     private static int CTL_NET = 4;

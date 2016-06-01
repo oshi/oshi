@@ -10,4 +10,3 @@ matrix:
       jdk: oraclejdk8
 #    - os: osx
 #      env: JAVA_HOME=$(/usr/libexec/java_home)
-

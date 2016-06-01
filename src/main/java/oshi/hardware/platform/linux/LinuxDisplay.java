@@ -35,6 +35,9 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxDisplay extends AbstractDisplay {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);
 
     public LinuxDisplay(byte[] edid) {

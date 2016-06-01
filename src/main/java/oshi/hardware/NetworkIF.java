@@ -43,6 +43,8 @@ import oshi.json.OshiJsonObject;
  */
 public class NetworkIF implements OshiJsonObject {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
