@@ -35,6 +35,7 @@ import javax.json.JsonObject;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
+import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -302,6 +303,23 @@ public abstract class ParseUtil {
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
             return 0L;
+        }
+    }
+
+    /**
+     * Parses a string of hex digits to a string
+     * 
+     * @param hexString
+     *            A sequence of hex digits
+     * @return The corresponding string if valid hex; otherwise the original
+     *         hexString
+     */
+    public static String hexStringToString(String hexString) {
+        try {
+            return new String(DatatypeConverter.parseHexBinary(hexString));
+        } catch (IllegalArgumentException e) {
+            // Hex failed to parse, just return the existing string
+            return hexString;
         }
     }
 }
