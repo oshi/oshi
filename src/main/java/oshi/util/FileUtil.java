@@ -124,6 +124,24 @@ public class FileUtil {
     }
 
     /**
+     * Read a file and return the String value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise emptpy string
+     */
+    public static String getStringFromFile(String filename) {
+        LOG.debug("Reading file {}", filename);
+        List<String> read = FileUtil.readFile(filename, false);
+        if (!read.isEmpty()) {
+            LOG.trace("Read {}", read.get(0));
+            return read.get(0);
+        }
+        return "";
+    }
+
+    /**
      * Read a file and return an array of whitespace-delimited string values
      * contained therein. Intended primarily for Linux /proc
      * 

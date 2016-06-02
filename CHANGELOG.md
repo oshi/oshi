@@ -7,6 +7,7 @@
 * [#171](https://github.com/dblock/oshi/pull/171): Added detailed process statistics - [@dbwiddis](https://github.com/dbwiddis).
 * [#176](https://github.com/dblock/oshi/pull/176): Eliminate Swing threads in WindowsFileSystem - [@henryx](https://github.com/henryx).
 * [#180](https://github.com/dblock/oshi/pull/180): Made all system information classes serializable - [@dbwiddis](https://github.com/dbwiddis).
+* [#181](https://github.com/dblock/oshi/pull/181): Added USB Device listing - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.4 (5/02/2016)

@@ -45,6 +45,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
@@ -471,11 +472,48 @@ public class SystemInfoTest {
             System.out.println(display.toString());
             i++;
         }
+
+        // hardware: USB devices
+        LOG.info("Checking USB Devices...");
+        System.out.println("USB Devices:");
+
+        UsbDevice[] usbDevices = hal.getUsbDevices();
+        int indent = 1;
+        for (UsbDevice usbDevice : usbDevices) {
+            printUsb(usbDevice, indent);
+        }
+
         LOG.info("Printing JSON:");
         // Compact JSON
         System.out.println(si.toJSON().toString());
 
         // Pretty JSON
         // System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
+    }
+
+    /**
+     * Helper method for indenting chained USB devices
+     * 
+     * @param usbDevice
+     *            A USB device to print
+     * @param indent
+     *            number of spaces to indent
+     */
+    private static void printUsb(UsbDevice usbDevice, int indent) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        sb.append(usbDevice.getName());
+        if (usbDevice.getVendor().length() > 0) {
+            sb.append(" (").append(usbDevice.getVendor()).append(")");
+        }
+        if (usbDevice.getSerialNumber().length() > 0) {
+            sb.append(" [s/n: ").append(usbDevice.getSerialNumber()).append("]");
+        }
+        System.out.println(sb.toString());
+        for (UsbDevice connected : usbDevice.getConnectedDevices()) {
+            printUsb(connected, indent + 2);
+        }
     }
 }

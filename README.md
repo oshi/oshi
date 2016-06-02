@@ -40,6 +40,7 @@ Currently supported features
 * Disk drives (model, serial, size)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
+* USB Devices
 * Sensors (temperature, fan speeds, voltage)
 
 Output
