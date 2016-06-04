@@ -1,4 +1,8 @@
-2.5 (in progress)
+2.6 (in progress)
+================
+* Your contribution here.
+
+2.5 (6/4/2016)
 ================
 * Upgraded to Java 8 base support
 * [#163](https://github.com/dblock/oshi/pull/163): Update getFileStores() method to include mount point [@henryx](https://github.com/henryx).
@@ -9,7 +13,6 @@
 * [#180](https://github.com/dblock/oshi/pull/180): Made all system information classes serializable - [@dbwiddis](https://github.com/dbwiddis).
 * [#181](https://github.com/dblock/oshi/pull/181): Added USB Device listing - [@dbwiddis](https://github.com/dbwiddis).
 * [#184](https://github.com/dblock/oshi/pull/184): Improve Linux OS version parsing - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 2.4 (5/02/2016)
 ================

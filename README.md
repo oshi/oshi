@@ -1,16 +1,16 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
-[<img align=right alt="Dependency Status" src="https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat" />](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
-[<img align=right alt="Build Status" src="https://travis-ci.org/dblock/oshi.svg" />](https://travis-ci.org/dblock/oshi)
-[<img align=right alt="Eclipse Public License" src="http://img.shields.io/badge/license-Eclipse-blue.svg" />](https://www.eclipse.org/legal/epl-v10.html)
-[<img align=right alt="Maven central" src="https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg" />](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+[<img align="right" alt="Dependency Status" src="https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat" />](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+[<img align="right" alt="Build Status" src="https://travis-ci.org/dblock/oshi.svg" />](https://travis-ci.org/dblock/oshi)
+[<img align="right" alt="Eclipse Public License" src="http://img.shields.io/badge/license-Eclipse-blue.svg" />](https://www.eclipse.org/legal/epl-v10.html)
+[<img align="right" alt="Maven central" src="https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg" />](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
 
 OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
 
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download OSHI 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.4&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download OSHI 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.5-SNAPSHOT&e=jar)
+* [Download OSHI 2.5](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.5&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download OSHI 2.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.6-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
