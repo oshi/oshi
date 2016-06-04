@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -22,157 +23,449 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.util.ExecutingCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.OleAuto;
+import com.sun.jna.platform.win32.Variant.VARIANT;
+import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.COM.COMUtils;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.windows.Ole32;
+import oshi.jna.platform.windows.COM.EnumWbemClassObject;
+import oshi.jna.platform.windows.COM.WbemClassObject;
+import oshi.jna.platform.windows.COM.WbemLocator;
+import oshi.jna.platform.windows.COM.WbemServices;
+import oshi.util.ParseUtil;
 
 /**
  * Provides access to WMI queries
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L32">public class WmiUtil {</span>
+<span class="nc" id="L51">public class WmiUtil {</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WmiUtil.class);</span>
+
+    public static final String DEFAULT_NAMESPACE = &quot;ROOT\\CIMV2&quot;;
+
+<span class="nc" id="L56">    private static boolean securityInitialized = false;</span>
 
     /**
-     * Get an integer value from WMI
+     * Enum for WMI queries for proper parsing from the returned VARIANT
+     */
+<span class="nc" id="L61">    public enum ValueType {</span>
+<span class="nc" id="L62">        STRING, LONG, FLOAT, DATETIME</span>
+    }
+
+    /**
+     * Get a single Long value from WMI
      * 
-     * @param path
-     *            Path for the query
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
      * @param property
-     *            Property to retrieve value
-     * @return Integer value of the property if successful; -1 if failed
+     *            The property whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A Long containing the value of the requested property
      */
-    public static int getIntValue(String path, String property) {
-<span class="nc" id="L44">        int value = -1;</span>
-        // TODO: Replace wmic command line with COM call
-<span class="nc" id="L46">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, property));</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (String checkLine : data) {</span>
-<span class="nc bnc" id="L48" title="All 4 branches missed.">            if (checkLine.length() == 0 || checkLine.toLowerCase().contains(property.toLowerCase())) {</span>
-<span class="nc" id="L49">                continue;</span>
-            } else {
-                // If successful this line is the desired value
-                try {
-<span class="nc" id="L53">                    value = Integer.parseInt(checkLine.trim());</span>
-<span class="nc" id="L54">                } catch (NumberFormatException e) {</span>
-                    // If we failed to parse, give up
-<span class="nc" id="L56">                    value = -1;</span>
-<span class="nc" id="L57">                }</span>
-<span class="nc" id="L58">                break;</span>
-            }
+    public static Long selectLongFrom(String namespace, String wmiClass, String property, String whereClause) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,</span>
+                wmiClass, whereClause, ValueType.LONG);
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (result.containsKey(property) &amp;&amp; !result.get(property).isEmpty()) {</span>
+<span class="nc" id="L82">            return (Long) result.get(property).get(0);</span>
         }
-<span class="nc" id="L61">        return value;</span>
+<span class="nc" id="L84">        return 0L;</span>
     }
 
     /**
-     * Get String values from WMI
+     * Get multiple Long values from WMI
      * 
-     * @param path
-     *            Path for the query
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
      * @param properties
-     *            Comma-delimited properties to retrieve value
-     * @return Map with a key for each property and value a List of string
-     *         values of the property. All lists will contain the same elements
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A map, with each property as the key, containing Longs with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists.
      */
-    public static Map&lt;String, List&lt;String&gt;&gt; getStrValues(String path, String properties) {
-        // Set up map
-<span class="nc" id="L76">        Map&lt;String, List&lt;String&gt;&gt; values = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L77">        String[] props = properties.split(&quot;,&quot;);</span>
-        // If only one property, no header row is returned so we manually add it
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (props.length == 1) {</span>
-<span class="nc" id="L80">            values.put(props[0], new ArrayList&lt;String&gt;());</span>
+    public static Map&lt;String, List&lt;Long&gt;&gt; selectLongsFrom(String namespace, String wmiClass, String properties,
+            String whereClause) {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,</span>
+                wmiClass, whereClause, ValueType.LONG);
+<span class="nc" id="L106">        HashMap&lt;String, List&lt;Long&gt;&gt; longMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (String key : result.keySet()) {</span>
+<span class="nc" id="L108">            ArrayList&lt;Long&gt; longList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (Object obj : result.get(key)) {</span>
+<span class="nc" id="L110">                longList.add((Long) obj);</span>
+<span class="nc" id="L111">            }</span>
+<span class="nc" id="L112">            longMap.put(key, longList);</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">        return longMap;</span>
+    }
+
+    /**
+     * Get a single Float value from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param property
+     *            The property whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A Float containing the value of the requested property
+     */
+    public static Float selectFloatFrom(String namespace, String wmiClass, String property, String whereClause) {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,</span>
+                wmiClass, whereClause, ValueType.FLOAT);
+<span class="nc bnc" id="L133" title="All 4 branches missed.">        if (result.containsKey(property) &amp;&amp; !result.get(property).isEmpty()) {</span>
+<span class="nc" id="L134">            return (Float) result.get(property).get(0);</span>
         }
-        // Get query
-        // TODO: Replace wmic command line with COM call
-<span class="nc" id="L84">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
-<span class="nc" id="L85">        String[] headers = new String[props.length];</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String checkLine : data) {</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (checkLine.length() == 0) {</span>
-<span class="nc" id="L88">                continue;</span>
+<span class="nc" id="L136">        return 0f;</span>
+    }
+
+    /**
+     * Get multiple Float values from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A map, with each property as the key, containing Floats with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists.
+     */
+    public static Map&lt;String, List&lt;Float&gt;&gt; selectFloatsFrom(String namespace, String wmiClass, String properties,
+            String whereClause) {
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,</span>
+                wmiClass, whereClause, ValueType.FLOAT);
+<span class="nc" id="L158">        HashMap&lt;String, List&lt;Float&gt;&gt; floatMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (String key : result.keySet()) {</span>
+<span class="nc" id="L160">            ArrayList&lt;Float&gt; floatList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            for (Object obj : result.get(key)) {</span>
+<span class="nc" id="L162">                floatList.add((Float) obj);</span>
+<span class="nc" id="L163">            }</span>
+<span class="nc" id="L164">            floatMap.put(key, floatList);</span>
+<span class="nc" id="L165">        }</span>
+<span class="nc" id="L166">        return floatMap;</span>
+    }
+
+    /**
+     * Get a single String value from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param property
+     *            The property whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A string containing the value of the requested property
+     */
+    public static String selectStringFrom(String namespace, String wmiClass, String property, String whereClause) {
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,</span>
+                wmiClass, whereClause, ValueType.STRING);
+<span class="nc bnc" id="L185" title="All 4 branches missed.">        if (result.containsKey(property) &amp;&amp; !result.get(property).isEmpty()) {</span>
+<span class="nc" id="L186">            return (String) result.get(property).get(0);</span>
+        }
+<span class="nc" id="L188">        return &quot;&quot;;</span>
+    }
+
+    /**
+     * Get multiple String values from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @return A map, with each property as the key, containing strings with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists.
+     */
+    public static Map&lt;String, List&lt;String&gt;&gt; selectStringsFrom(String namespace, String wmiClass, String properties,
+            String whereClause) {
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,</span>
+                wmiClass, whereClause, ValueType.STRING);
+<span class="nc" id="L210">        HashMap&lt;String, List&lt;String&gt;&gt; strMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        for (String key : result.keySet()) {</span>
+<span class="nc" id="L212">            ArrayList&lt;String&gt; strList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">            for (Object obj : result.get(key)) {</span>
+<span class="nc" id="L214">                strList.add((String) obj);</span>
+<span class="nc" id="L215">            }</span>
+<span class="nc" id="L216">            strMap.put(key, strList);</span>
+<span class="nc" id="L217">        }</span>
+<span class="nc" id="L218">        return strMap;</span>
+    }
+
+    /**
+     * Get multiple individually typed values from WMI
+     * 
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            A comma delimited list of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @param propertyTypes
+     *            An array of types corresponding to the properties
+     * @return A map, with each property as the key, containing Objects with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists. The type of the objects is identified by the
+     *         propertyTypes array. It is the responsibility of the caller to
+     *         cast the returned objects.
+     */
+    public static Map&lt;String, List&lt;Object&gt;&gt; selectObjectsFrom(String namespace, String wmiClass, String properties,
+            String whereClause, ValueType[] propertyTypes) {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,</span>
+                wmiClass, whereClause, propertyTypes);
+<span class="nc" id="L244">        return result;</span>
+    }
+
+    /**
+     * Query WMI for values
+     * 
+     * @param namespace
+     *            The namespace to query
+     * @param properties
+     *            A single property or comma-delimited list of properties to
+     *            enumerate
+     * @param wmiClass
+     *            The WMI class to query
+     * @param valType
+     *            The type of data being queried, to control how VARIANT is
+     *            parsed
+     * @return A map, with the string value of each property as the key,
+     *         containing a list of Objects which can be cast appropriately per
+     *         valType. The order of objects in each list corresponds to the
+     *         other lists.
+     */
+    private static Map&lt;String, List&lt;Object&gt;&gt; queryWMI(String namespace, String properties, String wmiClass,
+            String whereClause, ValueType valType) {
+        // Set up empty map
+<span class="nc" id="L268">        String[] props = properties.split(&quot;,&quot;);</span>
+<span class="nc" id="L269">        ValueType[] propertyTypes = new ValueType[props.length];</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        for (int i = 0; i &lt; props.length; i++) {</span>
+<span class="nc" id="L271">            propertyTypes[i] = valType;</span>
+        }
+<span class="nc" id="L273">        return queryWMI(namespace, properties, wmiClass, whereClause, propertyTypes);</span>
+    }
+
+    /**
+     * Query WMI for values
+     * 
+     * @param namespace
+     *            The namespace to query
+     * @param properties
+     *            A single property or comma-delimited list of properties to
+     *            enumerate
+     * @param wmiClass
+     *            The WMI class to query
+     * @param propertyTypes
+     *            An array corresponding to the properties, containing the type
+     *            of data being queried, to control how VARIANT is parsed
+     * @return A map, with the string value of each property as the key,
+     *         containing a list of Objects which can be cast appropriately per
+     *         valType. The order of objects in each list corresponds to the
+     *         other lists.
+     */
+    private static Map&lt;String, List&lt;Object&gt;&gt; queryWMI(String namespace, String properties, String wmiClass,
+            String whereClause, ValueType[] propertyTypes) {
+        // Set up empty map
+<span class="nc" id="L297">        Map&lt;String, List&lt;Object&gt;&gt; values = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L298">        String[] props = properties.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">        for (int i = 0; i &lt; props.length; i++) {</span>
+<span class="nc" id="L300">            values.put(props[i], new ArrayList&lt;Object&gt;());</span>
+        }
+
+        // Initialize COM
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if (!initCOM()) {</span>
+<span class="nc" id="L305">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L306">            return values;</span>
+        }
+
+<span class="nc" id="L309">        PointerByReference pSvc = new PointerByReference();</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">        if (!connectServer(namespace, pSvc)) {</span>
+<span class="nc" id="L311">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L312">            return values;</span>
+        }
+<span class="nc" id="L314">        WbemServices svc = new WbemServices(pSvc.getValue());</span>
+
+<span class="nc" id="L316">        PointerByReference pEnumerator = new PointerByReference();</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {</span>
+<span class="nc" id="L318">            svc.Release();</span>
+<span class="nc" id="L319">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L320">            return values;</span>
+        }
+<span class="nc" id="L322">        EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());</span>
+
+<span class="nc" id="L324">        enumerateProperties(values, enumerator, props, propertyTypes);</span>
+
+        // Cleanup
+<span class="nc" id="L327">        enumerator.Release();</span>
+<span class="nc" id="L328">        svc.Release();</span>
+<span class="nc" id="L329">        Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L330">        return values;</span>
+    }
+
+    /*
+     * Getting WMI Data from Local Computer
+     * 
+     * Ported from:
+     * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
+     */
+
+    private static boolean initCOM() {
+        // Step 1: --------------------------------------------------
+        // Initialize COM. ------------------------------------------
+<span class="nc" id="L343">        HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L345">            LOG.error(String.format(&quot;Failed to initialize COM library. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L346">            return false;</span>
+        }
+<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (securityInitialized) {</span>
+            // Only run CoInitializeSecuirty once
+<span class="nc" id="L350">            return true;</span>
+        }
+        // Step 2: --------------------------------------------------
+        // Set general COM security levels --------------------------
+<span class="nc" id="L354">        hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,</span>
+                Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
+<span class="nc bnc" id="L356" title="All 4 branches missed.">        if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != Ole32.RPC_E_TOO_LATE) {</span>
+<span class="nc" id="L357">            LOG.error(String.format(&quot;Failed to initialize security. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L358">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L359">            return false;</span>
+        }
+<span class="nc" id="L361">        securityInitialized = true;</span>
+<span class="nc" id="L362">        return true;</span>
+    }
+
+    private static boolean connectServer(String namespace, PointerByReference pSvc) {
+        // Step 3: ---------------------------------------------------
+        // Obtain the initial locator to WMI -------------------------
+<span class="nc" id="L368">        WbemLocator loc = WbemLocator.create();</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        if (loc == null) {</span>
+<span class="nc" id="L370">            return false;</span>
+        }
+        // Step 4: -----------------------------------------------------
+        // Connect to WMI through the IWbemLocator::ConnectServer method
+        // Connect to the namespace with the current user and obtain pointer
+        // pSvc to make IWbemServices calls.
+<span class="nc" id="L376">        HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L378">            LOG.error(String.format(&quot;Could not connect to namespace %s. Error code = 0x%08x&quot;, namespace,</span>
+<span class="nc" id="L379">                    hres.intValue()));</span>
+<span class="nc" id="L380">            loc.Release();</span>
+<span class="nc" id="L381">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L382">            return false;</span>
+        }
+<span class="nc" id="L384">        LOG.debug(&quot;Connected to {} WMI namespace&quot;, namespace);</span>
+<span class="nc" id="L385">        loc.Release();</span>
+
+        // Step 5: --------------------------------------------------
+        // Set security levels on the proxy -------------------------
+<span class="nc" id="L389">        hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, null,</span>
+                Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE);
+<span class="nc bnc" id="L391" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L392">            LOG.error(String.format(&quot;Could not set proxy blanket. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L393">            new WbemServices(pSvc.getValue()).Release();</span>
+<span class="nc" id="L394">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L395">            return false;</span>
+        }
+<span class="nc" id="L397">        return true;</span>
+    }
+
+    private static boolean selectProperties(WbemServices svc, PointerByReference pEnumerator, String properties,
+            String wmiClass, String whereClause) {
+        // Step 6: --------------------------------------------------
+        // Use the IWbemServices pointer to make requests of WMI ----
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        String query = String.format(&quot;SELECT %s FROM %s %s&quot;, properties, wmiClass,</span>
+                whereClause != null ? whereClause : &quot;&quot;);
+<span class="nc" id="L406">        LOG.debug(&quot;Query: {}&quot;, query);</span>
+<span class="nc" id="L407">        HRESULT hres = svc.ExecQuery(new BSTR(&quot;WQL&quot;), new BSTR(query),</span>
+                new NativeLong(
+                        EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
+                null, pEnumerator);
+<span class="nc bnc" id="L411" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L412">            LOG.error(String.format(&quot;Query '%s' failed. Error code = 0x%08x&quot;, query, hres.intValue()));</span>
+<span class="nc" id="L413">            svc.Release();</span>
+<span class="nc" id="L414">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L415">            return false;</span>
+        }
+<span class="nc" id="L417">        return true;</span>
+    }
+
+    private static void enumerateProperties(Map&lt;String, List&lt;Object&gt;&gt; values, EnumWbemClassObject enumerator,
+            String[] properties, ValueType[] propertyTypes) {
+<span class="nc bnc" id="L422" title="All 2 branches missed.">        if (properties.length != propertyTypes.length) {</span>
+<span class="nc" id="L423">            throw new IllegalArgumentException(&quot;Property type array size must equal properties array size.&quot;);</span>
+        }
+        // Step 7: -------------------------------------------------
+        // Get the data from the query in step 6 -------------------
+<span class="nc" id="L427">        PointerByReference pclsObj = new PointerByReference();</span>
+<span class="nc" id="L428">        LongByReference uReturn = new LongByReference(0L);</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        while (enumerator.getPointer() != Pointer.NULL) {</span>
+<span class="nc" id="L430">            HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),</span>
+                    pclsObj, uReturn);
+            // Requested 1; if 0 objects returned, we're done
+<span class="nc bnc" id="L433" title="All 4 branches missed.">            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L434">                enumerator.Release();</span>
+<span class="nc" id="L435">                return;</span>
             }
-<span class="nc" id="L90">            String[] vals = checkLine.split(&quot;\\s\\s+&quot;);</span>
-            // First row is header
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (headers[0] == null) {</span>
-<span class="nc bnc" id="L93" title="All 4 branches missed.">                for (int i = 0; i &lt; headers.length &amp;&amp; i &lt; vals.length; i++) {</span>
-<span class="nc" id="L94">                    headers[i] = vals[i];</span>
-<span class="nc" id="L95">                    values.put(headers[i], new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L437">            VARIANT.ByReference vtProp = new VARIANT.ByReference();</span>
+
+            // Get the value of the properties
+<span class="nc" id="L440">            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">            for (int p = 0; p &lt; properties.length; p++) {</span>
+<span class="nc" id="L442">                String property = properties[p];</span>
+<span class="nc" id="L443">                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);</span>
+
+<span class="nc bnc" id="L445" title="All 5 branches missed.">                switch (propertyTypes[p]) {</span>
+                case STRING:
+<span class="nc bnc" id="L447" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? &quot;unknown&quot; : vtProp.stringValue());</span>
+<span class="nc" id="L448">                    break;</span>
+                case LONG: // WinDef.LONG
+<span class="nc" id="L450">                    values.get(property)</span>
+<span class="nc bnc" id="L451" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
+<span class="nc" id="L452">                    break;</span>
+                case FLOAT:
+<span class="nc bnc" id="L454" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
+<span class="nc" id="L455">                    break;</span>
+                case DATETIME:
+                    // Read a string in format 20160513072950.782000-420 and
+                    // parse to a long representing ms since eopch
+<span class="nc" id="L459">                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
+<span class="nc" id="L460">                    break;</span>
+                default:
+                    // Should never get here!
+<span class="nc" id="L463">                    LOG.error(&quot;Unimplemented enum type.&quot;);</span>
                 }
-<span class="nc" id="L97">                continue;</span>
+<span class="nc" id="L465">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
             }
-            // Values are in same order as headers
-<span class="nc bnc" id="L100" title="All 4 branches missed.">            for (int i = 0; i &lt; headers.length &amp;&amp; i &lt; vals.length; i++) {</span>
-<span class="nc" id="L101">                values.get(headers[i]).add(vals[i].trim());</span>
-            }
-<span class="nc" id="L103">        }</span>
-<span class="nc" id="L104">        return values;</span>
-    }
-
-    /**
-     * Get an array of String values from WMI when property matches a key
-     * 
-     * @param path
-     *            Path for the query
-     * @param key
-     *            Key to match against the first property
-     * @param properties
-     *            Comma-delimited string; the first property will be checked
-     *            against the key
-     * @return String value of the second property if the first property matches
-     */
-    public static String[] getStrValuesForKey(String path, String key, String properties) {
-<span class="nc" id="L120">        List&lt;String&gt; values = new ArrayList&lt;String&gt;();</span>
-        // TODO: Replace wmic command line with COM call
-<span class="nc" id="L122">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (String checkLine : data) {</span>
-<span class="nc" id="L124">            String[] keyValue = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (keyValue.length &lt; 2) {</span>
-<span class="nc" id="L126">                continue;</span>
-            }
-<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (keyValue[0].equals(key)) {</span>
-<span class="nc" id="L129">                values.add(keyValue[1]);</span>
-            }
-<span class="nc" id="L131">        }</span>
-<span class="nc" id="L132">        return values.toArray(new String[values.size()]);</span>
-    }
-
-    /**
-     * Get an array of double values from WMI when properties match keys
-     * 
-     * @param path
-     *            Path for the query
-     * @param key0
-     *            Key to match against the first property
-     * @param key1
-     *            Key to match against the second property
-     * @param properties
-     *            Comma-delimited string; the first and second properties will
-     *            be checked against the keys
-     * @return Array of doubles in the third property if the first two
-     *         properties match the keys
-     */
-    public static double[] wmiGetDoubleValuesForKeys(String path, String key0, String key1, String properties) {
-<span class="nc" id="L151">        List&lt;Double&gt; values = new ArrayList&lt;Double&gt;();</span>
-        // TODO: Replace wmic command line with COM call
-<span class="nc" id="L153">        ArrayList&lt;String&gt; data = ExecutingCommand.runNative(String.format(&quot;wmic %s get %s&quot;, path, properties));</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        for (String checkLine : data) {</span>
-            double value;
-<span class="nc" id="L156">            String[] keyValue = checkLine.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (keyValue.length &lt; 3) {</span>
-<span class="nc" id="L158">                continue;</span>
-            }
-<span class="nc bnc" id="L160" title="All 6 branches missed.">            if ((key0 == null || keyValue[0].equals(key0)) &amp;&amp; keyValue[1].equals(key1)) {</span>
-                // If successful this line is the desired value
-                try {
-<span class="nc" id="L163">                    value = Double.parseDouble(keyValue[2]);</span>
-<span class="nc" id="L164">                } catch (NumberFormatException e) {</span>
-                    // If we failed to parse, do nothing
-<span class="nc" id="L166">                    continue;</span>
-<span class="nc" id="L167">                }</span>
-<span class="nc" id="L168">                values.add(value);</span>
-            }
-<span class="nc" id="L170">        }</span>
-<span class="nc" id="L171">        double[] valueArray = new double[values.size()];</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (int i = 0; i &lt; values.size(); i++) {</span>
-<span class="nc" id="L173">            valueArray[i] = values.get(i);</span>
-        }
-<span class="nc" id="L175">        return valueArray;</span>
-    }
+<span class="nc" id="L467">            clsObj.Release();</span>
+<span class="nc" id="L468">        }</span>
+<span class="nc" id="L469">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

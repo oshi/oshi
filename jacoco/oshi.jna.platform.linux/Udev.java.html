@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -29,50 +30,50 @@ import com.sun.jna.PointerType;
  */
 public interface Udev extends Library {
 
-<span class="nc" id="L32">    Udev INSTANCE = (Udev) Native.loadLibrary(&quot;udev&quot;, Udev.class);</span>
+<span class="nc" id="L33">    Udev INSTANCE = (Udev) Native.loadLibrary(&quot;udev&quot;, Udev.class);</span>
 
     class UdevHandle extends PointerType {
 
         public UdevHandle(Pointer address) {
-<span class="nc" id="L37">            super(address);</span>
-<span class="nc" id="L38">        }</span>
+<span class="nc" id="L38">            super(address);</span>
+<span class="nc" id="L39">        }</span>
 
         public UdevHandle() {
-<span class="nc" id="L41">            super();</span>
-<span class="nc" id="L42">        }</span>
+<span class="nc" id="L42">            super();</span>
+<span class="nc" id="L43">        }</span>
     };
 
     final class UdevDevice extends PointerType {
 
         public UdevDevice(Pointer address) {
-<span class="nc" id="L48">            super(address);</span>
-<span class="nc" id="L49">        }</span>
+<span class="nc" id="L49">            super(address);</span>
+<span class="nc" id="L50">        }</span>
 
         public UdevDevice() {
-<span class="nc" id="L52">            super();</span>
-<span class="nc" id="L53">        }</span>
+<span class="nc" id="L53">            super();</span>
+<span class="nc" id="L54">        }</span>
     };
 
     class UdevEnumerate extends PointerType {
 
         public UdevEnumerate(Pointer address) {
-<span class="nc" id="L59">            super(address);</span>
-<span class="nc" id="L60">        }</span>
+<span class="nc" id="L60">            super(address);</span>
+<span class="nc" id="L61">        }</span>
 
         public UdevEnumerate() {
-<span class="nc" id="L63">            super();</span>
-<span class="nc" id="L64">        }</span>
+<span class="nc" id="L64">            super();</span>
+<span class="nc" id="L65">        }</span>
     };
 
     class UdevListEntry extends PointerType {
 
         public UdevListEntry(Pointer address) {
-<span class="nc" id="L70">            super(address);</span>
-<span class="nc" id="L71">        }</span>
+<span class="nc" id="L71">            super(address);</span>
+<span class="nc" id="L72">        }</span>
 
         public UdevListEntry() {
-<span class="nc" id="L74">            super();</span>
-<span class="nc" id="L75">        }</span>
+<span class="nc" id="L75">            super();</span>
+<span class="nc" id="L76">        }</span>
     };
 
     Udev.UdevHandle udev_new();

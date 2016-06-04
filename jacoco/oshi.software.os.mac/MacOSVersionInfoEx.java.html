@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,48 +25,51 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
-<span class="fc" id="L27">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
 
-<span class="fc" id="L29">    public MacOSVersionInfoEx() {</span>
-<span class="fc" id="L30">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
-<span class="fc" id="L31">        setCodeName(parseCodeName());</span>
-<span class="fc" id="L32">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
-<span class="fc" id="L33">    }</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L31">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
+
+<span class="fc" id="L33">    public MacOSVersionInfoEx() {</span>
+<span class="fc" id="L34">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
+<span class="fc" id="L35">        setCodeName(parseCodeName());</span>
+<span class="fc" id="L36">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
+<span class="fc" id="L37">    }</span>
 
     private String parseCodeName() {
-<span class="fc" id="L36">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
-<span class="pc bpc" id="L37" title="2 of 4 branches missed.">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
-<span class="pc bpc" id="L38" title="12 of 13 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
+<span class="fc" id="L40">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="pc bpc" id="L41" title="2 of 4 branches missed.">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+<span class="pc bpc" id="L42" title="12 of 13 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
             case 11:
-<span class="fc" id="L40">                return &quot;El Capitan&quot;;</span>
+<span class="fc" id="L44">                return &quot;El Capitan&quot;;</span>
             case 10:
-<span class="nc" id="L42">                return &quot;Yosemite&quot;;</span>
+<span class="nc" id="L46">                return &quot;Yosemite&quot;;</span>
             case 9:
-<span class="nc" id="L44">                return &quot;Mavericks&quot;;</span>
+<span class="nc" id="L48">                return &quot;Mavericks&quot;;</span>
             case 8:
-<span class="nc" id="L46">                return &quot;Mountain Lion&quot;;</span>
+<span class="nc" id="L50">                return &quot;Mountain Lion&quot;;</span>
             case 7:
-<span class="nc" id="L48">                return &quot;Lion&quot;;</span>
+<span class="nc" id="L52">                return &quot;Lion&quot;;</span>
             case 6:
-<span class="nc" id="L50">                return &quot;Snow Leopard&quot;;</span>
+<span class="nc" id="L54">                return &quot;Snow Leopard&quot;;</span>
             case 5:
-<span class="nc" id="L52">                return &quot;Leopard&quot;;</span>
+<span class="nc" id="L56">                return &quot;Leopard&quot;;</span>
             case 4:
-<span class="nc" id="L54">                return &quot;Tiger&quot;;</span>
+<span class="nc" id="L58">                return &quot;Tiger&quot;;</span>
             case 3:
-<span class="nc" id="L56">                return &quot;Panther&quot;;</span>
+<span class="nc" id="L60">                return &quot;Panther&quot;;</span>
             case 2:
-<span class="nc" id="L58">                return &quot;Jaguar&quot;;</span>
+<span class="nc" id="L62">                return &quot;Jaguar&quot;;</span>
             case 1:
-<span class="nc" id="L60">                return &quot;Puma&quot;;</span>
+<span class="nc" id="L64">                return &quot;Puma&quot;;</span>
             case 0:
-<span class="nc" id="L62">                return &quot;Cheetah&quot;;</span>
+<span class="nc" id="L66">                return &quot;Cheetah&quot;;</span>
             default:
                 // Not OS X
             }
         }
-<span class="nc" id="L67">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
-<span class="nc" id="L68">        return &quot;&quot;;</span>
+<span class="nc" id="L71">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
+<span class="nc" id="L72">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -33,8 +34,8 @@ import oshi.jna.platform.mac.SystemB;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L36">public class SysctlUtil {</span>
-<span class="fc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);</span>
+<span class="nc" id="L37">public class SysctlUtil {</span>
+<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);</span>
 
     /**
      * Executes a sysctl call with an int result
@@ -46,13 +47,13 @@ import oshi.jna.platform.mac.SystemB;
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
-<span class="fc" id="L49">        IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
-<span class="fc" id="L50">        Pointer p = new Memory(size.getValue());</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
-<span class="nc" id="L52">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L53">            return def;</span>
+<span class="fc" id="L50">        IntByReference size = new IntByReference(SystemB.INT_SIZE);</span>
+<span class="fc" id="L51">        Pointer p = new Memory(size.getValue());</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L53">            LOG.error(&quot;Failed sysctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L54">            return def;</span>
         }
-<span class="fc" id="L55">        return p.getInt(0);</span>
+<span class="fc" id="L56">        return p.getInt(0);</span>
     }
 
     /**
@@ -65,13 +66,13 @@ import oshi.jna.platform.mac.SystemB;
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-<span class="fc" id="L68">        IntByReference size = new IntByReference(SystemB.UINT64_SIZE);</span>
-<span class="fc" id="L69">        Pointer p = new Memory(size.getValue());</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
-<span class="nc" id="L71">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L72">            return def;</span>
+<span class="fc" id="L69">        IntByReference size = new IntByReference(SystemB.UINT64_SIZE);</span>
+<span class="fc" id="L70">        Pointer p = new Memory(size.getValue());</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L72">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L73">            return def;</span>
         }
-<span class="fc" id="L74">        return p.getLong(0);</span>
+<span class="fc" id="L75">        return p.getLong(0);</span>
     }
 
     /**
@@ -86,18 +87,18 @@ import oshi.jna.platform.mac.SystemB;
      */
     public static String sysctl(String name, String def) {
         // Call first time with null pointer to get value of size
-<span class="fc" id="L89">        IntByReference size = new IntByReference();</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, 0)) {</span>
-<span class="nc" id="L91">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L92">            return def;</span>
+<span class="fc" id="L90">        IntByReference size = new IntByReference();</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, 0)) {</span>
+<span class="nc" id="L92">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L93">            return def;</span>
         }
         // Add 1 to size for null terminated string
-<span class="fc" id="L95">        Pointer p = new Memory(size.getValue() + 1);</span>
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
-<span class="nc" id="L97">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L98">            return def;</span>
+<span class="fc" id="L96">        Pointer p = new Memory(size.getValue() + 1);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L98">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L99">            return def;</span>
         }
-<span class="fc" id="L100">        return p.getString(0);</span>
+<span class="fc" id="L101">        return p.getString(0);</span>
     }
 
     /**
@@ -110,12 +111,12 @@ import oshi.jna.platform.mac.SystemB;
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, Structure struct) {
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null, 0)) {</span>
-<span class="nc" id="L114">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L115">            return false;</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null, 0)) {</span>
+<span class="nc" id="L115">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L116">            return false;</span>
         }
-<span class="fc" id="L117">        struct.read();</span>
-<span class="fc" id="L118">        return true;</span>
+<span class="fc" id="L118">        struct.read();</span>
+<span class="fc" id="L119">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

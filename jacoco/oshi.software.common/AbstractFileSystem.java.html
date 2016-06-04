@@ -11,14 +11,18 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.software.common;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -29,14 +33,25 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L32">public abstract class AbstractFileSystem implements FileSystem {</span>
+<span class="fc" id="L36">public abstract class AbstractFileSystem implements FileSystem {</span>
 
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L40">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonObject toJSON() {
-        // TODO Auto-generated method stub
-<span class="nc" id="L37">        return null;</span>
+<span class="nc" id="L47">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
+<span class="nc" id="L48">                .add(&quot;openFileDescriptors&quot;, getOpenFileDescriptors()).add(&quot;maxFileDescriptors&quot;, getMaxFileDescriptors())</span>
+<span class="nc" id="L49">                .build();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public abstract OSFileStore[] getFileStores();
 

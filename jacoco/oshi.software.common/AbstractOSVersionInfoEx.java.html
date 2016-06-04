@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -29,7 +30,9 @@ import oshi.software.os.OperatingSystemVersion;
  * and minor version numbers, a build number, a platform identifier, and
  * descriptive text about the operating system.
  */
-<span class="fc" id="L32">public class AbstractOSVersionInfoEx implements OperatingSystemVersion {</span>
+<span class="fc" id="L33">public class AbstractOSVersionInfoEx implements OperatingSystemVersion {</span>
+
+    private static final long serialVersionUID = 1L;
 
     protected String version;
 
@@ -39,14 +42,14 @@ import oshi.software.os.OperatingSystemVersion;
 
     protected String buildNumber;
 
-<span class="fc" id="L42">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L45">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getVersion() {
-<span class="fc" id="L49">        return this.version;</span>
+<span class="fc" id="L52">        return this.version;</span>
     }
 
     /**
@@ -54,15 +57,15 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public void setVersion(String version) {
-<span class="fc" id="L57">        this.version = version;</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L60">        this.version = version;</span>
+<span class="fc" id="L61">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getCodeName() {
-<span class="fc" id="L65">        return this.codeName;</span>
+<span class="fc" id="L68">        return this.codeName;</span>
     }
 
     /**
@@ -70,15 +73,15 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public void setCodeName(String codeName) {
-<span class="fc" id="L73">        this.codeName = codeName;</span>
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L76">        this.codeName = codeName;</span>
+<span class="fc" id="L77">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getBuildNumber() {
-<span class="fc" id="L81">        return this.buildNumber;</span>
+<span class="fc" id="L84">        return this.buildNumber;</span>
     }
 
     /**
@@ -86,31 +89,31 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public void setBuildNumber(String buildNumber) {
-<span class="fc" id="L89">        this.buildNumber = buildNumber;</span>
-<span class="fc" id="L90">    }</span>
+<span class="fc" id="L92">        this.buildNumber = buildNumber;</span>
+<span class="fc" id="L93">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L97">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;version&quot;, getVersion())</span>
-<span class="nc" id="L98">                .add(&quot;codeName&quot;, getCodeName()).add(&quot;build&quot;, getBuildNumber()).build();</span>
+<span class="nc" id="L100">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;version&quot;, getVersion())</span>
+<span class="nc" id="L101">                .add(&quot;codeName&quot;, getCodeName()).add(&quot;build&quot;, getBuildNumber()).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (this.versionStr == null) {</span>
-<span class="nc" id="L104">            StringBuilder sb = new StringBuilder(getVersion());</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
-<span class="nc" id="L106">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (this.versionStr == null) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : &quot;Unknown&quot;);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
+<span class="nc" id="L109">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
             }
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (getBuildNumber().length() &gt; 0) {</span>
-<span class="nc" id="L109">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (getBuildNumber().length() &gt; 0) {</span>
+<span class="nc" id="L112">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L111">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L114">            this.versionStr = sb.toString();</span>
         }
-<span class="nc" id="L113">        return this.versionStr;</span>
+<span class="nc" id="L116">        return this.versionStr;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

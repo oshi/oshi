@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -37,7 +38,7 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface Pdh extends Library {
-<span class="nc" id="L40">    Pdh INSTANCE = (Pdh) Native.loadLibrary(&quot;Pdh&quot;, Pdh.class);</span>
+<span class="nc" id="L41">    Pdh INSTANCE = (Pdh) Native.loadLibrary(&quot;Pdh&quot;, Pdh.class);</span>
 
     // Counter return types
     int PDH_FMT_LONG = 0x00000100; // Native Long
@@ -56,7 +57,7 @@ public interface Pdh extends Library {
     /**
      * Union included in return value of {@link PdhFmtCounterValue}
      */
-<span class="nc" id="L59">    class ValueUnion extends Union {</span>
+<span class="nc" id="L60">    class ValueUnion extends Union {</span>
         public int longValue;
 
         public double doubleValue;
@@ -71,14 +72,14 @@ public interface Pdh extends Library {
     /**
      * Holds the return value of a formatted data query.
      */
-<span class="nc" id="L74">    class PdhFmtCounterValue extends Structure {</span>
+<span class="nc" id="L75">    class PdhFmtCounterValue extends Structure {</span>
         public DWORD cStatus;
 
         public ValueUnion value;
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L81">            return Arrays.asList(new String[] { &quot;cStatus&quot;, &quot;value&quot; });</span>
+<span class="nc" id="L82">            return Arrays.asList(new String[] { &quot;cStatus&quot;, &quot;value&quot; });</span>
         }
     }
 

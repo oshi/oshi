@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,21 +25,25 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.mac.MacFileSystem;
 
-<span class="fc" id="L31">public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="fc" id="L34">public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (this.processor == null) {</span>
-<span class="fc" id="L39">            this.processor = new MacCentralProcessor();</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        if (this.processor == null) {</span>
+<span class="fc" id="L44">            this.processor = new MacCentralProcessor();</span>
         }
-<span class="fc" id="L41">        return this.processor;</span>
+<span class="fc" id="L46">        return this.processor;</span>
     }
 
     /**
@@ -46,10 +51,10 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (this.memory == null) {</span>
-<span class="fc" id="L50">            this.memory = new MacGlobalMemory();</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (this.memory == null) {</span>
+<span class="fc" id="L55">            this.memory = new MacGlobalMemory();</span>
         }
-<span class="fc" id="L52">        return this.memory;</span>
+<span class="fc" id="L57">        return this.memory;</span>
     }
 
     /**
@@ -57,7 +62,15 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="fc" id="L60">        return MacPowerSource.getPowerSources();</span>
+<span class="fc" id="L65">        return MacPowerSource.getPowerSources();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+<span class="fc" id="L73">        return new MacFileSystem();</span>
     }
 
     /**
@@ -65,7 +78,7 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public OSFileStore[] getFileStores() {
-<span class="fc" id="L68">        return new MacFileSystem().getFileStores();</span>
+<span class="fc" id="L81">        return new MacFileSystem().getFileStores();</span>
     }
 
     /**
@@ -73,7 +86,7 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public Display[] getDisplays() {
-<span class="fc" id="L76">        return MacDisplay.getDisplays();</span>
+<span class="fc" id="L89">        return MacDisplay.getDisplays();</span>
     }
 
     /**
@@ -81,15 +94,15 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public Sensors getSensors() {
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="fc" id="L85">            this.sensors = new MacSensors();</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="fc" id="L98">            this.sensors = new MacSensors();</span>
         }
-<span class="fc" id="L87">        return this.sensors;</span>
+<span class="fc" id="L100">        return this.sensors;</span>
     }
 
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="fc" id="L92">        return new MacDisks().getDisks();</span>
+<span class="fc" id="L105">        return new MacDisks().getDisks();</span>
     }
 
     /**
@@ -97,7 +110,15 @@ import oshi.software.os.mac.MacFileSystem;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="fc" id="L100">        return new MacNetworks().getNetworks();</span>
+<span class="fc" id="L113">        return new MacNetworks().getNetworks();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UsbDevice[] getUsbDevices() {
+<span class="nc" id="L121">        return MacUsbDevice.getUsbDevices();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

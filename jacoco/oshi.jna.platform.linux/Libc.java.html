@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -23,6 +24,7 @@ import java.util.List;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
@@ -33,13 +35,13 @@ import com.sun.jna.Structure;
  */
 public interface Libc extends Library {
 
-<span class="nc" id="L36">    Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
+<span class="nc" id="L38">    Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
 
-<span class="nc" id="L38">    class Sysinfo extends Structure {</span>
+<span class="nc" id="L40">    class Sysinfo extends Structure {</span>
         public NativeLong uptime; // Seconds since boot
         // 1, 5, and 15 minute load averages
 
-<span class="nc" id="L42">        public NativeLong[] loads = new NativeLong[3];</span>
+<span class="nc" id="L44">        public NativeLong[] loads = new NativeLong[3];</span>
 
         public NativeLong totalram; // Total usable main memory size
 
@@ -61,18 +63,57 @@ public interface Libc extends Library {
 
         public int mem_unit; // Memory unit size in bytes
 
-<span class="nc" id="L64">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+<span class="nc" id="L66">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L68">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
+<span class="nc" id="L70">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
                     &quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; });
         }
     }
 
     int sysinfo(Sysinfo info);
 
-    // Native call for getting load average
+    /**
+     * The getloadavg() function returns the number of processes in the system
+     * run queue averaged over various periods of time. Up to nelem samples are
+     * retrieved and assigned to successive elements of loadavg[]. The system
+     * imposes a maximum of 3 samples, representing averages over the last 1, 5,
+     * and 15 minutes, respectively.
+     * 
+     * @param loadavg
+     *            array to be filled
+     * @param nelem
+     *            number of elements in the array to fill
+     * @return If the load average was unobtainable, -1 is returned; otherwise,
+     *         the number of samples actually retrieved is returned.
+     */
     int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
+
+    /**
+     * Places the contents of the symbolic link path in the buffer buf, which
+     * has size bufsiz.
+     * 
+     * @param path
+     *            A symbolic link
+     * @param buf
+     *            Holds actual path to location pointed to by symlink
+     * @param bufsize
+     *            size of data in buffer
+     * @return readlink() places the contents of the symbolic link path in the
+     *         buffer buf, which has size bufsiz. readlink() does not append a
+     *         null byte to buf. It will truncate the contents (to a length of
+     *         bufsiz characters), in case the buffer is too small to hold all
+     *         of the contents.
+     */
+    int readlink(String path, Pointer buf, int bufsize);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

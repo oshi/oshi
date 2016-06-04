@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -36,6 +37,7 @@ import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * The Mac File System contains {@link OSFileStore}s which are a storage pool,
@@ -45,12 +47,14 @@ import oshi.software.os.OSFileStore;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L48">public class MacFileSystem extends AbstractFileSystem {</span>
+<span class="fc" id="L50">public class MacFileSystem extends AbstractFileSystem {</span>
 
-<span class="fc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
 
     // Regexp matcher for /dev/disk1 etc.
-<span class="fc" id="L53">    private static final Pattern localDisk = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
+<span class="fc" id="L57">    private static final Pattern localDisk = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
 
     /**
      * Gets File System Information.
@@ -61,56 +65,67 @@ import oshi.software.os.OSFileStore;
      */
     public OSFileStore[] getFileStores() {
         // Use getfsstat to map filesystem paths to types
-<span class="fc" id="L64">        Map&lt;String, String&gt; fstype = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L68">        Map&lt;String, String&gt; fstype = new HashMap&lt;&gt;();</span>
         // Query with null to get total # required
-<span class="fc" id="L66">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (numfs &gt; 0) {</span>
+<span class="fc" id="L70">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (numfs &gt; 0) {</span>
             // Create array to hold results
-<span class="fc" id="L69">            Statfs[] fs = new Statfs[numfs];</span>
+<span class="fc" id="L73">            Statfs[] fs = new Statfs[numfs];</span>
             // Fill array with results
-<span class="fc" id="L71">            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * (new Statfs()).size(), SystemB.MNT_NOWAIT);</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">            for (int f = 0; f &lt; numfs; f++) {</span>
+<span class="fc" id="L75">            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * (new Statfs()).size(), SystemB.MNT_NOWAIT);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            for (int f = 0; f &lt; numfs; f++) {</span>
                 // Mount to name will match canonical path.
                 // Byte arrays are null-terminated strings
-<span class="fc" id="L75">                fstype.put(new String(fs[f].f_mntonname).trim(), new String(fs[f].f_fstypename).trim());</span>
+<span class="fc" id="L79">                fstype.put(new String(fs[f].f_mntonname).trim(), new String(fs[f].f_fstypename).trim());</span>
             }
         }
         // Now list file systems
-<span class="fc" id="L79">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L80">        FileSystemView fsv = FileSystemView.getFileSystemView();</span>
+<span class="fc" id="L83">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L84">        FileSystemView fsv = FileSystemView.getFileSystemView();</span>
         // Mac file systems are mounted in /Volumes
-<span class="fc" id="L82">        File volumes = new File(&quot;/Volumes&quot;);</span>
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (volumes != null) {</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">            for (File f : volumes.listFiles()) {</span>
+<span class="fc" id="L86">        File volumes = new File(&quot;/Volumes&quot;);</span>
+<span class="pc bpc" id="L87" title="2 of 4 branches missed.">        if (volumes != null &amp;&amp; volumes.listFiles() != null) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            for (File f : volumes.listFiles()) {</span>
                 // Everyone hates DS Store
-<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (f.getName().endsWith(&quot;.DS_Store&quot;)) {</span>
-<span class="fc" id="L87">                    continue;</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">                if (f.getName().endsWith(&quot;.DS_Store&quot;)) {</span>
+<span class="nc" id="L91">                    continue;</span>
                 }
-<span class="fc" id="L89">                String name = fsv.getSystemDisplayName(f);</span>
-<span class="fc" id="L90">                String description = &quot;Volume&quot;;</span>
-<span class="fc" id="L91">                String type = &quot;unknown&quot;;</span>
+<span class="fc" id="L93">                String name = fsv.getSystemDisplayName(f);</span>
+<span class="fc" id="L94">                String description = &quot;Volume&quot;;</span>
+<span class="fc" id="L95">                String type = &quot;unknown&quot;;</span>
+<span class="fc" id="L96">                String path = &quot;unknown&quot;;</span>
                 try {
-<span class="fc" id="L93">                    String cp = f.getCanonicalPath();</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">                    if (cp.equals(&quot;/&quot;))</span>
-<span class="fc" id="L95">                        name = name + &quot; (/)&quot;;</span>
-<span class="fc" id="L96">                    FileStore fs = Files.getFileStore(f.toPath());</span>
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                    if (localDisk.matcher(fs.name()).matches()) {</span>
-<span class="nc" id="L98">                        description = &quot;Local Disk&quot;;</span>
+<span class="fc" id="L98">                    path = f.getCanonicalPath();</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                    if (path.equals(&quot;/&quot;))</span>
+<span class="fc" id="L100">                        name = name + &quot; (/)&quot;;</span>
+<span class="fc" id="L101">                    FileStore fs = Files.getFileStore(f.toPath());</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                    if (localDisk.matcher(fs.name()).matches()) {</span>
+<span class="nc" id="L103">                        description = &quot;Local Disk&quot;;</span>
                     }
-<span class="fc bfc" id="L100" title="All 4 branches covered.">                    if (fs.name().startsWith(&quot;localhost:&quot;) || fs.name().startsWith(&quot;//&quot;)) {</span>
-<span class="fc" id="L101">                        description = &quot;Network Drive&quot;;</span>
+<span class="fc bfc" id="L105" title="All 4 branches covered.">                    if (fs.name().startsWith(&quot;localhost:&quot;) || fs.name().startsWith(&quot;//&quot;)) {</span>
+<span class="fc" id="L106">                        description = &quot;Network Drive&quot;;</span>
                     }
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                    if (fstype.containsKey(cp)) {</span>
-<span class="fc" id="L104">                        type = fstype.get(cp);</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                    if (fstype.containsKey(path)) {</span>
+<span class="fc" id="L109">                        type = fstype.get(path);</span>
                     }
-<span class="nc" id="L106">                } catch (IOException e) {</span>
-<span class="nc" id="L107">                    LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L108">                    continue;</span>
-<span class="fc" id="L109">                }</span>
-<span class="fc" id="L110">                fsList.add(new OSFileStore(name, description, type, f.getUsableSpace(), f.getTotalSpace()));</span>
+<span class="nc" id="L111">                } catch (IOException e) {</span>
+<span class="nc" id="L112">                    LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L113">                    continue;</span>
+<span class="fc" id="L114">                }</span>
+<span class="fc" id="L115">                fsList.add(new OSFileStore(name, path, description, type, f.getUsableSpace(), f.getTotalSpace()));</span>
             }
         }
-<span class="fc" id="L113">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="fc" id="L118">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+<span class="fc" id="L123">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+<span class="fc" id="L128">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

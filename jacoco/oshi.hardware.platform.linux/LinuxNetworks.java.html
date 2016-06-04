@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,24 +25,26 @@ import oshi.util.FileUtil;
 /**
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L27">public class LinuxNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L28">public class LinuxNetworks extends AbstractNetworks {</span>
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L34">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, netIF.getName());</span>
-<span class="nc" id="L35">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, netIF.getName());</span>
-<span class="nc" id="L36">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, netIF.getName());</span>
-<span class="nc" id="L37">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, netIF.getName());</span>
-<span class="nc" id="L38">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
+<span class="nc" id="L37">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, netIF.getName());</span>
+<span class="nc" id="L38">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, netIF.getName());</span>
+<span class="nc" id="L39">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, netIF.getName());</span>
+<span class="nc" id="L40">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, netIF.getName());</span>
+<span class="nc" id="L41">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
 
-<span class="nc" id="L40">        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));</span>
-<span class="nc" id="L41">        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));</span>
-<span class="nc" id="L42">        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));</span>
-<span class="nc" id="L43">        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));</span>
-<span class="nc" id="L44">        netIF.setSpeed(FileUtil.getLongFromFile(speed));</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L43">        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));</span>
+<span class="nc" id="L44">        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));</span>
+<span class="nc" id="L45">        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));</span>
+<span class="nc" id="L46">        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));</span>
+<span class="nc" id="L47">        netIF.setSpeed(FileUtil.getLongFromFile(speed));</span>
+<span class="nc" id="L48">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

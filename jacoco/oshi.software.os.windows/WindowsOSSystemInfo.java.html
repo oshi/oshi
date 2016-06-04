@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -31,33 +32,33 @@ import com.sun.jna.ptr.IntByReference;
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsOSSystemInfo {
-<span class="nc" id="L34">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
+<span class="nc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
 
-<span class="nc" id="L36">    private SYSTEM_INFO _si = null;</span>
+<span class="nc" id="L37">    private SYSTEM_INFO _si = null;</span>
 
-<span class="nc" id="L38">    public WindowsOSSystemInfo() {</span>
+<span class="nc" id="L39">    public WindowsOSSystemInfo() {</span>
 
-<span class="nc" id="L40">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
-<span class="nc" id="L41">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
+<span class="nc" id="L41">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
+<span class="nc" id="L42">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
 
         try {
-<span class="nc" id="L44">            IntByReference isWow64 = new IntByReference();</span>
-<span class="nc" id="L45">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
-<span class="nc bnc" id="L46" title="All 4 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) &amp;&amp; isWow64.getValue() &gt; 0) {</span>
-<span class="nc" id="L47">                Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
+<span class="nc" id="L45">            IntByReference isWow64 = new IntByReference();</span>
+<span class="nc" id="L46">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) &amp;&amp; isWow64.getValue() &gt; 0) {</span>
+<span class="nc" id="L48">                Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
             }
-<span class="nc" id="L49">        } catch (UnsatisfiedLinkError e) {</span>
+<span class="nc" id="L50">        } catch (UnsatisfiedLinkError e) {</span>
             // no WOW64 support
-<span class="nc" id="L51">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L52">        }</span>
+<span class="nc" id="L52">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L53">        }</span>
 
-<span class="nc" id="L54">        this._si = si;</span>
-<span class="nc" id="L55">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
-<span class="nc" id="L56">    }</span>
+<span class="nc" id="L55">        this._si = si;</span>
+<span class="nc" id="L56">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
+<span class="nc" id="L57">    }</span>
 
-<span class="nc" id="L58">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
-<span class="nc" id="L59">        this._si = si;</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L59">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
+<span class="nc" id="L60">        this._si = si;</span>
+<span class="nc" id="L61">    }</span>
 
     /**
      * Number of processors.
@@ -65,7 +66,7 @@ public class WindowsOSSystemInfo {
      * @return Integer.
      */
     public int getNumberOfProcessors() {
-<span class="nc" id="L68">        return this._si.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L69">        return this._si.dwNumberOfProcessors.intValue();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -31,26 +32,28 @@ import oshi.json.NullAwareJsonObjectBuilder;
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
+    private static final long serialVersionUID = 1L;
+
     protected String name;
 
     protected double remainingCapacity;
 
     protected double timeRemaining;
 
-<span class="fc" id="L40">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L43">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-<span class="fc" id="L42">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
-<span class="fc" id="L43">        this.name = newName;</span>
-<span class="fc" id="L44">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="fc" id="L45">        this.timeRemaining = newTimeRemaining;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L45">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="fc" id="L46">        this.name = newName;</span>
+<span class="fc" id="L47">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="fc" id="L48">        this.timeRemaining = newTimeRemaining;</span>
+<span class="fc" id="L49">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L53">        return this.name;</span>
+<span class="nc" id="L56">        return this.name;</span>
     }
 
     /**
@@ -58,7 +61,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getRemainingCapacity() {
-<span class="fc" id="L61">        return this.remainingCapacity;</span>
+<span class="fc" id="L64">        return this.remainingCapacity;</span>
     }
 
     /**
@@ -66,7 +69,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getTimeRemaining() {
-<span class="fc" id="L69">        return this.timeRemaining;</span>
+<span class="fc" id="L72">        return this.timeRemaining;</span>
     }
 
     /**
@@ -74,8 +77,8 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L77">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
-<span class="nc" id="L78">                .add(&quot;remainingCapacity&quot;, getRemainingCapacity()).add(&quot;timeRemaining&quot;, getTimeRemaining()).build();</span>
+<span class="nc" id="L80">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
+<span class="nc" id="L81">                .add(&quot;remainingCapacity&quot;, getRemainingCapacity()).add(&quot;timeRemaining&quot;, getTimeRemaining()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

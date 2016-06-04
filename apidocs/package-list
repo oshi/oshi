@@ -7,6 +7,7 @@ oshi.hardware.platform.windows
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.windows
+oshi.jna.platform.windows.COM
 oshi.json
 oshi.software.common
 oshi.software.os
@@ -14,5 +15,6 @@ oshi.software.os.linux
 oshi.software.os.mac
 oshi.software.os.windows
 oshi.util
+oshi.util.platform.linux
 oshi.util.platform.mac
 oshi.util.platform.windows

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -34,12 +35,15 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class LinuxDisplay extends AbstractDisplay {
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);</span>
 
     public LinuxDisplay(byte[] edid) {
-<span class="nc" id="L40">        super(edid);</span>
-<span class="nc" id="L41">        LOG.debug(&quot;Initialized LinuxDisplay&quot;);</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L44">        super(edid);</span>
+<span class="nc" id="L45">        LOG.debug(&quot;Initialized LinuxDisplay&quot;);</span>
+<span class="nc" id="L46">    }</span>
 
     /**
      * Gets Display Information
@@ -47,35 +51,35 @@ public class LinuxDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L50">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
-<span class="nc" id="L51">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
+<span class="nc" id="L54">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
+<span class="nc" id="L55">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (xrandr != null) {</span>
-<span class="nc" id="L55">            boolean foundEdid = false;</span>
-<span class="nc" id="L56">            StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (String s : xrandr) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (s.contains(&quot;EDID&quot;)) {</span>
-<span class="nc" id="L59">                    foundEdid = true;</span>
-<span class="nc" id="L60">                    sb = new StringBuilder();</span>
-<span class="nc" id="L61">                    continue;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (xrandr != null) {</span>
+<span class="nc" id="L59">            boolean foundEdid = false;</span>
+<span class="nc" id="L60">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            for (String s : xrandr) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (s.contains(&quot;EDID&quot;)) {</span>
+<span class="nc" id="L63">                    foundEdid = true;</span>
+<span class="nc" id="L64">                    sb = new StringBuilder();</span>
+<span class="nc" id="L65">                    continue;</span>
                 }
-<span class="nc bnc" id="L63" title="All 2 branches missed.">                if (foundEdid) {</span>
-<span class="nc" id="L64">                    sb.append(s.trim());</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">                    if (sb.length() &gt;= 256) {</span>
-<span class="nc" id="L66">                        String edidStr = sb.toString();</span>
-<span class="nc" id="L67">                        LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
-<span class="nc" id="L68">                        byte[] edid = ParseUtil.hexStringToByteArray(edidStr);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">                        if (edid != null) {</span>
-<span class="nc" id="L70">                            displays.add(new LinuxDisplay(edid));</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                if (foundEdid) {</span>
+<span class="nc" id="L68">                    sb.append(s.trim());</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                    if (sb.length() &gt;= 256) {</span>
+<span class="nc" id="L70">                        String edidStr = sb.toString();</span>
+<span class="nc" id="L71">                        LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
+<span class="nc" id="L72">                        byte[] edid = ParseUtil.hexStringToByteArray(edidStr);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                        if (edid != null) {</span>
+<span class="nc" id="L74">                            displays.add(new LinuxDisplay(edid));</span>
                         }
-<span class="nc" id="L72">                        foundEdid = false;</span>
+<span class="nc" id="L76">                        foundEdid = false;</span>
                     }
                 }
-<span class="nc" id="L75">            }</span>
+<span class="nc" id="L79">            }</span>
         }
 
-<span class="nc" id="L78">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L82">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

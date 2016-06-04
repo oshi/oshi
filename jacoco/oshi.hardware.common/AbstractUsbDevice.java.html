@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractUsbDevice.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractUsbDevice.java</span></div><h1>AbstractUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.common;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
+import oshi.hardware.UsbDevice;
+import oshi.json.NullAwareJsonObjectBuilder;
+
+/**
+ * A USB device
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public abstract class AbstractUsbDevice implements UsbDevice {
+
+    private static final long serialVersionUID = 1L;
+
+    protected String name;
+
+    protected String vendor;
+
+    protected String serialNumber;
+
+    protected UsbDevice[] connectedDevices;
+
+<span class="nc" id="L46">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="nc" id="L48">    public AbstractUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {</span>
+<span class="nc" id="L49">        this.name = name;</span>
+<span class="nc" id="L50">        this.vendor = vendor;</span>
+<span class="nc" id="L51">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L52">        this.connectedDevices = connectedDevices;</span>
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+<span class="nc" id="L60">        return this.name;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVendor() {
+<span class="nc" id="L68">        return this.vendor;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSerialNumber() {
+<span class="nc" id="L75">        return this.serialNumber;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public UsbDevice[] getConnectedDevices() {
+<span class="nc" id="L82">        return this.connectedDevices;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON() {
+<span class="nc" id="L90">        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (UsbDevice usbDevice : getConnectedDevices()) {</span>
+<span class="nc" id="L92">            usbDeviceArrayBuilder.add(usbDevice.toJSON());</span>
+        }
+<span class="nc" id="L94">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
+<span class="nc" id="L95">                .add(&quot;vendor&quot;, getVendor()).add(&quot;serialNumber&quot;, getSerialNumber())</span>
+<span class="nc" id="L96">                .add(&quot;connectedDevices&quot;, usbDeviceArrayBuilder.build()).build();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L104">        return indentUsb(this, 1);</span>
+    }
+
+    /**
+     * Helper method for indenting chained USB devices
+     * 
+     * @param usbDevice
+     *            A USB device to print
+     * @param indent
+     *            number of spaces to indent
+     */
+    private static String indentUsb(UsbDevice usbDevice, int indent) {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc" id="L117">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
+<span class="nc" id="L118">        sb.append(usbDevice.getName());</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc" id="L120">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(&quot;)&quot;);</span>
+        }
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc" id="L123">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(&quot;]&quot;);</span>
+        }
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
+<span class="nc" id="L126">            sb.append(&quot;\n&quot;).append(indentUsb(connected, indent + 4));</span>
+        }
+<span class="nc" id="L128">        return sb.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

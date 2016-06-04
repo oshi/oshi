@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -25,20 +26,22 @@ import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
-<span class="fc" id="L28">public abstract class AbstractOperatingSystem implements OperatingSystem {</span>
+<span class="fc" id="L29">public abstract class AbstractOperatingSystem implements OperatingSystem {</span>
+
+    private static final long serialVersionUID = 1L;
 
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
 
-<span class="fc" id="L34">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public OperatingSystemVersion getVersion() {
-<span class="fc" id="L41">        return this.version;</span>
+<span class="fc" id="L44">        return this.version;</span>
     }
 
     /**
@@ -46,7 +49,7 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public String getFamily() {
-<span class="fc" id="L49">        return this.family;</span>
+<span class="fc" id="L52">        return this.family;</span>
     }
 
     /**
@@ -54,7 +57,7 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public String getManufacturer() {
-<span class="fc" id="L57">        return this.manufacturer;</span>
+<span class="fc" id="L60">        return this.manufacturer;</span>
     };
 
     /**
@@ -62,19 +65,19 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L65">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer())</span>
-<span class="nc" id="L66">                .add(&quot;family&quot;, getFamily()).add(&quot;version&quot;, getVersion().toJSON()).build();</span>
+<span class="nc" id="L68">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;manufacturer&quot;, getManufacturer())</span>
+<span class="nc" id="L69">                .add(&quot;family&quot;, getFamily()).add(&quot;version&quot;, getVersion().toJSON()).build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L71">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L72">        sb.append(getManufacturer());</span>
-<span class="nc" id="L73">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L74">        sb.append(getFamily());</span>
-<span class="nc" id="L75">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L76">        sb.append(getVersion().toString());</span>
-<span class="nc" id="L77">        return sb.toString();</span>
+<span class="nc" id="L74">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L75">        sb.append(getManufacturer());</span>
+<span class="nc" id="L76">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L77">        sb.append(getFamily());</span>
+<span class="nc" id="L78">        sb.append(&quot; &quot;);</span>
+<span class="nc" id="L79">        sb.append(getVersion().toString());</span>
+<span class="nc" id="L80">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -28,8 +29,11 @@ import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
 /**
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L31">public class WindowsNetworks extends AbstractNetworks {</span>
-<span class="nc" id="L32">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+<span class="nc" id="L32">public class WindowsNetworks extends AbstractNetworks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
 
     /**
      * {@inheritDoc}
@@ -37,21 +41,21 @@ import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
     @Override
     public void updateNetworkStats(NetworkIF netIF) {
         // Create new MIB_IFROW and set index to this interface index
-<span class="nc" id="L40">        MIB_IFROW ifRow = new MIB_IFROW();</span>
-<span class="nc" id="L41">        ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+<span class="nc" id="L44">        MIB_IFROW ifRow = new MIB_IFROW();</span>
+<span class="nc" id="L45">        ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
             // Error, abort
-<span class="nc" id="L44">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
-<span class="nc" id="L45">                    netIF.getName());</span>
-<span class="nc" id="L46">            return;</span>
+<span class="nc" id="L48">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L49">                    netIF.getName());</span>
+<span class="nc" id="L50">            return;</span>
         }
 
-<span class="nc" id="L49">        netIF.setBytesSent(ifRow.dwOutOctets);</span>
-<span class="nc" id="L50">        netIF.setBytesRecv(ifRow.dwInOctets);</span>
-<span class="nc" id="L51">        netIF.setPacketsSent(ifRow.dwOutUcastPkts);</span>
-<span class="nc" id="L52">        netIF.setPacketsRecv(ifRow.dwInUcastPkts);</span>
-<span class="nc" id="L53">        netIF.setSpeed(ifRow.dwSpeed);</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L53">        netIF.setBytesSent(ifRow.dwOutOctets);</span>
+<span class="nc" id="L54">        netIF.setBytesRecv(ifRow.dwInOctets);</span>
+<span class="nc" id="L55">        netIF.setPacketsSent(ifRow.dwOutUcastPkts);</span>
+<span class="nc" id="L56">        netIF.setPacketsRecv(ifRow.dwInUcastPkts);</span>
+<span class="nc" id="L57">        netIF.setSpeed(ifRow.dwSpeed);</span>
+<span class="nc" id="L58">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

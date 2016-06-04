@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -31,10 +32,10 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L34">public class PdhUtil {</span>
-<span class="nc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(PdhUtil.class);</span>
+<span class="nc" id="L35">public class PdhUtil {</span>
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(PdhUtil.class);</span>
 
-<span class="nc" id="L37">    private static final IntByReference PZERO = new IntByReference(0);</span>
+<span class="nc" id="L38">    private static final IntByReference PZERO = new IntByReference(0);</span>
 
     /**
      * Open a pdh query
@@ -44,11 +45,11 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
      * @return true if successful
      */
     public static boolean openQuery(PointerByReference p) {
-<span class="nc" id="L47">        int pdhOpenQueryError = Pdh.INSTANCE.PdhOpenQuery(null, PZERO, p);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (pdhOpenQueryError != 0) {</span>
-<span class="nc" id="L49">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, pdhOpenQueryError));</span>
+<span class="nc" id="L48">        int pdhOpenQueryError = Pdh.INSTANCE.PdhOpenQuery(null, PZERO, p);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (pdhOpenQueryError != 0) {</span>
+<span class="nc" id="L50">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, pdhOpenQueryError));</span>
         }
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        return pdhOpenQueryError == 0;</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        return pdhOpenQueryError == 0;</span>
     }
 
     /**
@@ -62,12 +63,12 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
      *            Pointer to the counter
      */
     public static void addCounter(PointerByReference query, String path, PointerByReference p) {
-<span class="nc" id="L65">        int pdhAddCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(query.getValue(), path, PZERO, p);</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (pdhAddCounterError != 0) {</span>
-<span class="nc" id="L67">            LOG.error(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L68">                    String.format(&quot;0x%08X&quot;, pdhAddCounterError));</span>
+<span class="nc" id="L66">        int pdhAddCounterError = Pdh.INSTANCE.PdhAddEnglishCounterA(query.getValue(), path, PZERO, p);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (pdhAddCounterError != 0) {</span>
+<span class="nc" id="L68">            LOG.error(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L69">                    String.format(&quot;0x%08X&quot;, pdhAddCounterError));</span>
         }
-<span class="nc" id="L70">    }</span>
+<span class="nc" id="L71">    }</span>
 
     /**
      * Update counters to values since the last call
@@ -77,12 +78,12 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
      * @return True if successful
      */
     public static boolean updateCounters(PointerByReference query) {
-<span class="nc" id="L80">        int ret = Pdh.INSTANCE.PdhCollectQueryData(query.getValue());</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (ret != 0) {</span>
-<span class="nc" id="L82">            LOG.error(&quot;Failed to update counters. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, ret));</span>
-<span class="nc" id="L83">            return false;</span>
+<span class="nc" id="L81">        int ret = Pdh.INSTANCE.PdhCollectQueryData(query.getValue());</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (ret != 0) {</span>
+<span class="nc" id="L83">            LOG.error(&quot;Failed to update counters. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, ret));</span>
+<span class="nc" id="L84">            return false;</span>
         }
-<span class="nc" id="L85">        return true;</span>
+<span class="nc" id="L86">        return true;</span>
     }
 
     /**
@@ -93,14 +94,14 @@ import oshi.jna.platform.windows.Pdh.PdhFmtCounterValue;
      * @return long value of the counter x 1000
      */
     public static long queryCounter(PointerByReference counter) {
-<span class="nc" id="L96">        PdhFmtCounterValue counterValue = new PdhFmtCounterValue();</span>
-<span class="nc" id="L97">        int ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(counter.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,</span>
+<span class="nc" id="L97">        PdhFmtCounterValue counterValue = new PdhFmtCounterValue();</span>
+<span class="nc" id="L98">        int ret = Pdh.INSTANCE.PdhGetFormattedCounterValue(counter.getValue(), Pdh.PDH_FMT_LARGE | Pdh.PDH_FMT_1000,</span>
                 null, counterValue);
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (ret != 0) {</span>
-<span class="nc" id="L100">            LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, ret));</span>
-<span class="nc" id="L101">            return 0L;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (ret != 0) {</span>
+<span class="nc" id="L101">            LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(&quot;0x%08X&quot;, ret));</span>
+<span class="nc" id="L102">            return 0L;</span>
         }
-<span class="nc" id="L103">        return counterValue.value.largeValue;</span>
+<span class="nc" id="L104">        return counterValue.value.largeValue;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

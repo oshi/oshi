@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -33,9 +34,13 @@ import oshi.json.OshiJsonObject;
  */
 public class OSFileStore implements OshiJsonObject {
 
-<span class="fc" id="L36">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L39">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private String name;
+
+    private String mount;
 
     private String description;
 
@@ -58,14 +63,35 @@ public class OSFileStore implements OshiJsonObject {
      *            Total bytes
      */
     public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-<span class="nc" id="L61">        this(newName, newDescription, &quot;unknown&quot;, newUsableSpace, newTotalSpace);</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L66">        this(newName, &quot;unknown&quot;, newDescription, &quot;unknown&quot;, newUsableSpace, newTotalSpace);</span>
+<span class="nc" id="L67">    }</span>
 
     /**
      * Creates an OSFileStore with the specified parameters.
      * 
      * @param newName
      *            Name of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newMount, String newDescription, long newUsableSpace,
+            long newTotalSpace) {
+<span class="nc" id="L85">        this(newName, newMount, newDescription, &quot;unknown&quot;, newUsableSpace, newTotalSpace);</span>
+<span class="nc" id="L86">    }</span>
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
      * @param newDescription
      *            Description of the file store
      * @param newType
@@ -75,13 +101,15 @@ public class OSFileStore implements OshiJsonObject {
      * @param newTotalSpace
      *            Total bytes
      */
-<span class="fc" id="L78">    public OSFileStore(String newName, String newDescription, String newType, long newUsableSpace, long newTotalSpace) {</span>
-<span class="fc" id="L79">        this.setName(newName);</span>
-<span class="fc" id="L80">        this.setDescription(newDescription);</span>
-<span class="fc" id="L81">        this.setType(newType);</span>
-<span class="fc" id="L82">        this.setUsableSpace(newUsableSpace);</span>
-<span class="fc" id="L83">        this.setTotalSpace(newTotalSpace);</span>
-<span class="fc" id="L84">    }</span>
+    public OSFileStore(String newName, String newMount, String newDescription, String newType, long newUsableSpace,
+<span class="fc" id="L105">            long newTotalSpace) {</span>
+<span class="fc" id="L106">        this.setName(newName);</span>
+<span class="fc" id="L107">        this.setMount(newMount);</span>
+<span class="fc" id="L108">        this.setDescription(newDescription);</span>
+<span class="fc" id="L109">        this.setType(newType);</span>
+<span class="fc" id="L110">        this.setUsableSpace(newUsableSpace);</span>
+<span class="fc" id="L111">        this.setTotalSpace(newTotalSpace);</span>
+<span class="fc" id="L112">    }</span>
 
     /**
      * Name of the File System
@@ -89,7 +117,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return The file system name
      */
     public String getName() {
-<span class="fc" id="L92">        return this.name;</span>
+<span class="fc" id="L120">        return this.name;</span>
     }
 
     /**
@@ -99,8 +127,27 @@ public class OSFileStore implements OshiJsonObject {
      *            The name
      */
     public void setName(String value) {
-<span class="fc" id="L102">        this.name = value;</span>
-<span class="fc" id="L103">    }</span>
+<span class="fc" id="L130">        this.name = value;</span>
+<span class="fc" id="L131">    }</span>
+
+    /**
+     * Mountpoint of the File System
+     * 
+     * @return The mountpoint of the file system
+     */
+    public String getMount() {
+<span class="nc" id="L139">        return this.mount;</span>
+    }
+
+    /**
+     * Sets the mountpoint of the File System
+     * 
+     * @param value
+     *            The mountpoint
+     */
+    public void setMount(String value) {
+<span class="fc" id="L149">        this.mount = value;</span>
+<span class="fc" id="L150">    }</span>
 
     /**
      * Description of the File System
@@ -108,7 +155,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return The file system description
      */
     public String getDescription() {
-<span class="fc" id="L111">        return this.description;</span>
+<span class="fc" id="L158">        return this.description;</span>
     }
 
     /**
@@ -118,8 +165,8 @@ public class OSFileStore implements OshiJsonObject {
      *            The description
      */
     public void setDescription(String value) {
-<span class="fc" id="L121">        this.description = value;</span>
-<span class="fc" id="L122">    }</span>
+<span class="fc" id="L168">        this.description = value;</span>
+<span class="fc" id="L169">    }</span>
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
@@ -127,7 +174,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return The file system type
      */
     public String getType() {
-<span class="fc" id="L130">        return this.fsType;</span>
+<span class="fc" id="L177">        return this.fsType;</span>
     }
 
     /**
@@ -137,8 +184,8 @@ public class OSFileStore implements OshiJsonObject {
      *            The type
      */
     public void setType(String value) {
-<span class="fc" id="L140">        this.fsType = value;</span>
-<span class="fc" id="L141">    }</span>
+<span class="fc" id="L187">        this.fsType = value;</span>
+<span class="fc" id="L188">    }</span>
 
     /**
      * Usable space on the drive.
@@ -146,7 +193,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="fc" id="L149">        return this.usableSpace;</span>
+<span class="fc" id="L196">        return this.usableSpace;</span>
     }
 
     /**
@@ -156,8 +203,8 @@ public class OSFileStore implements OshiJsonObject {
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="fc" id="L159">        this.usableSpace = value;</span>
-<span class="fc" id="L160">    }</span>
+<span class="fc" id="L206">        this.usableSpace = value;</span>
+<span class="fc" id="L207">    }</span>
 
     /**
      * Total space/capacity of the drive.
@@ -165,7 +212,7 @@ public class OSFileStore implements OshiJsonObject {
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="fc" id="L168">        return this.totalSpace;</span>
+<span class="fc" id="L215">        return this.totalSpace;</span>
     }
 
     /**
@@ -175,17 +222,17 @@ public class OSFileStore implements OshiJsonObject {
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="fc" id="L178">        this.totalSpace = value;</span>
-<span class="fc" id="L179">    }</span>
+<span class="fc" id="L225">        this.totalSpace = value;</span>
+<span class="fc" id="L226">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L186">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
-<span class="nc" id="L187">                .add(&quot;description&quot;, getDescription()).add(&quot;fsType&quot;, getType()).add(&quot;usableSpace&quot;, getUsableSpace())</span>
-<span class="nc" id="L188">                .add(&quot;totalSpace&quot;, getTotalSpace()).build();</span>
+<span class="nc" id="L233">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
+<span class="nc" id="L234">                .add(&quot;mountPoint&quot;, getMount()).add(&quot;description&quot;, getDescription()).add(&quot;fsType&quot;, getType())</span>
+<span class="nc" id="L235">                .add(&quot;usableSpace&quot;, getUsableSpace()).add(&quot;totalSpace&quot;, getTotalSpace()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -40,11 +41,13 @@ import oshi.json.OshiJsonObject;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="fc" id="L43">public class NetworkIF implements OshiJsonObject {</span>
+<span class="fc" id="L44">public class NetworkIF implements OshiJsonObject {</span>
 
-<span class="fc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L47">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+
+<span class="fc" id="L50">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private NetworkInterface networkInterface;
     private int mtu;
@@ -61,7 +64,7 @@ import oshi.json.OshiJsonObject;
      * @return the network interface
      */
     public NetworkInterface getNetworkInterface() {
-<span class="fc" id="L64">        return this.networkInterface;</span>
+<span class="fc" id="L67">        return this.networkInterface;</span>
     }
 
     /**
@@ -72,48 +75,48 @@ import oshi.json.OshiJsonObject;
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="fc" id="L75">        this.networkInterface = networkInterface;</span>
+<span class="fc" id="L78">        this.networkInterface = networkInterface;</span>
         try {
             // Set MTU
-<span class="fc" id="L78">            this.mtu = networkInterface.getMTU();</span>
+<span class="fc" id="L81">            this.mtu = networkInterface.getMTU();</span>
             // Set MAC
-<span class="fc" id="L80">            StringBuilder sb = new StringBuilder(18);</span>
-<span class="fc" id="L81">            byte[] mac = networkInterface.getHardwareAddress();</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (mac != null) {</span>
-<span class="fc bfc" id="L83" title="All 2 branches covered.">                for (byte b : mac) {</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">                    if (sb.length() &gt; 0)</span>
-<span class="fc" id="L85">                        sb.append(':');</span>
-<span class="fc" id="L86">                    sb.append(String.format(&quot;%02x&quot;, b));</span>
+<span class="fc" id="L83">            StringBuilder sb = new StringBuilder(18);</span>
+<span class="fc" id="L84">            byte[] mac = networkInterface.getHardwareAddress();</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (mac != null) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                for (byte b : mac) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">                    if (sb.length() &gt; 0)</span>
+<span class="fc" id="L88">                        sb.append(':');</span>
+<span class="fc" id="L89">                    sb.append(String.format(&quot;%02x&quot;, b));</span>
                 }
             } else {
-<span class="fc" id="L89">                this.mac = &quot;Unknown&quot;;</span>
+<span class="nc" id="L92">                this.mac = &quot;Unknown&quot;;</span>
             }
-<span class="fc" id="L91">            this.mac = sb.toString();</span>
+<span class="fc" id="L94">            this.mac = sb.toString();</span>
             // Set IP arrays
-<span class="fc" id="L93">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L94">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L95" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (address.getHostAddress().length() == 0) {</span>
-<span class="nc" id="L97">                    continue;</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">                } else if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="fc" id="L99">                    ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+<span class="fc" id="L96">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L97">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                if (address.getHostAddress().length() == 0) {</span>
+<span class="nc" id="L100">                    continue;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                } else if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L102">                    ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
                 } else {
-<span class="fc" id="L101">                    ipv4list.add(address.getHostAddress());</span>
+<span class="fc" id="L104">                    ipv4list.add(address.getHostAddress());</span>
                 }
-<span class="fc" id="L103">            }</span>
-<span class="fc" id="L104">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
-<span class="fc" id="L105">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
-<span class="nc" id="L106">        } catch (SocketException e) {</span>
-<span class="nc" id="L107">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
-<span class="nc" id="L108">            return;</span>
-<span class="fc" id="L109">        }</span>
-<span class="fc" id="L110">    }</span>
+<span class="fc" id="L106">            }</span>
+<span class="fc" id="L107">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
+<span class="fc" id="L108">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
+<span class="nc" id="L109">        } catch (SocketException e) {</span>
+<span class="nc" id="L110">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
+<span class="nc" id="L111">            return;</span>
+<span class="fc" id="L112">        }</span>
+<span class="fc" id="L113">    }</span>
 
     /**
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L116">        return networkInterface.getName();</span>
+<span class="fc" id="L119">        return networkInterface.getName();</span>
     }
 
     /**
@@ -121,7 +124,7 @@ import oshi.json.OshiJsonObject;
      *         is identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L124">        return networkInterface.getDisplayName();</span>
+<span class="fc" id="L127">        return networkInterface.getDisplayName();</span>
     }
 
     /**
@@ -131,7 +134,7 @@ import oshi.json.OshiJsonObject;
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L134">        return mtu;</span>
+<span class="fc" id="L137">        return mtu;</span>
     }
 
     /**
@@ -140,7 +143,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L143">        return mac;</span>
+<span class="fc" id="L146">        return mac;</span>
     }
 
     /**
@@ -149,7 +152,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L152">        return Arrays.copyOf(this.ipv4, ipv4.length);</span>
+<span class="fc" id="L155">        return Arrays.copyOf(this.ipv4, ipv4.length);</span>
     }
 
     /**
@@ -158,7 +161,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L161">        return Arrays.copyOf(this.ipv6, ipv6.length);</span>
+<span class="fc" id="L164">        return Arrays.copyOf(this.ipv6, ipv6.length);</span>
     }
 
     /**
@@ -167,7 +170,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L170">        return bytesRecv;</span>
+<span class="fc" id="L173">        return bytesRecv;</span>
     }
 
     /**
@@ -175,8 +178,8 @@ import oshi.json.OshiJsonObject;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L178">        this.bytesRecv = bytesRecv;</span>
-<span class="fc" id="L179">    }</span>
+<span class="fc" id="L181">        this.bytesRecv = bytesRecv;</span>
+<span class="fc" id="L182">    }</span>
 
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
@@ -184,7 +187,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
      */
     public long getBytesSent() {
-<span class="fc" id="L187">        return bytesSent;</span>
+<span class="fc" id="L190">        return bytesSent;</span>
     }
 
     /**
@@ -192,8 +195,8 @@ import oshi.json.OshiJsonObject;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L195">        this.bytesSent = bytesSent;</span>
-<span class="fc" id="L196">    }</span>
+<span class="fc" id="L198">        this.bytesSent = bytesSent;</span>
+<span class="fc" id="L199">    }</span>
 
     /**
      * @return The Packets Received. This value is set when the
@@ -202,7 +205,7 @@ import oshi.json.OshiJsonObject;
      *         {@link Networks#updateNetworkStats(NetworkIF)} method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L205">        return packetsRecv;</span>
+<span class="fc" id="L208">        return packetsRecv;</span>
     }
 
     /**
@@ -210,8 +213,8 @@ import oshi.json.OshiJsonObject;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L213">        this.packetsRecv = packetsRecv;</span>
-<span class="fc" id="L214">    }</span>
+<span class="fc" id="L216">        this.packetsRecv = packetsRecv;</span>
+<span class="fc" id="L217">    }</span>
 
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
@@ -219,7 +222,7 @@ import oshi.json.OshiJsonObject;
      *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L222">        return packetsSent;</span>
+<span class="fc" id="L225">        return packetsSent;</span>
     }
 
     /**
@@ -227,8 +230,8 @@ import oshi.json.OshiJsonObject;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L230">        this.packetsSent = packetsSent;</span>
-<span class="fc" id="L231">    }</span>
+<span class="fc" id="L233">        this.packetsSent = packetsSent;</span>
+<span class="fc" id="L234">    }</span>
 
     /**
      * @return The speed of the network interface in bits per second. This value
@@ -237,7 +240,7 @@ import oshi.json.OshiJsonObject;
      *         {@link Networks#updateNetworkStats(NetworkIF)} method
      */
     public long getSpeed() {
-<span class="fc" id="L240">        return speed;</span>
+<span class="fc" id="L243">        return speed;</span>
     }
 
     /**
@@ -245,28 +248,28 @@ import oshi.json.OshiJsonObject;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L248">        this.speed = speed;</span>
-<span class="fc" id="L249">    }</span>
+<span class="fc" id="L251">        this.speed = speed;</span>
+<span class="fc" id="L252">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L256">        JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (String ipv4 : getIPv4addr()) {</span>
-<span class="nc" id="L258">            ipv4ArrayBuilder.add(ipv4);</span>
+<span class="nc" id="L259">        JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        for (String ipv4 : getIPv4addr()) {</span>
+<span class="nc" id="L261">            ipv4ArrayBuilder.add(ipv4);</span>
         }
-<span class="nc" id="L260">        JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        for (String ipv4 : getIPv6addr()) {</span>
-<span class="nc" id="L262">            ipv6ArrayBuilder.add(ipv4);</span>
+<span class="nc" id="L263">        JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        for (String ipv4 : getIPv6addr()) {</span>
+<span class="nc" id="L265">            ipv6ArrayBuilder.add(ipv4);</span>
         }
-<span class="nc" id="L264">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, this.getName())</span>
-<span class="nc" id="L265">                .add(&quot;displayName&quot;, this.getDisplayName()).add(&quot;mac&quot;, this.getMacaddr())</span>
-<span class="nc" id="L266">                .add(&quot;ipv4&quot;, ipv4ArrayBuilder.build()).add(&quot;ipv6&quot;, ipv6ArrayBuilder.build()).add(&quot;mtu&quot;, this.getMTU())</span>
-<span class="nc" id="L267">                .add(&quot;bytesRecv&quot;, this.getBytesRecv()).add(&quot;bytesSent&quot;, this.getBytesSent())</span>
-<span class="nc" id="L268">                .add(&quot;packetsRecv&quot;, this.getPacketsRecv()).add(&quot;packetsSent&quot;, this.getPacketsSent())</span>
-<span class="nc" id="L269">                .add(&quot;speed&quot;, this.getSpeed()).build();</span>
+<span class="nc" id="L267">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, this.getName())</span>
+<span class="nc" id="L268">                .add(&quot;displayName&quot;, this.getDisplayName()).add(&quot;mac&quot;, this.getMacaddr())</span>
+<span class="nc" id="L269">                .add(&quot;ipv4&quot;, ipv4ArrayBuilder.build()).add(&quot;ipv6&quot;, ipv6ArrayBuilder.build()).add(&quot;mtu&quot;, this.getMTU())</span>
+<span class="nc" id="L270">                .add(&quot;bytesRecv&quot;, this.getBytesRecv()).add(&quot;bytesSent&quot;, this.getBytesSent())</span>
+<span class="nc" id="L271">                .add(&quot;packetsRecv&quot;, this.getPacketsRecv()).add(&quot;packetsSent&quot;, this.getPacketsSent())</span>
+<span class="nc" id="L272">                .add(&quot;speed&quot;, this.getSpeed()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -33,11 +34,11 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-<span class="nc" id="L36">    PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
+<span class="nc" id="L37">    PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     int SYSTEM_BATTERY_STATE = 5;
 
-<span class="nc" id="L40">    class SystemBatteryState extends Structure {</span>
+<span class="nc" id="L41">    class SystemBatteryState extends Structure {</span>
         public byte acOnLine; // boolean
 
         public byte batteryPresent; // boolean
@@ -46,7 +47,7 @@ public interface PowrProf extends Library {
 
         public byte discharging; // boolean
 
-<span class="nc" id="L49">        public byte[] spare1 = new byte[4]; // unused</span>
+<span class="nc" id="L50">        public byte[] spare1 = new byte[4]; // unused</span>
 
         public int maxCapacity; // unsigned 32 bit
 
@@ -62,7 +63,7 @@ public interface PowrProf extends Library {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L65">            return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
+<span class="nc" id="L66">            return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
                     &quot;maxCapacity&quot;, &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
         }
     }

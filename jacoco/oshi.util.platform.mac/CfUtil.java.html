@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -19,21 +20,70 @@ package oshi.util.platform.mac;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 
 /**
  * Provides utilities for Core Foundations
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L30">public class CfUtil {</span>
-    public static String cfPointerToString(Pointer p) {
-<span class="fc" id="L32">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="fc" id="L33">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="fc" id="L34">        Pointer buf = new Memory(maxSize);</span>
-<span class="fc" id="L35">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="fc" id="L36">        return buf.getString(0);</span>
+<span class="nc" id="L34">public class CfUtil {</span>
+<span class="fc" id="L35">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+
+    /**
+     * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
+     * fetch the corresponding constant.
+     */
+<span class="pc" id="L41">    public enum CFNumberType {</span>
+<span class="fc" id="L42">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+    };
+
+    /**
+     * Convert a pointer representing a Core Foundations LongLong into its long
+     * 
+     * @param p
+     *            The pointer to a 64-bit integer
+     * @return The corresponding long
+     */
+    public static long cfPointerToLong(Pointer p) {
+<span class="fc" id="L53">        LongByReference lbr = new LongByReference();</span>
+<span class="fc" id="L54">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="fc" id="L55">        return lbr.getValue();</span>
     }
+
+    /**
+     * Convert a pointer representing a Core Foundations String into its string
+     * 
+     * @param p
+     *            The pointer to a CFString
+     * @return The corresponding string
+     */
+    public static String cfPointerToString(Pointer p) {
+<span class="fc" id="L66">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="fc" id="L67">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L69">            maxSize = 1;</span>
+        }
+<span class="fc" id="L71">        Pointer buf = new Memory(maxSize);</span>
+<span class="fc" id="L72">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="fc" id="L73">        return buf.getString(0);</span>
+    }
+
+    /**
+     * Releases a CF reference. Mandatory when an object is owned (using
+     * 'create' or 'copy' methods).
+     * 
+     * @param ref
+     *            The reference to release
+     */
+    public static void release(PointerType ref) {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (ref != null) {</span>
+<span class="fc" id="L85">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+        }
+<span class="fc" id="L87">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

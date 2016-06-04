@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -21,10 +22,12 @@ import oshi.software.common.AbstractOperatingSystem;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
-<span class="fc" id="L24">    public MacOperatingSystem() {</span>
-<span class="fc" id="L25">        this.manufacturer = &quot;Apple&quot;;</span>
-<span class="fc" id="L26">        this.family = System.getProperty(&quot;os.name&quot;);</span>
-<span class="fc" id="L27">        this.version = new MacOSVersionInfoEx();</span>
-<span class="fc" id="L28">    }</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L27">    public MacOperatingSystem() {</span>
+<span class="fc" id="L28">        this.manufacturer = &quot;Apple&quot;;</span>
+<span class="fc" id="L29">        this.family = System.getProperty(&quot;os.name&quot;);</span>
+<span class="fc" id="L30">        this.version = new MacOSVersionInfoEx();</span>
+<span class="fc" id="L31">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

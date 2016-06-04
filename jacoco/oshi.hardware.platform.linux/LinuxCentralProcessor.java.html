@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -18,25 +19,27 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.software.os.OSProcess;
+import oshi.software.os.linux.LinuxProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -47,28 +50,25 @@ import oshi.util.ParseUtil;
  */
 public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
-<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
 
     /**
      * Create a Processor
      */
-<span class="nc" id="L55">    public LinuxCentralProcessor() {</span>
+<span class="nc" id="L60">    public LinuxCentralProcessor() {</span>
         // Initialize class variables
-<span class="nc" id="L57">        initVars();</span>
+<span class="nc" id="L62">        initVars();</span>
         // Initialize tick arrays
-<span class="nc" id="L59">        initTicks();</span>
+<span class="nc" id="L64">        initTicks();</span>
 
-<span class="nc" id="L61">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L66">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L67">    }</span>
 
     private void initVars() {
-<span class="nc" id="L65">        List&lt;String&gt; cpuInfo = null;</span>
-        try {
-<span class="nc" id="L67">            cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
-<span class="nc" id="L68">        } catch (IOException e) {</span>
-<span class="nc" id="L69">            LOG.error(&quot;Problem with /proc/cpuinfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L70">            return;</span>
-<span class="nc" id="L71">        }</span>
+<span class="nc" id="L70">        List&lt;String&gt; cpuInfo = null;</span>
+<span class="nc" id="L71">        cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
 <span class="nc bnc" id="L72" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
 <span class="nc" id="L73">            String[] splitLine = line.split(&quot;\\s+:\\s&quot;);</span>
 <span class="nc bnc" id="L74" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
@@ -111,106 +111,99 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
     protected void calculateProcessorCounts() {
-        try {
-<span class="nc" id="L115">            List&lt;String&gt; procCpu = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
-            // Get number of logical processors
-<span class="nc bnc" id="L117" title="All 2 branches missed.">            for (String cpu : procCpu) {</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                if (cpu.startsWith(&quot;processor&quot;)) {</span>
-<span class="nc" id="L119">                    this.logicalProcessorCount++;</span>
-                }
-<span class="nc" id="L121">            }</span>
-            // Get number of physical processors
-<span class="nc" id="L123">            int siblings = 0;</span>
-<span class="nc" id="L124">            int cpucores = 0;</span>
-<span class="nc" id="L125">            int[] uniqueID = new int[2];</span>
-<span class="nc" id="L126">            uniqueID[0] = -1;</span>
-<span class="nc" id="L127">            uniqueID[1] = -1;</span>
-
-<span class="nc" id="L129">            Set&lt;String&gt; ids = new HashSet&lt;String&gt;();</span>
-
-<span class="nc bnc" id="L131" title="All 2 branches missed.">            for (String cpu : procCpu) {</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">                if (cpu.startsWith(&quot;siblings&quot;)) {</span>
-                    // if siblings = 1, no hyperthreading
-<span class="nc" id="L134">                    siblings = ParseUtil.parseLastInt(cpu, 1);</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                    if (siblings == 1) {</span>
-<span class="nc" id="L136">                        this.physicalProcessorCount = this.logicalProcessorCount;</span>
-<span class="nc" id="L137">                        break;</span>
-                    }
-                }
-<span class="nc bnc" id="L140" title="All 2 branches missed.">                if (cpu.startsWith(&quot;cpu cores&quot;)) {</span>
-                    // if siblings &gt; 1, ratio with cores
-<span class="nc" id="L142">                    cpucores = ParseUtil.parseLastInt(cpu, 1);</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                    if (siblings &gt; 1) {</span>
-<span class="nc" id="L144">                        this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;</span>
-<span class="nc" id="L145">                        break;</span>
-                    }
-                }
-                // If siblings and cpu cores don't define it, count unique
-                // combinations of core id and physical id.
-<span class="nc bnc" id="L150" title="All 4 branches missed.">                if (cpu.startsWith(&quot;core id&quot;) || cpu.startsWith(&quot;cpu number&quot;)) {</span>
-<span class="nc" id="L151">                    uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                } else if (cpu.startsWith(&quot;physical id&quot;)) {</span>
-<span class="nc" id="L153">                    uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);</span>
-                }
-<span class="nc bnc" id="L155" title="All 4 branches missed.">                if (uniqueID[0] &gt;= 0 &amp;&amp; uniqueID[1] &gt;= 0) {</span>
-<span class="nc" id="L156">                    ids.add(uniqueID[0] + &quot; &quot; + uniqueID[1]);</span>
-<span class="nc" id="L157">                    uniqueID[0] = -1;</span>
-<span class="nc" id="L158">                    uniqueID[1] = -1;</span>
-                }
-<span class="nc" id="L160">            }</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (this.physicalProcessorCount == 0) {</span>
-<span class="nc" id="L162">                this.physicalProcessorCount = ids.size();</span>
+<span class="nc" id="L114">        List&lt;String&gt; procCpu = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
+        // Get number of logical processors
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (String cpu : procCpu) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (cpu.startsWith(&quot;processor&quot;)) {</span>
+<span class="nc" id="L118">                this.logicalProcessorCount++;</span>
             }
-<span class="nc" id="L164">        } catch (IOException e) {</span>
-<span class="nc" id="L165">            LOG.error(&quot;Problem with /proc/cpuinfo: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L166">        }</span>
+<span class="nc" id="L120">        }</span>
+        // Get number of physical processors
+<span class="nc" id="L122">        int siblings = 0;</span>
+<span class="nc" id="L123">        int cpucores = 0;</span>
+<span class="nc" id="L124">        int[] uniqueID = new int[2];</span>
+<span class="nc" id="L125">        uniqueID[0] = -1;</span>
+<span class="nc" id="L126">        uniqueID[1] = -1;</span>
+
+<span class="nc" id="L128">        Set&lt;String&gt; ids = new HashSet&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String cpu : procCpu) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (cpu.startsWith(&quot;siblings&quot;)) {</span>
+                // if siblings = 1, no hyperthreading
+<span class="nc" id="L133">                siblings = ParseUtil.parseLastInt(cpu, 1);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                if (siblings == 1) {</span>
+<span class="nc" id="L135">                    this.physicalProcessorCount = this.logicalProcessorCount;</span>
+<span class="nc" id="L136">                    break;</span>
+                }
+            }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (cpu.startsWith(&quot;cpu cores&quot;)) {</span>
+                // if siblings &gt; 1, ratio with cores
+<span class="nc" id="L141">                cpucores = ParseUtil.parseLastInt(cpu, 1);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                if (siblings &gt; 1) {</span>
+<span class="nc" id="L143">                    this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;</span>
+<span class="nc" id="L144">                    break;</span>
+                }
+            }
+            // If siblings and cpu cores don't define it, count unique
+            // combinations of core id and physical id.
+<span class="nc bnc" id="L149" title="All 4 branches missed.">            if (cpu.startsWith(&quot;core id&quot;) || cpu.startsWith(&quot;cpu number&quot;)) {</span>
+<span class="nc" id="L150">                uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            } else if (cpu.startsWith(&quot;physical id&quot;)) {</span>
+<span class="nc" id="L152">                uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);</span>
+            }
+<span class="nc bnc" id="L154" title="All 4 branches missed.">            if (uniqueID[0] &gt;= 0 &amp;&amp; uniqueID[1] &gt;= 0) {</span>
+<span class="nc" id="L155">                ids.add(uniqueID[0] + &quot; &quot; + uniqueID[1]);</span>
+<span class="nc" id="L156">                uniqueID[0] = -1;</span>
+<span class="nc" id="L157">                uniqueID[1] = -1;</span>
+            }
+<span class="nc" id="L159">        }</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (this.physicalProcessorCount == 0) {</span>
+<span class="nc" id="L161">            this.physicalProcessorCount = ids.size();</span>
+        }
         // Force at least one processor
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (this.logicalProcessorCount &lt; 1) {</span>
-<span class="nc" id="L169">            LOG.error(&quot;Couldn't find logical processor count. Assuming 1.&quot;);</span>
-<span class="nc" id="L170">            this.logicalProcessorCount = 1;</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (this.logicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L165">            LOG.error(&quot;Couldn't find logical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L166">            this.logicalProcessorCount = 1;</span>
         }
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (this.physicalProcessorCount &lt; 1) {</span>
-<span class="nc" id="L173">            LOG.error(&quot;Couldn't find physical processor count. Assuming 1.&quot;);</span>
-<span class="nc" id="L174">            this.physicalProcessorCount = 1;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (this.physicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L169">            LOG.error(&quot;Couldn't find physical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L170">            this.physicalProcessorCount = 1;</span>
         }
-<span class="nc" id="L176">    }</span>
+<span class="nc" id="L172">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L183">        long[] ticks = new long[curTicks.length];</span>
+<span class="nc" id="L179">        long[] ticks = new long[curTicks.length];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-<span class="nc" id="L187">        String tickStr = &quot;&quot;;</span>
-        try {
-<span class="nc" id="L189">            List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (!procStat.isEmpty()) {</span>
-<span class="nc" id="L191">                tickStr = procStat.get(0);</span>
-            }
-<span class="nc" id="L193">        } catch (IOException e) {</span>
-<span class="nc" id="L194">            LOG.error(&quot;Problem with /proc/stat: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L195">            return ticks;</span>
-<span class="nc" id="L196">        }</span>
-<span class="nc" id="L197">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (tickArr.length &lt; 5) {</span>
-<span class="nc" id="L199">            return ticks;</span>
+<span class="nc" id="L183">        String tickStr = &quot;&quot;;</span>
+<span class="nc" id="L184">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L186">            tickStr = procStat.get(0);</span>
+        } else {
+<span class="nc" id="L188">            return ticks;</span>
+        }
+<span class="nc" id="L190">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (tickArr.length &lt; 5) {</span>
+<span class="nc" id="L192">            return ticks;</span>
         }
         // Note tickArr is offset by 1
-<span class="nc bnc" id="L202" title="All 2 branches missed.">        for (int i = 0; i &lt; 4; i++) {</span>
-<span class="nc" id="L203">            ticks[i] = Long.parseLong(tickArr[i + 1]);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L196">            ticks[i] = Long.parseLong(tickArr[i + 1]);</span>
         }
-<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (tickArr.length &gt; 5) {</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (tickArr.length &gt; 5) {</span>
             // Add iowait to idle
-<span class="nc" id="L207">            ticks[3] += Long.parseLong(tickArr[5]);</span>
+<span class="nc" id="L200">            ticks[3] += Long.parseLong(tickArr[5]);</span>
             // Add other fields to system
-<span class="nc bnc" id="L209" title="All 2 branches missed.">            for (int i = 6; i &lt; tickArr.length; i++) {</span>
-<span class="nc" id="L210">                ticks[2] += Long.parseLong(tickArr[i]);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            for (int i = 6; i &lt; tickArr.length; i++) {</span>
+<span class="nc" id="L203">                ticks[2] += Long.parseLong(tickArr[i]);</span>
             }
         }
-<span class="nc" id="L213">        return ticks;</span>
+<span class="nc" id="L206">        return ticks;</span>
     }
 
     /**
@@ -221,20 +214,18 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-<span class="nc" id="L224">        String tickStr = &quot;&quot;;</span>
-        try {
-<span class="nc" id="L226">            List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (!procStat.isEmpty())</span>
-<span class="nc" id="L228">                tickStr = procStat.get(0);</span>
-<span class="nc" id="L229">        } catch (IOException e) {</span>
-<span class="nc" id="L230">            LOG.error(&quot;Problem with /proc/stat: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L231">            return 0;</span>
-<span class="nc" id="L232">        }</span>
-<span class="nc" id="L233">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (tickArr.length &lt; 6) {</span>
-<span class="nc" id="L235">            return 0;</span>
+<span class="nc" id="L217">        String tickStr = &quot;&quot;;</span>
+<span class="nc" id="L218">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L220">            tickStr = procStat.get(0);</span>
+        } else {
+<span class="nc" id="L222">            return 0;</span>
         }
-<span class="nc" id="L237">        return Long.parseLong(tickArr[5]);</span>
+<span class="nc" id="L224">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (tickArr.length &lt; 6) {</span>
+<span class="nc" id="L226">            return 0;</span>
+        }
+<span class="nc" id="L228">        return Long.parseLong(tickArr[5]);</span>
     }
 
     /**
@@ -245,23 +236,21 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-<span class="nc" id="L248">        String tickStr = &quot;&quot;;</span>
-<span class="nc" id="L249">        long[] ticks = new long[2];</span>
-        try {
-<span class="nc" id="L251">            List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (!procStat.isEmpty())</span>
-<span class="nc" id="L253">                tickStr = procStat.get(0);</span>
-<span class="nc" id="L254">        } catch (IOException e) {</span>
-<span class="nc" id="L255">            LOG.error(&quot;Problem with /proc/stat: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L256">            return ticks;</span>
-<span class="nc" id="L257">        }</span>
-<span class="nc" id="L258">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (tickArr.length &lt; 8) {</span>
-<span class="nc" id="L260">            return ticks;</span>
+<span class="nc" id="L239">        String tickStr = &quot;&quot;;</span>
+<span class="nc" id="L240">        long[] ticks = new long[2];</span>
+<span class="nc" id="L241">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L243">            tickStr = procStat.get(0);</span>
+        } else {
+<span class="nc" id="L245">            return ticks;</span>
         }
-<span class="nc" id="L262">        ticks[0] = Long.parseLong(tickArr[6]);</span>
-<span class="nc" id="L263">        ticks[1] = Long.parseLong(tickArr[7]);</span>
-<span class="nc" id="L264">        return ticks;</span>
+<span class="nc" id="L247">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (tickArr.length &lt; 8) {</span>
+<span class="nc" id="L249">            return ticks;</span>
+        }
+<span class="nc" id="L251">        ticks[0] = Long.parseLong(tickArr[6]);</span>
+<span class="nc" id="L252">        ticks[1] = Long.parseLong(tickArr[7]);</span>
+<span class="nc" id="L253">        return ticks;</span>
     };
 
     /**
@@ -269,21 +258,21 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (nelem &lt; 1) {</span>
-<span class="nc" id="L273">            throw new IllegalArgumentException(&quot;Must include at least one element.&quot;);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (nelem &lt; 1) {</span>
+<span class="nc" id="L262">            throw new IllegalArgumentException(&quot;Must include at least one element.&quot;);</span>
         }
-<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (nelem &gt; 3) {</span>
-<span class="nc" id="L276">            LOG.warn(&quot;Max elements of SystemLoadAverage is 3. &quot; + nelem + &quot; specified. Ignoring extra.&quot;);</span>
-<span class="nc" id="L277">            nelem = 3;</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (nelem &gt; 3) {</span>
+<span class="nc" id="L265">            LOG.warn(&quot;Max elements of SystemLoadAverage is 3. &quot; + nelem + &quot; specified. Ignoring extra.&quot;);</span>
+<span class="nc" id="L266">            nelem = 3;</span>
         }
-<span class="nc" id="L279">        double[] average = new double[nelem];</span>
-<span class="nc" id="L280">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc bnc" id="L282" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
-<span class="nc" id="L283">                average[i] = -1d;</span>
+<span class="nc" id="L268">        double[] average = new double[nelem];</span>
+<span class="nc" id="L269">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L272">                average[i] = -1d;</span>
             }
         }
-<span class="nc" id="L286">        return average;</span>
+<span class="nc" id="L275">        return average;</span>
     }
 
     /**
@@ -291,41 +280,38 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L294">        long[][] ticks = new long[logicalProcessorCount][4];</span>
+<span class="nc" id="L283">        long[][] ticks = new long[logicalProcessorCount][4];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
-        // cpu 3357 0 4313 1362393 ...
+        // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {
         // per-processor subsequent lines for cpu0, cpu1, etc.
-        try {
-<span class="nc" id="L300">            int cpu = 0;</span>
-<span class="nc" id="L301">            List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">            for (String stat : procStat) {</span>
-<span class="nc bnc" id="L303" title="All 4 branches missed.">                if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
-<span class="nc" id="L304">                    String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L305" title="All 2 branches missed.">                    if (tickArr.length &lt; 5) {</span>
-<span class="nc" id="L306">                        break;</span>
-                    }
-                    // Note tickArr is offset by 1
-<span class="nc bnc" id="L309" title="All 2 branches missed.">                    for (int i = 0; i &lt; 4; i++) {</span>
-<span class="nc" id="L310">                        ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);</span>
-                    }
-<span class="nc bnc" id="L312" title="All 2 branches missed.">                    if (tickArr.length &gt; 5) {</span>
-                        // Add iowait to idle
-<span class="nc" id="L314">                        ticks[cpu][3] += Long.parseLong(tickArr[5]);</span>
-                        // Add other fields to system
-<span class="nc bnc" id="L316" title="All 2 branches missed.">                        for (int i = 6; i &lt; tickArr.length; i++) {</span>
-<span class="nc" id="L317">                            ticks[cpu][2] += Long.parseLong(tickArr[i]);</span>
-                        }
-                    }
-<span class="nc bnc" id="L320" title="All 2 branches missed.">                    if (++cpu &gt;= logicalProcessorCount) {</span>
-<span class="nc" id="L321">                        break;</span>
+<span class="nc" id="L288">        int cpu = 0;</span>
+<span class="nc" id="L289">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L291" title="All 4 branches missed.">            if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
+<span class="nc" id="L292">                String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                if (tickArr.length &lt; 5) {</span>
+<span class="nc" id="L294">                    break;</span>
+                }
+                // Note tickArr is offset by 1
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L298">                    ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);</span>
+                }
+<span class="nc bnc" id="L300" title="All 2 branches missed.">                if (tickArr.length &gt; 5) {</span>
+                    // Add iowait to idle
+<span class="nc" id="L302">                    ticks[cpu][3] += Long.parseLong(tickArr[5]);</span>
+                    // Add other fields to system
+<span class="nc bnc" id="L304" title="All 2 branches missed.">                    for (int i = 6; i &lt; tickArr.length; i++) {</span>
+<span class="nc" id="L305">                        ticks[cpu][2] += Long.parseLong(tickArr[i]);</span>
                     }
                 }
-<span class="nc" id="L324">            }</span>
-<span class="nc" id="L325">        } catch (IOException e) {</span>
-<span class="nc" id="L326">            LOG.error(&quot;Problem with /proc/stat: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L327">        }</span>
-<span class="nc" id="L328">        return ticks;</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                if (++cpu &gt;= logicalProcessorCount) {</span>
+<span class="nc" id="L309">                    break;</span>
+                }
+            }
+<span class="nc" id="L312">        }</span>
+<span class="nc" id="L313">        return ticks;</span>
+
     }
 
     /**
@@ -333,18 +319,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        try {
-<span class="nc" id="L337">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L338" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L339">                LOG.error(&quot;Failed to get system uptime. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L340">                return 0L;</span>
-            }
-            // If sysinfo() returned 0, the info structure has been written
-<span class="nc" id="L343">            return info.uptime.longValue();</span>
-<span class="nc" id="L344">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L345">            LOG.error(&quot;Failed to get uptime from sysinfo. {}&quot;, e.getMessage());</span>
-        }
-<span class="nc" id="L347">        return 0L;</span>
+<span class="nc" id="L322">        return (long) ProcUtil.getSystemUptimeFromProc();</span>
     }
 
     /**
@@ -352,38 +327,106 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public String getSystemSerialNumber() {
-<span class="nc bnc" id="L355" title="All 2 branches missed.">        if (this.cpuSerialNumber == null) {</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (this.cpuSerialNumber == null) {</span>
             // If root privileges this will work
-<span class="nc" id="L357">            ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;dmidecode -t system&quot;);</span>
-<span class="nc" id="L358">            String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L359" title="All 2 branches missed.">            if (hwInfo != null) {</span>
-<span class="nc bnc" id="L360" title="All 2 branches missed.">                for (String checkLine : hwInfo) {</span>
-<span class="nc bnc" id="L361" title="All 2 branches missed.">                    if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L362">                        this.cpuSerialNumber = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L363">                        break;</span>
+<span class="nc" id="L332">            ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;dmidecode -t system&quot;);</span>
+<span class="nc" id="L333">            String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">            if (hwInfo != null) {</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">                for (String checkLine : hwInfo) {</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">                    if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L337">                        this.cpuSerialNumber = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L338">                        break;</span>
                     }
-<span class="nc" id="L365">                }</span>
+<span class="nc" id="L340">                }</span>
             }
             // if lshal command available (HAL deprecated in newer linuxes)
-<span class="nc bnc" id="L368" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
-<span class="nc" id="L369">                marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc" id="L370">                hwInfo = ExecutingCommand.runNative(&quot;lshal&quot;);</span>
-<span class="nc bnc" id="L371" title="All 2 branches missed.">                if (hwInfo != null) {</span>
-<span class="nc bnc" id="L372" title="All 2 branches missed.">                    for (String checkLine : hwInfo) {</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">                        if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L374">                            String[] temp = checkLine.split(marker)[1].split(&quot;'&quot;);</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
+<span class="nc" id="L344">                marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc" id="L345">                hwInfo = ExecutingCommand.runNative(&quot;lshal&quot;);</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                if (hwInfo != null) {</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">                    for (String checkLine : hwInfo) {</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">                        if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L349">                            String[] temp = checkLine.split(marker)[1].split(&quot;'&quot;);</span>
                             // Format: '12345' (string)
-<span class="nc bnc" id="L376" title="All 2 branches missed.">                            this.cpuSerialNumber = temp.length &gt; 0 ? temp[1] : null;</span>
-<span class="nc" id="L377">                            break;</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                            this.cpuSerialNumber = temp.length &gt; 0 ? temp[1] : null;</span>
+<span class="nc" id="L352">                            break;</span>
                         }
-<span class="nc" id="L379">                    }</span>
+<span class="nc" id="L354">                    }</span>
                 }
             }
-<span class="nc bnc" id="L382" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
-<span class="nc" id="L383">                this.cpuSerialNumber = &quot;unknown&quot;;</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
+<span class="nc" id="L358">                this.cpuSerialNumber = &quot;unknown&quot;;</span>
             }
         }
-<span class="nc" id="L386">        return this.cpuSerialNumber;</span>
+<span class="nc" id="L361">        return this.cpuSerialNumber;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getProcesses() {
+<span class="nc" id="L369">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L370">        File[] pids = ProcUtil.getPidFiles();</span>
+        // now for each file (with digit name) get process info
+<span class="nc bnc" id="L372" title="All 2 branches missed.">        for (File pid : pids) {</span>
+            try {
+<span class="nc" id="L374">                OSProcess proc = getProcess(Integer.parseInt(pid.getName()));</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L376">                    procs.add(proc);</span>
+                }
+<span class="nc" id="L378">            } catch (NumberFormatException nfe) {</span>
+                // Since we regexp matched digits this shouldn't ever get here
+<span class="nc" id="L380">                LOG.error(&quot;Couldn't parse {} to an integer.&quot;, pid.getName());</span>
+<span class="nc" id="L381">            }</span>
+        }
+<span class="nc" id="L383">        return procs.toArray(new OSProcess[procs.size()]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+<span class="nc" id="L391">        String[] split = FileUtil.getSplitFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">        if (split.length &lt; 24) {</span>
+<span class="nc" id="L393">            return null;</span>
+        }
+<span class="nc" id="L395">        String path = &quot;&quot;;</span>
+<span class="nc" id="L396">        Pointer buf = new Memory(1024);</span>
+<span class="nc" id="L397">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">        if (size &gt; 0) {</span>
+<span class="nc" id="L399">            path = buf.getString(0).substring(0, size);</span>
+        }
+        try {
+<span class="nc" id="L402">            return new LinuxProcess(split[1].replaceFirst(&quot;\\(&quot;, &quot;&quot;).replace(&quot;)&quot;, &quot;&quot;), // name</span>
+                    // See man proc for how to parse /proc/[pid]/stat
+                    path, // path
+<span class="nc" id="L405">                    split[2].charAt(0), // state, one of RSDZTW</span>
+                    pid, // also split[0] but we already have
+<span class="nc" id="L407">                    Integer.parseInt(split[3]), // ppid</span>
+<span class="nc" id="L408">                    Integer.parseInt(split[19]), // thread count</span>
+<span class="nc" id="L409">                    Integer.parseInt(split[17]), // priority</span>
+<span class="nc" id="L410">                    Long.parseLong(split[22]), // VSZ</span>
+<span class="nc" id="L411">                    Long.parseLong(split[23]), // RSS</span>
+                    // The below values are in jiffies
+<span class="nc" id="L413">                    Long.parseLong(split[14]), // kernelTime</span>
+<span class="nc" id="L414">                    Long.parseLong(split[13]), // userTime</span>
+<span class="nc" id="L415">                    Long.parseLong(split[21]), // startTime (after uptime)</span>
+<span class="nc" id="L416">                    System.currentTimeMillis() //</span>
+            );
+<span class="nc" id="L418">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L419">            LOG.error(&quot;Unable to parse /proc/{}/stat&quot;, pid);</span>
+        }
+<span class="nc" id="L421">        return null;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+<span class="nc" id="L429">        return Libc.INSTANCE.getpid();</span>
     }
 
     /**
@@ -391,16 +434,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public int getProcessCount() {
-        // Get all filenames in /proc directory with only digits (pids)
-<span class="nc" id="L395">        File procdir = new File(&quot;/proc&quot;);</span>
-<span class="nc" id="L396">        final Pattern p = Pattern.compile(&quot;\\d+&quot;);</span>
-<span class="nc" id="L397">        File[] pids = procdir.listFiles(new FileFilter() {</span>
-            @Override
-            public boolean accept(File file) {
-<span class="nc" id="L400">                return p.matcher(file.getName()).matches();</span>
-            }
-        });
-<span class="nc bnc" id="L403" title="All 2 branches missed.">        return pids == null ? 0 : pids.length;</span>
+<span class="nc" id="L437">        return ProcUtil.getPidFiles().length;</span>
     }
 
     /**
@@ -409,16 +443,16 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public int getThreadCount() {
         try {
-<span class="nc" id="L412">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L413" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L414">                LOG.error(&quot;Failed to get process thread count. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L415">                return 0;</span>
+<span class="nc" id="L446">            Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L448">                LOG.error(&quot;Failed to get process thread count. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L449">                return 0;</span>
             }
-<span class="nc" id="L417">            return info.procs;</span>
-<span class="nc" id="L418">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L419">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e.getMessage());</span>
+<span class="nc" id="L451">            return info.procs;</span>
+<span class="nc" id="L452">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L453">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e.getMessage());</span>
         }
-<span class="nc" id="L421">        return 0;</span>
+<span class="nc" id="L455">        return 0;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

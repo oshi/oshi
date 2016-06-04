@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -20,88 +21,129 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
-import oshi.util.ExecutingCommand;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.DiskArbitration;
+import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
+import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Mac hard disk implementation.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="fc" id="L32">public class MacDisks extends AbstractDisks {</span>
+<span class="fc" id="L51">public class MacDisks extends AbstractDisks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);</span>
+
+<span class="fc" id="L57">    private static final CFStringRef cfModel = CFStringRef.toCFString(&quot;Model&quot;);</span>
+<span class="fc" id="L58">    private static final CFStringRef cfIOPropertyMatch = CFStringRef.toCFString(&quot;IOPropertyMatch&quot;);</span>
+<span class="fc" id="L59">    private static final CFStringRef cfDADeviceModel = CFStringRef.toCFString(&quot;DADeviceModel&quot;);</span>
+<span class="fc" id="L60">    private static final CFStringRef cfDAMediaSize = CFStringRef.toCFString(&quot;DAMediaSize&quot;);</span>
+<span class="fc" id="L61">    private static final CFStringRef cfSerialNumber = CFStringRef.toCFString(&quot;Serial Number&quot;);</span>
 
     @Override
     public HWDiskStore[] getDisks() {
-        List&lt;HWDiskStore&gt; result;
-<span class="fc" id="L37">        result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L65">        List&lt;HWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
 
-<span class="fc" id="L39">        String model = &quot;&quot;;</span>
-<span class="fc" id="L40">        String serial = &quot;&quot;;</span>
-<span class="fc" id="L41">        String capacity = &quot;&quot;;</span>
-<span class="fc" id="L42">        long size = 0L;</span>
-<span class="fc" id="L43">        int indent = 0;</span>
+        // Use statfs to find all drives
+<span class="fc" id="L68">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+        // Create array to hold results
+<span class="fc" id="L70">        Statfs[] fs = new Statfs[numfs];</span>
+        // Fill array with results
+<span class="fc" id="L72">        numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
 
-<span class="fc" id="L45">        ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;system_profiler SPSerialATADataType&quot;);</span>
-        // Add a non-indented line to the end of the string to prompt List add
-<span class="fc" id="L47">        hwInfo.add(&quot;END&quot;);</span>
-        // Iterate the list and store info as it is found.
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (String checkLine : hwInfo) {</span>
-            // Ignore blank lines
-<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (checkLine.length() == 0) {</span>
-<span class="fc" id="L52">                continue;</span>
+        // Open a DiskArbitration session to get model and size of disks
+<span class="fc" id="L75">        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (session == null) {</span>
+<span class="nc" id="L77">            LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
+<span class="nc" id="L78">            return new HWDiskStore[0];</span>
+        }
+
+        // Iterate all mounted file systems
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (Statfs f : fs) {</span>
+<span class="fc" id="L83">            String model = &quot;&quot;;</span>
+<span class="fc" id="L84">            String serial = &quot;&quot;;</span>
+<span class="fc" id="L85">            long size = 0L;</span>
+            // Get a reference to the disk - only matching /dev/disk*s2
+<span class="fc" id="L87">            String[] split = new String(f.f_mntfromname).trim().split(&quot;/dev/|s2&quot;);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (split.length &lt; 2) {</span>
+<span class="fc" id="L89">                continue;</span>
             }
-            // If indentation backs up by more than 2 spaces, end of this entry
-<span class="fc" id="L55">            String s = checkLine.trim();</span>
+<span class="fc" id="L91">            String name = split[1];</span>
+<span class="fc" id="L92">            String path = &quot;/dev/&quot; + name;</span>
+<span class="fc" id="L93">            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);</span>
 
-<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (checkLine.indexOf(s) &lt; indent - 2) {</span>
-<span class="fc" id="L58">                HWDiskStore ds = new HWDiskStore();</span>
-<span class="fc" id="L59">                ds.setName(String.format(&quot;disk%d&quot;, result.size()));</span>
-<span class="fc" id="L60">                ds.setModel(model);</span>
-<span class="fc" id="L61">                ds.setSerial(serial);</span>
-<span class="fc" id="L62">                ds.setSize(size);</span>
-<span class="fc" id="L63">                result.add(ds);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            if (disk != null) {</span>
+                // Get the DiskArbitration dictionary for this disk, which
+                // has model and size (capacity)
+<span class="fc" id="L98">                CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                if (diskInfo != null) {</span>
+                    // Parse out model and size from their respective keys
+<span class="fc" id="L101">                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, cfDADeviceModel);</span>
+<span class="fc" id="L102">                    model = CfUtil.cfPointerToString(modelPtr);</span>
+<span class="fc" id="L103">                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, cfDAMediaSize);</span>
+<span class="fc" id="L104">                    size = CfUtil.cfPointerToLong(sizePtr);</span>
+<span class="fc" id="L105">                    CfUtil.release(diskInfo);</span>
 
-                // Clear to prep for next
-<span class="fc" id="L66">                model = &quot;&quot;;</span>
-<span class="fc" id="L67">                serial = &quot;&quot;;</span>
-<span class="fc" id="L68">                capacity = &quot;&quot;;</span>
-<span class="fc" id="L69">                size = 0L;</span>
-            }
-<span class="fc" id="L71">            indent = checkLine.indexOf(s);</span>
+                    // Use the model as a key to get serial from IOKit
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                    if (!model.equals(&quot;Disk Image&quot;)) {</span>
+<span class="fc" id="L109">                        CFStringRef modelNameRef = CFStringRef.toCFString(model);</span>
+<span class="fc" id="L110">                        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
+<span class="fc" id="L111">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="fc" id="L112">                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, cfModel, modelNameRef);</span>
+<span class="fc" id="L113">                        CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE</span>
+<span class="fc" id="L114">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="fc" id="L115">                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, cfIOPropertyMatch, propertyDict);</span>
 
-<span class="fc" id="L73">            String[] split = s.split(&quot;:&quot;);</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (split.length &lt; 2) {</span>
-<span class="fc" id="L75">                continue;</span>
-            }
-<span class="pc bpc" id="L77" title="3 of 14 branches missed.">            switch (split[0]) {</span>
-            case &quot;Model&quot;:
-<span class="fc" id="L79">                model = split[1].trim();</span>
-<span class="fc" id="L80">                break;</span>
-            case &quot;Serial Number&quot;:
-<span class="fc" id="L82">                serial = split[1].trim();</span>
-<span class="fc" id="L83">                break;</span>
-            case &quot;Capacity&quot;:
-                // Only use the first Capacity we find
-<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (capacity.length() == 0) {</span>
-                    // Capacity: 209.7 MB (209,715,200 bytes)
-<span class="fc" id="L88">                    capacity = split[1].trim();</span>
-<span class="fc" id="L89">                    capacity = capacity.substring(capacity.indexOf(&quot;(&quot;) + 1, capacity.indexOf(&quot; bytes)&quot;))</span>
-<span class="fc" id="L90">                            .replaceAll(&quot;,&quot;, &quot;&quot;);</span>
-                    // If successful this line is the desired value
-                    try {
-<span class="fc" id="L93">                        size = Long.parseLong(capacity);</span>
-<span class="nc" id="L94">                    } catch (NumberFormatException e) {</span>
-                        // If we failed to parse, give up
-<span class="pc" id="L96">                    }</span>
+                        // search for all IOservices that match the model
+<span class="fc" id="L118">                        IntByReference serviceIterator = new IntByReference();</span>
+<span class="fc" id="L119">                        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
+                        // getMatchingServices releases matchingDict
+<span class="fc" id="L121">                        CfUtil.release(modelNameRef);</span>
+<span class="fc" id="L122">                        CfUtil.release(propertyDict);</span>
+<span class="fc" id="L123">                        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                        while (sdService != 0) {</span>
+                            // look up the serial number
+<span class="fc" id="L126">                            CFTypeRef serNo = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(sdService, cfSerialNumber,</span>
+                                    CfUtil.ALLOCATOR, 0);
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">                            if (serNo != null) {</span>
+<span class="fc" id="L129">                                serial = CfUtil.cfPointerToString(serNo.getPointer());</span>
+<span class="fc" id="L130">                                CfUtil.release(serNo);</span>
+<span class="fc" id="L131">                                break;</span>
+                            }
+                            // iterate
+<span class="nc" id="L134">                            sdService = IOKit.INSTANCE.IOIteratorNext(sdService);</span>
+<span class="nc" id="L135">                        }</span>
+                    }
                 }
-                break;
-            default:
-                // do nothing
+<span class="fc" id="L138">                CfUtil.release(disk);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">                if (size &gt; 0L) {</span>
+<span class="fc" id="L140">                    result.add(new HWDiskStore(name, model.trim(), serial.trim(), size));</span>
+                }
             }
-<span class="fc" id="L102">        }</span>
-
-<span class="fc" id="L104">        return result.toArray(new HWDiskStore[result.size()]);</span>
+        }
+<span class="fc" id="L144">        CfUtil.release(session);</span>
+<span class="fc" id="L145">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

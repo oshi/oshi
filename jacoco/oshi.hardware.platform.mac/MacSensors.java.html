@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,35 +25,38 @@ import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
 public class MacSensors extends AbstractSensors {
+
+    private static final long serialVersionUID = 1L;
+
     // Store some things to throttle SMC queries
-<span class="fc" id="L28">    private double lastTemp = 0d;</span>
+<span class="fc" id="L32">    private double lastTemp = 0d;</span>
 
     private long lastTempTime;
 
-<span class="fc" id="L32">    private int numFans = 0;</span>
+<span class="fc" id="L36">    private int numFans = 0;</span>
 
-<span class="fc" id="L34">    private int[] lastFanSpeeds = new int[0];</span>
+<span class="fc" id="L38">    private int[] lastFanSpeeds = new int[0];</span>
 
     private long lastFanSpeedsTime;
 
-<span class="fc" id="L38">    private double lastVolts = 0d;</span>
+<span class="fc" id="L42">    private double lastVolts = 0d;</span>
 
     private long lastVoltsTime;
 
-<span class="fc" id="L42">    public MacSensors() {</span>
-<span class="fc" id="L43">        SmcUtil.smcOpen();</span>
+<span class="fc" id="L46">    public MacSensors() {</span>
+<span class="fc" id="L47">        SmcUtil.smcOpen();</span>
         // Do an initial read of temperature and fan speeds. This caches initial
         // dataInfo and improves success of future queries
-<span class="fc" id="L46">        this.lastTemp = getCpuTemperature();</span>
-<span class="fc" id="L47">        this.lastFanSpeeds = getFanSpeeds();</span>
+<span class="fc" id="L50">        this.lastTemp = getCpuTemperature();</span>
+<span class="fc" id="L51">        this.lastFanSpeeds = getFanSpeeds();</span>
 
-<span class="fc" id="L49">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+<span class="fc" id="L53">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
             @Override
             public void run() {
-<span class="fc" id="L52">                SmcUtil.smcClose();</span>
-<span class="fc" id="L53">            }</span>
+<span class="fc" id="L56">                SmcUtil.smcClose();</span>
+<span class="fc" id="L57">            }</span>
         });
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L59">    }</span>
 
     /**
      * {@inheritDoc}
@@ -60,14 +64,14 @@ public class MacSensors extends AbstractSensors {
     @Override
     public double getCpuTemperature() {
         // Only update every second
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
-<span class="fc" id="L64">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            if (temp &gt; 0d) {</span>
-<span class="fc" id="L66">                this.lastTemp = temp;</span>
-<span class="fc" id="L67">                lastTempTime = System.currentTimeMillis();</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
+<span class="fc" id="L68">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (temp &gt; 0d) {</span>
+<span class="nc" id="L70">                this.lastTemp = temp;</span>
+<span class="nc" id="L71">                lastTempTime = System.currentTimeMillis();</span>
             }
         }
-<span class="fc" id="L70">        return this.lastTemp;</span>
+<span class="fc" id="L74">        return this.lastTemp;</span>
     }
 
     /**
@@ -76,22 +80,22 @@ public class MacSensors extends AbstractSensors {
     @Override
     public int[] getFanSpeeds() {
         // Only update every second
-<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
             // If we don't have fan # try to get it
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            if (this.numFans == 0) {</span>
-<span class="fc" id="L82">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
-<span class="fc" id="L83">                this.lastFanSpeeds = new int[this.numFans];</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (this.numFans == 0) {</span>
+<span class="fc" id="L86">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
+<span class="fc" id="L87">                this.lastFanSpeeds = new int[this.numFans];</span>
             }
-<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
-<span class="fc" id="L86">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">                if (speed &gt; 0) {</span>
-<span class="fc" id="L88">                    this.lastFanSpeeds[i] = speed;</span>
-<span class="fc" id="L89">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
+<span class="nc" id="L90">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (speed &gt; 0) {</span>
+<span class="nc" id="L92">                    this.lastFanSpeeds[i] = speed;</span>
+<span class="nc" id="L93">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
                 }
             }
         }
         // Make a copy to return
-<span class="fc" id="L94">        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);</span>
+<span class="fc" id="L98">        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);</span>
     }
 
     /**
@@ -100,14 +104,14 @@ public class MacSensors extends AbstractSensors {
     @Override
     public double getCpuVoltage() {
         // Only update every second
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastVoltsTime &gt; 900) {</span>
-<span class="fc" id="L104">            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
-<span class="fc" id="L106">                this.lastVolts = kiloVolts / 1000d;</span>
-<span class="fc" id="L107">                lastVoltsTime = System.currentTimeMillis();</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastVoltsTime &gt; 900) {</span>
+<span class="fc" id="L108">            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
+<span class="nc" id="L110">                this.lastVolts = kiloVolts / 1000d;</span>
+<span class="nc" id="L111">                lastVoltsTime = System.currentTimeMillis();</span>
             }
         }
-<span class="fc" id="L110">        return this.lastVolts;</span>
+<span class="fc" id="L114">        return this.lastVolts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

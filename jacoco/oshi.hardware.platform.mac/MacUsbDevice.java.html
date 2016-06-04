@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MacUsbDevice.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacUsbDevice.java</span></div><h1>MacUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.hardware.UsbDevice;
+import oshi.hardware.common.AbstractUsbDevice;
+import oshi.util.ExecutingCommand;
+
+public class MacUsbDevice extends AbstractUsbDevice {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L34">    private static final Pattern XML_STRING = Pattern.compile(&quot;&lt;string&gt;(.*?)&lt;/string&gt;&quot;);</span>
+
+    public MacUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
+<span class="nc" id="L37">        super(name, vendor, serialNumber, connectedDevices);</span>
+<span class="nc" id="L38">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public static UsbDevice[] getUsbDevices() {
+        // Get heirarchical list of USB devices
+<span class="nc" id="L45">        List&lt;String&gt; xml = ExecutingCommand.runNative(&quot;system_profiler SPUSBDataType -xml&quot;);</span>
+        // Look for &lt;key&gt;_items&lt;/key&gt; which prcedes &lt;array&gt; ... &lt;/array&gt;
+        // Each pair of &lt;dict&gt; ... &lt;/dict&gt; following is a USB device/hub
+<span class="nc" id="L48">        List&lt;String&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L49">        boolean copy = false;</span>
+<span class="nc" id="L50">        int indent = 0;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        for (String s : xml) {</span>
+<span class="nc" id="L52">            s = s.trim();</span>
+            // Read until &lt;key&gt;_items&lt;/key&gt;
+<span class="nc bnc" id="L54" title="All 4 branches missed.">            if (!copy &amp;&amp; s.equals(&quot;&lt;key&gt;_items&lt;/key&gt;&quot;)) {</span>
+<span class="nc" id="L55">                copy = true;</span>
+<span class="nc" id="L56">                continue;</span>
+            }
+            // If we've fond items indent with each &lt;array&gt; tag and copy over
+            // everything with indent &gt; 0.
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (copy) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">                if (s.equals(&quot;&lt;/array&gt;&quot;)) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                    if (--indent == 0) {</span>
+<span class="nc" id="L63">                        copy = false;</span>
+<span class="nc" id="L64">                        continue;</span>
+                    }
+                }
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                if (indent &gt; 0) {</span>
+<span class="nc" id="L68">                    items.add(s);</span>
+                }
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                if (s.equals(&quot;&lt;array&gt;&quot;)) {</span>
+<span class="nc" id="L71">                    indent++;</span>
+                }
+            }
+<span class="nc" id="L74">        }</span>
+        // Items now contains 0 or more sets of &lt;dict&gt;...&lt;/dict&gt;
+<span class="nc" id="L76">        return getUsbDevices(items);</span>
+    }
+
+    /**
+     * Parses a list of xml into USB devices
+     * 
+     * @param items
+     *            A list of XML beginning containing 0 or more &lt;dict&gt;...&lt;/dict&gt;
+     *            entries corresponding to USB buses, hubs, or devices
+     * @return An array of usb devices corresponding to the &lt;dict&gt; entries
+     */
+    private static UsbDevice[] getUsbDevices(List&lt;String&gt; items) {
+<span class="nc" id="L88">        List&lt;UsbDevice&gt; usbDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc" id="L89">        List&lt;String&gt; item = new ArrayList&lt;&gt;();</span>
+        // Separate out item between each pair of &lt;dict&gt;...&lt;/dict&gt; tags
+<span class="nc" id="L91">        int indent = 0;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (String s : items) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (s.equals(&quot;&lt;/dict&gt;&quot;)) {</span>
+                // If this is the final closing tag, add the singular device
+                // we've been accumulating in the item list
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (--indent == 0) {</span>
+<span class="nc" id="L97">                    usbDevices.add(getUsbDevice(item));</span>
+<span class="nc" id="L98">                    item.clear();</span>
+<span class="nc" id="L99">                    continue;</span>
+                }
+            }
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (indent &gt; 0) {</span>
+<span class="nc" id="L103">                item.add(s);</span>
+            }
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (s.equals(&quot;&lt;dict&gt;&quot;)) {</span>
+<span class="nc" id="L106">                indent++;</span>
+            }
+<span class="nc" id="L108">        }</span>
+<span class="nc" id="L109">        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);</span>
+    }
+
+    /**
+     * Parses a list of xml (selected from inside &lt;dict&gt;...&lt;/dict&gt; tags) into a
+     * USB device
+     * 
+     * @param data
+     *            A list of XML beginning containing an XML entry corresponding
+     *            to a USB bus, hub, or device
+     * @return A usb device corresponding to the entry
+     */
+    private static UsbDevice getUsbDevice(List&lt;String&gt; data) {
+<span class="nc" id="L122">        String name = &quot;&quot;;</span>
+<span class="nc" id="L123">        boolean readName = false;</span>
+<span class="nc" id="L124">        String vendor = &quot;&quot;;</span>
+<span class="nc" id="L125">        boolean readVendor = false;</span>
+<span class="nc" id="L126">        String serialNumber = &quot;&quot;;</span>
+<span class="nc" id="L127">        boolean readSerialNumber = false;</span>
+<span class="nc" id="L128">        List&lt;String&gt; nested = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L129">        boolean readNested = false;</span>
+<span class="nc" id="L130">        int indent = 0;</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (String s : data) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (readName) {</span>
+<span class="nc" id="L133">                name = parseXmlString(s);</span>
+<span class="nc" id="L134">                readName = false;</span>
+<span class="nc" id="L135">                continue;</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            } else if (readVendor) {</span>
+<span class="nc" id="L137">                vendor = parseXmlString(s);</span>
+<span class="nc" id="L138">                readVendor = false;</span>
+<span class="nc" id="L139">                continue;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            } else if (readSerialNumber) {</span>
+<span class="nc" id="L141">                serialNumber = parseXmlString(s);</span>
+<span class="nc" id="L142">                readSerialNumber = false;</span>
+<span class="nc" id="L143">                continue;</span>
+            }
+<span class="nc bnc" id="L145" title="All 4 branches missed.">            if (s.equals(&quot;&lt;/array&gt;&quot;) || s.equals(&quot;&lt;/dict&gt;&quot;)) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                if (--indent == 0) {</span>
+<span class="nc" id="L147">                    readNested = false;</span>
+<span class="nc" id="L148">                    continue;</span>
+                }
+            }
+<span class="nc bnc" id="L151" title="All 4 branches missed.">            if (readNested &amp;&amp; indent &gt; 0) {</span>
+<span class="nc" id="L152">                nested.add(s);</span>
+            }
+<span class="nc bnc" id="L154" title="All 4 branches missed.">            if (s.equals(&quot;&lt;array&gt;&quot;) || s.equals(&quot;&lt;dict&gt;&quot;)) {</span>
+<span class="nc" id="L155">                indent++;</span>
+            }
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (indent == 0) {</span>
+<span class="nc bnc" id="L158" title="All 18 branches missed.">                switch (s) {</span>
+                case &quot;&lt;key&gt;_name&lt;/key&gt;&quot;:
+<span class="nc" id="L160">                    readName = true;</span>
+<span class="nc" id="L161">                    break;</span>
+                case &quot;&lt;key&gt;manufacturer&lt;/key&gt;&quot;:
+<span class="nc" id="L163">                    readVendor = true;</span>
+<span class="nc" id="L164">                    break;</span>
+                case &quot;&lt;key&gt;serial_num&lt;/key&gt;&quot;:
+<span class="nc" id="L166">                    readSerialNumber = true;</span>
+<span class="nc" id="L167">                    break;</span>
+                case &quot;&lt;key&gt;_items&lt;/key&gt;&quot;:
+<span class="nc" id="L169">                    readNested = true;</span>
+<span class="nc" id="L170">                    break;</span>
+                default:
+                }
+            }
+<span class="nc" id="L174">        }</span>
+<span class="nc" id="L175">        return new MacUsbDevice(name, vendor, serialNumber, getUsbDevices(nested));</span>
+    }
+
+    /**
+     * Get the string between tags
+     * 
+     * @param s
+     *            A string between &lt;string&gt; ... &lt;/string&gt; tags
+     * @return The string
+     */
+    private static String parseXmlString(String s) {
+<span class="nc" id="L186">        Matcher matcher = XML_STRING.matcher(s);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (matcher.find()) {</span>
+<span class="nc" id="L188">            return matcher.group(1);</span>
+        }
+<span class="nc" id="L190">        return &quot;&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

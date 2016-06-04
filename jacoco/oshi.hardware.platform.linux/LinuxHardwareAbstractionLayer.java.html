@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,21 +25,25 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxFileSystem;
 
-<span class="nc" id="L31">public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L34">public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L39">            this.memory = new LinuxGlobalMemory();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L44">            this.memory = new LinuxGlobalMemory();</span>
         }
-<span class="nc" id="L41">        return this.memory;</span>
+<span class="nc" id="L46">        return this.memory;</span>
     }
 
     /**
@@ -46,10 +51,10 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L50">            this.processor = new LinuxCentralProcessor();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L55">            this.processor = new LinuxCentralProcessor();</span>
         }
-<span class="nc" id="L52">        return this.processor;</span>
+<span class="nc" id="L57">        return this.processor;</span>
     }
 
     /**
@@ -57,7 +62,15 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L60">        return LinuxPowerSource.getPowerSources();</span>
+<span class="nc" id="L65">        return LinuxPowerSource.getPowerSources();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+<span class="nc" id="L73">        return new LinuxFileSystem();</span>
     }
 
     /**
@@ -65,7 +78,7 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L68">        return new LinuxFileSystem().getFileStores();</span>
+<span class="nc" id="L81">        return new LinuxFileSystem().getFileStores();</span>
     }
 
     /**
@@ -73,7 +86,7 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L76">        return new LinuxDisks().getDisks();</span>
+<span class="nc" id="L89">        return new LinuxDisks().getDisks();</span>
     }
 
     /**
@@ -81,7 +94,7 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L84">        return LinuxDisplay.getDisplays();</span>
+<span class="nc" id="L97">        return LinuxDisplay.getDisplays();</span>
     }
 
     /**
@@ -89,10 +102,10 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L93">            this.sensors = new LinuxSensors();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L106">            this.sensors = new LinuxSensors();</span>
         }
-<span class="nc" id="L95">        return this.sensors;</span>
+<span class="nc" id="L108">        return this.sensors;</span>
     }
 
     /**
@@ -100,7 +113,15 @@ import oshi.software.os.linux.LinuxFileSystem;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L103">        return new LinuxNetworks().getNetworks();</span>
+<span class="nc" id="L116">        return new LinuxNetworks().getNetworks();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UsbDevice[] getUsbDevices() {
+<span class="nc" id="L124">        return LinuxUsbDevice.getUsbDevices();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

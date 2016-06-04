@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -32,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author alessandro[at]perucchi[dot]org
  */
-<span class="nc" id="L35">public class ExecutingCommand {</span>
+<span class="nc" id="L36">public class ExecutingCommand {</span>
 
-<span class="fc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
     /**
      * Executes a command on the native command line and returns the result.
@@ -44,8 +45,8 @@ import org.slf4j.LoggerFactory;
      * @return A list of Strings representing the result of the command
      */
     public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
-<span class="fc" id="L47">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
-<span class="fc" id="L48">        return runNative(cmd);</span>
+<span class="nc" id="L48">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="nc" id="L49">        return runNative(cmd);</span>
     }
 
     /**
@@ -57,29 +58,29 @@ import org.slf4j.LoggerFactory;
      *         if the command failed
      */
     public static ArrayList&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L60">        Process p = null;</span>
+<span class="nc" id="L61">        Process p = null;</span>
         try {
-<span class="fc" id="L62">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
-<span class="nc" id="L63">        } catch (IOException e) {</span>
-<span class="nc" id="L64">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L65">            return null;</span>
-<span class="fc" id="L66">        }</span>
+<span class="nc" id="L63">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
+<span class="nc" id="L64">        } catch (IOException e) {</span>
+<span class="nc" id="L65">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L66">            return null;</span>
+<span class="nc" id="L67">        }</span>
 
-<span class="fc" id="L68">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L69">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
+<span class="nc" id="L69">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L70">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
             String line;
-<span class="fc bfc" id="L71" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L72">                sa.add(line);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L73">                sa.add(line);</span>
             }
-<span class="fc" id="L74">            p.waitFor();</span>
-<span class="pc bpc" id="L75" title="6 of 8 branches missed.">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L76">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L77">            return null;</span>
-<span class="nc" id="L78">        } catch (IOException e) {</span>
-<span class="nc" id="L79">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L80">            return null;</span>
-<span class="fc" id="L81">        }</span>
-<span class="fc" id="L82">        return sa;</span>
+<span class="nc" id="L75">            p.waitFor();</span>
+<span class="nc bnc" id="L76" title="All 8 branches missed.">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L77">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L78">            return null;</span>
+<span class="nc" id="L79">        } catch (IOException e) {</span>
+<span class="nc" id="L80">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L81">            return null;</span>
+<span class="nc" id="L82">        }</span>
+<span class="nc" id="L83">        return sa;</span>
     }
 
     /**
@@ -90,7 +91,7 @@ import org.slf4j.LoggerFactory;
      * @return String or null
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="nc" id="L93">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="nc" id="L94">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -105,12 +106,12 @@ import org.slf4j.LoggerFactory;
      *         of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="nc" id="L108">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="nc" id="L109">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="nc bnc" id="L110" title="All 6 branches missed.">        if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="nc" id="L111">            return sa.get(answerIdx);</span>
+<span class="nc bnc" id="L111" title="All 6 branches missed.">        if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="nc" id="L112">            return sa.get(answerIdx);</span>
         }
-<span class="nc" id="L113">        return null;</span>
+<span class="nc" id="L114">        return null;</span>
     }
 
 }

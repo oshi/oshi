@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -30,14 +31,16 @@ import oshi.json.NullAwareJsonObjectBuilder;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L33">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
+<span class="fc" id="L34">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
 
-<span class="fc" id="L35">    protected long memTotal = 0L;</span>
-<span class="fc" id="L36">    protected long memAvailable = 0L;</span>
-<span class="fc" id="L37">    protected long swapTotal = 0L;</span>
-<span class="fc" id="L38">    protected long swapUsed = 0L;</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L40">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L38">    protected long memTotal = 0L;</span>
+<span class="fc" id="L39">    protected long memAvailable = 0L;</span>
+<span class="fc" id="L40">    protected long swapTotal = 0L;</span>
+<span class="fc" id="L41">    protected long swapUsed = 0L;</span>
+
+<span class="fc" id="L43">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * Updates physical memory instance variables.
@@ -54,8 +57,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public long getAvailable() {
-<span class="fc" id="L57">        updateMeminfo();</span>
-<span class="fc" id="L58">        return this.memAvailable;</span>
+<span class="fc" id="L60">        updateMeminfo();</span>
+<span class="fc" id="L61">        return this.memAvailable;</span>
     }
 
     /**
@@ -63,10 +66,10 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public long getTotal() {
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (this.memTotal == 0) {</span>
-<span class="nc" id="L67">            updateMeminfo();</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (this.memTotal == 0) {</span>
+<span class="nc" id="L70">            updateMeminfo();</span>
         }
-<span class="fc" id="L69">        return this.memTotal;</span>
+<span class="fc" id="L72">        return this.memTotal;</span>
     }
 
     /**
@@ -74,8 +77,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public long getSwapUsed() {
-<span class="fc" id="L77">        updateSwap();</span>
-<span class="fc" id="L78">        return this.swapUsed;</span>
+<span class="fc" id="L80">        updateSwap();</span>
+<span class="fc" id="L81">        return this.swapUsed;</span>
     }
 
     /**
@@ -83,8 +86,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public long getSwapTotal() {
-<span class="fc" id="L86">        updateSwap();</span>
-<span class="fc" id="L87">        return this.swapTotal;</span>
+<span class="fc" id="L89">        updateSwap();</span>
+<span class="fc" id="L90">        return this.swapTotal;</span>
     }
 
     /**
@@ -92,8 +95,8 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L95">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable())</span>
-<span class="nc" id="L96">                .add(&quot;total&quot;, getTotal()).add(&quot;swapTotal&quot;, getSwapTotal()).add(&quot;swapUsed&quot;, getSwapUsed()).build();</span>
+<span class="nc" id="L98">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;available&quot;, getAvailable())</span>
+<span class="nc" id="L99">                .add(&quot;total&quot;, getTotal()).add(&quot;swapTotal&quot;, getSwapTotal()).add(&quot;swapUsed&quot;, getSwapUsed()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

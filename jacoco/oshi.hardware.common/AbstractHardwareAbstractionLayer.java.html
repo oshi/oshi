@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -26,21 +27,26 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.json.NullAwareJsonObjectBuilder;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
-<span class="fc" id="L36">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="fc" id="L39">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+
+    private static final long serialVersionUID = 1L;
+
     protected CentralProcessor processor;
 
     protected GlobalMemory memory;
 
     protected Sensors sensors;
 
-<span class="fc" id="L43">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L49">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * {@inheritDoc}
@@ -59,6 +65,12 @@ import oshi.software.os.OSFileStore;
      */
     @Override
     public abstract PowerSource[] getPowerSources();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract FileSystem getFileSystem();
 
     /**
      * {@inheritDoc}
@@ -88,32 +100,43 @@ import oshi.software.os.OSFileStore;
      * {@inheritDoc}
      */
     @Override
+    public abstract UsbDevice[] getUsbDevices();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON() {
-<span class="nc" id="L92">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
-<span class="nc" id="L94">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
+<span class="nc" id="L110">        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (PowerSource powerSource : getPowerSources()) {</span>
+<span class="nc" id="L112">            powerSourceArrayBuilder.add(powerSource.toJSON());</span>
         }
-<span class="nc" id="L96">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
-<span class="nc" id="L98">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
+<span class="nc" id="L114">        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStores()) {</span>
+<span class="nc" id="L116">            fileStoreArrayBuilder.add(fileStore.toJSON());</span>
         }
-<span class="nc" id="L100">        JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (HWDiskStore diskStore : getDiskStores()) {</span>
-<span class="nc" id="L102">            diskStoreArrayBuilder.add(diskStore.toJSON());</span>
+<span class="nc" id="L118">        JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (HWDiskStore diskStore : getDiskStores()) {</span>
+<span class="nc" id="L120">            diskStoreArrayBuilder.add(diskStore.toJSON());</span>
         }
-<span class="nc" id="L104">        JsonArrayBuilder netStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (NetworkIF netStore : getNetworkIFs()) {</span>
-<span class="nc" id="L106">            netStoreArrayBuilder.add(netStore.toJSON());</span>
+<span class="nc" id="L122">        JsonArrayBuilder networkIFArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (NetworkIF netStore : getNetworkIFs()) {</span>
+<span class="nc" id="L124">            networkIFArrayBuilder.add(netStore.toJSON());</span>
         }
-<span class="nc" id="L108">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
-<span class="nc" id="L110">            displayArrayBuilder.add(display.toJSON());</span>
+<span class="nc" id="L126">        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (Display display : getDisplays()) {</span>
+<span class="nc" id="L128">            displayArrayBuilder.add(display.toJSON());</span>
         }
-<span class="nc" id="L112">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
-<span class="nc" id="L113">                .add(&quot;processor&quot;, getProcessor().toJSON()).add(&quot;memory&quot;, getMemory().toJSON())</span>
-<span class="nc" id="L114">                .add(&quot;powerSources&quot;, powerSourceArrayBuilder.build()).add(&quot;fileStores&quot;, fileStoreArrayBuilder.build())</span>
-<span class="nc" id="L115">                .add(&quot;disks&quot;, diskStoreArrayBuilder.build()).add(&quot;networks&quot;, netStoreArrayBuilder.build())</span>
-<span class="nc" id="L116">                .add(&quot;displays&quot;, displayArrayBuilder.build()).add(&quot;sensors&quot;, getSensors().toJSON()).build();</span>
+<span class="nc" id="L130">        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (UsbDevice usbDevice : getUsbDevices()) {</span>
+<span class="nc" id="L132">            usbDeviceArrayBuilder.add(usbDevice.toJSON());</span>
+        }
+<span class="nc" id="L134">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
+<span class="nc" id="L135">                .add(&quot;processor&quot;, getProcessor().toJSON()).add(&quot;memory&quot;, getMemory().toJSON())</span>
+<span class="nc" id="L136">                .add(&quot;powerSources&quot;, powerSourceArrayBuilder.build()).add(&quot;fileSystem&quot;, getFileSystem().toJSON())</span>
+<span class="nc" id="L137">                .add(&quot;fileStores&quot;, fileStoreArrayBuilder.build()).add(&quot;disks&quot;, diskStoreArrayBuilder.build())</span>
+<span class="nc" id="L138">                .add(&quot;networks&quot;, networkIFArrayBuilder.build()).add(&quot;displays&quot;, displayArrayBuilder.build())</span>
+<span class="nc" id="L139">                .add(&quot;sensors&quot;, getSensors().toJSON()).add(&quot;usbDevices&quot;, usbDeviceArrayBuilder.build()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

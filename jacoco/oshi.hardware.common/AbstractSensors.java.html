@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -25,9 +26,11 @@ import javax.json.JsonObject;
 import oshi.hardware.Sensors;
 import oshi.json.NullAwareJsonObjectBuilder;
 
-<span class="fc" id="L28">public abstract class AbstractSensors implements Sensors {</span>
+<span class="fc" id="L29">public abstract class AbstractSensors implements Sensors {</span>
 
-<span class="fc" id="L30">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L33">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * {@inheritDoc}
@@ -52,13 +55,13 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L55">        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (int speed : getFanSpeeds()) {</span>
-<span class="nc" id="L57">            fanSpeedsArrayBuilder.add(speed);</span>
+<span class="nc" id="L58">        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (int speed : getFanSpeeds()) {</span>
+<span class="nc" id="L60">            fanSpeedsArrayBuilder.add(speed);</span>
         }
-<span class="nc" id="L59">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
-<span class="nc" id="L60">                .add(&quot;cpuTemperature&quot;, getCpuTemperature()).add(&quot;fanSpeeds&quot;, fanSpeedsArrayBuilder.build())</span>
-<span class="nc" id="L61">                .add(&quot;cpuVoltage&quot;, getCpuVoltage()).build();</span>
+<span class="nc" id="L62">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())</span>
+<span class="nc" id="L63">                .add(&quot;cpuTemperature&quot;, getCpuTemperature()).add(&quot;fanSpeeds&quot;, fanSpeedsArrayBuilder.build())</span>
+<span class="nc" id="L64">                .add(&quot;cpuVoltage&quot;, getCpuVoltage()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

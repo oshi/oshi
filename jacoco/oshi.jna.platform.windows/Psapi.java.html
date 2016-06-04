@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -32,10 +33,10 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
  * @author widdis[at]gmail[dot]com
  */
 public interface Psapi extends com.sun.jna.platform.win32.Psapi {
-<span class="nc" id="L35">    Psapi INSTANCE = (Psapi) Native.loadLibrary(&quot;Psapi&quot;, Psapi.class);</span>
+<span class="nc" id="L36">    Psapi INSTANCE = (Psapi) Native.loadLibrary(&quot;Psapi&quot;, Psapi.class);</span>
 
     // TODO: Submit this change to JNA Psapi class
-<span class="nc" id="L38">    class PERFORMANCE_INFORMATION extends Structure {</span>
+<span class="nc" id="L39">    class PERFORMANCE_INFORMATION extends Structure {</span>
         public DWORD cb;
         public SIZE_T CommitTotal;
         public SIZE_T CommitLimit;
@@ -53,7 +54,7 @@ public interface Psapi extends com.sun.jna.platform.win32.Psapi {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L56">            return Arrays.asList(new String[] { &quot;cb&quot;, &quot;CommitTotal&quot;, &quot;CommitLimit&quot;, &quot;CommitPeak&quot;, &quot;PhysicalTotal&quot;,</span>
+<span class="nc" id="L57">            return Arrays.asList(new String[] { &quot;cb&quot;, &quot;CommitTotal&quot;, &quot;CommitLimit&quot;, &quot;CommitPeak&quot;, &quot;PhysicalTotal&quot;,</span>
                     &quot;PhysicalAvailable&quot;, &quot;SystemCache&quot;, &quot;KernelTotal&quot;, &quot;KernelPaged&quot;, &quot;KernelNonpaged&quot;, &quot;PageSize&quot;,
                     &quot;HandleCount&quot;, &quot;ProcessCount&quot;, &quot;ThreadCount&quot; });
         }

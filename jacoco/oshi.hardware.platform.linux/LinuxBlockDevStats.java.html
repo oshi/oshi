@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -20,6 +21,7 @@ package oshi.hardware.platform.linux;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+
 import oshi.jna.platform.linux.Udev;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
@@ -31,28 +33,30 @@ import oshi.json.OshiJsonObject;
  */
 public class LinuxBlockDevStats implements OshiJsonObject {
 
-<span class="nc" id="L34">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L36">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
+<span class="nc" id="L38">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="nc" id="L40">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
         String devstat;
         String[] splitstats;
 
-<span class="nc" id="L40">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
-<span class="nc" id="L41">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L44">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
+<span class="nc" id="L45">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
 
-<span class="nc" id="L43">        this.device = device;</span>
-<span class="nc" id="L44">        this.read_ops = Long.parseLong(splitstats[1]);</span>
-<span class="nc" id="L45">        this.read_merged = Long.parseLong(splitstats[2]);</span>
-<span class="nc" id="L46">        this.read_512bytes = Long.parseLong(splitstats[3]);</span>
-<span class="nc" id="L47">        this.read_waits_ms = Long.parseLong(splitstats[4]);</span>
-<span class="nc" id="L48">        this.write_ops = Long.parseLong(splitstats[5]);</span>
-<span class="nc" id="L49">        this.write_merged = Long.parseLong(splitstats[6]);</span>
-<span class="nc" id="L50">        this.write_512bytes = Long.parseLong(splitstats[7]);</span>
-<span class="nc" id="L51">        this.write_waits_ms = Long.parseLong(splitstats[8]);</span>
-<span class="nc" id="L52">        this.in_flight = Long.parseLong(splitstats[9]);</span>
-<span class="nc" id="L53">        this.active_ms = Long.parseLong(splitstats[10]);</span>
-<span class="nc" id="L54">        this.waits_ms = Long.parseLong(splitstats[11]);</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L47">        this.device = device;</span>
+<span class="nc" id="L48">        this.read_ops = Long.parseLong(splitstats[1]);</span>
+<span class="nc" id="L49">        this.read_merged = Long.parseLong(splitstats[2]);</span>
+<span class="nc" id="L50">        this.read_512bytes = Long.parseLong(splitstats[3]);</span>
+<span class="nc" id="L51">        this.read_waits_ms = Long.parseLong(splitstats[4]);</span>
+<span class="nc" id="L52">        this.write_ops = Long.parseLong(splitstats[5]);</span>
+<span class="nc" id="L53">        this.write_merged = Long.parseLong(splitstats[6]);</span>
+<span class="nc" id="L54">        this.write_512bytes = Long.parseLong(splitstats[7]);</span>
+<span class="nc" id="L55">        this.write_waits_ms = Long.parseLong(splitstats[8]);</span>
+<span class="nc" id="L56">        this.in_flight = Long.parseLong(splitstats[9]);</span>
+<span class="nc" id="L57">        this.active_ms = Long.parseLong(splitstats[10]);</span>
+<span class="nc" id="L58">        this.waits_ms = Long.parseLong(splitstats[11]);</span>
+<span class="nc" id="L59">    }</span>
 
     // Device name
     public final String device;
@@ -81,13 +85,13 @@ public class LinuxBlockDevStats implements OshiJsonObject {
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L84">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;device&quot;, this.device)</span>
-<span class="nc" id="L85">                .add(&quot;read_ops&quot;, this.read_ops).add(&quot;read_merged&quot;, this.read_merged)</span>
-<span class="nc" id="L86">                .add(&quot;read_512bytes&quot;, this.read_512bytes).add(&quot;read_waits_ms&quot;, this.read_waits_ms)</span>
-<span class="nc" id="L87">                .add(&quot;write_ops&quot;, this.write_ops).add(&quot;write_merged&quot;, this.write_merged)</span>
-<span class="nc" id="L88">                .add(&quot;write_512bytes&quot;, this.write_512bytes).add(&quot;write_waits_ms&quot;, this.write_waits_ms)</span>
-<span class="nc" id="L89">                .add(&quot;in_flight&quot;, this.in_flight).add(&quot;active_ms&quot;, this.active_ms).add(&quot;waits_ms&quot;, this.waits_ms)</span>
-<span class="nc" id="L90">                .build();</span>
+<span class="nc" id="L88">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;device&quot;, this.device)</span>
+<span class="nc" id="L89">                .add(&quot;read_ops&quot;, this.read_ops).add(&quot;read_merged&quot;, this.read_merged)</span>
+<span class="nc" id="L90">                .add(&quot;read_512bytes&quot;, this.read_512bytes).add(&quot;read_waits_ms&quot;, this.read_waits_ms)</span>
+<span class="nc" id="L91">                .add(&quot;write_ops&quot;, this.write_ops).add(&quot;write_merged&quot;, this.write_merged)</span>
+<span class="nc" id="L92">                .add(&quot;write_512bytes&quot;, this.write_512bytes).add(&quot;write_waits_ms&quot;, this.write_waits_ms)</span>
+<span class="nc" id="L93">                .add(&quot;in_flight&quot;, this.in_flight).add(&quot;active_ms&quot;, this.active_ms).add(&quot;waits_ms&quot;, this.waits_ms)</span>
+<span class="nc" id="L94">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

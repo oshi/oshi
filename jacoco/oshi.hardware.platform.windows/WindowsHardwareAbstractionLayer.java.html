@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -24,21 +25,25 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.windows.WindowsFileSystem;
 
-<span class="nc" id="L31">public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L34">public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L39">            this.memory = new WindowsGlobalMemory();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L44">            this.memory = new WindowsGlobalMemory();</span>
         }
-<span class="nc" id="L41">        return this.memory;</span>
+<span class="nc" id="L46">        return this.memory;</span>
     }
 
     /**
@@ -46,10 +51,10 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L50">            processor = new WindowsCentralProcessor();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L55">            processor = new WindowsCentralProcessor();</span>
         }
-<span class="nc" id="L52">        return this.processor;</span>
+<span class="nc" id="L57">        return this.processor;</span>
     }
 
     /**
@@ -57,7 +62,15 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L60">        return WindowsPowerSource.getPowerSources();</span>
+<span class="nc" id="L65">        return WindowsPowerSource.getPowerSources();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+<span class="nc" id="L73">        return new WindowsFileSystem();</span>
     }
 
     /**
@@ -65,12 +78,12 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L68">        return new WindowsFileSystem().getFileStores();</span>
+<span class="nc" id="L81">        return new WindowsFileSystem().getFileStores();</span>
     }
 
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L73">        return new WindowsDisks().getDisks();</span>
+<span class="nc" id="L86">        return new WindowsDisks().getDisks();</span>
     }
 
     /**
@@ -78,7 +91,7 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L81">        return WindowsDisplay.getDisplays();</span>
+<span class="nc" id="L94">        return WindowsDisplay.getDisplays();</span>
     }
 
     /**
@@ -86,10 +99,10 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L90">            this.sensors = new WindowsSensors();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L103">            this.sensors = new WindowsSensors();</span>
         }
-<span class="nc" id="L92">        return this.sensors;</span>
+<span class="nc" id="L105">        return this.sensors;</span>
     }
 
     /**
@@ -97,7 +110,15 @@ import oshi.software.os.windows.WindowsFileSystem;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L100">        return new WindowsNetworks().getNetworks();</span>
+<span class="nc" id="L113">        return new WindowsNetworks().getNetworks();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UsbDevice[] getUsbDevices() {
+<span class="nc" id="L121">        return WindowsUsbDevice.getUsbDevices();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

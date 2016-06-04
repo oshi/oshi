@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -22,6 +23,8 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
+import com.sun.jna.ptr.ByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * CoreFoundation framework for power supply stats. This class should be
@@ -31,58 +34,88 @@ import com.sun.jna.PointerType;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-<span class="fc" id="L34">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
+<span class="fc" id="L37">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
     int UTF_8 = 0x08000100;
 
     int CFArrayGetCount(CFArrayRef array);
 
-    CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
-
-    void CFRelease(CFTypeRef blob);
-
-<span class="fc" id="L44">    class CFTypeRef extends PointerType {</span>
-        // TODO Build this out
+    /*
+     * Decorator class types for PointerType to better match ported code
+     */
+<span class="fc" id="L46">    class CFTypeRef extends PointerType {</span>
     }
 
-<span class="fc" id="L48">    class CFArrayRef extends PointerType {</span>
-        // TODO Build this out
+<span class="fc" id="L49">    class CFArrayRef extends PointerType {</span>
     }
 
 <span class="fc" id="L52">    class CFDictionaryRef extends PointerType {</span>
-        // TODO Build this out
     }
 
-<span class="fc" id="L56">    class CFMutableDictionaryRef extends PointerType {</span>
-        // TODO Build this out
+<span class="fc" id="L55">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
     }
 
-<span class="fc" id="L60">    class CFAllocatorRef extends PointerType {</span>
-        // TODO Build this out
+<span class="fc" id="L58">    class CFAllocatorRef extends PointerType {</span>
     }
 
-<span class="fc" id="L64">    class CFStringRef extends PointerType {</span>
+<span class="fc" id="L61">    class CFStringRef extends PointerType {</span>
+        /**
+         * Creates a new CFString from the given Java string.
+         * 
+         * @param s
+         *            A string
+         * @return A reference to a CFString representing s
+         */
         public static CFStringRef toCFString(String s) {
-<span class="fc" id="L66">            final char[] chars = s.toCharArray();</span>
-<span class="fc" id="L67">            int length = chars.length;</span>
-<span class="fc" id="L68">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+<span class="fc" id="L70">            final char[] chars = s.toCharArray();</span>
+<span class="fc" id="L71">            int length = chars.length;</span>
+<span class="fc" id="L72">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 
+    /*
+     * References are owned if created by functions including &quot;Create&quot; or &quot;Copy&quot;
+     * and must be released with CFRelease to avoid leaking references
+     */
+
     CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
-    boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
+    CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, int capacity, Pointer keyCallBacks,
+            Pointer valueCallBacks);
+
+    void CFRelease(PointerType blob);
+
+    /*
+     * References are not owned if created by functions using &quot;Get&quot;. Use
+     * CFRetain if object retention is required, and then CFRelease later. Do
+     * not use CFRelease if you do not own.
+     */
+
+    void CFDictionarySetValue(CFMutableDictionaryRef dict, PointerType key, PointerType value);
 
     Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
-    boolean CFStringGetCString(Pointer foo, Pointer buffer, long maxSize, int encoding);
+    boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
+
+    boolean CFStringGetCString(Pointer cfString, Pointer bufferToFill, long maxSize, int encoding);
+
+    boolean CFBooleanGetValue(Pointer booleanRef);
+
+    CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
+
+    void CFNumberGetValue(Pointer cfNumber, int intSize, ByReference value);
 
     long CFStringGetLength(Pointer str);
 
     long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
-    boolean CFBooleanGetValue(Pointer booleanRef);
-
     CFAllocatorRef CFAllocatorGetDefault();
+
+<span class="nc" id="L114">    class CFDataRef extends CFTypeRef {</span>
+    }
+
+    int CFDataGetLength(CFTypeRef theData);
+
+    PointerByReference CFDataGetBytePtr(CFTypeRef theData);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

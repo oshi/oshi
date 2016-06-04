@@ -19,429 +19,470 @@
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Maintainers:</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * https://github.com/dblock/oshi/graphs/contributors</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">package</strong> oshi;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotNull;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.io.File;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.nio.file.FileStore;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Platform;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Display;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.GlobalMemory;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HardwareAbstractionLayer;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Sensors;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystemVersion;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> * The Class SystemInfoTest.</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * @author dblock[at]dblock[dot]org</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../oshi/SystemInfoTest.html">SystemInfoTest</a> {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * Test central processor.</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      @Test
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCentralProcessor() {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          CentralProcessor p = si.getHardware().getProcessor();
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertNotNull(p.getVendor());
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() &gt; 0);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          p.setVendor(<span class="jxr_string">"v"</span>);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertEquals(p.getVendor(), <span class="jxr_string">"v"</span>);
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/dblock/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotNull;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.nio.file.FileStore;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Platform;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Display;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.GlobalMemory;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HardwareAbstractionLayer;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Sensors;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystemVersion;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> * The Class SystemInfoTest.</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> * @author dblock[at]dblock[dot]org</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../oshi/SystemInfoTest.html">SystemInfoTest</a> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * Test central processor.</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Test
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCentralProcessor() {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          CentralProcessor p = si.getHardware().getProcessor();
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertNotNull(p.getName());
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          p.setName(<span class="jxr_string">"n"</span>);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertEquals(p.getName(), <span class="jxr_string">"n"</span>);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertNotNull(p.getIdentifier());
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          p.setIdentifier(<span class="jxr_string">"i"</span>);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertEquals(p.getIdentifier(), <span class="jxr_string">"i"</span>);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          p.setCpu64(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertTrue(p.isCpu64bit());
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertNotNull(p.getStepping());
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          p.setStepping(<span class="jxr_string">"s"</span>);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertEquals(p.getStepping(), <span class="jxr_string">"s"</span>);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertNotNull(p.getModel());
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          p.setModel(<span class="jxr_string">"m"</span>);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertEquals(p.getModel(), <span class="jxr_string">"m"</span>);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertNotNull(p.getFamily());
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          p.setFamily(<span class="jxr_string">"f"</span>);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertEquals(p.getFamily(), <span class="jxr_string">"f"</span>);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertTrue(p.getSystemCpuLoadBetweenTicks() &gt;= 0 &amp;&amp; p.getSystemCpuLoadBetweenTicks() &lt;= 1);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertEquals(p.getSystemCpuLoadTicks().length, 4);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertTrue(p.getSystemIOWaitTicks() &gt;= 0);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertEquals(p.getSystemIrqTicks().length, 2);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertNotNull(p.getVendor());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() &gt; 0);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          p.setVendor(<span class="jxr_string">"v"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertEquals(p.getVendor(), <span class="jxr_string">"v"</span>);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertNotNull(p.getName());
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          p.setName(<span class="jxr_string">"n"</span>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertEquals(p.getName(), <span class="jxr_string">"n"</span>);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertNotNull(p.getIdentifier());
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          p.setIdentifier(<span class="jxr_string">"i"</span>);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertEquals(p.getIdentifier(), <span class="jxr_string">"i"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          p.setCpu64(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertTrue(p.isCpu64bit());
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          assertNotNull(p.getStepping());
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          p.setStepping(<span class="jxr_string">"s"</span>);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(p.getStepping(), <span class="jxr_string">"s"</span>);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertNotNull(p.getModel());
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          p.setModel(<span class="jxr_string">"m"</span>);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertEquals(p.getModel(), <span class="jxr_string">"m"</span>);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertNotNull(p.getFamily());
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          p.setFamily(<span class="jxr_string">"f"</span>);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertEquals(p.getFamily(), <span class="jxr_string">"f"</span>);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          Util.sleep(500);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertTrue(p.getSystemCpuLoad() &gt;= 0.0 &amp;&amp; p.getSystemCpuLoad() &lt;= 1.0);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertEquals(p.getSystemLoadAverage(3).length, 3);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">if</strong> (Platform.isMac() || Platform.isLinux()) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             assertTrue(p.getSystemLoadAverage() &gt;= 0.0);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] &gt;= 0 &amp;&amp; p.getProcessorCpuLoadBetweenTicks()[cpu] &lt;= 1);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, 4);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertTrue(p.getSystemUptime() &gt; 0);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertNotNull(p.getSystemSerialNumber());
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertTrue(p.getPhysicalProcessorCount() &gt; 0);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertTrue(p.getProcessCount() &gt;= 1);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertTrue(p.getThreadCount() &gt;= p.getProcessCount());
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * Test disks extraction.</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Test
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDisks() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore disk : si.getHardware().getDiskStores()) {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <em class="jxr_comment">// NOTE: for now, only tests are for getting disk informations</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             assertNotNull(disk.getName());
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             assertNotNull(disk.getModel());
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             assertNotNull(disk.getSerial());
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             assertNotNull(disk.getSize());
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             assertNotNull(disk.getReads());
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             assertNotNull(disk.getWrites());
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * Test network interfaces extraction.</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>     @Test
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNetworkInterfaces() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : si.getHardware().getNetworkIFs()) {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             assertNotNull(net.getName());
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             assertNotNull(net.getDisplayName());
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             assertNotNull(net.getMacaddr());
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             assertNotNull(net.getIPv4addr());
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             assertNotNull(net.getIPv6addr());
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             assertTrue(net.getBytesRecv() &gt;= 0);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>             assertTrue(net.getBytesSent() &gt;= 0);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             assertTrue(net.getPacketsRecv() &gt;= 0);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             assertTrue(net.getPacketsSent() &gt;= 0);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             assertTrue(net.getSpeed() &gt;= 0);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             assertTrue(net.getMTU() &gt;= 0);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * Test displays</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     @Test
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDisplay() {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         Display[] displays = si.getHardware().getDisplays();
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">for</strong> (Display d : displays) {
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>             assertTrue(d.getEdid().length &gt;= 128);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * Test GlobalMemory.</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Test
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGlobalMemory() {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         HardwareAbstractionLayer hal = si.getHardware();
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         GlobalMemory memory = hal.getMemory();
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         assertNotNull(memory);
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// RAM tests</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         assertTrue(memory.getTotal() &gt; 0);
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         assertTrue(memory.getAvailable() &gt;= 0);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         assertTrue(memory.getAvailable() &lt;= memory.getTotal());
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <em class="jxr_comment">// Swap tests</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertTrue(memory.getSwapTotal() &gt;= 0);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         assertTrue(memory.getSwapUsed() &gt;= 0);
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         assertTrue(memory.getSwapUsed() &lt;= memory.getSwapTotal());
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * Test power source.</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     @Test
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPowerSource() {
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         PowerSource[] psArr = si.getHardware().getPowerSources();
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">for</strong> (PowerSource ps : psArr) {
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             assertTrue(ps.getRemainingCapacity() &gt;= 0 &amp;&amp; ps.getRemainingCapacity() &lt;= 1);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">double</strong> epsilon = 1E-6;
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             assertTrue(ps.getTimeRemaining() &gt; 0 || Math.abs(ps.getTimeRemaining() - -1) &lt; epsilon
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     || Math.abs(ps.getTimeRemaining() - -2) &lt; epsilon);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         }
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     }
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     * Test sensors</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     @Test
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSensors() {
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         Sensors s = si.getHardware().getSensors();
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertTrue(s.getCpuTemperature() &gt;= 0d &amp;&amp; s.getCpuTemperature() &lt;= 100d);
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">int</strong>[] speeds = s.getFanSpeeds();
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> fan = 0; fan &lt; speeds.length; fan++) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             assertTrue(speeds[fan] &gt;= 0);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         assertTrue(s.getCpuVoltage() &gt;= 0);
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * Test get version.</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     @Test
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOSVersion() {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         assertNotNull(os.getFamily());
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         assertNotNull(os.getManufacturer());
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         OperatingSystemVersion version = os.getVersion();
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         assertNotNull(version);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         assertNotNull(version.getVersion());
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         assertNotNull(version.getCodeName());
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         assertNotNull(version.getBuildNumber());
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     }
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> 
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     * Test file system.</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     @Test
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFileSystem() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         OSFileStore[] fs = si.getHardware().getFileStores();
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> f = 0; f &lt; fs.length; f++) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             assertNotNull(fs[f].getName());
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             assertNotNull(fs[f].getDescription());
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>             assertNotNull(fs[f].getType());
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>             assertTrue(fs[f].getTotalSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>             assertTrue(fs[f].getUsableSpace() &lt;= fs[f].getTotalSpace());
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         }
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <em class="jxr_comment">// Hack to extract path from FileStore.toString() is undocumented,</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <em class="jxr_comment">// this test will fail if toString format changes</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">if</strong> (Platform.isLinux()) {
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             FileStore store = Files.getFileStore((<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/"</span>)).toPath());
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             assertEquals(<span class="jxr_string">"/"</span>, store.toString().replace(<span class="jxr_string">" ("</span> + store.name() + <span class="jxr_string">")"</span>, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * The main method.</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * @param args</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     *            the arguments</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <em class="jxr_comment">// Options: ERROR &gt; WARN &gt; INFO &gt; DEBUG &gt; TRACE</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, <span class="jxr_string">"INFO"</span>);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         Logger LOG = LoggerFactory.getLogger(SystemInfoTest.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertTrue(p.getSystemCpuLoadBetweenTicks() &gt;= 0 &amp;&amp; p.getSystemCpuLoadBetweenTicks() &lt;= 1);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertEquals(p.getSystemCpuLoadTicks().length, 4);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertTrue(p.getSystemIOWaitTicks() &gt;= 0);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertEquals(p.getSystemIrqTicks().length, 2);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         Util.sleep(500);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertTrue(p.getSystemCpuLoad() &gt;= 0.0 &amp;&amp; p.getSystemCpuLoad() &lt;= 1.0);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertEquals(p.getSystemLoadAverage(3).length, 3);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (Platform.isMac() || Platform.isLinux()) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             assertTrue(p.getSystemLoadAverage() &gt;= 0.0);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] &gt;= 0 &amp;&amp; p.getProcessorCpuLoadBetweenTicks()[cpu] &lt;= 1);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, 4);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertTrue(p.getSystemUptime() &gt; 0);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertNotNull(p.getSystemSerialNumber());
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertTrue(p.getPhysicalProcessorCount() &gt; 0);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertTrue(p.getProcessCount() &gt;= 1);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertTrue(p.getThreadCount() &gt;= 1);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertTrue(p.getProcessId() &gt; 0);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertNotNull(p.getProcesses());
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertEquals(p.getProcess(p.getProcessId()).getProcessID(), p.getProcessId());
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * Test disks extraction.</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     @Test
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDisks() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore disk : si.getHardware().getDiskStores()) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <em class="jxr_comment">// NOTE: for now, only tests are for getting disk informations</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             assertNotNull(disk.getName());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             assertNotNull(disk.getModel());
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             assertNotNull(disk.getSerial());
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             assertNotNull(disk.getSize());
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             assertNotNull(disk.getReads());
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             assertNotNull(disk.getWrites());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * Test network interfaces extraction.</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNetworkInterfaces() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : si.getHardware().getNetworkIFs()) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             assertNotNull(net.getName());
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             assertNotNull(net.getDisplayName());
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             assertNotNull(net.getMacaddr());
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             assertNotNull(net.getIPv4addr());
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             assertNotNull(net.getIPv6addr());
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             assertTrue(net.getBytesRecv() &gt;= 0);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             assertTrue(net.getBytesSent() &gt;= 0);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             assertTrue(net.getPacketsRecv() &gt;= 0);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             assertTrue(net.getPacketsSent() &gt;= 0);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             assertTrue(net.getSpeed() &gt;= 0);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             assertTrue(net.getMTU() &gt;= 0);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * Test displays</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     @Test
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDisplay() {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Display[] displays = si.getHardware().getDisplays();
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">for</strong> (Display d : displays) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             assertTrue(d.getEdid().length &gt;= 128);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     * Test GlobalMemory.</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     @Test
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGlobalMemory() {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         GlobalMemory memory = hal.getMemory();
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertNotNull(memory);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <em class="jxr_comment">// RAM tests</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         assertTrue(memory.getTotal() &gt; 0);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         assertTrue(memory.getAvailable() &gt;= 0);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         assertTrue(memory.getAvailable() &lt;= memory.getTotal());
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// Swap tests</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         assertTrue(memory.getSwapTotal() &gt;= 0);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         assertTrue(memory.getSwapUsed() &gt;= 0);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         assertTrue(memory.getSwapUsed() &lt;= memory.getSwapTotal());
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * Test power source.</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     @Test
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPowerSource() {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         PowerSource[] psArr = si.getHardware().getPowerSources();
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">for</strong> (PowerSource ps : psArr) {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             assertTrue(ps.getRemainingCapacity() &gt;= 0 &amp;&amp; ps.getRemainingCapacity() &lt;= 1);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">double</strong> epsilon = 1E-6;
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             assertTrue(ps.getTimeRemaining() &gt; 0 || Math.abs(ps.getTimeRemaining() - -1) &lt; epsilon
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                     || Math.abs(ps.getTimeRemaining() - -2) &lt; epsilon);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     * Test sensors</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     @Test
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSensors() {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         Sensors s = si.getHardware().getSensors();
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         assertTrue(s.getCpuTemperature() &gt;= 0d &amp;&amp; s.getCpuTemperature() &lt;= 100d);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">int</strong>[] speeds = s.getFanSpeeds();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> fan = 0; fan &lt; speeds.length; fan++) {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             assertTrue(speeds[fan] &gt;= 0);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertTrue(s.getCpuVoltage() &gt;= 0);
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * Test get version.</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     @Test
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOSVersion() {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertNotNull(os.getFamily());
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertNotNull(os.getManufacturer());
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         OperatingSystemVersion version = os.getVersion();
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         assertNotNull(version);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         assertNotNull(version.getVersion());
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertNotNull(version.getCodeName());
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         assertNotNull(version.getBuildNumber());
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * Test file system.</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     @Test
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFileSystem() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         FileSystem filesystem = si.getHardware().getFileSystem();
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         assertTrue(filesystem.getOpenFileDescriptors() &gt;= 0L);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         assertTrue(filesystem.getMaxFileDescriptors() &gt;= 0L);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         OSFileStore[] fs = si.getHardware().getFileStores();
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> f = 0; f &lt; fs.length; f++) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             assertNotNull(fs[f].getName());
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             assertNotNull(fs[f].getDescription());
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             assertNotNull(fs[f].getType());
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             assertTrue(fs[f].getTotalSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             assertTrue(fs[f].getUsableSpace() &lt;= fs[f].getTotalSpace());
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <em class="jxr_comment">// Hack to extract path from FileStore.toString() is undocumented,</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <em class="jxr_comment">// this test will fail if toString format changes</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (Platform.isLinux()) {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             FileStore store = Files.getFileStore((<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/"</span>)).toPath());
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             assertEquals(<span class="jxr_string">"/"</span>, store.toString().replace(<span class="jxr_string">" ("</span> + store.name() + <span class="jxr_string">")"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     }
 <a class="jxr_linenumber" name="L280" href="#L280">280</a> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         LOG.info(<span class="jxr_string">"Initializing System..."</span>);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <em class="jxr_comment">// software</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <em class="jxr_comment">// software: operating system</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         System.out.println(os);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         LOG.info(<span class="jxr_string">"Initializing Hardware..."</span>);
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <em class="jxr_comment">// hardware</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     * The main method.</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * @param args</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     *            the arguments</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <em class="jxr_comment">// Options: ERROR &gt; WARN &gt; INFO &gt; DEBUG &gt; TRACE</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, <span class="jxr_string">"INFO"</span>);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         Logger LOG = LoggerFactory.getLogger(SystemInfoTest.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> 
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <em class="jxr_comment">// hardware: processors</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         System.out.println(hal.getProcessor());
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getPhysicalProcessorCount() + <span class="jxr_string">" physical CPU(s)"</span>);
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getLogicalProcessorCount() + <span class="jxr_string">" logical CPU(s)"</span>);
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> 
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         System.out.println(<span class="jxr_string">"Identifier: "</span> + hal.getProcessor().getIdentifier());
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         System.out.println(<span class="jxr_string">"Serial Num: "</span> + hal.getProcessor().getSystemSerialNumber());
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> 
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <em class="jxr_comment">// hardware: memory</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         LOG.info(<span class="jxr_string">"Checking Memory..."</span>);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         System.out.println(<span class="jxr_string">"Memory: "</span> + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + <span class="jxr_string">"/"</span>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         System.out.println(<span class="jxr_string">"Swap used: "</span> + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + <span class="jxr_string">"/"</span>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                 + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <em class="jxr_comment">// uptime</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         LOG.info(<span class="jxr_string">"Checking Uptime..."</span>);
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         System.out.println(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
-<a class="jxr_linenumber" name="L309" href="#L309">309</a> 
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <em class="jxr_comment">// CPU</em>
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         LOG.info(<span class="jxr_string">"Checking CPU..."</span>);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks) + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <em class="jxr_comment">// Wait a second...</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         Util.sleep(1000);
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">long</strong>[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks) + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">long</strong> user = ticks[0] - prevTicks[0];
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">long</strong> nice = ticks[1] - prevTicks[1];
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">long</strong> sys = ticks[2] - prevTicks[2];
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">long</strong> idle = ticks[3] - prevTicks[3];
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle;
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         System.out.format(<span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n"</span>, 100d * user / totalCpu,
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (counting ticks)%n"</span>,
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (OS MXBean)%n"</span>, hal.getProcessor().getSystemCpuLoad() * 100);
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         System.out.println(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <em class="jxr_comment">// per core CPU</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">double</strong>[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; load.length; cpu++) {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, load[cpu] * 100));
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         System.out.println(procCpu.toString());
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         System.out.println(<span class="jxr_string">"Processes: "</span> + hal.getProcessor().getProcessCount() + <span class="jxr_string">", Threads: "</span>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 + hal.getProcessor().getThreadCount());
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <em class="jxr_comment">// hardware: sensors</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         LOG.info(<span class="jxr_string">"Checking Sensors..."</span>);
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         System.out.println(<span class="jxr_string">"Sensors:"</span>);
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         System.out.format(<span class="jxr_string">" CPU Temperature: %.1f°C%n"</span>, hal.getSensors().getCpuTemperature());
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         System.out.println(<span class="jxr_string">" Fan Speeds:"</span> + Arrays.toString(hal.getSensors().getFanSpeeds()));
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         System.out.format(<span class="jxr_string">" CPU Voltage: %.1fV%n"</span>, hal.getSensors().getCpuVoltage());
-<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <em class="jxr_comment">// hardware: power</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         LOG.info(<span class="jxr_string">"Checking Power sources..."</span>);
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power: "</span>);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">if</strong> (hal.getPowerSources().length == 0) {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             <strong class="jxr_keyword">double</strong> timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             <strong class="jxr_keyword">if</strong> (timeRemaining &lt; -1d) {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 sb.append(<span class="jxr_string">"Charging"</span>);
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeRemaining &lt; 0d) {
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 sb.append(<span class="jxr_string">"Calculating time remaining"</span>);
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 sb.append(String.format(<span class="jxr_string">"%d:%02d remaining"</span>, (<strong class="jxr_keyword">int</strong>) (timeRemaining / 3600),
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                         (<strong class="jxr_keyword">int</strong>) (timeRemaining / 60) % 60));
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>             }
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         }
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">for</strong> (PowerSource pSource : hal.getPowerSources()) {
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>             sb.append(String.format(<span class="jxr_string">"%n %s @ %.1f%%"</span>, pSource.getName(), pSource.getRemainingCapacity() * 100d));
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         }
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         System.out.println(sb.toString());
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         LOG.info(<span class="jxr_string">"Initializing System..."</span>);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <em class="jxr_comment">// software</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// software: operating system</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         System.out.println(os);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         LOG.info(<span class="jxr_string">"Initializing Hardware..."</span>);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <em class="jxr_comment">// hardware</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <em class="jxr_comment">// hardware: processors</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         System.out.println(hal.getProcessor());
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getPhysicalProcessorCount() + <span class="jxr_string">" physical CPU(s)"</span>);
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getLogicalProcessorCount() + <span class="jxr_string">" logical CPU(s)"</span>);
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         System.out.println(<span class="jxr_string">"Identifier: "</span> + hal.getProcessor().getIdentifier());
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         System.out.println(<span class="jxr_string">"Serial Num: "</span> + hal.getProcessor().getSystemSerialNumber());
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <em class="jxr_comment">// hardware: memory</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         LOG.info(<span class="jxr_string">"Checking Memory..."</span>);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         System.out.println(<span class="jxr_string">"Memory: "</span> + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + <span class="jxr_string">"/"</span>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         System.out.println(<span class="jxr_string">"Swap used: "</span> + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + <span class="jxr_string">"/"</span>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// uptime</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         LOG.info(<span class="jxr_string">"Checking Uptime..."</span>);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         System.out.println(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// CPU</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         LOG.info(<span class="jxr_string">"Checking CPU..."</span>);
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks) + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// Wait a second...</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         Util.sleep(1000);
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">long</strong>[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks) + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">long</strong> user = ticks[0] - prevTicks[0];
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">long</strong> nice = ticks[1] - prevTicks[1];
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">long</strong> sys = ticks[2] - prevTicks[2];
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">long</strong> idle = ticks[3] - prevTicks[3];
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> 
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         System.out.format(<span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n"</span>, 100d * user / totalCpu,
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (counting ticks)%n"</span>,
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (OS MXBean)%n"</span>, hal.getProcessor().getSystemCpuLoad() * 100);
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         System.out.println(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <em class="jxr_comment">// per core CPU</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">double</strong>[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; load.length; cpu++) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, load[cpu] * 100));
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         System.out.println(procCpu.toString());
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <em class="jxr_comment">// Processes</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         System.out.println(<span class="jxr_string">"Processes: "</span> + hal.getProcessor().getProcessCount() + <span class="jxr_string">", Threads: "</span>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 + hal.getProcessor().getThreadCount());
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <em class="jxr_comment">// Sort by highest CPU</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         List&lt;OSProcess&gt; procs = Arrays.asList(hal.getProcessor().getProcesses()).stream()
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 .sorted((o1, o2) -&gt; Double.compare((o2.getKernelTime() + o2.getUserTime()) / (<strong class="jxr_keyword">double</strong>) o2.getUpTime(),
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                         (o1.getKernelTime() + o1.getUserTime()) / (<strong class="jxr_keyword">double</strong>) o1.getUpTime()))
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         System.out.println(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             OSProcess p = procs.get(i);
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             System.out.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s%n"</span>, p.getProcessID(),
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                     p.getName());
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         }
 <a class="jxr_linenumber" name="L373" href="#L373">373</a> 
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <em class="jxr_comment">// hardware: file system</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         LOG.info(<span class="jxr_string">"Checking File System..."</span>);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         System.out.println(<span class="jxr_string">"File System:"</span>);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a> 
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         OSFileStore[] fsArray = hal.getFileStores();
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fsArray) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>             System.out.format(<span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%)%n"</span>, fs.getName(),
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// hardware: disks</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         LOG.info(<span class="jxr_string">"Checking Disks..."</span>);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         System.out.println(<span class="jxr_string">"Disks:"</span>);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         HWDiskStore[] dskArray = hal.getDiskStores();
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore dsk : dskArray) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             System.out.format(<span class="jxr_string">" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n"</span>, dsk.getName(),
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>                     dsk.getModel(), dsk.getSerial(),
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                     dsk.getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                     dsk.getReads() &gt; 0 ? FormatUtil.formatBytes(dsk.getReads()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>                     dsk.getWrites() &gt; 0 ? FormatUtil.formatBytes(dsk.getWrites()) : <span class="jxr_string">"?"</span>);
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         }
-<a class="jxr_linenumber" name="L399" href="#L399">399</a> 
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         <em class="jxr_comment">// hardware: network interfaces</em>
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         LOG.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         System.out.println(<span class="jxr_string">"Network interfaces:"</span>);
-<a class="jxr_linenumber" name="L403" href="#L403">403</a> 
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         NetworkIF[] netArray = hal.getNetworkIFs();
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : netArray) {
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>             System.out.format(<span class="jxr_string">" Name: %s (%s)%n"</span>, net.getName(), net.getDisplayName());
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>             System.out.format(<span class="jxr_string">"   MAC Address: %s %n"</span>, net.getMacaddr());
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>             System.out.format(<span class="jxr_string">"   MTU: %s, Speed: %s %n"</span>, net.getMTU(), FormatUtil.formatValue(net.getSpeed(), <span class="jxr_string">"bps"</span>));
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>             System.out.format(<span class="jxr_string">"   IPv4: %s %n"</span>, Arrays.toString(net.getIPv4addr()));
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>             System.out.format(<span class="jxr_string">"   IPv6: %s %n"</span>, Arrays.toString(net.getIPv6addr()));
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>             <strong class="jxr_keyword">boolean</strong> hasData = net.getBytesRecv() &gt; 0 || net.getBytesSent() &gt; 0 || net.getPacketsRecv() &gt; 0
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>                     || net.getPacketsSent() &gt; 0;
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>             System.out.format(<span class="jxr_string">"   Traffic: received %s/%s; transmitted %s/%s %n"</span>,
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                     hasData ? net.getPacketsRecv() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                     hasData ? net.getPacketsSent() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : <span class="jxr_string">"?"</span>);
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <em class="jxr_comment">// hardware: sensors</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         LOG.info(<span class="jxr_string">"Checking Sensors..."</span>);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         System.out.println(<span class="jxr_string">"Sensors:"</span>);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         System.out.format(<span class="jxr_string">" CPU Temperature: %.1f°C%n"</span>, hal.getSensors().getCpuTemperature());
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         System.out.println(<span class="jxr_string">" Fan Speeds:"</span> + Arrays.toString(hal.getSensors().getFanSpeeds()));
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         System.out.format(<span class="jxr_string">" CPU Voltage: %.1fV%n"</span>, hal.getSensors().getCpuVoltage());
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// hardware: power</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         LOG.info(<span class="jxr_string">"Checking Power sources..."</span>);
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power: "</span>);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         <strong class="jxr_keyword">if</strong> (hal.getPowerSources().length == 0) {
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>             <strong class="jxr_keyword">double</strong> timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             <strong class="jxr_keyword">if</strong> (timeRemaining &lt; -1d) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 sb.append(<span class="jxr_string">"Charging"</span>);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeRemaining &lt; 0d) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 sb.append(<span class="jxr_string">"Calculating time remaining"</span>);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 sb.append(String.format(<span class="jxr_string">"%d:%02d remaining"</span>, (<strong class="jxr_keyword">int</strong>) (timeRemaining / 3600),
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                         (<strong class="jxr_keyword">int</strong>) (timeRemaining / 60) % 60));
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>             }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         }
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">for</strong> (PowerSource pSource : hal.getPowerSources()) {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>             sb.append(String.format(<span class="jxr_string">"%n %s @ %.1f%%"</span>, pSource.getName(), pSource.getRemainingCapacity() * 100d));
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         }
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         System.out.println(sb.toString());
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <em class="jxr_comment">// hardware: file system</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         LOG.info(<span class="jxr_string">"Checking File System..."</span>);
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         System.out.println(<span class="jxr_string">"File System:"</span>);
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         FileSystem filesystem = hal.getFileSystem();
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         System.out.format(<span class="jxr_string">" File Descriptors: %d/%d%n"</span>, filesystem.getOpenFileDescriptors(),
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 filesystem.getMaxFileDescriptors());
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         OSFileStore[] fsArray = hal.getFileStores();
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fsArray) {
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>             System.out.format(<span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%) mounted at %s%n"</span>, fs.getName(),
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>                     fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>                     fs.getMount());
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>         }
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> 
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// hardware: displays</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         LOG.info(<span class="jxr_string">"Checking Displays..."</span>);
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         System.out.println(<span class="jxr_string">"Displays:"</span>);
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <strong class="jxr_keyword">int</strong> i = 0;
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">for</strong> (Display display : hal.getDisplays()) {
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>             System.out.println(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             System.out.println(display.toString());
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>             i++;
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         }
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         LOG.info(<span class="jxr_string">"Printing JSON:"</span>);
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <em class="jxr_comment">// Compact JSON</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <em class="jxr_comment">// System.out.println(si.toJSON().toString());</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// hardware: disks</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         LOG.info(<span class="jxr_string">"Checking Disks..."</span>);
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         System.out.println(<span class="jxr_string">"Disks:"</span>);
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         HWDiskStore[] dskArray = hal.getDiskStores();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore dsk : dskArray) {
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             System.out.format(<span class="jxr_string">" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n"</span>, dsk.getName(),
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>                     dsk.getModel(), dsk.getSerial(),
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>                     dsk.getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     dsk.getReads() &gt; 0 ? FormatUtil.formatBytes(dsk.getReads()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>                     dsk.getWrites() &gt; 0 ? FormatUtil.formatBytes(dsk.getWrites()) : <span class="jxr_string">"?"</span>);
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         }
 <a class="jxr_linenumber" name="L432" href="#L432">432</a> 
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <em class="jxr_comment">// Pretty JSON</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     }
-<a class="jxr_linenumber" name="L436" href="#L436">436</a> }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <em class="jxr_comment">// hardware: network interfaces</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         LOG.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         System.out.println(<span class="jxr_string">"Network interfaces:"</span>);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         NetworkIF[] netArray = hal.getNetworkIFs();
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : netArray) {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             System.out.format(<span class="jxr_string">" Name: %s (%s)%n"</span>, net.getName(), net.getDisplayName());
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             System.out.format(<span class="jxr_string">"   MAC Address: %s %n"</span>, net.getMacaddr());
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             System.out.format(<span class="jxr_string">"   MTU: %s, Speed: %s %n"</span>, net.getMTU(), FormatUtil.formatValue(net.getSpeed(), <span class="jxr_string">"bps"</span>));
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             System.out.format(<span class="jxr_string">"   IPv4: %s %n"</span>, Arrays.toString(net.getIPv4addr()));
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>             System.out.format(<span class="jxr_string">"   IPv6: %s %n"</span>, Arrays.toString(net.getIPv6addr()));
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             <strong class="jxr_keyword">boolean</strong> hasData = net.getBytesRecv() &gt; 0 || net.getBytesSent() &gt; 0 || net.getPacketsRecv() &gt; 0
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     || net.getPacketsSent() &gt; 0;
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>             System.out.format(<span class="jxr_string">"   Traffic: received %s/%s; transmitted %s/%s %n"</span>,
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>                     hasData ? net.getPacketsRecv() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>                     hasData ? net.getPacketsSent() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : <span class="jxr_string">"?"</span>);
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         <em class="jxr_comment">// hardware: displays</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         LOG.info(<span class="jxr_string">"Checking Displays..."</span>);
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         System.out.println(<span class="jxr_string">"Displays:"</span>);
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">for</strong> (Display display : hal.getDisplays()) {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             System.out.println(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>             System.out.println(display.toString());
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             i++;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         }
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <em class="jxr_comment">// hardware: USB devices</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         LOG.info(<span class="jxr_string">"Checking USB Devices..."</span>);
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         System.out.println(<span class="jxr_string">"USB Devices:"</span>);
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : hal.getUsbDevices()) {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             System.out.println(usbDevice.toString());
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         }
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         LOG.info(<span class="jxr_string">"Printing JSON:"</span>);
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <em class="jxr_comment">// Compact JSON</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         System.out.println(si.toJSON().toString());
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <em class="jxr_comment">// Pretty JSON</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <em class="jxr_comment">// System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));</em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     }
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

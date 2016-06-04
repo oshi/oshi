@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinuxUsbDevice.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxUsbDevice.java</span></div><h1>LinuxUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import oshi.hardware.UsbDevice;
+import oshi.hardware.common.AbstractUsbDevice;
+import oshi.util.FileUtil;
+
+public class LinuxUsbDevice extends AbstractUsbDevice {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final String USB_ROOT = &quot;/sys/bus/usb/devices/&quot;;
+
+    public LinuxUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
+<span class="nc" id="L38">        super(name, vendor, serialNumber, connectedDevices);</span>
+<span class="nc" id="L39">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public static UsbDevice[] getUsbDevices() {
+        // Structure of /sys/bus/usb/devices/
+        // 1-0:1.0 &lt;-- Bus interface. Ignore all :x.x
+        // 1-1 &lt;-- Bus 1, Port 1
+        // 1-1.3 &lt;-- Bus 1, Port 1, Port 3 of that
+        // 1-1.3.1 &lt;-- Bus 1, port 1, Port 3 of that, Port 1 of that
+        // 1-1.3.1:1.0 &lt;-- Device interface, ignore
+        // 1-1.3:1.0
+        // 1-1:1.0
+        // usb1 &lt;-- USB Controller, BUS #. Iterate over these at highest level
+        // Each of the folders usb# and #-#.# will have /product, /manufacturer,
+        // /serial. Do not read from interfaces.
+
+        // Get buses, usb#
+<span class="nc" id="L58">        File usbdir = new File(USB_ROOT);</span>
+<span class="nc" id="L59">        final Pattern p = Pattern.compile(&quot;usb\\d+&quot;);</span>
+<span class="nc" id="L60">        File[] buses = usbdir.listFiles(new FileFilter() {</span>
+            @Override
+            public boolean accept(File file) {
+<span class="nc" id="L63">                return p.matcher(file.getName()).matches();</span>
+            }
+        });
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (buses == null) {</span>
+<span class="nc" id="L67">            return new UsbDevice[0];</span>
+        }
+
+<span class="nc" id="L70">        List&lt;UsbDevice&gt; usbDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (File bus : buses) {</span>
+            // bus.toString() is path to info files and any nested devices
+<span class="nc" id="L73">            usbDevices.add(getUsbDevice(bus.toString() + &quot;/&quot;, &quot;&quot;));</span>
+        }
+<span class="nc" id="L75">        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);</span>
+    }
+
+    /**
+     * Get a USB controller/hub or device at a given path
+     * 
+     * @param path
+     *            Path to the device
+     * @return The corresponding USB device
+     */
+    private static UsbDevice getUsbDevice(String path, String parent) {
+<span class="nc" id="L86">        String name = FileUtil.getStringFromFile(path + parent + &quot;/product&quot;);</span>
+<span class="nc" id="L87">        String vendor = FileUtil.getStringFromFile(path + parent + &quot;/manufacturer&quot;);</span>
+<span class="nc" id="L88">        String serialNumber = FileUtil.getStringFromFile(path + parent + &quot;/serial&quot;);</span>
+
+<span class="nc" id="L90">        File usbdir = new File(path);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        final Pattern p = Pattern.compile(parent.length() &gt; 0 ? parent + &quot;\\.\\d+&quot; : &quot;\\d+-\\d+&quot;);</span>
+<span class="nc" id="L92">        File[] devices = usbdir.listFiles(new FileFilter() {</span>
+            @Override
+            public boolean accept(File file) {
+<span class="nc" id="L95">                return p.matcher(file.getName()).matches();</span>
+            }
+        });
+
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        return new LinuxUsbDevice(name, vendor, serialNumber,</span>
+<span class="nc" id="L100">                devices == null ? new UsbDevice[0] : getUsbDevices(path, devices));</span>
+    }
+
+    /**
+     * Get all USB devices at the specified paths
+     * 
+     * @param devices
+     *            an array of File objects with paths to devices
+     * @return an array of corresponding USB devices
+     */
+    private static UsbDevice[] getUsbDevices(String path, File[] devices) {
+<span class="nc" id="L111">        List&lt;UsbDevice&gt; usbDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (File device : devices) {</span>
+            // device.toString() is path to info files and any nested devices
+<span class="nc" id="L114">            usbDevices.add(getUsbDevice(path, device.toString().replace(path, &quot;&quot;)));</span>
+        }
+<span class="nc" id="L116">        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -31,19 +32,22 @@ import oshi.json.NullAwareJsonObjectBuilder;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="fc" id="L34">public abstract class AbstractDisks implements Disks {</span>
-<span class="fc" id="L35">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L35">public abstract class AbstractDisks implements Disks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L39">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     @Override
     public abstract HWDiskStore[] getDisks();
 
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L42">        JsonArrayBuilder diakArray = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (HWDiskStore store : getDisks()) {</span>
-<span class="nc" id="L44">            diakArray.add(store.toJSON());</span>
+<span class="nc" id="L46">        JsonArrayBuilder diakArray = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (HWDiskStore store : getDisks()) {</span>
+<span class="nc" id="L48">            diakArray.add(store.toJSON());</span>
         }
-<span class="nc" id="L46">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;disks&quot;, diakArray).build();</span>
+<span class="nc" id="L50">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;disks&quot;, diakArray).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

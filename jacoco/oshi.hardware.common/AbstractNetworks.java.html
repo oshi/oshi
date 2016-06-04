@@ -11,6 +11,7 @@
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
@@ -41,32 +42,34 @@ import oshi.json.NullAwareJsonObjectBuilder;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="fc" id="L44">public abstract class AbstractNetworks implements Networks {</span>
+<span class="fc" id="L45">public abstract class AbstractNetworks implements Networks {</span>
 
-<span class="fc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L48">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
+
+<span class="fc" id="L51">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public NetworkIF[] getNetworks() {
-<span class="fc" id="L55">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L58">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
         try {
-<span class="fc" id="L57">            Enumeration&lt;NetworkInterface&gt; interfaces = NetworkInterface.getNetworkInterfaces();</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">            for (NetworkInterface netint : Collections.list(interfaces)) {</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">                if (!netint.isLoopback()) {</span>
-<span class="fc" id="L60">                    NetworkIF netIF = new NetworkIF();</span>
-<span class="fc" id="L61">                    netIF.setNetworkInterface(netint);</span>
-<span class="fc" id="L62">                    this.updateNetworkStats(netIF);</span>
-<span class="fc" id="L63">                    result.add(netIF);</span>
+<span class="fc" id="L60">            Enumeration&lt;NetworkInterface&gt; interfaces = NetworkInterface.getNetworkInterfaces();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            for (NetworkInterface netint : Collections.list(interfaces)) {</span>
+<span class="fc bfc" id="L62" title="All 4 branches covered.">                if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
+<span class="fc" id="L63">                    NetworkIF netIF = new NetworkIF();</span>
+<span class="fc" id="L64">                    netIF.setNetworkInterface(netint);</span>
+<span class="fc" id="L65">                    this.updateNetworkStats(netIF);</span>
+<span class="fc" id="L66">                    result.add(netIF);</span>
                 }
-<span class="fc" id="L65">            }</span>
-<span class="nc" id="L66">        } catch (SocketException ex) {</span>
-<span class="nc" id="L67">            LOG.error(&quot;Socket exception when retrieving network interfaces: &quot; + ex.getMessage());</span>
-<span class="fc" id="L68">        }</span>
-<span class="fc" id="L69">        return result.toArray(new NetworkIF[result.size()]);</span>
+<span class="fc" id="L68">            }</span>
+<span class="nc" id="L69">        } catch (SocketException ex) {</span>
+<span class="nc" id="L70">            LOG.error(&quot;Socket exception when retrieving network interfaces: &quot; + ex.getMessage());</span>
+<span class="fc" id="L71">        }</span>
+<span class="fc" id="L72">        return result.toArray(new NetworkIF[result.size()]);</span>
     }
 
     /**
@@ -74,11 +77,11 @@ import oshi.json.NullAwareJsonObjectBuilder;
      */
     @Override
     public JsonObject toJSON() {
-<span class="nc" id="L77">        JsonArrayBuilder netArray = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (NetworkIF store : getNetworks()) {</span>
-<span class="nc" id="L79">            netArray.add(store.toJSON());</span>
+<span class="nc" id="L80">        JsonArrayBuilder netArray = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (NetworkIF store : getNetworks()) {</span>
+<span class="nc" id="L82">            netArray.add(store.toJSON());</span>
         }
-<span class="nc" id="L81">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;networks&quot;, netArray).build();</span>
+<span class="nc" id="L84">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;networks&quot;, netArray).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
