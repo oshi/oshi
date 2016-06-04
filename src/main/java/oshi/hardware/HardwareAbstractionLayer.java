@@ -105,4 +105,13 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      * @return A Sensors object
      */
     Sensors getSensors();
+
+    /**
+     * Instantiates an array of {@link UsbDevice} objects, representing devices
+     * connected via a usb port (including internal devices)
+     * 
+     * @return An array of UsbDevice objects or an empty array if none are
+     *         present
+     */
+    UsbDevice[] getUsbDevices();
 }

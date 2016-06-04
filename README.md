@@ -1,16 +1,16 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
-[<img align=right alt="Dependency Status" src="https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat" />](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
-[<img align=right alt="Build Status" src="https://travis-ci.org/dblock/oshi.svg" />](https://travis-ci.org/dblock/oshi)
-[<img align=right alt="Eclipse Public License" src="http://img.shields.io/badge/license-Eclipse-blue.svg" />](https://www.eclipse.org/legal/epl-v10.html)
-[<img align=right alt="Maven central" src="https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg" />](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+[<img align="right" alt="Dependency Status" src="https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat" />](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+[<img align="right" alt="Build Status" src="https://travis-ci.org/dblock/oshi.svg" />](https://travis-ci.org/dblock/oshi)
+[<img align="right" alt="Eclipse Public License" src="http://img.shields.io/badge/license-Eclipse-blue.svg" />](https://www.eclipse.org/legal/epl-v10.html)
+[<img align="right" alt="Maven central" src="https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg" />](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
 
 OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
 
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download OSHI 2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.4&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download OSHI 2.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.5-SNAPSHOT&e=jar)
+* [Download OSHI 2.5](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.5&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download OSHI 2.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.6-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
@@ -40,6 +40,7 @@ Currently supported features
 * Disk drives (model, serial, size)
 * File stores (usable and total space)
 * Connected displays (with EDID info)
+* USB Devices
 * Sensors (temperature, fan speeds, voltage)
 
 Output
@@ -59,15 +60,6 @@ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
 ```
-Memory usage and sensor readings (some hardware) are available.
-```
-Memory: 3.3 GiB/15.7 GiB
-Swap used: 278 MiB/2.7 GiB
-Sensors:
- CPU Temperature: 69.8°C
- Fan Speeds:[4685, 4687]
- CPU Voltage: 3.9V
-```
 Process information is available
 ```
 Processes: 401, Threads: 1159
@@ -76,6 +68,7 @@ Processes: 401, Threads: 1159
  51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
  39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
  85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
+ 35301   5.4  0.5   1.7 GiB  89.8 MiB Microsoft Excel
  ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.
@@ -87,6 +80,13 @@ CPU load: 8.8% (counting ticks)
 CPU load: 9.0% (OS MXBean)
 CPU load averages: 2.69 2.47 2.38
 CPU load per processor: 23.6% 1.3% 18.2% 0.7% 12.9% 0.7% 12.1% 1.3%
+```
+Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)).
+```
+Sensors:
+ CPU Temperature: 69.8°C
+ Fan Speeds:[4685, 4687]
+ CPU Voltage: 3.9V
 ```
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
 ```
@@ -106,6 +106,30 @@ Displays:
   Monitor Name: SyncMaster
   Serial Number: HMCP431880
 ```
+Attached USB devices can be listed:
+```
+USB Devices:
+ USB20Bus
+ |-- FaceTime HD Camera (Built-in) (Apple Inc.) [s/n: DJHB1V077FDH5HL3]
+ |-- hub_device
+     |-- composite_device [s/n: T1204080000569]
+     |-- Apple Internal Keyboard / Trackpad (Apple Inc.)
+     |-- BRCM2070 Hub (Apple Inc.)
+         |-- Bluetooth USB Host Controller (Apple Inc.)
+ USB20Bus
+ |-- hub_device
+     |-- USB Receiver (Logitech)
+     |-- IR Receiver (Apple Computer, Inc.)
+ USB20Bus
+ |-- hub_device
+     |-- USB2.0 Hub
+         |-- Fitbit Base Station (Fitbit Inc.)
+         |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
+     |-- FaceTime HD Camera (Display) (Apple Inc.) [s/n: CCGCAN000TDJ7DFX]
+     |-- Apple Thunderbolt Display (Apple Inc.) [s/n: 162C0C25]
+     |-- Display Audio (Apple Inc.) [s/n: 162C0C25]
+```
+
 
 Where are we?
 -------------

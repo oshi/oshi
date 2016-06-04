@@ -65,6 +65,9 @@ public class CfUtil {
     public static String cfPointerToString(Pointer p) {
         long length = CoreFoundation.INSTANCE.CFStringGetLength(p);
         long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);
+        if (maxSize == 0) {
+            maxSize = 1;
+        }
         Pointer buf = new Memory(maxSize);
         CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);
         return buf.getString(0);

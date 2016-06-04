@@ -1,12 +1,18 @@
-2.5 (in-progress)
+2.6 (in progress)
 ================
-* Updated to Java 8
+* Your contribution here.
+
+2.5 (6/4/2016)
+================
+* Upgraded to Java 8 base support
 * [#163](https://github.com/dblock/oshi/pull/163): Update getFileStores() method to include mount point [@henryx](https://github.com/henryx).
 * [#165](https://github.com/dblock/oshi/pull/165): Added system-wide file descriptor counts - [@cholland1989](https://github.com/cholland1989).
 * [#168](https://github.com/dblock/oshi/pull/168): Switched WMI queries to use COM - [@dbwiddis](https://github.com/dbwiddis).
 * [#171](https://github.com/dblock/oshi/pull/171): Added detailed process statistics - [@dbwiddis](https://github.com/dbwiddis).
+* [#176](https://github.com/dblock/oshi/pull/176): Eliminate Swing threads in WindowsFileSystem - [@henryx](https://github.com/henryx).
 * [#180](https://github.com/dblock/oshi/pull/180): Made all system information classes serializable - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#181](https://github.com/dblock/oshi/pull/181): Added USB Device listing - [@dbwiddis](https://github.com/dbwiddis).
+* [#184](https://github.com/dblock/oshi/pull/184): Improve Linux OS version parsing - [@dbwiddis](https://github.com/dbwiddis).
 
 2.4 (5/02/2016)
 ================
@@ -75,8 +81,7 @@
 
 1.3 (6/27/2015)
 ================
-* See site page for individual commits going forwards as only major changes will be mentioned manually in change log.
-* Upgraded to java 7 base support
+* Upgraded to Java 7 base support
 * Upgraded JNA to 4.1.0
 * Brought over lessons learned from [waffle](https://github.com/dblock/waffle) for building project from source.
 * [#50](https://github.com/dblock/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).

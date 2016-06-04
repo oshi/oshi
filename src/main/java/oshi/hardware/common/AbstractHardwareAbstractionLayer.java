@@ -31,6 +31,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
@@ -99,6 +100,12 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      * {@inheritDoc}
      */
     @Override
+    public abstract UsbDevice[] getUsbDevices();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON() {
         JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
         for (PowerSource powerSource : getPowerSources()) {
@@ -120,11 +127,15 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         for (Display display : getDisplays()) {
             displayArrayBuilder.add(display.toJSON());
         }
+        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
+        for (UsbDevice usbDevice : getUsbDevices()) {
+            usbDeviceArrayBuilder.add(usbDevice.toJSON());
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
                 .add("powerSources", powerSourceArrayBuilder.build()).add("fileSystem", getFileSystem().toJSON())
                 .add("fileStores", fileStoreArrayBuilder.build()).add("disks", diskStoreArrayBuilder.build())
                 .add("networks", networkIFArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).build();
+                .add("sensors", getSensors().toJSON()).add("usbDevices", usbDeviceArrayBuilder.build()).build();
     }
 }

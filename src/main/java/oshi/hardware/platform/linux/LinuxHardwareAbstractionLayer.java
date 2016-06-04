@@ -25,6 +25,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
@@ -113,5 +114,13 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new LinuxNetworks().getNetworks();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UsbDevice[] getUsbDevices() {
+        return LinuxUsbDevice.getUsbDevices();
     }
 }

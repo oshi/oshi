@@ -27,9 +27,8 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -45,6 +44,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
@@ -356,23 +356,11 @@ public class SystemInfoTest {
         // Processes
         System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
                 + hal.getProcessor().getThreadCount());
-        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses());
         // Sort by highest CPU
-        Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
-            @Override
-            public int compare(OSProcess o1, OSProcess o2) {
-                double diff = (o1.getKernelTime() + o1.getUserTime()) / (double) o1.getUpTime()
-                        - (o2.getKernelTime() + o2.getUserTime()) / (double) o2.getUpTime();
-                if (diff < 0) {
-                    return 1;
-                } else if (diff > 0) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        };
-        Collections.sort(procs, cpuDescOrder);
+        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses()).stream()
+                .sorted((o1, o2) -> Double.compare((o2.getKernelTime() + o2.getUserTime()) / (double) o2.getUpTime(),
+                        (o1.getKernelTime() + o1.getUserTime()) / (double) o1.getUpTime()))
+                .collect(Collectors.toList());
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
@@ -423,9 +411,10 @@ public class SystemInfoTest {
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%)%n", fs.getName(),
+            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) mounted at %s%n", fs.getName(),
                     fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
-                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total);
+                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+                    fs.getMount());
         }
 
         // hardware: disks
@@ -470,6 +459,14 @@ public class SystemInfoTest {
             System.out.println(display.toString());
             i++;
         }
+
+        // hardware: USB devices
+        LOG.info("Checking USB Devices...");
+        System.out.println("USB Devices:");
+        for (UsbDevice usbDevice : hal.getUsbDevices()) {
+            System.out.println(usbDevice.toString());
+        }
+
         LOG.info("Printing JSON:");
         // Compact JSON
         System.out.println(si.toJSON().toString());

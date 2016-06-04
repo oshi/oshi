@@ -104,7 +104,7 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
     @Override
     public String toString() {
         if (this.versionStr == null) {
-            StringBuilder sb = new StringBuilder(getVersion());
+            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : "Unknown");
             if (getCodeName().length() > 0) {
                 sb.append(" (").append(getCodeName()).append(")");
             }
