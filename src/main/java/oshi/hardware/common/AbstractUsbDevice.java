@@ -100,6 +100,15 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * {@inheritDoc}
      */
     @Override
+    public int compareTo(UsbDevice usb) {
+        // Naturally sort by device name
+        return this.getName().compareTo(usb.getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
         return indentUsb(this, 1);
     }

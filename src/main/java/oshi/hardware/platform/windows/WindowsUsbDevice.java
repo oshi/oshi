@@ -19,6 +19,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         for (String pnpDeviceID : pnpDeviceIDs) {
             usbDevices.add(getDeviceAndChildren(pnpDeviceID));
         }
+        Collections.sort(usbDevices);
         return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceID, ""), vendorMap.getOrDefault(hubDeviceID, ""),
                 serialMap.getOrDefault(hubDeviceID, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }

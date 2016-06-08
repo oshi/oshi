@@ -23,8 +23,10 @@ import java.util.List;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -186,5 +188,13 @@ public interface IOKit extends Library {
 
     CFStringRef CFCopyDescription(CFTypeRef type);
 
+    int IORegistryEntryGetName(int entry, Pointer name);
+
+    int IORegistryEntryGetRegistryEntryID(int entry, LongByReference id);
+
+    int IORegistryEntryGetParentEntry(int entry, String plane, IntByReference parent);
+
     int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
+
+    int IORegistryEntryGetChildIterator(int entry, String plane, IntByReference iter);
 }
