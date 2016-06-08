@@ -23,15 +23,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.SetupApi;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.NativeLongByReference;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.ExecutingCommand;
+import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
 
     public WindowsUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
         super(name, vendor, serialNumber, connectedDevices);
@@ -68,26 +81,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             if (usbMap.get("Manufacturer").get(i).length() > 0) {
                 vendorMap.put(pnpDeviceID, usbMap.get("Manufacturer").get(i));
             }
-            String serialNumber = "";
-            // PNPDeviceID: USB\VID_203A&PID_FFF9&MI_00\6&18C4CF61&0&0000
-            // Split by \ to get bus type (USB), VendorID/ProductID, other info
-            // As a temporary hack for a serial number, use last \-split field
-            // using 2nd &-split field if 4 fields
-            String[] idSplit = pnpDeviceID.split("\\\\");
-            if (idSplit.length > 2) {
-                idSplit = idSplit[2].split("&");
-                if (idSplit.length > 3) {
-                    serialNumber = idSplit[1];
-                }
-            }
-            if (serialNumber.length() > 0) {
-                serialMap.put(pnpDeviceID, serialNumber);
-            }
         }
 
-        // Disk drives or other physical media have a better way of getting
-        // serial number. Grab these and overwrite the temporary serial number
-        // assigned above if necessary
+        // Get serial # for disk drives or other physical media
         usbMap = WmiUtil.selectStringsFrom(null, "Win32_DiskDrive", "PNPDeviceID,SerialNumber", null);
         for (int i = 0; i < usbMap.get("PNPDeviceID").size(); i++) {
             serialMap.put(usbMap.get("PNPDeviceID").get(i),
@@ -99,77 +95,95 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                     ParseUtil.hexStringToString(usbMap.get("PNPDeviceID").get(i)));
         }
 
-        // Some USB Devices are hubs to which other devices connect. Knowing
-        // which ones are hubs will help later when walking the device tree
-        usbMap = WmiUtil.selectStringsFrom(null, "Win32_USBHub", "PNPDeviceID", null);
-        List<String> usbHubs = usbMap.get("PNPDeviceID");
-
-        // Now build the hub map linking USB devices with their parent hub.
-        // At the top of the device tree are USB Controllers. All USB hubs and
-        // devices descend from these. Because this query returns pointers it's
-        // just not practical to try to query via COM so we use a command line
-        // in order to get USB devices in a text format
-        ArrayList<String> links = ExecutingCommand
-                .runNative("wmic path Win32_USBControllerDevice GET Antecedent,Dependent");
-        // This iteration actually walks the device tree in order so while the
-        // antecedent of all USB devices is its controller, we know that if a
-        // device is not a hub that the last hub listed is its parent
-        // Devices with PNPDeviceID containing "ROOTHUB" are special and will be
-        // parents of the next item(s)
-        // This won't id chained hubs (other than the root hub) but is a quick
-        // hack rather than walking the entire device tree using the SetupDI API
-        // and good enough since exactly how a USB device is connected is
-        // theoretically transparent to the user
-        hubMap.clear();
-        String currentHub = null;
-        String rootHub = null;
-        for (String s : links) {
-            String[] split = s.split("\\s+");
-            if (split.length < 2) {
-                continue;
-            }
-            String antecedent = getId(split[0]);
-            String dependent = getId(split[1]);
-            // Ensure initial defaults are sane if something goes wrong
-            if (currentHub == null || rootHub == null) {
-                currentHub = antecedent;
-                rootHub = antecedent;
-            }
-            String parent;
-            if (dependent.contains("ROOT_HUB")) {
-                // This is a root hub, assign controller as parent;
-                parent = antecedent;
-                rootHub = dependent;
-                currentHub = dependent;
-            } else if (usbHubs.contains(dependent)) {
-                // This is a hub, assign parent as root hub
-                if (rootHub == null) {
-                    rootHub = antecedent;
-                }
-                parent = rootHub;
-                currentHub = dependent;
-            } else {
-                // This is not a hub, assign parent as previous hub
-                if (currentHub == null) {
-                    currentHub = antecedent;
-                }
-                parent = currentHub;
-            }
-            // Finally add the parent/child linkage to the map
-            if (!hubMap.containsKey(parent)) {
-                hubMap.put(parent, new ArrayList<String>());
-            }
-            hubMap.get(parent).add(dependent);
-        }
-
-        // Finally we simply get the device IDs of the USB Controllers. These
-        // will recurse downward to devices as needed
+        // Build the device tree. Start with the USB Controllers
+        // and recurse downward to devices as needed
         usbMap = WmiUtil.selectStringsFrom(null, "Win32_USBController", "PNPDeviceID", null);
         List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
-        for (String controllerDeviceID : usbMap.get("PNPDeviceID")) {
-            controllerDevices.add(getDeviceAndChildren(controllerDeviceID));
+        for (String controllerDeviceId : usbMap.get("PNPDeviceID")) {
+            putChildrenInDeviceTree(controllerDeviceId, 0);
+            controllerDevices.add(getDeviceAndChildren(controllerDeviceId));
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
+    }
+
+    /**
+     * Navigates the Device Tree to place all children PNPDeviceIDs into the map
+     * for the specified deviceID. Recursively adds children's children, etc.
+     * 
+     * @param deviceId
+     *            The device to add respective children to the map
+     * @param devInst
+     *            The device instance (devnode handle), if known. If set to 0,
+     *            the code will search for a match.
+     */
+    private static void putChildrenInDeviceTree(String deviceId, int devInst) {
+        // If no devInst provided, find it by matching deviceId
+        if (devInst == 0) {
+            // Get a handle to the device with this deviceId
+            // Start with all classes
+            HANDLE hinfoSet = SetupApi.INSTANCE.SetupDiGetClassDevs(null, null, null, SetupApi.DIGCF_ALLCLASSES);
+            if (hinfoSet == WinNT.INVALID_HANDLE_VALUE) {
+                LOG.error("Invalid handle value for {}. Error code: {}", deviceId, Native.getLastError());
+                return;
+            }
+            // Iterate to find matching parent
+            SP_DEVINFO_DATA dinfo = new SP_DEVINFO_DATA();
+            dinfo.cbSize = dinfo.size();
+            int i = 0;
+            while (SetupApi.INSTANCE.SetupDiEnumDeviceInfo(hinfoSet, i++, dinfo)) {
+                if (deviceId.equals(getDeviceId(dinfo.DevInst))) {
+                    devInst = dinfo.DevInst;
+                    break;
+                }
+            }
+        }
+        if (devInst == 0) {
+            LOG.error("Unable to find a devnode handle for {}.", deviceId);
+            return;
+        }
+        // Now iterate the children. Call CM_Get_Child to get first child
+        IntByReference child = new IntByReference();
+        if (0 == Cfgmgr32.INSTANCE.CM_Get_Child(child, devInst, 0)) {
+            // Add first child to a list
+            List<String> childList = new ArrayList<>();
+            String childId = getDeviceId(child.getValue());
+            childList.add(childId);
+            hubMap.put(deviceId, childList);
+            putChildrenInDeviceTree(childId, child.getValue());
+            // Find any other children
+            IntByReference sibling = new IntByReference();
+            while (0 == Cfgmgr32.INSTANCE.CM_Get_Sibling(sibling, child.getValue(), 0)) {
+                // Add to the list
+                String siblingId = getDeviceId(sibling.getValue());
+                hubMap.get(deviceId).add(siblingId);
+                putChildrenInDeviceTree(siblingId, sibling.getValue());
+                // Make this sibling the new child to find other siblings
+                child = sibling;
+            }
+        }
+    }
+
+    /**
+     * Gets the device id for a devnode
+     * 
+     * @param devInst
+     *            the handle to the devnode
+     * @return The PNPDeviceID
+     */
+    private static String getDeviceId(int devInst) {
+        NativeLongByReference ulLen = new NativeLongByReference();
+        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(ulLen, devInst, 0)) {
+            LOG.error("Couldn't get device string for device instance {}", devInst);
+            return "";
+        }
+        // Add 1 for null terminator
+        int size = ulLen.getValue().intValue() + 1;
+        char[] buffer = new char[size];
+        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, size, 0)) {
+            LOG.error("Couldn't get device string for device instance {} with size {}", devInst, size);
+            return "";
+        }
+        return new String(buffer).trim();
     }
 
     /**
@@ -188,17 +202,5 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         }
         return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceID, ""), vendorMap.getOrDefault(hubDeviceID, ""),
                 serialMap.getOrDefault(hubDeviceID, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
-    }
-
-    /**
-     * Parses DeviceID from CIM_USBController text
-     * 
-     * @param string
-     *            Text of form (stuff)DeviceID="(ID)"
-     * @return The parsed device ID
-     */
-    private static String getId(String s) {
-        String[] split = s.split("\"");
-        return split.length < 2 ? "" : split[1];
     }
 }
