@@ -1,5 +1,6 @@
 2.6 (in progress)
 ================
+* [#186](https://github.com/dblock/oshi/pull/186): Use device tree to properly nest Windows USB - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.5 (6/4/2016)
