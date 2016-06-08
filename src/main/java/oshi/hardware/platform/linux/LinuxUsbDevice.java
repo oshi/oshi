@@ -18,101 +18,122 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.FileUtil;
+import oshi.jna.platform.linux.Udev;
+import oshi.jna.platform.linux.Udev.UdevDevice;
+import oshi.jna.platform.linux.Udev.UdevEnumerate;
+import oshi.jna.platform.linux.Udev.UdevListEntry;
 
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String USB_ROOT = "/sys/bus/usb/devices/";
-
     public LinuxUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
         super(name, vendor, serialNumber, connectedDevices);
     }
+
+    /*
+     * Maps to store information using device node path as the key
+     */
+    private static Map<String, String> nameMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<>();
+    private static Map<String, String> serialMap = new HashMap<>();
+    private static Map<String, List<String>> hubMap = new HashMap<>();
 
     /**
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices() {
-        // Structure of /sys/bus/usb/devices/
-        // 1-0:1.0 <-- Bus interface. Ignore all :x.x
-        // 1-1 <-- Bus 1, Port 1
-        // 1-1.3 <-- Bus 1, Port 1, Port 3 of that
-        // 1-1.3.1 <-- Bus 1, port 1, Port 3 of that, Port 1 of that
-        // 1-1.3.1:1.0 <-- Device interface, ignore
-        // 1-1.3:1.0
-        // 1-1:1.0
-        // usb1 <-- USB Controller, BUS #. Iterate over these at highest level
-        // Each of the folders usb# and #-#.# will have /product, /manufacturer,
-        // /serial. Do not read from interfaces.
 
-        // Get buses, usb#
-        File usbdir = new File(USB_ROOT);
-        final Pattern p = Pattern.compile("usb\\d+");
-        File[] buses = usbdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
+        // Enumerate all usb devices and build information maps
+        Udev.UdevHandle udev = Udev.INSTANCE.udev_new();
+        // Create a list of the devices in the 'usb' subsystem.
+        UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);
+        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "usb");
+        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
+        UdevListEntry devices = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
+
+        // Build a list of devices with no parent; these will be the roots
+        List<String> usbControllers = new ArrayList<>();
+        // Empty out maps
+        nameMap.clear();
+        vendorMap.clear();
+        serialMap.clear();
+        hubMap.clear();
+
+        // For each item enumerated, store information in the maps
+        for (UdevListEntry dev_list_entry = devices; dev_list_entry != null; dev_list_entry = Udev.INSTANCE
+                .udev_list_entry_get_next(dev_list_entry)) {
+
+            // Get the filename of the /sys entry for the device and create a
+            // udev_device object (dev) representing it
+            String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);
+            UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);
+            // Ignore interfaces
+            if (!Udev.INSTANCE.udev_device_get_devtype(dev).equals("usb_device")) {
+                continue;
             }
-        });
-        if (buses == null) {
-            return new UsbDevice[0];
-        }
 
-        List<UsbDevice> usbDevices = new ArrayList<UsbDevice>();
-        for (File bus : buses) {
-            // bus.toString() is path to info files and any nested devices
-            usbDevices.add(getUsbDevice(bus.toString() + "/", ""));
+            // Use the path as the key for the maps
+            String value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "product");
+            if (value != null) {
+                nameMap.put(path, value);
+            }
+            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "manufacturer");
+            if (value != null) {
+                vendorMap.put(path, value);
+            }
+            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "serial");
+            if (value != null) {
+                serialMap.put(path, value);
+            }
+            UdevDevice parent = Udev.INSTANCE.udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
+            if (parent == null) {
+                // This is a controller with no parent, add to list
+                usbControllers.add(path);
+            } else {
+                // Add child path (path variable) to parent's path
+                String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
+                if (!hubMap.containsKey(parentPath)) {
+                    hubMap.put(parentPath, new ArrayList<>());
+                }
+                hubMap.get(parentPath).add(path);
+            }
+            Udev.INSTANCE.udev_device_unref(dev);
         }
-        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);
+        // Free the enumerator object
+        Udev.INSTANCE.udev_enumerate_unref(enumerate);
+        Udev.INSTANCE.udev_unref(udev);
+
+        // Build tree and return
+        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        for (String controller : usbControllers) {
+            controllerDevices.add(getDeviceAndChildren(controller));
+        }
+        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
 
     /**
-     * Get a USB controller/hub or device at a given path
+     * Recursively creates LinuxUsbDevices by fetching information from maps to
+     * populate fields
      * 
-     * @param path
-     *            Path to the device
-     * @return The corresponding USB device
+     * @param devPath
+     *            The device node path.
+     * @return A LinuxUsbDevice corresponding to this device
      */
-    private static UsbDevice getUsbDevice(String path, String parent) {
-        String name = FileUtil.getStringFromFile(path + parent + "/product");
-        String vendor = FileUtil.getStringFromFile(path + parent + "/manufacturer");
-        String serialNumber = FileUtil.getStringFromFile(path + parent + "/serial");
-
-        File usbdir = new File(path);
-        final Pattern p = Pattern.compile(parent.length() > 0 ? parent + "\\.\\d+" : "\\d+-\\d+");
-        File[] devices = usbdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
-            }
-        });
-
-        return new LinuxUsbDevice(name, vendor, serialNumber,
-                devices == null ? new UsbDevice[0] : getUsbDevices(path, devices));
-    }
-
-    /**
-     * Get all USB devices at the specified paths
-     * 
-     * @param devices
-     *            an array of File objects with paths to devices
-     * @return an array of corresponding USB devices
-     */
-    private static UsbDevice[] getUsbDevices(String path, File[] devices) {
-        List<UsbDevice> usbDevices = new ArrayList<UsbDevice>();
-        for (File device : devices) {
-            // device.toString() is path to info files and any nested devices
-            usbDevices.add(getUsbDevice(path, device.toString().replace(path, "")));
+    private static LinuxUsbDevice getDeviceAndChildren(String devPath) {
+        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<>());
+        List<LinuxUsbDevice> usbDevices = new ArrayList<>();
+        for (String path : childPaths) {
+            usbDevices.add(getDeviceAndChildren(path));
         }
-        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);
+        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, ""), vendorMap.getOrDefault(devPath, ""),
+                serialMap.getOrDefault(devPath, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
