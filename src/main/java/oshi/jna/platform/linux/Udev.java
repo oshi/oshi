@@ -107,5 +107,7 @@ public interface Udev extends Library {
 
     String udev_device_get_devnode(Udev.UdevDevice udev_device);
 
+    String udev_device_get_syspath(Udev.UdevDevice udev_device);
+
     String udev_device_get_property_value(Udev.UdevDevice udev_device, String key);
 }
