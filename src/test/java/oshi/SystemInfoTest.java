@@ -265,6 +265,7 @@ public class SystemInfoTest {
         OSFileStore[] fs = si.getHardware().getFileStores();
         for (int f = 0; f < fs.length; f++) {
             assertNotNull(fs[f].getName());
+            assertNotNull(fs[f].getVolume());
             assertNotNull(fs[f].getDescription());
             assertNotNull(fs[f].getType());
             assertTrue(fs[f].getTotalSpace() >= 0);

@@ -131,8 +131,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), strMount, getDriveType(strMount),
-                        strFsType, systemFreeBytes.getValue(), totalBytes.getValue()));
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume,
+                        strMount, getDriveType(strMount), strFsType, systemFreeBytes.getValue(),
+                        totalBytes.getValue()));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -176,8 +177,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
             fs.add(new OSFileStore(
                     String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
-                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
-                    drives.get("FileSystem").get(i), free, total));
+                    drives.get("ProviderName").get(i), drives.get("Name").get(i) + "\\",
+                    getDriveType(drives.get("Name").get(i)), drives.get("FileSystem").get(i), free, total));
         }
         return fs;
     }

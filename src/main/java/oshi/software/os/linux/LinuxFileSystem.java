@@ -120,6 +120,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 continue;
             }
 
+            String volume = store.name();
             String name = store.name();
             if (path.equals("/"))
                 name = "/";
@@ -127,7 +128,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             if (store.name().startsWith("/dev"))
                 description = "Local Disk";
             try {
-                OSFileStore osStore = new OSFileStore(name, path, description, "", store.getUsableSpace(),
+                OSFileStore osStore = new OSFileStore(name, volume, path, description, "", store.getUsableSpace(),
                         store.getTotalSpace());
                 fsList.add(osStore);
                 fsMap.put(path, osStore);
@@ -141,9 +142,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
         List<String> mounts = FileUtil.readFile("/proc/self/mounts");
         for (String mount : mounts) {
             String[] split = mount.split(" ");
+            // As reported in fstab(5) manpage, struct is:
             // 1st field is name
             // 2nd field is path with spaces escaped as \040
             // 3rd field is fs type
+            // 4th field is mount options (ignored)
+            // 5th field is used by dump(8) (ignored)
+            // 6th field is fsck order (ignored)
             if (split.length < 6) {
                 continue;
             }
