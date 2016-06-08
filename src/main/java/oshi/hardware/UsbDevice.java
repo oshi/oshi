@@ -27,7 +27,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface UsbDevice extends OshiJsonObject {
+public interface UsbDevice extends OshiJsonObject, Comparable<UsbDevice> {
     /**
      * Name of the USB device
      * 

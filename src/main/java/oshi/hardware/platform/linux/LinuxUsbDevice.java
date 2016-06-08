@@ -19,6 +19,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +134,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path));
         }
+        Collections.sort(usbDevices);
         return new LinuxUsbDevice(nameMap.getOrDefault(devPath, ""), vendorMap.getOrDefault(devPath, ""),
                 serialMap.getOrDefault(devPath, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
