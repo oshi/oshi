@@ -100,8 +100,17 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * {@inheritDoc}
      */
     @Override
+    public int compareTo(UsbDevice usb) {
+        // Naturally sort by device name
+<span class="nc" id="L105">        return this.getName().compareTo(usb.getName());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
-<span class="nc" id="L104">        return indentUsb(this, 1);</span>
+<span class="nc" id="L113">        return indentUsb(this, 1);</span>
     }
 
     /**
@@ -113,19 +122,19 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      *            number of spaces to indent
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-<span class="nc bnc" id="L116" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
-<span class="nc" id="L117">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
-<span class="nc" id="L118">        sb.append(usbDevice.getName());</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
-<span class="nc" id="L120">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(&quot;)&quot;);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc" id="L126">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
+<span class="nc" id="L127">        sb.append(usbDevice.getName());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc" id="L129">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(&quot;)&quot;);</span>
         }
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
-<span class="nc" id="L123">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(&quot;]&quot;);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc" id="L132">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(&quot;]&quot;);</span>
         }
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
-<span class="nc" id="L126">            sb.append(&quot;\n&quot;).append(indentUsb(connected, indent + 4));</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
+<span class="nc" id="L135">            sb.append(&quot;\n&quot;).append(indentUsb(connected, indent + 4));</span>
         }
-<span class="nc" id="L128">        return sb.toString();</span>
+<span class="nc" id="L137">        return sb.toString();</span>
     }
 
 }

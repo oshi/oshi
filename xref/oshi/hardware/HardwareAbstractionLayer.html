@@ -116,13 +116,16 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     * Instantiates an array of {@link UsbDevice} objects, representing devices</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * connected via a usb port (including internal devices)</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     * @return An array of UsbDevice objects or an empty array if none are</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     *         present</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <a href="../../oshi/hardware/UsbDevice.html">UsbDevice</a>[] getUsbDevices();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * connected via a usb port (including internal devices). The top level</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     * devices returned from this method are the USB Controllers; connected hubs</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     * and devices in its device tree share that controller's bandwidth</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @return An array of UsbDevice objects representing the USB Controllers</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     *         and devices connected to them, or an empty array if none are</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     *         present</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <a href="../../oshi/hardware/UsbDevice.html">UsbDevice</a>[] getUsbDevices();
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

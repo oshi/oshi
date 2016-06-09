@@ -19,13 +19,25 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.SetupApi;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.NativeLongByReference;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.ExecutingCommand;
+import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -33,17 +45,19 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 1L;
 
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);</span>
+
     public WindowsUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
-<span class="nc" id="L37">        super(name, vendor, serialNumber, connectedDevices);</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L51">        super(name, vendor, serialNumber, connectedDevices);</span>
+<span class="nc" id="L52">    }</span>
 
     /*
      * Maps to store information using PNPDeviceID as the key
      */
-<span class="nc" id="L43">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L44">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L45">    private static Map&lt;String, String&gt; serialMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L46">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L57">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L58">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L59">    private static Map&lt;String, String&gt; serialMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L60">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
 
     /**
      * {@inheritDoc}
@@ -55,121 +69,122 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         // faster access later
 
         // Clear maps
-<span class="nc" id="L58">        nameMap.clear();</span>
-<span class="nc" id="L59">        vendorMap.clear();</span>
-<span class="nc" id="L60">        serialMap.clear();</span>
+<span class="nc" id="L72">        nameMap.clear();</span>
+<span class="nc" id="L73">        vendorMap.clear();</span>
+<span class="nc" id="L74">        serialMap.clear();</span>
 
         // Query Win32_PnPEntity to populate the maps
-<span class="nc" id="L63">        Map&lt;String, List&lt;String&gt;&gt; usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_PnPEntity&quot;,</span>
+<span class="nc" id="L77">        Map&lt;String, List&lt;String&gt;&gt; usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_PnPEntity&quot;,</span>
                 &quot;Name,Manufacturer,PnPDeviceID&quot;, null);
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L66">            String pnpDeviceID = usbMap.get(&quot;PnPDeviceID&quot;).get(i);</span>
-<span class="nc" id="L67">            nameMap.put(pnpDeviceID, usbMap.get(&quot;Name&quot;).get(i));</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (usbMap.get(&quot;Manufacturer&quot;).get(i).length() &gt; 0) {</span>
-<span class="nc" id="L69">                vendorMap.put(pnpDeviceID, usbMap.get(&quot;Manufacturer&quot;).get(i));</span>
-            }
-<span class="nc" id="L71">            String serialNumber = &quot;&quot;;</span>
-            // PNPDeviceID: USB\VID_203A&amp;PID_FFF9&amp;MI_00\6&amp;18C4CF61&amp;0&amp;0000
-            // Split by \ to get bus type (USB), VendorID/ProductID, other info
-            // As a temporary hack for a serial number, use last \-split field
-            // using 2nd &amp;-split field if 4 fields
-<span class="nc" id="L76">            String[] idSplit = pnpDeviceID.split(&quot;\\\\&quot;);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (idSplit.length &gt; 2) {</span>
-<span class="nc" id="L78">                idSplit = idSplit[2].split(&quot;&amp;&quot;);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (idSplit.length &gt; 3) {</span>
-<span class="nc" id="L80">                    serialNumber = idSplit[1];</span>
-                }
-            }
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (serialNumber.length() &gt; 0) {</span>
-<span class="nc" id="L84">                serialMap.put(pnpDeviceID, serialNumber);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L80">            String pnpDeviceID = usbMap.get(&quot;PnPDeviceID&quot;).get(i);</span>
+<span class="nc" id="L81">            nameMap.put(pnpDeviceID, usbMap.get(&quot;Name&quot;).get(i));</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (usbMap.get(&quot;Manufacturer&quot;).get(i).length() &gt; 0) {</span>
+<span class="nc" id="L83">                vendorMap.put(pnpDeviceID, usbMap.get(&quot;Manufacturer&quot;).get(i));</span>
             }
         }
 
-        // Disk drives or other physical media have a better way of getting
-        // serial number. Grab these and overwrite the temporary serial number
-        // assigned above if necessary
-<span class="nc" id="L91">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_DiskDrive&quot;, &quot;PNPDeviceID,SerialNumber&quot;, null);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;PNPDeviceID&quot;).size(); i++) {</span>
-<span class="nc" id="L93">            serialMap.put(usbMap.get(&quot;PNPDeviceID&quot;).get(i),</span>
-<span class="nc" id="L94">                    ParseUtil.hexStringToString(usbMap.get(&quot;PNPDeviceID&quot;).get(i)));</span>
+        // Get serial # for disk drives or other physical media
+<span class="nc" id="L88">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_DiskDrive&quot;, &quot;PNPDeviceID,SerialNumber&quot;, null);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;PNPDeviceID&quot;).size(); i++) {</span>
+<span class="nc" id="L90">            serialMap.put(usbMap.get(&quot;PNPDeviceID&quot;).get(i),</span>
+<span class="nc" id="L91">                    ParseUtil.hexStringToString(usbMap.get(&quot;PNPDeviceID&quot;).get(i)));</span>
         }
-<span class="nc" id="L96">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_PhysicalMedia&quot;, &quot;PNPDeviceID,SerialNumber&quot;, null);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;PNPDeviceID&quot;).size(); i++) {</span>
-<span class="nc" id="L98">            serialMap.put(usbMap.get(&quot;PNPDeviceID&quot;).get(i),</span>
-<span class="nc" id="L99">                    ParseUtil.hexStringToString(usbMap.get(&quot;PNPDeviceID&quot;).get(i)));</span>
+<span class="nc" id="L93">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_PhysicalMedia&quot;, &quot;PNPDeviceID,SerialNumber&quot;, null);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (int i = 0; i &lt; usbMap.get(&quot;PNPDeviceID&quot;).size(); i++) {</span>
+<span class="nc" id="L95">            serialMap.put(usbMap.get(&quot;PNPDeviceID&quot;).get(i),</span>
+<span class="nc" id="L96">                    ParseUtil.hexStringToString(usbMap.get(&quot;PNPDeviceID&quot;).get(i)));</span>
         }
 
-        // Some USB Devices are hubs to which other devices connect. Knowing
-        // which ones are hubs will help later when walking the device tree
-<span class="nc" id="L104">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_USBHub&quot;, &quot;PNPDeviceID&quot;, null);</span>
-<span class="nc" id="L105">        List&lt;String&gt; usbHubs = usbMap.get(&quot;PNPDeviceID&quot;);</span>
+        // Build the device tree. Start with the USB Controllers
+        // and recurse downward to devices as needed
+<span class="nc" id="L101">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_USBController&quot;, &quot;PNPDeviceID&quot;, null);</span>
+<span class="nc" id="L102">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (String controllerDeviceId : usbMap.get(&quot;PNPDeviceID&quot;)) {</span>
+<span class="nc" id="L104">            putChildrenInDeviceTree(controllerDeviceId, 0);</span>
+<span class="nc" id="L105">            controllerDevices.add(getDeviceAndChildren(controllerDeviceId));</span>
+<span class="nc" id="L106">        }</span>
+<span class="nc" id="L107">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+    }
 
-        // Now build the hub map linking USB devices with their parent hub.
-        // At the top of the device tree are USB Controllers. All USB hubs and
-        // devices descend from these. Because this query returns pointers it's
-        // just not practical to try to query via COM so we use a command line
-        // in order to get USB devices in a text format
-<span class="nc" id="L112">        ArrayList&lt;String&gt; links = ExecutingCommand</span>
-<span class="nc" id="L113">                .runNative(&quot;wmic path Win32_USBControllerDevice GET Antecedent,Dependent&quot;);</span>
-        // This iteration actually walks the device tree in order so while the
-        // antecedent of all USB devices is its controller, we know that if a
-        // device is not a hub that the last hub listed is its parent
-        // Devices with PNPDeviceID containing &quot;ROOTHUB&quot; are special and will be
-        // parents of the next item(s)
-        // This won't id chained hubs (other than the root hub) but is a quick
-        // hack rather than walking the entire device tree using the SetupDI API
-        // and good enough since exactly how a USB device is connected is
-        // theoretically transparent to the user
-<span class="nc" id="L123">        hubMap.clear();</span>
-<span class="nc" id="L124">        String currentHub = null;</span>
-<span class="nc" id="L125">        String rootHub = null;</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        for (String s : links) {</span>
-<span class="nc" id="L127">            String[] split = s.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (split.length &lt; 2) {</span>
-<span class="nc" id="L129">                continue;</span>
+    /**
+     * Navigates the Device Tree to place all children PNPDeviceIDs into the map
+     * for the specified deviceID. Recursively adds children's children, etc.
+     * 
+     * @param deviceId
+     *            The device to add respective children to the map
+     * @param devInst
+     *            The device instance (devnode handle), if known. If set to 0,
+     *            the code will search for a match.
+     */
+    private static void putChildrenInDeviceTree(String deviceId, int devInst) {
+        // If no devInst provided, find it by matching deviceId
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (devInst == 0) {</span>
+            // Get a handle to the device with this deviceId
+            // Start with all classes
+<span class="nc" id="L125">            HANDLE hinfoSet = SetupApi.INSTANCE.SetupDiGetClassDevs(null, null, null, SetupApi.DIGCF_ALLCLASSES);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (hinfoSet == WinNT.INVALID_HANDLE_VALUE) {</span>
+<span class="nc" id="L127">                LOG.error(&quot;Invalid handle value for {}. Error code: {}&quot;, deviceId, Native.getLastError());</span>
+<span class="nc" id="L128">                return;</span>
             }
-<span class="nc" id="L131">            String antecedent = getId(split[0]);</span>
-<span class="nc" id="L132">            String dependent = getId(split[1]);</span>
-            // Ensure initial defaults are sane if something goes wrong
-<span class="nc bnc" id="L134" title="All 4 branches missed.">            if (currentHub == null || rootHub == null) {</span>
-<span class="nc" id="L135">                currentHub = antecedent;</span>
-<span class="nc" id="L136">                rootHub = antecedent;</span>
-            }
-            String parent;
-<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (dependent.contains(&quot;ROOT_HUB&quot;)) {</span>
-                // This is a root hub, assign controller as parent;
-<span class="nc" id="L141">                parent = antecedent;</span>
-<span class="nc" id="L142">                rootHub = dependent;</span>
-<span class="nc" id="L143">                currentHub = dependent;</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">            } else if (usbHubs.contains(dependent)) {</span>
-                // This is a hub, assign parent as root hub
-<span class="nc bnc" id="L146" title="All 2 branches missed.">                if (rootHub == null) {</span>
-<span class="nc" id="L147">                    rootHub = antecedent;</span>
+            // Iterate to find matching parent
+<span class="nc" id="L131">            SP_DEVINFO_DATA dinfo = new SP_DEVINFO_DATA();</span>
+<span class="nc" id="L132">            dinfo.cbSize = dinfo.size();</span>
+<span class="nc" id="L133">            int i = 0;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            while (SetupApi.INSTANCE.SetupDiEnumDeviceInfo(hinfoSet, i++, dinfo)) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                if (deviceId.equals(getDeviceId(dinfo.DevInst))) {</span>
+<span class="nc" id="L136">                    devInst = dinfo.DevInst;</span>
+<span class="nc" id="L137">                    break;</span>
                 }
-<span class="nc" id="L149">                parent = rootHub;</span>
-<span class="nc" id="L150">                currentHub = dependent;</span>
-            } else {
-                // This is not a hub, assign parent as previous hub
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (currentHub == null) {</span>
-<span class="nc" id="L154">                    currentHub = antecedent;</span>
-                }
-<span class="nc" id="L156">                parent = currentHub;</span>
             }
-            // Finally add the parent/child linkage to the map
-<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (!hubMap.containsKey(parent)) {</span>
-<span class="nc" id="L160">                hubMap.put(parent, new ArrayList&lt;String&gt;());</span>
-            }
-<span class="nc" id="L162">            hubMap.get(parent).add(dependent);</span>
-<span class="nc" id="L163">        }</span>
+        }
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (devInst == 0) {</span>
+<span class="nc" id="L142">            LOG.error(&quot;Unable to find a devnode handle for {}.&quot;, deviceId);</span>
+<span class="nc" id="L143">            return;</span>
+        }
+        // Now iterate the children. Call CM_Get_Child to get first child
+<span class="nc" id="L146">        IntByReference child = new IntByReference();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (0 == Cfgmgr32.INSTANCE.CM_Get_Child(child, devInst, 0)) {</span>
+            // Add first child to a list
+<span class="nc" id="L149">            List&lt;String&gt; childList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L150">            String childId = getDeviceId(child.getValue());</span>
+<span class="nc" id="L151">            childList.add(childId);</span>
+<span class="nc" id="L152">            hubMap.put(deviceId, childList);</span>
+<span class="nc" id="L153">            putChildrenInDeviceTree(childId, child.getValue());</span>
+            // Find any other children
+<span class="nc" id="L155">            IntByReference sibling = new IntByReference();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            while (0 == Cfgmgr32.INSTANCE.CM_Get_Sibling(sibling, child.getValue(), 0)) {</span>
+                // Add to the list
+<span class="nc" id="L158">                String siblingId = getDeviceId(sibling.getValue());</span>
+<span class="nc" id="L159">                hubMap.get(deviceId).add(siblingId);</span>
+<span class="nc" id="L160">                putChildrenInDeviceTree(siblingId, sibling.getValue());</span>
+                // Make this sibling the new child to find other siblings
+<span class="nc" id="L162">                child = sibling;</span>
+<span class="nc" id="L163">            }</span>
+        }
+<span class="nc" id="L165">    }</span>
 
-        // Finally we simply get the device IDs of the USB Controllers. These
-        // will recurse downward to devices as needed
-<span class="nc" id="L167">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_USBController&quot;, &quot;PNPDeviceID&quot;, null);</span>
-<span class="nc" id="L168">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
-<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (String controllerDeviceID : usbMap.get(&quot;PNPDeviceID&quot;)) {</span>
-<span class="nc" id="L170">            controllerDevices.add(getDeviceAndChildren(controllerDeviceID));</span>
-<span class="nc" id="L171">        }</span>
-<span class="nc" id="L172">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+    /**
+     * Gets the device id for a devnode
+     * 
+     * @param devInst
+     *            the handle to the devnode
+     * @return The PNPDeviceID
+     */
+    private static String getDeviceId(int devInst) {
+<span class="nc" id="L175">        NativeLongByReference ulLen = new NativeLongByReference();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(ulLen, devInst, 0)) {</span>
+<span class="nc" id="L177">            LOG.error(&quot;Couldn't get device string for device instance {}&quot;, devInst);</span>
+<span class="nc" id="L178">            return &quot;&quot;;</span>
+        }
+        // Add 1 for null terminator
+<span class="nc" id="L181">        int size = ulLen.getValue().intValue() + 1;</span>
+<span class="nc" id="L182">        char[] buffer = new char[size];</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, size, 0)) {</span>
+<span class="nc" id="L184">            LOG.error(&quot;Couldn't get device string for device instance {} with size {}&quot;, devInst, size);</span>
+<span class="nc" id="L185">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L187">        return new String(buffer).trim();</span>
     }
 
     /**
@@ -181,25 +196,16 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * @return A WindowsUsbDevice corresponding to this deviceID
      */
     private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceID) {
-<span class="nc" id="L184">        List&lt;String&gt; pnpDeviceIDs = hubMap.getOrDefault(hubDeviceID, new ArrayList&lt;&gt;());</span>
-<span class="nc" id="L185">        List&lt;WindowsUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        for (String pnpDeviceID : pnpDeviceIDs) {</span>
-<span class="nc" id="L187">            usbDevices.add(getDeviceAndChildren(pnpDeviceID));</span>
-<span class="nc" id="L188">        }</span>
-<span class="nc" id="L189">        return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceID, &quot;&quot;), vendorMap.getOrDefault(hubDeviceID, &quot;&quot;),</span>
-<span class="nc" id="L190">                serialMap.getOrDefault(hubDeviceID, &quot;&quot;), usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
-    }
-
-    /**
-     * Parses DeviceID from CIM_USBController text
-     * 
-     * @param string
-     *            Text of form (stuff)DeviceID=&quot;(ID)&quot;
-     * @return The parsed device ID
-     */
-    private static String getId(String s) {
-<span class="nc" id="L201">        String[] split = s.split(&quot;\&quot;&quot;);</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">        return split.length &lt; 2 ? &quot;&quot; : split[1];</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        List&lt;String&gt; pnpDeviceIDs = hubMap.containsKey(hubDeviceID) ? hubMap.get(hubDeviceID) : new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L200">        List&lt;WindowsUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (String pnpDeviceID : pnpDeviceIDs) {</span>
+<span class="nc" id="L202">            usbDevices.add(getDeviceAndChildren(pnpDeviceID));</span>
+<span class="nc" id="L203">        }</span>
+<span class="nc" id="L204">        Collections.sort(usbDevices);</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        return new WindowsUsbDevice(nameMap.containsKey(hubDeviceID) ? nameMap.get(hubDeviceID) : &quot;&quot;,</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                vendorMap.containsKey(hubDeviceID) ? vendorMap.get(hubDeviceID) : &quot;&quot;,</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                serialMap.containsKey(hubDeviceID) ? serialMap.get(hubDeviceID) : &quot;&quot;,</span>
+<span class="nc" id="L208">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

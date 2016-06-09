@@ -23,8 +23,10 @@ import java.util.List;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -40,15 +42,15 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-<span class="fc" id="L43">    IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="fc" id="L45">    IOKit INSTANCE = (IOKit) Native.loadLibrary(&quot;IOKit&quot;, IOKit.class);</span>
 
-<span class="fc" id="L45">    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
+<span class="fc" id="L47">    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
 
-<span class="fc" id="L47">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
+<span class="fc" id="L49">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
 
-<span class="fc" id="L49">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
+<span class="fc" id="L51">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
 
-<span class="fc" id="L51">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
+<span class="fc" id="L53">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
 
     String SMC_KEY_FAN_NUM = &quot;FNum&quot;;
 
@@ -67,23 +69,23 @@ public interface IOKit extends Library {
     /**
      * Holds the return value of SMC version query.
      */
-<span class="fc" id="L70">    class SMCKeyDataVers extends Structure {</span>
+<span class="fc" id="L72">    class SMCKeyDataVers extends Structure {</span>
         public byte major;
         public byte minor;
         public byte build;
-<span class="fc" id="L74">        public byte[] reserved = new byte[1];</span>
+<span class="fc" id="L76">        public byte[] reserved = new byte[1];</span>
         public short release;
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L79">            return Arrays.asList(new String[] { &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; });</span>
+<span class="fc" id="L81">            return Arrays.asList(new String[] { &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; });</span>
         }
     }
 
     /**
      * Holds the return value of SMC pLimit query.
      */
-<span class="fc" id="L86">    class SMCKeyDataPLimitData extends Structure {</span>
+<span class="fc" id="L88">    class SMCKeyDataPLimitData extends Structure {</span>
         public short version;
         public short length;
         public int cpuPLimit;
@@ -92,28 +94,28 @@ public interface IOKit extends Library {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L95">            return Arrays.asList(new String[] { &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; });</span>
+<span class="fc" id="L97">            return Arrays.asList(new String[] { &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; });</span>
         }
     }
 
     /**
      * Holds the return value of SMC KeyInfo query.
      */
-<span class="fc" id="L102">    class SMCKeyDataKeyInfo extends Structure {</span>
+<span class="fc" id="L104">    class SMCKeyDataKeyInfo extends Structure {</span>
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L109">            return Arrays.asList(new String[] { &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; });</span>
+<span class="fc" id="L111">            return Arrays.asList(new String[] { &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; });</span>
         }
     }
 
     /**
      * Holds the return value of SMC query.
      */
-<span class="fc" id="L116">    class SMCKeyData extends Structure {</span>
+<span class="fc" id="L118">    class SMCKeyData extends Structure {</span>
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -122,11 +124,11 @@ public interface IOKit extends Library {
         public byte status;
         public byte data8;
         public int data32;
-<span class="fc" id="L125">        public byte[] bytes = new byte[32];</span>
+<span class="fc" id="L127">        public byte[] bytes = new byte[32];</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L129">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;,</span>
+<span class="fc" id="L131">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;,</span>
                     &quot;data32&quot;, &quot;bytes&quot; });
         }
     }
@@ -134,21 +136,21 @@ public interface IOKit extends Library {
     /**
      * Holds an SMC value
      */
-<span class="fc" id="L137">    class SMCVal extends Structure {</span>
-<span class="fc" id="L138">        public byte[] key = new byte[5];</span>
+<span class="fc" id="L139">    class SMCVal extends Structure {</span>
+<span class="fc" id="L140">        public byte[] key = new byte[5];</span>
         public int dataSize;
-<span class="fc" id="L140">        public byte[] dataType = new byte[5];</span>
-<span class="fc" id="L141">        public byte[] bytes = new byte[32];</span>
+<span class="fc" id="L142">        public byte[] dataType = new byte[5];</span>
+<span class="fc" id="L143">        public byte[] bytes = new byte[32];</span>
 
         protected List&lt;String&gt; getFieldOrder() {
-<span class="fc" id="L144">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; });</span>
+<span class="fc" id="L146">            return Arrays.asList(new String[] { &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; });</span>
         }
     }
 
-<span class="fc" id="L148">    class IOConnect extends IntByReference {</span>
+<span class="fc" id="L150">    class IOConnect extends IntByReference {</span>
     }
 
-<span class="fc" id="L151">    class MachPort extends IntByReference {</span>
+<span class="fc" id="L153">    class MachPort extends IntByReference {</span>
     }
 
     CFTypeRef IOPSCopyPowerSourcesInfo();
@@ -186,6 +188,16 @@ public interface IOKit extends Library {
 
     CFStringRef CFCopyDescription(CFTypeRef type);
 
+    int IORegistryEntryGetName(int entry, Pointer name);
+
+    int IORegistryEntryGetRegistryEntryID(int entry, LongByReference id);
+
+    int IORegistryEntryGetParentEntry(int entry, String plane, IntByReference parent);
+
     int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
+
+    int IORegistryEntryGetChildIterator(int entry, String plane, IntByReference iter);
+
+    int IORegistryGetRootEntry(int masterPort);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

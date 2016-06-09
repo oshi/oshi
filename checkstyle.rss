@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 122,
-             Errors: 3661,
+      <title>File: 123,
+             Errors: 3729,
              Warnings: 0,
              Infos: 0
       </title>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  125
+                  137
                 </td>
               </tr>
                           <tr>
@@ -307,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  13
                 </td>
               </tr>
                           <tr>
@@ -657,7 +657,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  43
                 </td>
               </tr>
                           <tr>
@@ -811,7 +811,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  29
                 </td>
               </tr>
                           <tr>
@@ -924,6 +924,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.jna.platform.windows.Cfgmgr32.java">oshi/jna/platform/windows/Cfgmgr32.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
                 </td>
               </tr>
                           <tr>
@@ -1203,7 +1217,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  43
                 </td>
               </tr>
                           <tr>
@@ -1273,7 +1287,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  34
                 </td>
               </tr>
                           <tr>
@@ -1539,7 +1553,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  67
+                  70
                 </td>
               </tr>
                           <tr>
@@ -1735,7 +1749,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  36
+                  46
                 </td>
               </tr>
                           <tr>
