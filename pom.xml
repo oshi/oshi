@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.dblock</groupId>
     <artifactId>oshi-core</artifactId>
-    <version>2.6-SNAPSHOT</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
     <name>Operating System and Hardware Information</name>
     <description>A JNA-based (native) operating system information library for Java that aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
@@ -41,7 +41,7 @@
         <connection>scm:git:git@github.com:dblock/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
         <url>https://github.com/dblock/oshi.git</url>
-        <tag>HEAD</tag>
+        <tag>oshi-core-2.5.1</tag>
     </scm>
     <issueManagement>
         <system>Github</system>
