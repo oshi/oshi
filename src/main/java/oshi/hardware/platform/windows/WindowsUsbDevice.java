@@ -196,13 +196,15 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * @return A WindowsUsbDevice corresponding to this deviceID
      */
     private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceID) {
-        List<String> pnpDeviceIDs = hubMap.getOrDefault(hubDeviceID, new ArrayList<>());
+        List<String> pnpDeviceIDs = hubMap.containsKey(hubDeviceID) ? hubMap.get(hubDeviceID) : new ArrayList<String>();
         List<WindowsUsbDevice> usbDevices = new ArrayList<>();
         for (String pnpDeviceID : pnpDeviceIDs) {
             usbDevices.add(getDeviceAndChildren(pnpDeviceID));
         }
         Collections.sort(usbDevices);
-        return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceID, ""), vendorMap.getOrDefault(hubDeviceID, ""),
-                serialMap.getOrDefault(hubDeviceID, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new WindowsUsbDevice(nameMap.containsKey(hubDeviceID) ? nameMap.get(hubDeviceID) : "",
+                vendorMap.containsKey(hubDeviceID) ? vendorMap.get(hubDeviceID) : "",
+                serialMap.containsKey(hubDeviceID) ? serialMap.get(hubDeviceID) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

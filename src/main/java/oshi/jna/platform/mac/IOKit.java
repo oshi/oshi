@@ -197,4 +197,6 @@ public interface IOKit extends Library {
     int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
 
     int IORegistryEntryGetChildIterator(int entry, String plane, IntByReference iter);
+
+    int IORegistryGetRootEntry(int masterPort);
 }

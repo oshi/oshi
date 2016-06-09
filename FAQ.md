@@ -12,6 +12,11 @@ Most, if not all, of the platform-specific implementations of these APIs in lowe
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
+What minimum Java version is required?
+========
+Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  A 2.5.1-java7 version has been released using a dependency to the threeten.org backport and a nominal effort will be made to continue this compatibility in the future, although there are no guarantees.  Users are encouraged to update to Java 8.
+
+
 Which operating systems are supported?
 ========
 OSHI has been implemented and tested on the following systems.  Some features may work on earlier versions.

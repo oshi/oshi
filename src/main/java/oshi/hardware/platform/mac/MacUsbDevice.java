@@ -63,10 +63,15 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices() {
+        // Unique global identifier for the IO Root
+        LongByReference rootId = new LongByReference();
+        int root = IOKitUtil.getRoot();
+        IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(root, rootId);
+        IOKit.INSTANCE.IOObjectRelease(root);
+
         // Reusable buffer for getting IO name strings
         Pointer buffer = new Memory(128); // io_name_t is char[128]
-        // Build a list of devices with no parent; these will be the roots
-        List<Long> usbControllers = new ArrayList<>();
+
         // Empty out maps
         nameMap.clear();
         vendorMap.clear();
@@ -75,6 +80,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
         // Iterate over USB Controllers. All devices are children of one of
         // these controllers in the "IOService" plane
+        List<Long> usbControllers = new ArrayList<>();
         IntByReference iter = new IntByReference();
         IOKitUtil.getMatchingServices("IOUSBController", iter);
         int device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
@@ -90,8 +96,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
             // Controllers don't have vendor and serial so ignore at this level
 
             // Now iterate the children of this device in the "IOService" plane.
-            // If devices have a parent, link to that parent, otherwise link to
-            // the controller as parent
+            // If device parent is root, link to the controller
             IntByReference childIter = new IntByReference();
             IOKit.INSTANCE.IORegistryEntryGetChildIterator(device, "IOService", childIter);
             int childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());
@@ -103,15 +108,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
                 // Get this device's parent in the "IOUSB" plane
                 IntByReference parent = new IntByReference();
                 IOKit.INSTANCE.IORegistryEntryGetParentEntry(childDevice, "IOUSB", parent);
-
-                // If parent is named "Root" ignore that id and use the
-                // controller's id
-                LongByReference parentId = id;
-                IOKit.INSTANCE.IORegistryEntryGetName(parent.getValue(), buffer);
-                if (!buffer.getString(0).equals("Root")) {
-                    // Unique global identifier for the parent
-                    parentId = new LongByReference();
-                    IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
+                // Unique global identifier for the parent
+                LongByReference parentId = new LongByReference();
+                IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
+                // If the parent is the root, set the parentId to the controller
+                if (parentId.getValue() == rootId.getValue()) {
+                    parentId = id;
                 }
                 // Store parent in map
                 if (!hubMap.containsKey(parentId.getValue())) {
@@ -164,13 +166,15 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * @return A MacUsbDevice corresponding to this device
      */
     private static MacUsbDevice getDeviceAndChildren(Long registryEntryId) {
-        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<>());
+        List<Long> childIds = hubMap.containsKey(registryEntryId) ? hubMap.get(registryEntryId) : new ArrayList<Long>();
         List<MacUsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id));
         }
         Collections.sort(usbDevices);
-        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, ""), vendorMap.getOrDefault(registryEntryId, ""),
-                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new MacUsbDevice(nameMap.containsKey(registryEntryId) ? nameMap.get(registryEntryId) : "",
+                vendorMap.containsKey(registryEntryId) ? vendorMap.get(registryEntryId) : "",
+                serialMap.containsKey(registryEntryId) ? serialMap.get(registryEntryId) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

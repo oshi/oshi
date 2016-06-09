@@ -9,7 +9,7 @@ OSHI is a free JNA-based (native) operating system and hardware information libr
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download OSHI 2.5](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.5&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download OSHI 2.5.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.5.1&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.6-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
@@ -109,25 +109,28 @@ Displays:
 Attached USB devices can be listed:
 ```
 USB Devices:
- USB20Bus
- |-- FaceTime HD Camera (Built-in) (Apple Inc.) [s/n: DJHB1V077FDH5HL3]
- |-- hub_device
-     |-- composite_device [s/n: T1204080000569]
-     |-- Apple Internal Keyboard / Trackpad (Apple Inc.)
-     |-- BRCM2070 Hub (Apple Inc.)
-         |-- Bluetooth USB Host Controller (Apple Inc.)
- USB20Bus
- |-- hub_device
-     |-- USB Receiver (Logitech)
-     |-- IR Receiver (Apple Computer, Inc.)
- USB20Bus
- |-- hub_device
-     |-- USB2.0 Hub
-         |-- Fitbit Base Station (Fitbit Inc.)
-         |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
-     |-- FaceTime HD Camera (Display) (Apple Inc.) [s/n: CCGCAN000TDJ7DFX]
-     |-- Apple Thunderbolt Display (Apple Inc.) [s/n: 162C0C25]
-     |-- Display Audio (Apple Inc.) [s/n: 162C0C25]
+ AppleUSBEHCI
+ |-- Root Hub Simulation Simulation (Apple Inc.)
+     |-- IOUSBHostDevice
+         |-- IR Receiver (Apple Computer, Inc.)
+         |-- USB Receiver (Logitech)
+ AppleUSBEHCI
+ |-- Root Hub Simulation Simulation (Apple Inc.)
+     |-- FaceTime HD Camera (Built-in) (Apple Inc.) [s/n: DJHB1V077FDH7HL0]
+     |-- IOUSBHostDevice
+         |-- Apple Internal Keyboard / Trackpad (Apple Inc.)
+         |-- BRCM2070 Hub (Apple Inc.)
+             |-- Bluetooth USB Host Controller (Apple Inc.)
+ AppleUSBEHCI
+ |-- Root Hub Simulation Simulation (Apple Inc.)
+     |-- IOUSBHostDevice
+         |-- Apple Thunderbolt Display (Apple Inc.) [s/n: 162C0C25]
+         |-- Display Audio (Apple Inc.) [s/n: 162C0C25]
+         |-- FaceTime HD Camera (Display) (Apple Inc.) [s/n: CCGCAN000TDJ9DFX]
+         |-- USB2.0 Hub
+             |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
+             |-- Fitbit Base Station (Fitbit Inc.)
+             |-- Fitbit Base Station (Fitbit Inc.)
 ```
 
 

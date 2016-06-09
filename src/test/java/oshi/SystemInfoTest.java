@@ -27,8 +27,9 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -356,11 +357,23 @@ public class SystemInfoTest {
         // Processes
         System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
                 + hal.getProcessor().getThreadCount());
+        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses()).stream()
-                .sorted((o1, o2) -> Double.compare((o2.getKernelTime() + o2.getUserTime()) / (double) o2.getUpTime(),
-                        (o1.getKernelTime() + o1.getUserTime()) / (double) o1.getUpTime()))
-                .collect(Collectors.toList());
+        Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
+            @Override
+            public int compare(OSProcess p1, OSProcess p2) {
+                double diff = (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime()
+                        - (p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime();
+                if (diff < 0) {
+                    return 1;
+                } else if (diff > 0) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        };
+        Collections.sort(procs, cpuDescOrder);
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
