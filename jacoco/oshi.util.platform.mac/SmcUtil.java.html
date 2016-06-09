@@ -102,11 +102,11 @@ import oshi.util.Util;
     public static double smcGetSp78(String key, int retries) {
 <span class="fc" id="L103">        SMCVal val = new SMCVal();</span>
 <span class="fc" id="L104">        int result = smcReadKey(key, val, retries);</span>
-<span class="pc bpc" id="L105" title="2 of 6 branches missed.">        if (result == 0 &amp;&amp; val.dataSize &gt; 0 &amp;&amp; Arrays.equals(val.dataType, DATATYPE_SP78)) {</span>
+<span class="pc bpc" id="L105" title="3 of 6 branches missed.">        if (result == 0 &amp;&amp; val.dataSize &gt; 0 &amp;&amp; Arrays.equals(val.dataType, DATATYPE_SP78)) {</span>
 <span class="fc" id="L106">            return val.bytes[0] + val.bytes[1] / 256d;</span>
         }
         // Read failed
-<span class="fc" id="L109">        return 0d;</span>
+<span class="nc" id="L109">        return 0d;</span>
     }
 
     /**
@@ -121,11 +121,11 @@ import oshi.util.Util;
     public static long smcGetLong(String key, int retries) {
 <span class="fc" id="L122">        SMCVal val = new SMCVal();</span>
 <span class="fc" id="L123">        int result = smcReadKey(key, val, retries);</span>
-<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (result == 0) {</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (result == 0) {</span>
 <span class="fc" id="L125">            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);</span>
         }
         // Read failed
-<span class="fc" id="L128">        return 0;</span>
+<span class="nc" id="L128">        return 0;</span>
     }
 
     /**
@@ -215,10 +215,10 @@ import oshi.util.Util;
 <span class="fc bfc" id="L215" title="All 2 branches covered.">            if (result == 0) {</span>
 <span class="fc" id="L216">                break;</span>
             }
-<span class="fc bfc" id="L218" title="All 2 branches covered.">        } while (--retries &gt; 0);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        } while (--retries &gt; 0);</span>
         // If we errored out return code
-<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (result != 0) {</span>
-<span class="fc" id="L221">            return result;</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (result != 0) {</span>
+<span class="nc" id="L221">            return result;</span>
         }
 
 <span class="fc" id="L224">        System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);</span>

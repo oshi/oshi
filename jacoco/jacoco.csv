@@ -135,5 +135,5 @@ Operating System and Hardware Information,oshi.hardware,HWDiskStore,39,76,0,0,5,
 Operating System and Hardware Information,oshi.util.platform.mac,SysctlUtil,43,107,5,5,11,17,6,5,1,5
 Operating System and Hardware Information,oshi.util.platform.mac,CfUtil.CFNumberType,9,189,0,0,0,2,2,2,2,2
 Operating System and Hardware Information,oshi.util.platform.mac,IOKitUtil,42,58,9,7,13,18,9,6,2,5
-Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,23,285,5,23,6,69,6,18,1,9
+Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,29,279,9,19,9,66,10,14,1,9
 Operating System and Hardware Information,oshi.util.platform.mac,CfUtil,5,52,2,2,2,13,3,4,1,4

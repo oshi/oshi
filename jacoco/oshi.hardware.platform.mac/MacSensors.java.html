@@ -66,7 +66,7 @@ public class MacSensors extends AbstractSensors {
         // Only update every second
 <span class="fc bfc" id="L67" title="All 2 branches covered.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
 <span class="fc" id="L68">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (temp &gt; 0d) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (temp &gt; 0d) {</span>
 <span class="fc" id="L70">                this.lastTemp = temp;</span>
 <span class="fc" id="L71">                lastTempTime = System.currentTimeMillis();</span>
             }
@@ -80,7 +80,7 @@ public class MacSensors extends AbstractSensors {
     @Override
     public int[] getFanSpeeds() {
         // Only update every second
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
             // If we don't have fan # try to get it
 <span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (this.numFans == 0) {</span>
 <span class="fc" id="L86">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
