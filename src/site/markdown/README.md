@@ -9,7 +9,7 @@ OSHI is a free JNA-based (native) operating system and hardware information libr
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download OSHI 2.5.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.5.1&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
+* [Download OSHI 2.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.5.2&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.6-SNAPSHOT&amp;e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
@@ -116,7 +116,7 @@ USB Devices:
          |-- USB Receiver (Logitech)
  AppleUSBEHCI
  |-- Root Hub Simulation Simulation (Apple Inc.)
-     |-- FaceTime HD Camera (Built-in) (Apple Inc.) [s/n: DJHB1V077FDH7HL0]
+     |-- FaceTime HD Camera (Built-in) (Apple Inc.) [s/n: DJHB1V077FDH5HL0]
      |-- IOUSBHostDevice
          |-- Apple Internal Keyboard / Trackpad (Apple Inc.)
          |-- BRCM2070 Hub (Apple Inc.)
@@ -126,10 +126,9 @@ USB Devices:
      |-- IOUSBHostDevice
          |-- Apple Thunderbolt Display (Apple Inc.) [s/n: 162C0C25]
          |-- Display Audio (Apple Inc.) [s/n: 162C0C25]
-         |-- FaceTime HD Camera (Display) (Apple Inc.) [s/n: CCGCAN000TDJ9DFX]
+         |-- FaceTime HD Camera (Display) (Apple Inc.) [s/n: CCGCAN000TDJ7DFX]
          |-- USB2.0 Hub
              |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
-             |-- Fitbit Base Station (Fitbit Inc.)
              |-- Fitbit Base Station (Fitbit Inc.)
 ```
 
