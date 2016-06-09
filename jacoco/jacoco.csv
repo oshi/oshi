@@ -55,7 +55,7 @@ Operating System and Hardware Information,oshi.software.os.windows,WindowsProces
 Operating System and Hardware Information,oshi.software.os.windows,WindowsFileSystem,356,0,24,0,68,0,22,0,8,0
 Operating System and Hardware Information,oshi.software.os.windows,WindowsOSVersionInfoEx,581,0,148,0,124,0,86,0,12,0
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,2,59,3,3,1,16,4,10,1,10
-Operating System and Hardware Information,oshi.hardware.platform.mac,MacSensors,0,142,5,11,0,32,5,7,0,4
+Operating System and Hardware Information,oshi.hardware.platform.mac,MacSensors,39,103,9,7,8,24,8,4,0,4
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacDisplay,0,92,2,4,0,23,2,4,0,3
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacNetworks,8,204,3,9,4,41,3,7,0,4
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacDisks,11,226,6,12,4,55,6,6,0,3
@@ -135,5 +135,5 @@ Operating System and Hardware Information,oshi.hardware,HWDiskStore,39,76,0,0,5,
 Operating System and Hardware Information,oshi.util.platform.mac,SysctlUtil,43,107,5,5,11,17,6,5,1,5
 Operating System and Hardware Information,oshi.util.platform.mac,CfUtil.CFNumberType,9,189,0,0,0,2,2,2,2,2
 Operating System and Hardware Information,oshi.util.platform.mac,IOKitUtil,42,58,9,7,13,18,9,6,2,5
-Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,29,279,9,19,9,66,10,14,1,9
+Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,153,155,16,12,30,45,14,10,1,9
 Operating System and Hardware Information,oshi.util.platform.mac,CfUtil,5,52,2,2,2,13,3,4,1,4
