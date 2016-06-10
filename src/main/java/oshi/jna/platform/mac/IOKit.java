@@ -183,6 +183,9 @@ public interface IOKit extends Library {
 
     CFTypeRef IORegistryEntryCreateCFProperty(int entry, CFStringRef key, CFAllocatorRef allocator, int options);
 
+    CFTypeRef IORegistryEntrySearchCFProperty(int entry, String plane, CFStringRef key, CFAllocatorRef allocator,
+            int options);
+
     int IORegistryEntryCreateCFProperties(int entry, CFMutableDictionaryRef serviceProperties, CFAllocatorRef allocator,
             int options);
 
