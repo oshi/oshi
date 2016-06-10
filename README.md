@@ -8,6 +8,8 @@ OSHI is a free JNA-based (native) operating system and hardware information libr
 
 Essentials
 ----------
+
+[![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
 * [Download OSHI 2.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.5.2&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
 * [Download OSHI 2.6-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=2.6-SNAPSHOT&e=jar)
