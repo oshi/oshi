@@ -108,9 +108,12 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
 
     /**
      * Instantiates an array of {@link UsbDevice} objects, representing devices
-     * connected via a usb port (including internal devices)
+     * connected via a usb port (including internal devices). The top level
+     * devices returned from this method are the USB Controllers; connected hubs
+     * and devices in its device tree share that controller's bandwidth
      * 
-     * @return An array of UsbDevice objects or an empty array if none are
+     * @return An array of UsbDevice objects representing the USB Controllers
+     *         and devices connected to them, or an empty array if none are
      *         present
      */
     UsbDevice[] getUsbDevices();

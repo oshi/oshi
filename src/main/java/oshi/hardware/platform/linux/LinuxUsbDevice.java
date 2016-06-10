@@ -19,6 +19,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
                 if (!hubMap.containsKey(parentPath)) {
-                    hubMap.put(parentPath, new ArrayList<>());
+                    hubMap.put(parentPath, new ArrayList<String>());
                 }
                 hubMap.get(parentPath).add(path);
             }
@@ -128,12 +129,15 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * @return A LinuxUsbDevice corresponding to this device
      */
     private static LinuxUsbDevice getDeviceAndChildren(String devPath) {
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<>());
+        List<String> childPaths = hubMap.containsKey(devPath) ? hubMap.get(devPath) : new ArrayList<String>();
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path));
         }
-        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, ""), vendorMap.getOrDefault(devPath, ""),
-                serialMap.getOrDefault(devPath, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        Collections.sort(usbDevices);
+        return new LinuxUsbDevice(nameMap.containsKey(devPath) ? nameMap.get(devPath) : "",
+                vendorMap.containsKey(devPath) ? vendorMap.get(devPath) : "",
+                serialMap.containsKey(devPath) ? serialMap.get(devPath) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

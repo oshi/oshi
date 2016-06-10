@@ -19,174 +19,162 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.ExecutingCommand;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
 
 public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Pattern XML_STRING = Pattern.compile("<string>(.*?)</string>");
-
     public MacUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
         super(name, vendor, serialNumber, connectedDevices);
     }
+
+    /*
+     * Maps to store information using RegistryEntryID as the key
+     */
+    private static Map<Long, String> nameMap = new HashMap<>();
+    private static Map<Long, String> vendorMap = new HashMap<>();
+    private static Map<Long, String> serialMap = new HashMap<>();
+    private static Map<Long, List<Long>> hubMap = new HashMap<>();
+
+    /*
+     * Strings for querying device information from registry
+     */
+    private static final CFStringRef cfVendor = CFStringRef.toCFString("USB Vendor Name");
+    private static final CFStringRef cfSerial = CFStringRef.toCFString("USB Serial Number");
 
     /**
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices() {
-        // Get heirarchical list of USB devices
-        List<String> xml = ExecutingCommand.runNative("system_profiler SPUSBDataType -xml");
-        // Look for <key>_items</key> which prcedes <array> ... </array>
-        // Each pair of <dict> ... </dict> following is a USB device/hub
-        List<String> items = new ArrayList<>();
-        boolean copy = false;
-        int indent = 0;
-        for (String s : xml) {
-            s = s.trim();
-            // Read until <key>_items</key>
-            if (!copy && s.equals("<key>_items</key>")) {
-                copy = true;
-                continue;
+        // Unique global identifier for the IO Root
+        LongByReference rootId = new LongByReference();
+        int root = IOKitUtil.getRoot();
+        IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(root, rootId);
+        IOKit.INSTANCE.IOObjectRelease(root);
+
+        // Reusable buffer for getting IO name strings
+        Pointer buffer = new Memory(128); // io_name_t is char[128]
+
+        // Empty out maps
+        nameMap.clear();
+        vendorMap.clear();
+        serialMap.clear();
+        hubMap.clear();
+
+        // Iterate over USB Controllers. All devices are children of one of
+        // these controllers in the "IOService" plane
+        List<Long> usbControllers = new ArrayList<>();
+        IntByReference iter = new IntByReference();
+        IOKitUtil.getMatchingServices("IOUSBController", iter);
+        int device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
+        while (device != 0) {
+            // Unique global identifier for this device
+            LongByReference id = new LongByReference();
+            IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(device, id);
+            usbControllers.add(id.getValue());
+
+            // Get device name and store in map
+            IOKit.INSTANCE.IORegistryEntryGetName(device, buffer);
+            nameMap.put(id.getValue(), buffer.getString(0));
+            // Controllers don't have vendor and serial so ignore at this level
+
+            // Now iterate the children of this device in the "IOService" plane.
+            // If device parent is root, link to the controller
+            IntByReference childIter = new IntByReference();
+            IOKit.INSTANCE.IORegistryEntryGetChildIterator(device, "IOService", childIter);
+            int childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());
+            while (childDevice != 0) {
+                // Unique global identifier for this device
+                LongByReference childId = new LongByReference();
+                IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(childDevice, childId);
+
+                // Get this device's parent in the "IOUSB" plane
+                IntByReference parent = new IntByReference();
+                IOKit.INSTANCE.IORegistryEntryGetParentEntry(childDevice, "IOUSB", parent);
+                // Unique global identifier for the parent
+                LongByReference parentId = new LongByReference();
+                IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
+                // If the parent is the root, set the parentId to the controller
+                if (parentId.getValue() == rootId.getValue()) {
+                    parentId = id;
+                }
+                // Store parent in map
+                if (!hubMap.containsKey(parentId.getValue())) {
+                    hubMap.put(parentId.getValue(), new ArrayList<Long>());
+                }
+                hubMap.get(parentId.getValue()).add(childId.getValue());
+
+                // Get device name and store in map
+                IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);
+                nameMap.put(childId.getValue(), buffer.getString(0));
+                // Get vendor and store in map
+                CFTypeRef vendorRef = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfVendor,
+                        CfUtil.ALLOCATOR, 0);
+                if (vendorRef != null && vendorRef.getPointer() != null) {
+                    vendorMap.put(childId.getValue(), CfUtil.cfPointerToString(vendorRef.getPointer()));
+                }
+                CfUtil.release(vendorRef);
+                // Get serial and store in map
+                CFTypeRef serialRef = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfSerial,
+                        CfUtil.ALLOCATOR, 0);
+                if (serialRef != null && serialRef.getPointer() != null) {
+                    serialMap.put(childId.getValue(), CfUtil.cfPointerToString(serialRef.getPointer()));
+                }
+                CfUtil.release(serialRef);
+
+                IOKit.INSTANCE.IOObjectRelease(childDevice);
+                childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());
             }
-            // If we've fond items indent with each <array> tag and copy over
-            // everything with indent > 0.
-            if (copy) {
-                if (s.equals("</array>")) {
-                    if (--indent == 0) {
-                        copy = false;
-                        continue;
-                    }
-                }
-                if (indent > 0) {
-                    items.add(s);
-                }
-                if (s.equals("<array>")) {
-                    indent++;
-                }
-            }
+            IOKit.INSTANCE.IOObjectRelease(childIter.getValue());
+
+            IOKit.INSTANCE.IOObjectRelease(device);
+            device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
         }
-        // Items now contains 0 or more sets of <dict>...</dict>
-        return getUsbDevices(items);
+        IOKit.INSTANCE.IOObjectRelease(iter.getValue());
+
+        // Build tree and return
+        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        for (Long controller : usbControllers) {
+            controllerDevices.add(getDeviceAndChildren(controller));
+        }
+        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
 
     /**
-     * Parses a list of xml into USB devices
+     * Recursively creates MacUsbDevices by fetching information from maps to
+     * populate fields
      * 
-     * @param items
-     *            A list of XML beginning containing 0 or more <dict>...</dict>
-     *            entries corresponding to USB buses, hubs, or devices
-     * @return An array of usb devices corresponding to the <dict> entries
+     * @param registryEntryId
+     *            The device unique registry id.
+     * @return A MacUsbDevice corresponding to this device
      */
-    private static UsbDevice[] getUsbDevices(List<String> items) {
-        List<UsbDevice> usbDevices = new ArrayList<UsbDevice>();
-        List<String> item = new ArrayList<>();
-        // Separate out item between each pair of <dict>...</dict> tags
-        int indent = 0;
-        for (String s : items) {
-            if (s.equals("</dict>")) {
-                // If this is the final closing tag, add the singular device
-                // we've been accumulating in the item list
-                if (--indent == 0) {
-                    usbDevices.add(getUsbDevice(item));
-                    item.clear();
-                    continue;
-                }
-            }
-            if (indent > 0) {
-                item.add(s);
-            }
-            if (s.equals("<dict>")) {
-                indent++;
-            }
+    private static MacUsbDevice getDeviceAndChildren(Long registryEntryId) {
+        List<Long> childIds = hubMap.containsKey(registryEntryId) ? hubMap.get(registryEntryId) : new ArrayList<Long>();
+        List<MacUsbDevice> usbDevices = new ArrayList<>();
+        for (Long id : childIds) {
+            usbDevices.add(getDeviceAndChildren(id));
         }
-        return usbDevices.toArray(new UsbDevice[usbDevices.size()]);
-    }
-
-    /**
-     * Parses a list of xml (selected from inside <dict>...</dict> tags) into a
-     * USB device
-     * 
-     * @param data
-     *            A list of XML beginning containing an XML entry corresponding
-     *            to a USB bus, hub, or device
-     * @return A usb device corresponding to the entry
-     */
-    private static UsbDevice getUsbDevice(List<String> data) {
-        String name = "";
-        boolean readName = false;
-        String vendor = "";
-        boolean readVendor = false;
-        String serialNumber = "";
-        boolean readSerialNumber = false;
-        List<String> nested = new ArrayList<>();
-        boolean readNested = false;
-        int indent = 0;
-        for (String s : data) {
-            if (readName) {
-                name = parseXmlString(s);
-                readName = false;
-                continue;
-            } else if (readVendor) {
-                vendor = parseXmlString(s);
-                readVendor = false;
-                continue;
-            } else if (readSerialNumber) {
-                serialNumber = parseXmlString(s);
-                readSerialNumber = false;
-                continue;
-            }
-            if (s.equals("</array>") || s.equals("</dict>")) {
-                if (--indent == 0) {
-                    readNested = false;
-                    continue;
-                }
-            }
-            if (readNested && indent > 0) {
-                nested.add(s);
-            }
-            if (s.equals("<array>") || s.equals("<dict>")) {
-                indent++;
-            }
-            if (indent == 0) {
-                switch (s) {
-                case "<key>_name</key>":
-                    readName = true;
-                    break;
-                case "<key>manufacturer</key>":
-                    readVendor = true;
-                    break;
-                case "<key>serial_num</key>":
-                    readSerialNumber = true;
-                    break;
-                case "<key>_items</key>":
-                    readNested = true;
-                    break;
-                default:
-                }
-            }
-        }
-        return new MacUsbDevice(name, vendor, serialNumber, getUsbDevices(nested));
-    }
-
-    /**
-     * Get the string between tags
-     * 
-     * @param s
-     *            A string between <string> ... </string> tags
-     * @return The string
-     */
-    private static String parseXmlString(String s) {
-        Matcher matcher = XML_STRING.matcher(s);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return "";
+        Collections.sort(usbDevices);
+        return new MacUsbDevice(nameMap.containsKey(registryEntryId) ? nameMap.get(registryEntryId) : "",
+                vendorMap.containsKey(registryEntryId) ? vendorMap.get(registryEntryId) : "",
+                serialMap.containsKey(registryEntryId) ? serialMap.get(registryEntryId) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
