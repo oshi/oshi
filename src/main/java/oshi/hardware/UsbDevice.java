@@ -43,6 +43,20 @@ public interface UsbDevice extends OshiJsonObject, Comparable<UsbDevice> {
     String getVendor();
 
     /**
+     * ID of the vendor that manufactured the USB device
+     * 
+     * @return The vendor ID, a 4-digit hex string
+     */
+    String getVendorId();
+
+    /**
+     * Product ID of the USB device
+     * 
+     * @return The product ID, a 4-digit hex string
+     */
+    String getProductId();
+
+    /**
      * Serial number of the USB device
      * 
      * @return The serial number, if known
