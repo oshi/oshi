@@ -19,9 +19,12 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +45,16 @@ import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
 
-    public WindowsUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
-        super(name, vendor, serialNumber, connectedDevices);
+    private static final Pattern VENDOR_PRODUCT_ID = Pattern
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
+
+    public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
     }
 
     /*
@@ -101,7 +108,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (String controllerDeviceId : usbMap.get("PNPDeviceID")) {
             putChildrenInDeviceTree(controllerDeviceId, 0);
-            controllerDevices.add(getDeviceAndChildren(controllerDeviceId));
+            controllerDevices.add(getDeviceAndChildren(controllerDeviceId, "0000", "0000"));
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
@@ -190,17 +197,32 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * Recursively creates WindowsUsbDevices by fetching information from maps
      * to populate fields
      * 
-     * @param hubDeviceID
+     * @param hubDeviceId
      *            The PNPdeviceID of this device.
+     * @param vid
+     *            The default (parent) vendor ID
+     * @param pid
+     *            The default (parent) product ID
      * @return A WindowsUsbDevice corresponding to this deviceID
      */
-    private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceID) {
-        List<String> pnpDeviceIDs = hubMap.getOrDefault(hubDeviceID, new ArrayList<>());
-        List<WindowsUsbDevice> usbDevices = new ArrayList<>();
-        for (String pnpDeviceID : pnpDeviceIDs) {
-            usbDevices.add(getDeviceAndChildren(pnpDeviceID));
+    private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceId, String vid, String pid) {
+        String vendorId = vid;
+        String productId = pid;
+        Matcher m = VENDOR_PRODUCT_ID.matcher(hubDeviceId);
+        if (m.matches()) {
+            vendorId = m.group(1).toLowerCase();
+            productId = m.group(2).toLowerCase();
         }
-        return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceID, ""), vendorMap.getOrDefault(hubDeviceID, ""),
-                serialMap.getOrDefault(hubDeviceID, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        List<String> pnpDeviceIds = hubMap.containsKey(hubDeviceId) ? hubMap.get(hubDeviceId) : new ArrayList<String>();
+        List<WindowsUsbDevice> usbDevices = new ArrayList<>();
+        for (String pnpDeviceId : pnpDeviceIds) {
+            usbDevices.add(getDeviceAndChildren(pnpDeviceId, vendorId, productId));
+        }
+        Collections.sort(usbDevices);
+        return new WindowsUsbDevice(
+                nameMap.containsKey(hubDeviceId) ? nameMap.get(hubDeviceId) : vendorId + ":" + productId,
+                vendorMap.containsKey(hubDeviceId) ? vendorMap.get(hubDeviceId) : "", vendorId, productId,
+                serialMap.containsKey(hubDeviceId) ? serialMap.get(hubDeviceId) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

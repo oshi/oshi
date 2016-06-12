@@ -27,7 +27,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface UsbDevice extends OshiJsonObject {
+public interface UsbDevice extends OshiJsonObject, Comparable<UsbDevice> {
     /**
      * Name of the USB device
      * 
@@ -41,6 +41,20 @@ public interface UsbDevice extends OshiJsonObject {
      * @return The vendor name
      */
     String getVendor();
+
+    /**
+     * ID of the vendor that manufactured the USB device
+     * 
+     * @return The vendor ID, a 4-digit hex string
+     */
+    String getVendorId();
+
+    /**
+     * Product ID of the USB device
+     * 
+     * @return The product ID, a 4-digit hex string
+     */
+    String getProductId();
 
     /**
      * Serial number of the USB device

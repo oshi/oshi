@@ -54,6 +54,22 @@ public class IOKitUtil {
     }
 
     /**
+     * Gets the IO Registry root
+     * 
+     * @return an int handle to the IORoot
+     */
+    public static int getRoot() {
+        if (setMasterPort() == 0) {
+            int root = IOKit.INSTANCE.IORegistryGetRootEntry(masterPort.getValue());
+            if (root == 0) {
+                LOG.error("No IO Root found.");
+            }
+            return root;
+        }
+        return 0;
+    }
+
+    /**
      * Opens an IOService matching the given name
      * 
      * @param serviceName

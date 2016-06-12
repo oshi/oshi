@@ -19,6 +19,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,11 @@ import oshi.jna.platform.linux.Udev.UdevListEntry;
 
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    public LinuxUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
-        super(name, vendor, serialNumber, connectedDevices);
+    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
     }
 
     /*
@@ -43,6 +45,8 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      */
     private static Map<String, String> nameMap = new HashMap<>();
     private static Map<String, String> vendorMap = new HashMap<>();
+    private static Map<String, String> vendorIdMap = new HashMap<>();
+    private static Map<String, String> productIdMap = new HashMap<>();
     private static Map<String, String> serialMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
 
@@ -64,6 +68,8 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         // Empty out maps
         nameMap.clear();
         vendorMap.clear();
+        vendorIdMap.clear();
+        productIdMap.clear();
         serialMap.clear();
         hubMap.clear();
 
@@ -89,6 +95,14 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             if (value != null) {
                 vendorMap.put(path, value);
             }
+            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idVendor");
+            if (value != null) {
+                vendorIdMap.put(path, value);
+            }
+            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idProduct");
+            if (value != null) {
+                productIdMap.put(path, value);
+            }
             value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "serial");
             if (value != null) {
                 serialMap.put(path, value);
@@ -101,7 +115,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
                 if (!hubMap.containsKey(parentPath)) {
-                    hubMap.put(parentPath, new ArrayList<>());
+                    hubMap.put(parentPath, new ArrayList<String>());
                 }
                 hubMap.get(parentPath).add(path);
             }
@@ -114,7 +128,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (String controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller));
+            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
@@ -125,15 +139,24 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * 
      * @param devPath
      *            The device node path.
+     * @param vid
+     *            The default (parent) vendor ID
+     * @param pid
+     *            The default (parent) product ID
      * @return A LinuxUsbDevice corresponding to this device
      */
-    private static LinuxUsbDevice getDeviceAndChildren(String devPath) {
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<>());
+    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
+        String vendorId = vendorIdMap.containsKey(devPath) ? vendorIdMap.get(devPath) : vid;
+        String productId = productIdMap.containsKey(devPath) ? productIdMap.get(devPath) : pid;
+        List<String> childPaths = hubMap.containsKey(devPath) ? hubMap.get(devPath) : new ArrayList<String>();
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path));
+            usbDevices.add(getDeviceAndChildren(path, vid, pid));
         }
-        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, ""), vendorMap.getOrDefault(devPath, ""),
-                serialMap.getOrDefault(devPath, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        Collections.sort(usbDevices);
+        return new LinuxUsbDevice(nameMap.containsKey(devPath) ? nameMap.get(devPath) : vendorId + ":" + productId,
+                vendorMap.containsKey(devPath) ? vendorMap.get(devPath) : "", vendorId, productId,
+                serialMap.containsKey(devPath) ? serialMap.get(devPath) : "",
+                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

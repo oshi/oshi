@@ -1,7 +1,13 @@
 2.6 (in progress)
 ================
-* [#186](https://github.com/dblock/oshi/pull/186), [#187](https://github.com/dblock/oshi/pull/187): Improve USB device trees - [@dbwiddis](https://github.com/dbwiddis).
+* [#190](https://github.com/dblock/oshi/pull/190): Add VendorID and ProductID to UsbDevice - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
+
+2.5.1 (6/8/2016) / 2.5.2 (6/9/2016)
+================
+* [#186](https://github.com/dblock/oshi/pull/186), [#187](https://github.com/dblock/oshi/pull/187),  [#188](https://github.com/dblock/oshi/pull/188): Improve USB device trees - [@dbwiddis](https://github.com/dbwiddis).
+* Created a Java 7 backport using threeten.org dependency released as 2.5.1
+* Incremented to 2.5.2 for Java 8 version because "2.5.1-java" confused maven's "latest version"
 
 2.5 (6/4/2016)
 ================
@@ -15,7 +21,7 @@
 * [#181](https://github.com/dblock/oshi/pull/181): Added USB Device listing - [@dbwiddis](https://github.com/dbwiddis).
 * [#184](https://github.com/dblock/oshi/pull/184): Improve Linux OS version parsing - [@dbwiddis](https://github.com/dbwiddis).
 
-2.4 (5/02/2016)
+2.4 (5/2/2016)
 ================
 * [#140](https://github.com/dblock/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
 * [#142](https://github.com/dblock/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
