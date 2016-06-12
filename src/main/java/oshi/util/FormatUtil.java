@@ -68,31 +68,38 @@ public abstract class FormatUtil {
             return String.format("%d byte", bytes);
         } else if (bytes < KIBI) { // bytes
             return String.format("%d bytes", bytes);
-        } else if (bytes % KIBI == 0 && bytes < MEBI) { // KiB
-            return String.format("%.0f KiB", (double) bytes / KIBI);
         } else if (bytes < MEBI) { // KiB
-            return String.format("%.1f KiB", (double) bytes / KIBI);
-        } else if (bytes % MEBI == 0 && bytes < GIBI) { // MiB
-            return String.format("%.0f MiB", (double) bytes / MEBI);
+            return formatUnits(bytes, KIBI, "KiB");
         } else if (bytes < GIBI) { // MiB
-            return String.format("%.1f MiB", (double) bytes / MEBI);
-        } else if (bytes % GIBI == 0 && bytes < TEBI) { // GiB
-            return String.format("%.0f GiB", (double) bytes / GIBI);
+            return formatUnits(bytes, MEBI, "MiB");
         } else if (bytes < TEBI) { // GiB
-            return String.format("%.1f GiB", (double) bytes / GIBI);
-        } else if (bytes % TEBI == 0 && bytes < PEBI) { // TiB
-            return String.format("%.0f TiB", (double) bytes / TEBI);
+            return formatUnits(bytes, GIBI, "GiB");
         } else if (bytes < PEBI) { // TiB
-            return String.format("%.1f TiB", (double) bytes / TEBI);
-        } else if (bytes % PEBI == 0 && bytes < EXBI) { // PiB
-            return String.format("%.0f PiB", (double) bytes / PEBI);
+            return formatUnits(bytes, TEBI, "TiB");
         } else if (bytes < EXBI) { // PiB
-            return String.format("%.1f PiB", (double) bytes / PEBI);
-        } else if (bytes % EXBI == 0) { // EiB
-            return String.format("%.0f EiB", (double) bytes / EXBI);
+            return formatUnits(bytes, PEBI, "PiB");
         } else { // EiB
-            return String.format("%.1f EiB", (double) bytes / EXBI);
+            return formatUnits(bytes, EXBI, "EiB");
         }
+    }
+
+    /**
+     * Format units as exact integer or fractional decimal based on the prefix,
+     * appending the appropriate units
+     * 
+     * @param value
+     *            The value to format
+     * @param prefix
+     *            The divisor of the unit multiplier
+     * @param unit
+     *            A string representing the units
+     * @return A string with the value
+     */
+    private static String formatUnits(long value, long prefix, String unit) {
+        if (value % prefix == 0) {
+            return String.format("%d %s", value / prefix, unit);
+        }
+        return String.format("%.1f %s", (double) value / prefix, unit);
     }
 
     /**
@@ -138,28 +145,18 @@ public abstract class FormatUtil {
     public static String formatValue(long value, String unit) {
         if (value < KILO) {
             return String.format("%d %s", value, unit);
-        } else if (value < MEGA && value % KILO == 0) { // K
-            return String.format("%.0f K%s", (double) value / KILO, unit);
-        } else if (value < MEGA) {
-            return String.format("%.1f K%s", (double) value / KILO, unit);
-        } else if (value < GIGA && value % MEGA == 0) { // M
-            return String.format("%.0f M%s", (double) value / MEGA, unit);
-        } else if (value < GIGA) {
-            return String.format("%.1f M%s", (double) value / MEGA, unit);
-        } else if (value < TERA && value % GIGA == 0) { // G
-            return String.format("%.0f G%s", (double) value / GIGA, unit);
-        } else if (value < TERA) {
-            return String.format("%.1f G%s", (double) value / GIGA, unit);
-        } else if (value < PETA && value % TERA == 0) { // T
-            return String.format("%.0f T%s", (double) value / TERA, unit);
-        } else if (value < PETA) {
-            return String.format("%.1f T%s", (double) value / TERA, unit);
-        } else if (value < EXA && value % PETA == 0) { // E
-            return String.format("%.0f E%s", (double) value / PETA, unit);
-        } else if (value < EXA) {
-            return String.format("%.1f E%s", (double) value / PETA, unit);
-        } else {
-            return String.format("%d %s", value, unit);
+        } else if (value < MEGA) { // K
+            return formatUnits(value, KILO, "K" + unit);
+        } else if (value < GIGA) { // M
+            return formatUnits(value, MEGA, "M" + unit);
+        } else if (value < TERA) { // G
+            return formatUnits(value, GIGA, "G" + unit);
+        } else if (value < PETA) { // T
+            return formatUnits(value, TERA, "T" + unit);
+        } else if (value < EXA) { // P
+            return formatUnits(value, PETA, "P" + unit);
+        } else { // E
+            return formatUnits(value, EXA, "E" + unit);
         }
     }
 
