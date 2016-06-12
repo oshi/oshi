@@ -436,11 +436,12 @@ public class SystemInfoTest {
 
         HWDiskStore[] dskArray = hal.getDiskStores();
         for (HWDiskStore dsk : dskArray) {
+            boolean readwrite = dsk.getReads() > 0 || dsk.getWrites() > 0;
             System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", dsk.getName(),
                     dsk.getModel(), dsk.getSerial(),
                     dsk.getSize() > 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : "?",
-                    dsk.getReads() > 0 ? FormatUtil.formatBytes(dsk.getReads()) : "?",
-                    dsk.getWrites() > 0 ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
+                    readwrite ? FormatUtil.formatBytes(dsk.getReads()) : "?",
+                    readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
         }
 
         // hardware: network interfaces
