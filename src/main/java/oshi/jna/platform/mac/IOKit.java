@@ -27,6 +27,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -165,6 +166,8 @@ public interface IOKit extends Library {
 
     CFMutableDictionaryRef IOServiceMatching(String name);
 
+    CFMutableDictionaryRef IOBSDNameMatching(int masterPort, int options, String bsdName);
+
     int IOServiceGetMatchingService(int port, CFMutableDictionaryRef matchingDictionary);
 
     int IOServiceGetMatchingServices(int port, CFMutableDictionaryRef matchingDictionary, IntByReference iterator);
@@ -177,6 +180,8 @@ public interface IOKit extends Library {
 
     int IOIteratorNext(int iterator);
 
+    boolean IOObjectConformsTo(int object, String className);
+
     // Requires OS X 10.5+
     int IOConnectCallStructMethod(int connection, int selector, Structure inputStructure, int structureInputSize,
             Structure outputStructure, IntByReference structureOutputSize);
@@ -186,7 +191,7 @@ public interface IOKit extends Library {
     CFTypeRef IORegistryEntrySearchCFProperty(int entry, String plane, CFStringRef key, CFAllocatorRef allocator,
             int options);
 
-    int IORegistryEntryCreateCFProperties(int entry, CFMutableDictionaryRef serviceProperties, CFAllocatorRef allocator,
+    int IORegistryEntryCreateCFProperties(int entry, PointerByReference propsPtr, CFAllocatorRef allocator,
             int options);
 
     CFStringRef CFCopyDescription(CFTypeRef type);

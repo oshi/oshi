@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
@@ -38,6 +39,7 @@ import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.util.platform.mac.CfUtil;
@@ -59,6 +61,9 @@ public class MacDisks extends AbstractDisks {
     private static final CFStringRef cfDADeviceModel = CFStringRef.toCFString("DADeviceModel");
     private static final CFStringRef cfDAMediaSize = CFStringRef.toCFString("DAMediaSize");
     private static final CFStringRef cfSerialNumber = CFStringRef.toCFString("Serial Number");
+    private static final CFStringRef cfStatistics = CFStringRef.toCFString("Statistics");
+    private static final CFStringRef cfBytesRead = CFStringRef.toCFString("Bytes (Read)");
+    private static final CFStringRef cfBytesWrite = CFStringRef.toCFString("Bytes (Write)");
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -83,18 +88,21 @@ public class MacDisks extends AbstractDisks {
             String model = "";
             String serial = "";
             long size = 0L;
+            long read = 0L;
+            long write = 0L;
             // Get a reference to the disk - only matching /dev/disk*s2
             String[] split = new String(f.f_mntfromname).trim().split("/dev/|s2");
             if (split.length < 2) {
                 continue;
             }
-            String name = split[1];
-            String path = "/dev/" + name;
-            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);
+            // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
+            String bsdName = split[1];
+            String path = "/dev/" + bsdName;
 
+            // Get the DiskArbitration dictionary for this disk, which has model
+            // and size (capacity)
+            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);
             if (disk != null) {
-                // Get the DiskArbitration dictionary for this disk, which
-                // has model and size (capacity)
                 CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                 if (diskInfo != null) {
                     // Parse out model and size from their respective keys
@@ -133,11 +141,65 @@ public class MacDisks extends AbstractDisks {
                             // iterate
                             sdService = IOKit.INSTANCE.IOIteratorNext(sdService);
                         }
+                        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
                     }
                 }
                 CfUtil.release(disk);
+
+                // Now look up the device using the BSD Name to get its
+                // statistics
+                MachPort masterPort = IOKitUtil.getMasterPort();
+                if (masterPort != null) {
+                    CFMutableDictionaryRef matchingDict = IOKit.INSTANCE.IOBSDNameMatching(masterPort.getValue(), 0,
+                            bsdName);
+                    // search for all IOservices that match the bsd name
+                    IntByReference driveList = new IntByReference();
+                    IOKitUtil.getMatchingServices(matchingDict, driveList);
+                    // getMatchingServices releases matchingDict
+                    int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());
+                    // Should only match one drive
+                    while (drive != 0) {
+                        // Should be an IOMedia object with a parent
+                        // IOBlockStorageDriver object
+                        // Get the properties from the parent
+                        IntByReference parent = new IntByReference();
+                        if (!IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
+                                || IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) != 0) {
+                            LOG.error("Unable to find IOMedia device or parent for ", bsdName);
+                            break;
+                        }
+                        PointerByReference propsPtr = new PointerByReference();
+
+                        if (!IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
+                                || IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
+                                        CfUtil.ALLOCATOR, 0) != 0) {
+                            IOKit.INSTANCE.IOObjectRelease(parent.getValue());
+                            LOG.error("Unable to find block storage driver properties for {}", bsdName);
+                            break;
+                        }
+                        CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
+                        properties.setPointer(propsPtr.getValue());
+                        // We now have a properties object with the statistics
+                        // we need on it. Fetch them
+                        Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties, cfStatistics);
+                        CFDictionaryRef statistics = new CFDictionaryRef();
+                        statistics.setPointer(statsPtr);
+
+                        // Now get the stats we want
+                        Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics, cfBytesRead);
+                        read = CfUtil.cfPointerToLong(stat);
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics, cfBytesWrite);
+                        write = CfUtil.cfPointerToLong(stat);
+
+                        CfUtil.release(properties);
+                        // iterate
+                        drive = IOKit.INSTANCE.IOIteratorNext(drive);
+                    }
+                    IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
+                }
+
                 if (size > 0L) {
-                    result.add(new HWDiskStore(name, model.trim(), serial.trim(), size));
+                    result.add(new HWDiskStore(bsdName, model.trim(), serial.trim(), size, read, write));
                 }
             }
         }

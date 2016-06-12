@@ -54,6 +54,18 @@ public class IOKitUtil {
     }
 
     /**
+     * Gets the master port value
+     * 
+     * @return the master port if successful; null otherwise
+     */
+    public static MachPort getMasterPort() {
+        if (setMasterPort() == 0) {
+            return masterPort;
+        }
+        return null;
+    }
+
+    /**
      * Gets the IO Registry root
      * 
      * @return an int handle to the IORoot

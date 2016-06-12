@@ -76,12 +76,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices() {
-        // Unique global identifier for the IO Root
-        LongByReference rootId = new LongByReference();
-        int root = IOKitUtil.getRoot();
-        IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(root, rootId);
-        IOKit.INSTANCE.IOObjectRelease(root);
-
         // Reusable buffer for getting IO name strings
         Pointer buffer = new Memory(128); // io_name_t is char[128]
 
@@ -130,12 +124,14 @@ public class MacUsbDevice extends AbstractUsbDevice {
                 // Get this device's parent in the "IOUSB" plane
                 IntByReference parent = new IntByReference();
                 IOKit.INSTANCE.IORegistryEntryGetParentEntry(childDevice, "IOUSB", parent);
-                // Unique global identifier for the parent
+                // If the parent is not an IOUSBDevice (will be root), set the
+                // parentId to the controller
                 LongByReference parentId = new LongByReference();
-                IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
-                // If the parent is the root, set the parentId to the controller
-                if (parentId.getValue() == rootId.getValue()) {
+                if (!IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOUSBDevice")) {
                     parentId = id;
+                } else {
+                    // Unique global identifier for the parent
+                    IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
                 if (!hubMap.containsKey(parentId.getValue())) {
