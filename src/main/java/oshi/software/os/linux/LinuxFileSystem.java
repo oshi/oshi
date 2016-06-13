@@ -18,14 +18,11 @@
  */
 package oshi.software.os.linux;
 
-import java.io.IOException;
+import java.io.File;
 import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +46,12 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] { //
+    private final List<String> pseudofs = Arrays.asList(new String[] {
             "sysfs", // SysFS file system
             "proc", // Proc file system
             "devtmpfs", // Dev temporary file system
             "devpts", // Dev pseudo terminal devices file system
             "securityfs", // Kernel security file system
-            "tmpfs", // Temporary file system
             "cgroup", // Cgroup file system
             "pstore", // Pstore file system
             "hugetlbfs", // Huge pages support file system
@@ -67,10 +63,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
             "debugfs", // Debug file system
             "nfsd", // NFS file system
             "sunrpc", // Sun RPC file system
+            "rpc_pipefs", // Sun RPC file system
             "fusectl", // FUSE control file system
             // NOTE: FUSE's fuseblk is not evalued because used as file system
             // representation of a FUSE block storage
             // "fuseblk" // FUSE block file system
+            // NOTE: tmpfs is evaluated apart, because Linux uses it for RAMdisks
+            //"tmpfs", // Temporary file system
     });
 
     // System path mounted as tmpfs
@@ -106,44 +105,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
     public OSFileStore[] getFileStores() {
         // List file systems
         List<OSFileStore> fsList = new ArrayList<>();
-        // Map with path as key for later /proc/mount parsing
-        Map<String, OSFileStore> fsMap = new HashMap<>();
 
-        for (FileStore store : FileSystems.getDefault().getFileStores()) {
-            // FileStore toString starts with path, then a space, then name in
-            // parentheses e.g., "/ (/dev/sda1)" and "/proc (proc)"
-            String path = store.toString().replace(" (" + store.name() + ")", "");
-
-            // Exclude pseudo file systems
-            if (this.pseudofs.contains(store.name()) || path.equals("/dev")
-                    || listElementStartsWith(this.tmpfsPaths, path)) {
-                continue;
-            }
-
-            String volume = store.name();
-            String name = store.name();
-            if (path.equals("/"))
-                name = "/";
-            String description = "Mount Point";
-            if (store.name().startsWith("/dev"))
-                description = "Local Disk";
-            try {
-                OSFileStore osStore = new OSFileStore(name, volume, path, description, "", store.getUsableSpace(),
-                        store.getTotalSpace());
-                fsList.add(osStore);
-                fsMap.put(path, osStore);
-            } catch (IOException e) {
-                // get*Space() may fail for ejected CD-ROM, etc.
-                LOG.trace("", e);
-                continue;
-            }
-        }
         // Parse /proc/self/mounts to get fs types
         List<String> mounts = FileUtil.readFile("/proc/self/mounts");
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // As reported in fstab(5) manpage, struct is:
-            // 1st field is name
+            // 1st field is volume name
             // 2nd field is path with spaces escaped as \040
             // 3rd field is fs type
             // 4th field is mount options (ignored)
@@ -152,10 +120,35 @@ public class LinuxFileSystem extends AbstractFileSystem {
             if (split.length < 6) {
                 continue;
             }
+            
+            String name = split[0];
+            String volume = split[0];
             String path = split[1].replaceAll("\\\\040", " ");
-            if (fsMap.containsKey(path)) {
-                fsMap.get(path).setType(split[2]);
+            String type = split[2];
+            
+            // Exclude pseudo file systems
+            if (this.pseudofs.contains(type) || path.equals("/dev")
+                    || listElementStartsWith(this.tmpfsPaths, path)) {
+                continue;
             }
+            
+            long totalSpace = (new File(path)).getTotalSpace();
+            long usableSpace = (new File(path)).getUsableSpace();
+            
+            String description;
+            if (volume.startsWith("/dev")) {
+                description = "Local Disk";
+            } else if (volume.equals("tmpfs")) {
+                description = "Ram Disk";
+            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+                description = "Network Disk";
+            } else {
+                description = "Mount Point";
+            }
+            
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type,
+                    usableSpace, totalSpace);
+            fsList.add(osStore);
         }
 
         return fsList.toArray(new OSFileStore[fsList.size()]);

@@ -1,8 +1,10 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
-[<img align="right" alt="Dependency Status" src="https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat" />](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
-[<img align="right" alt="Build Status" src="https://travis-ci.org/dblock/oshi.svg" />](https://travis-ci.org/dblock/oshi)
-[<img align="right" alt="Eclipse Public License" src="http://img.shields.io/badge/license-Eclipse-blue.svg" />](https://www.eclipse.org/legal/epl-v10.html)
-[<img align="right" alt="Maven central" src="https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg" />](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+
+[![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+[![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
+[![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
+[![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 
 OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
 

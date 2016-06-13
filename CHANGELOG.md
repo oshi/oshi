@@ -1,5 +1,7 @@
 2.6 (in progress)
 ================
+* [#190](https://github.com/dblock/oshi/pull/190): Add VendorID and ProductID to UsbDevice - [@dbwiddis](https://github.com/dbwiddis).
+* [#193](https://github.com/dblock/oshi/pull/193): Add read/write to Windows and OS X HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.5.1 (6/8/2016) / 2.5.2 (6/9/2016)

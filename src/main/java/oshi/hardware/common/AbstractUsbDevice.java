@@ -33,11 +33,15 @@ import oshi.json.NullAwareJsonObjectBuilder;
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected String name;
 
     protected String vendor;
+
+    protected String vendorId;
+
+    protected String productId;
 
     protected String serialNumber;
 
@@ -45,9 +49,12 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
-    public AbstractUsbDevice(String name, String vendor, String serialNumber, UsbDevice[] connectedDevices) {
+    public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
         this.name = name;
         this.vendor = vendor;
+        this.vendorId = vendorId;
+        this.productId = productId;
         this.serialNumber = serialNumber;
         this.connectedDevices = connectedDevices;
     }
@@ -66,6 +73,22 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     @Override
     public String getVendor() {
         return this.vendor;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVendorId() {
+        return this.vendorId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProductId() {
+        return this.productId;
     }
 
     /**
@@ -92,8 +115,8 @@ public abstract class AbstractUsbDevice implements UsbDevice {
             usbDeviceArrayBuilder.add(usbDevice.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("vendor", getVendor()).add("serialNumber", getSerialNumber())
-                .add("connectedDevices", usbDeviceArrayBuilder.build()).build();
+                .add("vendor", getVendor()).add("vendorId", getVendorId()).add("productId", getProductId())
+                .add("serialNumber", getSerialNumber()).add("connectedDevices", usbDeviceArrayBuilder.build()).build();
     }
 
     /**
