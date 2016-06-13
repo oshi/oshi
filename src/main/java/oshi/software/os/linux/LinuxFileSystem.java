@@ -121,8 +121,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 continue;
             }
             
-            String name = split[0];
-            String volume = split[0];
+            String name = split[0].replaceAll("\\\\040", " ");
+            String volume = split[0].replaceAll("\\\\040", " ");
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
             
