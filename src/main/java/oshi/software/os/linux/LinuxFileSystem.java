@@ -134,6 +134,10 @@ public class LinuxFileSystem extends AbstractFileSystem {
             
             long totalSpace = (new File(path)).getTotalSpace();
             long usableSpace = (new File(path)).getUsableSpace();
+
+            if (path.equals("/")) {
+                name = "/";
+            }
             
             String description;
             if (volume.startsWith("/dev")) {
