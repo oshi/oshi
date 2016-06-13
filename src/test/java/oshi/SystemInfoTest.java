@@ -425,10 +425,10 @@ public class SystemInfoTest {
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) mounted at %s%n", fs.getName(),
+            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n", fs.getName(),
                     fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    fs.getMount());
+                    fs.getVolume(), fs.getMount());
         }
 
         // hardware: disks
