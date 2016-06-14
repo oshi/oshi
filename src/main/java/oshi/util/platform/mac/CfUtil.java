@@ -18,6 +18,9 @@
  */
 package oshi.util.platform.mac;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -25,6 +28,7 @@ import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 
 /**
  * Provides utilities for Core Foundations
@@ -33,6 +37,25 @@ import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
  */
 public class CfUtil {
     public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();
+
+    /**
+     * Cache cfStrings
+     */
+    private static Map<String, CFStringRef> cfStringMap = new HashMap<>();
+
+    /**
+     * Return a CFStringRef representing a string, caching the result
+     * 
+     * @param key
+     *            The string, usually a registry key
+     * @return the corresponding CFString
+     */
+    public static CFStringRef getCFString(String key) {
+        if (!cfStringMap.containsKey(key)) {
+            cfStringMap.put(key, CFStringRef.toCFString(key));
+        }
+        return cfStringMap.get(key);
+    }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to

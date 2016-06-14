@@ -32,9 +32,6 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
@@ -43,7 +40,6 @@ import oshi.jna.platform.mac.SystemB.Timeval;
 import oshi.software.os.OSProcess;
 import oshi.software.os.mac.MacProcess;
 import oshi.util.FormatUtil;
-import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -211,11 +207,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
             int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
             if (service != 0) {
                 // Fetch the serial number
-                CFTypeRef serialNumberAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(service,
-                        CFStringRef.toCFString("IOPlatformSerialNumber"),
-                        CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+                this.cpuSerialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");
                 IOKit.INSTANCE.IOObjectRelease(service);
-                this.cpuSerialNumber = CfUtil.cfPointerToString(serialNumberAsCFString.getPointer());
             }
             if (this.cpuSerialNumber == null) {
                 this.cpuSerialNumber = "unknown";

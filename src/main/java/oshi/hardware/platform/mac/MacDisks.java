@@ -34,12 +34,10 @@ import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.IOKit.MachPort;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.util.platform.mac.CfUtil;
@@ -55,15 +53,6 @@ public class MacDisks extends AbstractDisks {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
-
-    private static final CFStringRef cfModel = CFStringRef.toCFString("Model");
-    private static final CFStringRef cfIOPropertyMatch = CFStringRef.toCFString("IOPropertyMatch");
-    private static final CFStringRef cfDADeviceModel = CFStringRef.toCFString("DADeviceModel");
-    private static final CFStringRef cfDAMediaSize = CFStringRef.toCFString("DAMediaSize");
-    private static final CFStringRef cfSerialNumber = CFStringRef.toCFString("Serial Number");
-    private static final CFStringRef cfStatistics = CFStringRef.toCFString("Statistics");
-    private static final CFStringRef cfBytesRead = CFStringRef.toCFString("Bytes (Read)");
-    private static final CFStringRef cfBytesWrite = CFStringRef.toCFString("Bytes (Write)");
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -106,9 +95,11 @@ public class MacDisks extends AbstractDisks {
                 CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                 if (diskInfo != null) {
                     // Parse out model and size from their respective keys
-                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, cfDADeviceModel);
+                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
+                            CfUtil.getCFString("DADeviceModel"));
                     model = CfUtil.cfPointerToString(modelPtr);
-                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, cfDAMediaSize);
+                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
+                            CfUtil.getCFString("DAMediaSize"));
                     size = CfUtil.cfPointerToLong(sizePtr);
                     CfUtil.release(diskInfo);
 
@@ -117,10 +108,12 @@ public class MacDisks extends AbstractDisks {
                         CFStringRef modelNameRef = CFStringRef.toCFString(model);
                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
-                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, cfModel, modelNameRef);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Model"),
+                                modelNameRef);
                         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE
                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
-                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, cfIOPropertyMatch, propertyDict);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
+                                CfUtil.getCFString("IOPropertyMatch"), propertyDict);
 
                         // search for all IOservices that match the model
                         IntByReference serviceIterator = new IntByReference();
@@ -131,11 +124,8 @@ public class MacDisks extends AbstractDisks {
                         int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
                         while (sdService != 0) {
                             // look up the serial number
-                            CFTypeRef serNo = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(sdService, cfSerialNumber,
-                                    CfUtil.ALLOCATOR, 0);
-                            if (serNo != null) {
-                                serial = CfUtil.cfPointerToString(serNo.getPointer());
-                                CfUtil.release(serNo);
+                            serial = IOKitUtil.getIORegistryStringProperty(sdService, "Serial Number");
+                            if (serial != null) {
                                 break;
                             }
                             // iterate
@@ -148,10 +138,8 @@ public class MacDisks extends AbstractDisks {
 
                 // Now look up the device using the BSD Name to get its
                 // statistics
-                MachPort masterPort = IOKitUtil.getMasterPort();
-                if (masterPort != null) {
-                    CFMutableDictionaryRef matchingDict = IOKit.INSTANCE.IOBSDNameMatching(masterPort.getValue(), 0,
-                            bsdName);
+                CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+                if (matchingDict != null) {
                     // search for all IOservices that match the bsd name
                     IntByReference driveList = new IntByReference();
                     IOKitUtil.getMatchingServices(matchingDict, driveList);
@@ -181,14 +169,17 @@ public class MacDisks extends AbstractDisks {
                         properties.setPointer(propsPtr.getValue());
                         // We now have a properties object with the statistics
                         // we need on it. Fetch them
-                        Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties, cfStatistics);
+                        Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
+                                CfUtil.getCFString("Statistics"));
                         CFDictionaryRef statistics = new CFDictionaryRef();
                         statistics.setPointer(statsPtr);
 
                         // Now get the stats we want
-                        Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics, cfBytesRead);
+                        Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Bytes (Read)"));
                         read = CfUtil.cfPointerToLong(stat);
-                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics, cfBytesWrite);
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Bytes (Write)"));
                         write = CfUtil.cfPointerToLong(stat);
 
                         CfUtil.release(properties);

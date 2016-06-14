@@ -28,13 +28,11 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.CfUtil;
@@ -58,19 +56,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
     private static Map<Long, String> productIdMap = new HashMap<>();
     private static Map<Long, String> serialMap = new HashMap<>();
     private static Map<Long, List<Long>> hubMap = new HashMap<>();
-
-    /*
-     * Strings for querying device information from registry
-     */
-    private static final CFStringRef cfVendor = CFStringRef.toCFString("USB Vendor Name");
-    private static final CFStringRef cfVendorId = CFStringRef.toCFString("idVendor");
-    private static final CFStringRef cfProductId = CFStringRef.toCFString("idProduct");
-    private static final CFStringRef cfSerial = CFStringRef.toCFString("USB Serial Number");
-
-    private static final CFStringRef cfIOPropertyMatch = CFStringRef.toCFString("IOPropertyMatch");
-    private static final CFStringRef cfLocationId = CFStringRef.toCFString("locationID");
-    private static final CFStringRef cfVendorData = CFStringRef.toCFString("vendor-id");
-    private static final CFStringRef cfDeviceData = CFStringRef.toCFString("device-id");
 
     /**
      * {@inheritDoc}
@@ -105,7 +90,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
             // The only information we have in registry for this device is the
             // locationID. Use that to search for matching PCI device to obtain
             // more information.
-            CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, cfLocationId, CfUtil.ALLOCATOR, 0);
+            CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, CfUtil.getCFString("locationID"),
+                    CfUtil.ALLOCATOR, 0);
             if (ref != null && ref.getPointer() != null) {
                 getControllerIdByLocation(id.getValue(), ref);
             }
@@ -143,33 +129,25 @@ public class MacUsbDevice extends AbstractUsbDevice {
                 IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);
                 nameMap.put(childId.getValue(), buffer.getString(0));
                 // Get vendor and store in map
-                ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfVendor, CfUtil.ALLOCATOR, 0);
-                if (ref != null && ref.getPointer() != null) {
-                    vendorMap.put(childId.getValue(), CfUtil.cfPointerToString(ref.getPointer()));
+                String vendor = IOKitUtil.getIORegistryStringProperty(childDevice, "USB Vendor Name");
+                if (vendor != null) {
+                    vendorMap.put(childId.getValue(), vendor);
                 }
-                CfUtil.release(ref);
                 // Get vendorId and store in map
-                ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfVendorId, CfUtil.ALLOCATOR, 0);
-                if (ref != null && ref.getPointer() != null) {
-                    vendorIdMap.put(childId.getValue(),
-                            String.format("%04x", 0xffff & CfUtil.cfPointerToLong(ref.getPointer())));
+                long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor");
+                if (vendorId != 0) {
+                    vendorIdMap.put(childId.getValue(), String.format("%04x", 0xffff & vendorId));
                 }
-                CfUtil.release(ref);
                 // Get productId and store in map
-                ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfProductId, CfUtil.ALLOCATOR, 0);
-                if (ref != null && ref.getPointer() != null) {
-                    productIdMap.put(childId.getValue(),
-                            String.format("%04x", 0xffff & CfUtil.cfPointerToLong(ref.getPointer())));
+                long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct");
+                if (productId != 0) {
+                    productIdMap.put(childId.getValue(), String.format("%04x", 0xffff & productId));
                 }
-                CfUtil.release(ref);
                 // Get serial and store in map
-                CFTypeRef serialRef = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(childDevice, cfSerial,
-                        CfUtil.ALLOCATOR, 0);
-                if (serialRef != null && serialRef.getPointer() != null) {
-                    serialMap.put(childId.getValue(), CfUtil.cfPointerToString(serialRef.getPointer()));
+                String serial = IOKitUtil.getIORegistryStringProperty(childDevice, "USB Serial Number");
+                if (serial != null) {
+                    serialMap.put(childId.getValue(), serial);
                 }
-                CfUtil.release(serialRef);
-
                 IOKit.INSTANCE.IOObjectRelease(childDevice);
                 childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());
             }
@@ -202,10 +180,10 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Create a matching property dictionary from the locationId
         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                 null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, cfLocationId, locationId);
+        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("locationID"), locationId);
         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                 null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, cfIOPropertyMatch, propertyDict);
+        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, CfUtil.getCFString("IOPropertyMatch"), propertyDict);
 
         // search for all IOservices that match the locationID
         IntByReference serviceIterator = new IntByReference();
@@ -222,31 +200,18 @@ public class MacUsbDevice extends AbstractUsbDevice {
             IntByReference parent = new IntByReference();
             IOKit.INSTANCE.IORegistryEntryGetParentEntry(matchingService, "IOService", parent);
             // look up the vendor-id by key
-            CFTypeRef vendorId = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(parent.getValue(), cfVendorData,
-                    CfUtil.ALLOCATOR, 0);
-            if (vendorId != null) {
-                // vendor-id is a byte array of 4 bytes
-                int length = CoreFoundation.INSTANCE.CFDataGetLength(vendorId);
-                PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(vendorId);
-                byte[] vid = p.getPointer().getByteArray(0, length);
-                CfUtil.release(vendorId);
-                if (vid.length >= 2) {
-                    vendorIdMap.put(id, String.format("%02x%02x", vid[1], vid[0]));
-                    found = true;
-                }
+            // vendor-id is a byte array of 4 bytes
+            byte[] vid = IOKitUtil.getIORegistryByteArrayProperty(parent.getValue(), "vendor-id");
+            if (vid != null && vid.length >= 2) {
+                vendorIdMap.put(id, String.format("%02x%02x", vid[1], vid[0]));
+                found = true;
             }
-            CFTypeRef deviceId = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(parent.getValue(), cfDeviceData,
-                    CfUtil.ALLOCATOR, 0);
-            if (deviceId != null) {
-                // vendor-id is a byte array of 4 bytes
-                int length = CoreFoundation.INSTANCE.CFDataGetLength(deviceId);
-                PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(deviceId);
-                byte[] pid = p.getPointer().getByteArray(0, length);
-                CfUtil.release(deviceId);
-                if (pid.length >= 2) {
-                    productIdMap.put(id, String.format("%02x%02x", pid[1], pid[0]));
-                    found = true;
-                }
+            // look up the device-id by key
+            // device-id is a byte array of 4 bytes
+            byte[] pid = IOKitUtil.getIORegistryByteArrayProperty(parent.getValue(), "device-id");
+            if (pid != null && pid.length >= 2) {
+                productIdMap.put(id, String.format("%02x%02x", pid[1], pid[0]));
+                found = true;
             }
             // iterate
             matchingService = IOKit.INSTANCE.IOIteratorNext(matchingService);
