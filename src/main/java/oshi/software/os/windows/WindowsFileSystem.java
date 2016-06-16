@@ -131,8 +131,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), strMount, getDriveType(strMount),
-                        strFsType, systemFreeBytes.getValue(), totalBytes.getValue()));
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume,
+                        strMount, getDriveType(strMount), strFsType, systemFreeBytes.getValue(),
+                        totalBytes.getValue()));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -153,6 +154,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     private List<OSFileStore> getWmiVolumes() {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
+        String volume, s;
         long free, total;
 
         fs = new ArrayList<>();
@@ -163,7 +165,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         for (int i = 0; i < drives.get("Name").size(); i++) {
             free = 0L;
             total = 0L;
-            String s;
             try {
                 s = drives.get("Freespace").get(i);
                 free = s.equals("unknown") ? 0L : Long.parseLong(s);
@@ -173,11 +174,20 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 LOG.error("Failed to parse drive space.");
                 // leave as zero
             }
+            
+            long type = WmiUtil.selectLongFrom(null, "Win32_LogicalDisk", "DriveType", "WHERE Name = '" + drives.get("Name").get(i) + "'");
+            if (type != 4) {
+                char[] chrVolume = new char[BUFSIZE];
+                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get("Name").get(i) + "\\", chrVolume, BUFSIZE);
+                volume = new String(chrVolume).trim();
+            } else {
+                volume = drives.get("ProviderName").get(i);
+            }
 
             fs.add(new OSFileStore(
                     String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
-                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
-                    drives.get("FileSystem").get(i), free, total));
+                    volume, drives.get("Name").get(i) + "\\",
+                    getDriveType(drives.get("Name").get(i)), drives.get("FileSystem").get(i), free, total));
         }
         return fs;
     }

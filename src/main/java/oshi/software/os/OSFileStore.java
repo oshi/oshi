@@ -39,6 +39,8 @@ public class OSFileStore implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
+    
+    private String volume;
 
     private String mount;
 
@@ -110,6 +112,35 @@ public class OSFileStore implements OshiJsonObject {
         this.setUsableSpace(newUsableSpace);
         this.setTotalSpace(newTotalSpace);
     }
+    
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newVolume
+     *            Volume of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newVolume, String newMount, String newDescription,
+            String newType, long newUsableSpace, long newTotalSpace) {
+        this.setName(newName);
+        this.setVolume(newVolume);
+        this.setMount(newMount);
+        this.setDescription(newDescription);
+        this.setType(newType);
+        this.setUsableSpace(newUsableSpace);
+        this.setTotalSpace(newTotalSpace);
+    }
 
     /**
      * Name of the File System
@@ -130,6 +161,24 @@ public class OSFileStore implements OshiJsonObject {
         this.name = value;
     }
 
+    /**
+     * Volume of the File System
+     *
+     * @return The volume of the file system
+     */
+    public String getVolume() {
+        return this.volume;
+    }
+
+    /**
+     * Sets the volume of the File System
+     *
+     * @param value The volume
+     */
+    public void setVolume(String value) {
+        this.volume = value;
+    }
+    
     /**
      * Mountpoint of the File System
      * 
@@ -231,7 +280,8 @@ public class OSFileStore implements OshiJsonObject {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("mountPoint", getMount()).add("description", getDescription()).add("fsType", getType())
+                .add("volume", getVolume()).add("mountPoint", getMount())
+                .add("description", getDescription()).add("fsType", getType())
                 .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
     }
 }
