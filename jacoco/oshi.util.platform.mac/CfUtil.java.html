@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CfUtil.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.mac</a> &gt; <span class="el_source">CfUtil.java</span></div><h1>CfUtil.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CfUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Operating System and Hardware Information</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.mac</a> &gt; <span class="el_source">CfUtil.java</span></div><h1>CfUtil.java</h1><pre class="source lang-java linenums">/**
  * Oshi (https://github.com/dblock/oshi)
  *
  * Copyright (c) 2010 - 2016 The Oshi Project Team
@@ -18,6 +18,9 @@
  */
 package oshi.util.platform.mac;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -25,21 +28,41 @@ import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 
 /**
  * Provides utilities for Core Foundations
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L34">public class CfUtil {</span>
-<span class="fc" id="L35">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+<span class="nc" id="L38">public class CfUtil {</span>
+<span class="fc" id="L39">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+
+    /**
+     * Cache cfStrings
+     */
+<span class="fc" id="L44">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new HashMap&lt;&gt;();</span>
+
+    /**
+     * Return a CFStringRef representing a string, caching the result
+     * 
+     * @param key
+     *            The string, usually a registry key
+     * @return the corresponding CFString
+     */
+    public static CFStringRef getCFString(String key) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (!cfStringMap.containsKey(key)) {</span>
+<span class="fc" id="L55">            cfStringMap.put(key, CFStringRef.toCFString(key));</span>
+        }
+<span class="fc" id="L57">        return cfStringMap.get(key);</span>
+    }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
      * fetch the corresponding constant.
      */
-<span class="pc" id="L41">    public enum CFNumberType {</span>
-<span class="fc" id="L42">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+<span class="pc" id="L64">    public enum CFNumberType {</span>
+<span class="fc" id="L65">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
     };
 
     /**
@@ -50,9 +73,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
      * @return The corresponding long
      */
     public static long cfPointerToLong(Pointer p) {
-<span class="fc" id="L53">        LongByReference lbr = new LongByReference();</span>
-<span class="fc" id="L54">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
-<span class="fc" id="L55">        return lbr.getValue();</span>
+<span class="fc" id="L76">        LongByReference lbr = new LongByReference();</span>
+<span class="fc" id="L77">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="fc" id="L78">        return lbr.getValue();</span>
     }
 
     /**
@@ -63,14 +86,14 @@ import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
-<span class="fc" id="L66">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="fc" id="L67">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (maxSize == 0) {</span>
-<span class="nc" id="L69">            maxSize = 1;</span>
+<span class="fc" id="L89">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="fc" id="L90">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L92">            maxSize = 1;</span>
         }
-<span class="fc" id="L71">        Pointer buf = new Memory(maxSize);</span>
-<span class="fc" id="L72">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="fc" id="L73">        return buf.getString(0);</span>
+<span class="fc" id="L94">        Pointer buf = new Memory(maxSize);</span>
+<span class="fc" id="L95">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="fc" id="L96">        return buf.getString(0);</span>
     }
 
     /**
@@ -81,9 +104,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
      *            The reference to release
      */
     public static void release(PointerType ref) {
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (ref != null) {</span>
-<span class="fc" id="L85">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (ref != null) {</span>
+<span class="fc" id="L108">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
         }
-<span class="fc" id="L87">    }</span>
+<span class="fc" id="L110">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

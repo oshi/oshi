@@ -274,228 +274,230 @@
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>         OSFileStore[] fs = si.getHardware().getFileStores();
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> f = 0; f &lt; fs.length; f++) {
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>             assertNotNull(fs[f].getName());
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>             assertNotNull(fs[f].getDescription());
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             assertNotNull(fs[f].getType());
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             assertTrue(fs[f].getTotalSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             assertTrue(fs[f].getUsableSpace() &lt;= fs[f].getTotalSpace());
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <em class="jxr_comment">// Hack to extract path from FileStore.toString() is undocumented,</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <em class="jxr_comment">// this test will fail if toString format changes</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (Platform.isLinux()) {
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>             FileStore store = Files.getFileStore((<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/"</span>)).toPath());
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             assertEquals(<span class="jxr_string">"/"</span>, store.toString().replace(<span class="jxr_string">" ("</span> + store.name() + <span class="jxr_string">")"</span>, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     * The main method.</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * @param args</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     *            the arguments</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <em class="jxr_comment">// Options: ERROR &gt; WARN &gt; INFO &gt; DEBUG &gt; TRACE</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, <span class="jxr_string">"INFO"</span>);
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         Logger LOG = LoggerFactory.getLogger(SystemInfoTest.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         LOG.info(<span class="jxr_string">"Initializing System..."</span>);
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// software</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <em class="jxr_comment">// software: operating system</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         System.out.println(os);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> 
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         LOG.info(<span class="jxr_string">"Initializing Hardware..."</span>);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <em class="jxr_comment">// hardware</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         HardwareAbstractionLayer hal = si.getHardware();
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <em class="jxr_comment">// hardware: processors</em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         System.out.println(hal.getProcessor());
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getPhysicalProcessorCount() + <span class="jxr_string">" physical CPU(s)"</span>);
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getLogicalProcessorCount() + <span class="jxr_string">" logical CPU(s)"</span>);
-<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         System.out.println(<span class="jxr_string">"Identifier: "</span> + hal.getProcessor().getIdentifier());
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         System.out.println(<span class="jxr_string">"Serial Num: "</span> + hal.getProcessor().getSystemSerialNumber());
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <em class="jxr_comment">// hardware: memory</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         LOG.info(<span class="jxr_string">"Checking Memory..."</span>);
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         System.out.println(<span class="jxr_string">"Memory: "</span> + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + <span class="jxr_string">"/"</span>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         System.out.println(<span class="jxr_string">"Swap used: "</span> + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + <span class="jxr_string">"/"</span>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <em class="jxr_comment">// uptime</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         LOG.info(<span class="jxr_string">"Checking Uptime..."</span>);
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         System.out.println(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <em class="jxr_comment">// CPU</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         LOG.info(<span class="jxr_string">"Checking CPU..."</span>);
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks) + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// Wait a second...</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         Util.sleep(1000);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">long</strong>[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks) + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">long</strong> user = ticks[0] - prevTicks[0];
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">long</strong> nice = ticks[1] - prevTicks[1];
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">long</strong> sys = ticks[2] - prevTicks[2];
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">long</strong> idle = ticks[3] - prevTicks[3];
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle;
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> 
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         System.out.format(<span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n"</span>, 100d * user / totalCpu,
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (counting ticks)%n"</span>,
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (OS MXBean)%n"</span>, hal.getProcessor().getSystemCpuLoad() * 100);
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         System.out.println(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <em class="jxr_comment">// per core CPU</em>
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">double</strong>[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; load.length; cpu++) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, load[cpu] * 100));
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         }
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         System.out.println(procCpu.toString());
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <em class="jxr_comment">// Processes</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         System.out.println(<span class="jxr_string">"Processes: "</span> + hal.getProcessor().getProcessCount() + <span class="jxr_string">", Threads: "</span>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 + hal.getProcessor().getThreadCount());
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>         List&lt;OSProcess&gt; procs = Arrays.asList(hal.getProcessor().getProcesses());
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <em class="jxr_comment">// Sort by highest CPU</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         Comparator&lt;OSProcess&gt; cpuDescOrder = <strong class="jxr_keyword">new</strong> Comparator&lt;OSProcess&gt;() {
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>             @Override
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(OSProcess p1, OSProcess p2) {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 <strong class="jxr_keyword">double</strong> diff = (p1.getKernelTime() + p1.getUserTime()) / (<strong class="jxr_keyword">double</strong>) p1.getUpTime()
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                         - (p2.getKernelTime() + p2.getUserTime()) / (<strong class="jxr_keyword">double</strong>) p2.getUpTime();
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 <strong class="jxr_keyword">if</strong> (diff &lt; 0) {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     <strong class="jxr_keyword">return</strong> 1;
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (diff &gt; 0) {
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     <strong class="jxr_keyword">return</strong> -1;
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>                 }
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>             }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         };
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         Collections.sort(procs, cpuDescOrder);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         System.out.println(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>             OSProcess p = procs.get(i);
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             System.out.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s%n"</span>, p.getProcessID(),
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>                     100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                     p.getName());
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// hardware: sensors</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         LOG.info(<span class="jxr_string">"Checking Sensors..."</span>);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         System.out.println(<span class="jxr_string">"Sensors:"</span>);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         System.out.format(<span class="jxr_string">" CPU Temperature: %.1f°C%n"</span>, hal.getSensors().getCpuTemperature());
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         System.out.println(<span class="jxr_string">" Fan Speeds:"</span> + Arrays.toString(hal.getSensors().getFanSpeeds()));
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         System.out.format(<span class="jxr_string">" CPU Voltage: %.1fV%n"</span>, hal.getSensors().getCpuVoltage());
-<a class="jxr_linenumber" name="L393" href="#L393">393</a> 
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <em class="jxr_comment">// hardware: power</em>
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         LOG.info(<span class="jxr_string">"Checking Power sources..."</span>);
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power: "</span>);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">if</strong> (hal.getPowerSources().length == 0) {
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>             <strong class="jxr_keyword">double</strong> timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>             <strong class="jxr_keyword">if</strong> (timeRemaining &lt; -1d) {
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 sb.append(<span class="jxr_string">"Charging"</span>);
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeRemaining &lt; 0d) {
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 sb.append(<span class="jxr_string">"Calculating time remaining"</span>);
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 sb.append(String.format(<span class="jxr_string">"%d:%02d remaining"</span>, (<strong class="jxr_keyword">int</strong>) (timeRemaining / 3600),
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>                         (<strong class="jxr_keyword">int</strong>) (timeRemaining / 60) % 60));
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>             }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         }
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <strong class="jxr_keyword">for</strong> (PowerSource pSource : hal.getPowerSources()) {
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>             sb.append(String.format(<span class="jxr_string">"%n %s @ %.1f%%"</span>, pSource.getName(), pSource.getRemainingCapacity() * 100d));
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         }
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         System.out.println(sb.toString());
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <em class="jxr_comment">// hardware: file system</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>         LOG.info(<span class="jxr_string">"Checking File System..."</span>);
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         System.out.println(<span class="jxr_string">"File System:"</span>);
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         FileSystem filesystem = hal.getFileSystem();
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         System.out.format(<span class="jxr_string">" File Descriptors: %d/%d%n"</span>, filesystem.getOpenFileDescriptors(),
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 filesystem.getMaxFileDescriptors());
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         OSFileStore[] fsArray = hal.getFileStores();
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fsArray) {
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>             System.out.format(<span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%) mounted at %s%n"</span>, fs.getName(),
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>                     fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>                     fs.getMount());
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         }
-<a class="jxr_linenumber" name="L432" href="#L432">432</a> 
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <em class="jxr_comment">// hardware: disks</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         LOG.info(<span class="jxr_string">"Checking Disks..."</span>);
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         System.out.println(<span class="jxr_string">"Disks:"</span>);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         HWDiskStore[] dskArray = hal.getDiskStores();
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore dsk : dskArray) {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>             System.out.format(<span class="jxr_string">" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n"</span>, dsk.getName(),
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                     dsk.getModel(), dsk.getSerial(),
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>                     dsk.getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>                     dsk.getReads() &gt; 0 ? FormatUtil.formatBytes(dsk.getReads()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>                     dsk.getWrites() &gt; 0 ? FormatUtil.formatBytes(dsk.getWrites()) : <span class="jxr_string">"?"</span>);
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>         }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <em class="jxr_comment">// hardware: network interfaces</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         LOG.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         System.out.println(<span class="jxr_string">"Network interfaces:"</span>);
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> 
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         NetworkIF[] netArray = hal.getNetworkIFs();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : netArray) {
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>             System.out.format(<span class="jxr_string">" Name: %s (%s)%n"</span>, net.getName(), net.getDisplayName());
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             System.out.format(<span class="jxr_string">"   MAC Address: %s %n"</span>, net.getMacaddr());
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>             System.out.format(<span class="jxr_string">"   MTU: %s, Speed: %s %n"</span>, net.getMTU(), FormatUtil.formatValue(net.getSpeed(), <span class="jxr_string">"bps"</span>));
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>             System.out.format(<span class="jxr_string">"   IPv4: %s %n"</span>, Arrays.toString(net.getIPv4addr()));
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>             System.out.format(<span class="jxr_string">"   IPv6: %s %n"</span>, Arrays.toString(net.getIPv6addr()));
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>             <strong class="jxr_keyword">boolean</strong> hasData = net.getBytesRecv() &gt; 0 || net.getBytesSent() &gt; 0 || net.getPacketsRecv() &gt; 0
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>                     || net.getPacketsSent() &gt; 0;
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             System.out.format(<span class="jxr_string">"   Traffic: received %s/%s; transmitted %s/%s %n"</span>,
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>                     hasData ? net.getPacketsRecv() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>                     hasData ? net.getPacketsSent() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : <span class="jxr_string">"?"</span>);
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         }
-<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <em class="jxr_comment">// hardware: displays</em>
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         LOG.info(<span class="jxr_string">"Checking Displays..."</span>);
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         System.out.println(<span class="jxr_string">"Displays:"</span>);
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         <strong class="jxr_keyword">int</strong> i = 0;
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">for</strong> (Display display : hal.getDisplays()) {
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             System.out.println(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>             System.out.println(display.toString());
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>             i++;
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a> 
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <em class="jxr_comment">// hardware: USB devices</em>
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         LOG.info(<span class="jxr_string">"Checking USB Devices..."</span>);
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         System.out.println(<span class="jxr_string">"USB Devices:"</span>);
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : hal.getUsbDevices()) {
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>             System.out.println(usbDevice.toString());
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         }
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> 
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         LOG.info(<span class="jxr_string">"Printing JSON:"</span>);
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <em class="jxr_comment">// Compact JSON</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         System.out.println(si.toJSON().toString());
-<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <em class="jxr_comment">// Pretty JSON</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <em class="jxr_comment">// System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     }
-<a class="jxr_linenumber" name="L490" href="#L490">490</a> }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             assertNotNull(fs[f].getVolume());
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             assertNotNull(fs[f].getDescription());
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             assertNotNull(fs[f].getType());
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             assertTrue(fs[f].getTotalSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             assertTrue(fs[f].getUsableSpace() &lt;= fs[f].getTotalSpace());
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         }
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <em class="jxr_comment">// Hack to extract path from FileStore.toString() is undocumented,</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <em class="jxr_comment">// this test will fail if toString format changes</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">if</strong> (Platform.isLinux()) {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             FileStore store = Files.getFileStore((<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/"</span>)).toPath());
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             assertEquals(<span class="jxr_string">"/"</span>, store.toString().replace(<span class="jxr_string">" ("</span> + store.name() + <span class="jxr_string">")"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * The main method.</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     * @param args</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     *            the arguments</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <em class="jxr_comment">// Options: ERROR &gt; WARN &gt; INFO &gt; DEBUG &gt; TRACE</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, <span class="jxr_string">"INFO"</span>);
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         Logger LOG = LoggerFactory.getLogger(SystemInfoTest.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         LOG.info(<span class="jxr_string">"Initializing System..."</span>);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <em class="jxr_comment">// software</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <em class="jxr_comment">// software: operating system</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         System.out.println(os);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         LOG.info(<span class="jxr_string">"Initializing Hardware..."</span>);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <em class="jxr_comment">// hardware</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <em class="jxr_comment">// hardware: processors</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         System.out.println(hal.getProcessor());
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getPhysicalProcessorCount() + <span class="jxr_string">" physical CPU(s)"</span>);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         System.out.println(<span class="jxr_string">" "</span> + hal.getProcessor().getLogicalProcessorCount() + <span class="jxr_string">" logical CPU(s)"</span>);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         System.out.println(<span class="jxr_string">"Identifier: "</span> + hal.getProcessor().getIdentifier());
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         System.out.println(<span class="jxr_string">"Serial Num: "</span> + hal.getProcessor().getSystemSerialNumber());
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <em class="jxr_comment">// hardware: memory</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         LOG.info(<span class="jxr_string">"Checking Memory..."</span>);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         System.out.println(<span class="jxr_string">"Memory: "</span> + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + <span class="jxr_string">"/"</span>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 + FormatUtil.formatBytes(hal.getMemory().getTotal()));
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         System.out.println(<span class="jxr_string">"Swap used: "</span> + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + <span class="jxr_string">"/"</span>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                 + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <em class="jxr_comment">// uptime</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         LOG.info(<span class="jxr_string">"Checking Uptime..."</span>);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         System.out.println(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// CPU</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         LOG.info(<span class="jxr_string">"Checking CPU..."</span>);
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks) + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <em class="jxr_comment">// Wait a second...</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         Util.sleep(1000);
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">long</strong>[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         System.out.println(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks) + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 + hal.getProcessor().getSystemIOWaitTicks() + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">long</strong> user = ticks[0] - prevTicks[0];
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">long</strong> nice = ticks[1] - prevTicks[1];
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">long</strong> sys = ticks[2] - prevTicks[2];
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">long</strong> idle = ticks[3] - prevTicks[3];
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle;
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         System.out.format(<span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n"</span>, 100d * user / totalCpu,
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (counting ticks)%n"</span>,
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         System.out.format(<span class="jxr_string">"CPU load: %.1f%% (OS MXBean)%n"</span>, hal.getProcessor().getSystemCpuLoad() * 100);
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         System.out.println(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <em class="jxr_comment">// per core CPU</em>
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">double</strong>[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; load.length; cpu++) {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, load[cpu] * 100));
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         System.out.println(procCpu.toString());
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <em class="jxr_comment">// Processes</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         System.out.println(<span class="jxr_string">"Processes: "</span> + hal.getProcessor().getProcessCount() + <span class="jxr_string">", Threads: "</span>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 + hal.getProcessor().getThreadCount());
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         List&lt;OSProcess&gt; procs = Arrays.asList(hal.getProcessor().getProcesses());
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <em class="jxr_comment">// Sort by highest CPU</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         Comparator&lt;OSProcess&gt; cpuDescOrder = <strong class="jxr_keyword">new</strong> Comparator&lt;OSProcess&gt;() {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>             @Override
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> compare(OSProcess p1, OSProcess p2) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 <strong class="jxr_keyword">double</strong> diff = (p1.getKernelTime() + p1.getUserTime()) / (<strong class="jxr_keyword">double</strong>) p1.getUpTime()
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                         - (p2.getKernelTime() + p2.getUserTime()) / (<strong class="jxr_keyword">double</strong>) p2.getUpTime();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                 <strong class="jxr_keyword">if</strong> (diff &lt; 0) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (diff &gt; 0) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                     <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                     <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 }
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>             }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         };
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         Collections.sort(procs, cpuDescOrder);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         System.out.println(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             OSProcess p = procs.get(i);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             System.out.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s%n"</span>, p.getProcessID(),
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                     p.getName());
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <em class="jxr_comment">// hardware: sensors</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         LOG.info(<span class="jxr_string">"Checking Sensors..."</span>);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         System.out.println(<span class="jxr_string">"Sensors:"</span>);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         System.out.format(<span class="jxr_string">" CPU Temperature: %.1f°C%n"</span>, hal.getSensors().getCpuTemperature());
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         System.out.println(<span class="jxr_string">" Fan Speeds:"</span> + Arrays.toString(hal.getSensors().getFanSpeeds()));
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         System.out.format(<span class="jxr_string">" CPU Voltage: %.1fV%n"</span>, hal.getSensors().getCpuVoltage());
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <em class="jxr_comment">// hardware: power</em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         LOG.info(<span class="jxr_string">"Checking Power sources..."</span>);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power: "</span>);
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">if</strong> (hal.getPowerSources().length == 0) {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             <strong class="jxr_keyword">double</strong> timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>             <strong class="jxr_keyword">if</strong> (timeRemaining &lt; -1d) {
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 sb.append(<span class="jxr_string">"Charging"</span>);
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeRemaining &lt; 0d) {
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                 sb.append(<span class="jxr_string">"Calculating time remaining"</span>);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 sb.append(String.format(<span class="jxr_string">"%d:%02d remaining"</span>, (<strong class="jxr_keyword">int</strong>) (timeRemaining / 3600),
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                         (<strong class="jxr_keyword">int</strong>) (timeRemaining / 60) % 60));
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>             }
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         }
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">for</strong> (PowerSource pSource : hal.getPowerSources()) {
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>             sb.append(String.format(<span class="jxr_string">"%n %s @ %.1f%%"</span>, pSource.getName(), pSource.getRemainingCapacity() * 100d));
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         System.out.println(sb.toString());
+<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         <em class="jxr_comment">// hardware: file system</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         LOG.info(<span class="jxr_string">"Checking File System..."</span>);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         System.out.println(<span class="jxr_string">"File System:"</span>);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         FileSystem filesystem = hal.getFileSystem();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         System.out.format(<span class="jxr_string">" File Descriptors: %d/%d%n"</span>, filesystem.getOpenFileDescriptors(),
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                 filesystem.getMaxFileDescriptors());
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         OSFileStore[] fsArray = hal.getFileStores();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fsArray) {
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             System.out.format(<span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n"</span>, fs.getName(),
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                     fs.getVolume(), fs.getMount());
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <em class="jxr_comment">// hardware: disks</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         LOG.info(<span class="jxr_string">"Checking Disks..."</span>);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         System.out.println(<span class="jxr_string">"Disks:"</span>);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         HWDiskStore[] dskArray = hal.getDiskStores();
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore dsk : dskArray) {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             <strong class="jxr_keyword">boolean</strong> readwrite = dsk.getReads() &gt; 0 || dsk.getWrites() &gt; 0;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             System.out.format(<span class="jxr_string">" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n"</span>, dsk.getName(),
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>                     dsk.getModel(), dsk.getSerial(),
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                     dsk.getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                     readwrite ? FormatUtil.formatBytes(dsk.getReads()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : <span class="jxr_string">"?"</span>);
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         }
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> 
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         <em class="jxr_comment">// hardware: network interfaces</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         LOG.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         System.out.println(<span class="jxr_string">"Network interfaces:"</span>);
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         NetworkIF[] netArray = hal.getNetworkIFs();
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : netArray) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>             System.out.format(<span class="jxr_string">" Name: %s (%s)%n"</span>, net.getName(), net.getDisplayName());
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             System.out.format(<span class="jxr_string">"   MAC Address: %s %n"</span>, net.getMacaddr());
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>             System.out.format(<span class="jxr_string">"   MTU: %s, Speed: %s %n"</span>, net.getMTU(), FormatUtil.formatValue(net.getSpeed(), <span class="jxr_string">"bps"</span>));
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>             System.out.format(<span class="jxr_string">"   IPv4: %s %n"</span>, Arrays.toString(net.getIPv4addr()));
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             System.out.format(<span class="jxr_string">"   IPv6: %s %n"</span>, Arrays.toString(net.getIPv6addr()));
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>             <strong class="jxr_keyword">boolean</strong> hasData = net.getBytesRecv() &gt; 0 || net.getBytesSent() &gt; 0 || net.getPacketsRecv() &gt; 0
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>                     || net.getPacketsSent() &gt; 0;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>             System.out.format(<span class="jxr_string">"   Traffic: received %s/%s; transmitted %s/%s %n"</span>,
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>                     hasData ? net.getPacketsRecv() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                     hasData ? net.getPacketsSent() + <span class="jxr_string">" packets"</span> : <span class="jxr_string">"?"</span>,
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : <span class="jxr_string">"?"</span>);
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         }
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> 
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <em class="jxr_comment">// hardware: displays</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         LOG.info(<span class="jxr_string">"Checking Displays..."</span>);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         System.out.println(<span class="jxr_string">"Displays:"</span>);
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">for</strong> (Display display : hal.getDisplays()) {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             System.out.println(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>             System.out.println(display.toString());
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             i++;
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         }
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> 
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <em class="jxr_comment">// hardware: USB devices</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         LOG.info(<span class="jxr_string">"Checking USB Devices..."</span>);
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         System.out.println(<span class="jxr_string">"USB Devices:"</span>);
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : hal.getUsbDevices()) {
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>             System.out.println(usbDevice.toString());
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         }
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> 
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         LOG.info(<span class="jxr_string">"Printing JSON:"</span>);
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <em class="jxr_comment">// Compact JSON</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         System.out.println(si.toJSON().toString());
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> 
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <em class="jxr_comment">// Pretty JSON</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <em class="jxr_comment">// System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
