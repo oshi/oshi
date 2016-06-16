@@ -125,11 +125,12 @@ public class MacDisks extends AbstractDisks {
                         while (sdService != 0) {
                             // look up the serial number
                             serial = IOKitUtil.getIORegistryStringProperty(sdService, "Serial Number");
+                            IOKit.INSTANCE.IOObjectRelease(sdService);
                             if (serial != null) {
                                 break;
                             }
                             // iterate
-                            sdService = IOKit.INSTANCE.IOIteratorNext(sdService);
+                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
                         }
                         IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
                     }
@@ -146,49 +147,46 @@ public class MacDisks extends AbstractDisks {
                     // getMatchingServices releases matchingDict
                     int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());
                     // Should only match one drive
-                    while (drive != 0) {
+                    if (drive != 0) {
                         // Should be an IOMedia object with a parent
                         // IOBlockStorageDriver object
                         // Get the properties from the parent
                         IntByReference parent = new IntByReference();
-                        if (!IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
-                                || IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) != 0) {
-                            LOG.error("Unable to find IOMedia device or parent for ", bsdName);
-                            break;
-                        }
-                        PointerByReference propsPtr = new PointerByReference();
+                        if (IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
+                                && IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) == 0) {
+                            PointerByReference propsPtr = new PointerByReference();
+                            if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
+                                    && IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
+                                            CfUtil.ALLOCATOR, 0) == 0) {
+                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
+                                properties.setPointer(propsPtr.getValue());
+                                // We now have a properties object with the
+                                // statistics we need on it. Fetch them
+                                Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
+                                        CfUtil.getCFString("Statistics"));
+                                CFDictionaryRef statistics = new CFDictionaryRef();
+                                statistics.setPointer(statsPtr);
 
-                        if (!IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
-                                || IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
-                                        CfUtil.ALLOCATOR, 0) != 0) {
+                                // Now get the stats we want
+                                Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Bytes (Read)"));
+                                read = CfUtil.cfPointerToLong(stat);
+                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Bytes (Write)"));
+                                write = CfUtil.cfPointerToLong(stat);
+
+                                CfUtil.release(properties);
+                            } else {
+                                LOG.error("Unable to find block storage driver properties for {}", bsdName);
+                            }
                             IOKit.INSTANCE.IOObjectRelease(parent.getValue());
-                            LOG.error("Unable to find block storage driver properties for {}", bsdName);
-                            break;
+                        } else {
+                            LOG.error("Unable to find IOMedia device or parent for ", bsdName);
                         }
-                        CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
-                        properties.setPointer(propsPtr.getValue());
-                        // We now have a properties object with the statistics
-                        // we need on it. Fetch them
-                        Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                CfUtil.getCFString("Statistics"));
-                        CFDictionaryRef statistics = new CFDictionaryRef();
-                        statistics.setPointer(statsPtr);
-
-                        // Now get the stats we want
-                        Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                CfUtil.getCFString("Bytes (Read)"));
-                        read = CfUtil.cfPointerToLong(stat);
-                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                CfUtil.getCFString("Bytes (Write)"));
-                        write = CfUtil.cfPointerToLong(stat);
-
-                        CfUtil.release(properties);
-                        // iterate
-                        drive = IOKit.INSTANCE.IOIteratorNext(drive);
+                        IOKit.INSTANCE.IOObjectRelease(drive);
                     }
                     IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
                 }
-
                 if (size > 0L) {
                     result.add(new HWDiskStore(bsdName, model.trim(), serial.trim(), size, read, write));
                 }

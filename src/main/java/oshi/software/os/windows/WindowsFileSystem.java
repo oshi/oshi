@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,10 @@ public class WindowsFileSystem extends AbstractFileSystem {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
+
+    private static final Pattern UUID_PATTERN = Pattern
+            .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
+
     private final int BUFSIZE = 255;
 
     public WindowsFileSystem() {
@@ -85,7 +91,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 result.add(wmiVolume);
             }
         }
-
         return result.toArray(new OSFileStore[result.size()]);
     }
 
@@ -128,12 +133,17 @@ public class WindowsFileSystem extends AbstractFileSystem {
             strMount = new String(mount).trim();
             strName = new String(name).trim();
             strFsType = new String(fstype).trim();
+            // Parse uuid from volume name
+            String uuid = "";
+            Matcher m = UUID_PATTERN.matcher(volume.toLowerCase());
+            if (m.matches()) {
+                uuid = m.group(1);
+            }
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume,
-                        strMount, getDriveType(strMount), strFsType, systemFreeBytes.getValue(),
-                        totalBytes.getValue()));
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume, strMount,
+                        getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -174,20 +184,26 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 LOG.error("Failed to parse drive space.");
                 // leave as zero
             }
-            
-            long type = WmiUtil.selectLongFrom(null, "Win32_LogicalDisk", "DriveType", "WHERE Name = '" + drives.get("Name").get(i) + "'");
+            String description = drives.get("Description").get(i);
+
+            long type = WmiUtil.selectLongFrom(null, "Win32_LogicalDisk", "DriveType",
+                    "WHERE Name = '" + drives.get("Name").get(i) + "'");
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
-                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get("Name").get(i) + "\\", chrVolume, BUFSIZE);
+                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get("Name").get(i) + "\\", chrVolume,
+                        BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
                 volume = drives.get("ProviderName").get(i);
+                String[] split = volume.split("\\\\");
+                if (split.length > 1 && split[split.length - 1].length() > 0) {
+                    description = split[split.length - 1];
+                }
             }
 
-            fs.add(new OSFileStore(
-                    String.format("%s (%s)", drives.get("Description").get(i), drives.get("Name").get(i)),
-                    volume, drives.get("Name").get(i) + "\\",
-                    getDriveType(drives.get("Name").get(i)), drives.get("FileSystem").get(i), free, total));
+            fs.add(new OSFileStore(String.format("%s (%s)", description, drives.get("Name").get(i)), volume,
+                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
+                    drives.get("FileSystem").get(i), "", free, total));
         }
         return fs;
     }
