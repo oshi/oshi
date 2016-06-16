@@ -39,7 +39,7 @@ public class OSFileStore implements OshiJsonObject {
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
-    
+
     private String volume;
 
     private String mount;
@@ -47,6 +47,8 @@ public class OSFileStore implements OshiJsonObject {
     private String description;
 
     private String fsType;
+
+    private String uuid;
 
     private long usableSpace;
 
@@ -112,7 +114,7 @@ public class OSFileStore implements OshiJsonObject {
         this.setUsableSpace(newUsableSpace);
         this.setTotalSpace(newTotalSpace);
     }
-    
+
     /**
      * Creates an OSFileStore with the specified parameters.
      * 
@@ -126,18 +128,21 @@ public class OSFileStore implements OshiJsonObject {
      *            Description of the file store
      * @param newType
      *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUuid
+     *            UUID/GUID of the filestore
      * @param newUsableSpace
      *            Available/usable bytes
      * @param newTotalSpace
      *            Total bytes
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription,
-            String newType, long newUsableSpace, long newTotalSpace) {
+    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
+            String newUuid, long newUsableSpace, long newTotalSpace) {
         this.setName(newName);
         this.setVolume(newVolume);
         this.setMount(newMount);
         this.setDescription(newDescription);
         this.setType(newType);
+        this.setUUID(newUuid);
         this.setUsableSpace(newUsableSpace);
         this.setTotalSpace(newTotalSpace);
     }
@@ -173,12 +178,13 @@ public class OSFileStore implements OshiJsonObject {
     /**
      * Sets the volume of the File System
      *
-     * @param value The volume
+     * @param value
+     *            The volume
      */
     public void setVolume(String value) {
         this.volume = value;
     }
-    
+
     /**
      * Mountpoint of the File System
      * 
@@ -237,6 +243,25 @@ public class OSFileStore implements OshiJsonObject {
     }
 
     /**
+     * UUID/GUID of the File System
+     * 
+     * @return The file system UUID/GUID
+     */
+    public String getUUID() {
+        return this.uuid;
+    }
+
+    /**
+     * Sets the File System UUID/GUID
+     * 
+     * @param value
+     *            The UUID/GUID
+     */
+    public void setUUID(String value) {
+        this.uuid = value;
+    }
+
+    /**
      * Usable space on the drive.
      * 
      * @return Usable space on the drive (in bytes)
@@ -280,8 +305,8 @@ public class OSFileStore implements OshiJsonObject {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("volume", getVolume()).add("mountPoint", getMount())
-                .add("description", getDescription()).add("fsType", getType())
-                .add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace()).build();
+                .add("volume", getVolume()).add("mountPoint", getMount()).add("description", getDescription())
+                .add("fsType", getType()).add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace())
+                .build();
     }
 }

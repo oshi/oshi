@@ -19,10 +19,13 @@
 package oshi.software.os.linux;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileStore;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +49,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] {
+    private final List<String> pseudofs = Arrays.asList(new String[] { //
+            "rootfs", // Minimal fs to support kernel boot
             "sysfs", // SysFS file system
             "proc", // Proc file system
             "devtmpfs", // Dev temporary file system
@@ -68,8 +72,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // NOTE: FUSE's fuseblk is not evalued because used as file system
             // representation of a FUSE block storage
             // "fuseblk" // FUSE block file system
-            // NOTE: tmpfs is evaluated apart, because Linux uses it for RAMdisks
-            //"tmpfs", // Temporary file system
+            // "tmpfs", // Temporary file system
+            // NOTE: tmpfs is evaluated apart, because Linux uses it for
+            // RAMdisks
     });
 
     // System path mounted as tmpfs
@@ -103,6 +108,20 @@ public class LinuxFileSystem extends AbstractFileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        // Map uuids with device path as key
+        Map<String, String> uuidMap = new HashMap<>();
+        File uuidDir = new File("/dev/disk/by-uuid");
+        if (uuidDir != null && uuidDir.listFiles() != null) {
+            for (File uuid : uuidDir.listFiles()) {
+                try {
+                    // Store UUID as value with path (e.g., /dev/sda1) as key
+                    uuidMap.put(uuid.getCanonicalPath(), uuid.getName());
+                } catch (IOException e) {
+                    LOG.error("Couldn't get canonical path for {}", uuid.getName());
+                }
+            }
+        }
+
         // List file systems
         List<OSFileStore> fsList = new ArrayList<>();
 
@@ -120,25 +139,23 @@ public class LinuxFileSystem extends AbstractFileSystem {
             if (split.length < 6) {
                 continue;
             }
-            
-            String name = split[0].replaceAll("\\\\040", " ");
-            String volume = split[0].replaceAll("\\\\040", " ");
+
+            // Exclude pseudo file systems
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
-            
-            // Exclude pseudo file systems
-            if (this.pseudofs.contains(type) || path.equals("/dev")
-                    || listElementStartsWith(this.tmpfsPaths, path)) {
+            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)) {
                 continue;
             }
-            
-            long totalSpace = (new File(path)).getTotalSpace();
-            long usableSpace = (new File(path)).getUsableSpace();
 
+            String name = split[0].replaceAll("\\\\040", " ");
             if (path.equals("/")) {
                 name = "/";
             }
-            
+            String volume = split[0].replaceAll("\\\\040", " ");
+            String uuid = uuidMap.containsKey(split[0]) ? uuidMap.get(split[0]) : "";
+            long totalSpace = (new File(path)).getTotalSpace();
+            long usableSpace = (new File(path)).getUsableSpace();
+
             String description;
             if (volume.startsWith("/dev")) {
                 description = "Local Disk";
@@ -149,9 +166,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             } else {
                 description = "Mount Point";
             }
-            
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type,
-                    usableSpace, totalSpace);
+
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }
 

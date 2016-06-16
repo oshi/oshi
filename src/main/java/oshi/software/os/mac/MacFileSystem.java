@@ -33,10 +33,15 @@ import javax.swing.filechooser.FileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -54,7 +59,7 @@ public class MacFileSystem extends AbstractFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.
-    private static final Pattern localDisk = Pattern.compile("/dev/disk\\d");
+    private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
     /**
      * Gets File System Information.
@@ -94,25 +99,51 @@ public class MacFileSystem extends AbstractFileSystem {
                 String description = "Volume";
                 String type = "unknown";
                 String path = "unknown";
+                String volume = "";
+                String uuid = "";
                 try {
                     path = f.getCanonicalPath();
                     if (path.equals("/"))
                         name = name + " (/)";
                     FileStore fs = Files.getFileStore(f.toPath());
-                    if (localDisk.matcher(fs.name()).matches()) {
+                    volume = fs.name();
+                    if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
                     }
-                    if (fs.name().startsWith("localhost:") || fs.name().startsWith("//")) {
+                    if (volume.startsWith("localhost:") || volume.startsWith("//")) {
                         description = "Network Drive";
                     }
                     if (fstype.containsKey(path)) {
                         type = fstype.get(path);
                     }
+                    // Use volume to find registry entry and get UUID
+                    String bsdName = volume.replace("/dev/disk", "disk");
+                    if (bsdName.startsWith("disk")) {
+                        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+                        if (matchingDict != null) {
+                            // search for all IOservices that match the bsd name
+                            IntByReference fsIter = new IntByReference();
+                            IOKitUtil.getMatchingServices(matchingDict, fsIter);
+                            // getMatchingServices releases matchingDict
+                            // Should only match one logical drive
+                            int fsEntry = IOKit.INSTANCE.IOIteratorNext(fsIter.getValue());
+                            if (fsEntry != 0 && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
+                                // Now get the UUID
+                                uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
+                                if (uuid == null) {
+                                    uuid = "";
+                                }
+                                IOKit.INSTANCE.IOObjectRelease(fsEntry);
+                            }
+                            IOKit.INSTANCE.IOObjectRelease(fsIter.getValue());
+                        }
+                    }
                 } catch (IOException e) {
                     LOG.trace("", e);
                     continue;
                 }
-                fsList.add(new OSFileStore(name, path, description, type, f.getUsableSpace(), f.getTotalSpace()));
+                fsList.add(new OSFileStore(name, volume, path, description, type, uuid, f.getUsableSpace(),
+                        f.getTotalSpace()));
             }
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
