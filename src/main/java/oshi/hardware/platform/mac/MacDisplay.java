@@ -82,7 +82,7 @@ public class MacDisplay extends AbstractDisplay {
                 }
             }
             // iterate
-            sdService = IOKit.INSTANCE.IOIteratorNext(sdService);
+            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
         }
         IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
         return displays.toArray(new Display[displays.size()]);
