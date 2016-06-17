@@ -27,7 +27,7 @@ Currently supported platforms
 --------------------------- 
 * Windows
 * Linux
-* Mac OS X<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+* macOS (OS X)<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
 Currently supported features 
 --------------------------
