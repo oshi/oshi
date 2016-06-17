@@ -86,11 +86,11 @@ public class MacSensors extends AbstractSensors {
 <span class="fc" id="L86">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
 <span class="fc" id="L87">                this.lastFanSpeeds = new int[this.numFans];</span>
             }
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
-<span class="nc" id="L90">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (speed &gt; 0) {</span>
-<span class="nc" id="L92">                    this.lastFanSpeeds[i] = speed;</span>
-<span class="nc" id="L93">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
+<span class="fc" id="L90">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">                if (speed &gt; 0) {</span>
+<span class="fc" id="L92">                    this.lastFanSpeeds[i] = speed;</span>
+<span class="fc" id="L93">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
                 }
             }
         }

@@ -39,37 +39,41 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private String parseCodeName() {
 <span class="fc" id="L40">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
 <span class="pc bpc" id="L41" title="2 of 4 branches missed.">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
-<span class="pc bpc" id="L42" title="12 of 13 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
+<span class="pc bpc" id="L42" title="13 of 14 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
+            // MacOS
+            case 12:
+<span class="nc" id="L45">                return &quot;Sierra&quot;;</span>
+            // OS X
             case 11:
-<span class="fc" id="L44">                return &quot;El Capitan&quot;;</span>
+<span class="fc" id="L48">                return &quot;El Capitan&quot;;</span>
             case 10:
-<span class="nc" id="L46">                return &quot;Yosemite&quot;;</span>
+<span class="nc" id="L50">                return &quot;Yosemite&quot;;</span>
             case 9:
-<span class="nc" id="L48">                return &quot;Mavericks&quot;;</span>
+<span class="nc" id="L52">                return &quot;Mavericks&quot;;</span>
             case 8:
-<span class="nc" id="L50">                return &quot;Mountain Lion&quot;;</span>
+<span class="nc" id="L54">                return &quot;Mountain Lion&quot;;</span>
             case 7:
-<span class="nc" id="L52">                return &quot;Lion&quot;;</span>
+<span class="nc" id="L56">                return &quot;Lion&quot;;</span>
             case 6:
-<span class="nc" id="L54">                return &quot;Snow Leopard&quot;;</span>
+<span class="nc" id="L58">                return &quot;Snow Leopard&quot;;</span>
             case 5:
-<span class="nc" id="L56">                return &quot;Leopard&quot;;</span>
+<span class="nc" id="L60">                return &quot;Leopard&quot;;</span>
             case 4:
-<span class="nc" id="L58">                return &quot;Tiger&quot;;</span>
+<span class="nc" id="L62">                return &quot;Tiger&quot;;</span>
             case 3:
-<span class="nc" id="L60">                return &quot;Panther&quot;;</span>
+<span class="nc" id="L64">                return &quot;Panther&quot;;</span>
             case 2:
-<span class="nc" id="L62">                return &quot;Jaguar&quot;;</span>
+<span class="nc" id="L66">                return &quot;Jaguar&quot;;</span>
             case 1:
-<span class="nc" id="L64">                return &quot;Puma&quot;;</span>
+<span class="nc" id="L68">                return &quot;Puma&quot;;</span>
             case 0:
-<span class="nc" id="L66">                return &quot;Cheetah&quot;;</span>
+<span class="nc" id="L70">                return &quot;Cheetah&quot;;</span>
+            // Not OS X
             default:
-                // Not OS X
             }
         }
-<span class="nc" id="L71">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
-<span class="nc" id="L72">        return &quot;&quot;;</span>
+<span class="nc" id="L75">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
+<span class="nc" id="L76">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

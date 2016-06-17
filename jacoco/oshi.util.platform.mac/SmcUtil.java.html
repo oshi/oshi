@@ -121,8 +121,8 @@ import oshi.util.Util;
     public static long smcGetLong(String key, int retries) {
 <span class="fc" id="L122">        SMCVal val = new SMCVal();</span>
 <span class="fc" id="L123">        int result = smcReadKey(key, val, retries);</span>
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (result == 0) {</span>
-<span class="nc" id="L125">            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (result == 0) {</span>
+<span class="fc" id="L125">            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);</span>
         }
         // Read failed
 <span class="fc" id="L128">        return 0;</span>
