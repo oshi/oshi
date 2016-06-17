@@ -40,6 +40,10 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
         String[] versionSplit = getVersion().split("\\.");
         if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
             switch (Integer.parseInt(versionSplit[1])) {
+            // MacOS
+            case 12:
+                return "Sierra";
+            // OS X
             case 11:
                 return "El Capitan";
             case 10:
@@ -64,8 +68,8 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
                 return "Puma";
             case 0:
                 return "Cheetah";
+            // Not OS X
             default:
-                // Not OS X
             }
         }
         LOG.warn("Unable to parse version {} to a codename.", getVersion());
