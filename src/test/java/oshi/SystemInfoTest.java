@@ -482,9 +482,9 @@ public class SystemInfoTest {
             System.out.println(usbDevice.toString());
         }
 
-        LOG.info("Printing JSON:");
+        // LOG.info("Printing JSON:");
         // Compact JSON
-        System.out.println(si.toJSON().toString());
+        // System.out.println(si.toJSON().toString());
 
         // Pretty JSON
         // System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
