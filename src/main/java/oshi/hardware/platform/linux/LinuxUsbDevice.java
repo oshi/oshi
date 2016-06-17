@@ -146,17 +146,16 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * @return A LinuxUsbDevice corresponding to this device
      */
     private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-        String vendorId = vendorIdMap.containsKey(devPath) ? vendorIdMap.get(devPath) : vid;
-        String productId = productIdMap.containsKey(devPath) ? productIdMap.get(devPath) : pid;
-        List<String> childPaths = hubMap.containsKey(devPath) ? hubMap.get(devPath) : new ArrayList<String>();
+        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
+        String productId = productIdMap.getOrDefault(devPath, pid);
+        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vid, pid));
         }
         Collections.sort(usbDevices);
-        return new LinuxUsbDevice(nameMap.containsKey(devPath) ? nameMap.get(devPath) : vendorId + ":" + productId,
-                vendorMap.containsKey(devPath) ? vendorMap.get(devPath) : "", vendorId, productId,
-                serialMap.containsKey(devPath) ? serialMap.get(devPath) : "",
+        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
+                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""),
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

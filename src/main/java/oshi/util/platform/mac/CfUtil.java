@@ -18,8 +18,8 @@
  */
 package oshi.util.platform.mac;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -41,7 +41,7 @@ public class CfUtil {
     /**
      * Cache cfStrings
      */
-    private static Map<String, CFStringRef> cfStringMap = new HashMap<>();
+    private static Map<String, CFStringRef> cfStringMap = new ConcurrentHashMap<>();
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -51,10 +51,7 @@ public class CfUtil {
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-        if (!cfStringMap.containsKey(key)) {
-            cfStringMap.put(key, CFStringRef.toCFString(key));
-        }
-        return cfStringMap.get(key);
+        return cfStringMap.computeIfAbsent(key, k -> CFStringRef.toCFString(k));
     }
 
     /**

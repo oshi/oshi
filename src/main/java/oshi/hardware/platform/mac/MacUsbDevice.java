@@ -231,18 +231,16 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * @return A MacUsbDevice corresponding to this device
      */
     private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid) {
-        String vendorId = vendorIdMap.containsKey(registryEntryId) ? vendorIdMap.get(registryEntryId) : vid;
-        String productId = productIdMap.containsKey(registryEntryId) ? productIdMap.get(registryEntryId) : pid;
-        List<Long> childIds = hubMap.containsKey(registryEntryId) ? hubMap.get(registryEntryId) : new ArrayList<Long>();
+        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
+        String productId = productIdMap.getOrDefault(registryEntryId, pid);
+        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<Long>());
         List<MacUsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new MacUsbDevice(
-                nameMap.containsKey(registryEntryId) ? nameMap.get(registryEntryId) : vendorId + ":" + productId,
-                vendorMap.containsKey(registryEntryId) ? vendorMap.get(registryEntryId) : "", vendorId, productId,
-                serialMap.containsKey(registryEntryId) ? serialMap.get(registryEntryId) : "",
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
+                vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
+                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
