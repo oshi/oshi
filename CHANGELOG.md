@@ -9,7 +9,7 @@
 * [#194](https://github.com/dblock/oshi/pull/194): Add volume name to OSFileStores - [@henryx](https://github.com/henryx).
 * [#195](https://github.com/dblock/oshi/pull/195): Fixed reading multiple (in particular external) displays on Mac - [@dpagano](https://github.com/dpagano).
 * [#197](https://github.com/dblock/oshi/pull/197): Add UUID to OSFileStores - [@dbwiddis](https://github.com/dbwiddis).
-Incremented to 6.0.1 due to Central Repository sorting woes. And snuck in:
+* Incremented to 6.0.1 due to Central Repository sorting woes. 
 * [#198](https://github.com/dblock/oshi/pull/198): macOS 10.12 (Sierra) - [@dbwiddis](https://github.com/dbwiddis).
 
 2.5.1-java7 (6/8/2016) / 2.5.2 (6/9/2016)

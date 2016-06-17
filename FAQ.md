@@ -14,7 +14,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  A 2.5.1-java7 version has been released using a dependency to the threeten.org backport and a nominal effort will be made to continue this compatibility in the future, although there are no guarantees.  Users are encouraged to update to Java 8.
+Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  A 2.5.1-java7 and 2.6-m-java7 version were released using a dependency to the threeten.org backport but no further Java 7 support is planned.  Users are encouraged to update to Java 8.
 
 
 Which operating systems are supported?
