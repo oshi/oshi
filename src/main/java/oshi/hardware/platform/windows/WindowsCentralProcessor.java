@@ -33,16 +33,14 @@ import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
-import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.software.os.OSProcess;
 import oshi.software.os.windows.WindowsProcess;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -59,31 +57,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
-    // PDH counters only give increments between calls so we maintain our own
-    // "ticks" here
-    private long allProcTickTime;
-
-    private long[][] allProcTicks;
-
-    // Open a Performance Data Helper Thread for monitoring each processor ticks
-    private PointerByReference phQuery = new PointerByReference();
-    private PointerByReference[] phUserCounters;
-    private PointerByReference[] phIdleCounters;
-
-    // Set up Performance Data Helper thread for IOWait
-    private long iowaitTime;
-    private PointerByReference iowaitQuery = new PointerByReference();
-    private PointerByReference pLatency = new PointerByReference();
-    private PointerByReference pTransfers = new PointerByReference();
-    private long iowaitTicks;
-
-    // Set up Performance Data Helper thread for IRQticks
-    private long irqTime;
-    private PointerByReference irqQuery = new PointerByReference();
-    private PointerByReference pIrq = new PointerByReference();
-    private PointerByReference pDpc = new PointerByReference();
-    private long[] irqTicks = new long[2];
-
     // For WMI Process queries
     private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate";
@@ -91,16 +64,45 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.DATETIME };
 
+    // Compare WMI ticks to GetSystemTimes to determine conversion
+    private static final long TICKS_PER_MILLISECOND;
+    static {
+        // Get total time = Kernel (includes idle) + User
+        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
+        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
+        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
+        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
+            LOG.error("Failed to init system idle/kernel/user times. Error code: " + Native.getLastError());
+        }
+        // Units are in 100-ns, divide by 10000 for ms
+        long mSec = (WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate())
+                + WinBase.FILETIME.dateToFileTime(lpUserTime.toDate())) / 10000L;
+        // Get same info from WMI
+        Map<String, List<String>> wmiTicks = WmiUtil.selectStringsFrom(null,
+                "Win32_PerfRawData_Counters_ProcessorInformation",
+                "PercentIdleTime,PercentPrivilegedTime,PercentUserTime", "WHERE Name=\"_Total\"");
+        long ticks = 0L;
+        if (wmiTicks.get("PercentIdleTime").size() > 0) {
+            try {
+                ticks = Long.parseLong(wmiTicks.get("PercentIdleTime").get(0))
+                        + Long.parseLong(wmiTicks.get("PercentPrivilegedTime").get(0))
+                        + Long.parseLong(wmiTicks.get("PercentUserTime").get(0));
+            } catch (NumberFormatException e) {
+                LOG.error("Failed to init wmi idle/processor times.");
+            }
+        }
+        // Divide
+        TICKS_PER_MILLISECOND = ticks / mSec;
+        LOG.debug("Ticks per millisecond: {}", TICKS_PER_MILLISECOND);
+    }
+
     /**
      * Create a Processor
      */
     public WindowsCentralProcessor() {
         // Initialize class variables
         initVars();
-        // Initialize PDH
-        initPdhCounters();
         // Initialize tick arrays
-        this.allProcTicks = new long[this.logicalProcessorCount][4];
         initTicks();
 
         LOG.debug("Initialized Processor");
@@ -129,69 +131,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
             this.setCpu64(false);
         }
-    }
-
-    /**
-     * Initializes PDH Tick Counters
-     */
-    private void initPdhCounters() {
-        // Set up counters
-        this.phUserCounters = new PointerByReference[this.logicalProcessorCount];
-        this.phIdleCounters = new PointerByReference[this.logicalProcessorCount];
-
-        // Open tick query
-        if (PdhUtil.openQuery(phQuery)) {
-            for (int p = 0; p < this.logicalProcessorCount; p++) {
-                // Options are (only need 2 to calculate all)
-                // "\Processor(0)\% processor time"
-                // "\Processor(0)\% idle time" (1 - processor)
-                // "\Processor(0)\% privileged time" (subset of processor)
-                // "\Processor(0)\% user time" (other subset of processor)
-                // Note need to make \ = \\ for Java Strings and %% for format
-                String counterPath = String.format("\\Processor(%d)\\%% user time", p);
-                this.phUserCounters[p] = new PointerByReference();
-                // Add tick query for this processor
-                PdhUtil.addCounter(phQuery, counterPath, this.phUserCounters[p]);
-
-                counterPath = String.format("\\Processor(%d)\\%% idle time", p);
-                this.phIdleCounters[p] = new PointerByReference();
-                PdhUtil.addCounter(phQuery, counterPath, this.phIdleCounters[p]);
-            }
-            LOG.debug("Tick counter queries added.  Initializing with first query.");
-
-            // Initialize by collecting data the first time
-            Pdh.INSTANCE.PdhCollectQueryData(phQuery.getValue());
-        }
-
-        // Open iowait query
-        if (PdhUtil.openQuery(iowaitQuery)) {
-            // \LogicalDisk(_Total)\Avg. Disk sec/Transfer
-            PdhUtil.addCounter(iowaitQuery, "\\LogicalDisk(_Total)\\Avg. Disk sec/Transfer", pLatency);
-            // \LogicalDisk(_Total)\Disk Transfers/sec
-            PdhUtil.addCounter(iowaitQuery, "\\LogicalDisk(_Total)\\Disk Transfers/sec", pTransfers);
-            // Initialize by collecting data the first time
-            Pdh.INSTANCE.PdhCollectQueryData(iowaitQuery.getValue());
-        }
-
-        // Open irq query
-        if (PdhUtil.openQuery(irqQuery)) {
-            // \Processor(_Total)\% Interrupt Time
-            PdhUtil.addCounter(irqQuery, "\\Processor(_Total)\\% Interrupt Time", pIrq);
-            // \Processor(_Total)\% DPC Time
-            PdhUtil.addCounter(irqQuery, "\\Processor(_Total)\\% DPC Time", pDpc);
-            // Initialize by collecting data the first time
-            Pdh.INSTANCE.PdhCollectQueryData(irqQuery.getValue());
-        }
-
-        // Set up hook to close the queries on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                Pdh.INSTANCE.PdhCloseQuery(phQuery.getValue());
-                Pdh.INSTANCE.PdhCloseQuery(iowaitQuery.getValue());
-                Pdh.INSTANCE.PdhCloseQuery(irqQuery.getValue());
-            }
-        });
     }
 
     /**
@@ -226,11 +165,12 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             return ticks;
         }
         // Array order is user,nice,kernel,idle
+        // Units are in 100-ns, divide by 10000 for ms
         // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.3
-        ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate());
-        ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) - ticks[3];
+        ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate()) / 10000L;
+        ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) / 10000L - ticks[3];
         ticks[1] = 0L; // Windows is not 'nice'
-        ticks[0] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate());
+        ticks[0] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
         return ticks;
     }
 
@@ -239,33 +179,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemIOWaitTicks() {
-        // Avg. Disk sec/Transfer x Avg. Disk Transfers/sec * seconds between
-        // reads
-        if (!PdhUtil.updateCounters(iowaitQuery)) {
-            return 0;
-        }
-
-        // We'll manufacture our own ticks by multiplying the latency (sec per
-        // read) by transfers (reads per sec) by time elapsed since the last
-        // call to get a tick increment
-        long now = System.currentTimeMillis();
-        long elapsed = now - iowaitTime;
-
-        long latency = PdhUtil.queryCounter(pLatency);
-        long transfers = PdhUtil.queryCounter(pTransfers);
-
-        // Since PDH_FMT_1000 is used, results must be divided by 1000 to get
-        // actual. Units are sec (*1000) per read * reads (*1000) per sec time *
-        // ms time. Reads cancel so result is in sec (*1000*1000) per sec, which
-        // is a unitless percentage (times a million) multiplied by elapsed time
-        // Multiply by elapsed to get total ms and Divide by 1000 * 1000.
-        // Putting division at end avoids need to cast division to double
-        // Elasped is only since last read, so increment previous value
-        iowaitTicks += elapsed * latency * transfers / 1000000;
-
-        iowaitTime = now;
-
-        return iowaitTicks;
+        // Avg. Disk sec/Transfer raw value is cumulative ticks spent
+        // transferring. Divide result by ticks per ms to get ms
+        return FormatUtil.getUnsignedInt(WmiUtil.selectUint32From(null, "Win32_PerfRawData_PerfDisk_LogicalDisk",
+                "AvgDisksecPerTransfer", "WHERE Name=\"_Total\"").intValue()) / TICKS_PER_MILLISECOND;
     }
 
     /**
@@ -274,30 +191,19 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] getSystemIrqTicks() {
         long[] ticks = new long[2];
-        // Time * seconds between reads
-        if (!PdhUtil.updateCounters(irqQuery)) {
-            return ticks;
+        // Percent time raw value is cumulative 100NS-ticks
+        // Divide by 10000 to get milliseconds
+        Map<String, List<String>> irq = WmiUtil.selectStringsFrom(null,
+                "Win32_PerfRawData_Counters_ProcessorInformation", "PercentInterruptTime,PercentDPCTime",
+                "WHERE Name=\"_Total\"");
+        if (irq.get("PercentInterruptTime").size() > 0) {
+            try {
+                ticks[0] = Long.parseLong(irq.get("PercentInterruptTime").get(0)) / 10000L;
+                ticks[1] = Long.parseLong(irq.get("PercentDPCTime").get(0)) / 10000L;
+            } catch (NumberFormatException e) {
+                LOG.error("Unable to parse IRQ ticks.");
+            }
         }
-
-        // We'll manufacture our own ticks by multiplying the % used (from the
-        // counter) by time elapsed since the last call to get a tick increment
-        long now = System.currentTimeMillis();
-        long elapsed = now - irqTime;
-
-        long irq = PdhUtil.queryCounter(pIrq);
-        long dpc = PdhUtil.queryCounter(pDpc);
-
-        // Returns results in 1000's of percent, e.g. 5% is 5000
-        // Multiply by elapsed to get total ms and Divide by 100 * 1000
-        // Putting division at end avoids need to cast division to double
-        // Elasped is only since last read, so increment previous value
-        irqTicks[0] += elapsed * irq / 100000;
-        irqTicks[1] += elapsed * dpc / 100000;
-
-        irqTime = now;
-
-        // Make a copy of the array to return
-        System.arraycopy(irqTicks, 0, ticks, 0, irqTicks.length);
         return ticks;
     };
 
@@ -328,36 +234,34 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][4];
-
-        if (!PdhUtil.updateCounters(phQuery)) {
-            return ticks;
-        }
-
-        // We'll manufacture our own ticks by multiplying the % used (from the
-        // counter) by time elapsed since the last call to get a tick increment
-        long now = System.currentTimeMillis();
-        long elapsed = now - allProcTickTime;
-
+        // Percent time raw value is cumulative 100NS-ticks
+        // Divide by 10000 to get milliseconds
+        Map<String, List<String>> wmiTicks = WmiUtil.selectStringsFrom(null,
+                "Win32_PerfRawData_Counters_ProcessorInformation",
+                "Name,PercentIdleTime,PercentPrivilegedTime,PercentUserTime", "WHERE NOT Name LIKE \"%_Total\"");
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            long userPct = PdhUtil.queryCounter(this.phUserCounters[cpu]);
-            long idlePct = PdhUtil.queryCounter(this.phIdleCounters[cpu]);
-
-            // Returns results in 1000's of percent, e.g. 5% is 5000
-            // Multiply by elapsed to get total ms and Divide by 100 * 1000
-            // Putting division at end avoids need to cast division to double
-            long user = elapsed * userPct / 100000;
-            long idle = elapsed * idlePct / 100000;
-            // Elasped is only since last read, so increment previous value
-            allProcTicks[cpu][0] += user;
-            // allProcTicks[cpu][1] is ignored, Windows is not nice
-            allProcTicks[cpu][2] += Math.max(0, elapsed - user - idle); // u+i+sys=100%
-            allProcTicks[cpu][3] += idle;
-        }
-        allProcTickTime = now;
-
-        // Make a copy of the array to return
-        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            System.arraycopy(allProcTicks[cpu], 0, ticks[cpu], 0, allProcTicks[cpu].length);
+            // It would be too easy if the WMI order matched logical processors
+            // but alas, it goes "0,3"; "0,2"; "0,1"; "0,0". So let's do it
+            // right and actually string match the name. The first 0 will be
+            // there unless we're dealing with NUMA nodes
+            String name = "0," + cpu;
+            for (int index = 0; index < this.logicalProcessorCount; index++) {
+                if (wmiTicks.get("Name").get(index).equals(name)) {
+                    try {
+                        // Array order is user,nice,kernel,idle
+                        ticks[cpu][0] = Long.parseLong(wmiTicks.get("PercentUserTime").get(index))
+                                / TICKS_PER_MILLISECOND;
+                        ticks[cpu][1] = 0L;
+                        ticks[cpu][2] = Long.parseLong(wmiTicks.get("PercentPrivilegedTime").get(index))
+                                / TICKS_PER_MILLISECOND;
+                        ticks[cpu][3] = Long.parseLong(wmiTicks.get("PercentIdleTime").get(index))
+                                / TICKS_PER_MILLISECOND;
+                        break;
+                    } catch (NumberFormatException e) {
+                        LOG.error("Failed to get user/system/idle times.");
+                    }
+                }
+            }
         }
         return ticks;
     }

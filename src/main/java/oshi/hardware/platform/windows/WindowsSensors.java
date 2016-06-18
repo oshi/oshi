@@ -74,26 +74,26 @@ public class WindowsSensors extends AbstractSensors {
             this.wmiTempNamespace = "root\\cimv2";
             this.wmiTempClass = "Win32_Temperature";
             this.wmiTempProperty = "CurrentReading";
-            tempK = WmiUtil.selectLongFrom(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
             if (tempK == 0) {
                 this.wmiTempClass = "Win32_TemperatureProbe";
-                tempK = WmiUtil.selectLongFrom(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
             }
             if (tempK == 0) {
                 this.wmiTempClass = "Win32_PerfFormattedData_Counters_ThermalZoneInformation";
                 this.wmiTempProperty = "Temperature";
-                tempK = WmiUtil.selectLongFrom(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
             }
             if (tempK == 0) {
                 this.wmiTempNamespace = "root\\wmi";
                 this.wmiTempClass = "MSAcpi_ThermalZoneTemperature";
                 this.wmiTempProperty = "CurrentTemperature";
-                tempK = WmiUtil.selectLongFrom(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM, so keep using same values
-            tempK = WmiUtil.selectLongFrom(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
         }
         // Convert K to C and return result
         if (tempK > 0) {
@@ -135,7 +135,7 @@ public class WindowsSensors extends AbstractSensors {
         // This branch is used the first time and all subsequent times if
         // successful (fanSpeedWMI == true)
         // Try to get value
-        int rpm = WmiUtil.selectLongFrom(null, "Win32_Fan", "DesiredSpeed", null).intValue();
+        int rpm = WmiUtil.selectUint32From(null, "Win32_Fan", "DesiredSpeed", null).intValue();
         // Set in array and return
         if (rpm > 0) {
             fanSpeeds[0] = rpm;
@@ -168,7 +168,7 @@ public class WindowsSensors extends AbstractSensors {
             this.wmiVoltNamespace = "root\\cimv2";
             this.wmiVoltClass = "Win32_Processor";
             this.wmiVoltProperty = "CurrentVoltage";
-            decivolts = WmiUtil.selectLongFrom(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
+            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
                     .intValue();
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
@@ -176,13 +176,13 @@ public class WindowsSensors extends AbstractSensors {
             if ((decivolts & 0x80) == 0 && decivolts > 0) {
                 this.wmiVoltProperty = "VoltageCaps";
                 // really a bit setting, not decivolts, test later
-                decivolts = WmiUtil.selectLongFrom(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
+                decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
                         .intValue();
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
-            decivolts = WmiUtil.selectLongFrom(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
+            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
                     .intValue();
         }
         // Convert dV to V and return result

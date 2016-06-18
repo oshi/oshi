@@ -1,5 +1,6 @@
 2.7 (in progress)
 ================
+* [#199](https://github.com/dblock/oshi/pull/199): Use WMI queries for raw data instead of maintaining PDH threads - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.6-java7 (6/16/2016) / 2.6.1 (6/17/2016)

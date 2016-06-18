@@ -186,7 +186,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             }
             String description = drives.get("Description").get(i);
 
-            long type = WmiUtil.selectLongFrom(null, "Win32_LogicalDisk", "DriveType",
+            long type = WmiUtil.selectUint32From(null, "Win32_LogicalDisk", "DriveType",
                     "WHERE Name = '" + drives.get("Name").get(i) + "'");
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
