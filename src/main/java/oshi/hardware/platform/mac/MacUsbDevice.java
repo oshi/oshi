@@ -120,10 +120,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
-                if (!hubMap.containsKey(parentId.getValue())) {
-                    hubMap.put(parentId.getValue(), new ArrayList<Long>());
-                }
-                hubMap.get(parentId.getValue()).add(childId.getValue());
+                hubMap.computeIfAbsent(parentId.getValue(), k -> new ArrayList<Long>()).add(childId.getValue());
 
                 // Get device name and store in map
                 IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);

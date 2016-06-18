@@ -19,8 +19,8 @@
 package oshi.util.platform.mac;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class SmcUtil {
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.
      */
-    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new HashMap<Integer, SMCKeyDataKeyInfo>();
+    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<Integer, SMCKeyDataKeyInfo>();
 
     /**
      * Byte array used for matching return type

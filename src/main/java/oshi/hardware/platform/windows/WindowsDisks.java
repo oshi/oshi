@@ -64,12 +64,8 @@ public class WindowsDisks extends AbstractDisks {
             // Most vendors store serial # as a hex string; convert
             ds.setSerial(ParseUtil.hexStringToString((String) vals.get("SerialNumber").get(i)));
             String index = vals.get("Index").get(i).toString();
-            if (readMap.containsKey(index)) {
-                ds.setReads(readMap.get(index));
-            }
-            if (writeMap.containsKey(index)) {
-                ds.setWrites(writeMap.get(index));
-            }
+            ds.setReads(readMap.getOrDefault(index, 0L));
+            ds.setWrites(writeMap.getOrDefault(index, 0L));
             // If successful this line is the desired value
             try {
                 ds.setSize(Long.parseLong((String) vals.get("Size").get(i)));

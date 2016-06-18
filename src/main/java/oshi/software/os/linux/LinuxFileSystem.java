@@ -152,7 +152,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 name = "/";
             }
             String volume = split[0].replaceAll("\\\\040", " ");
-            String uuid = uuidMap.containsKey(split[0]) ? uuidMap.get(split[0]) : "";
+            String uuid = uuidMap.getOrDefault(split[0], "");
             long totalSpace = (new File(path)).getTotalSpace();
             long usableSpace = (new File(path)).getUsableSpace();
 

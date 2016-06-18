@@ -138,9 +138,9 @@ public class MacNetworks extends AbstractNetworks {
         mapIFs();
 
         Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());
-        if (ifMap.containsKey(index)) {
+        IFdata ifData = ifMap.get(index);
+        if (ifData != null) {
             // Retrieve values from map and store
-            IFdata ifData = ifMap.get(index);
             netIF.setBytesSent(ifData.oBytes);
             netIF.setBytesRecv(ifData.iBytes);
             netIF.setPacketsSent(ifData.oPackets);

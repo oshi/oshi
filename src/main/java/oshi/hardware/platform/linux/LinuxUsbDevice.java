@@ -114,10 +114,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             } else {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                if (!hubMap.containsKey(parentPath)) {
-                    hubMap.put(parentPath, new ArrayList<String>());
-                }
-                hubMap.get(parentPath).add(path);
+                hubMap.computeIfAbsent(parentPath, k -> new ArrayList<String>()).add(path);
             }
             Udev.INSTANCE.udev_device_unref(dev);
         }
