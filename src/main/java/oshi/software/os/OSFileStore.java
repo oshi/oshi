@@ -306,7 +306,7 @@ public class OSFileStore implements OshiJsonObject {
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("volume", getVolume()).add("mountPoint", getMount()).add("description", getDescription())
-                .add("fsType", getType()).add("usableSpace", getUsableSpace()).add("totalSpace", getTotalSpace())
-                .build();
+                .add("fsType", getType()).add("uuid", getUUID()).add("usableSpace", getUsableSpace())
+                .add("totalSpace", getTotalSpace()).build();
     }
 }

@@ -63,6 +63,13 @@ public class WmiUtil {
     }
 
     /**
+     * For WMI queries requiring array input
+     */
+    private static ValueType[] STRING_TYPE = { ValueType.STRING };
+    private static ValueType[] LONG_TYPE = { ValueType.LONG };
+    private static ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
+
+    /**
      * Get a single Unsigned Integer value from WMI (as Long)
      * 
      * @param namespace
@@ -77,7 +84,7 @@ public class WmiUtil {
      */
     public static Long selectUint32From(String namespace, String wmiClass, String property, String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, ValueType.LONG);
+                wmiClass, whereClause, LONG_TYPE);
         if (result.containsKey(property) && !result.get(property).isEmpty()) {
             return (Long) result.get(property).get(0);
         }
@@ -102,7 +109,7 @@ public class WmiUtil {
     public static Map<String, List<Long>> selectUint32sFrom(String namespace, String wmiClass, String properties,
             String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, ValueType.LONG);
+                wmiClass, whereClause, LONG_TYPE);
         HashMap<String, List<Long>> longMap = new HashMap<>();
         for (String key : result.keySet()) {
             ArrayList<Long> longList = new ArrayList<>();
@@ -129,7 +136,7 @@ public class WmiUtil {
      */
     public static Float selectFloatFrom(String namespace, String wmiClass, String property, String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, ValueType.FLOAT);
+                wmiClass, whereClause, FLOAT_TYPE);
         if (result.containsKey(property) && !result.get(property).isEmpty()) {
             return (Float) result.get(property).get(0);
         }
@@ -154,7 +161,7 @@ public class WmiUtil {
     public static Map<String, List<Float>> selectFloatsFrom(String namespace, String wmiClass, String properties,
             String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, ValueType.FLOAT);
+                wmiClass, whereClause, FLOAT_TYPE);
         HashMap<String, List<Float>> floatMap = new HashMap<>();
         for (String key : result.keySet()) {
             ArrayList<Float> floatList = new ArrayList<>();
@@ -181,7 +188,7 @@ public class WmiUtil {
      */
     public static String selectStringFrom(String namespace, String wmiClass, String property, String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, ValueType.STRING);
+                wmiClass, whereClause, STRING_TYPE);
         if (result.containsKey(property) && !result.get(property).isEmpty()) {
             return (String) result.get(property).get(0);
         }
@@ -206,7 +213,7 @@ public class WmiUtil {
     public static Map<String, List<String>> selectStringsFrom(String namespace, String wmiClass, String properties,
             String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, ValueType.STRING);
+                wmiClass, whereClause, STRING_TYPE);
         HashMap<String, List<String>> strMap = new HashMap<>();
         for (String key : result.keySet()) {
             ArrayList<String> strList = new ArrayList<>();
@@ -230,47 +237,20 @@ public class WmiUtil {
      * @param whereClause
      *            A WQL where clause matching properties and keywords
      * @param propertyTypes
-     *            An array of types corresponding to the properties
+     *            An array of types corresponding to the properties, or a single
+     *            element array
      * @return A map, with each property as the key, containing Objects with the
      *         value of the requested properties. Each list's order corresponds
      *         to other lists. The type of the objects is identified by the
-     *         propertyTypes array. It is the responsibility of the caller to
-     *         cast the returned objects.
+     *         propertyTypes array. If only one propertyType is given, all
+     *         Objects will have that type. It is the responsibility of the
+     *         caller to cast the returned objects.
      */
     public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String properties,
             String whereClause, ValueType[] propertyTypes) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
                 wmiClass, whereClause, propertyTypes);
         return result;
-    }
-
-    /**
-     * Query WMI for values
-     * 
-     * @param namespace
-     *            The namespace to query
-     * @param properties
-     *            A single property or comma-delimited list of properties to
-     *            enumerate
-     * @param wmiClass
-     *            The WMI class to query
-     * @param valType
-     *            The type of data being queried, to control how VARIANT is
-     *            parsed
-     * @return A map, with the string value of each property as the key,
-     *         containing a list of Objects which can be cast appropriately per
-     *         valType. The order of objects in each list corresponds to the
-     *         other lists.
-     */
-    private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
-            String whereClause, ValueType valType) {
-        // Set up empty map
-        String[] props = properties.split(",");
-        ValueType[] propertyTypes = new ValueType[props.length];
-        for (int i = 0; i < props.length; i++) {
-            propertyTypes[i] = valType;
-        }
-        return queryWMI(namespace, properties, wmiClass, whereClause, propertyTypes);
     }
 
     /**
@@ -419,8 +399,8 @@ public class WmiUtil {
 
     private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
             String[] properties, ValueType[] propertyTypes) {
-        if (properties.length != propertyTypes.length) {
-            throw new IllegalArgumentException("Property type array size must equal properties array size.");
+        if (propertyTypes.length > 1 && properties.length != propertyTypes.length) {
+            throw new IllegalArgumentException("Property type array size must be 1 or equal to properties array size.");
         }
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
@@ -442,11 +422,12 @@ public class WmiUtil {
                 String property = properties[p];
                 hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
 
-                switch (propertyTypes[p]) {
+                ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
+                switch (propertyType) {
                 case STRING:
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
-                case LONG: // WinDef.LONG
+                case LONG: // WinDef.LONG TODO improve in JNA 4.3
                     values.get(property)
                             .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());
                     break;
@@ -460,7 +441,7 @@ public class WmiUtil {
                     break;
                 default:
                     // Should never get here!
-                    LOG.error("Unimplemented enum type.");
+                    throw new IllegalArgumentException("Unimplemented enum type: " + propertyType.toString());
                 }
                 OleAuto.INSTANCE.VariantClear(vtProp.getPointer());
             }
