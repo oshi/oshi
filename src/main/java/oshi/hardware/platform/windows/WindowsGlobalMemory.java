@@ -18,17 +18,18 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -44,28 +45,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
 
     private long lastUpdate = 0;
-
-    // Set up Performance Data Helper thread for % pagefile usage
-    private PointerByReference pagefileQuery = new PointerByReference();
-    private PointerByReference pPagefile = new PointerByReference();;
-
-    public WindowsGlobalMemory() {
-        // Open Pagefile query
-        if (PdhUtil.openQuery(pagefileQuery)) {
-            // \Paging File(_Total)\% Usage
-            PdhUtil.addCounter(pagefileQuery, "\\Paging File(_Total)\\% Usage", pPagefile);
-            // Initialize by collecting data the first time
-            Pdh.INSTANCE.PdhCollectQueryData(pagefileQuery.getValue());
-        }
-
-        // Set up hook to close the query on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                Pdh.INSTANCE.PdhCloseQuery(pagefileQuery.getValue());
-            }
-        });
-    }
 
     /**
      * Update the performance information no more frequently than every 100ms
@@ -90,12 +69,10 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      */
     protected void updateSwap() {
         updateMeminfo();
-        if (!PdhUtil.updateCounters(pagefileQuery)) {
-            return;
+        Map<String, List<Long>> usage = WmiUtil.selectUint32sFrom(null, "Win32_PerfRawData_PerfOS_PagingFile",
+                "PercentUsage,PercentUsage_Base", "WHERE Name=\"_Total\"");
+        if (usage.get("PercentUsage").size() > 0) {
+            this.swapUsed = this.swapTotal * usage.get("PercentUsage").get(0) / usage.get("PercentUsage_Base").get(0);
         }
-        // Returns results in 1000's of percent, e.g. 5% is 5000
-        // Multiply by page file size and Divide by 100 * 1000
-        // Putting division at end avoids need to cast division to double
-        this.swapUsed = this.swapTotal * PdhUtil.queryCounter(pPagefile) / 100000;
     }
 }

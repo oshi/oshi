@@ -63,7 +63,7 @@ public class WmiUtil {
     }
 
     /**
-     * Get a single Long value from WMI
+     * Get a single Unsigned Integer value from WMI (as Long)
      * 
      * @param namespace
      *            The namespace or null to use the default
@@ -75,7 +75,7 @@ public class WmiUtil {
      *            A WQL where clause matching properties and keywords
      * @return A Long containing the value of the requested property
      */
-    public static Long selectLongFrom(String namespace, String wmiClass, String property, String whereClause) {
+    public static Long selectUint32From(String namespace, String wmiClass, String property, String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
                 wmiClass, whereClause, ValueType.LONG);
         if (result.containsKey(property) && !result.get(property).isEmpty()) {
@@ -85,7 +85,7 @@ public class WmiUtil {
     }
 
     /**
-     * Get multiple Long values from WMI
+     * Get multiple Unsigned Integer values from WMI (as Longs)
      * 
      * @param namespace
      *            The namespace or null to use the default
@@ -99,7 +99,7 @@ public class WmiUtil {
      *         value of the requested properties. Each list's order corresponds
      *         to other lists.
      */
-    public static Map<String, List<Long>> selectLongsFrom(String namespace, String wmiClass, String properties,
+    public static Map<String, List<Long>> selectUint32sFrom(String namespace, String wmiClass, String properties,
             String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
                 wmiClass, whereClause, ValueType.LONG);
