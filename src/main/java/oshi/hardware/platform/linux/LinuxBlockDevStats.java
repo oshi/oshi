@@ -25,6 +25,7 @@ import javax.json.JsonObject;
 import oshi.jna.platform.linux.Udev;
 import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.json.OshiJsonObject;
+import oshi.util.ParseUtil;
 
 /**
  * POJO for mapping Linux block device stats info
@@ -45,17 +46,17 @@ public class LinuxBlockDevStats implements OshiJsonObject {
         splitstats = devstat.split("\\s+");
 
         this.device = device;
-        this.read_ops = Long.parseLong(splitstats[1]);
-        this.read_merged = Long.parseLong(splitstats[2]);
-        this.read_512bytes = Long.parseLong(splitstats[3]);
-        this.read_waits_ms = Long.parseLong(splitstats[4]);
-        this.write_ops = Long.parseLong(splitstats[5]);
-        this.write_merged = Long.parseLong(splitstats[6]);
-        this.write_512bytes = Long.parseLong(splitstats[7]);
-        this.write_waits_ms = Long.parseLong(splitstats[8]);
-        this.in_flight = Long.parseLong(splitstats[9]);
-        this.active_ms = Long.parseLong(splitstats[10]);
-        this.waits_ms = Long.parseLong(splitstats[11]);
+        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);
+        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);
+        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);
+        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);
+        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);
+        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);
+        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);
+        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);
+        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);
+        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);
+        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);
     }
 
     // Device name

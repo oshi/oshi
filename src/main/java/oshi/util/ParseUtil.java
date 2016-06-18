@@ -316,4 +316,38 @@ public abstract class ParseUtil {
             return hexString;
         }
     }
+
+    /**
+     * Attempts to parse a string to an int. If it fails, returns the default
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultInt
+     *            The value to return if parsing fails
+     * @return The parsed int, or the default if parsing failed
+     */
+    public static int parseIntOrDefault(String s, int defaultInt) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return defaultInt;
+        }
+    }
+
+    /**
+     * Attempts to parse a string to a long. If it fails, returns the default
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultLong
+     *            The value to return if parsing fails
+     * @return The parsed long, or the default if parsing failed
+     */
+    public static long parseLongOrDefault(String s, long defaultLong) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return defaultLong;
+        }
+    }
 }

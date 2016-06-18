@@ -67,13 +67,7 @@ public class WindowsDisks extends AbstractDisks {
             ds.setReads(readMap.getOrDefault(index, 0L));
             ds.setWrites(writeMap.getOrDefault(index, 0L));
             // If successful this line is the desired value
-            try {
-                ds.setSize(Long.parseLong((String) vals.get("Size").get(i)));
-            } catch (NumberFormatException e) {
-                // If we failed to parse, give up
-                // This is expected for an empty string on some drives
-                ds.setSize(0L);
-            }
+            ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get("Size").get(i), 0L));
             result.add(ds);
         }
         return result.toArray(new HWDiskStore[result.size()]);
@@ -87,13 +81,8 @@ public class WindowsDisks extends AbstractDisks {
                 "Name,DiskReadBytesPerSec,DiskWriteBytesPerSec", null);
         for (int i = 0; i < vals.get("Name").size(); i++) {
             String index = vals.get("Name").get(i).split("\\s+")[0];
-            try {
-                readMap.put(index, Long.parseLong(vals.get("DiskReadBytesPerSec").get(i)));
-                writeMap.put(index, Long.parseLong(vals.get("DiskWriteBytesPerSec").get(i)));
-            } catch (NumberFormatException e) {
-                // If we can't parse, just ignore, we won't populate the map
-                continue;
-            }
+            readMap.put(index, ParseUtil.parseLongOrDefault(vals.get("DiskReadBytesPerSec").get(i), 0L));
+            writeMap.put(index, ParseUtil.parseLongOrDefault(vals.get("DiskWriteBytesPerSec").get(i), 0L));
         }
     }
 }

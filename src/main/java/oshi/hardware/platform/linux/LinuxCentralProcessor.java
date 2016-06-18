@@ -193,14 +193,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Note tickArr is offset by 1
         for (int i = 0; i < 4; i++) {
-            ticks[i] = Long.parseLong(tickArr[i + 1]);
+            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
         }
         if (tickArr.length > 5) {
             // Add iowait to idle
-            ticks[3] += Long.parseLong(tickArr[5]);
+            ticks[3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
             // Add other fields to system
             for (int i = 6; i < tickArr.length; i++) {
-                ticks[2] += Long.parseLong(tickArr[i]);
+                ticks[2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
             }
         }
         return ticks;
@@ -225,7 +225,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (tickArr.length < 6) {
             return 0;
         }
-        return Long.parseLong(tickArr[5]);
+        return ParseUtil.parseLongOrDefault(tickArr[5], 0L);
     }
 
     /**
@@ -248,8 +248,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (tickArr.length < 8) {
             return ticks;
         }
-        ticks[0] = Long.parseLong(tickArr[6]);
-        ticks[1] = Long.parseLong(tickArr[7]);
+        ticks[0] = ParseUtil.parseLongOrDefault(tickArr[6], 0L);
+        ticks[1] = ParseUtil.parseLongOrDefault(tickArr[7], 0L);
         return ticks;
     };
 
@@ -295,14 +295,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 // Note tickArr is offset by 1
                 for (int i = 0; i < 4; i++) {
-                    ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
+                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
                 if (tickArr.length > 5) {
                     // Add iowait to idle
-                    ticks[cpu][3] += Long.parseLong(tickArr[5]);
+                    ticks[cpu][3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
                     // Add other fields to system
                     for (int i = 6; i < tickArr.length; i++) {
-                        ticks[cpu][2] += Long.parseLong(tickArr[i]);
+                        ticks[cpu][2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
                     }
                 }
                 if (++cpu >= logicalProcessorCount) {
@@ -370,14 +370,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         File[] pids = ProcUtil.getPidFiles();
         // now for each file (with digit name) get process info
         for (File pid : pids) {
-            try {
-                OSProcess proc = getProcess(Integer.parseInt(pid.getName()));
-                if (proc != null) {
-                    procs.add(proc);
-                }
-            } catch (NumberFormatException nfe) {
-                // Since we regexp matched digits this shouldn't ever get here
-                LOG.error("Couldn't parse {} to an integer.", pid.getName());
+            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
+            if (proc != null) {
+                procs.add(proc);
             }
         }
         return procs.toArray(new OSProcess[procs.size()]);
@@ -398,27 +393,23 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (size > 0) {
             path = buf.getString(0).substring(0, size);
         }
-        try {
-            return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
-                    // See man proc for how to parse /proc/[pid]/stat
-                    path, // path
-                    split[2].charAt(0), // state, one of RSDZTW
-                    pid, // also split[0] but we already have
-                    Integer.parseInt(split[3]), // ppid
-                    Integer.parseInt(split[19]), // thread count
-                    Integer.parseInt(split[17]), // priority
-                    Long.parseLong(split[22]), // VSZ
-                    Long.parseLong(split[23]), // RSS
-                    // The below values are in jiffies
-                    Long.parseLong(split[14]), // kernelTime
-                    Long.parseLong(split[13]), // userTime
-                    Long.parseLong(split[21]), // startTime (after uptime)
-                    System.currentTimeMillis() //
-            );
-        } catch (NumberFormatException e) {
-            LOG.error("Unable to parse /proc/{}/stat", pid);
-        }
-        return null;
+        return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
+                // See man proc for how to parse /proc/[pid]/stat
+                path, // path
+                split[2].charAt(0), // state, one of RSDZTW
+                pid, // also split[0] but we already have
+                ParseUtil.parseIntOrDefault(split[3], 0), // ppid
+                ParseUtil.parseIntOrDefault(split[19], 0), // thread count
+                ParseUtil.parseIntOrDefault(split[17], 0), // priority
+                ParseUtil.parseLongOrDefault(split[22], 0L), // VSZ
+                ParseUtil.parseLongOrDefault(split[23], 0L), // RSS
+                // The below values are in jiffies
+                ParseUtil.parseLongOrDefault(split[14], 0L), // kernelTime
+                ParseUtil.parseLongOrDefault(split[13], 0L), // userTime
+                ParseUtil.parseLongOrDefault(split[21], 0L), // startTime (after
+                                                             // uptime)
+                System.currentTimeMillis() //
+        );
     }
 
     /**

@@ -28,6 +28,7 @@ import oshi.software.common.AbstractProcess;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
 /**
@@ -78,7 +79,7 @@ public class LinuxProcess extends AbstractProcess {
                 if (split.length < 22) {
                     continue;
                 }
-                long jiffies = Long.parseLong(split[21]);
+                long jiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
                 if (jiffies > youngestJiffies) {
                     youngestJiffies = jiffies;
                     youngestPid = pid.getName();

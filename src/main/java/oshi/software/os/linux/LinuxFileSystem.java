@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * The Linux File System contains {@link OSFileStore}s which are a storage pool,
@@ -200,14 +201,10 @@ public class LinuxFileSystem extends AbstractFileSystem {
         if (index < 0 || index > 2) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
         }
-        try {
-            List<String> osDescriptors = FileUtil.readFile(filename);
-            if (!osDescriptors.isEmpty()) {
-                String[] splittedLine = osDescriptors.get(0).split("\\D+");
-                return Long.parseLong(splittedLine[index]);
-            }
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            LOG.trace("Unable to read value from {}", filename, e);
+        List<String> osDescriptors = FileUtil.readFile(filename);
+        if (!osDescriptors.isEmpty()) {
+            String[] splittedLine = osDescriptors.get(0).split("\\D+");
+            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
     }

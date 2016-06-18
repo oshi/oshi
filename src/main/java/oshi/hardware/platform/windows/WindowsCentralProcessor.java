@@ -41,6 +41,7 @@ import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.software.os.OSProcess;
 import oshi.software.os.windows.WindowsProcess;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -83,13 +84,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 "PercentIdleTime,PercentPrivilegedTime,PercentUserTime", "WHERE Name=\"_Total\"");
         long ticks = 0L;
         if (wmiTicks.get("PercentIdleTime").size() > 0) {
-            try {
-                ticks = Long.parseLong(wmiTicks.get("PercentIdleTime").get(0))
-                        + Long.parseLong(wmiTicks.get("PercentPrivilegedTime").get(0))
-                        + Long.parseLong(wmiTicks.get("PercentUserTime").get(0));
-            } catch (NumberFormatException e) {
-                LOG.error("Failed to init wmi idle/processor times.");
-            }
+            ticks = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentIdleTime").get(0), 0L)
+                    + ParseUtil.parseLongOrDefault(wmiTicks.get("PercentPrivilegedTime").get(0), 0L)
+                    + ParseUtil.parseLongOrDefault(wmiTicks.get("PercentUserTime").get(0), 0L);
         }
         // Divide
         TICKS_PER_MILLISECOND = ticks / mSec;
@@ -197,12 +194,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 "Win32_PerfRawData_Counters_ProcessorInformation", "PercentInterruptTime,PercentDPCTime",
                 "WHERE Name=\"_Total\"");
         if (irq.get("PercentInterruptTime").size() > 0) {
-            try {
-                ticks[0] = Long.parseLong(irq.get("PercentInterruptTime").get(0)) / 10000L;
-                ticks[1] = Long.parseLong(irq.get("PercentDPCTime").get(0)) / 10000L;
-            } catch (NumberFormatException e) {
-                LOG.error("Unable to parse IRQ ticks.");
-            }
+            ticks[0] = ParseUtil.parseLongOrDefault(irq.get("PercentInterruptTime").get(0), 0L) / 10000L;
+            ticks[1] = ParseUtil.parseLongOrDefault(irq.get("PercentDPCTime").get(0), 0L) / 10000L;
         }
         return ticks;
     };
@@ -247,19 +240,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
                 String name = "0," + cpu;
                 if (wmiTicks.get("Name").get(index).equals(name)) {
-                    try {
-                        // Array order is user,nice,kernel,idle
-                        ticks[cpu][0] = Long.parseLong(wmiTicks.get("PercentUserTime").get(index))
-                                / TICKS_PER_MILLISECOND;
-                        ticks[cpu][1] = 0L;
-                        ticks[cpu][2] = Long.parseLong(wmiTicks.get("PercentPrivilegedTime").get(index))
-                                / TICKS_PER_MILLISECOND;
-                        ticks[cpu][3] = Long.parseLong(wmiTicks.get("PercentIdleTime").get(index))
-                                / TICKS_PER_MILLISECOND;
-                        break;
-                    } catch (NumberFormatException e) {
-                        LOG.error("Failed to get user/system/idle times.");
-                    }
+                    // Array order is user,nice,kernel,idle
+                    ticks[cpu][0] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentUserTime").get(index), 0L)
+                            / TICKS_PER_MILLISECOND;
+                    ticks[cpu][1] = 0L;
+                    ticks[cpu][2] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentPrivilegedTime").get(index), 0L)
+                            / TICKS_PER_MILLISECOND;
+                    ticks[cpu][3] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentIdleTime").get(index), 0L)
+                            / TICKS_PER_MILLISECOND;
+                    break;
                 }
             }
         }
@@ -320,24 +309,18 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<OSProcess> procList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         for (int p = 0; p < procs.get("Name").size(); p++) {
-            try {
-                procList.add(
-                        new WindowsProcess((String) procs.get("Name").get(p), (String) procs.get("CommandLine").get(p),
-                                ((Long) procs.get("ExecutionState").get(p)).intValue(),
-                                ((Long) procs.get("ProcessID").get(p)).intValue(),
-                                ((Long) procs.get("ParentProcessId").get(p)).intValue(),
-                                ((Long) procs.get("ThreadCount").get(p)).intValue(),
-                                ((Long) procs.get("Priority").get(p)).intValue(),
-                                Long.parseLong((String) procs.get("VirtualSize").get(p)),
-                                Long.parseLong((String) procs.get("WorkingSetSize").get(p)),
-                                // Kernel and User time units are 100ns
-                                Long.parseLong((String) procs.get("KernelModeTime").get(p)) / 10000L,
-                                Long.parseLong((String) procs.get("UserModeTime").get(p)) / 10000L,
-                                ((Long) procs.get("CreationDate").get(p)), now));
-            } catch (NumberFormatException nfe) {
-                // Ignore errors, just don't add
-                LOG.debug("Parse Exception");
-            }
+            procList.add(new WindowsProcess((String) procs.get("Name").get(p), (String) procs.get("CommandLine").get(p),
+                    ((Long) procs.get("ExecutionState").get(p)).intValue(),
+                    ((Long) procs.get("ProcessID").get(p)).intValue(),
+                    ((Long) procs.get("ParentProcessId").get(p)).intValue(),
+                    ((Long) procs.get("ThreadCount").get(p)).intValue(),
+                    ((Long) procs.get("Priority").get(p)).intValue(),
+                    ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L),
+                    ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L),
+                    // Kernel and User time units are 100ns
+                    ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
+                    ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
+                    ((Long) procs.get("CreationDate").get(p)), now));
         }
 
         return procList;

@@ -89,14 +89,10 @@ public class FileUtil {
      */
     public static long getLongFromFile(String filename) {
         LOG.debug("Reading file {}", filename);
-        try {
-            List<String> read = FileUtil.readFile(filename, false);
-            if (!read.isEmpty()) {
-                LOG.trace("Read {}", read.get(0));
-                return Long.parseLong(read.get(0));
-            }
-        } catch (NumberFormatException ex) {
-            LOG.debug("Unable to read value from {}", filename);
+        List<String> read = FileUtil.readFile(filename, false);
+        if (!read.isEmpty()) {
+            LOG.trace("Read {}", read.get(0));
+            return ParseUtil.parseLongOrDefault(read.get(0), 0L);
         }
         return 0L;
     }

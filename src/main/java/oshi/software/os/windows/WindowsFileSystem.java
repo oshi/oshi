@@ -25,14 +25,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -46,8 +44,6 @@ import oshi.util.platform.windows.WmiUtil;
 public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystem.class);
 
     private static final Pattern UUID_PATTERN = Pattern
             .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
@@ -164,7 +160,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     private List<OSFileStore> getWmiVolumes() {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
-        String volume, s;
+        String volume;
         long free, total;
 
         fs = new ArrayList<>();
@@ -175,15 +171,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
         for (int i = 0; i < drives.get("Name").size(); i++) {
             free = 0L;
             total = 0L;
-            try {
-                s = drives.get("Freespace").get(i);
-                free = s.equals("unknown") ? 0L : Long.parseLong(s);
-                s = drives.get("Size").get(i);
-                total = s.equals("unknown") ? 0L : Long.parseLong(s);
-            } catch (NumberFormatException e) {
-                LOG.error("Failed to parse drive space.");
-                // leave as zero
-            }
+            free = ParseUtil.parseLongOrDefault(drives.get("Freespace").get(i), 0L);
+            total = ParseUtil.parseLongOrDefault(drives.get("Size").get(i), 0L);
             String description = drives.get("Description").get(i);
 
             long type = WmiUtil.selectUint32From(null, "Win32_LogicalDisk", "DriveType",

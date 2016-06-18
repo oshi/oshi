@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.linux.Udev;
+import oshi.util.ParseUtil;
 
 /**
  * Linux hard disk implementation.
@@ -83,18 +84,16 @@ public class LinuxDisks extends AbstractDisks {
                     store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
                             ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                     store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null)
-                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                            ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
-                    store.setSize(
-                            Long.parseLong(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size")) * SECTORSIZE);
+                    store.setSize(ParseUtil.parseLongOrDefault(
+                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
 
                     this.computeDiskStats(store, device);
                     result.add(store);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (NumberFormatException nfe) {
-                LOG.error("Problem parsing sector size for {}", store.getName());
-                break;
             } catch (Exception ex) {
                 LOG.debug("Reached all disks. Exiting ");
                 break;
