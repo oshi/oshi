@@ -59,14 +59,14 @@ public class WmiUtil {
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
     public enum ValueType {
-        STRING, LONG, FLOAT, DATETIME
+        STRING, UINT32, FLOAT, DATETIME
     }
 
     /**
      * For WMI queries requiring array input
      */
     private static ValueType[] STRING_TYPE = { ValueType.STRING };
-    private static ValueType[] LONG_TYPE = { ValueType.LONG };
+    private static ValueType[] UINT32_TYPE = { ValueType.UINT32 };
     private static ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
 
     /**
@@ -84,7 +84,7 @@ public class WmiUtil {
      */
     public static Long selectUint32From(String namespace, String wmiClass, String property, String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, LONG_TYPE);
+                wmiClass, whereClause, UINT32_TYPE);
         if (result.containsKey(property) && !result.get(property).isEmpty()) {
             return (Long) result.get(property).get(0);
         }
@@ -109,7 +109,7 @@ public class WmiUtil {
     public static Map<String, List<Long>> selectUint32sFrom(String namespace, String wmiClass, String properties,
             String whereClause) {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, LONG_TYPE);
+                wmiClass, whereClause, UINT32_TYPE);
         HashMap<String, List<Long>> longMap = new HashMap<>();
         for (String key : result.keySet()) {
             ArrayList<Long> longList = new ArrayList<>();
@@ -311,12 +311,16 @@ public class WmiUtil {
     }
 
     /*
-     * Getting WMI Data from Local Computer
-     * 
-     * Ported from:
+     * Below methods ported from: Getting WMI Data from Local Computer
      * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
+     * 
+     * Steps 1 - 7 correspond to the above link.
      */
-
+    /**
+     * Initializes COM library and sets security to impersonate the local user
+     * 
+     * @return true if COM successfull initialized
+     */
     private static boolean initCOM() {
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
@@ -342,6 +346,17 @@ public class WmiUtil {
         return true;
     }
 
+    /**
+     * Obtains a locator to the WMI server and connects to the specified
+     * namespace
+     * 
+     * @param namespace
+     *            The namespace to connect to
+     * @param pSvc
+     *            A pointer to receive an indirect to the WMI service
+     * @return true if successful; pSvc will contain an indirect pointer to the
+     *         WMI service for future IWbemServices calls
+     */
     private static boolean connectServer(String namespace, PointerByReference pSvc) {
         // Step 3: ---------------------------------------------------
         // Obtain the initial locator to WMI -------------------------
@@ -377,6 +392,24 @@ public class WmiUtil {
         return true;
     }
 
+    /**
+     * Selects properties from WMI. Returns immediately, even while results are
+     * being retrieved; results may begun to be enumerated in the forward
+     * direction only.
+     * 
+     * @param svc
+     *            A WbemServices object to make the calls
+     * @param pEnumerator
+     *            An enumerator to receive the results of the query
+     * @param properties
+     *            A comma separated list of properties to query
+     * @param wmiClass
+     *            The WMI class to query
+     * @param whereClause
+     *            A WHERE clause to narrow the query
+     * @return True if successful. The enumerator will allow enumeration of
+     *         results of the query
+     */
     private static boolean selectProperties(WbemServices svc, PointerByReference pEnumerator, String properties,
             String wmiClass, String whereClause) {
         // Step 6: --------------------------------------------------
@@ -397,6 +430,22 @@ public class WmiUtil {
         return true;
     }
 
+    /**
+     * Enumerate the results of a WMI query. This method is called while results
+     * are still being retrieved and may iterate in the forward direction only.
+     * 
+     * @param values
+     *            A map to hold the results of the query using the property as
+     *            the key, and placing each enumerated result in a
+     *            (common-index) list for each property
+     * @param enumerator
+     *            The enumerator with the results
+     * @param properties
+     *            Comma-delimited list of properties to retrieve
+     * @param propertyTypes
+     *            An array of property types matching the properties or a single
+     *            property type which will be used for all properties
+     */
     private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
             String[] properties, ValueType[] propertyTypes) {
         if (propertyTypes.length > 1 && properties.length != propertyTypes.length) {
@@ -424,10 +473,12 @@ public class WmiUtil {
 
                 ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
                 switch (propertyType) {
+                // WMI Longs will return as strings
                 case STRING:
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
-                case LONG: // WinDef.LONG TODO improve in JNA 4.3
+                // WMI Uint32s will return as longs
+                case UINT32: // WinDef.LONG TODO improve in JNA 4.3
                     values.get(property)
                             .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());
                     break;
@@ -440,7 +491,8 @@ public class WmiUtil {
                     values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
                 default:
-                    // Should never get here!
+                    // Should never get here! If you get this exception you've
+                    // added something to the enum without adding it here. Tsk.
                     throw new IllegalArgumentException("Unimplemented enum type: " + propertyType.toString());
                 }
                 OleAuto.INSTANCE.VariantClear(vtProp.getPointer());

@@ -61,8 +61,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     // For WMI Process queries
     private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate";
-    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.LONG,
-            ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.LONG, ValueType.STRING, ValueType.STRING,
+    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,
+            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.DATETIME };
 
     // Compare WMI ticks to GetSystemTimes to determine conversion

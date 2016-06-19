@@ -45,7 +45,7 @@ public class WindowsDisks extends AbstractDisks {
     private static Map<String, Long> writeMap = new HashMap<>();
 
     private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.LONG };
+            ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
 
     @Override
     public HWDiskStore[] getDisks() {
