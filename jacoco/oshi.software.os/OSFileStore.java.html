@@ -306,8 +306,8 @@ public class OSFileStore implements OshiJsonObject {
     public JsonObject toJSON() {
 <span class="nc" id="L307">        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(&quot;name&quot;, getName())</span>
 <span class="nc" id="L308">                .add(&quot;volume&quot;, getVolume()).add(&quot;mountPoint&quot;, getMount()).add(&quot;description&quot;, getDescription())</span>
-<span class="nc" id="L309">                .add(&quot;fsType&quot;, getType()).add(&quot;usableSpace&quot;, getUsableSpace()).add(&quot;totalSpace&quot;, getTotalSpace())</span>
-<span class="nc" id="L310">                .build();</span>
+<span class="nc" id="L309">                .add(&quot;fsType&quot;, getType()).add(&quot;uuid&quot;, getUUID()).add(&quot;usableSpace&quot;, getUsableSpace())</span>
+<span class="nc" id="L310">                .add(&quot;totalSpace&quot;, getTotalSpace()).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

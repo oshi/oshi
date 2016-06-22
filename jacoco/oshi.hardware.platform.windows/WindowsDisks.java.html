@@ -45,7 +45,7 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
 <span class="nc" id="L45">    private static Map&lt;String, Long&gt; writeMap = new HashMap&lt;&gt;();</span>
 
 <span class="nc" id="L47">    private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
-            ValueType.STRING, ValueType.STRING, ValueType.LONG };
+            ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -64,41 +64,26 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
             // Most vendors store serial # as a hex string; convert
 <span class="nc" id="L65">            ds.setSerial(ParseUtil.hexStringToString((String) vals.get(&quot;SerialNumber&quot;).get(i)));</span>
 <span class="nc" id="L66">            String index = vals.get(&quot;Index&quot;).get(i).toString();</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (readMap.containsKey(index)) {</span>
-<span class="nc" id="L68">                ds.setReads(readMap.get(index));</span>
-            }
-<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (writeMap.containsKey(index)) {</span>
-<span class="nc" id="L71">                ds.setWrites(writeMap.get(index));</span>
-            }
+<span class="nc" id="L67">            ds.setReads(readMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L68">            ds.setWrites(writeMap.getOrDefault(index, 0L));</span>
             // If successful this line is the desired value
-            try {
-<span class="nc" id="L75">                ds.setSize(Long.parseLong((String) vals.get(&quot;Size&quot;).get(i)));</span>
-<span class="nc" id="L76">            } catch (NumberFormatException e) {</span>
-                // If we failed to parse, give up
-                // This is expected for an empty string on some drives
-<span class="nc" id="L79">                ds.setSize(0L);</span>
-<span class="nc" id="L80">            }</span>
-<span class="nc" id="L81">            result.add(ds);</span>
+<span class="nc" id="L70">            ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get(&quot;Size&quot;).get(i), 0L));</span>
+<span class="nc" id="L71">            result.add(ds);</span>
         }
-<span class="nc" id="L83">        return result.toArray(new HWDiskStore[result.size()]);</span>
+<span class="nc" id="L73">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
 
     private void populateReadWriteMaps() {
         // Although the field names say &quot;PerSec&quot; this is the Raw Data from which
         // the associated fields are populated in the Formatted Data class, so
         // in fact this is the data we want
-<span class="nc" id="L90">        Map&lt;String, List&lt;String&gt;&gt; vals = WmiUtil.selectStringsFrom(null, &quot;Win32_PerfRawData_PerfDisk_PhysicalDisk&quot;,</span>
+<span class="nc" id="L80">        Map&lt;String, List&lt;String&gt;&gt; vals = WmiUtil.selectStringsFrom(null, &quot;Win32_PerfRawData_PerfDisk_PhysicalDisk&quot;,</span>
                 &quot;Name,DiskReadBytesPerSec,DiskWriteBytesPerSec&quot;, null);
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L93">            String index = vals.get(&quot;Name&quot;).get(i).split(&quot;\\s+&quot;)[0];</span>
-            try {
-<span class="nc" id="L95">                readMap.put(index, Long.parseLong(vals.get(&quot;DiskReadBytesPerSec&quot;).get(i)));</span>
-<span class="nc" id="L96">                writeMap.put(index, Long.parseLong(vals.get(&quot;DiskWriteBytesPerSec&quot;).get(i)));</span>
-<span class="nc" id="L97">            } catch (NumberFormatException e) {</span>
-                // If we can't parse, just ignore, we won't populate the map
-<span class="nc" id="L99">                continue;</span>
-<span class="nc" id="L100">            }</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L83">            String index = vals.get(&quot;Name&quot;).get(i).split(&quot;\\s+&quot;)[0];</span>
+<span class="nc" id="L84">            readMap.put(index, ParseUtil.parseLongOrDefault(vals.get(&quot;DiskReadBytesPerSec&quot;).get(i), 0L));</span>
+<span class="nc" id="L85">            writeMap.put(index, ParseUtil.parseLongOrDefault(vals.get(&quot;DiskWriteBytesPerSec&quot;).get(i), 0L));</span>
         }
-<span class="nc" id="L102">    }</span>
+<span class="nc" id="L87">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

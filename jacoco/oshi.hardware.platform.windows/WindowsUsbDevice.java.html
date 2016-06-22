@@ -213,17 +213,15 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L213">            vendorId = m.group(1).toLowerCase();</span>
 <span class="nc" id="L214">            productId = m.group(2).toLowerCase();</span>
         }
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        List&lt;String&gt; pnpDeviceIds = hubMap.containsKey(hubDeviceId) ? hubMap.get(hubDeviceId) : new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L216">        List&lt;String&gt; pnpDeviceIds = hubMap.getOrDefault(hubDeviceId, new ArrayList&lt;String&gt;());</span>
 <span class="nc" id="L217">        List&lt;WindowsUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L218" title="All 2 branches missed.">        for (String pnpDeviceId : pnpDeviceIds) {</span>
 <span class="nc" id="L219">            usbDevices.add(getDeviceAndChildren(pnpDeviceId, vendorId, productId));</span>
 <span class="nc" id="L220">        }</span>
 <span class="nc" id="L221">        Collections.sort(usbDevices);</span>
-<span class="nc" id="L222">        return new WindowsUsbDevice(</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">                nameMap.containsKey(hubDeviceId) ? nameMap.get(hubDeviceId) : vendorId + &quot;:&quot; + productId,</span>
-<span class="nc bnc" id="L224" title="All 2 branches missed.">                vendorMap.containsKey(hubDeviceId) ? vendorMap.get(hubDeviceId) : &quot;&quot;, vendorId, productId,</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">                serialMap.containsKey(hubDeviceId) ? serialMap.get(hubDeviceId) : &quot;&quot;,</span>
-<span class="nc" id="L226">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+<span class="nc" id="L222">        return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceId, vendorId + &quot;:&quot; + productId),</span>
+<span class="nc" id="L223">                vendorMap.getOrDefault(hubDeviceId, &quot;&quot;), vendorId, productId, serialMap.getOrDefault(hubDeviceId, &quot;&quot;),</span>
+<span class="nc" id="L224">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

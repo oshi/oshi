@@ -193,14 +193,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Note tickArr is offset by 1
 <span class="nc bnc" id="L195" title="All 2 branches missed.">        for (int i = 0; i &lt; 4; i++) {</span>
-<span class="nc" id="L196">            ticks[i] = Long.parseLong(tickArr[i + 1]);</span>
+<span class="nc" id="L196">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
         }
 <span class="nc bnc" id="L198" title="All 2 branches missed.">        if (tickArr.length &gt; 5) {</span>
             // Add iowait to idle
-<span class="nc" id="L200">            ticks[3] += Long.parseLong(tickArr[5]);</span>
+<span class="nc" id="L200">            ticks[3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);</span>
             // Add other fields to system
 <span class="nc bnc" id="L202" title="All 2 branches missed.">            for (int i = 6; i &lt; tickArr.length; i++) {</span>
-<span class="nc" id="L203">                ticks[2] += Long.parseLong(tickArr[i]);</span>
+<span class="nc" id="L203">                ticks[2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);</span>
             }
         }
 <span class="nc" id="L206">        return ticks;</span>
@@ -225,7 +225,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc bnc" id="L225" title="All 2 branches missed.">        if (tickArr.length &lt; 6) {</span>
 <span class="nc" id="L226">            return 0;</span>
         }
-<span class="nc" id="L228">        return Long.parseLong(tickArr[5]);</span>
+<span class="nc" id="L228">        return ParseUtil.parseLongOrDefault(tickArr[5], 0L);</span>
     }
 
     /**
@@ -248,8 +248,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc bnc" id="L248" title="All 2 branches missed.">        if (tickArr.length &lt; 8) {</span>
 <span class="nc" id="L249">            return ticks;</span>
         }
-<span class="nc" id="L251">        ticks[0] = Long.parseLong(tickArr[6]);</span>
-<span class="nc" id="L252">        ticks[1] = Long.parseLong(tickArr[7]);</span>
+<span class="nc" id="L251">        ticks[0] = ParseUtil.parseLongOrDefault(tickArr[6], 0L);</span>
+<span class="nc" id="L252">        ticks[1] = ParseUtil.parseLongOrDefault(tickArr[7], 0L);</span>
 <span class="nc" id="L253">        return ticks;</span>
     };
 
@@ -295,14 +295,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 // Note tickArr is offset by 1
 <span class="nc bnc" id="L297" title="All 2 branches missed.">                for (int i = 0; i &lt; 4; i++) {</span>
-<span class="nc" id="L298">                    ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);</span>
+<span class="nc" id="L298">                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
                 }
 <span class="nc bnc" id="L300" title="All 2 branches missed.">                if (tickArr.length &gt; 5) {</span>
                     // Add iowait to idle
-<span class="nc" id="L302">                    ticks[cpu][3] += Long.parseLong(tickArr[5]);</span>
+<span class="nc" id="L302">                    ticks[cpu][3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);</span>
                     // Add other fields to system
 <span class="nc bnc" id="L304" title="All 2 branches missed.">                    for (int i = 6; i &lt; tickArr.length; i++) {</span>
-<span class="nc" id="L305">                        ticks[cpu][2] += Long.parseLong(tickArr[i]);</span>
+<span class="nc" id="L305">                        ticks[cpu][2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);</span>
                     }
                 }
 <span class="nc bnc" id="L308" title="All 2 branches missed.">                if (++cpu &gt;= logicalProcessorCount) {</span>
@@ -370,17 +370,12 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L370">        File[] pids = ProcUtil.getPidFiles();</span>
         // now for each file (with digit name) get process info
 <span class="nc bnc" id="L372" title="All 2 branches missed.">        for (File pid : pids) {</span>
-            try {
-<span class="nc" id="L374">                OSProcess proc = getProcess(Integer.parseInt(pid.getName()));</span>
-<span class="nc bnc" id="L375" title="All 2 branches missed.">                if (proc != null) {</span>
-<span class="nc" id="L376">                    procs.add(proc);</span>
-                }
-<span class="nc" id="L378">            } catch (NumberFormatException nfe) {</span>
-                // Since we regexp matched digits this shouldn't ever get here
-<span class="nc" id="L380">                LOG.error(&quot;Couldn't parse {} to an integer.&quot;, pid.getName());</span>
-<span class="nc" id="L381">            }</span>
+<span class="nc" id="L373">            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">            if (proc != null) {</span>
+<span class="nc" id="L375">                procs.add(proc);</span>
+            }
         }
-<span class="nc" id="L383">        return procs.toArray(new OSProcess[procs.size()]);</span>
+<span class="nc" id="L378">        return procs.toArray(new OSProcess[procs.size()]);</span>
     }
 
     /**
@@ -388,37 +383,33 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L391">        String[] split = FileUtil.getSplitFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
-<span class="nc bnc" id="L392" title="All 2 branches missed.">        if (split.length &lt; 24) {</span>
-<span class="nc" id="L393">            return null;</span>
+<span class="nc" id="L386">        String[] split = FileUtil.getSplitFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">        if (split.length &lt; 24) {</span>
+<span class="nc" id="L388">            return null;</span>
         }
-<span class="nc" id="L395">        String path = &quot;&quot;;</span>
-<span class="nc" id="L396">        Pointer buf = new Memory(1024);</span>
-<span class="nc" id="L397">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
-<span class="nc bnc" id="L398" title="All 2 branches missed.">        if (size &gt; 0) {</span>
-<span class="nc" id="L399">            path = buf.getString(0).substring(0, size);</span>
+<span class="nc" id="L390">        String path = &quot;&quot;;</span>
+<span class="nc" id="L391">        Pointer buf = new Memory(1024);</span>
+<span class="nc" id="L392">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">        if (size &gt; 0) {</span>
+<span class="nc" id="L394">            path = buf.getString(0).substring(0, size);</span>
         }
-        try {
-<span class="nc" id="L402">            return new LinuxProcess(split[1].replaceFirst(&quot;\\(&quot;, &quot;&quot;).replace(&quot;)&quot;, &quot;&quot;), // name</span>
-                    // See man proc for how to parse /proc/[pid]/stat
-                    path, // path
-<span class="nc" id="L405">                    split[2].charAt(0), // state, one of RSDZTW</span>
-                    pid, // also split[0] but we already have
-<span class="nc" id="L407">                    Integer.parseInt(split[3]), // ppid</span>
-<span class="nc" id="L408">                    Integer.parseInt(split[19]), // thread count</span>
-<span class="nc" id="L409">                    Integer.parseInt(split[17]), // priority</span>
-<span class="nc" id="L410">                    Long.parseLong(split[22]), // VSZ</span>
-<span class="nc" id="L411">                    Long.parseLong(split[23]), // RSS</span>
-                    // The below values are in jiffies
-<span class="nc" id="L413">                    Long.parseLong(split[14]), // kernelTime</span>
-<span class="nc" id="L414">                    Long.parseLong(split[13]), // userTime</span>
-<span class="nc" id="L415">                    Long.parseLong(split[21]), // startTime (after uptime)</span>
-<span class="nc" id="L416">                    System.currentTimeMillis() //</span>
-            );
-<span class="nc" id="L418">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L419">            LOG.error(&quot;Unable to parse /proc/{}/stat&quot;, pid);</span>
-        }
-<span class="nc" id="L421">        return null;</span>
+<span class="nc" id="L396">        return new LinuxProcess(split[1].replaceFirst(&quot;\\(&quot;, &quot;&quot;).replace(&quot;)&quot;, &quot;&quot;), // name</span>
+                // See man proc for how to parse /proc/[pid]/stat
+                path, // path
+<span class="nc" id="L399">                split[2].charAt(0), // state, one of RSDZTW</span>
+                pid, // also split[0] but we already have
+<span class="nc" id="L401">                ParseUtil.parseIntOrDefault(split[3], 0), // ppid</span>
+<span class="nc" id="L402">                ParseUtil.parseIntOrDefault(split[19], 0), // thread count</span>
+<span class="nc" id="L403">                ParseUtil.parseIntOrDefault(split[17], 0), // priority</span>
+<span class="nc" id="L404">                ParseUtil.parseLongOrDefault(split[22], 0L), // VSZ</span>
+<span class="nc" id="L405">                ParseUtil.parseLongOrDefault(split[23], 0L), // RSS</span>
+                // The below values are in jiffies
+<span class="nc" id="L407">                ParseUtil.parseLongOrDefault(split[14], 0L), // kernelTime</span>
+<span class="nc" id="L408">                ParseUtil.parseLongOrDefault(split[13], 0L), // userTime</span>
+<span class="nc" id="L409">                ParseUtil.parseLongOrDefault(split[21], 0L), // startTime (after</span>
+                                                             // uptime)
+<span class="nc" id="L411">                System.currentTimeMillis() //</span>
+        );
     }
 
     /**
@@ -426,7 +417,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L429">        return Libc.INSTANCE.getpid();</span>
+<span class="nc" id="L420">        return Libc.INSTANCE.getpid();</span>
     }
 
     /**
@@ -434,7 +425,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L437">        return ProcUtil.getPidFiles().length;</span>
+<span class="nc" id="L428">        return ProcUtil.getPidFiles().length;</span>
     }
 
     /**
@@ -443,16 +434,16 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public int getThreadCount() {
         try {
-<span class="nc" id="L446">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L447" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L448">                LOG.error(&quot;Failed to get process thread count. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L449">                return 0;</span>
+<span class="nc" id="L437">            Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L439">                LOG.error(&quot;Failed to get process thread count. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L440">                return 0;</span>
             }
-<span class="nc" id="L451">            return info.procs;</span>
-<span class="nc" id="L452">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L453">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e.getMessage());</span>
+<span class="nc" id="L442">            return info.procs;</span>
+<span class="nc" id="L443">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L444">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e.getMessage());</span>
         }
-<span class="nc" id="L455">        return 0;</span>
+<span class="nc" id="L446">        return 0;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

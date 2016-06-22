@@ -138,9 +138,9 @@ import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
 <span class="fc" id="L138">        mapIFs();</span>
 
 <span class="fc" id="L140">        Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());</span>
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (ifMap.containsKey(index)) {</span>
+<span class="fc" id="L141">        IFdata ifData = ifMap.get(index);</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (ifData != null) {</span>
             // Retrieve values from map and store
-<span class="fc" id="L143">            IFdata ifData = ifMap.get(index);</span>
 <span class="fc" id="L144">            netIF.setBytesSent(ifData.oBytes);</span>
 <span class="fc" id="L145">            netIF.setBytesRecv(ifData.iBytes);</span>
 <span class="fc" id="L146">            netIF.setPacketsSent(ifData.oPackets);</span>

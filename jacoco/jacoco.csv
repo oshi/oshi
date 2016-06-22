@@ -3,10 +3,7 @@ Operating System and Hardware Information,oshi.jna.platform.windows,Cfgmgr32,7,0
 Operating System and Hardware Information,oshi.jna.platform.windows,PowrProf.SystemBatteryState,55,0,0,0,3,0,2,0,2,0
 Operating System and Hardware Information,oshi.jna.platform.windows,Kernel32,7,0,0,0,1,0,1,0,1,0
 Operating System and Hardware Information,oshi.jna.platform.windows,IPHlpAPI.MIB_IFROW,115,0,0,0,5,0,2,0,2,0
-Operating System and Hardware Information,oshi.jna.platform.windows,Pdh,6,0,0,0,1,0,1,0,1,0
-Operating System and Hardware Information,oshi.jna.platform.windows,Pdh.PdhFmtCounterValue,15,0,0,0,2,0,2,0,2,0
 Operating System and Hardware Information,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
-Operating System and Hardware Information,oshi.jna.platform.windows,Pdh.ValueUnion,3,0,0,0,1,0,1,0,1,0
 Operating System and Hardware Information,oshi.jna.platform.windows,Psapi,6,0,0,0,1,0,1,0,1,0
 Operating System and Hardware Information,oshi.jna.platform.windows,IPHlpAPI,6,0,0,0,1,0,1,0,1,0
 Operating System and Hardware Information,oshi.jna.platform.windows,Ole32,7,0,0,0,1,0,1,0,1,0
@@ -14,21 +11,18 @@ Operating System and Hardware Information,oshi.jna.platform.windows,Psapi.PERFOR
 Operating System and Hardware Information,oshi.json,NullAwareJsonObjectBuilder,157,0,14,0,41,0,21,0,14,0
 Operating System and Hardware Information,oshi.util.platform.windows,WmiUtil.ValueType,58,0,0,0,2,0,4,0,4,0
 Operating System and Hardware Information,oshi.util.platform.windows,WmiUtil.new Object() {...},33,0,0,0,1,0,1,0,1,0
-Operating System and Hardware Information,oshi.util.platform.windows,PdhUtil,117,0,10,0,23,0,11,0,6,0
-Operating System and Hardware Information,oshi.util.platform.windows,WmiUtil,793,0,87,0,145,0,60,0,15,0
+Operating System and Hardware Information,oshi.util.platform.windows,WmiUtil,811,0,89,0,144,0,60,0,14,0
 Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsDisplay,118,0,8,0,25,0,7,0,3,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsCentralProcessor.new Thread() {...},28,0,0,0,5,0,2,0,2,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsGlobalMemory.new Thread() {...},14,0,0,0,3,0,2,0,2,0
 Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsSensors,474,0,60,0,98,0,34,0,4,0
 Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsPowerSource,90,0,10,0,17,0,8,0,3,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsCentralProcessor,940,0,52,0,168,0,44,0,18,0
+Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsCentralProcessor,803,0,46,0,130,0,40,0,17,0
 Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsHardwareAbstractionLayer,61,0,6,0,17,0,14,0,11,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsUsbDevice,476,0,40,0,90,0,26,0,6,0
+Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsUsbDevice,456,0,32,0,88,0,22,0,6,0
 Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsNetworks,57,0,2,0,14,0,4,0,3,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsGlobalMemory,131,0,8,0,27,0,8,0,4,0
-Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsDisks,230,0,8,0,34,0,8,0,4,0
+Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsGlobalMemory,118,0,6,0,20,0,7,0,4,0
+Operating System and Hardware Information,oshi.hardware.platform.windows,WindowsDisks,221,0,4,0,26,0,6,0,4,0
 Operating System and Hardware Information,oshi.software.os,OSProcess.State,9,79,0,0,0,8,2,2,2,2
-Operating System and Hardware Information,oshi.software.os,OSFileStore,83,81,0,0,18,33,6,15,6,15
+Operating System and Hardware Information,oshi.software.os,OSFileStore,87,81,0,0,18,33,6,15,6,15
 Operating System and Hardware Information,oshi.hardware.common,AbstractUsbDevice,207,0,10,0,33,0,16,0,11,0
 Operating System and Hardware Information,oshi.hardware.common,AbstractPowerSource,21,22,0,0,3,8,2,3,2,3
 Operating System and Hardware Information,oshi.hardware.common,AbstractGlobalMemory,24,42,1,1,3,14,2,5,1,5
@@ -38,33 +32,33 @@ Operating System and Hardware Information,oshi.hardware.common,AbstractSensors,4
 Operating System and Hardware Information,oshi.hardware.common,AbstractHardwareAbstractionLayer,206,7,12,0,24,2,7,1,1,1
 Operating System and Hardware Information,oshi.hardware.common,AbstractNetworks,47,57,2,6,6,14,2,6,1,3
 Operating System and Hardware Information,oshi.hardware.common,AbstractDisplay,225,17,15,0,31,5,12,2,2,2
-Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxGlobalMemory,248,0,50,0,55,0,37,0,5,0
+Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxGlobalMemory,233,0,50,0,49,0,36,0,4,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxPowerSource,255,0,50,0,56,0,28,0,3,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxSensors,286,0,26,0,48,0,18,0,5,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxDisplay,87,0,12,0,25,0,9,0,3,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},24,0,4,0,2,0,4,0,2,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxNetworks,74,0,0,0,12,0,2,0,2,0
-Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxUsbDevice,338,0,34,0,68,0,21,0,4,0
-Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxCentralProcessor,927,0,136,0,204,0,89,0,16,0
+Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxUsbDevice,302,0,20,0,65,0,15,0,5,0
+Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxCentralProcessor,930,0,136,0,198,0,89,0,16,0
 Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,61,0,6,0,17,0,14,0,11,0
-Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxDisks,203,0,18,0,42,0,13,0,4,0
-Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxBlockDevStats,139,0,0,0,24,0,2,0,2,0
+Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxDisks,191,0,16,0,40,0,12,0,4,0
+Operating System and Hardware Information,oshi.hardware.platform.linux,LinuxBlockDevStats,150,0,0,0,24,0,2,0,2,0
 Operating System and Hardware Information,oshi.software.os.windows,WindowsOSSystemInfo,61,0,4,0,19,0,6,0,4,0
 Operating System and Hardware Information,oshi.software.os.windows,WindowsOperatingSystem,14,0,0,0,5,0,1,0,1,0
 Operating System and Hardware Information,oshi.software.os.windows,WindowsProcess,70,0,7,0,28,0,7,0,1,0
-Operating System and Hardware Information,oshi.software.os.windows,WindowsFileSystem,467,0,32,0,86,0,26,0,8,0
+Operating System and Hardware Information,oshi.software.os.windows,WindowsFileSystem,445,0,28,0,80,0,24,0,8,0
 Operating System and Hardware Information,oshi.software.os.windows,WindowsOSVersionInfoEx,581,0,148,0,124,0,86,0,12,0
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,2,59,3,3,1,16,4,10,1,10
-Operating System and Hardware Information,oshi.hardware.platform.mac,MacSensors,6,136,7,9,2,30,7,5,0,4
+Operating System and Hardware Information,oshi.hardware.platform.mac,MacSensors,0,142,4,12,0,32,4,8,0,4
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacDisplay,0,96,2,4,0,24,2,4,0,3
-Operating System and Hardware Information,oshi.hardware.platform.mac,MacNetworks,8,204,3,9,4,41,3,7,0,4
+Operating System and Hardware Information,oshi.hardware.platform.mac,MacNetworks,8,201,3,9,4,41,3,7,0,4
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacDisks,20,326,12,18,5,85,12,6,0,3
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacSensors.new Thread() {...},0,9,0,0,0,3,0,2,0,2
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacCentralProcessor,71,537,18,34,12,101,17,25,0,16
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacPowerSource,11,115,4,6,3,26,4,4,0,3
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacGlobalMemory,23,123,4,8,5,28,4,6,0,4
 Operating System and Hardware Information,oshi.hardware.platform.mac,MacNetworks.IFdata,0,18,0,0,0,7,0,1,0,1
-Operating System and Hardware Information,oshi.hardware.platform.mac,MacUsbDevice,589,0,48,0,107,0,29,0,5,0
+Operating System and Hardware Information,oshi.hardware.platform.mac,MacUsbDevice,549,0,34,0,103,0,23,0,6,0
 Operating System and Hardware Information,oshi.software.os.mac,MacProcess,23,47,6,1,11,17,6,1,0,1
 Operating System and Hardware Information,oshi.software.os.mac,MacOSVersionInfoEx,31,42,15,3,14,10,15,3,0,3
 Operating System and Hardware Information,oshi.software.os.mac,MacOperatingSystem,0,15,0,0,0,5,0,1,0,1
@@ -114,16 +108,16 @@ Operating System and Hardware Information,oshi.jna.platform.linux,Udev.UdevListE
 Operating System and Hardware Information,oshi.jna.platform.linux,Udev.UdevEnumerate,7,0,0,0,4,0,2,0,2,0
 Operating System and Hardware Information,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
 Operating System and Hardware Information,oshi.software.os.linux,LinuxOperatingSystem.new FilenameFilter() {...},31,0,12,0,3,0,8,0,2,0
-Operating System and Hardware Information,oshi.software.os.linux,LinuxFileSystem,382,0,40,0,58,0,27,0,7,0
+Operating System and Hardware Information,oshi.software.os.linux,LinuxFileSystem,369,0,38,0,55,0,26,0,7,0
 Operating System and Hardware Information,oshi.software.os.linux,LinuxOSVersionInfoEx,472,0,92,0,102,0,55,0,9,0
-Operating System and Hardware Information,oshi.software.os.linux,LinuxProcess,220,0,20,0,60,0,15,0,3,0
+Operating System and Hardware Information,oshi.software.os.linux,LinuxProcess,221,0,20,0,60,0,15,0,3,0
 Operating System and Hardware Information,oshi.software.os.linux,LinuxOperatingSystem,787,0,203,0,133,0,136,0,10,0
 Operating System and Hardware Information,oshi.util,Util,33,13,2,0,10,5,3,2,2,2
 Operating System and Hardware Information,oshi.util,EdidUtil,362,0,6,0,37,0,22,0,19,0
-Operating System and Hardware Information,oshi.util,ParseUtil,71,267,7,15,24,48,10,14,3,10
+Operating System and Hardware Information,oshi.util,ParseUtil,84,266,7,15,29,45,12,14,5,10
 Operating System and Hardware Information,oshi.util,ExecutingCommand,132,0,16,0,28,0,14,0,6,0
 Operating System and Hardware Information,oshi.util,FormatUtil,104,239,6,26,16,34,6,19,2,7
-Operating System and Hardware Information,oshi.util,FileUtil,134,25,13,1,38,5,12,3,5,3
+Operating System and Hardware Information,oshi.util,FileUtil,129,25,13,1,35,5,12,3,5,3
 Operating System and Hardware Information,oshi.software.common,AbstractOperatingSystem,50,16,0,0,9,5,2,4,2,4
 Operating System and Hardware Information,oshi.software.common,AbstractProcess,110,10,2,0,20,3,14,2,13,2
 Operating System and Hardware Information,oshi.software.common,AbstractFileSystem,14,7,0,0,3,2,1,1,1,1
@@ -135,5 +129,5 @@ Operating System and Hardware Information,oshi.hardware,HWDiskStore,48,67,0,0,7,
 Operating System and Hardware Information,oshi.util.platform.mac,SysctlUtil,43,107,5,5,11,17,6,5,1,5
 Operating System and Hardware Information,oshi.util.platform.mac,CfUtil.CFNumberType,9,189,0,0,0,2,2,2,2,2
 Operating System and Hardware Information,oshi.util.platform.mac,IOKitUtil,106,93,20,10,32,28,18,8,4,7
-Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,45,263,8,20,7,68,7,17,1,9
-Operating System and Hardware Information,oshi.util.platform.mac,CfUtil,5,71,2,4,2,17,3,6,1,5
+Operating System and Hardware Information,oshi.util.platform.mac,SmcUtil,25,283,6,22,7,68,7,17,1,9
+Operating System and Hardware Information,oshi.util.platform.mac,CfUtil,5,65,2,2,2,15,3,6,1,6

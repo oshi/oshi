@@ -18,8 +18,8 @@
  */
 package oshi.util.platform.mac;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -41,7 +41,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
     /**
      * Cache cfStrings
      */
-<span class="fc" id="L44">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L44">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -51,18 +51,15 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (!cfStringMap.containsKey(key)) {</span>
-<span class="fc" id="L55">            cfStringMap.put(key, CFStringRef.toCFString(key));</span>
-        }
-<span class="fc" id="L57">        return cfStringMap.get(key);</span>
+<span class="fc" id="L54">        return cfStringMap.computeIfAbsent(key, k -&gt; CFStringRef.toCFString(k));</span>
     }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
      * fetch the corresponding constant.
      */
-<span class="pc" id="L64">    public enum CFNumberType {</span>
-<span class="fc" id="L65">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+<span class="pc" id="L61">    public enum CFNumberType {</span>
+<span class="fc" id="L62">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
     };
 
     /**
@@ -73,9 +70,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding long
      */
     public static long cfPointerToLong(Pointer p) {
-<span class="fc" id="L76">        LongByReference lbr = new LongByReference();</span>
-<span class="fc" id="L77">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
-<span class="fc" id="L78">        return lbr.getValue();</span>
+<span class="fc" id="L73">        LongByReference lbr = new LongByReference();</span>
+<span class="fc" id="L74">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="fc" id="L75">        return lbr.getValue();</span>
     }
 
     /**
@@ -86,14 +83,14 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
-<span class="fc" id="L89">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="fc" id="L90">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (maxSize == 0) {</span>
-<span class="nc" id="L92">            maxSize = 1;</span>
+<span class="fc" id="L86">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="fc" id="L87">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L89">            maxSize = 1;</span>
         }
-<span class="fc" id="L94">        Pointer buf = new Memory(maxSize);</span>
-<span class="fc" id="L95">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="fc" id="L96">        return buf.getString(0);</span>
+<span class="fc" id="L91">        Pointer buf = new Memory(maxSize);</span>
+<span class="fc" id="L92">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="fc" id="L93">        return buf.getString(0);</span>
     }
 
     /**
@@ -104,9 +101,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      *            The reference to release
      */
     public static void release(PointerType ref) {
-<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (ref != null) {</span>
-<span class="fc" id="L108">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (ref != null) {</span>
+<span class="fc" id="L105">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
         }
-<span class="fc" id="L110">    }</span>
+<span class="fc" id="L107">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

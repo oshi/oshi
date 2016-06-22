@@ -82,26 +82,26 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">this</strong>.wmiTempNamespace = <span class="jxr_string">"root&#92;&#92;cimv2"</span>;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">this</strong>.wmiTempClass = <span class="jxr_string">"Win32_Temperature"</span>;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">this</strong>.wmiTempProperty = <span class="jxr_string">"CurrentReading"</span>;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              tempK = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              tempK = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">if</strong> (tempK == 0) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">this</strong>.wmiTempClass = <span class="jxr_string">"Win32_TemperatureProbe"</span>;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  tempK = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  tempK = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">if</strong> (tempK == 0) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">this</strong>.wmiTempClass = <span class="jxr_string">"Win32_PerfFormattedData_Counters_ThermalZoneInformation"</span>;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">this</strong>.wmiTempProperty = <span class="jxr_string">"Temperature"</span>;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  tempK = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  tempK = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              }
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">if</strong> (tempK == 0) {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">this</strong>.wmiTempNamespace = <span class="jxr_string">"root&#92;&#92;wmi"</span>;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <strong class="jxr_keyword">this</strong>.wmiTempClass = <span class="jxr_string">"MSAcpi_ThermalZoneTemperature"</span>;
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <strong class="jxr_keyword">this</strong>.wmiTempProperty = <span class="jxr_string">"CurrentTemperature"</span>;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  tempK = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  tempK = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              <em class="jxr_comment">// We've successfully read a previous time, or failed both here and</em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <em class="jxr_comment">// with OHM, so keep using same values</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              tempK = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              tempK = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiTempNamespace, <strong class="jxr_keyword">this</strong>.wmiTempClass, <strong class="jxr_keyword">this</strong>.wmiTempProperty, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          }
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          <em class="jxr_comment">// Convert K to C and return result</em>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">if</strong> (tempK &gt; 0) {
@@ -143,7 +143,7 @@
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <em class="jxr_comment">// This branch is used the first time and all subsequent times if</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         <em class="jxr_comment">// successful (fanSpeedWMI == true)</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// Try to get value</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">int</strong> rpm = WmiUtil.selectLongFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Fan"</span>, <span class="jxr_string">"DesiredSpeed"</span>, <strong class="jxr_keyword">null</strong>).intValue();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">int</strong> rpm = WmiUtil.selectUint32From(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Fan"</span>, <span class="jxr_string">"DesiredSpeed"</span>, <strong class="jxr_keyword">null</strong>).intValue();
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// Set in array and return</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">if</strong> (rpm &gt; 0) {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             fanSpeeds[0] = rpm;
@@ -176,7 +176,7 @@
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">this</strong>.wmiVoltNamespace = <span class="jxr_string">"root&#92;&#92;cimv2"</span>;
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">this</strong>.wmiVoltClass = <span class="jxr_string">"Win32_Processor"</span>;
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">this</strong>.wmiVoltProperty = <span class="jxr_string">"CurrentVoltage"</span>;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             decivolts = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             decivolts = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>                     .intValue();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>             <em class="jxr_comment">// If the eighth bit is set, bits 0-6 contain the voltage</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>             <em class="jxr_comment">// multiplied by 10. If the eighth bit is not set, then the bit</em>
@@ -184,13 +184,13 @@
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x80) == 0 &amp;&amp; decivolts &gt; 0) {
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>                 <strong class="jxr_keyword">this</strong>.wmiVoltProperty = <span class="jxr_string">"VoltageCaps"</span>;
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>                 <em class="jxr_comment">// really a bit setting, not decivolts, test later</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 decivolts = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 decivolts = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>                         .intValue();
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>             }
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>             <em class="jxr_comment">// We've successfully read a previous time, or failed both here and</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <em class="jxr_comment">// with OHM</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             decivolts = WmiUtil.selectLongFrom(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             decivolts = WmiUtil.selectUint32From(<strong class="jxr_keyword">this</strong>.wmiVoltNamespace, <strong class="jxr_keyword">this</strong>.wmiVoltClass, <strong class="jxr_keyword">this</strong>.wmiVoltProperty, <strong class="jxr_keyword">null</strong>)
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>                     .intValue();
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Convert dV to V and return result</em>

@@ -201,14 +201,14 @@
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>         <em class="jxr_comment">// Note tickArr is offset by 1</em>
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 4; i++) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             ticks[i] = Long.parseLong(tickArr[i + 1]);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>         }
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &gt; 5) {
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>             <em class="jxr_comment">// Add iowait to idle</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             ticks[3] += Long.parseLong(tickArr[5]);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             ticks[3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             <em class="jxr_comment">// Add other fields to system</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 6; i &lt; tickArr.length; i++) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 ticks[2] += Long.parseLong(tickArr[i]);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 ticks[2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         }
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">return</strong> ticks;
@@ -233,7 +233,7 @@
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &lt; 6) {
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> Long.parseLong(tickArr[5]);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(tickArr[5], 0L);
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
 <a class="jxr_linenumber" name="L230" href="#L230">230</a> 
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>     <em class="jxr_javadoccomment">/**</em>
@@ -256,8 +256,8 @@
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &lt; 8) {
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>             <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>         }
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         ticks[0] = Long.parseLong(tickArr[6]);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         ticks[1] = Long.parseLong(tickArr[7]);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         ticks[0] = ParseUtil.parseLongOrDefault(tickArr[6], 0L);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         ticks[1] = ParseUtil.parseLongOrDefault(tickArr[7], 0L);
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     };
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
@@ -303,14 +303,14 @@
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>                 }
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>                 <em class="jxr_comment">// Note tickArr is offset by 1</em>
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 4; i++) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>                     ticks[cpu][i] = Long.parseLong(tickArr[i + 1]);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>                 }
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &gt; 5) {
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>                     <em class="jxr_comment">// Add iowait to idle</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                     ticks[cpu][3] += Long.parseLong(tickArr[5]);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                     ticks[cpu][3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>                     <em class="jxr_comment">// Add other fields to system</em>
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 6; i &lt; tickArr.length; i++) {
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                         ticks[cpu][2] += Long.parseLong(tickArr[i]);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>                         ticks[cpu][2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>                     }
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>                 }
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>                 <strong class="jxr_keyword">if</strong> (++cpu &gt;= logicalProcessorCount) {
@@ -378,91 +378,82 @@
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>         File[] pids = ProcUtil.getPidFiles();
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>         <em class="jxr_comment">// now for each file (with digit name) get process info</em>
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">for</strong> (File pid : pids) {
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = getProcess(Integer.parseInt(pid.getName()));
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 <strong class="jxr_keyword">if</strong> (proc != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                     procs.add(proc);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                 }
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>             } <strong class="jxr_keyword">catch</strong> (NumberFormatException nfe) {
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>                 <em class="jxr_comment">// Since we regexp matched digits this shouldn't ever get here</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>                 LOG.error(<span class="jxr_string">"Couldn't parse {} to an integer."</span>, pid.getName());
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             }
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <strong class="jxr_keyword">return</strong> procs.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[procs.size()]);
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a> 
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>     @Override
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         String[] split = FileUtil.getSplitFromFile(String.format(<span class="jxr_string">"/proc/%d/stat"</span>, pid));
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 24) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         String path = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>         Pointer buf = <strong class="jxr_keyword">new</strong> Memory(1024);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">int</strong> size = Libc.INSTANCE.readlink(String.format(<span class="jxr_string">"/proc/%d/exe"</span>, pid), buf, 1023);
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">if</strong> (size &gt; 0) {
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>             path = buf.getString(0).substring(0, size);
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/linux/LinuxProcess.html">LinuxProcess</a>(split[1].replaceFirst(<span class="jxr_string">"&#92;&#92;("</span>, <span class="jxr_string">""</span>).replace(<span class="jxr_string">")"</span>, <span class="jxr_string">""</span>), <em class="jxr_comment">// name</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>                     <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/stat</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>                     path, <em class="jxr_comment">// path</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>                     split[2].charAt(0), <em class="jxr_comment">// state, one of RSDZTW</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>                     pid, <em class="jxr_comment">// also split[0] but we already have</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>                     Integer.parseInt(split[3]), <em class="jxr_comment">// ppid</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>                     Integer.parseInt(split[19]), <em class="jxr_comment">// thread count</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>                     Integer.parseInt(split[17]), <em class="jxr_comment">// priority</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>                     Long.parseLong(split[22]), <em class="jxr_comment">// VSZ</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>                     Long.parseLong(split[23]), <em class="jxr_comment">// RSS</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>                     <em class="jxr_comment">// The below values are in jiffies</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>                     Long.parseLong(split[14]), <em class="jxr_comment">// kernelTime</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                     Long.parseLong(split[13]), <em class="jxr_comment">// userTime</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>                     Long.parseLong(split[21]), <em class="jxr_comment">// startTime (after uptime)</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                     System.currentTimeMillis() <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>             );
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>             LOG.error(<span class="jxr_string">"Unable to parse /proc/{}/stat"</span>, pid);
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         }
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>     }
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>     @Override
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessId() {
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <strong class="jxr_keyword">return</strong> Libc.INSTANCE.getpid();
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     }
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> 
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     @Override
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessCount() {
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">return</strong> ProcUtil.getPidFiles().length;
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     }
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     @Override
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>             <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a> info = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a>();
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             <strong class="jxr_keyword">if</strong> (0 != Libc.INSTANCE.sysinfo(info)) {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>                 LOG.error(<span class="jxr_string">"Failed to get process thread count. Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>                 <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             }
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>             <strong class="jxr_keyword">return</strong> info.procs;
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         } <strong class="jxr_keyword">catch</strong> (UnsatisfiedLinkError | NoClassDefFoundError e) {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             LOG.error(<span class="jxr_string">"Failed to get procs from sysinfo. {}"</span>, e.getMessage());
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     }
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>             <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             <strong class="jxr_keyword">if</strong> (proc != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 procs.add(proc);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             }
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         }
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">return</strong> procs.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[procs.size()]);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     }
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>     @Override
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         String[] split = FileUtil.getSplitFromFile(String.format(<span class="jxr_string">"/proc/%d/stat"</span>, pid));
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 24) {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         }
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         String path = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         Pointer buf = <strong class="jxr_keyword">new</strong> Memory(1024);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">int</strong> size = Libc.INSTANCE.readlink(String.format(<span class="jxr_string">"/proc/%d/exe"</span>, pid), buf, 1023);
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">if</strong> (size &gt; 0) {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             path = buf.getString(0).substring(0, size);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/linux/LinuxProcess.html">LinuxProcess</a>(split[1].replaceFirst(<span class="jxr_string">"&#92;&#92;("</span>, <span class="jxr_string">""</span>).replace(<span class="jxr_string">")"</span>, <span class="jxr_string">""</span>), <em class="jxr_comment">// name</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                 <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/stat</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 path, <em class="jxr_comment">// path</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 split[2].charAt(0), <em class="jxr_comment">// state, one of RSDZTW</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 pid, <em class="jxr_comment">// also split[0] but we already have</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                 ParseUtil.parseIntOrDefault(split[3], 0), <em class="jxr_comment">// ppid</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 ParseUtil.parseIntOrDefault(split[19], 0), <em class="jxr_comment">// thread count</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 ParseUtil.parseIntOrDefault(split[17], 0), <em class="jxr_comment">// priority</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 ParseUtil.parseLongOrDefault(split[22], 0L), <em class="jxr_comment">// VSZ</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                 ParseUtil.parseLongOrDefault(split[23], 0L), <em class="jxr_comment">// RSS</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 <em class="jxr_comment">// The below values are in jiffies</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 ParseUtil.parseLongOrDefault(split[14], 0L), <em class="jxr_comment">// kernelTime</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 ParseUtil.parseLongOrDefault(split[13], 0L), <em class="jxr_comment">// userTime</em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 ParseUtil.parseLongOrDefault(split[21], 0L), <em class="jxr_comment">// startTime (after</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                                                              <em class="jxr_comment">// uptime)</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 System.currentTimeMillis() <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         );
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>     @Override
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessId() {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">return</strong> Libc.INSTANCE.getpid();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     }
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     @Override
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessCount() {
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">return</strong> ProcUtil.getPidFiles().length;
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     }
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> 
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     @Override
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a> info = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a>();
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>             <strong class="jxr_keyword">if</strong> (0 != Libc.INSTANCE.sysinfo(info)) {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 LOG.error(<span class="jxr_string">"Failed to get process thread count. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">return</strong> info.procs;
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         } <strong class="jxr_keyword">catch</strong> (UnsatisfiedLinkError | NoClassDefFoundError e) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             LOG.error(<span class="jxr_string">"Failed to get procs from sysinfo. {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

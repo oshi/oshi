@@ -314,8 +314,8 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON() {
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">return</strong> NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add(<span class="jxr_string">"name"</span>, getName())
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>                 .add(<span class="jxr_string">"volume"</span>, getVolume()).add(<span class="jxr_string">"mountPoint"</span>, getMount()).add(<span class="jxr_string">"description"</span>, getDescription())
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 .add(<span class="jxr_string">"fsType"</span>, getType()).add(<span class="jxr_string">"usableSpace"</span>, getUsableSpace()).add(<span class="jxr_string">"totalSpace"</span>, getTotalSpace())
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>                 .build();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 .add(<span class="jxr_string">"fsType"</span>, getType()).add(<span class="jxr_string">"uuid"</span>, getUUID()).add(<span class="jxr_string">"usableSpace"</span>, getUsableSpace())
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                 .add(<span class="jxr_string">"totalSpace"</span>, getTotalSpace()).build();
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
 <a class="jxr_linenumber" name="L312" href="#L312">312</a> }
 </pre>

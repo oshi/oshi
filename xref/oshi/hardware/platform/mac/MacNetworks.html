@@ -146,9 +146,9 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         mapIFs();
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> 
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">if</strong> (ifMap.containsKey(index)) {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <em class="jxr_comment">// Retrieve values from map and store</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a> ifData = ifMap.get(index);
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a> ifData = ifMap.get(index);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">if</strong> (ifData != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <em class="jxr_comment">// Retrieve values from map and store</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>             netIF.setBytesSent(ifData.oBytes);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>             netIF.setBytesRecv(ifData.iBytes);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             netIF.setPacketsSent(ifData.oPackets);

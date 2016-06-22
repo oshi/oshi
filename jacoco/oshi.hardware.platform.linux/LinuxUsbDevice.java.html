@@ -114,23 +114,20 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             } else {
                 // Add child path (path variable) to parent's path
 <span class="nc" id="L116">                String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                if (!hubMap.containsKey(parentPath)) {</span>
-<span class="nc" id="L118">                    hubMap.put(parentPath, new ArrayList&lt;String&gt;());</span>
-                }
-<span class="nc" id="L120">                hubMap.get(parentPath).add(path);</span>
+<span class="nc" id="L117">                hubMap.computeIfAbsent(parentPath, k -&gt; new ArrayList&lt;String&gt;()).add(path);</span>
             }
-<span class="nc" id="L122">            Udev.INSTANCE.udev_device_unref(dev);</span>
+<span class="nc" id="L119">            Udev.INSTANCE.udev_device_unref(dev);</span>
         }
         // Free the enumerator object
-<span class="nc" id="L125">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
-<span class="nc" id="L126">        Udev.INSTANCE.udev_unref(udev);</span>
+<span class="nc" id="L122">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
+<span class="nc" id="L123">        Udev.INSTANCE.udev_unref(udev);</span>
 
         // Build tree and return
-<span class="nc" id="L129">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
-<span class="nc" id="L131">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
-<span class="nc" id="L132">        }</span>
-<span class="nc" id="L133">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+<span class="nc" id="L126">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
+<span class="nc" id="L128">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc" id="L129">        }</span>
+<span class="nc" id="L130">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
     }
 
     /**
@@ -146,18 +143,17 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * @return A LinuxUsbDevice corresponding to this device
      */
     private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        String vendorId = vendorIdMap.containsKey(devPath) ? vendorIdMap.get(devPath) : vid;</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        String productId = productIdMap.containsKey(devPath) ? productIdMap.get(devPath) : pid;</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        List&lt;String&gt; childPaths = hubMap.containsKey(devPath) ? hubMap.get(devPath) : new ArrayList&lt;String&gt;();</span>
-<span class="nc" id="L152">        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (String path : childPaths) {</span>
-<span class="nc" id="L154">            usbDevices.add(getDeviceAndChildren(path, vid, pid));</span>
-<span class="nc" id="L155">        }</span>
-<span class="nc" id="L156">        Collections.sort(usbDevices);</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        return new LinuxUsbDevice(nameMap.containsKey(devPath) ? nameMap.get(devPath) : vendorId + &quot;:&quot; + productId,</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">                vendorMap.containsKey(devPath) ? vendorMap.get(devPath) : &quot;&quot;, vendorId, productId,</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                serialMap.containsKey(devPath) ? serialMap.get(devPath) : &quot;&quot;,</span>
-<span class="nc" id="L160">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+<span class="nc" id="L146">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
+<span class="nc" id="L147">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
+<span class="nc" id="L148">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L149">        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (String path : childPaths) {</span>
+<span class="nc" id="L151">            usbDevices.add(getDeviceAndChildren(path, vid, pid));</span>
+<span class="nc" id="L152">        }</span>
+<span class="nc" id="L153">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L154">        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId),</span>
+<span class="nc" id="L155">                vendorMap.getOrDefault(devPath, &quot;&quot;), vendorId, productId, serialMap.getOrDefault(devPath, &quot;&quot;),</span>
+<span class="nc" id="L156">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
