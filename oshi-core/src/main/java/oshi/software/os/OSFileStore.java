@@ -18,12 +18,7 @@
  */
 package oshi.software.os;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * The File System is a storage pool, device, partition, volume, concrete file
@@ -32,11 +27,9 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore implements OshiJsonObject {
+public class OSFileStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
 
@@ -297,16 +290,5 @@ public class OSFileStore implements OshiJsonObject {
      */
     public void setTotalSpace(long value) {
         this.totalSpace = value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("volume", getVolume()).add("mountPoint", getMount()).add("description", getDescription())
-                .add("fsType", getType()).add("uuid", getUUID()).add("usableSpace", getUsableSpace())
-                .add("totalSpace", getTotalSpace()).build();
     }
 }

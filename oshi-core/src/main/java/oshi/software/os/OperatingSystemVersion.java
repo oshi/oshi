@@ -18,9 +18,9 @@
  */
 package oshi.software.os;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
-public interface OperatingSystemVersion extends OshiJsonObject {
+public interface OperatingSystemVersion extends Serializable {
     /**
      * @return the version
      */

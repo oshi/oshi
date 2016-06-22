@@ -18,13 +18,9 @@
  */
 package oshi.hardware.platform.linux;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import java.io.Serializable;
 
 import oshi.jna.platform.linux.Udev;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.json.OshiJsonObject;
 import oshi.util.ParseUtil;
 
 /**
@@ -32,11 +28,9 @@ import oshi.util.ParseUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class LinuxBlockDevStats implements OshiJsonObject {
+public class LinuxBlockDevStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {
         String devstat;
@@ -83,15 +77,4 @@ public class LinuxBlockDevStats implements OshiJsonObject {
     public final long active_ms;
     // Total wait time, milliseconds
     public final long waits_ms;
-
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("device", this.device)
-                .add("read_ops", this.read_ops).add("read_merged", this.read_merged)
-                .add("read_512bytes", this.read_512bytes).add("read_waits_ms", this.read_waits_ms)
-                .add("write_ops", this.write_ops).add("write_merged", this.write_merged)
-                .add("write_512bytes", this.write_512bytes).add("write_waits_ms", this.write_waits_ms)
-                .add("in_flight", this.in_flight).add("active_ms", this.active_ms).add("waits_ms", this.waits_ms)
-                .build();
-    }
 }

@@ -18,14 +18,14 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * Disks refers to hard drives installed in the machine.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public interface Disks extends OshiJsonObject {
+public interface Disks extends Serializable {
 
     /**
      * Get hard drives on this machine

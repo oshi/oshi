@@ -18,11 +18,6 @@
  */
 package oshi.software.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -33,8 +28,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * {@inheritDoc}
@@ -59,15 +52,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     public String getManufacturer() {
         return this.manufacturer;
     };
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
-                .add("family", getFamily()).add("version", getVersion().toJSON()).build();
-    }
 
     @Override
     public String toString() {

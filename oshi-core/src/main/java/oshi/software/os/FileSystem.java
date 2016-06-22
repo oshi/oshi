@@ -18,9 +18,9 @@
  */
 package oshi.software.os;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
-public interface FileSystem extends OshiJsonObject {
+public interface FileSystem extends Serializable {
 
     /**
      * Get file stores on this machine

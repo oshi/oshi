@@ -18,23 +18,16 @@
  */
 package oshi.hardware;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * Store object of disk attributes.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class HWDiskStore implements OshiJsonObject {
+public class HWDiskStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private String name;
     private String model;
@@ -179,15 +172,5 @@ public class HWDiskStore implements OshiJsonObject {
      */
     public void setWrites(long writes) {
         this.writes = writes;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("model", getModel()).add("serial", getSerial()).add("size", getSize()).add("reads", getReads())
-                .add("writes", getWrites()).build();
     }
 }

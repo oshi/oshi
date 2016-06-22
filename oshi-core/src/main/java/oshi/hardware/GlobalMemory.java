@@ -18,7 +18,7 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * Memory refers to the state information of a computing system, as it is kept
@@ -30,7 +30,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface GlobalMemory extends OshiJsonObject {
+public interface GlobalMemory extends Serializable {
     /**
      * The amount of actual physical memory, in bytes.
      * 

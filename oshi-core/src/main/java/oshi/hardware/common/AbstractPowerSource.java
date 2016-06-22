@@ -18,12 +18,7 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.PowerSource;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * A Power Source
@@ -39,8 +34,6 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double remainingCapacity;
 
     protected double timeRemaining;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
@@ -70,14 +63,5 @@ public abstract class AbstractPowerSource implements PowerSource {
     @Override
     public double getTimeRemaining() {
         return this.timeRemaining;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("remainingCapacity", getRemainingCapacity()).add("timeRemaining", getTimeRemaining()).build();
     }
 }

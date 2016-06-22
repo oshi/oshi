@@ -25,17 +25,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.Networks;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Network interfaces implementation.
@@ -47,8 +41,6 @@ public abstract class AbstractNetworks implements Networks {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * {@inheritDoc}
@@ -70,17 +62,5 @@ public abstract class AbstractNetworks implements Networks {
             LOG.error("Socket exception when retrieving network interfaces: " + ex.getMessage());
         }
         return result.toArray(new NetworkIF[result.size()]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder netArray = jsonFactory.createArrayBuilder();
-        for (NetworkIF store : getNetworks()) {
-            netArray.add(store.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("networks", netArray).build();
     }
 }

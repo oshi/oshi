@@ -18,21 +18,14 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -45,8 +38,6 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
     protected GlobalMemory memory;
 
     protected Sensors sensors;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * {@inheritDoc}
@@ -101,41 +92,4 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      */
     @Override
     public abstract UsbDevice[] getUsbDevices();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (PowerSource powerSource : getPowerSources()) {
-            powerSourceArrayBuilder.add(powerSource.toJSON());
-        }
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
-        }
-        JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (HWDiskStore diskStore : getDiskStores()) {
-            diskStoreArrayBuilder.add(diskStore.toJSON());
-        }
-        JsonArrayBuilder networkIFArrayBuilder = jsonFactory.createArrayBuilder();
-        for (NetworkIF netStore : getNetworkIFs()) {
-            networkIFArrayBuilder.add(netStore.toJSON());
-        }
-        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
-        for (Display display : getDisplays()) {
-            displayArrayBuilder.add(display.toJSON());
-        }
-        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (UsbDevice usbDevice : getUsbDevices()) {
-            usbDeviceArrayBuilder.add(usbDevice.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
-                .add("powerSources", powerSourceArrayBuilder.build()).add("fileSystem", getFileSystem().toJSON())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("disks", diskStoreArrayBuilder.build())
-                .add("networks", networkIFArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).add("usbDevices", usbDeviceArrayBuilder.build()).build();
-    }
 }

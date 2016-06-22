@@ -481,12 +481,5 @@ public class SystemInfoTest {
         for (UsbDevice usbDevice : hal.getUsbDevices()) {
             System.out.println(usbDevice.toString());
         }
-
-        // LOG.info("Printing JSON:");
-        // Compact JSON
-        // System.out.println(si.toJSON().toString());
-
-        // Pretty JSON
-        // System.out.println(ParseUtil.jsonPrettyPrint(si.toJSON()));
     }
 }

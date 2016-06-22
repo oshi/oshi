@@ -18,13 +18,7 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.UsbDevice;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * A USB device
@@ -46,8 +40,6 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     protected String serialNumber;
 
     protected UsbDevice[] connectedDevices;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -103,20 +95,6 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     public UsbDevice[] getConnectedDevices() {
         return this.connectedDevices;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (UsbDevice usbDevice : getConnectedDevices()) {
-            usbDeviceArrayBuilder.add(usbDevice.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("vendor", getVendor()).add("vendorId", getVendorId()).add("productId", getProductId())
-                .add("serialNumber", getSerialNumber()).add("connectedDevices", usbDeviceArrayBuilder.build()).build();
     }
 
     /**

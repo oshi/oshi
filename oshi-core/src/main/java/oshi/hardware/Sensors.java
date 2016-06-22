@@ -18,7 +18,7 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * Sensors include hardwore sensors to monitor temperature, fan speed, and other
@@ -37,7 +37,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface Sensors extends OshiJsonObject {
+public interface Sensors extends Serializable {
     /**
      * CPU Temperature
      * 

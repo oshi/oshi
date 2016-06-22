@@ -18,7 +18,7 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * Display refers to the information regarding a video source and monitor
@@ -26,7 +26,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface Display extends OshiJsonObject {
+public interface Display extends Serializable {
     /**
      * The EDID byte array.
      * 

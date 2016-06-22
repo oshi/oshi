@@ -18,14 +18,8 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Linux hard disk implementation.
@@ -36,17 +30,6 @@ public abstract class AbstractDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     @Override
     public abstract HWDiskStore[] getDisks();
-
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder diakArray = jsonFactory.createArrayBuilder();
-        for (HWDiskStore store : getDisks()) {
-            diakArray.add(store.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("disks", diakArray).build();
-    }
 }

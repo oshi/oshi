@@ -18,7 +18,7 @@
  */
 package oshi.software.os;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * An operating system (OS) is the software on a computer that manages the way
@@ -27,7 +27,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface OperatingSystem extends OshiJsonObject {
+public interface OperatingSystem extends Serializable {
 
     /**
      * Operating system family.

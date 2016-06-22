@@ -18,7 +18,7 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * A USB device is a device connected via a USB port, possibly
@@ -27,7 +27,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface UsbDevice extends OshiJsonObject, Comparable<UsbDevice> {
+public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
     /**
      * Name of the USB device
      * 

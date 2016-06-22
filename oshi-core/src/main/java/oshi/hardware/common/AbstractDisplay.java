@@ -20,12 +20,7 @@ package oshi.hardware.common;
 
 import java.util.Arrays;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.Display;
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.util.EdidUtil;
 
 /**
@@ -37,8 +32,6 @@ public abstract class AbstractDisplay implements Display {
 
     protected byte[] edid;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
-
     protected AbstractDisplay(byte[] edid) {
         this.edid = edid;
     }
@@ -49,15 +42,6 @@ public abstract class AbstractDisplay implements Display {
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(edid, edid.length);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("edid", EdidUtil.toString(getEdid())).build();
     }
 
     @Override

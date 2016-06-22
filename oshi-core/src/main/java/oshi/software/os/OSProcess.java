@@ -18,7 +18,7 @@
  */
 package oshi.software.os;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * A process is an instance of a computer program that is being executed. It
@@ -28,7 +28,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface OSProcess extends OshiJsonObject {
+public interface OSProcess extends Serializable {
     /**
      * Process Execution States
      */

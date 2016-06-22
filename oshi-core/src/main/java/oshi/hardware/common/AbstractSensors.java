@@ -18,19 +18,11 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.Sensors;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 public abstract class AbstractSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * {@inheritDoc}
@@ -49,18 +41,4 @@ public abstract class AbstractSensors implements Sensors {
      */
     @Override
     public abstract double getCpuVoltage();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
-        for (int speed : getFanSpeeds()) {
-            fanSpeedsArrayBuilder.add(speed);
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("cpuTemperature", getCpuTemperature()).add("fanSpeeds", fanSpeedsArrayBuilder.build())
-                .add("cpuVoltage", getCpuVoltage()).build();
-    }
 }

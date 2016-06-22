@@ -18,11 +18,6 @@
  */
 package oshi.software.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OSProcess;
 
 /**
@@ -36,8 +31,6 @@ import oshi.software.os.OSProcess;
 public class AbstractProcess implements OSProcess {
 
     private static final long serialVersionUID = 1L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     protected String name;
     protected String path;
@@ -145,18 +138,5 @@ public class AbstractProcess implements OSProcess {
      */
     public long getStartTime() {
         return this.startTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("path", getPath()).add("state", getState().name()).add("processID", getProcessID())
-                .add("parentProcessID", getParentProcessID()).add("threadCount", getThreadCount())
-                .add("priority", getPriority()).add("virtualSize", getVirtualSize())
-                .add("residentSetSize", getResidentSetSize()).add("kernelTime", getKernelTime())
-                .add("userTime", getUserTime()).add("upTime", getUpTime()).add("startTime", getStartTime()).build();
     }
 }

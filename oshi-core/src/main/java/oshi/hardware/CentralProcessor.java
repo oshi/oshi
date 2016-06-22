@@ -18,7 +18,8 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
+
 import oshi.software.os.OSProcess;
 
 /**
@@ -28,7 +29,7 @@ import oshi.software.os.OSProcess;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface CentralProcessor extends OshiJsonObject {
+public interface CentralProcessor extends Serializable {
     /**
      * Processor vendor.
      * 

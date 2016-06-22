@@ -18,7 +18,7 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
 
 /**
  * The Power Source is one or more batteries with some capacity, and some state
@@ -26,7 +26,7 @@ import oshi.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface PowerSource extends OshiJsonObject {
+public interface PowerSource extends Serializable {
     /**
      * Name of the power source (e.g., InternalBattery-0)
      * 

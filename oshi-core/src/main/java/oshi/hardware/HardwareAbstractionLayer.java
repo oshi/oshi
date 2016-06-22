@@ -18,7 +18,8 @@
  */
 package oshi.hardware;
 
-import oshi.json.OshiJsonObject;
+import java.io.Serializable;
+
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -28,7 +29,7 @@ import oshi.software.os.OSFileStore;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface HardwareAbstractionLayer extends OshiJsonObject {
+public interface HardwareAbstractionLayer extends Serializable {
 
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or

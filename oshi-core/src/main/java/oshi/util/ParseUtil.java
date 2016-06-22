@@ -18,7 +18,6 @@
  */
 package oshi.util;
 
-import java.io.StringWriter;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,11 +29,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.stream.JsonGenerator;
 import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
@@ -243,30 +237,6 @@ public abstract class ParseUtil {
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
         return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
-    }
-
-    /**
-     * Pretty print a JSON string.
-     * 
-     * @param json
-     *            A JSON object
-     * @return String representing the object with added whitespace, new lines,
-     *         indentation
-     */
-    public static String jsonPrettyPrint(JsonObject json) {
-        // Pretty printing using JsonWriterFactory
-        // Output stream
-        StringWriter stringWriter = new StringWriter();
-        // Config
-        Map<String, Boolean> config = new HashMap<String, Boolean>();
-        config.put(JsonGenerator.PRETTY_PRINTING, true);
-        JsonWriterFactory writerFactory = Json.createWriterFactory(config);
-        // Writer
-        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);
-        jsonWriter.write(json);
-        jsonWriter.close();
-        // Return
-        return stringWriter.toString();
     }
 
     /*

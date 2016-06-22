@@ -18,11 +18,6 @@
  */
 package oshi.software.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
-import oshi.json.NullAwareJsonObjectBuilder;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -41,8 +36,6 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
     protected String versionStr;
 
     protected String buildNumber;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * {@inheritDoc}
@@ -90,15 +83,6 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
     @Override
     public void setBuildNumber(String buildNumber) {
         this.buildNumber = buildNumber;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
-                .add("codeName", getCodeName()).add("build", getBuildNumber()).build();
     }
 
     @Override

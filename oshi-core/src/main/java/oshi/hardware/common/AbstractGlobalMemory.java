@@ -18,12 +18,7 @@
  */
 package oshi.hardware.common;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import oshi.hardware.GlobalMemory;
-import oshi.json.NullAwareJsonObjectBuilder;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
@@ -39,8 +34,6 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = 0L;
     protected long swapTotal = 0L;
     protected long swapUsed = 0L;
-
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Updates physical memory instance variables.
@@ -88,14 +81,5 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     public long getSwapTotal() {
         updateSwap();
         return this.swapTotal;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }
 }

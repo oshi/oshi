@@ -22,17 +22,10 @@ import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
-import oshi.json.NullAwareJsonObjectBuilder;
-import oshi.software.os.OSProcess;
 import oshi.util.ParseUtil;
 
 /**
@@ -124,8 +117,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected Long cpuVendorFreq;
 
     protected Boolean cpu64;
-
-    protected JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
      * Create a Processor
@@ -528,58 +519,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public abstract int getThreadCount();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double avg : getSystemLoadAverage(3)) {
-            systemLoadAverageArrayBuilder.add(avg);
-        }
-        JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemCpuLoadTicks()) {
-            systemCpuLoadTicksArrayBuilder.add(ticks);
-        }
-        JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double load : getProcessorCpuLoadBetweenTicks()) {
-            processorCpuLoadBetweenTicksArrayBuilder.add(load);
-        }
-        JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long[] procTicks : getProcessorCpuLoadTicks()) {
-            JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
-            for (long ticks : procTicks) {
-                processorTicksArrayBuilder.add(ticks);
-            }
-            processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
-        }
-        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemIrqTicks()) {
-            systemIrqTicksArrayBuilder.add(ticks);
-        }
-        JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSProcess proc : getProcesses()) {
-            processArrayBuilder.add(proc.toJSON());
-        }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("physicalProcessorCount", getPhysicalProcessorCount())
-                .add("logicalProcessorCount", getLogicalProcessorCount())
-                .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())
-                .add("vendorFreq", getVendorFreq()).add("cpu64bit", isCpu64bit()).add("family", getFamily())
-                .add("model", getModel()).add("stepping", getStepping())
-                .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
-                .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
-                .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
-                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
-                .add("systemIOWaitTicks", getSystemIOWaitTicks())
-                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
-                .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
-                .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).add("processID", getProcessId())
-                .add("processCount", getProcessCount()).add("threadCount", getThreadCount())
-                .add("processes", processArrayBuilder.build()).build();
-    }
 
     @Override
     public String toString() {
