@@ -16,20 +16,16 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware;
+package oshi.json.hardware;
 
-import java.io.Serializable;
-
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
+import oshi.json.json.OshiJsonObject;
+import oshi.json.software.os.FileSystem;
+import oshi.json.software.os.OSFileStore;
 
 /**
- * A hardware abstraction layer. Provides access to hardware items such as
- * processors, memory, battery, and disks.
- * 
- * @author dblock[at]dblock[dot]org
+ * {@inheritDoc}
  */
-public interface HardwareAbstractionLayer extends Serializable {
+public interface HardwareAbstractionLayer extends oshi.hardware.HardwareAbstractionLayer, OshiJsonObject {
 
     /**
      * {@inheritDoc}

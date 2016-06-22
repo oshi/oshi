@@ -16,68 +16,77 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware;
+package oshi.json.software.os;
 
-import java.io.Serializable;
-
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
+import oshi.json.json.OshiJsonObject;
 
 /**
- * A hardware abstraction layer. Provides access to hardware items such as
- * processors, memory, battery, and disks.
- * 
- * @author dblock[at]dblock[dot]org
+ * {@inheritDoc}
  */
-public interface HardwareAbstractionLayer extends Serializable {
+public interface OSProcess extends oshi.software.os.OSProcess, OshiJsonObject {
 
     /**
      * {@inheritDoc}
      */
-    CentralProcessor getProcessor();
+    public String getName();
 
     /**
      * {@inheritDoc}
      */
-    GlobalMemory getMemory();
+    public String getPath();
 
     /**
      * {@inheritDoc}
      */
-    PowerSource[] getPowerSources();
+    public State getState();
 
     /**
      * {@inheritDoc}
      */
-    FileSystem getFileSystem();
+    public int getProcessID();
 
     /**
      * {@inheritDoc}
      */
-    OSFileStore[] getFileStores();
+    public int getParentProcessID();
 
     /**
      * {@inheritDoc}
      */
-    HWDiskStore[] getDiskStores();
+    public int getThreadCount();
 
     /**
      * {@inheritDoc}
      */
-    NetworkIF[] getNetworkIFs();
+    public int getPriority();
 
     /**
      * {@inheritDoc}
      */
-    Display[] getDisplays();
+    public long getVirtualSize();
 
     /**
      * {@inheritDoc}
      */
-    Sensors getSensors();
+    public long getResidentSetSize();
 
     /**
      * {@inheritDoc}
      */
-    UsbDevice[] getUsbDevices();
+    public long getKernelTime();
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getUserTime();
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getUpTime();
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getStartTime();
 }

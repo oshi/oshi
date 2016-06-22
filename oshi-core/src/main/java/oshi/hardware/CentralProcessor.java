@@ -107,37 +107,37 @@ public interface CentralProcessor extends Serializable {
     void setCpu64(boolean cpu64);
 
     /**
-     * @return the _stepping
+     * @return the stepping
      */
     String getStepping();
 
     /**
-     * @param _stepping
-     *            the _stepping to set
+     * @param stepping
+     *            the stepping to set
      */
-    void setStepping(String _stepping);
+    void setStepping(String stepping);
 
     /**
-     * @return the _model
+     * @return the model
      */
     String getModel();
 
     /**
-     * @param _model
-     *            the _model to set
+     * @param model
+     *            the model to set
      */
-    void setModel(String _model);
+    void setModel(String model);
 
     /**
-     * @return the _family
+     * @return the family
      */
     String getFamily();
 
     /**
-     * @param _family
-     *            the _family to set
+     * @param family
+     *            the family to set
      */
-    void setFamily(String _family);
+    void setFamily(String family);
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks

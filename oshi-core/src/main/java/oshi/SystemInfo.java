@@ -43,9 +43,9 @@ public class SystemInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private OperatingSystem _os = null;
+    private OperatingSystem os = null;
 
-    private HardwareAbstractionLayer _hardware = null;
+    private HardwareAbstractionLayer hardware = null;
 
     private PlatformEnum currentPlatformEnum;
 
@@ -62,29 +62,36 @@ public class SystemInfo implements Serializable {
     }
 
     /**
+     * @return Returns the currentPlatformEnum.
+     */
+    public PlatformEnum getCurrentPlatformEnum() {
+        return currentPlatformEnum;
+    }
+
+    /**
      * Creates a new instance of the appropriate platform-specific
      * {@link OperatingSystem}.
      * 
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-        if (this._os == null) {
+        if (this.os == null) {
             switch (this.currentPlatformEnum) {
 
             case WINDOWS:
-                this._os = new WindowsOperatingSystem();
+                this.os = new WindowsOperatingSystem();
                 break;
             case LINUX:
-                this._os = new LinuxOperatingSystem();
+                this.os = new LinuxOperatingSystem();
                 break;
             case MACOSX:
-                this._os = new MacOperatingSystem();
+                this.os = new MacOperatingSystem();
                 break;
             default:
                 throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
             }
         }
-        return this._os;
+        return this.os;
     }
 
     /**
@@ -94,22 +101,22 @@ public class SystemInfo implements Serializable {
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-        if (this._hardware == null) {
+        if (this.hardware == null) {
             switch (this.currentPlatformEnum) {
 
             case WINDOWS:
-                this._hardware = new WindowsHardwareAbstractionLayer();
+                this.hardware = new WindowsHardwareAbstractionLayer();
                 break;
             case LINUX:
-                this._hardware = new LinuxHardwareAbstractionLayer();
+                this.hardware = new LinuxHardwareAbstractionLayer();
                 break;
             case MACOSX:
-                this._hardware = new MacHardwareAbstractionLayer();
+                this.hardware = new MacHardwareAbstractionLayer();
                 break;
             default:
                 throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
             }
         }
-        return this._hardware;
+        return this.hardware;
     }
 }
