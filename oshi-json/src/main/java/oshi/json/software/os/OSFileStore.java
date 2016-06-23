@@ -26,7 +26,11 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * A File Store is a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. See subclasses
+ * for definitions as they apply to specific platforms.
+ * 
+ * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore extends oshi.software.os.OSFileStore implements OshiJsonObject {
 
@@ -35,7 +39,24 @@ public class OSFileStore extends oshi.software.os.OSFileStore implements OshiJso
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
-     * {@inheritDoc}
+     * Creates an OSFileStore with the specified parameters.
+     * 
+     * @param newName
+     *            Name of the filestore
+     * @param newVolume
+     *            Volume of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUuid
+     *            UUID/GUID of the filestore
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
             String newUuid, long newUsableSpace, long newTotalSpace) {

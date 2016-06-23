@@ -21,21 +21,42 @@ package oshi.json.hardware;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * Sensors include hardwore sensors to monitor temperature, fan speed, and other
+ * information. Drivers may or may not exist to collect this data depending on
+ * Operating System and CPU. In addition, software-hardware communication may
+ * suffer intermittent errors when attempting to access this information, so it
+ * should be considered for information only. Users should test for zero values
+ * and empty arrays which will result if the OS is unable to provide the
+ * information.
+ * 
+ * Windows information is retrieved via Windows Management Instrumentation
+ * (WMI). Unfortunately, most hardware providers do not publish values to WMI.
+ * If a value is not available through the Microsoft API, Oshi will attempt to
+ * retrieve values as published by the Open Hardware Monitor
+ * (http://openhardwaremonitor.org/) if it is running.
+ * 
+ * @author widdis[at]gmail[dot]com
  */
 public interface Sensors extends oshi.hardware.Sensors, OshiJsonObject {
     /**
-     * {@inheritDoc}
+     * CPU Temperature
+     * 
+     * @return CPU Temperature in degrees Celsius if available, 0 otherwise.
      */
     double getCpuTemperature();
 
     /**
-     * {@inheritDoc}
+     * Fan speeds
+     * 
+     * @return Speed in rpm for all fans. May return empty array if no fans
+     *         detected or 0 fan speed if unable to measure fan speed.
      */
     int[] getFanSpeeds();
 
     /**
-     * {@inheritDoc}
+     * CPU Voltage
+     * 
+     * @return CPU Voltage in Volts if available, 0 otherwise.
      */
     double getCpuVoltage();
 }

@@ -20,38 +20,37 @@ package oshi.json.software.os;
 
 import oshi.json.json.OshiJsonObject;
 
-/**
- * {@inheritDoc}
- */
 public interface OperatingSystemVersion extends oshi.software.os.OperatingSystemVersion, OshiJsonObject {
-
     /**
-     * {@inheritDoc}
+     * @return the version
      */
     String getVersion();
 
     /**
-     * {@inheritDoc}
+     * @param version
+     *            the version to set
      */
     void setVersion(String version);
 
     /**
-     * {@inheritDoc}
+     * @return the codeName
      */
     String getCodeName();
 
     /**
-     * {@inheritDoc}
+     * @param codeName
+     *            the codeName to set
      */
     void setCodeName(String codeName);
 
     /**
-     * {@inheritDoc}
+     * @return the build number
      */
     String getBuildNumber();
 
     /**
-     * {@inheritDoc}
+     * @param buildNumber
+     *            the build number to set
      */
     void setBuildNumber(String buildNumber);
 }

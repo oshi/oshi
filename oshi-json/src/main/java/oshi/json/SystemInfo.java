@@ -30,7 +30,12 @@ import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.impl.OperatingSystemImpl;
 
 /**
- * {@inheritDoc}
+ * System information. This is the main entry point to Oshi. This object
+ * provides getters which instantiate the appropriate platform-specific
+ * implementations of {@link OperatingSystem} (software) and
+ * {@link HardwareAbstractionLayer} (hardware).
+ * 
+ * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo extends oshi.SystemInfo implements OshiJsonObject {
 
@@ -49,7 +54,10 @@ public class SystemInfo extends oshi.SystemInfo implements OshiJsonObject {
     }
 
     /**
-     * {@inheritDoc}
+     * Creates a new instance of the appropriate platform-specific
+     * {@link OperatingSystem}.
+     * 
+     * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
         if (this.os == null) {
@@ -59,7 +67,10 @@ public class SystemInfo extends oshi.SystemInfo implements OshiJsonObject {
     }
 
     /**
-     * {@inheritDoc}
+     * Creates a new instance of the appropriate platform-specific
+     * {@link HardwareAbstractionLayer}.
+     * 
+     * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
         if (this.hardware == null) {

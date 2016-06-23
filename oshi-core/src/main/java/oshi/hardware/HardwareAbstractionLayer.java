@@ -32,52 +32,90 @@ import oshi.software.os.OSFileStore;
 public interface HardwareAbstractionLayer extends Serializable {
 
     /**
-     * {@inheritDoc}
+     * Instantiates a {@link CentralProcessor} object. This represents one or
+     * more Logical CPUs.
+     * 
+     * @return A {@link CentralProcessor} object.
      */
     CentralProcessor getProcessor();
 
     /**
-     * {@inheritDoc}
+     * Instantiates a {@link GlobalMemory} object.
+     * 
+     * @return A memory object.
      */
     GlobalMemory getMemory();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link PowerSource} objects, representing
+     * batteries, etc.
+     * 
+     * @return An array of PowerSource objects or an empty array if none are
+     *         present.
      */
     PowerSource[] getPowerSources();
 
     /**
-     * {@inheritDoc}
+     * Instantiates a {@link FileSystem} object.
+     *
+     * @return A {@link FileSystem} object.
      */
     FileSystem getFileSystem();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link OSFileStore} objects, representing a
+     * storage pool, device, partition, volume, concrete file system or other
+     * implementation specific means of file storage.
+     * 
+     * @return An array of OSFileStore objects or an empty array if none are
+     *         present.
      */
     OSFileStore[] getFileStores();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link HWDiskStore} objects, representing a
+     * physical hard disk or other similar storage device
+     * 
+     * @return An array of HWDiskStore objects or an empty array if none are
+     *         present.
      */
     HWDiskStore[] getDiskStores();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link NetworkIF} objects, representing a
+     * network interface
+     * 
+     * @return An array of HWNetworkStore objects or an empty array if none are
+     *         present.
      */
     NetworkIF[] getNetworkIFs();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link Display} objects, representing monitors
+     * or other video output devices.
+     * 
+     * @return An array of Display objects or an empty array if none are
+     *         present.
      */
     Display[] getDisplays();
 
     /**
-     * {@inheritDoc}
+     * Instantiates a {@link Sensors} object, representing CPU temperature and
+     * fan speed
+     * 
+     * @return A Sensors object
      */
     Sensors getSensors();
 
     /**
-     * {@inheritDoc}
+     * Instantiates an array of {@link UsbDevice} objects, representing devices
+     * connected via a usb port (including internal devices). The top level
+     * devices returned from this method are the USB Controllers; connected hubs
+     * and devices in its device tree share that controller's bandwidth
+     * 
+     * @return An array of UsbDevice objects representing the USB Controllers
+     *         and devices connected to them, or an empty array if none are
+     *         present
      */
     UsbDevice[] getUsbDevices();
 }

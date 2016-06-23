@@ -27,7 +27,9 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * A network interface in the machine, including statistics
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class NetworkIF extends oshi.hardware.NetworkIF implements OshiJsonObject {
 

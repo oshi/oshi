@@ -26,7 +26,14 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * A storage mechanism where data are recorded by various electronic, magnetic,
+ * optical, or mechanical changes to a surface layer of one or more rotating
+ * disks or flash storage such as a removable or solid state drive. In constrast
+ * to a File System, defining the way an Operating system uses the storage, the
+ * Disk Store represents the hardware which a FileSystem uses for its File
+ * Stores.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class HWDiskStore extends oshi.hardware.HWDiskStore implements OshiJsonObject {
 
@@ -35,7 +42,20 @@ public class HWDiskStore extends oshi.hardware.HWDiskStore implements OshiJsonOb
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     /**
-     * {@inheritDoc}
+     * Create an object with all values
+     * 
+     * @param name
+     *            Name of the disk (e.g., /dev/disk1)
+     * @param model
+     *            Model of the disk
+     * @param serial
+     *            Disk serial number, if available
+     * @param size
+     *            Disk capacity in bytes
+     * @param reads
+     *            Number of reads from the disk
+     * @param writes
+     *            Number of writes to the disk
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long writes) {
         super(name, model, serial, size, reads, writes);

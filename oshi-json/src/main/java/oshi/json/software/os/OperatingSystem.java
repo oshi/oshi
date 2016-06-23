@@ -21,22 +21,32 @@ package oshi.json.software.os;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * An operating system (OS) is the software on a computer that manages the way
+ * different programs use its hardware, and regulates the ways that a user
+ * controls the computer.
+ * 
+ * @author dblock[at]dblock[dot]org
  */
 public interface OperatingSystem extends oshi.software.os.OperatingSystem, OshiJsonObject {
 
     /**
-     * {@inheritDoc}
+     * Operating system family.
+     * 
+     * @return String.
      */
     String getFamily();
 
     /**
-     * {@inheritDoc}
+     * Manufacturer.
+     * 
+     * @return String.
      */
     String getManufacturer();
 
     /**
-     * {@inheritDoc}
+     * Operating system version.
+     * 
+     * @return Version.
      */
     OperatingSystemVersion getVersion();
 }

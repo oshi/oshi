@@ -21,7 +21,12 @@ package oshi.hardware;
 import java.io.Serializable;
 
 /**
- * Store object of disk attributes.
+ * A storage mechanism where data are recorded by various electronic, magnetic,
+ * optical, or mechanical changes to a surface layer of one or more rotating
+ * disks or or flash storage such as a removable or solid state drive. In
+ * constrast to a File System, defining the way an Operating system uses the
+ * storage, the Disk Store represents the hardware which a FileSystem uses for
+ * its File Stores.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */

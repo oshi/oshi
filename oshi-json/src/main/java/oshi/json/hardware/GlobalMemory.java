@@ -21,26 +21,42 @@ package oshi.json.hardware;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * {@inheritDoc}
+ * Memory refers to the state information of a computing system, as it is kept
+ * active in some physical structure. The term "memory" is used for the
+ * information in physical systems which are fast (ie. RAM), as a distinction
+ * from physical systems which are slow to access (ie. data storage). By design,
+ * the term "memory" refers to temporary state devices, whereas the term
+ * "storage" is reserved for permanent data.
+ * 
+ * @author dblock[at]dblock[dot]org
  */
 public interface GlobalMemory extends oshi.hardware.GlobalMemory, OshiJsonObject {
     /**
-     * {@inheritDoc}
+     * The amount of actual physical memory, in bytes.
+     * 
+     * @return Total number of bytes.
      */
     long getTotal();
 
     /**
-     * {@inheritDoc}
+     * The amount of physical memory currently available, in bytes.
+     * 
+     * @return Available number of bytes.
      */
     long getAvailable();
 
     /**
-     * {@inheritDoc}
+     * The current size of the paging/swap file(s), in bytes. If the paging/swap
+     * file can be extended, this is a soft limit.
+     * 
+     * @return Total swap in bytes.
      */
     long getSwapTotal();
 
     /**
-     * {@inheritDoc}
+     * The current memory committed to the paging/swap file(s), in bytes
+     * 
+     * @return Swap used in bytes
      */
     long getSwapUsed();
 }

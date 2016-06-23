@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Store object of network interfaces attributes
+ * A network interface in the machine, including statistics
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
