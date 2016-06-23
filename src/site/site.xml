@@ -21,5 +21,7 @@
 			<item href="README.html" name="README" />
 		</menu>
 		<menu ref="reports" />
+		<menu ref="parent" inherit="top" />
+		<menu ref="modules" inherit="top" />
 	</body>
 </project>

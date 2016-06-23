@@ -10,6 +10,9 @@
     <artifactId>oshi-json</artifactId>
     <packaging>jar</packaging>
     <name>oshi-json</name>
+    <properties>
+        <src.relative.loc>..</src.relative.loc>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

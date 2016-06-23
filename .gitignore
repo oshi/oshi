@@ -4,3 +4,8 @@
 /.project
 /.settings/
 /.classpath
+/oshi-*/target/
+/oshi-*/bin/
+/oshi-*/.project
+/oshi-*/.settings/
+/oshi-*/.classpath

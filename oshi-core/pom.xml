@@ -10,6 +10,9 @@
     <artifactId>oshi-core</artifactId>
     <packaging>jar</packaging>
     <name>oshi-core</name>
+    <properties>
+        <src.relative.loc>..</src.relative.loc>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
