@@ -5,19 +5,21 @@
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+[![Reference Status](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 
-OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
+OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such OS version, memory, CPU, disk, battery, displays, sensors, etc.
 
 Essentials
 ----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
+* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
 * [Download OSHI 2.6.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=2.6.2&e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download OSHI 3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.0-SNAPSHOT&e=jar)
+* [Download oshi-core-3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.0-SNAPSHOT&e=jar)
+* [Download oshi-json-3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.0-SNAPSHOT&e=jar)
 * [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
-	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
+	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html) (for oshi-json)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
 	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
@@ -47,7 +49,7 @@ Currently supported features
 
 Output
 -------------
-OSHI provides output directly via java methods or in JSON format for each of its interfaces.
+OSHI provides output directly via java methods or, for the `oshi-json` project, in JSON format for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
 The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/src/test/java/oshi/SystemInfoTest.java) provides sample code demonstrating

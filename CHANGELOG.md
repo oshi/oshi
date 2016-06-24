@@ -1,5 +1,6 @@
 3.0 (in progress)
 ================
+* [#205](https://github.com/dblock/oshi/pull/190): Separated oshi-core and oshi-json modules - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.6.2 (6/21/2016)
