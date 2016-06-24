@@ -2,29 +2,28 @@
 ================
 * [#205](https://github.com/dblock/oshi/pull/205): Separated oshi-core and oshi-json modules - [@dbwiddis](https://github.com/dbwiddis).
 * [#209](https://github.com/dblock/oshi/pull/209): Move FileSystem and Processes to OperatingSystem - [@dbwiddis](https://github.com/dbwiddis).
+* [#210](https://github.com/dblock/oshi/pull/210): Streamlined macOS FileSystem - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
-
 
 2.6.2 (6/21/2016)
 ================
 * [#199](https://github.com/dblock/oshi/pull/199): Use WMI queries for raw data instead of maintaining PDH threads - [@dbwiddis](https://github.com/dbwiddis).
 * Multiple efficiency improvements
 
-2.6-java7 (6/16/2016) / 2.6.1 (6/17/2016)
+2.6-java7 / 2.6.1 (6/17/2016)
 ================
 * [#190](https://github.com/dblock/oshi/pull/190): Add VendorID and ProductID to UsbDevice - [@dbwiddis](https://github.com/dbwiddis).
 * [#193](https://github.com/dblock/oshi/pull/193): Add read/write to Windows and OS X HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 * [#194](https://github.com/dblock/oshi/pull/194): Add volume name to OSFileStores - [@henryx](https://github.com/henryx).
 * [#195](https://github.com/dblock/oshi/pull/195): Fixed reading multiple (in particular external) displays on Mac - [@dpagano](https://github.com/dpagano).
 * [#197](https://github.com/dblock/oshi/pull/197): Add UUID to OSFileStores - [@dbwiddis](https://github.com/dbwiddis).
-* Incremented to 6.0.1 due to Central Repository sorting woes. 
 * [#198](https://github.com/dblock/oshi/pull/198): macOS 10.12 (Sierra) - [@dbwiddis](https://github.com/dbwiddis).
+* Created a Java 7 backport using threeten.org dependency released as 2.6-m-java7
 
-2.5.1-java7 (6/8/2016) / 2.5.2 (6/9/2016)
+2.5.1-java7 / 2.5.2 (6/9/2016)
 ================
 * [#186](https://github.com/dblock/oshi/pull/186), [#187](https://github.com/dblock/oshi/pull/187),  [#188](https://github.com/dblock/oshi/pull/188): Improve USB device trees - [@dbwiddis](https://github.com/dbwiddis).
 * Created a Java 7 backport using threeten.org dependency released as 2.5.1-java7
-* Incremented to 2.5.2 for Java 8 version due to "2.5.1-java7" "latest version" sorting after 2.5.1
 
 2.5 (6/4/2016)
 ================
