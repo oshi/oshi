@@ -28,6 +28,24 @@ import java.io.Serializable;
  * @author dblock[at]dblock[dot]org
  */
 public interface CentralProcessor extends Serializable {
+
+    /**
+     * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
+     * {@link #getProcessorCpuLoadTicks()} arrays.
+     */
+    enum TickType {
+        USER(0), NICE(1), SYSTEM(2), IDLE(3), IOWAIT(4), IRQ(5), SOFTIRQ(6);
+        private int index;
+
+        private TickType(int value) {
+            this.index = value;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
+
     /**
      * Processor vendor.
      * 
@@ -153,45 +171,27 @@ public interface CentralProcessor extends Serializable {
     double getSystemCpuLoadBetweenTicks();
 
     /**
-     * Get System-wide CPU Load tick counters. Returns an array with four
-     * elements representing clock ticks or milliseconds (platform dependent)
-     * spent in User (0), Nice (1), System (2), and Idle (3) states. By
-     * measuring the difference between ticks across a time interval, CPU load
-     * over that interval may be calculated.
+     * Get System-wide CPU Load tick counters. Returns an array with seven
+     * elements representing either clock ticks or milliseconds (platform
+     * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
+     * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
+     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
+     * index. By measuring the difference between ticks across a time interval,
+     * CPU load over that interval may be calculated.
      * 
-     * The Idle time for this method includes system time spent idle waiting for
-     * IO as reported by {@link #getSystemIOWaitTicks()}. The system time
-     * includes system time spent servicing Hardware and Software IRQ requests
-     * as reported by {@link #getSystemIrqTicks()} as well as executing other
-     * virtual hosts (steal) or running a virtual cpu (guest).
+     * Nice information is not available on Windows, and IOwait and IRQ
+     * information is not available on macOS, so these ticks will always be
+     * zero.
      * 
-     * @return An array of 4 long values representing time spent in User,
-     *         Nice(if applicable), System, and Idle states.
+     * To calculate overall Idle time using this method, include both Idle and
+     * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
+     * System value to get the total. System ticks also include time executing
+     * other virtual hosts (steal).
+     * 
+     * @return An array of 7 long values representing time spent in User, Nice,
+     *         System, Idle, IOwait, IRQ, and SoftIRQ states.
      */
     long[] getSystemCpuLoadTicks();
-
-    /**
-     * Get System IOWait tick counters (if available on that Operating System).
-     * Time spent waiting for IO to complete is included in the idle time
-     * calculated by {@link #getSystemCpuLoadTicks()} but is provided separately
-     * for more detail.
-     * 
-     * @return a long value representing time spent idle waiting for IO to
-     *         complete.
-     */
-    long getSystemIOWaitTicks();
-
-    /**
-     * Get System IRQ tick counters (if available on that Operating System).
-     * Time spent servicing hardware and software (Deferred Procedure Call)
-     * interrupts is included in the system time calculated by
-     * {@link #getSystemCpuLoadTicks()} but is provided separately for more
-     * detail.
-     * 
-     * @return an array of two long values representing time spent servicing
-     *         hardware interrupts and software interrupts (DPC)
-     */
-    long[] getSystemIrqTicks();
 
     /**
      * Returns the "recent cpu usage" for the whole system from
@@ -264,21 +264,31 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Get Processor CPU Load tick counters. Returns a two dimensional array,
-     * with {@link #getLogicalProcessorCount()} arrays, each containing four
-     * elements representing clock ticks or milliseconds (platform dependent)
-     * spent in User (0), Nice (1), System (2), and Idle (3) states. By
-     * measuring the difference between ticks across a time interval, CPU load
-     * over that interval may be calculated.
+     * with {@link #getLogicalProcessorCount()} arrays, each containing seven
+     * elements representing either clock ticks or milliseconds (platform
+     * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
+     * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
+     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
+     * index. By measuring the difference between ticks across a time interval,
+     * CPU load over that interval may be calculated.
      * 
-     * The Idle time for this method includes processor time spent idle waiting
-     * for IO as reported by {@link #getSystemIOWaitTicks()}. The system time
-     * includes processor time spent servicing Hardware IRQ requests as reported
-     * by {@link #getSystemIrqTicks()} as well as Software IRQ requests
-     * (softirq), executing other virtual hosts (steal) or running a virtual cpu
-     * (guest).
+     * Nice and IOwait per processor information is not available on Windows,
+     * and IOwait and IRQ information is not available on macOS, so these ticks
+     * will always be zero.
      * 
-     * @return A 2D array of logicalProcessorCount x 4 long values representing
-     *         time spent in User, Nice(if applicable), System, and Idle states.
+     * To calculate overall Idle time using this method, include both Idle and
+     * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
+     * System value to get the total. System ticks also include time executing
+     * other virtual hosts (steal).
+     * 
+     * Note that the System IOwait reported by {@link #getSystemCpuLoadTicks()}
+     * will be included in the per-processor Idle time rather than attributed to
+     * any logical processor's IOwait counter (i.e., the sum of per-processor
+     * Idle time will equal the System Idle + IOwait time.)
+     * 
+     * @return A 2D array of logicalProcessorCount x 7 long values representing
+     *         time spent in User, Nice, System, Idle, IOwait, IRQ, and SoftIRQ
+     *         states.
      */
     long[][] getProcessorCpuLoadTicks();
 

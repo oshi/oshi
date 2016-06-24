@@ -16,10 +16,23 @@ The `OSProcess` methods (`getProcesses()`, `getProcess()`, `getProcessId()`,
 `getProcessCount()`, and `getThreadCount()`) were moved rom the
 `CentralProcessor` to the `OperatingSystem`.
 
+The `CentralProcessor`'s `getSystemIOWaitTicks()` and `getSystemIrqTicks()` 
+methods were removed. The `getSystemCpuLoadTicks()` now include the IOWait and
+IRQ tick information previously reported by those methods, although Idle time
+no longer includes IOWait, and System Time no longer includes IRQ ticks. The
+`getProcessorCpuLoadTicks()` now includes per-processor IOWait and IRQ tick
+information.
+
 ## API Changes - oshi-json
 
-JSON support moved from `javax.json` to TBD.  The `toJSON()` method on all
-objects now returns TBD.
+JSON objects associated with the above method changes were updated:
+ - `fileSystem` is now an element of `operatingSystem` rather than `processor`.
+ - `fileStores` is now an element of `fileSystem` rather than `processor`.
+ - `processID`, `processCount`, `threadCount`, and `processes` are now 
+ elements of `operatingSystem` rather than `processor`.
+ - `systemCpuLoadTicks` and `processorCpuLoadTicks` now have 7-element arrays
+ instead of 4, and the `systemIOWaitTicks` and `systemIrqTicks` elements have
+ been removed from the `processor` object.
 
 # Guide to upgrading from OSHI 1.x to 2.x
 

@@ -131,13 +131,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected synchronized void initTicks() {
         // System ticks
-        this.prevTicks = new long[4];
-        this.curTicks = new long[4];
+        this.prevTicks = new long[TickType.values().length];
+        this.curTicks = new long[TickType.values().length];
         updateSystemTicks();
 
         // Per-processor ticks
-        this.prevProcTicks = new long[logicalProcessorCount][4];
-        this.curProcTicks = new long[logicalProcessorCount][4];
+        this.prevProcTicks = new long[logicalProcessorCount][TickType.values().length];
+        this.curProcTicks = new long[logicalProcessorCount][TickType.values().length];
         updateProcessorTicks();
     }
 
@@ -353,8 +353,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         for (int i = 0; i < curTicks.length; i++) {
             total += (curTicks[i] - prevTicks[i]);
         }
-        // Calculate idle from last field [3]
-        long idle = curTicks[3] - prevTicks[3];
+        // Calculate idle from difference in idle and IOwait
+        long idle = curTicks[TickType.IDLE.getIndex()] + curTicks[TickType.IOWAIT.getIndex()]
+                - prevTicks[TickType.IDLE.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
@@ -367,23 +368,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public abstract long[] getSystemCpuLoadTicks();
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract long getSystemIOWaitTicks();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract long[] getSystemIrqTicks();
-
-    /**
-     * Updates system tick information. Stores in array with four elements
+     * Updates system tick information. Stores in array with seven elements
      * representing clock ticks or milliseconds (platform dependent) spent in
-     * User (0), Nice (1), System (2), and Idle (3) states. By measuring the
-     * difference between ticks across a time interval, CPU load over that
-     * interval may be calculated.
+     * User (0), Nice (1), System (2), Idle (3), IOwait (4), IRQ (5), and
+     * SoftIRQ (6) states. By measuring the difference between ticks across a
+     * time interval, CPU load over that interval may be calculated.
      */
     protected void updateSystemTicks() {
         LOG.trace("Updating System Ticks");
@@ -445,8 +434,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
                 total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
             }
-            // Calculate idle from last field [3]
-            long idle = this.curProcTicks[cpu][3] - this.prevProcTicks[cpu][3];
+            // Calculate idle from difference in idle and IOwait
+            long idle = this.curProcTicks[cpu][TickType.IDLE.getIndex()]
+                    + this.curProcTicks[cpu][TickType.IOWAIT.getIndex()]
+                    - this.prevProcTicks[cpu][TickType.IDLE.getIndex()]
+                    - this.prevProcTicks[cpu][TickType.IOWAIT.getIndex()];
             LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
             load[cpu] = total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
@@ -462,10 +454,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Updates per-processor tick information. Stores in 2D array; an array for
-     * each logical processor with four elements representing clock ticks or
-     * milliseconds (platform dependent) spent in User (0), Nice (1), System
-     * (2), and Idle (3) states. By measuring the difference between ticks
-     * across a time interval, CPU load over that interval may be calculated.
+     * each logical processor with with seven elements representing clock ticks
+     * or milliseconds (platform dependent) spent in User (0), Nice (1), System
+     * (2), Idle (3), IOwait (4), IRQ (5), and SoftIRQ (6) states. By measuring
+     * the difference between ticks across a time interval, CPU load over that
+     * interval may be calculated.
      */
     protected void updateProcessorTicks() {
         LOG.trace("Updating Processor Ticks");

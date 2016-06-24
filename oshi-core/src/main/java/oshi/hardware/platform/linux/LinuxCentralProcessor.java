@@ -179,71 +179,26 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         } else {
             return ticks;
         }
+        // Split the line. Note the first (0) element is "cpu" so remaining
+        // elements are offset by 1 from the enum index
         String[] tickArr = tickStr.split("\\s+");
-        if (tickArr.length < 5) {
+        if (tickArr.length <= TickType.IDLE.getIndex()) {
+            // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
         }
         // Note tickArr is offset by 1
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < TickType.values().length; i++) {
             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
         }
-        if (tickArr.length > 5) {
-            // Add iowait to idle
-            ticks[3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
-            // Add other fields to system
-            for (int i = 6; i < tickArr.length; i++) {
-                ticks[2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
-            }
+        // If next value is steal, add it
+        if (tickArr.length > TickType.values().length + 1) {
+            // Add steal to system
+            ticks[TickType.SYSTEM.getIndex()] += ParseUtil.parseLongOrDefault(tickArr[TickType.values().length + 1],
+                    0L);
+            // Ignore guest or guest_nice, they are included in user/nice
         }
         return ticks;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSystemIOWaitTicks() {
-        // /proc/stat expected format
-        // first line is overall user,nice,system,idle,iowait,irq, etc.
-        // cpu 3357 0 4313 1362393 ...
-        String tickStr = "";
-        List<String> procStat = FileUtil.readFile("/proc/stat");
-        if (!procStat.isEmpty()) {
-            tickStr = procStat.get(0);
-        } else {
-            return 0;
-        }
-        String[] tickArr = tickStr.split("\\s+");
-        if (tickArr.length < 6) {
-            return 0;
-        }
-        return ParseUtil.parseLongOrDefault(tickArr[5], 0L);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getSystemIrqTicks() {
-        // /proc/stat expected format
-        // first line is overall user,nice,system,idle,iowait,irq, etc.
-        // cpu 3357 0 4313 1362393 ...
-        String tickStr = "";
-        long[] ticks = new long[2];
-        List<String> procStat = FileUtil.readFile("/proc/stat");
-        if (!procStat.isEmpty()) {
-            tickStr = procStat.get(0);
-        } else {
-            return ticks;
-        }
-        String[] tickArr = tickStr.split("\\s+");
-        if (tickArr.length < 8) {
-            return ticks;
-        }
-        ticks[0] = ParseUtil.parseLongOrDefault(tickArr[6], 0L);
-        ticks[1] = ParseUtil.parseLongOrDefault(tickArr[7], 0L);
-        return ticks;
-    };
 
     /**
      * {@inheritDoc}
@@ -272,7 +227,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][4];
+        long[][] ticks = new long[logicalProcessorCount][curProcTicks[0].length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {
@@ -281,21 +236,25 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         List<String> procStat = FileUtil.readFile("/proc/stat");
         for (String stat : procStat) {
             if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
+                // Split the line. Note the first (0) element is "cpu" so
+                // remaining
+                // elements are offset by 1 from the enum index
                 String[] tickArr = stat.split("\\s+");
-                if (tickArr.length < 5) {
-                    break;
+                if (tickArr.length <= TickType.IDLE.getIndex()) {
+                    // If ticks don't at least go user/nice/system/idle, abort
+                    return ticks;
                 }
                 // Note tickArr is offset by 1
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < TickType.values().length; i++) {
                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
-                if (tickArr.length > 5) {
-                    // Add iowait to idle
-                    ticks[cpu][3] += ParseUtil.parseLongOrDefault(tickArr[5], 0L);
-                    // Add other fields to system
-                    for (int i = 6; i < tickArr.length; i++) {
-                        ticks[cpu][2] += ParseUtil.parseLongOrDefault(tickArr[i], 0L);
-                    }
+                // If next value is steal, add it
+                if (tickArr.length > TickType.values().length + 1) {
+                    // Add steal to system
+                    ticks[cpu][TickType.SYSTEM.getIndex()] += ParseUtil
+                            .parseLongOrDefault(tickArr[TickType.values().length + 1], 0L);
+                    // Ignore guest or guest_nice, they are included in
+                    // user/nice
                 }
                 if (++cpu >= logicalProcessorCount) {
                     break;
@@ -303,7 +262,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return ticks;
-
     }
 
     /**

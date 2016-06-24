@@ -186,22 +186,6 @@ public class CentralProcessorImpl implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long getSystemIOWaitTicks() {
-        return this.processor.getSystemIOWaitTicks();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getSystemIrqTicks() {
-        return this.processor.getSystemIrqTicks();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public double getSystemCpuLoad() {
         return this.processor.getSystemCpuLoad();
     }
@@ -295,10 +279,6 @@ public class CentralProcessorImpl implements CentralProcessor {
             }
             processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
         }
-        JsonArrayBuilder systemIrqTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemIrqTicks()) {
-            systemIrqTicksArrayBuilder.add(ticks);
-        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -309,8 +289,6 @@ public class CentralProcessorImpl implements CentralProcessor {
                 .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
                 .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
                 .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
-                .add("systemIOWaitTicks", getSystemIOWaitTicks())
-                .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
                 .add("systemUptime", getSystemUptime()).build();
