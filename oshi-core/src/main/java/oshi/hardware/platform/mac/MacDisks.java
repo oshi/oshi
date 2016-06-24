@@ -192,6 +192,7 @@ public class MacDisks extends AbstractDisks {
                 }
             }
         }
+        // Close DA session
         CfUtil.release(session);
         return result.toArray(new HWDiskStore[result.size()]);
     }
