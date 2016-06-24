@@ -52,7 +52,7 @@ public class DisplayImpl implements Display {
     @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("edid", EdidUtil.toString(getEdid())).build();
+                .add("edid", EdidUtil.toHexString(getEdid())).build();
     }
 
     @Override
