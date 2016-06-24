@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Platform;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
@@ -98,9 +99,7 @@ public class SystemInfoTest {
         assertEquals(p.getFamily(), "f");
 
         assertTrue(p.getSystemCpuLoadBetweenTicks() >= 0 && p.getSystemCpuLoadBetweenTicks() <= 1);
-        assertEquals(p.getSystemCpuLoadTicks().length, 4);
-        assertTrue(p.getSystemIOWaitTicks() >= 0);
-        assertEquals(p.getSystemIrqTicks().length, 2);
+        assertEquals(p.getSystemCpuLoadTicks().length, TickType.values().length);
 
         Util.sleep(500);
         assertTrue(p.getSystemCpuLoad() >= 0.0 && p.getSystemCpuLoad() <= 1.0);
@@ -112,7 +111,7 @@ public class SystemInfoTest {
         assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
             assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] >= 0 && p.getProcessorCpuLoadBetweenTicks()[cpu] <= 1);
-            assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, 4);
+            assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 
         assertTrue(p.getSystemUptime() > 0);
@@ -324,23 +323,24 @@ public class SystemInfoTest {
         // CPU
         LOG.info("Checking CPU...");
         long[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
-        System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks) + ", "
-                + hal.getProcessor().getSystemIOWaitTicks() + ", "
-                + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
+        System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
         long[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
-        System.out.println("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks) + ", "
-                + hal.getProcessor().getSystemIOWaitTicks() + ", "
-                + Arrays.toString(hal.getProcessor().getSystemIrqTicks()));
-        long user = ticks[0] - prevTicks[0];
-        long nice = ticks[1] - prevTicks[1];
-        long sys = ticks[2] - prevTicks[2];
-        long idle = ticks[3] - prevTicks[3];
-        long totalCpu = user + nice + sys + idle;
+        System.out.println("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
+        long user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
+        long nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
+        long sys = ticks[TickType.SYSTEM.getIndex()] - prevTicks[TickType.SYSTEM.getIndex()];
+        long idle = ticks[TickType.IDLE.getIndex()] - prevTicks[TickType.IDLE.getIndex()];
+        long iowait = ticks[TickType.IOWAIT.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
+        long irq = ticks[TickType.IRQ.getIndex()] - prevTicks[TickType.IRQ.getIndex()];
+        long softirq = ticks[TickType.SOFTIRQ.getIndex()] - prevTicks[TickType.SOFTIRQ.getIndex()];
+        long totalCpu = user + nice + sys + idle + iowait + irq + softirq;
 
-        System.out.format("User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%%%n", 100d * user / totalCpu,
-                100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu);
+        System.out.format(
+                "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%%%n",
+                100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
+                100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu);
         System.out.format("CPU load: %.1f%% (counting ticks)%n",
                 hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
         System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessor().getSystemCpuLoad() * 100);

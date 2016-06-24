@@ -148,44 +148,37 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Failed to update system idle/kernel/user times. Error code: " + Native.getLastError());
             return ticks;
         }
-        // Array order is user,nice,kernel,idle
-        // Units are in 100-ns, divide by 10000 for ms
-        // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.3
-        ticks[3] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate()) / 10000L;
-        ticks[2] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) / 10000L - ticks[3];
-        ticks[1] = 0L; // Windows is not 'nice'
-        ticks[0] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
-        return ticks;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSystemIOWaitTicks() {
+        // IOwait:
         // Avg. Disk sec/Transfer raw value is cumulative ticks spent
         // transferring. Divide result by ticks per ms to get ms
-        return FormatUtil.getUnsignedInt(WmiUtil.selectUint32From(null, "Win32_PerfRawData_PerfDisk_LogicalDisk",
-                "AvgDisksecPerTransfer", "WHERE Name=\"_Total\"").intValue()) / TICKS_PER_MILLISECOND;
-    }
+        ticks[TickType.IOWAIT.getIndex()] = FormatUtil.getUnsignedInt(WmiUtil.selectUint32From(null,
+                "Win32_PerfRawData_PerfDisk_LogicalDisk", "AvgDisksecPerTransfer", "WHERE Name=\"_Total\"").intValue())
+                / TICKS_PER_MILLISECOND;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getSystemIrqTicks() {
-        long[] ticks = new long[2];
+        // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10000 to get milliseconds
         Map<String, List<String>> irq = WmiUtil.selectStringsFrom(null,
                 "Win32_PerfRawData_Counters_ProcessorInformation", "PercentInterruptTime,PercentDPCTime",
                 "WHERE Name=\"_Total\"");
         if (irq.get("PercentInterruptTime").size() > 0) {
-            ticks[0] = ParseUtil.parseLongOrDefault(irq.get("PercentInterruptTime").get(0), 0L) / 10000L;
-            ticks[1] = ParseUtil.parseLongOrDefault(irq.get("PercentDPCTime").get(0), 0L) / 10000L;
+            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get("PercentInterruptTime").get(0), 0L)
+                    / 10000L;
+            ticks[TickType.SOFTIRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get("PercentDPCTime").get(0), 0L)
+                    / 10000L;
         }
+
+        // Units are in 100-ns, divide by 10000 for ms
+        // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.3
+        ticks[TickType.IDLE.getIndex()] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate()) / 10000L;
+        ticks[TickType.SYSTEM.getIndex()] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) / 10000L
+                - ticks[TickType.IDLE.getIndex()];
+        ticks[TickType.USER.getIndex()] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
+        // Additional decrement to avoid double counting in the total array
+        ticks[TickType.IDLE.getIndex()] -= ticks[TickType.IOWAIT.getIndex()];
+        ticks[TickType.SYSTEM.getIndex()] -= (ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()]);
         return ticks;
-    };
+    }
 
     /**
      * {@inheritDoc}
@@ -213,12 +206,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[this.logicalProcessorCount][4];
+        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10000 to get milliseconds
         Map<String, List<String>> wmiTicks = WmiUtil.selectStringsFrom(null,
                 "Win32_PerfRawData_Counters_ProcessorInformation",
-                "Name,PercentIdleTime,PercentPrivilegedTime,PercentUserTime", "WHERE NOT Name LIKE \"%_Total\"");
+                "Name,PercentIdleTime,PercentPrivilegedTime,PercentUserTime,PercentInterruptTime,PercentDPCTime",
+                "WHERE NOT Name LIKE \"%_Total\"");
         for (int index = 0; index < wmiTicks.get("Name").size(); index++) {
             // It would be too easy if the WMI order matched logical processors
             // but alas, it goes "0,3"; "0,2"; "0,1"; "0,0". So let's do it
@@ -227,14 +221,21 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
                 String name = "0," + cpu;
                 if (wmiTicks.get("Name").get(index).equals(name)) {
-                    // Array order is user,nice,kernel,idle
-                    ticks[cpu][0] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentUserTime").get(index), 0L)
-                            / TICKS_PER_MILLISECOND;
-                    ticks[cpu][1] = 0L;
-                    ticks[cpu][2] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentPrivilegedTime").get(index), 0L)
-                            / TICKS_PER_MILLISECOND;
-                    ticks[cpu][3] = ParseUtil.parseLongOrDefault(wmiTicks.get("PercentIdleTime").get(index), 0L)
-                            / TICKS_PER_MILLISECOND;
+                    // Skipping nice and IOWait, they'll stay 0
+                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil
+                            .parseLongOrDefault(wmiTicks.get("PercentUserTime").get(index), 0L) / TICKS_PER_MILLISECOND;
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(
+                            wmiTicks.get("PercentPrivilegedTime").get(index), 0L) / TICKS_PER_MILLISECOND;
+                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil
+                            .parseLongOrDefault(wmiTicks.get("PercentIdleTime").get(index), 0L) / TICKS_PER_MILLISECOND;
+                    ticks[cpu][TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(
+                            wmiTicks.get("PercentInterruptTime").get(index), 0L) / TICKS_PER_MILLISECOND;
+                    ticks[cpu][TickType.SOFTIRQ.getIndex()] = ParseUtil
+                            .parseLongOrDefault(wmiTicks.get("PercentDPCTime").get(index), 0L) / TICKS_PER_MILLISECOND;
+                    // Additional decrement to avoid double counting in the
+                    // total array
+                    ticks[cpu][TickType.SYSTEM.getIndex()] -= (ticks[cpu][TickType.IRQ.getIndex()]
+                            + ticks[cpu][TickType.SOFTIRQ.getIndex()]);
                     break;
                 }
             }

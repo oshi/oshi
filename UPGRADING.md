@@ -16,6 +16,13 @@ The `OSProcess` methods (`getProcesses()`, `getProcess()`, `getProcessId()`,
 `getProcessCount()`, and `getThreadCount()`) were moved rom the
 `CentralProcessor` to the `OperatingSystem`.
 
+The `CentralProcessor`'s `getSystemIOWaitTicks()` and `getSystemIrqTicks()` 
+methods were removed. The `getSystemCpuLoadTicks()` now include the IOWait and
+IRQ tick information previously reported by those methods, although Idle time
+no longer includes IOWait, and System Time no longer includes IRQ ticks. The
+`getProcessorCpuLoadTicks()` now includes per-processor IOWait and IRQ tick
+information.
+
 ## API Changes - oshi-json
 
 JSON support moved from `javax.json` to TBD.  The `toJSON()` method on all

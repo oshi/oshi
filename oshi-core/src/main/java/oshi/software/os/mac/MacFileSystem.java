@@ -158,6 +158,10 @@ public class MacFileSystem extends AbstractFileSystem {
                 File file = new File(path);
                 if (name.isEmpty()) {
                     name = file.getName();
+                    // getName() for / is still blank, so:
+                    if (name.isEmpty()) {
+                        name = file.getPath();
+                    }
                 }
 
                 // Add to the list

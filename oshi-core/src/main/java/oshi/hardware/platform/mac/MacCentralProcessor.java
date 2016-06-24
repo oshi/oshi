@@ -92,31 +92,14 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Failed to get System CPU ticks. Error code: " + Native.getLastError());
             return ticks;
         }
-        // Switch order to match linux
-        ticks[0] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-        ticks[1] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-        ticks[2] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-        ticks[3] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+
+        ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+        ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+        ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+        // Leave IOWait and IRQ values as 0
         return ticks;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSystemIOWaitTicks() {
-        // Data not available on OS X
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getSystemIrqTicks() {
-        // Data not available on OS X
-        return new long[2];
-    };
 
     /**
      * {@inheritDoc}
@@ -145,7 +128,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][4];
+        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
 
@@ -160,13 +143,12 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
 
         int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
         for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
-            for (int j = 0; j < 4; j++) {
-                int offset = cpu * SystemB.CPU_STATE_MAX;
-                ticks[cpu][0] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-                ticks[cpu][1] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-                ticks[cpu][2] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-                ticks[cpu][3] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
-            }
+            int offset = cpu * SystemB.CPU_STATE_MAX;
+            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
+                    .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
         }
         return ticks;
     }
