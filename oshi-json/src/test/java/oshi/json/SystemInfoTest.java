@@ -120,11 +120,6 @@ public class SystemInfoTest {
         assertNotNull(p.getSystemSerialNumber());
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
-        assertTrue(p.getProcessCount() >= 1);
-        assertTrue(p.getThreadCount() >= 1);
-        assertTrue(p.getProcessId() > 0);
-        assertNotNull(p.getProcesses());
-        assertEquals(p.getProcess(p.getProcessId()).getProcessID(), p.getProcessId());
     }
 
     /**
@@ -250,6 +245,12 @@ public class SystemInfoTest {
         assertNotNull(version.getVersion());
         assertNotNull(version.getCodeName());
         assertNotNull(version.getBuildNumber());
+
+        assertTrue(os.getProcessCount() >= 1);
+        assertTrue(os.getThreadCount() >= 1);
+        assertTrue(os.getProcessId() > 0);
+        assertNotNull(os.getProcesses());
+        assertEquals(os.getProcess(os.getProcessId()).getProcessID(), os.getProcessId());
     }
 
     /**
@@ -294,30 +295,12 @@ public class SystemInfoTest {
 
         LOG.info("Initializing System...");
         SystemInfo si = new SystemInfo();
+
         // software
         // software: operating system
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
 
-        // software: file system
-        LOG.info("Checking File System...");
-        System.out.println("File System:");
-
-        FileSystem filesystem = os.getFileSystem();
-        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
-                filesystem.getMaxFileDescriptors());
-
-        OSFileStore[] fsArray = filesystem.getFileStores();
-        for (OSFileStore fs : fsArray) {
-            long usable = fs.getUsableSpace();
-            long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
-                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    fs.getVolume(), fs.getMount());
-        }
-
-        LOG.info("Initializing Hardware...");
         // hardware
         HardwareAbstractionLayer hal = si.getHardware();
 
@@ -375,10 +358,8 @@ public class SystemInfoTest {
         System.out.println(procCpu.toString());
 
         // Processes
-        System.out.println("Processes: " + hal.getProcessor().getProcessCount() + ", Threads: "
-                + hal.getProcessor().getThreadCount());
-
-        List<OSProcess> procs = Arrays.asList(hal.getProcessor().getProcesses());
+        System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
+        List<OSProcess> procs = Arrays.asList(os.getProcesses());
         // Sort by highest CPU
         Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
             @Override
@@ -404,7 +385,6 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
                     p.getName());
         }
-
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");
@@ -445,6 +425,24 @@ public class SystemInfoTest {
                     dsk.getSize() > 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : "?",
                     readwrite ? FormatUtil.formatBytes(dsk.getReads()) : "?",
                     readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
+        }
+
+        // software: file system
+        LOG.info("Checking File System...");
+        System.out.println("File System:");
+
+        FileSystem filesystem = os.getFileSystem();
+        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
+                filesystem.getMaxFileDescriptors());
+
+        OSFileStore[] fsArray = filesystem.getFileStores();
+        for (OSFileStore fs : fsArray) {
+            long usable = fs.getUsableSpace();
+            long total = fs.getTotalSpace();
+            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n", fs.getName(),
+                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+                    fs.getVolume(), fs.getMount());
         }
 
         // hardware: network interfaces

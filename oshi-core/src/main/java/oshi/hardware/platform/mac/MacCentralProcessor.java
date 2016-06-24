@@ -18,15 +18,10 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -34,11 +29,7 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
-import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.Timeval;
-import oshi.software.os.OSProcess;
-import oshi.software.os.mac.MacProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -56,8 +47,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
-    private int maxProc = 1024;
-
     /**
      * Create a Processor
      */
@@ -66,8 +55,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         initVars();
         // Initialize tick arrays
         initTicks();
-        // Set max processes
-        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
 
         LOG.debug("Initialized Processor");
     }
@@ -216,100 +203,4 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         }
         return this.cpuSerialNumber;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess[] getProcesses() {
-        List<OSProcess> procs = new ArrayList<>();
-        int[] pids = new int[this.maxProc];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
-                / SystemB.INT_SIZE;
-        for (int i = 0; i < numberOfProcesses; i++) {
-            OSProcess proc = getProcess(pids[i]);
-            if (proc != null) {
-                procs.add(proc);
-            }
-        }
-        return procs.toArray(new OSProcess[procs.size()]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess getProcess(int pid) {
-        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
-        if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
-            return null;
-        }
-        String name = null;
-        String path = "";
-        Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);
-        if (0 < SystemB.INSTANCE.proc_pidpath(pid, buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-            path = buf.getString(0).trim();
-            // Overwrite name with last part of path
-            String[] pathSplit = path.split("/");
-            if (pathSplit.length > 0) {
-                name = pathSplit[pathSplit.length - 1];
-            }
-        }
-        // If process is gone, return null
-        if (taskAllInfo.ptinfo.pti_threadnum < 1) {
-            return null;
-        }
-        if (name == null) {
-            // pbi_comm contains first 16 characters of name
-            // null terminated
-            for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
-                if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
-                    break;
-                }
-            }
-        }
-        return new MacProcess(name, path, taskAllInfo.pbsd.pbi_status, pid, taskAllInfo.pbsd.pbi_ppid,
-                taskAllInfo.ptinfo.pti_threadnum, taskAllInfo.ptinfo.pti_priority, taskAllInfo.ptinfo.pti_virtual_size,
-                taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system / 1000000L,
-                taskAllInfo.ptinfo.pti_total_user / 1000000L,
-                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L,
-                System.currentTimeMillis());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessId() {
-        return SystemB.INSTANCE.getpid();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessCount() {
-        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getThreadCount() {
-        // Get current pids, then slightly pad in case new process starts while
-        // allocating array space
-        int[] pids = new int[getProcessCount() + 10];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
-                / SystemB.INT_SIZE;
-        int numberOfThreads = 0;
-        ProcTaskInfo taskInfo = new ProcTaskInfo();
-        for (int i = 0; i < numberOfProcesses; i++) {
-            SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());
-            numberOfThreads += taskInfo.pti_threadnum;
-        }
-        return numberOfThreads;
-    }
-
 }

@@ -19,11 +19,13 @@
 package oshi.json.software.os.impl;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
+import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
 
@@ -78,10 +80,63 @@ public class OperatingSystemImpl implements OperatingSystem {
      * {@inheritDoc}
      */
     @Override
+    public OSProcess[] getProcesses() {
+        oshi.software.os.OSProcess[] procs = this.os.getProcesses();
+        OSProcess[] processes = new OSProcess[procs.length];
+        for (int i = 0; i < procs.length; i++) {
+            processes[i] = new OSProcessImpl(procs[i]);
+        }
+        return processes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+        return new OSProcessImpl(this.os.getProcess(pid));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+        return this.os.getProcessId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessCount() {
+        return this.os.getProcessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getThreadCount() {
+        return this.os.getThreadCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON() {
+        JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
+        for (OSProcess proc : getProcesses()) {
+            processArrayBuilder.add(proc.toJSON());
+            // TODO Temporary to shorten output, remove before release
+            break;
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
                 .add("family", getFamily()).add("version", getVersion().toJSON())
-                .add("fileSystem", getFileSystem().toJSON()).build();
+                .add("fileSystem", getFileSystem().toJSON()).add("processID", getProcessId())
+                .add("processCount", getProcessCount()).add("threadCount", getThreadCount())
+                .add("processes", processArrayBuilder.build()).build();
     }
 
     @Override

@@ -60,6 +60,18 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public abstract FileSystem getFileSystem();
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract int getProcessCount();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract int getThreadCount();
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
