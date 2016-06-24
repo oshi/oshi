@@ -27,9 +27,6 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.linux.LinuxFileSystem;
 
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
@@ -63,22 +60,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     @Override
     public PowerSource[] getPowerSources() {
         return LinuxPowerSource.getPowerSources();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FileSystem getFileSystem() {
-        return new LinuxFileSystem();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return new LinuxFileSystem().getFileStores();
     }
 
     /**

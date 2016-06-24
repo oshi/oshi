@@ -1,6 +1,29 @@
-# Guide to upgrading from Oshi 1.x to 2.x
+# Guide to upgrading from OSHI 2.x to 3.x
 
-Even though it's a major release, Oshi 2.0 functionality is identical to
+The most significant change in OSHI 3.0 is the separation of JSON output to a
+separate artifact. Users of `oshi-core` who do not require JSON will find the
+API much the same except as noted below.  Those who use JSON will find improved
+functionality in the `oshi-json` module.
+
+## API Changes - oshi-core and oshi-json
+
+The `getFileSystem()` method was moved from the `HardwareAbstractionLayer` to
+the `OperatingSystem`.  The `getFileStores()` method on the
+`HardwareAbstractionLayer` was redundant with the same method on the
+`FileSystem` class and was removed.
+
+The `OSProcess` methods (`getProcesses()`, `getProcess()`, `getProcessId()`,
+`getProcessCount()`, and `getThreadCount()`) were moved rom the
+`CentralProcessor` to the `OperatingSystem`.
+
+## API Changes - oshi-json
+
+JSON support moved from `javax.json` to TBD.  The `toJSON()` method on all
+objects now returns TBD.
+
+# Guide to upgrading from OSHI 1.x to 2.x
+
+Even though it's a major release, OSHI 2.0 functionality is identical to
 1.5.2.  For the most part, the highest level APIs demonstrated in the test
 classes have remained the same, except as documented below.  Several lower
 level packages and classes have been moved and/or renamed.

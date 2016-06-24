@@ -33,9 +33,6 @@ import oshi.json.hardware.PowerSource;
 import oshi.json.hardware.Sensors;
 import oshi.json.hardware.UsbDevice;
 import oshi.json.json.NullAwareJsonObjectBuilder;
-import oshi.json.software.os.FileSystem;
-import oshi.json.software.os.OSFileStore;
-import oshi.json.software.os.impl.FileSystemImpl;
 
 public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
 
@@ -86,23 +83,6 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
             powerSources[i] = new PowerSourceImpl(ps[i]);
         }
         return powerSources;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FileSystem getFileSystem() {
-        return new FileSystemImpl(this.hal.getFileSystem());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    // TODO Remove this
-    @Override
-    public OSFileStore[] getFileStores() {
-        return getFileSystem().getFileStores();
     }
 
     /**
@@ -184,10 +164,6 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
         for (PowerSource powerSource : getPowerSources()) {
             powerSourceArrayBuilder.add(powerSource.toJSON());
         }
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
-        }
         JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();
         for (HWDiskStore diskStore : getDiskStores()) {
             diskStoreArrayBuilder.add(diskStore.toJSON());
@@ -206,8 +182,7 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
-                .add("powerSources", powerSourceArrayBuilder.build()).add("fileSystem", getFileSystem().toJSON())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("disks", diskStoreArrayBuilder.build())
+                .add("powerSources", powerSourceArrayBuilder.build()).add("disks", diskStoreArrayBuilder.build())
                 .add("networks", networkIFArrayBuilder.build()).add("displays", displayArrayBuilder.build())
                 .add("sensors", getSensors().toJSON()).add("usbDevices", usbDeviceArrayBuilder.build()).build();
     }

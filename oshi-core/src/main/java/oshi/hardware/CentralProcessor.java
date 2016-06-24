@@ -20,8 +20,6 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
-import oshi.software.os.OSProcess;
-
 /**
  * The Central Processing Unit (CPU) or the processor is the portion of a
  * computer system that carries out the instructions of a computer program, and
@@ -314,44 +312,4 @@ public interface CentralProcessor extends Serializable {
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();
-
-    /**
-     * Gets currently running processes
-     * 
-     * @return An array of {@link oshi.software.os.OSProcess} objects for
-     *         currently running processes
-     */
-    OSProcess[] getProcesses();
-
-    /**
-     * Gets information on a currently running process
-     * 
-     * @param pid
-     *            A process ID
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise currently running
-     *         processes
-     */
-    OSProcess getProcess(int pid);
-
-    /**
-     * Gets the current process ID
-     * 
-     * @return the Process ID of the current process
-     */
-    int getProcessId();
-
-    /**
-     * Get the number of processes currently running
-     * 
-     * @return The number of processes running
-     */
-    int getProcessCount();
-
-    /**
-     * Get the number of threads currently running
-     * 
-     * @return The number of threads running
-     */
-    int getThreadCount();
 }

@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,14 +35,9 @@ import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
-import oshi.jna.platform.windows.Psapi;
-import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.software.os.OSProcess;
-import oshi.software.os.windows.WindowsProcess;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
 
 /**
  * A CPU as defined in Windows registry.
@@ -57,13 +51,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
-
-    // For WMI Process queries
-    private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
-            + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate";
-    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,
-            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.DATETIME };
 
     // Compare WMI ticks to GetSystemTimes to determine conversion
     private static final long TICKS_PER_MILLISECOND;
@@ -280,83 +267,5 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return this.cpuSerialNumber;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess[] getProcesses() {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, null,
-                processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
-        return procList.toArray(new OSProcess[procList.size()]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess getProcess(int pid) {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
-                String.format("WHERE ProcessId=%d", pid), processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
-        return procList.size() > 0 ? procList.get(0) : null;
-    }
-
-    private List<OSProcess> processMapToList(Map<String, List<Object>> procs) {
-        long now = System.currentTimeMillis();
-        List<OSProcess> procList = new ArrayList<>();
-        // All map lists should be the same length. Pick one size and iterate
-        for (int p = 0; p < procs.get("Name").size(); p++) {
-            procList.add(new WindowsProcess((String) procs.get("Name").get(p), (String) procs.get("CommandLine").get(p),
-                    ((Long) procs.get("ExecutionState").get(p)).intValue(),
-                    ((Long) procs.get("ProcessID").get(p)).intValue(),
-                    ((Long) procs.get("ParentProcessId").get(p)).intValue(),
-                    ((Long) procs.get("ThreadCount").get(p)).intValue(),
-                    ((Long) procs.get("Priority").get(p)).intValue(),
-                    ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L),
-                    ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L),
-                    // Kernel and User time units are 100ns
-                    ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
-                    ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
-                    ((Long) procs.get("CreationDate").get(p)), now));
-        }
-
-        return procList;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessId() {
-        return Kernel32.INSTANCE.GetCurrentProcessId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessCount() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return 0;
-        }
-        return perfInfo.ProcessCount.intValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getThreadCount() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return 0;
-        }
-        return perfInfo.ThreadCount.intValue();
     }
 }

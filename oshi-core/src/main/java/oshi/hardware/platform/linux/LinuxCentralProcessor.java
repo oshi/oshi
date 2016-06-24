@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,15 +26,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.linux.Libc.Sysinfo;
-import oshi.software.os.OSProcess;
-import oshi.software.os.linux.LinuxProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -359,90 +351,5 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return this.cpuSerialNumber;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess[] getProcesses() {
-        List<OSProcess> procs = new ArrayList<>();
-        File[] pids = ProcUtil.getPidFiles();
-        // now for each file (with digit name) get process info
-        for (File pid : pids) {
-            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
-            if (proc != null) {
-                procs.add(proc);
-            }
-        }
-        return procs.toArray(new OSProcess[procs.size()]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess getProcess(int pid) {
-        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
-        if (split.length < 24) {
-            return null;
-        }
-        String path = "";
-        Pointer buf = new Memory(1024);
-        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
-        if (size > 0) {
-            path = buf.getString(0).substring(0, size);
-        }
-        return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
-                // See man proc for how to parse /proc/[pid]/stat
-                path, // path
-                split[2].charAt(0), // state, one of RSDZTW
-                pid, // also split[0] but we already have
-                ParseUtil.parseIntOrDefault(split[3], 0), // ppid
-                ParseUtil.parseIntOrDefault(split[19], 0), // thread count
-                ParseUtil.parseIntOrDefault(split[17], 0), // priority
-                ParseUtil.parseLongOrDefault(split[22], 0L), // VSZ
-                ParseUtil.parseLongOrDefault(split[23], 0L), // RSS
-                // The below values are in jiffies
-                ParseUtil.parseLongOrDefault(split[14], 0L), // kernelTime
-                ParseUtil.parseLongOrDefault(split[13], 0L), // userTime
-                ParseUtil.parseLongOrDefault(split[21], 0L), // startTime (after
-                                                             // uptime)
-                System.currentTimeMillis() //
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessId() {
-        return Libc.INSTANCE.getpid();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessCount() {
-        return ProcUtil.getPidFiles().length;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getThreadCount() {
-        try {
-            Sysinfo info = new Sysinfo();
-            if (0 != Libc.INSTANCE.sysinfo(info)) {
-                LOG.error("Failed to get process thread count. Error code: " + Native.getLastError());
-                return 0;
-            }
-            return info.procs;
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get procs from sysinfo. {}", e.getMessage());
-        }
-        return 0;
     }
 }

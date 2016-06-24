@@ -18,6 +18,7 @@
  */
 package oshi.software.common;
 
+import oshi.software.os.FileSystem;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -52,6 +53,24 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     public String getManufacturer() {
         return this.manufacturer;
     };
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract FileSystem getFileSystem();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract int getProcessCount();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract int getThreadCount();
 
     @Override
     public String toString() {

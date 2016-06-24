@@ -20,9 +20,6 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
-
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
  * processors, memory, battery, and disks.
@@ -54,23 +51,6 @@ public interface HardwareAbstractionLayer extends Serializable {
      *         present.
      */
     PowerSource[] getPowerSources();
-
-    /**
-     * Instantiates a {@link FileSystem} object.
-     *
-     * @return A {@link FileSystem} object.
-     */
-    FileSystem getFileSystem();
-
-    /**
-     * Instantiates an array of {@link OSFileStore} objects, representing a
-     * storage pool, device, partition, volume, concrete file system or other
-     * implementation specific means of file storage.
-     * 
-     * @return An array of OSFileStore objects or an empty array if none are
-     *         present.
-     */
-    OSFileStore[] getFileStores();
 
     /**
      * Instantiates an array of {@link HWDiskStore} objects, representing a

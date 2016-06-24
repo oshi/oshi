@@ -19,6 +19,7 @@
 package oshi.json.software.os.impl;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
@@ -74,9 +75,12 @@ public class FileSystemImpl implements FileSystem {
      */
     @Override
     public JsonObject toJSON() {
+        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+        for (OSFileStore fileStore : getFileStores()) {
+            fileStoreArrayBuilder.add(fileStore.toJSON());
+        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("openFileDescriptors", getOpenFileDescriptors()).add("maxFileDescriptors", getMaxFileDescriptors())
-                // TODO add Filestores here, move from separate HAL line
-                .build();
+                .add("fileStores", fileStoreArrayBuilder.build()).add("openFileDescriptors", getOpenFileDescriptors())
+                .add("maxFileDescriptors", getMaxFileDescriptors()).build();
     }
 }

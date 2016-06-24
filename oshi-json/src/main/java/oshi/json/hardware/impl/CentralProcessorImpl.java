@@ -25,8 +25,6 @@ import javax.json.JsonObject;
 
 import oshi.json.hardware.CentralProcessor;
 import oshi.json.json.NullAwareJsonObjectBuilder;
-import oshi.json.software.os.OSProcess;
-import oshi.json.software.os.impl.OSProcessImpl;
 
 public class CentralProcessorImpl implements CentralProcessor {
 
@@ -276,51 +274,6 @@ public class CentralProcessorImpl implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses() {
-        oshi.software.os.OSProcess[] procs = this.processor.getProcesses();
-        OSProcess[] processes = new OSProcess[procs.length];
-        for (int i = 0; i < procs.length; i++) {
-            processes[i] = new OSProcessImpl(procs[i]);
-        }
-        return processes;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSProcess getProcess(int pid) {
-        return new OSProcessImpl(this.processor.getProcess(pid));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessId() {
-        return this.processor.getProcessId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getProcessCount() {
-        return this.processor.getProcessCount();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getThreadCount() {
-        return this.processor.getProcessCount();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public JsonObject toJSON() {
         JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
         for (double avg : getSystemLoadAverage(3)) {
@@ -346,10 +299,6 @@ public class CentralProcessorImpl implements CentralProcessor {
         for (long ticks : getSystemIrqTicks()) {
             systemIrqTicksArrayBuilder.add(ticks);
         }
-        JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSProcess proc : getProcesses()) {
-            processArrayBuilder.add(proc.toJSON());
-        }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())
                 .add("logicalProcessorCount", getLogicalProcessorCount())
@@ -364,9 +313,7 @@ public class CentralProcessorImpl implements CentralProcessor {
                 .add("systemIrqTicks", systemIrqTicksArrayBuilder.build())
                 .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
                 .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).add("processID", getProcessId())
-                .add("processCount", getProcessCount()).add("threadCount", getThreadCount())
-                .add("processes", processArrayBuilder.build()).build();
+                .add("systemUptime", getSystemUptime()).build();
     }
 
     @Override

@@ -49,4 +49,51 @@ public interface OperatingSystem extends Serializable {
      * @return Version.
      */
     OperatingSystemVersion getVersion();
+
+    /**
+     * Instantiates a {@link FileSystem} object.
+     *
+     * @return A {@link FileSystem} object.
+     */
+    FileSystem getFileSystem();
+
+    /**
+     * Gets currently running processes
+     * 
+     * @return An array of {@link oshi.software.os.OSProcess} objects for
+     *         currently running processes
+     */
+    OSProcess[] getProcesses();
+
+    /**
+     * Gets information on a currently running process
+     * 
+     * @param pid
+     *            A process ID
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process id if it is running; null otherwise currently running
+     *         processes
+     */
+    OSProcess getProcess(int pid);
+
+    /**
+     * Gets the current process ID
+     * 
+     * @return the Process ID of the current process
+     */
+    int getProcessId();
+
+    /**
+     * Get the number of processes currently running
+     * 
+     * @return The number of processes running
+     */
+    int getProcessCount();
+
+    /**
+     * Get the number of threads currently running
+     * 
+     * @return The number of threads running
+     */
+    int getThreadCount();
 }

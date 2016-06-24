@@ -26,8 +26,6 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
 
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
@@ -56,18 +54,6 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      */
     @Override
     public abstract PowerSource[] getPowerSources();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract FileSystem getFileSystem();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract OSFileStore[] getFileStores();
 
     /**
      * {@inheritDoc}

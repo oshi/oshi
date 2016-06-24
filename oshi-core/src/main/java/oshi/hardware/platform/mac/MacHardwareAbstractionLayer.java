@@ -27,9 +27,6 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.mac.MacFileSystem;
 
 public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
@@ -69,16 +66,8 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
      * {@inheritDoc}
      */
     @Override
-    public FileSystem getFileSystem() {
-        return new MacFileSystem();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return new MacFileSystem().getFileStores();
+    public HWDiskStore[] getDiskStores() {
+        return new MacDisks().getDisks();
     }
 
     /**
@@ -98,11 +87,6 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
             this.sensors = new MacSensors();
         }
         return this.sensors;
-    }
-
-    @Override
-    public HWDiskStore[] getDiskStores() {
-        return new MacDisks().getDisks();
     }
 
     /**
