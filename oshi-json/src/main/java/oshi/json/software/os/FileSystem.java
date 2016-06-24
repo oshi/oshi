@@ -32,7 +32,12 @@ public interface FileSystem extends oshi.software.os.FileSystem, OshiJsonObject 
     /**
      * Get file stores on this machine
      * 
-     * @return Array of {@link OSFileStore} objects
+     * Instantiates an array of {@link OSFileStore} objects, representing a
+     * storage pool, device, partition, volume, concrete file system or other
+     * implementation specific means of file storage.
+     * 
+     * @return An array of OSFileStore objects or an empty array if none are
+     *         present.
      */
     OSFileStore[] getFileStores();
 

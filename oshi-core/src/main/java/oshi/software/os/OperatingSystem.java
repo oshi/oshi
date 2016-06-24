@@ -49,4 +49,11 @@ public interface OperatingSystem extends Serializable {
      * @return Version.
      */
     OperatingSystemVersion getVersion();
+
+    /**
+     * Instantiates a {@link FileSystem} object.
+     *
+     * @return A {@link FileSystem} object.
+     */
+    FileSystem getFileSystem();
 }

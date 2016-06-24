@@ -23,6 +23,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
 
@@ -69,9 +70,18 @@ public class OperatingSystemImpl implements OperatingSystem {
      * {@inheritDoc}
      */
     @Override
+    public FileSystem getFileSystem() {
+        return new FileSystemImpl(this.os.getFileSystem());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON() {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
-                .add("family", getFamily()).add("version", getVersion().toJSON()).build();
+                .add("family", getFamily()).add("version", getVersion().toJSON())
+                .add("fileSystem", getFileSystem().toJSON()).build();
     }
 
     @Override

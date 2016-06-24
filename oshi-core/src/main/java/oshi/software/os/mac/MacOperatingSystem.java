@@ -19,6 +19,7 @@
 package oshi.software.os.mac;
 
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
@@ -28,5 +29,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         this.manufacturer = "Apple";
         this.family = System.getProperty("os.name");
         this.version = new MacOSVersionInfoEx();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+        return new MacFileSystem();
     }
 }

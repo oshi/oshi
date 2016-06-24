@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 
@@ -52,6 +53,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // The above call may also populate versionId and codeName
         // to pass to version constructor
         this.version = new LinuxOSVersionInfoEx(versionId, codeName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+        return new LinuxFileSystem();
     }
 
     private void setFamilyFromReleaseFiles() {

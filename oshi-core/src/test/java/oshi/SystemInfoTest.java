@@ -260,10 +260,10 @@ public class SystemInfoTest {
     @Test
     public void testFileSystem() throws IOException {
         SystemInfo si = new SystemInfo();
-        FileSystem filesystem = si.getHardware().getFileSystem();
+        FileSystem filesystem = si.getOperatingSystem().getFileSystem();
         assertTrue(filesystem.getOpenFileDescriptors() >= 0L);
         assertTrue(filesystem.getMaxFileDescriptors() >= 0L);
-        OSFileStore[] fs = si.getHardware().getFileStores();
+        OSFileStore[] fs = filesystem.getFileStores();
         for (int f = 0; f < fs.length; f++) {
             assertNotNull(fs[f].getName());
             assertNotNull(fs[f].getVolume());
@@ -297,6 +297,24 @@ public class SystemInfoTest {
         // software: operating system
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
+
+        // software: file system
+        LOG.info("Checking File System...");
+        System.out.println("File System:");
+
+        FileSystem filesystem = os.getFileSystem();
+        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
+                filesystem.getMaxFileDescriptors());
+
+        OSFileStore[] fsArray = filesystem.getFileStores();
+        for (OSFileStore fs : fsArray) {
+            long usable = fs.getUsableSpace();
+            long total = fs.getTotalSpace();
+            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n", fs.getName(),
+                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+                    fs.getVolume(), fs.getMount());
+        }
 
         LOG.info("Initializing Hardware...");
         // hardware
@@ -412,24 +430,6 @@ public class SystemInfoTest {
             sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
         }
         System.out.println(sb.toString());
-
-        // hardware: file system
-        LOG.info("Checking File System...");
-        System.out.println("File System:");
-
-        FileSystem filesystem = hal.getFileSystem();
-        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
-                filesystem.getMaxFileDescriptors());
-
-        OSFileStore[] fsArray = hal.getFileStores();
-        for (OSFileStore fs : fsArray) {
-            long usable = fs.getUsableSpace();
-            long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s and is mounted at %s%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
-                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    fs.getVolume(), fs.getMount());
-        }
 
         // hardware: disks
         LOG.info("Checking Disks...");

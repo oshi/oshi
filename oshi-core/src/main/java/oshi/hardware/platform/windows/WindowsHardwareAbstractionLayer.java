@@ -27,9 +27,6 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.software.os.FileSystem;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.windows.WindowsFileSystem;
 
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
@@ -68,19 +65,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     /**
      * {@inheritDoc}
      */
-    @Override
-    public FileSystem getFileSystem() {
-        return new WindowsFileSystem();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return new WindowsFileSystem().getFileStores();
-    }
-
     @Override
     public HWDiskStore[] getDiskStores() {
         return new WindowsDisks().getDisks();

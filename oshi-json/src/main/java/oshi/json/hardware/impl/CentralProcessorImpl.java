@@ -348,7 +348,7 @@ public class CentralProcessorImpl implements CentralProcessor {
         }
         JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
         for (OSProcess proc : getProcesses()) {
-            processArrayBuilder.add(proc.toJSON());
+            // processArrayBuilder.add(proc.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("physicalProcessorCount", getPhysicalProcessorCount())

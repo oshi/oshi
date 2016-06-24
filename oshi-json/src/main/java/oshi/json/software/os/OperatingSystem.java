@@ -49,4 +49,11 @@ public interface OperatingSystem extends oshi.software.os.OperatingSystem, OshiJ
      * @return Version.
      */
     OperatingSystemVersion getVersion();
+
+    /**
+     * Instantiates a {@link FileSystem} object.
+     *
+     * @return A {@link FileSystem} object.
+     */
+    FileSystem getFileSystem();
 }

@@ -19,6 +19,7 @@
 package oshi.software.os.windows;
 
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
@@ -28,5 +29,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         this.manufacturer = "Microsoft";
         this.family = "Windows";
         this.version = new WindowsOSVersionInfoEx();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+        return new WindowsFileSystem();
     }
 }
