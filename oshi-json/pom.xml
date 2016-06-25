@@ -5,11 +5,16 @@
         <groupId>com.github.dblock</groupId>
         <artifactId>oshi-parent</artifactId>
         <version>3.0-SNAPSHOT</version>
-        <relativePath></relativePath>
     </parent>
     <artifactId>oshi-json</artifactId>
     <packaging>jar</packaging>
     <name>oshi-json</name>
+    <scm>
+        <connection>scm:git:git@github.com:dblock/oshi.git</connection>
+        <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
+        <url>https://github.com/dblock/oshi.git</url>
+        <tag>HEAD</tag>
+    </scm>
     <properties>
         <src.relative.loc>..</src.relative.loc>
     </properties>

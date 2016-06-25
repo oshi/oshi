@@ -100,12 +100,16 @@
         <signature.artifact>java18</signature.artifact>
         <signature.version>1.0</signature.version>
     </properties>
-    <!--  Only test dependencies here in parent. -->
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>[1.7,)</version>
+            <version>1.7.21</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -207,7 +211,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.0.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -263,7 +267,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.0.1</version>
                 </plugin>
                 <!-- External Tools -->
                 <plugin>
@@ -374,7 +378,7 @@
                         <dependency>
                             <groupId>org.eclipse.jgit</groupId>
                             <artifactId>org.eclipse.jgit</artifactId>
-                            <version>4.3.1.201605051710-r</version>
+                            <version>4.4.0.201606070830-r</version>
                         </dependency>
                         <dependency>
                             <groupId>org.codehaus.plexus</groupId>
