@@ -1,11 +1,5 @@
 # Output
-/target/
-/bin/
-/.project
-/.settings/
-/.classpath
-/oshi-*/target/
-/oshi-*/bin/
-/oshi-*/.project
-/oshi-*/.settings/
-/oshi-*/.classpath
+target
+.project
+.settings
+.classpath
