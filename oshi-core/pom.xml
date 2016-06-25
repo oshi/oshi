@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.github.dblock</groupId>
         <artifactId>oshi-parent</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>oshi-core</artifactId>
     <packaging>jar</packaging>
+
     <name>oshi-core</name>
+
     <scm>
         <connection>scm:git:git@github.com:dblock/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
         <url>https://github.com/dblock/oshi.git</url>
         <tag>HEAD</tag>
     </scm>
+
     <properties>
         <src.relative.loc>..</src.relative.loc>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
