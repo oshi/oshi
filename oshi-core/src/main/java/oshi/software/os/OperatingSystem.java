@@ -30,6 +30,13 @@ import java.io.Serializable;
 public interface OperatingSystem extends Serializable {
 
     /**
+     * Controls sorting of Process output
+     */
+    enum ProcessSort {
+        CPU, MEMORY, OLDEST, NEWEST, PID
+    }
+
+    /**
      * Operating system family.
      * 
      * @return String.
@@ -58,12 +65,21 @@ public interface OperatingSystem extends Serializable {
     FileSystem getFileSystem();
 
     /**
-     * Gets currently running processes
+     * Gets currently running processes. If a positive limit is specified,
+     * returns only that number of processes; zero will return all processes.
+     * The order may be specified by the sort parameter, for example, to return
+     * the top cpu or memory consuming processes; if null, no order is
+     * guaranteed.
      * 
-     * @return An array of {@link oshi.software.os.OSProcess} objects for
-     *         currently running processes
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @param sort
+     *            If not null, determines sorting of results
+     * @return An array of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted
+     *         as specified
      */
-    OSProcess[] getProcesses();
+    OSProcess[] getProcesses(int limit, ProcessSort sort);
 
     /**
      * Gets information on a currently running process

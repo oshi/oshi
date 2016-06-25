@@ -58,7 +58,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses() {
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
@@ -69,7 +69,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 procs.add(proc);
             }
         }
-        return procs.toArray(new OSProcess[procs.size()]);
+        List<OSProcess> sorted = processSort(procs, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
     }
 
     /**

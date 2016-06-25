@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -248,7 +247,7 @@ public class SystemInfoTest {
         assertTrue(os.getProcessCount() >= 1);
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getProcessId() > 0);
-        assertNotNull(os.getProcesses());
+        assertNotNull(os.getProcesses(0, null));
         assertEquals(os.getProcess(os.getProcessId()).getProcessID(), os.getProcessId());
     }
 
@@ -359,7 +358,7 @@ public class SystemInfoTest {
 
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
-        List<OSProcess> procs = Arrays.asList(os.getProcesses());
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, null));
         // Sort by highest CPU
         Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
             @Override
@@ -375,7 +374,7 @@ public class SystemInfoTest {
                 }
             }
         };
-        Collections.sort(procs, cpuDescOrder);
+        // Collections.sort(procs, cpuDescOrder);
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);

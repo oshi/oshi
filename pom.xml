@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>com.github.dblock</groupId>
-   <artifactId>oshi-parent</artifactId>
-   <version>3.0-SNAPSHOT</version>
-   <packaging>pom</packaging>
+    <groupId>com.github.dblock</groupId>
+    <artifactId>oshi-parent</artifactId>
+    <version>3.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-   <name>oshi-parent</name>
-   <description>A JNA-based (native) operating system information library for Java that aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
-   <url>https://github.com/dblock/oshi</url>
-   <inceptionYear>2010</inceptionYear>
-   <organization>
+    <name>oshi-parent</name>
+    <description>A JNA-based (native) operating system information library for Java that aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
+    <url>https://github.com/dblock/oshi</url>
+    <inceptionYear>2010</inceptionYear>
+    <organization>
         <name>com.github.dblock</name>
         <url>https://github.com/dblock/</url>
     </organization>
-   <licenses>
+    <licenses>
         <license>
             <name>Eclipse Public License</name>
             <url>http://www.eclipse.org/legal/epl-v10.html</url>
@@ -23,7 +23,7 @@
         </license>
     </licenses>
 
-   <developers>
+    <developers>
         <developer>
             <name>Daniel Doubrovkine</name>
             <email>dblock@dblock.org</email>
@@ -38,30 +38,30 @@
         </developer>
     </developers>
 
-   <prerequisites>
+    <prerequisites>
         <maven>3.2.3</maven>
     </prerequisites>
 
-   <modules>
+    <modules>
         <module>oshi-core</module>
         <module>oshi-json</module>
     </modules>
 
-   <scm>
+    <scm>
         <connection>scm:git:git@github.com:dblock/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
         <url>https://github.com/dblock/oshi.git</url>
         <tag>HEAD</tag>
     </scm>
-   <issueManagement>
+    <issueManagement>
         <system>Github</system>
         <url>https://github.com/dblock/oshi/issues</url>
     </issueManagement>
-   <ciManagement>
+    <ciManagement>
         <system>travis</system>
         <url>https://travis-ci.org/dblock/oshi/</url>
     </ciManagement>
-   <distributionManagement>
+    <distributionManagement>
         <site>
             <id>gh-pages</id>
             <name>OSHI GitHub Pages</name>
@@ -79,7 +79,7 @@
         </repository>
     </distributionManagement>
 
-   <properties>
+    <properties>
         <src.relative.loc>.</src.relative.loc>
         <copyright>2016</copyright>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
@@ -95,7 +95,7 @@
         <signature.version>1.0</signature.version>
     </properties>
 
-   <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -115,7 +115,7 @@
         </dependency>
     </dependencies>
 
-   <build>
+    <build>
         <pluginManagement>
             <plugins>
                 <!-- Core plugins -->
@@ -414,7 +414,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <!-- Core plugins -->
             <!-- Delete all from target but not target itself -->
@@ -679,7 +678,7 @@
         </extensions>
     </build>
 
-   <reporting>
+    <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -743,7 +742,7 @@
         </plugins>
     </reporting>
 
-   <profiles>
+    <profiles>
         <profile>
             <id>checks</id>
             <build>

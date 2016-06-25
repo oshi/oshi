@@ -247,7 +247,7 @@ public class SystemInfoTest {
         assertTrue(os.getProcessCount() >= 1);
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getProcessId() > 0);
-        assertNotNull(os.getProcesses());
+        assertNotNull(os.getProcesses(0, null));
         assertEquals(os.getProcess(os.getProcessId()).getProcessID(), os.getProcessId());
     }
 
@@ -358,7 +358,7 @@ public class SystemInfoTest {
 
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
-        List<OSProcess> procs = Arrays.asList(os.getProcesses());
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(0, null));
         // Sort by highest CPU
         Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
             @Override

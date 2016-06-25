@@ -18,7 +18,11 @@
  */
 package oshi.software.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import oshi.software.os.FileSystem;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -71,6 +75,33 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      */
     @Override
     public abstract int getThreadCount();
+
+    /**
+     * Sorts an array of processes using the specified sorting, returning an
+     * array with the top limit results if positive.
+     * 
+     * @param processes
+     *            The array to sort
+     * @param limit
+     *            The number of results to return if positive; if zero returns
+     *            all results
+     * @param sort
+     *            The sorting to use
+     * @return An array of size limit (if positive) or of all processes, sorted
+     *         as specified
+     */
+    protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
+        // TODO Sort processes here.
+        // Nonpositive limit means return all
+        if (limit <= 0) {
+            limit = Integer.MAX_VALUE;
+        }
+        List<OSProcess> procs = new ArrayList<>();
+        for (int i = 0; i < limit && i < processes.size(); i++) {
+            procs.add(processes.get(i));
+        }
+        return procs;
+    }
 
     @Override
     public String toString() {
