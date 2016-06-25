@@ -80,8 +80,8 @@ public class OperatingSystemImpl implements OperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses() {
-        oshi.software.os.OSProcess[] procs = this.os.getProcesses();
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+        oshi.software.os.OSProcess[] procs = this.os.getProcesses(limit, sort);
         OSProcess[] processes = new OSProcess[procs.length];
         for (int i = 0; i < procs.length; i++) {
             processes[i] = new OSProcessImpl(procs[i]);
@@ -127,10 +127,9 @@ public class OperatingSystemImpl implements OperatingSystem {
     @Override
     public JsonObject toJSON() {
         JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSProcess proc : getProcesses()) {
+        // TODO Configure this
+        for (OSProcess proc : getProcesses(0, null)) {
             processArrayBuilder.add(proc.toJSON());
-            // TODO Temporary to shorten output, remove before release
-            break;
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
                 .add("family", getFamily()).add("version", getVersion().toJSON())

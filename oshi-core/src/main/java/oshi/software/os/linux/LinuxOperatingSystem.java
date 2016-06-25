@@ -77,7 +77,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses() {
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
         // now for each file (with digit name) get process info
@@ -87,7 +87,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 procs.add(proc);
             }
         }
-        return procs.toArray(new OSProcess[procs.size()]);
+        return processSort(procs, limit, sort).toArray(new OSProcess[procs.size()]);
     }
 
     /**

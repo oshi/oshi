@@ -66,11 +66,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses() {
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, null,
                 processPropertyTypes);
         List<OSProcess> procList = processMapToList(procs);
-        return procList.toArray(new OSProcess[procList.size()]);
+        return processSort(procList, limit, sort).toArray(new OSProcess[procList.size()]);
     }
 
     /**
