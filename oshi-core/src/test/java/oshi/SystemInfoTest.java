@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Test;
@@ -51,6 +49,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
@@ -358,23 +357,9 @@ public class SystemInfoTest {
 
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(0, null));
         // Sort by highest CPU
-        Comparator<OSProcess> cpuDescOrder = new Comparator<OSProcess>() {
-            @Override
-            public int compare(OSProcess p1, OSProcess p2) {
-                double diff = (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime()
-                        - (p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime();
-                if (diff < 0) {
-                    return 1;
-                } else if (diff > 0) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        };
-        Collections.sort(procs, cpuDescOrder);
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.NAME));
+
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
@@ -384,6 +369,7 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
                     p.getName());
         }
+
         // hardware: sensors
         LOG.info("Checking Sensors...");
         System.out.println("Sensors:");

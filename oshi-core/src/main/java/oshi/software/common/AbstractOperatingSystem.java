@@ -19,6 +19,8 @@
 package oshi.software.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import oshi.software.os.FileSystem;
@@ -76,6 +78,53 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public abstract int getThreadCount();
 
+    /*
+     * Comparators for use in processSort()
+     */
+    private static final Comparator<OSProcess> CPU_DESC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Double.compare((p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
+                    (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
+        }
+    };
+    private static final Comparator<OSProcess> RSS_DESC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Long.compare(p2.getResidentSetSize(), p1.getResidentSetSize());
+        }
+    };
+    private static final Comparator<OSProcess> UPTIME_DESC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Long.compare(p2.getUpTime(), p1.getUpTime());
+        }
+    };
+    private static final Comparator<OSProcess> UPTIME_ASC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Long.compare(p1.getUpTime(), p2.getUpTime());
+        }
+    };
+    private static final Comparator<OSProcess> PID_ASC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Integer.compare(p1.getProcessID(), p2.getProcessID());
+        }
+    };
+    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return Integer.compare(p1.getParentProcessID(), p2.getParentProcessID());
+        }
+    };
+    private static final Comparator<OSProcess> NAME_ASC_SORT = new Comparator<OSProcess>() {
+        @Override
+        public int compare(OSProcess p1, OSProcess p2) {
+            return p1.getName().toLowerCase().compareTo(p2.getName().toLowerCase());
+        }
+    };
+
     /**
      * Sorts an array of processes using the specified sorting, returning an
      * array with the top limit results if positive.
@@ -86,12 +135,40 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      *            The number of results to return if positive; if zero returns
      *            all results
      * @param sort
-     *            The sorting to use
+     *            The sorting to use, or null
      * @return An array of size limit (if positive) or of all processes, sorted
      *         as specified
      */
     protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
-        // TODO Sort processes here.
+        if (sort != null) {
+            switch (sort) {
+            case CPU:
+                Collections.sort(processes, CPU_DESC_SORT);
+                break;
+            case MEMORY:
+                Collections.sort(processes, RSS_DESC_SORT);
+                break;
+            case OLDEST:
+                Collections.sort(processes, UPTIME_DESC_SORT);
+                break;
+            case NEWEST:
+                Collections.sort(processes, UPTIME_ASC_SORT);
+                break;
+            case PID:
+                Collections.sort(processes, PID_ASC_SORT);
+                break;
+            case PARENTPID:
+                Collections.sort(processes, PARENTPID_ASC_SORT);
+                break;
+            case NAME:
+                Collections.sort(processes, NAME_ASC_SORT);
+                break;
+            default:
+                // Should never get here! If you get this exception you've
+                // added something to the enum without adding it here. Tsk.
+                throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
+            }
+        }
         // Nonpositive limit means return all
         if (limit <= 0) {
             limit = Integer.MAX_VALUE;

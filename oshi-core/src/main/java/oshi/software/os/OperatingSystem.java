@@ -33,7 +33,7 @@ public interface OperatingSystem extends Serializable {
      * Controls sorting of Process output
      */
     enum ProcessSort {
-        CPU, MEMORY, OLDEST, NEWEST, PID
+        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
     }
 
     /**

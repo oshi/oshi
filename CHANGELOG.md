@@ -4,6 +4,7 @@
 * [#209](https://github.com/dblock/oshi/pull/209): Move FileSystem and Processes to OperatingSystem - [@dbwiddis](https://github.com/dbwiddis).
 * [#210](https://github.com/dblock/oshi/pull/210): Streamlined macOS FileSystem - [@dbwiddis](https://github.com/dbwiddis).
 * [#211](https://github.com/dblock/oshi/pull/211): Combine IOwait and IRQ ticks into processor tick array - [@dbwiddis](https://github.com/dbwiddis).
+* [#213](https://github.com/dblock/oshi/pull/213): Sort and Limit returned Processes - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.6.2 (6/21/2016)

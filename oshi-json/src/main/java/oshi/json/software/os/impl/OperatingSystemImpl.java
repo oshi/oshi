@@ -128,7 +128,7 @@ public class OperatingSystemImpl implements OperatingSystem {
     public JsonObject toJSON() {
         JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
         // TODO Configure this
-        for (OSProcess proc : getProcesses(5, ProcessSort.CPU)) {
+        for (OSProcess proc : getProcesses(0, null)) {
             processArrayBuilder.add(proc.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
