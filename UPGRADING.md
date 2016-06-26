@@ -20,13 +20,19 @@ the `OperatingSystem`.  The `getFileStores()` method on the
 `FileSystem` class and was removed.
 
 The `OSProcess` methods (`getProcesses()`, `getProcess()`, `getProcessId()`,
-`getProcessCount()`, and `getThreadCount()`) were moved rom the
+`getProcessCount()`, and `getThreadCount()`) were moved from the
 `CentralProcessor` to the `OperatingSystem`.
 
 The (`OperatingSystem`'s) `getProcesses()` method now takes two arguments, to
 limit the number of results returned, and to sort the results.
 
+The `HardwareAbstractionLayer`'s `getUsbDevices()` method now takes a boolean
+argument which offers both the existing tree-based or a flat list format.
+
 ## API Changes - oshi-json
+
+Decorator classes for the OSHI API which enable JSON functionality are now in
+the `oshi.json.*` packages.
 
 JSON objects associated with the above method changes were updated:
  - `systemCpuLoadTicks` and `processorCpuLoadTicks` now have 7-element arrays

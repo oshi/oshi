@@ -146,8 +146,8 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
      * {@inheritDoc}
      */
     @Override
-    public UsbDevice[] getUsbDevices() {
-        oshi.hardware.UsbDevice[] usbs = this.hal.getUsbDevices();
+    public UsbDevice[] getUsbDevices(boolean tree) {
+        oshi.hardware.UsbDevice[] usbs = this.hal.getUsbDevices(tree);
         UsbDevice[] usbDevices = new UsbDevice[usbs.length];
         for (int i = 0; i < usbs.length; i++) {
             usbDevices[i] = new UsbDeviceImpl(usbs[i]);
@@ -177,7 +177,7 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
             displayArrayBuilder.add(display.toJSON());
         }
         JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (UsbDevice usbDevice : getUsbDevices()) {
+        for (UsbDevice usbDevice : getUsbDevices(true)) {
             usbDeviceArrayBuilder.add(usbDevice.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())

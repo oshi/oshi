@@ -89,13 +89,19 @@ public interface HardwareAbstractionLayer extends oshi.hardware.HardwareAbstract
 
     /**
      * Instantiates an array of {@link UsbDevice} objects, representing devices
-     * connected via a usb port (including internal devices). The top level
-     * devices returned from this method are the USB Controllers; connected hubs
-     * and devices in its device tree share that controller's bandwidth
+     * connected via a usb port (including internal devices).
      * 
-     * @return An array of UsbDevice objects representing the USB Controllers
-     *         and devices connected to them, or an empty array if none are
-     *         present
+     * If the value of tree is true, the top level devices returned from this
+     * method are the USB Controllers; connected hubs and devices in its device
+     * tree share that controller's bandwidth. If the value of tree is false,
+     * USB devices (not controllers) are listed in a single flat array.
+     * 
+     * @param tree
+     *            WHether to display devices in a nested tree format from their
+     *            controllers
+     * @return An array of UsbDevice objects representing (optionally) the USB
+     *         Controllers and devices connected to them, or an empty array if
+     *         none are present
      */
-    UsbDevice[] getUsbDevices();
+    UsbDevice[] getUsbDevices(boolean tree);
 }

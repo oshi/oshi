@@ -359,7 +359,7 @@ public class SystemInfoTest {
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.NAME));
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
 
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
@@ -464,7 +464,7 @@ public class SystemInfoTest {
         // hardware: USB devices
         LOG.info("Checking USB Devices...");
         System.out.println("USB Devices:");
-        for (UsbDevice usbDevice : hal.getUsbDevices()) {
+        for (UsbDevice usbDevice : hal.getUsbDevices(true)) {
             System.out.println(usbDevice.toString());
         }
 

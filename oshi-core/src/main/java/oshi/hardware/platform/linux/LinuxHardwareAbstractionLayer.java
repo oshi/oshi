@@ -101,7 +101,7 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
      * {@inheritDoc}
      */
     @Override
-    public UsbDevice[] getUsbDevices() {
-        return LinuxUsbDevice.getUsbDevices();
+    public UsbDevice[] getUsbDevices(boolean tree) {
+        return LinuxUsbDevice.getUsbDevices(tree);
     }
 }
