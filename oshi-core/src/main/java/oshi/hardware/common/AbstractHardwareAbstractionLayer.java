@@ -77,5 +77,5 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      * {@inheritDoc}
      */
     @Override
-    public abstract UsbDevice[] getUsbDevices();
+    public abstract UsbDevice[] getUsbDevices(boolean tree);
 }

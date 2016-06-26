@@ -101,7 +101,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      * {@inheritDoc}
      */
     @Override
-    public UsbDevice[] getUsbDevices() {
-        return WindowsUsbDevice.getUsbDevices();
+    public UsbDevice[] getUsbDevices(boolean tree) {
+        return WindowsUsbDevice.getUsbDevices(tree);
     }
 }
