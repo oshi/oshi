@@ -39,12 +39,13 @@
     </developers>
 
     <prerequisites>
-        <maven>3.2.3</maven>
+      <maven>${maven-min.version}</maven>
     </prerequisites>
 
     <modules>
         <module>oshi-core</module>
         <module>oshi-json</module>
+        <module>oshi-dist</module>
     </modules>
 
     <scm>
@@ -80,7 +81,6 @@
     </distributionManagement>
 
     <properties>
-        <src.relative.loc>.</src.relative.loc>
         <copyright>2016</copyright>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -208,11 +208,48 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-Time>${maven.build.timestamp}</Build-Time>
+                                <Copyright>${copyright}</Copyright>
+                                <Git-Revision>${git.commit.id}</Git-Revision>
+                                <Os-Name>${os.name}</Os-Name>
+                                <Os-Arch>${os.arch}</Os-Arch>
+                                <Os-Version>${os.version}</Os-Version>
+                                <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.6</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-Number>${buildNumber}</Build-Number>
+                                <Build-Time>${maven.build.timestamp}</Build-Time>
+                                <Copyright>${copyright}</Copyright>
+                                <Git-Revision>${git.commit.id}</Git-Revision>
+                                <Os-Name>${os.name}</Os-Name>
+                                <Os-Arch>${os.arch}</Os-Arch>
+                                <Os-Version>${os.version}</Os-Version>
+                                <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <!-- Reporting plugins -->
                 <plugin>
@@ -224,6 +261,24 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.10.4</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-Time>${maven.build.timestamp}</Build-Time>
+                                <Copyright>${copyright}</Copyright>
+                                <Git-Revision>${git.commit.id}</Git-Revision>
+                                <Os-Name>${os.name}</Os-Name>
+                                <Os-Arch>${os.arch}</Os-Arch>
+                                <Os-Version>${os.version}</Os-Version>
+                                <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -240,9 +295,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.6</version>
-                    <configuration>
-                        <descriptor>${project.basedir}/${src.relative.loc}/src/assembly/assembly.xml</descriptor>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -264,6 +316,37 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>3.0.1</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-Time>${maven.build.timestamp}</Build-Time>
+                                <Copyright>${copyright}</Copyright>
+                                <Git-Revision>${git.commit.id}</Git-Revision>
+                                <Os-Name>${os.name}</Os-Name>
+                                <Os-Arch>${os.arch}</Os-Arch>
+                                <Os-Version>${os.version}</Os-Version>
+                                <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                    <executions>
+                      <!-- 
+                        ! here we override the super-pom attach-sources execution id which 
+                        ! calls sources:jar goal. That goals forks the lifecycle, 
+                        ! causing the generate-sources phase to be called twice for the install goal.
+                        ! Starting with Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940)
+                        ! this is not needed anymore.
+                      -->
+                      <execution>
+                        <id>attach-sources</id>
+                        <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase>
+                      </execution>
+                    </executions>
                 </plugin>
                 <!-- External Tools -->
                 <plugin>
@@ -296,10 +379,9 @@
                     <artifactId>license-maven-plugin</artifactId>
                     <version>2.11</version>
                     <configuration>
-                        <header>${project.basedir}/${src.relative.loc}/LICENSE_HEADER</header>
+                      <header>LICENSE_HEADER</header>
+                        <!-- I'm not sure if the following excludes are needed. Take a deeper look into docs. -->
                         <excludes>
-                            <exclude>target/**</exclude>
-                            <exclude>**/.gitignore</exclude>
                             <exclude>**/*.txt</exclude>
                             <exclude>**/*.xml</exclude>
                             <exclude>**/*.properties</exclude>
@@ -415,34 +497,18 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Core plugins -->
-            <!-- Delete all from target but not target itself -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <configuration>
-                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                    <filesets>
-                        <fileset>
-                            <directory>${project.build.directory}</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
             <!-- Build Plugins -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
                 <configuration>
-                    <dotGitDirectory>${project.basedir}/${src.relative.loc}/.git</dotGitDirectory>
+                    <dotGitDirectory>.git</dotGitDirectory>
                     <!-- Fixes occassional issue in commit id plugin - see 
                         https://github.com/ktoso/maven-git-commit-id-plugin/issues/61 -->
                     <gitDescribe>
                         <always>true</always>
-                    </gitDescribe>
+                      </gitDescribe>
+                      <runOnlyOnce>true</runOnlyOnce>
                 </configuration>
                 <executions>
                     <execution>
@@ -454,133 +520,15 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Packaging types / Tools -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <Copyright>${copyright}</Copyright>
-                            <Git-Revision>${git.commit.id}</Git-Revision>
-                            <Os-Name>${os.name}</Os-Name>
-                            <Os-Arch>${os.arch}</Os-Arch>
-                            <Os-Version>${os.version}</Os-Version>
-                            <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-                            <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Number>${buildNumber}</Build-Number>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <Copyright>${copyright}</Copyright>
-                            <Git-Revision>${git.commit.id}</Git-Revision>
-                            <Os-Name>${os.name}</Os-Name>
-                            <Os-Arch>${os.arch}</Os-Arch>
-                            <Os-Version>${os.version}</Os-Version>
-                            <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-                            <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
             <!-- Reporting Plugins -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <Copyright>${copyright}</Copyright>
-                            <Git-Revision>${git.commit.id}</Git-Revision>
-                            <Os-Name>${os.name}</Os-Name>
-                            <Os-Arch>${os.arch}</Os-Arch>
-                            <Os-Version>${os.version}</Os-Version>
-                            <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-                            <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>attach-test-javadocs</id>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Tools -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <Copyright>${copyright}</Copyright>
-                            <Git-Revision>${git.commit.id}</Git-Revision>
-                            <Os-Name>${os.name}</Os-Name>
-                            <Os-Arch>${os.arch}</Os-Arch>
-                            <Os-Version>${os.version}</Os-Version>
-                            <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-                            <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>attach-test-sources</id>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <configuration>
                     <rules>
                         <requireMavenVersion>
-                            <version>[${maven.min-version},)</version>
+                            <version>${maven.min-version}</version>
                         </requireMavenVersion>
                     </rules>
                 </configuration>
@@ -651,19 +599,6 @@
                         <id>report</id>
                         <goals>
                             <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>oshi-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>assembly</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -918,7 +853,11 @@
         <profile>
             <id>format</id>
             <activation>
-                <file>
+              <file>
+                    <!-- The following looks wrong. Check the plugin 
+                         or give a reference for a bug or open a new jira for it?
+                         What is the purpose of that? 
+                         -->
                     <!-- Maven defect: still requires deprecated basedir 
                         instead of project.basedir -->
                     <exists>${basedir}/format.xml</exists>
