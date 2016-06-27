@@ -24,11 +24,13 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSFileStore;
+import oshi.json.util.PropertiesUtil;
 
 public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem {
 
@@ -78,12 +80,20 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (OSFileStore fileStore : getFileStores()) {
-            fileStoreArrayBuilder.add(fileStore.toJSON());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores")) {
+            JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+            for (OSFileStore fileStore : getFileStores()) {
+                fileStoreArrayBuilder.add(fileStore.toJSON(properties));
+            }
+            json.add("fileStores", fileStoreArrayBuilder.build());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("fileStores", fileStoreArrayBuilder.build()).add("openFileDescriptors", getOpenFileDescriptors())
-                .add("maxFileDescriptors", getMaxFileDescriptors()).build();
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.openFileDescriptors")) {
+            json.add("openFileDescriptors", getOpenFileDescriptors());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.maxFileDescriptors")) {
+            json.add("maxFileDescriptors", getMaxFileDescriptors());
+        }
+        return json.build();
     }
 }

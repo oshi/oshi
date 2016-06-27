@@ -1,11 +1,12 @@
 # Guide to upgrading from OSHI 2.x to 3.x
 
 The most significant change in OSHI 3.0 is the separation of JSON output to a
-separate artifact. Users of `oshi-core` who do not require JSON will find the
-API much the same except as noted below.  Those who use JSON will find improved
-functionality in the `oshi-json` module.
+separate artifact, filtering output using configurable properties. Users of
+`oshi-core` who do not require JSON will find most of the API the same except
+as noted below.  Those who use JSON will find improved functionality in the 
+`oshi-json` module.
 
-## API Changes - oshi-core and oshi-json
+## API Changes - oshi-core
 
 The `CentralProcessor`'s `getSystemIOWaitTicks()` and `getSystemIrqTicks()` 
 methods were removed. The `getSystemCpuLoadTicks()` now include the IOWait and
@@ -32,7 +33,7 @@ argument which offers both the existing tree-based or a flat list format.
 ## API Changes - oshi-json
 
 Decorator classes for the OSHI API which enable JSON functionality are now in
-the `oshi.json.*` packages.
+the `oshi.json.*` packages with the same API changes in the previous section.
 
 JSON objects associated with the above method changes were updated:
  - `systemCpuLoadTicks` and `processorCpuLoadTicks` now have 7-element arrays
@@ -42,6 +43,11 @@ JSON objects associated with the above method changes were updated:
  - `fileStores` is now an element of `fileSystem` rather than `processor`.
  - `processID`, `processCount`, `threadCount`, and `processes` are now 
  elements of `operatingSystem` rather than `processor`.
+ 
+While the existing `toJSON()` method remains and is backwards compatible, the
+new API permits using a `java.util.Properties` object as an optional parameter
+which will be persistent to future (no argument) calls to that method until
+replaced.  See the [FAQ](FAQ.md) for more information.
 
 # Guide to upgrading from OSHI 1.x to 2.x
 

@@ -23,10 +23,12 @@ import java.util.Properties;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OSProcess;
+import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OSProcess.State;
 
 public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
@@ -150,12 +152,47 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("path", getPath()).add("state", getState().name()).add("processID", getProcessID())
-                .add("parentProcessID", getParentProcessID()).add("threadCount", getThreadCount())
-                .add("priority", getPriority()).add("virtualSize", getVirtualSize())
-                .add("residentSetSize", getResidentSetSize()).add("kernelTime", getKernelTime())
-                .add("userTime", getUserTime()).add("upTime", getUpTime()).add("startTime", getStartTime()).build();
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.name")) {
+            json.add("name", getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.path")) {
+            json.add("path", getPath());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.state")) {
+            json.add("state", getState().name());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.processID")) {
+            json.add("processID", getProcessID());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.parentProcessID")) {
+            json.add("parentProcessID", getParentProcessID());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.threadCount")) {
+            json.add("threadCount", getThreadCount());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.priority")) {
+            json.add("priority", getPriority());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.virtualSize")) {
+            json.add("virtualSize", getVirtualSize());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.residentSetSize")) {
+            json.add("residentSetSize", getResidentSetSize());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.kernelTime")) {
+            json.add("kernelTime", getKernelTime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.userTime")) {
+            json.add("userTime", getUserTime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.upTime")) {
+            json.add("upTime", getUpTime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.startTime")) {
+            json.add("startTime", getStartTime());
+        }
+        return json.build();
     }
 
 }

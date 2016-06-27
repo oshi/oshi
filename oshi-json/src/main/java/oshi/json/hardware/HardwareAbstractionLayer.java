@@ -96,6 +96,9 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      * tree share that controller's bandwidth. If the value of tree is false,
      * USB devices (not controllers) are listed in a single flat array.
      * 
+     * In the JSON output, this parameter may be specified by the
+     * "hardware.usbDevices.tree" property value.
+     * 
      * @param tree
      *            WHether to display devices in a nested tree format from their
      *            controllers

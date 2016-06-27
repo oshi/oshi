@@ -23,6 +23,7 @@ import java.util.Properties;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.impl.HardwareAbstractionLayerImpl;
@@ -31,6 +32,7 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.json.OshiJsonObject;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.impl.OperatingSystemImpl;
+import oshi.json.util.PropertiesUtil;
 
 /**
  * System information. This is the main entry point to Oshi. This object
@@ -87,8 +89,16 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("platform", si.getCurrentPlatformEnum().toString())
-                .add("operatingSystem", getOperatingSystem().toJSON()).add("hardware", getHardware().toJSON()).build();
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "platform")) {
+            json.add("platform", si.getCurrentPlatformEnum().toString());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem")) {
+            json.add("operatingSystem", getOperatingSystem().toJSON(properties));
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware")) {
+            json.add("hardware", getHardware().toJSON(properties));
+        }
+        return json.build();
     }
 }

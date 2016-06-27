@@ -41,6 +41,7 @@ public abstract class AbstractOshiJsonObject implements OshiJsonObject {
      * {@inheritDoc}
      */
     public String toCompactJSON(Properties properties) {
+        this.properties = properties;
         return toJSON(this.properties).toString();
     }
 
@@ -55,6 +56,7 @@ public abstract class AbstractOshiJsonObject implements OshiJsonObject {
      * {@inheritDoc}
      */
     public String toPrettyJSON(Properties properties) {
+        this.properties = properties;
         return JsonUtil.jsonPrettyPrint(toJSON(this.properties));
     }
 
@@ -64,9 +66,4 @@ public abstract class AbstractOshiJsonObject implements OshiJsonObject {
     public JsonObject toJSON() {
         return toJSON(this.properties);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public abstract JsonObject toJSON(Properties properties);
 }

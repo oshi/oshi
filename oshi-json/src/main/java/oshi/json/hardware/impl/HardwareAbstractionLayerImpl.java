@@ -24,6 +24,7 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.CentralProcessor;
 import oshi.json.hardware.Display;
@@ -36,6 +37,7 @@ import oshi.json.hardware.Sensors;
 import oshi.json.hardware.UsbDevice;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject implements HardwareAbstractionLayer {
 
@@ -163,31 +165,54 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (PowerSource powerSource : getPowerSources()) {
-            powerSourceArrayBuilder.add(powerSource.toJSON());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor")) {
+            json.add("processor", getProcessor().toJSON(properties));
         }
-        JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();
-        for (HWDiskStore diskStore : getDiskStores()) {
-            diskStoreArrayBuilder.add(diskStore.toJSON());
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory")) {
+            json.add("memory", getMemory().toJSON(properties));
         }
-        JsonArrayBuilder networkIFArrayBuilder = jsonFactory.createArrayBuilder();
-        for (NetworkIF netStore : getNetworkIFs()) {
-            networkIFArrayBuilder.add(netStore.toJSON());
+        if (PropertiesUtil.getBoolean(properties, "hardware.powerSources")) {
+            JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
+            for (PowerSource powerSource : getPowerSources()) {
+                powerSourceArrayBuilder.add(powerSource.toJSON(properties));
+            }
+            json.add("powerSources", powerSourceArrayBuilder.build());
         }
-        JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
-        for (Display display : getDisplays()) {
-            displayArrayBuilder.add(display.toJSON());
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks")) {
+            JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();
+            for (HWDiskStore diskStore : getDiskStores()) {
+                diskStoreArrayBuilder.add(diskStore.toJSON(properties));
+            }
+            json.add("disks", diskStoreArrayBuilder.build());
         }
-        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (UsbDevice usbDevice : getUsbDevices(true)) {
-            usbDeviceArrayBuilder.add(usbDevice.toJSON());
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks")) {
+            JsonArrayBuilder networkIFArrayBuilder = jsonFactory.createArrayBuilder();
+            for (NetworkIF netStore : getNetworkIFs()) {
+                networkIFArrayBuilder.add(netStore.toJSON(properties));
+            }
+            json.add("networks", networkIFArrayBuilder.build());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("processor", getProcessor().toJSON()).add("memory", getMemory().toJSON())
-                .add("powerSources", powerSourceArrayBuilder.build()).add("disks", diskStoreArrayBuilder.build())
-                .add("networks", networkIFArrayBuilder.build()).add("displays", displayArrayBuilder.build())
-                .add("sensors", getSensors().toJSON()).add("usbDevices", usbDeviceArrayBuilder.build()).build();
+        if (PropertiesUtil.getBoolean(properties, "hardware.displays")) {
+            JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();
+            for (Display display : getDisplays()) {
+                displayArrayBuilder.add(display.toJSON(properties));
+            }
+            json.add("displays", displayArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.sensors")) {
+            json.add("sensors", getSensors().toJSON(properties));
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices")) {
+            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
+            for (UsbDevice usbDevice : getUsbDevices(
+                    PropertiesUtil.getBoolean(properties, "hardware.usbDevices.tree"))) {
+                usbDeviceArrayBuilder.add(usbDevice.toJSON(properties));
+            }
+            json.add("usbDevices", usbDeviceArrayBuilder.build());
+        }
+        return json.build();
+
     }
 
 }

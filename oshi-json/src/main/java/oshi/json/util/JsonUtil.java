@@ -33,7 +33,7 @@ import javax.json.stream.JsonGenerator;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public abstract class JsonUtil {
+public class JsonUtil {
     /**
      * Pretty print a JSON string.
      * 

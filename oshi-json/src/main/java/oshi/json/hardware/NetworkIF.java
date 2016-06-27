@@ -25,10 +25,12 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.hardware.Networks;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 /**
  * A network interface in the machine, including statistics
@@ -209,19 +211,48 @@ public class NetworkIF extends AbstractOshiJsonObject {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();
-        for (String ipv4 : getIPv4addr()) {
-            ipv4ArrayBuilder.add(ipv4);
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.name")) {
+            json.add("name", this.getName());
         }
-        JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();
-        for (String ipv4 : getIPv6addr()) {
-            ipv6ArrayBuilder.add(ipv4);
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.displayName")) {
+            json.add("displayName", this.getDisplayName());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", this.getName())
-                .add("displayName", this.getDisplayName()).add("mac", this.getMacaddr())
-                .add("ipv4", ipv4ArrayBuilder.build()).add("ipv6", ipv6ArrayBuilder.build()).add("mtu", this.getMTU())
-                .add("bytesRecv", this.getBytesRecv()).add("bytesSent", this.getBytesSent())
-                .add("packetsRecv", this.getPacketsRecv()).add("packetsSent", this.getPacketsSent())
-                .add("speed", this.getSpeed()).build();
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.mac")) {
+            json.add("mac", this.getMacaddr());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.ipv4")) {
+            JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();
+            for (String ipv4 : getIPv4addr()) {
+                ipv4ArrayBuilder.add(ipv4);
+            }
+            json.add("ipv4", ipv4ArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.ipv6")) {
+            JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();
+            for (String ipv6 : getIPv6addr()) {
+                ipv6ArrayBuilder.add(ipv6);
+            }
+            json.add("ipv6", ipv6ArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.mtu")) {
+            json.add("mtu", this.getMTU());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.bytesRecv")) {
+            json.add("bytesRecv", this.getBytesRecv());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.bytesSent")) {
+            json.add("bytesSent", this.getBytesSent());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.packetsRecv")) {
+            json.add("packetsRecv", this.getPacketsRecv());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.packetsSent")) {
+            json.add("packetsSent", this.getPacketsSent());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.speed")) {
+            json.add("speed", this.getSpeed());
+        }
+        return json.build();
     }
 }

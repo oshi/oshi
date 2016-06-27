@@ -24,6 +24,7 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
@@ -31,6 +32,7 @@ import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
+import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OperatingSystem.ProcessSort;
 
 public class OperatingSystemImpl extends AbstractOshiJsonObject implements OperatingSystem {
@@ -130,16 +132,38 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
-        // TODO Configure this
-        for (OSProcess proc : getProcesses(1, null)) {
-            processArrayBuilder.add(proc.toJSON());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.manufacturer")) {
+            json.add("manufacturer", getManufacturer());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())
-                .add("family", getFamily()).add("version", getVersion().toJSON())
-                .add("fileSystem", getFileSystem().toJSON()).add("processID", getProcessId())
-                .add("processCount", getProcessCount()).add("threadCount", getThreadCount())
-                .add("processes", processArrayBuilder.build()).build();
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.family")) {
+            json.add("family", getFamily());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.version")) {
+            json.add("version", getVersion().toJSON(properties));
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem")) {
+            json.add("fileSystem", getFileSystem().toJSON(properties));
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processID")) {
+            json.add("processID", getProcessId());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processCount")) {
+            json.add("processCount", getProcessCount());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.threadCount")) {
+            json.add("threadCount", getThreadCount());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes")) {
+            JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
+            for (OSProcess proc : getProcesses(
+                    PropertiesUtil.getIntOrDefault(properties, "operatingSystem.processes.limit", 0),
+                    PropertiesUtil.getEnum(properties, "operatingSystem.processes.sort", ProcessSort.class))) {
+                processArrayBuilder.add(proc.toJSON(properties));
+            }
+            json.add("processes", processArrayBuilder.build());
+        }
+        return json.build();
     }
 
     @Override

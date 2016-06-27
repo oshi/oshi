@@ -65,6 +65,10 @@ public interface OperatingSystem extends OshiJsonObject {
      * the top cpu or memory consuming processes; if null, no order is
      * guaranteed.
      * 
+     * In the JSON output, these parameters may be specified by
+     * "operatingSystem.processes.limit" and "operatingSystem.processes.sort"
+     * property values.
+     * 
      * @param limit
      *            Max number of results to return, or 0 to return all results
      * @param sort

@@ -24,10 +24,12 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.CentralProcessor;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 public class CentralProcessorImpl extends AbstractOshiJsonObject implements CentralProcessor {
 
@@ -262,39 +264,82 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double avg : getSystemLoadAverage(3)) {
-            systemLoadAverageArrayBuilder.add(avg);
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.name")) {
+            json.add("name", getName());
         }
-        JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long ticks : getSystemCpuLoadTicks()) {
-            systemCpuLoadTicksArrayBuilder.add(ticks);
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.physicalProcessorCount")) {
+            json.add("physicalProcessorCount", getPhysicalProcessorCount());
         }
-        JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (double load : getProcessorCpuLoadBetweenTicks()) {
-            processorCpuLoadBetweenTicksArrayBuilder.add(load);
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.logicalProcessorCount")) {
+            json.add("logicalProcessorCount", getLogicalProcessorCount());
         }
-        JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
-        for (long[] procTicks : getProcessorCpuLoadTicks()) {
-            JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
-            for (long ticks : procTicks) {
-                processorTicksArrayBuilder.add(ticks);
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemSerialNumber")) {
+            json.add("systemSerialNumber", getSystemSerialNumber());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.vendor")) {
+            json.add("vendor", getVendor());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.vendorFreq")) {
+            json.add("vendorFreq", getVendorFreq());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.cpu64bit")) {
+            json.add("cpu64bit", isCpu64bit());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.family")) {
+            json.add("family", getFamily());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.model")) {
+            json.add("model", getModel());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.stepping")) {
+            json.add("stepping", getStepping());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemCpuLoadBetweenTicks")) {
+            json.add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemCpuLoadTicks")) {
+            JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+            for (long ticks : getSystemCpuLoadTicks()) {
+                systemCpuLoadTicksArrayBuilder.add(ticks);
             }
-            processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
+            json.add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("physicalProcessorCount", getPhysicalProcessorCount())
-                .add("logicalProcessorCount", getLogicalProcessorCount())
-                .add("systemSerialNumber", getSystemSerialNumber()).add("vendor", getVendor())
-                .add("vendorFreq", getVendorFreq()).add("cpu64bit", isCpu64bit()).add("family", getFamily())
-                .add("model", getModel()).add("stepping", getStepping())
-                .add("systemCpuLoadBetweenTicks", getSystemCpuLoadBetweenTicks())
-                .add("systemCpuLoadTicks", systemCpuLoadTicksArrayBuilder.build())
-                .add("systemCpuLoad", getSystemCpuLoad()).add("systemLoadAverage", getSystemLoadAverage())
-                .add("systemLoadAverages", systemLoadAverageArrayBuilder.build())
-                .add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build())
-                .add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build())
-                .add("systemUptime", getSystemUptime()).build();
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemCpuLoad")) {
+            json.add("systemCpuLoad", getSystemCpuLoad());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemLoadAverage")) {
+            json.add("systemLoadAverage", getSystemLoadAverage());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemLoadAverages")) {
+            JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
+            for (double avg : getSystemLoadAverage(3)) {
+                systemLoadAverageArrayBuilder.add(avg);
+            }
+            json.add("systemLoadAverages", systemLoadAverageArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.processorCpuLoadBetweenTicks")) {
+            JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();
+            for (double load : getProcessorCpuLoadBetweenTicks()) {
+                processorCpuLoadBetweenTicksArrayBuilder.add(load);
+            }
+            json.add("processorCpuLoadBetweenTicks", processorCpuLoadBetweenTicksArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.processorCpuLoadTicks")) {
+            JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();
+            for (long[] procTicks : getProcessorCpuLoadTicks()) {
+                JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();
+                for (long ticks : procTicks) {
+                    processorTicksArrayBuilder.add(ticks);
+                }
+                processorCpuLoadTicksArrayBuilder.add(processorTicksArrayBuilder.build());
+            }
+            json.add("processorCpuLoadTicks", processorCpuLoadTicksArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemUptime")) {
+            json.add("systemUptime", getSystemUptime());
+        }
+        return json.build();
     }
 
     @Override

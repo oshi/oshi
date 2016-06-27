@@ -23,9 +23,11 @@ import java.util.Properties;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
@@ -160,9 +162,25 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("name", this.hwDiskStore.getName()).add("model", this.hwDiskStore.getModel())
-                .add("serial", this.hwDiskStore.getSerial()).add("size", this.hwDiskStore.getSize())
-                .add("reads", this.hwDiskStore.getReads()).add("writes", this.hwDiskStore.getWrites()).build();
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.name")) {
+            json.add("name", this.hwDiskStore.getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.model")) {
+            json.add("model", this.hwDiskStore.getModel());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.serial")) {
+            json.add("serial", this.hwDiskStore.getSerial());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.size")) {
+            json.add("size", this.hwDiskStore.getSize());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.reads")) {
+            json.add("reads", this.hwDiskStore.getReads());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.writes")) {
+            json.add("writes", this.hwDiskStore.getWrites());
+        }
+        return json.build();
     }
 }

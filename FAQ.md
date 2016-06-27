@@ -1,8 +1,16 @@
-What is the intended use of the API?
+What is the intended use of the oshi-core API?
 ========
-Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi/SystemInfo.html).  This provides access to the platform-specific hardware and software interfaces using the respective `get*()` methods.  The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality.
+Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi-core/SystemInfo.html).  This provides access to the platform-specific hardware and software interfaces using the respective `get*()` methods.  The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality.
 
 Most methods return a "snapshot" of current levels.  To display values which change over time, it is intended that users poll for information no more frequently than one second. Disk and file system calls may incur some latency and should be polled less frequently.
+
+What is the intended use of the oshi-json API?
+========
+Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi-json/SystemInfo.html) as in `oshi-core` and then use either the `toCompactJSON()` or `toPretyJSON()` methods as appropriate.  This provides access to the platform-specific JSON objects under the JSON object tree.
+
+The `to*JSON()` methods take an optional `java.util.Properties` object as a parameter to filter or control the output.  Users may use the provided `loadProperties()` method in the `PropertiesUtil` class to load a properties file from the classpath, or generate their own properties programmatically.  The property values will correspond exactly to the JSON object tree, e.g., `hardware.processor` corresponds to the JSON tree's `hardware` attribute, an object with a `processor` attribute. Setting these attributes to `false` will suppress output of that attribute (and its children, if applicable).  A [sample configuration file](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) is provided.
+
+Objects retain the properties, so future calls to `to*JSON()` methods with no argument will use the same properties as previously provided. Passing a `new Properties()` object will reset the JSON output to non-filtered.
 
 Is the API backwards compatible?
 ========
@@ -14,7 +22,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  A 2.5.1-java7 and 2.6-m-java7 version were released using a dependency to the threeten.org backport but no further Java 7 support is planned.  Users are encouraged to update to Java 8.
+Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  The 2.6-m-java7 version (using a dependency to the threeten.org backport) is the last Java 7 version.  Users are encouraged to update to Java 8.
 
 
 Which operating systems are supported?

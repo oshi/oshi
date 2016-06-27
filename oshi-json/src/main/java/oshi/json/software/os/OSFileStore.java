@@ -23,9 +23,11 @@ import java.util.Properties;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
@@ -225,9 +227,31 @@ public class OSFileStore extends AbstractOshiJsonObject {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("volume", getVolume()).add("mountPoint", getMount()).add("description", getDescription())
-                .add("fsType", getType()).add("uuid", getUUID()).add("usableSpace", getUsableSpace())
-                .add("totalSpace", getTotalSpace()).build();
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.name")) {
+            json.add("name", getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.volume")) {
+            json.add("volume", getVolume());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.mountPoint")) {
+            json.add("mountPoint", getMount());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.description")) {
+            json.add("description", getDescription());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.fsType")) {
+            json.add("fsType", getType());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.uuid")) {
+            json.add("uuid", getUUID());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.usableSpace")) {
+            json.add("usableSpace", getUsableSpace());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalSpace")) {
+            json.add("totalSpace", getTotalSpace());
+        }
+        return json.build();
     }
 }

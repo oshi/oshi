@@ -23,10 +23,12 @@ import java.util.Properties;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.Display;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 import oshi.util.EdidUtil;
 
 public class DisplayImpl extends AbstractOshiJsonObject implements Display {
@@ -54,8 +56,11 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("edid", EdidUtil.toHexString(getEdid())).build();
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.displays.edid")) {
+            json.add("edid", EdidUtil.toHexString(getEdid()));
+        }
+        return json.build();
     }
 
     @Override
