@@ -18,14 +18,19 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.GlobalMemory;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
-public class GlobalMemoryImpl implements GlobalMemory {
+public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,9 +78,21 @@ public class GlobalMemoryImpl implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
-                .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.available")) {
+            json.add("available", getAvailable());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.total")) {
+            json.add("total", getTotal());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.swapTotal")) {
+            json.add("swapTotal", getSwapTotal());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.swapUsed")) {
+            json.add("swapUsed", getSwapUsed());
+        }
+        return json.build();
     }
 
 }

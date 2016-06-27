@@ -18,14 +18,19 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OperatingSystemVersion;
+import oshi.json.util.PropertiesUtil;
 
-public class OperatingSystemVersionImpl implements OperatingSystemVersion {
+public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implements OperatingSystemVersion {
 
     private static final long serialVersionUID = 1L;
 
@@ -89,9 +94,18 @@ public class OperatingSystemVersionImpl implements OperatingSystemVersion {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
-                .add("codeName", getCodeName()).add("build", getBuildNumber()).build();
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.version.version")) {
+            json.add("version", getVersion());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.version.codeName")) {
+            json.add("codeName", getCodeName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.version.build")) {
+            json.add("build", getBuildNumber());
+        }
+        return json.build();
     }
 
     @Override

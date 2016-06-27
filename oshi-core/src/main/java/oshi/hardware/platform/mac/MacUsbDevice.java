@@ -62,7 +62,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
-        if (!tree) {
+        if (tree) {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();

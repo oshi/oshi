@@ -19,6 +19,7 @@
 package oshi.json.software.os;
 
 import oshi.json.json.OshiJsonObject;
+import oshi.software.os.OperatingSystem.ProcessSort;
 
 /**
  * An operating system (OS) is the software on a computer that manages the way
@@ -27,7 +28,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface OperatingSystem extends oshi.software.os.OperatingSystem, OshiJsonObject {
+public interface OperatingSystem extends OshiJsonObject {
 
     /**
      * Operating system family.
@@ -63,6 +64,10 @@ public interface OperatingSystem extends oshi.software.os.OperatingSystem, OshiJ
      * The order may be specified by the sort parameter, for example, to return
      * the top cpu or memory consuming processes; if null, no order is
      * guaranteed.
+     * 
+     * In the JSON output, these parameters may be specified by
+     * "operatingSystem.processes.limit" and "operatingSystem.processes.sort"
+     * property values.
      * 
      * @param limit
      *            Max number of results to return, or 0 to return all results

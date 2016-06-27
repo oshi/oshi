@@ -27,7 +27,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface CentralProcessor extends oshi.hardware.CentralProcessor, OshiJsonObject {
+public interface CentralProcessor extends OshiJsonObject {
     /**
      * Processor vendor.
      * 

@@ -18,14 +18,19 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.PowerSource;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
-public class PowerSourceImpl implements PowerSource {
+public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSource {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,9 +70,18 @@ public class PowerSourceImpl implements PowerSource {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("remainingCapacity", getRemainingCapacity()).add("timeRemaining", getTimeRemaining()).build();
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.powerSources.name")) {
+            json.add("name", getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.powerSources.remainingCapacity")) {
+            json.add("remainingCapacity", getRemainingCapacity());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.powerSources.timeRemaining")) {
+            json.add("timeRemaining", getTimeRemaining());
+        }
+        return json.build();
     }
 
 }

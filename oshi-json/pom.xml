@@ -20,10 +20,6 @@
     <tag>HEAD</tag>
   </scm>
 
-  <properties>
-    <src.relative.loc>..</src.relative.loc>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

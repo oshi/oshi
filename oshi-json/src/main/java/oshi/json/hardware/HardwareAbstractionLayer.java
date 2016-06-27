@@ -26,7 +26,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface HardwareAbstractionLayer extends oshi.hardware.HardwareAbstractionLayer, OshiJsonObject {
+public interface HardwareAbstractionLayer extends OshiJsonObject {
 
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or
@@ -95,6 +95,9 @@ public interface HardwareAbstractionLayer extends oshi.hardware.HardwareAbstract
      * method are the USB Controllers; connected hubs and devices in its device
      * tree share that controller's bandwidth. If the value of tree is false,
      * USB devices (not controllers) are listed in a single flat array.
+     * 
+     * In the JSON output, this parameter may be specified by the
+     * "hardware.usbDevices.tree" property value.
      * 
      * @param tree
      *            WHether to display devices in a nested tree format from their

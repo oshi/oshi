@@ -28,6 +28,7 @@ import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ import oshi.json.software.os.OSFileStore;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
-import oshi.json.util.JsonUtil;
+import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
@@ -469,11 +470,13 @@ public class SystemInfoTest {
         }
 
         // LOG.info("Printing JSON:");
+        // Load properties from this file on the classpath
+        Properties props = PropertiesUtil.loadProperties("oshi.json.properties");
         // Compact JSON
-        // System.out.println(si.toJSON().toString());
+        // System.out.println(si.toCompactJSON(props));
 
         // Pretty JSON
-        System.out.println(JsonUtil.jsonPrettyPrint(si.toJSON()));
+        System.out.println(si.toPrettyJSON(props));
 
     }
 }

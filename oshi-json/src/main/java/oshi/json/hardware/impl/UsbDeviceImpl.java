@@ -18,15 +18,20 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.UsbDevice;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
-public class UsbDeviceImpl implements UsbDevice {
+public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private static final long serialVersionUID = 1L;
 
@@ -91,23 +96,36 @@ public class UsbDeviceImpl implements UsbDevice {
         return usbDevices;
     }
 
-    @Override
-    public int compareTo(oshi.hardware.UsbDevice o) {
-        return this.usbDevice.compareTo(o);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
-        for (UsbDevice usbDevice : getConnectedDevices()) {
-            usbDeviceArrayBuilder.add(usbDevice.toJSON());
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.name")) {
+            json.add("name", getName());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
-                .add("vendor", getVendor()).add("vendorId", getVendorId()).add("productId", getProductId())
-                .add("serialNumber", getSerialNumber()).add("connectedDevices", usbDeviceArrayBuilder.build()).build();
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.vendor")) {
+            json.add("vendor", getVendor());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.vendorId")) {
+            json.add("vendorId", getVendorId());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.productId")) {
+            json.add("productId", getProductId());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.serialNumber")) {
+            json.add("serialNumber", getSerialNumber());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.connectedDevices")
+                && PropertiesUtil.getBoolean(properties, "hardware.usbDevices.tree")) {
+            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
+            for (UsbDevice usbDevice : getConnectedDevices()) {
+                usbDeviceArrayBuilder.add(usbDevice.toJSON());
+            }
+            json.add("connectedDevices", usbDeviceArrayBuilder.build());
+        }
+        return json.build();
     }
 
     @Override

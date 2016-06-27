@@ -6,6 +6,7 @@
 * [#211](https://github.com/dblock/oshi/pull/211): Combine IOwait and IRQ ticks into processor tick array - [@dbwiddis](https://github.com/dbwiddis).
 * [#213](https://github.com/dblock/oshi/pull/213): Sort and Limit returned Processes - [@dbwiddis](https://github.com/dbwiddis).
 * [#214](https://github.com/dblock/oshi/pull/214): Offer flat or tree USB listing - [@dbwiddis](https://github.com/dbwiddis).
+* [#216](https://github.com/dblock/oshi/pull/216): Filter JSON output with properties - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.6.2 (6/21/2016)

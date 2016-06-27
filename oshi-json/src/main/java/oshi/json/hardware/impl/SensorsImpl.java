@@ -18,15 +18,20 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.Sensors;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
-public class SensorsImpl implements Sensors {
+public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,14 +71,22 @@ public class SensorsImpl implements Sensors {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
-        JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
-        for (int speed : getFanSpeeds()) {
-            fanSpeedsArrayBuilder.add(speed);
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.sensors.cpuTemperature")) {
+            json.add("cpuTemperature", getCpuTemperature());
         }
-        return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
-                .add("cpuTemperature", getCpuTemperature()).add("fanSpeeds", fanSpeedsArrayBuilder.build())
-                .add("cpuVoltage", getCpuVoltage()).build();
+        if (PropertiesUtil.getBoolean(properties, "hardware.sensors.fanSpeeds")) {
+            JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
+            for (int speed : getFanSpeeds()) {
+                fanSpeedsArrayBuilder.add(speed);
+            }
+            json.add("fanSpeeds", fanSpeedsArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.sensors.cpuVoltage")) {
+            json.add("cpuVoltage", getCpuVoltage());
+        }
+        return json.build();
     }
 
 }
