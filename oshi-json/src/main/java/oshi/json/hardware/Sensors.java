@@ -37,7 +37,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface Sensors extends oshi.hardware.Sensors, OshiJsonObject {
+public interface Sensors extends OshiJsonObject {
     /**
      * CPU Temperature
      * 

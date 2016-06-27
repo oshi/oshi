@@ -18,6 +18,8 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
@@ -32,9 +34,10 @@ import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;
 import oshi.json.hardware.Sensors;
 import oshi.json.hardware.UsbDevice;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
+public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject implements HardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
 
@@ -159,7 +162,7 @@ public class HardwareAbstractionLayerImpl implements HardwareAbstractionLayer {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();
         for (PowerSource powerSource : getPowerSources()) {
             powerSourceArrayBuilder.add(powerSource.toJSON());

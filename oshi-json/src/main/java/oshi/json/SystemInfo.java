@@ -18,12 +18,15 @@
  */
 package oshi.json;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.impl.HardwareAbstractionLayerImpl;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.json.OshiJsonObject;
 import oshi.json.software.os.OperatingSystem;
@@ -37,7 +40,7 @@ import oshi.json.software.os.impl.OperatingSystemImpl;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public class SystemInfo extends oshi.SystemInfo implements OshiJsonObject {
+public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -83,7 +86,7 @@ public class SystemInfo extends oshi.SystemInfo implements OshiJsonObject {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("platform", si.getCurrentPlatformEnum().toString())
                 .add("operatingSystem", getOperatingSystem().toJSON()).add("hardware", getHardware().toJSON()).build();

@@ -20,7 +20,7 @@ package oshi.json.software.os;
 
 import oshi.json.json.OshiJsonObject;
 
-public interface OperatingSystemVersion extends oshi.software.os.OperatingSystemVersion, OshiJsonObject {
+public interface OperatingSystemVersion extends OshiJsonObject {
     /**
      * @return the version
      */

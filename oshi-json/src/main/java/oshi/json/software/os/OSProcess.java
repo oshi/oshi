@@ -19,6 +19,7 @@
 package oshi.json.software.os;
 
 import oshi.json.json.OshiJsonObject;
+import oshi.software.os.OSProcess.State;
 
 /**
  * A process is an instance of a computer program that is being executed. It
@@ -28,7 +29,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface OSProcess extends oshi.software.os.OSProcess, OshiJsonObject {
+public interface OSProcess extends OshiJsonObject {
 
     /**
      * @return Returns the name of the process.

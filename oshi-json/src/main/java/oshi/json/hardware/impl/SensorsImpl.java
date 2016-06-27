@@ -18,15 +18,18 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.Sensors;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class SensorsImpl implements Sensors {
+public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,7 +69,7 @@ public class SensorsImpl implements Sensors {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
         for (int speed : getFanSpeeds()) {
             fanSpeedsArrayBuilder.add(speed);

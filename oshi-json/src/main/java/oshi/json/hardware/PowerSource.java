@@ -26,7 +26,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface PowerSource extends oshi.hardware.PowerSource, OshiJsonObject {
+public interface PowerSource extends OshiJsonObject {
     /**
      * Name of the power source (e.g., InternalBattery-0)
      * 

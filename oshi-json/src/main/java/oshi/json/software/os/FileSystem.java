@@ -27,7 +27,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface FileSystem extends oshi.software.os.FileSystem, OshiJsonObject {
+public interface FileSystem extends OshiJsonObject {
 
     /**
      * Get file stores on this machine

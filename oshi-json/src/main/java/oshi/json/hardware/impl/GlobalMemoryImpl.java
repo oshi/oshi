@@ -18,14 +18,17 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.GlobalMemory;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class GlobalMemoryImpl implements GlobalMemory {
+public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,7 +76,7 @@ public class GlobalMemoryImpl implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("available", getAvailable())
                 .add("total", getTotal()).add("swapTotal", getSwapTotal()).add("swapUsed", getSwapUsed()).build();
     }

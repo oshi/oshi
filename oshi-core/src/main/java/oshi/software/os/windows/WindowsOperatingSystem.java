@@ -70,7 +70,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, null,
                 processPropertyTypes);
         List<OSProcess> procList = processMapToList(procs);
-        return processSort(procList, limit, sort).toArray(new OSProcess[procList.size()]);
+        List<OSProcess> sorted = processSort(procList, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
     }
 
     /**

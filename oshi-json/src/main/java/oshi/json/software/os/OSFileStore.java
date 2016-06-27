@@ -18,12 +18,14 @@
  */
 package oshi.json.software.os;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
-import oshi.json.json.OshiJsonObject;
 
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
@@ -32,11 +34,13 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore extends oshi.software.os.OSFileStore implements OshiJsonObject {
+public class OSFileStore extends AbstractOshiJsonObject {
 
     private static final long serialVersionUID = 1L;
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+
+    private oshi.software.os.OSFileStore fileStore;
 
     /**
      * Creates an OSFileStore with the specified parameters.
@@ -60,14 +64,167 @@ public class OSFileStore extends oshi.software.os.OSFileStore implements OshiJso
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
             String newUuid, long newUsableSpace, long newTotalSpace) {
-        super(newName, newVolume, newMount, newDescription, newType, newUuid, newUsableSpace, newTotalSpace);
+        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
+                newUuid, newUsableSpace, newTotalSpace);
+    }
+
+    /**
+     * Name of the File System
+     * 
+     * @return The file system name
+     */
+    public String getName() {
+        return this.fileStore.getName();
+    }
+
+    /**
+     * Sets the File System name
+     * 
+     * @param value
+     *            The name
+     */
+    public void setName(String value) {
+        this.fileStore.setName(value);
+    }
+
+    /**
+     * Volume of the File System
+     *
+     * @return The volume of the file system
+     */
+    public String getVolume() {
+        return this.fileStore.getVolume();
+    }
+
+    /**
+     * Sets the volume of the File System
+     *
+     * @param value
+     *            The volume
+     */
+    public void setVolume(String value) {
+        this.fileStore.setVolume(value);
+    }
+
+    /**
+     * Mountpoint of the File System
+     * 
+     * @return The mountpoint of the file system
+     */
+    public String getMount() {
+        return this.fileStore.getMount();
+    }
+
+    /**
+     * Sets the mountpoint of the File System
+     * 
+     * @param value
+     *            The mountpoint
+     */
+    public void setMount(String value) {
+        this.fileStore.setMount(value);
+    }
+
+    /**
+     * Description of the File System
+     * 
+     * @return The file system description
+     */
+    public String getDescription() {
+        return this.fileStore.getDescription();
+    }
+
+    /**
+     * Sets the File System description
+     * 
+     * @param value
+     *            The description
+     */
+    public void setDescription(String value) {
+        this.fileStore.setDescription(value);
+    }
+
+    /**
+     * Type of the File System (FAT, NTFS, etx2, ext4, etc)
+     * 
+     * @return The file system type
+     */
+    public String getType() {
+        return this.fileStore.getType();
+    }
+
+    /**
+     * Sets the File System type
+     * 
+     * @param value
+     *            The type
+     */
+    public void setType(String value) {
+        this.fileStore.setType(value);
+    }
+
+    /**
+     * UUID/GUID of the File System
+     * 
+     * @return The file system UUID/GUID
+     */
+    public String getUUID() {
+        return this.fileStore.getUUID();
+    }
+
+    /**
+     * Sets the File System UUID/GUID
+     * 
+     * @param value
+     *            The UUID/GUID
+     */
+    public void setUUID(String value) {
+        this.fileStore.setUUID(value);
+    }
+
+    /**
+     * Usable space on the drive.
+     * 
+     * @return Usable space on the drive (in bytes)
+     */
+    public long getUsableSpace() {
+        return this.fileStore.getUsableSpace();
+    }
+
+    /**
+     * Sets usable space on the drive.
+     * 
+     * @param value
+     *            Bytes of writable space.
+     */
+    public void setUsableSpace(long value) {
+        this.fileStore.setUsableSpace(value);
+    }
+
+    /**
+     * Total space/capacity of the drive.
+     * 
+     * @return Total capacity of the drive (in bytes)
+     */
+    public long getTotalSpace() {
+        return this.fileStore.getTotalSpace();
+    }
+
+    /**
+     * Sets the total space on the drive.
+     * 
+     * @param value
+     *            Bytes of total space.
+     */
+    public void setTotalSpace(long value) {
+        this.fileStore.setTotalSpace(value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("volume", getVolume()).add("mountPoint", getMount()).add("description", getDescription())
                 .add("fsType", getType()).add("uuid", getUUID()).add("usableSpace", getUsableSpace())

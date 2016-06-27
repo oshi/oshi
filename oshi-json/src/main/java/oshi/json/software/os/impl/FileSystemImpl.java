@@ -18,16 +18,19 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSFileStore;
 
-public class FileSystemImpl implements FileSystem {
+public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 
@@ -74,7 +77,7 @@ public class FileSystemImpl implements FileSystem {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
         for (OSFileStore fileStore : getFileStores()) {
             fileStoreArrayBuilder.add(fileStore.toJSON());

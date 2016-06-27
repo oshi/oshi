@@ -30,7 +30,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public interface GlobalMemory extends oshi.hardware.GlobalMemory, OshiJsonObject {
+public interface GlobalMemory extends OshiJsonObject {
     /**
      * The amount of actual physical memory, in bytes.
      * 

@@ -18,14 +18,17 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.PowerSource;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class PowerSourceImpl implements PowerSource {
+public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSource {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,7 +68,7 @@ public class PowerSourceImpl implements PowerSource {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("remainingCapacity", getRemainingCapacity()).add("timeRemaining", getTimeRemaining()).build();
     }

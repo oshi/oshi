@@ -26,7 +26,7 @@ import oshi.json.json.OshiJsonObject;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface Display extends oshi.hardware.Display, OshiJsonObject {
+public interface Display extends OshiJsonObject {
     /**
      * The EDID byte array.
      * 

@@ -18,14 +18,18 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OSProcess;
+import oshi.software.os.OSProcess.State;
 
-public class OSProcessImpl implements OSProcess {
+public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
 
     private static final long serialVersionUID = 1L;
 
@@ -145,7 +149,7 @@ public class OSProcessImpl implements OSProcess {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("name", getName())
                 .add("path", getPath()).add("state", getState().name()).add("processID", getProcessID())
                 .add("parentProcessID", getParentProcessID()).add("threadCount", getThreadCount())

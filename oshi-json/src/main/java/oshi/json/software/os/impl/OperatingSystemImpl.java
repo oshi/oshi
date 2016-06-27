@@ -18,18 +18,22 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
+import oshi.software.os.OperatingSystem.ProcessSort;
 
-public class OperatingSystemImpl implements OperatingSystem {
+public class OperatingSystemImpl extends AbstractOshiJsonObject implements OperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
@@ -125,10 +129,10 @@ public class OperatingSystemImpl implements OperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
         // TODO Configure this
-        for (OSProcess proc : getProcesses(0, null)) {
+        for (OSProcess proc : getProcesses(1, null)) {
             processArrayBuilder.add(proc.toJSON());
         }
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("manufacturer", getManufacturer())

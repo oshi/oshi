@@ -18,15 +18,18 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.Display;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.util.EdidUtil;
 
-public class DisplayImpl implements Display {
+public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,7 +53,7 @@ public class DisplayImpl implements Display {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder())
                 .add("edid", EdidUtil.toHexString(getEdid())).build();
     }

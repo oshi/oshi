@@ -18,15 +18,18 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.UsbDevice;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class UsbDeviceImpl implements UsbDevice {
+public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private static final long serialVersionUID = 1L;
 
@@ -91,16 +94,11 @@ public class UsbDeviceImpl implements UsbDevice {
         return usbDevices;
     }
 
-    @Override
-    public int compareTo(oshi.hardware.UsbDevice o) {
-        return this.usbDevice.compareTo(o);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
         for (UsbDevice usbDevice : getConnectedDevices()) {
             usbDeviceArrayBuilder.add(usbDevice.toJSON());

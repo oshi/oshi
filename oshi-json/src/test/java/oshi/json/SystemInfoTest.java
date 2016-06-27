@@ -50,7 +50,6 @@ import oshi.json.software.os.OSFileStore;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
-import oshi.json.util.JsonUtil;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
@@ -470,10 +469,10 @@ public class SystemInfoTest {
 
         // LOG.info("Printing JSON:");
         // Compact JSON
-        // System.out.println(si.toJSON().toString());
+        // System.out.println(si.toCompactJSON());
 
         // Pretty JSON
-        System.out.println(JsonUtil.jsonPrettyPrint(si.toJSON()));
+        System.out.println(si.toPrettyJSON());
 
     }
 }

@@ -18,14 +18,17 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OperatingSystemVersion;
 
-public class OperatingSystemVersionImpl implements OperatingSystemVersion {
+public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implements OperatingSystemVersion {
 
     private static final long serialVersionUID = 1L;
 
@@ -89,7 +92,7 @@ public class OperatingSystemVersionImpl implements OperatingSystemVersion {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         return NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder()).add("version", getVersion())
                 .add("codeName", getCodeName()).add("build", getBuildNumber()).build();
     }

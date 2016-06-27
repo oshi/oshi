@@ -18,15 +18,18 @@
  */
 package oshi.json.hardware.impl;
 
+import java.util.Properties;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
 import oshi.json.hardware.CentralProcessor;
+import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 
-public class CentralProcessorImpl implements CentralProcessor {
+public class CentralProcessorImpl extends AbstractOshiJsonObject implements CentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -258,7 +261,7 @@ public class CentralProcessorImpl implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON() {
+    public JsonObject toJSON(Properties properties) {
         JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();
         for (double avg : getSystemLoadAverage(3)) {
             systemLoadAverageArrayBuilder.add(avg);
