@@ -52,67 +52,6 @@ public class OSFileStore implements Serializable {
      * 
      * @param newName
      *            Name of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public OSFileStore(String newName, String newDescription, long newUsableSpace, long newTotalSpace) {
-        this(newName, "unknown", newDescription, "unknown", newUsableSpace, newTotalSpace);
-    }
-
-    /**
-     * Creates an OSFileStore with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public OSFileStore(String newName, String newMount, String newDescription, long newUsableSpace,
-            long newTotalSpace) {
-        this(newName, newMount, newDescription, "unknown", newUsableSpace, newTotalSpace);
-    }
-
-    /**
-     * Creates an OSFileStore with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newType
-     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     */
-    public OSFileStore(String newName, String newMount, String newDescription, String newType, long newUsableSpace,
-            long newTotalSpace) {
-        this.setName(newName);
-        this.setMount(newMount);
-        this.setDescription(newDescription);
-        this.setType(newType);
-        this.setUsableSpace(newUsableSpace);
-        this.setTotalSpace(newTotalSpace);
-    }
-
-    /**
-     * Creates an OSFileStore with the specified parameters.
-     * 
-     * @param newName
-     *            Name of the filestore
      * @param newVolume
      *            Volume of the filestore
      * @param newMount

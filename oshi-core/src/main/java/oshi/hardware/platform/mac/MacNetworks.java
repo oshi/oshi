@@ -72,15 +72,15 @@ public class MacNetworks extends AbstractNetworks {
      * 
      * Key is the index of the IF.
      */
-    private Map<Integer, IFdata> ifMap = new HashMap<>();
-    private long lastIFmapTime = 0L;
+    private static Map<Integer, IFdata> ifMap = new HashMap<>();
+    private static long lastIFmapTime = 0L;
 
     /**
      * Map all network interfaces. Ported from source code of "netstat -ir". See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
      */
-    private void mapIFs() {
+    private static synchronized void mapIFs() {
         long now = System.currentTimeMillis();
         if (now - lastIFmapTime < 200L) {
             // Polled too recently; do nothing
@@ -130,10 +130,13 @@ public class MacNetworks extends AbstractNetworks {
     }
 
     /**
-     * {@inheritDoc}
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     * 
+     * @param netIF
+     *            The interface on which to update statistics
      */
-    @Override
-    public void updateNetworkStats(NetworkIF netIF) {
+    public static synchronized void updateNetworkStats(NetworkIF netIF) {
         // Update data
         mapIFs();
 

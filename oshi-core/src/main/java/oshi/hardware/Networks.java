@@ -33,13 +33,4 @@ public interface Networks extends Serializable {
      * @return Array of {@link NetworkIF} objects
      */
     NetworkIF[] getNetworks();
-
-    /**
-     * Updates interface network statistics on the given interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
-     * 
-     * @param netIF
-     *            The interface on which to update statistics
-     */
-    void updateNetworkStats(NetworkIF netIF);
 }

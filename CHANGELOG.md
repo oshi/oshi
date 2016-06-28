@@ -7,6 +7,7 @@
 * [#213](https://github.com/dblock/oshi/pull/213): Sort and Limit returned Processes - [@dbwiddis](https://github.com/dbwiddis).
 * [#214](https://github.com/dblock/oshi/pull/214): Offer flat or tree USB listing - [@dbwiddis](https://github.com/dbwiddis).
 * [#216](https://github.com/dblock/oshi/pull/216): Filter JSON output with properties - [@dbwiddis](https://github.com/dbwiddis).
+* [#219](https://github.com/dblock/oshi/pull/219): NetworkIFs can now update stats - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 2.6.2 (6/21/2016)
