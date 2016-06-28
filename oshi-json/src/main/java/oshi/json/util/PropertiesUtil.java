@@ -105,6 +105,8 @@ public class PropertiesUtil {
      *            The property to evaluate
      * @param enumClass
      *            The class of enum to return
+     * @param <T>
+     *            An enum type
      * @return The enum value if parseable, or null, otherwise
      */
     public static <T extends Enum<T>> T getEnum(Properties properties, String property, Class<T> enumClass) {

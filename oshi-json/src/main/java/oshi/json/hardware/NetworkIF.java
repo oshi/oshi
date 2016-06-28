@@ -27,7 +27,6 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-import oshi.hardware.Networks;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
@@ -122,7 +121,9 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Bytes Received. This value is set when the {@link NetworkIF}
      *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the
+     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         method
      */
     public long getBytesRecv() {
         return this.networkIf.getBytesRecv();
@@ -139,7 +140,9 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the
+     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         method
      */
     public long getBytesSent() {
         return this.networkIf.getBytesSent();
@@ -157,7 +160,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      * @return The Packets Received. This value is set when the
      *         {@link NetworkIF} is instantiated and may not be up to date. To
      *         update this value, execute the
-     *         {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         method
      */
     public long getPacketsRecv() {
         return this.networkIf.getPacketsRecv();
@@ -174,7 +178,9 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the
+     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         method
      */
     public long getPacketsSent() {
         return this.networkIf.getPacketsSent();
@@ -192,7 +198,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
-     *         {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         method
      */
     public long getSpeed() {
         return this.networkIf.getSpeed();

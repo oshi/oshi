@@ -913,7 +913,7 @@
               <execution>
                 <id>attach-javadocs</id>
                 <goals>
-                  <goal>jar</goal>
+                  <goal>aggregate</goal>
                 </goals>
               </execution>
             </executions>

@@ -157,9 +157,9 @@ public interface CentralProcessor extends OshiJsonObject {
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
      * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
-     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
-     * index. By measuring the difference between ticks across a time interval,
-     * CPU load over that interval may be calculated.
+     * states. Use {@link oshi.hardware.CentralProcessor.TickType#getIndex()} to
+     * retrieve the appropriate index. By measuring the difference between ticks
+     * across a time interval, CPU load over that interval may be calculated.
      * 
      * Nice information is not available on Windows, and IOwait and IRQ
      * information is not available on macOS, so these ticks will always be
@@ -250,9 +250,9 @@ public interface CentralProcessor extends OshiJsonObject {
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
      * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
-     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
-     * index. By measuring the difference between ticks across a time interval,
-     * CPU load over that interval may be calculated.
+     * states. Use {@link oshi.hardware.CentralProcessor.TickType#getIndex()} to
+     * retrieve the appropriate index. By measuring the difference between ticks
+     * across a time interval, CPU load over that interval may be calculated.
      * 
      * Nice and IOwait per processor information is not available on Windows,
      * and IOwait and IRQ information is not available on macOS, so these ticks

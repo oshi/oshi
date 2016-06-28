@@ -39,6 +39,8 @@ public interface OshiJsonObject extends Serializable {
      * of information returned using this and future invocations of
      * {@link #toCompactJSON()}.
      * 
+     * @param properties
+     *            Properties to configure returned results
      * @return a compact JSON string
      */
     String toCompactJSON(Properties properties);
@@ -58,6 +60,8 @@ public interface OshiJsonObject extends Serializable {
      * of information returned using this and future invocations of
      * {@link #toPrettyJSON()}.
      * 
+     * @param properties
+     *            Properties to configure returned results
      * @return a pretty JSON string
      */
     String toPrettyJSON(Properties properties);
@@ -77,6 +81,8 @@ public interface OshiJsonObject extends Serializable {
      * information returned using this and future invocations of
      * {@link #toJSON()}.
      * 
+     * @param properties
+     *            Properties to configure returned results
      * @return a {@link javax.json.JsonObject} for this class.
      */
     JsonObject toJSON(Properties properties);
