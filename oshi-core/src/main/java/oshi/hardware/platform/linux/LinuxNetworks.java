@@ -30,10 +30,13 @@ public class LinuxNetworks extends AbstractNetworks {
     private static final long serialVersionUID = 1L;
 
     /**
-     * {@inheritDoc}
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     * 
+     * @param netIF
+     *            The interface on which to update statistics
      */
-    @Override
-    public void updateNetworkStats(NetworkIF netIF) {
+    public static void updateNetworkStats(NetworkIF netIF) {
         String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netIF.getName());
         String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netIF.getName());
         String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netIF.getName());

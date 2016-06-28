@@ -25,6 +25,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
+import oshi.PlatformEnum;
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.impl.HardwareAbstractionLayerImpl;
 import oshi.json.json.AbstractOshiJsonObject;
@@ -56,6 +57,13 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
 
     public SystemInfo() {
         this.si = new oshi.SystemInfo();
+    }
+
+    /**
+     * @return Returns the currentPlatformEnum.
+     */
+    public static PlatformEnum getCurrentPlatformEnum() {
+        return SystemInfo.getCurrentPlatformEnum();
     }
 
     /**
@@ -91,7 +99,7 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "platform")) {
-            json.add("platform", si.getCurrentPlatformEnum().toString());
+            json.add("platform", getCurrentPlatformEnum().toString());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem")) {
             json.add("operatingSystem", getOperatingSystem().toJSON(properties));

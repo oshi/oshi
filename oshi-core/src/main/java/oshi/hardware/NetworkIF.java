@@ -29,6 +29,11 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.SystemInfo;
+import oshi.hardware.platform.linux.LinuxNetworks;
+import oshi.hardware.platform.mac.MacNetworks;
+import oshi.hardware.platform.windows.WindowsNetworks;
+
 /**
  * A network interface in the machine, including statistics
  *
@@ -158,7 +163,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Bytes Received. This value is set when the {@link NetworkIF}
      *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
         return bytesRecv;
@@ -175,7 +180,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
         return bytesSent;
@@ -192,8 +197,8 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Packets Received. This value is set when the
      *         {@link NetworkIF} is instantiated and may not be up to date. To
-     *         update this value, execute the
-     *         {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         update this value, execute the {@link #updateNetworkStats()}
+     *         method
      */
     public long getPacketsRecv() {
         return packetsRecv;
@@ -210,7 +215,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
         return packetsSent;
@@ -228,7 +233,7 @@ public class NetworkIF implements Serializable {
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
-     *         {@link Networks#updateNetworkStats(NetworkIF)} method
+     *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
         return speed;
@@ -240,5 +245,25 @@ public class NetworkIF implements Serializable {
      */
     public void setSpeed(long speed) {
         this.speed = speed;
+    }
+
+    /**
+     * Updates interface network statistics on this interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     */
+    public void updateNetworkStats() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+        case WINDOWS:
+            WindowsNetworks.updateNetworkStats(this);
+            break;
+        case LINUX:
+            LinuxNetworks.updateNetworkStats(this);
+            break;
+        case MACOSX:
+            MacNetworks.updateNetworkStats(this);
+            break;
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+        }
     }
 }

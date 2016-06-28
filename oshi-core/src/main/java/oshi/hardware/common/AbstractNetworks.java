@@ -54,7 +54,7 @@ public abstract class AbstractNetworks implements Networks {
                 if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
                     NetworkIF netIF = new NetworkIF();
                     netIF.setNetworkInterface(netint);
-                    this.updateNetworkStats(netIF);
+                    netIF.updateNetworkStats();
                     result.add(netIF);
                 }
             }

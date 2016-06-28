@@ -36,10 +36,13 @@ public class WindowsNetworks extends AbstractNetworks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     /**
-     * {@inheritDoc}
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     * 
+     * @param netIF
+     *            The interface on which to update statistics
      */
-    @Override
-    public void updateNetworkStats(NetworkIF netIF) {
+    public static void updateNetworkStats(NetworkIF netIF) {
         // Create new MIB_IFROW and set index to this interface index
         MIB_IFROW ifRow = new MIB_IFROW();
         ifRow.dwIndex = netIF.getNetworkInterface().getIndex();

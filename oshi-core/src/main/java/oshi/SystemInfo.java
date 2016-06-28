@@ -47,24 +47,26 @@ public class SystemInfo implements Serializable {
 
     private HardwareAbstractionLayer hardware = null;
 
-    private PlatformEnum currentPlatformEnum;
+    // The platform isn't going to change, and making this static enables easy
+    // access from outside this class
+    private static final PlatformEnum currentPlatformEnum;
 
-    {
+    static {
         if (Platform.isWindows()) {
-            this.currentPlatformEnum = PlatformEnum.WINDOWS;
+            currentPlatformEnum = PlatformEnum.WINDOWS;
         } else if (Platform.isLinux()) {
-            this.currentPlatformEnum = PlatformEnum.LINUX;
+            currentPlatformEnum = PlatformEnum.LINUX;
         } else if (Platform.isMac()) {
-            this.currentPlatformEnum = PlatformEnum.MACOSX;
+            currentPlatformEnum = PlatformEnum.MACOSX;
         } else {
-            this.currentPlatformEnum = PlatformEnum.UNKNOWN;
+            currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
     }
 
     /**
      * @return Returns the currentPlatformEnum.
      */
-    public PlatformEnum getCurrentPlatformEnum() {
+    public static PlatformEnum getCurrentPlatformEnum() {
         return currentPlatformEnum;
     }
 
@@ -76,7 +78,7 @@ public class SystemInfo implements Serializable {
      */
     public OperatingSystem getOperatingSystem() {
         if (this.os == null) {
-            switch (this.currentPlatformEnum) {
+            switch (currentPlatformEnum) {
 
             case WINDOWS:
                 this.os = new WindowsOperatingSystem();
@@ -102,7 +104,7 @@ public class SystemInfo implements Serializable {
      */
     public HardwareAbstractionLayer getHardware() {
         if (this.hardware == null) {
-            switch (this.currentPlatformEnum) {
+            switch (currentPlatformEnum) {
 
             case WINDOWS:
                 this.hardware = new WindowsHardwareAbstractionLayer();

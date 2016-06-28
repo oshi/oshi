@@ -27,6 +27,10 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
@@ -39,6 +43,8 @@ import oshi.json.util.PropertiesUtil;
 public class NetworkIF extends AbstractOshiJsonObject {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
@@ -121,9 +127,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Bytes Received. This value is set when the {@link NetworkIF}
      *         is instantiated and may not be up to date. To update this value,
-     *         execute the
-     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
-     *         method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
         return this.networkIf.getBytesRecv();
@@ -140,9 +144,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the
-     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
-     *         method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
         return this.networkIf.getBytesSent();
@@ -159,8 +161,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Packets Received. This value is set when the
      *         {@link NetworkIF} is instantiated and may not be up to date. To
-     *         update this value, execute the
-     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
+     *         update this value, execute the {@link #updateNetworkStats()}
      *         method
      */
     public long getPacketsRecv() {
@@ -178,9 +179,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the
-     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
-     *         method
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
         return this.networkIf.getPacketsSent();
@@ -198,8 +197,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
-     *         {@link oshi.hardware.Networks#updateNetworkStats(oshi.hardware.NetworkIF)}
-     *         method
+     *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
         return this.networkIf.getSpeed();
@@ -211,6 +209,26 @@ public class NetworkIF extends AbstractOshiJsonObject {
      */
     public void setSpeed(long speed) {
         this.networkIf.setSpeed(speed);
+    }
+
+    /**
+     * Updates interface network statistics on this interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     */
+    public void updateNetworkStats() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+        case WINDOWS:
+            oshi.hardware.platform.windows.WindowsNetworks.updateNetworkStats(this.networkIf);
+            break;
+        case LINUX:
+            oshi.hardware.platform.linux.LinuxNetworks.updateNetworkStats(this.networkIf);
+            break;
+        case MACOSX:
+            oshi.hardware.platform.mac.MacNetworks.updateNetworkStats(this.networkIf);
+            break;
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+        }
     }
 
     /**

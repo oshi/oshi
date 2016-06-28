@@ -49,22 +49,6 @@ public class HWDiskStore implements Serializable {
     }
 
     /**
-     * Create an object with empty/default read/write values
-     * 
-     * @param name
-     *            Name of the disk (e.g., /dev/disk1)
-     * @param model
-     *            Model of the disk
-     * @param serial
-     *            Disk serial number, if available
-     * @param size
-     *            Disk capacity in bytes
-     */
-    public HWDiskStore(String name, String model, String serial, long size) {
-        this(name, model, serial, size, 0L, 0L);
-    }
-
-    /**
      * Create an object with all values
      * 
      * @param name
