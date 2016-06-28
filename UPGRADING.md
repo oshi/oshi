@@ -30,6 +30,10 @@ limit the number of results returned, and to sort the results.
 The `HardwareAbstractionLayer`'s `getUsbDevices()` method now takes a boolean
 argument which offers both the existing tree-based or a flat list format.
 
+The `Networks` interface had an `updateNetworkStats()` method that was not
+reachable from cross-platform code. That method is now on the `NetworkIF`
+class.
+
 ## API Changes - oshi-json
 
 Decorator classes for the OSHI API which enable JSON functionality are now in
