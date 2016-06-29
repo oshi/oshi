@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 121,
-             Errors: 3786,
+      <title>File: 153,
+             Errors: 4367,
              Warnings: 0,
              Infos: 0
       </title>
@@ -97,7 +97,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  12
                 </td>
               </tr>
                           <tr>
@@ -116,6 +116,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.HardwareAbstractionLayer.java">oshi/json/hardware/HardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.HWDiskStore.java">oshi/hardware/HWDiskStore.java</a>
                 </td>
                 <td>
@@ -125,21 +139,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  61
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.NullAwareJsonObjectBuilder.java">oshi/json/NullAwareJsonObjectBuilder.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  31
+                  47
                 </td>
               </tr>
                           <tr>
@@ -167,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  1
                 </td>
               </tr>
                           <tr>
@@ -214,6 +214,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.package-info.java">oshi/json/software/os/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OperatingSystem.java">oshi/software/os/OperatingSystem.java</a>
                 </td>
                 <td>
@@ -223,7 +237,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  21
                 </td>
               </tr>
                           <tr>
@@ -266,6 +280,20 @@ under the License.
                 </td>
                 <td>
                   41
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.impl.OSProcessImpl.java">oshi/json/software/os/impl/OSProcessImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  36
                 </td>
               </tr>
                           <tr>
@@ -336,6 +364,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.CentralProcessor.java">oshi/json/hardware/CentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  27
                 </td>
               </tr>
                           <tr>
@@ -433,7 +475,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  27
                 </td>
               </tr>
                           <tr>
@@ -461,7 +503,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  117
+                  145
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.PowerSource.java">oshi/json/hardware/PowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
                 </td>
               </tr>
                           <tr>
@@ -480,6 +536,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.util.PropertiesUtil.java">oshi/json/util/PropertiesUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxDisks.java">oshi/hardware/platform/linux/LinuxDisks.java</a>
                 </td>
                 <td>
@@ -490,6 +560,20 @@ under the License.
                 </td>
                 <td>
                   18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.json.NullAwareJsonObjectBuilder.java">oshi/json/json/NullAwareJsonObjectBuilder.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
                 </td>
               </tr>
                           <tr>
@@ -559,7 +643,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.UsbDevice.java">oshi/json/hardware/UsbDevice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
                 </td>
               </tr>
                           <tr>
@@ -574,6 +672,20 @@ under the License.
                 </td>
                 <td>
                   2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.OSFileStore.java">oshi/json/software/os/OSFileStore.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  77
                 </td>
               </tr>
                           <tr>
@@ -601,7 +713,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  23
                 </td>
               </tr>
                           <tr>
@@ -648,6 +760,34 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.impl.FileSystemImpl.java">oshi/json/software/os/impl/FileSystemImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.DisplayImpl.java">oshi/json/hardware/impl/DisplayImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.common.AbstractUsbDevice.java">oshi/hardware/common/AbstractUsbDevice.java</a>
                 </td>
                 <td>
@@ -657,7 +797,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  48
                 </td>
               </tr>
                           <tr>
@@ -690,6 +830,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.OperatingSystem.java">oshi/json/software/os/OperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OSProcess.java">oshi/software/os/OSProcess.java</a>
                 </td>
                 <td>
@@ -713,7 +867,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  51
                 </td>
               </tr>
                           <tr>
@@ -727,21 +881,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.OshiJsonObject.java">oshi/json/OshiJsonObject.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
+                  71
                 </td>
               </tr>
                           <tr>
@@ -774,6 +914,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.json.OshiJsonObject.java">oshi/json/json/OshiJsonObject.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisplay.java">oshi/hardware/platform/windows/WindowsDisplay.java</a>
                 </td>
                 <td>
@@ -784,6 +938,20 @@ under the License.
                 </td>
                 <td>
                   17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.OperatingSystemVersion.java">oshi/json/software/os/OperatingSystemVersion.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
                 </td>
               </tr>
                           <tr>
@@ -825,7 +993,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  52
                 </td>
               </tr>
                           <tr>
@@ -872,6 +1040,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.GlobalMemoryImpl.java">oshi/json/hardware/impl/GlobalMemoryImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.NetworkIF.java">oshi/hardware/NetworkIF.java</a>
                 </td>
                 <td>
@@ -881,7 +1063,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  58
+                  50
                 </td>
               </tr>
                           <tr>
@@ -909,7 +1091,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  2
                 </td>
               </tr>
                           <tr>
@@ -951,7 +1133,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  96
+                  94
                 </td>
               </tr>
                           <tr>
@@ -965,7 +1147,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.GlobalMemory.java">oshi/json/hardware/GlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
                 </td>
               </tr>
                           <tr>
@@ -1021,7 +1217,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  125
+                  99
                 </td>
               </tr>
                           <tr>
@@ -1035,7 +1231,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  20
                 </td>
               </tr>
                           <tr>
@@ -1049,7 +1245,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  7
                 </td>
               </tr>
                           <tr>
@@ -1064,6 +1260,20 @@ under the License.
                 </td>
                 <td>
                   56
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.impl.OperatingSystemImpl.java">oshi/json/software/os/impl/OperatingSystemImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  34
                 </td>
               </tr>
                           <tr>
@@ -1091,7 +1301,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1110,6 +1320,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.FileSystem.java">oshi/json/software/os/FileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.jna.platform.mac.CoreFoundation.java">oshi/jna/platform/mac/CoreFoundation.java</a>
                 </td>
                 <td>
@@ -1120,6 +1344,20 @@ under the License.
                 </td>
                 <td>
                   52
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.OSProcess.java">oshi/json/software/os/OSProcess.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
                 </td>
               </tr>
                           <tr>
@@ -1152,6 +1390,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.UsbDeviceImpl.java">oshi/json/hardware/impl/UsbDeviceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.jna.platform.windows.COM.EnumWbemClassObject.java">oshi/jna/platform/windows/COM/EnumWbemClassObject.java</a>
                 </td>
                 <td>
@@ -1166,6 +1418,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.HWDiskStore.java">oshi/json/hardware/HWDiskStore.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  34
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.OSFileStore.java">oshi/software/os/OSFileStore.java</a>
                 </td>
                 <td>
@@ -1175,7 +1441,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  99
+                  71
                 </td>
               </tr>
                           <tr>
@@ -1189,7 +1455,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  97
+                  71
                 </td>
               </tr>
                           <tr>
@@ -1203,7 +1469,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  62
+                  70
                 </td>
               </tr>
                           <tr>
@@ -1218,6 +1484,20 @@ under the License.
                 </td>
                 <td>
                   10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.NetworkIF.java">oshi/json/hardware/NetworkIF.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  46
                 </td>
               </tr>
                           <tr>
@@ -1245,7 +1525,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.Sensors.java">oshi/json/hardware/Sensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
                 </td>
               </tr>
                           <tr>
@@ -1259,7 +1553,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.Display.java">oshi/json/hardware/Display.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1273,7 +1581,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  43
+                  51
                 </td>
               </tr>
                           <tr>
@@ -1315,7 +1623,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1329,7 +1637,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  41
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.HardwareAbstractionLayerImpl.java">oshi/json/hardware/impl/HardwareAbstractionLayerImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
                 </td>
               </tr>
                           <tr>
@@ -1357,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  12
                 </td>
               </tr>
                           <tr>
@@ -1390,6 +1712,34 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.impl.OperatingSystemVersionImpl.java">oshi/json/software/os/impl/OperatingSystemVersionImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.SystemInfo.java">oshi/json/SystemInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.common.AbstractGlobalMemory.java">oshi/hardware/common/AbstractGlobalMemory.java</a>
                 </td>
                 <td>
@@ -1399,7 +1749,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.package-info.java">oshi/json/hardware/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1455,7 +1819,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  63
+                  38
                 </td>
               </tr>
                           <tr>
@@ -1497,7 +1861,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  21
+                  17
                 </td>
               </tr>
                           <tr>
@@ -1516,6 +1880,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.package-info.java">oshi/json/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.common.AbstractHardwareAbstractionLayer.java">oshi/hardware/common/AbstractHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -1525,7 +1903,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  9
                 </td>
               </tr>
                           <tr>
@@ -1600,6 +1978,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.json.AbstractOshiJsonObject.java">oshi/json/json/AbstractOshiJsonObject.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.software.os.windows.WindowsOSVersionInfoEx.java">oshi/software/os/windows/WindowsOSVersionInfoEx.java</a>
                 </td>
                 <td>
@@ -1637,7 +2029,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  10
                 </td>
               </tr>
                           <tr>
@@ -1670,6 +2062,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.PowerSourceImpl.java">oshi/json/hardware/impl/PowerSourceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsNetworks.java">oshi/hardware/platform/windows/WindowsNetworks.java</a>
                 </td>
                 <td>
@@ -1684,6 +2090,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.SensorsImpl.java">oshi/json/hardware/impl/SensorsImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.mac.MacHardwareAbstractionLayer.java">oshi/hardware/platform/mac/MacHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -1693,7 +2113,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.CentralProcessorImpl.java">oshi/json/hardware/impl/CentralProcessorImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  77
                 </td>
               </tr>
                           <tr>
@@ -1712,6 +2146,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.util.JsonUtil.java">oshi/json/util/JsonUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsUsbDevice.java">oshi/hardware/platform/windows/WindowsUsbDevice.java</a>
                 </td>
                 <td>
@@ -1721,7 +2169,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  59
                 </td>
               </tr>
                           <tr>

@@ -200,11 +200,12 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>                 }
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>             }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>         }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         CfUtil.release(session);
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[result.size()]);
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <em class="jxr_comment">// Close DA session</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         CfUtil.release(session);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[result.size()]);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
