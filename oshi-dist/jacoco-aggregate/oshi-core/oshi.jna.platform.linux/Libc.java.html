@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Libc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.linux</a> &gt; <span class="el_source">Libc.java</span></div><h1>Libc.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.jna.platform.linux;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+
+/**
+ * Linux C Library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface Libc extends Library {
+
+<span class="nc" id="L38">    Libc INSTANCE = (Libc) Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
+
+<span class="nc" id="L40">    class Sysinfo extends Structure {</span>
+        public NativeLong uptime; // Seconds since boot
+        // 1, 5, and 15 minute load averages
+
+<span class="nc" id="L44">        public NativeLong[] loads = new NativeLong[3];</span>
+
+        public NativeLong totalram; // Total usable main memory size
+
+        public NativeLong freeram; // Available memory size
+
+        public NativeLong sharedram; // Amount of shared memory
+
+        public NativeLong bufferram; // Memory used by buffers
+
+        public NativeLong totalswap; // Total swap space size
+
+        public NativeLong freeswap; // swap space still available
+
+        public short procs; // Number of current processes
+
+        public NativeLong totalhigh; // Total high memory size
+
+        public NativeLong freehigh; // Available high memory size
+
+        public int mem_unit; // Memory unit size in bytes
+
+<span class="nc" id="L66">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L70">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
+                    &quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; });
+        }
+    }
+
+    int sysinfo(Sysinfo info);
+
+    /**
+     * The getloadavg() function returns the number of processes in the system
+     * run queue averaged over various periods of time. Up to nelem samples are
+     * retrieved and assigned to successive elements of loadavg[]. The system
+     * imposes a maximum of 3 samples, representing averages over the last 1, 5,
+     * and 15 minutes, respectively.
+     * 
+     * @param loadavg
+     *            array to be filled
+     * @param nelem
+     *            number of elements in the array to fill
+     * @return If the load average was unobtainable, -1 is returned; otherwise,
+     *         the number of samples actually retrieved is returned.
+     */
+    int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
+
+    /**
+     * Places the contents of the symbolic link path in the buffer buf, which
+     * has size bufsiz.
+     * 
+     * @param path
+     *            A symbolic link
+     * @param buf
+     *            Holds actual path to location pointed to by symlink
+     * @param bufsize
+     *            size of data in buffer
+     * @return readlink() places the contents of the symbolic link path in the
+     *         buffer buf, which has size bufsiz. readlink() does not append a
+     *         null byte to buf. It will truncate the contents (to a length of
+     *         bufsiz characters), in case the buffer is too small to hold all
+     *         of the contents.
+     */
+    int readlink(String path, Pointer buf, int bufsize);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

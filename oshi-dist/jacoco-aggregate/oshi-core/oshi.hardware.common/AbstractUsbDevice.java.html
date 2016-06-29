@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractUsbDevice.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractUsbDevice.java</span></div><h1>AbstractUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.common;
+
+import oshi.hardware.UsbDevice;
+
+/**
+ * A USB device
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public abstract class AbstractUsbDevice implements UsbDevice {
+
+    private static final long serialVersionUID = 2L;
+
+    protected String name;
+
+    protected String vendor;
+
+    protected String vendorId;
+
+    protected String productId;
+
+    protected String serialNumber;
+
+    protected UsbDevice[] connectedDevices;
+
+    public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+<span class="nc" id="L45">            UsbDevice[] connectedDevices) {</span>
+<span class="nc" id="L46">        this.name = name;</span>
+<span class="nc" id="L47">        this.vendor = vendor;</span>
+<span class="nc" id="L48">        this.vendorId = vendorId;</span>
+<span class="nc" id="L49">        this.productId = productId;</span>
+<span class="nc" id="L50">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L51">        this.connectedDevices = connectedDevices;</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+<span class="nc" id="L59">        return this.name;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVendor() {
+<span class="nc" id="L67">        return this.vendor;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVendorId() {
+<span class="nc" id="L75">        return this.vendorId;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProductId() {
+<span class="nc" id="L83">        return this.productId;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSerialNumber() {
+<span class="nc" id="L90">        return this.serialNumber;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public UsbDevice[] getConnectedDevices() {
+<span class="nc" id="L97">        return this.connectedDevices;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(UsbDevice usb) {
+        // Naturally sort by device name
+<span class="nc" id="L106">        return this.getName().compareTo(usb.getName());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L114">        return indentUsb(this, 1);</span>
+    }
+
+    /**
+     * Helper method for indenting chained USB devices
+     * 
+     * @param usbDevice
+     *            A USB device to print
+     * @param indent
+     *            number of spaces to indent
+     */
+    private static String indentUsb(UsbDevice usbDevice, int indent) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc" id="L127">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
+<span class="nc" id="L128">        sb.append(usbDevice.getName());</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc" id="L130">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(&quot;)&quot;);</span>
+        }
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc" id="L133">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(&quot;]&quot;);</span>
+        }
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
+<span class="nc" id="L136">            sb.append(&quot;\n&quot;).append(indentUsb(connected, indent + 4));</span>
+        }
+<span class="nc" id="L138">        return sb.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SystemInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json</a> &gt; <span class="el_source">SystemInfo.java</span></div><h1>SystemInfo.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.json;
+
+import java.util.Properties;
+
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import oshi.PlatformEnum;
+import oshi.json.hardware.HardwareAbstractionLayer;
+import oshi.json.hardware.impl.HardwareAbstractionLayerImpl;
+import oshi.json.json.AbstractOshiJsonObject;
+import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.json.OshiJsonObject;
+import oshi.json.software.os.OperatingSystem;
+import oshi.json.software.os.impl.OperatingSystemImpl;
+import oshi.json.util.PropertiesUtil;
+
+/**
+ * System information. This is the main entry point to Oshi. This object
+ * provides getters which instantiate the appropriate platform-specific
+ * implementations of {@link OperatingSystem} (software) and
+ * {@link HardwareAbstractionLayer} (hardware).
+ * 
+ * @author dblock[at]dblock[dot]org
+ */
+public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject {
+
+    private static final long serialVersionUID = 1L;
+
+    private oshi.SystemInfo si;
+
+<span class="fc" id="L52">    private OperatingSystem os = null;</span>
+
+<span class="fc" id="L54">    private HardwareAbstractionLayer hardware = null;</span>
+
+<span class="fc" id="L56">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+<span class="fc" id="L58">    public SystemInfo() {</span>
+<span class="fc" id="L59">        this.si = new oshi.SystemInfo();</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * @return Returns the currentPlatformEnum.
+     */
+    public static PlatformEnum getCurrentPlatformEnum() {
+<span class="nc" id="L66">        return oshi.SystemInfo.getCurrentPlatformEnum();</span>
+    }
+
+    /**
+     * Creates a new instance of the appropriate platform-specific
+     * {@link OperatingSystem}.
+     * 
+     * @return A new instance of {@link OperatingSystem}.
+     */
+    public OperatingSystem getOperatingSystem() {
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (this.os == null) {</span>
+<span class="fc" id="L77">            this.os = new OperatingSystemImpl(si.getOperatingSystem());</span>
+        }
+<span class="fc" id="L79">        return this.os;</span>
+    }
+
+    /**
+     * Creates a new instance of the appropriate platform-specific
+     * {@link HardwareAbstractionLayer}.
+     * 
+     * @return A new instance of {@link HardwareAbstractionLayer}.
+     */
+    public HardwareAbstractionLayer getHardware() {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (this.hardware == null) {</span>
+<span class="fc" id="L90">            this.hardware = new HardwareAbstractionLayerImpl(si.getHardware());</span>
+        }
+<span class="fc" id="L92">        return this.hardware;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON(Properties properties) {
+<span class="nc" id="L100">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;platform&quot;)) {</span>
+<span class="nc" id="L102">            json.add(&quot;platform&quot;, getCurrentPlatformEnum().toString());</span>
+        }
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem&quot;)) {</span>
+<span class="nc" id="L105">            json.add(&quot;operatingSystem&quot;, getOperatingSystem().toJSON(properties));</span>
+        }
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware&quot;)) {</span>
+<span class="nc" id="L108">            json.add(&quot;hardware&quot;, getHardware().toJSON(properties));</span>
+        }
+<span class="nc" id="L110">        return json.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

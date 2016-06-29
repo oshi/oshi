@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>NullAwareJsonObjectBuilder.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.json</a> &gt; <span class="el_source">NullAwareJsonObjectBuilder.java</span></div><h1>NullAwareJsonObjectBuilder.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.json.json;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
+/**
+ * Decorator class for {@link javax.json.JsonObjectBuilder} that handles null
+ * values properly
+ */
+public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
+    /**
+     * Wraps a {@link javax.json.JsonObjectBuilder}
+     * 
+     * @param builder
+     *            The builder to wrap
+     * @return A new instance of this class, wrapping the specified builder
+     */
+    public static JsonObjectBuilder wrap(JsonObjectBuilder builder) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (builder == null) {</span>
+<span class="nc" id="L43">            throw new IllegalArgumentException(&quot;Can't wrap nothing.&quot;);</span>
+        }
+<span class="nc" id="L45">        return new NullAwareJsonObjectBuilder(builder);</span>
+    }
+
+    // Decorated object per Decorator Pattern.
+    private final JsonObjectBuilder builder;
+
+    // Private constructor that wraps the builder
+<span class="nc" id="L52">    private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {</span>
+<span class="nc" id="L53">        this.builder = builder;</span>
+<span class="nc" id="L54">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, JsonValue arg1) {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L62">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L64">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L66">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, String arg1) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L75">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L77">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L79">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, BigInteger arg1) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L88">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L90">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L92">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, BigDecimal arg1) {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L101">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L103">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L105">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, int arg1) {
+<span class="nc" id="L113">        builder.add(arg0, arg1);</span>
+<span class="nc" id="L114">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, long arg1) {
+<span class="nc" id="L122">        builder.add(arg0, arg1);</span>
+<span class="nc" id="L123">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, double arg1) {
+<span class="nc" id="L131">        builder.add(arg0, arg1);</span>
+<span class="nc" id="L132">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, boolean arg1) {
+<span class="nc" id="L140">        builder.add(arg0, arg1);</span>
+<span class="nc" id="L141">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, JsonObjectBuilder arg1) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L150">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L152">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L154">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder add(String arg0, JsonArrayBuilder arg1) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (arg1 == null) {</span>
+<span class="nc" id="L163">            builder.addNull(arg0);</span>
+        } else {
+<span class="nc" id="L165">            builder.add(arg0, arg1);</span>
+        }
+<span class="nc" id="L167">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObjectBuilder addNull(String arg0) {
+<span class="nc" id="L175">        builder.addNull(arg0);</span>
+<span class="nc" id="L176">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject build() {
+<span class="nc" id="L184">        return builder.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacPowerSource.java</span></div><h1>MacPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.CfUtil;
+
+/**
+ * A Power Source
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public class MacPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);</span>
+
+    public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+<span class="fc" id="L51">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="fc" id="L52">        LOG.debug(&quot;Initialized MacPowerSource&quot;);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Gets Battery Information
+     * 
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static PowerSource[] getPowerSources() {
+        // Get the blob containing current power source state
+<span class="fc" id="L62">        CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();</span>
+<span class="fc" id="L63">        CFArrayRef powerSourcesList = IOKit.INSTANCE.IOPSCopyPowerSourcesList(powerSourcesInfo);</span>
+<span class="fc" id="L64">        int powerSourcesCount = CoreFoundation.INSTANCE.CFArrayGetCount(powerSourcesList);</span>
+
+        // Get time remaining
+        // -1 = unknown, -2 = unlimited
+<span class="fc" id="L68">        double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();</span>
+
+        // For each power source, output various info
+<span class="fc" id="L71">        List&lt;MacPowerSource&gt; psList = new ArrayList&lt;&gt;(powerSourcesCount);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
+            // Get the dictionary for that Power Source
+<span class="fc" id="L74">            CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);</span>
+<span class="fc" id="L75">            CFDictionaryRef dictionary = IOKit.INSTANCE.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);</span>
+
+            // Get values from dictionary (See IOPSKeys.h)
+            // Skip if not present
+<span class="fc" id="L79">            boolean isPresent = false;</span>
+<span class="fc" id="L80">            Pointer isPresentRef = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            if (isPresentRef != null) {</span>
+<span class="fc" id="L82">                isPresent = CoreFoundation.INSTANCE.CFBooleanGetValue(isPresentRef);</span>
+            }
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            if (!isPresent) {</span>
+<span class="nc" id="L85">                continue;</span>
+            }
+
+            // Get name
+<span class="fc" id="L89">            String name = CfUtil</span>
+<span class="fc" id="L90">                    .cfPointerToString(CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY));</span>
+
+            // Remaining Capacity = current / max
+<span class="fc" id="L93">            IntByReference currentCapacity = new IntByReference();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,</span>
+                    currentCapacity)) {
+<span class="nc" id="L96">                currentCapacity = new IntByReference(0);</span>
+            }
+<span class="fc" id="L98">            IntByReference maxCapacity = new IntByReference();</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_MAX_CAPACITY_KEY,</span>
+                    maxCapacity)) {
+<span class="nc" id="L101">                maxCapacity = new IntByReference(1);</span>
+            }
+
+            // Add to list
+<span class="fc" id="L105">            psList.add(new MacPowerSource(name, (double) currentCapacity.getValue() / maxCapacity.getValue(),</span>
+                    timeRemaining));
+        }
+        // Release the blob
+<span class="fc" id="L109">        CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);</span>
+
+<span class="fc" id="L111">        return psList.toArray(new MacPowerSource[psList.size()]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

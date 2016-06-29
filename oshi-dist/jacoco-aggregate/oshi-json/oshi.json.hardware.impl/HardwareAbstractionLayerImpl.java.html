@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>HardwareAbstractionLayerImpl.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.hardware.impl</a> &gt; <span class="el_source">HardwareAbstractionLayerImpl.java</span></div><h1>HardwareAbstractionLayerImpl.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.json.hardware.impl;
+
+import java.util.Properties;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import oshi.json.hardware.CentralProcessor;
+import oshi.json.hardware.Display;
+import oshi.json.hardware.GlobalMemory;
+import oshi.json.hardware.HWDiskStore;
+import oshi.json.hardware.HardwareAbstractionLayer;
+import oshi.json.hardware.NetworkIF;
+import oshi.json.hardware.PowerSource;
+import oshi.json.hardware.Sensors;
+import oshi.json.hardware.UsbDevice;
+import oshi.json.json.AbstractOshiJsonObject;
+import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
+
+public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject implements HardwareAbstractionLayer {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L46">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+    private oshi.hardware.HardwareAbstractionLayer hal;
+
+    private CentralProcessor processor;
+    private GlobalMemory memory;
+    private Sensors sensors;
+
+<span class="fc" id="L54">    public HardwareAbstractionLayerImpl(oshi.hardware.HardwareAbstractionLayer hardware) {</span>
+<span class="fc" id="L55">        this.hal = hardware;</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CentralProcessor getProcessor() {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (this.processor == null) {</span>
+<span class="fc" id="L64">            this.processor = new CentralProcessorImpl(this.hal.getProcessor());</span>
+        }
+<span class="fc" id="L66">        return this.processor;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GlobalMemory getMemory() {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (this.memory == null) {</span>
+<span class="fc" id="L75">            this.memory = new GlobalMemoryImpl(this.hal.getMemory());</span>
+        }
+<span class="fc" id="L77">        return this.memory;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PowerSource[] getPowerSources() {
+<span class="fc" id="L85">        oshi.hardware.PowerSource[] ps = this.hal.getPowerSources();</span>
+<span class="fc" id="L86">        PowerSource[] powerSources = new PowerSource[ps.length];</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (int i = 0; i &lt; ps.length; i++) {</span>
+<span class="fc" id="L88">            powerSources[i] = new PowerSourceImpl(ps[i]);</span>
+        }
+<span class="fc" id="L90">        return powerSources;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HWDiskStore[] getDiskStores() {
+<span class="fc" id="L98">        oshi.hardware.HWDiskStore[] ds = this.hal.getDiskStores();</span>
+<span class="fc" id="L99">        HWDiskStore[] diskStores = new HWDiskStore[ds.length];</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        for (int i = 0; i &lt; ds.length; i++) {</span>
+<span class="fc" id="L101">            diskStores[i] = new HWDiskStore(ds[i].getName(), ds[i].getModel(), ds[i].getSerial(), ds[i].getSize(),</span>
+<span class="fc" id="L102">                    ds[i].getReads(), ds[i].getWrites());</span>
+        }
+<span class="fc" id="L104">        return diskStores;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkIF[] getNetworkIFs() {
+<span class="fc" id="L112">        oshi.hardware.NetworkIF[] ifs = this.hal.getNetworkIFs();</span>
+<span class="fc" id="L113">        NetworkIF[] networkIFs = new NetworkIF[ifs.length];</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (int i = 0; i &lt; ifs.length; i++) {</span>
+<span class="fc" id="L115">            networkIFs[i] = new NetworkIF();</span>
+<span class="fc" id="L116">            networkIFs[i].setNetworkInterface(ifs[i].getNetworkInterface());</span>
+<span class="fc" id="L117">            networkIFs[i].setBytesRecv(ifs[i].getBytesRecv());</span>
+<span class="fc" id="L118">            networkIFs[i].setBytesSent(ifs[i].getBytesSent());</span>
+<span class="fc" id="L119">            networkIFs[i].setPacketsRecv(ifs[i].getPacketsRecv());</span>
+<span class="fc" id="L120">            networkIFs[i].setPacketsSent(ifs[i].getPacketsSent());</span>
+<span class="fc" id="L121">            networkIFs[i].setSpeed(ifs[i].getSpeed());</span>
+        }
+<span class="fc" id="L123">        return networkIFs;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Display[] getDisplays() {
+<span class="fc" id="L131">        oshi.hardware.Display[] ds = this.hal.getDisplays();</span>
+<span class="fc" id="L132">        Display[] displays = new Display[ds.length];</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (int i = 0; i &lt; ds.length; i++) {</span>
+<span class="fc" id="L134">            displays[i] = new DisplayImpl(ds[i]);</span>
+        }
+<span class="fc" id="L136">        return displays;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Sensors getSensors() {
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="fc" id="L145">            this.sensors = new SensorsImpl(this.hal.getSensors());</span>
+        }
+<span class="fc" id="L147">        return this.sensors;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UsbDevice[] getUsbDevices(boolean tree) {
+<span class="nc" id="L155">        oshi.hardware.UsbDevice[] usbs = this.hal.getUsbDevices(tree);</span>
+<span class="nc" id="L156">        UsbDevice[] usbDevices = new UsbDevice[usbs.length];</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (int i = 0; i &lt; usbs.length; i++) {</span>
+<span class="nc" id="L158">            usbDevices[i] = new UsbDeviceImpl(usbs[i]);</span>
+        }
+<span class="nc" id="L160">        return usbDevices;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON(Properties properties) {
+<span class="nc" id="L168">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor&quot;)) {</span>
+<span class="nc" id="L170">            json.add(&quot;processor&quot;, getProcessor().toJSON(properties));</span>
+        }
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory&quot;)) {</span>
+<span class="nc" id="L173">            json.add(&quot;memory&quot;, getMemory().toJSON(properties));</span>
+        }
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources&quot;)) {</span>
+<span class="nc" id="L176">            JsonArrayBuilder powerSourceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            for (PowerSource powerSource : getPowerSources()) {</span>
+<span class="nc" id="L178">                powerSourceArrayBuilder.add(powerSource.toJSON(properties));</span>
+            }
+<span class="nc" id="L180">            json.add(&quot;powerSources&quot;, powerSourceArrayBuilder.build());</span>
+        }
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks&quot;)) {</span>
+<span class="nc" id="L183">            JsonArrayBuilder diskStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            for (HWDiskStore diskStore : getDiskStores()) {</span>
+<span class="nc" id="L185">                diskStoreArrayBuilder.add(diskStore.toJSON(properties));</span>
+            }
+<span class="nc" id="L187">            json.add(&quot;disks&quot;, diskStoreArrayBuilder.build());</span>
+        }
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks&quot;)) {</span>
+<span class="nc" id="L190">            JsonArrayBuilder networkIFArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            for (NetworkIF netStore : getNetworkIFs()) {</span>
+<span class="nc" id="L192">                networkIFArrayBuilder.add(netStore.toJSON(properties));</span>
+            }
+<span class="nc" id="L194">            json.add(&quot;networks&quot;, networkIFArrayBuilder.build());</span>
+        }
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.displays&quot;)) {</span>
+<span class="nc" id="L197">            JsonArrayBuilder displayArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            for (Display display : getDisplays()) {</span>
+<span class="nc" id="L199">                displayArrayBuilder.add(display.toJSON(properties));</span>
+            }
+<span class="nc" id="L201">            json.add(&quot;displays&quot;, displayArrayBuilder.build());</span>
+        }
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.sensors&quot;)) {</span>
+<span class="nc" id="L204">            json.add(&quot;sensors&quot;, getSensors().toJSON(properties));</span>
+        }
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices&quot;)) {</span>
+<span class="nc" id="L207">            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            for (UsbDevice usbDevice : getUsbDevices(</span>
+<span class="nc" id="L209">                    PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.tree&quot;))) {</span>
+<span class="nc" id="L210">                usbDeviceArrayBuilder.add(usbDevice.toJSON(properties));</span>
+            }
+<span class="nc" id="L212">            json.add(&quot;usbDevices&quot;, usbDeviceArrayBuilder.build());</span>
+        }
+<span class="nc" id="L214">        return json.build();</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

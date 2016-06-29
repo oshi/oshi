@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WbemClassObject.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows.COM</a> &gt; <span class="el_source">WbemClassObject.java</span></div><h1>WbemClassObject.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows.COM;
+
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Variant.VARIANT;
+import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.COM.Unknown;
+import com.sun.jna.ptr.LongByReference;
+
+public class WbemClassObject extends Unknown {
+
+    public WbemClassObject(Pointer pvInstance) {
+<span class="nc" id="L32">        super(pvInstance);</span>
+<span class="nc" id="L33">    }</span>
+
+    public HRESULT Get(BSTR wszName, NativeLong lFlags, VARIANT.ByReference pVal, Pointer pvtType,
+            LongByReference plFlavor) {
+        // Get is 5th method of vtable for WbemClassObject in WbemCli.h
+<span class="nc" id="L38">        HRESULT result = (HRESULT) this._invokeNativeObject(4,</span>
+<span class="nc" id="L39">                new Object[] { this.getPointer(), wszName, lFlags, pVal, pvtType, plFlavor }, HRESULT.class);</span>
+
+<span class="nc" id="L41">        return result;</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
