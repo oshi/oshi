@@ -585,24 +585,65 @@
         </executions>
       </plugin>
       <plugin>
+        <!-- Code Coverage -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <executions>
+          <!-- Prepare execution with Surefire -->
           <execution>
-            <id>prepare-agent</id>
+            <id>pre-unit-test</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <configuration>
+              <propertyName>surefireArgLine</propertyName>
+            </configuration>
           </execution>
+          <!-- Generate report after tests are run -->
           <execution>
-            <id>report</id>
+            <id>post-unit-test</id>
+            <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <excludes>
+            <exclude>**/impl/**</exclude>
+            <exclude>**/common/**</exclude>
+            <exclude>**/Abstract*/**</exclude>
+            <exclude>**/platform/**</exclude>
+            <exclude>**/linux/**</exclude>
+            <exclude>**/mac/**</exclude>
+            <exclude>**/windows/**</exclude>
+          </excludes>
+        </configuration>
       </plugin>
-    </plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>${surefireArgLine}</argLine>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>run-unit-tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+      </plugin>
+    </plugins>    
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
