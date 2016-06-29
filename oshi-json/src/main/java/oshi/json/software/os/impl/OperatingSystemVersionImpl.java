@@ -30,6 +30,10 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OperatingSystemVersion;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement OperatingSystemVersion interface with
+ * platform-specific objects
+ */
 public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implements OperatingSystemVersion {
 
     private static final long serialVersionUID = 1L;
@@ -38,6 +42,13 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
 
     private oshi.software.os.OperatingSystemVersion version;
 
+    /**
+     * Creates a new platform-specific OperatingSystemVersion object wrapping
+     * the provided argument
+     * 
+     * @param version
+     *            a platform-specific OperatingSystemVersion object
+     */
     public OperatingSystemVersionImpl(oshi.software.os.OperatingSystemVersion version) {
         this.version = version;
     }

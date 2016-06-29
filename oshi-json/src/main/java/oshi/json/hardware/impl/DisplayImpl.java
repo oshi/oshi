@@ -31,6 +31,9 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 import oshi.util.EdidUtil;
 
+/**
+ * Wrapper class to implement Display interface with platform-specific objects
+ */
 public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +42,13 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 
     private oshi.hardware.Display display;
 
+    /**
+     * Creates a new platform-specific Display object wrapping the provided
+     * argument
+     * 
+     * @param display
+     *            a platform-specific Display object
+     */
     public DisplayImpl(oshi.hardware.Display display) {
         this.display = display;
     }

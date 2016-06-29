@@ -24,6 +24,9 @@ import javax.json.JsonObject;
 
 import oshi.json.util.JsonUtil;
 
+/**
+ * Implements common methods for the OshiJsonObject interface
+ */
 public abstract class AbstractOshiJsonObject implements OshiJsonObject {
 
     private static final long serialVersionUID = 1L;
@@ -65,5 +68,10 @@ public abstract class AbstractOshiJsonObject implements OshiJsonObject {
      */
     public JsonObject toJSON() {
         return toJSON(this.properties);
+    }
+
+    @Override
+    public String toString() {
+        return toPrettyJSON();
     }
 }

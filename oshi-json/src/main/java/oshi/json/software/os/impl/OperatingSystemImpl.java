@@ -35,6 +35,10 @@ import oshi.json.software.os.OperatingSystemVersion;
 import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OperatingSystem.ProcessSort;
 
+/**
+ * Wrapper class to implement OperatingSystem interface with platform-specific
+ * objects
+ */
 public class OperatingSystemImpl extends AbstractOshiJsonObject implements OperatingSystem {
 
     private static final long serialVersionUID = 1L;
@@ -45,6 +49,13 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
 
     private OperatingSystemVersion version;
 
+    /**
+     * Creates a new platform-specific OperatingSystem object wrapping the
+     * provided argument
+     * 
+     * @param operatingSystem
+     *            a platform-specific OperatingSystem object
+     */
     public OperatingSystemImpl(oshi.software.os.OperatingSystem operatingSystem) {
         this.os = operatingSystem;
         this.version = new OperatingSystemVersionImpl(os.getVersion());

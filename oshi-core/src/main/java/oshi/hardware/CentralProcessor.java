@@ -34,13 +34,51 @@ public interface CentralProcessor extends Serializable {
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
     enum TickType {
-        USER(0), NICE(1), SYSTEM(2), IDLE(3), IOWAIT(4), IRQ(5), SOFTIRQ(6);
+        /**
+         * CPU utilization that occurred while executing at the user level
+         * (application).
+         */
+        USER(0),
+        /**
+         * CPU utilization that occurred while executing at the user level with
+         * nice priority.
+         */
+        NICE(1),
+        /**
+         * CPU utilization that occurred while executing at the system level
+         * (kernel). Also includes CPU time which the hypervisor dedicated for
+         * other guests in the system (steal).
+         */
+        SYSTEM(2),
+        /**
+         * Time that the CPU or CPUs were idle and the system did not have an
+         * outstanding disk I/O request.
+         */
+        IDLE(3),
+        /**
+         * Time that the CPU or CPUs were idle during which the system had an
+         * outstanding disk I/O request.
+         */
+        IOWAIT(4),
+        /**
+         * Time that the CPU used to service hardware IRQs
+         */
+        IRQ(5),
+        /**
+         * Time that the CPU used to service soft IRQs
+         */
+        SOFTIRQ(6);
+
         private int index;
 
         private TickType(int value) {
             this.index = value;
         }
 
+        /**
+         * @return The integer index of this ENUM in the processor tick arrays,
+         *         which matches the output of Linux /proc/cpuinfo
+         */
         public int getIndex() {
             return index;
         }

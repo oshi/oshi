@@ -31,6 +31,9 @@ import oshi.json.software.os.OSProcess;
 import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OSProcess.State;
 
+/**
+ * Wrapper class to implement OSProcess interface with platform-specific objects
+ */
 public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +42,13 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
 
     private oshi.software.os.OSProcess osProcess;
 
+    /**
+     * Creates a new platform-specific OSProcessor object wrapping the provided
+     * argument
+     * 
+     * @param osProcess
+     *            a platform-specific OSProcessor object
+     */
     public OSProcessImpl(oshi.software.os.OSProcess osProcess) {
         this.osProcess = osProcess;
     }

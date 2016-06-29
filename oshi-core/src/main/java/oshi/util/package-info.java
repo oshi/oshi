@@ -17,6 +17,6 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides...
+ * Provides utilities for parsing, formatting, and other access
  */
 package oshi.util;

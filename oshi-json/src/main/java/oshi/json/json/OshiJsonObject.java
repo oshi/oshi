@@ -23,6 +23,9 @@ import java.util.Properties;
 
 import javax.json.JsonObject;
 
+/**
+ * Public interface functionality for JSON strings
+ */
 public interface OshiJsonObject extends Serializable {
     /**
      * Creates a compact JSON string containing the information for this class.

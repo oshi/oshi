@@ -17,8 +17,6 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * [oshi-json API] Provides cross-platform implementation to retrieve
- * JSON-formatted hardware information such as CPU, Memory, Display, Disks,
- * Network Interfaces, Power Sources, Sensors, and USB Devices
+ * Provides implementations for Software and OS
  */
-package oshi.json.hardware;
+package oshi.json.software.os.impl;

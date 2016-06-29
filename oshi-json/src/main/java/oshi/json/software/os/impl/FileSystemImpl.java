@@ -32,6 +32,10 @@ import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSFileStore;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement FileSystem interface with platform-specific
+ * objects
+ */
 public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem {
 
     private static final long serialVersionUID = 1L;
@@ -40,6 +44,13 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
 
     private oshi.software.os.FileSystem fileSystem;
 
+    /**
+     * Creates a new platform-specific FileSystem object wrapping the provided
+     * argument
+     * 
+     * @param fileSystem
+     *            a platform-specific FileSystem object
+     */
     public FileSystemImpl(oshi.software.os.FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }

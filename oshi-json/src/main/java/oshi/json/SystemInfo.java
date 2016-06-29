@@ -55,6 +55,9 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
 
     private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
+    /**
+     * Primary entry point for OSHI API.
+     */
     public SystemInfo() {
         this.si = new oshi.SystemInfo();
     }

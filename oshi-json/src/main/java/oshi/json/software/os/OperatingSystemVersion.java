@@ -20,6 +20,10 @@ package oshi.json.software.os;
 
 import oshi.json.json.OshiJsonObject;
 
+/**
+ * Detailed information about Operating System Version including code name and
+ * build
+ */
 public interface OperatingSystemVersion extends OshiJsonObject {
     /**
      * @return the version

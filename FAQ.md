@@ -1,8 +1,8 @@
 What is the intended use of the oshi-core API?
 ========
-Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi-core/SystemInfo.html).  This provides access to the platform-specific hardware and software interfaces using the respective `get*()` methods.  The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality.
+Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi/SystemInfo.html).  This provides access to the platform-specific hardware and software interfaces using the respective `get*()` methods.  The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality.
 
-Most methods return a "snapshot" of current levels.  To display values which change over time, it is intended that users poll for information no more frequently than one second. Disk and file system calls may incur some latency and should be polled less frequently.
+Methods return a "snapshot" of current levels.  To display values which change over time, it is intended that users poll for information no more frequently than one second. Disk and file system calls may incur some latency and should be polled less frequently.
 
 What is the intended use of the oshi-json API?
 ========
@@ -22,8 +22,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-Beginning with version 2.5, OSHI uses Java 8 as the improved date/time classes are needed.  The 2.6-m-java7 version (using a dependency to the threeten.org backport) is the last Java 7 version.  Users are encouraged to update to Java 8.
-
+Beginning with version 2.5, OSHI uses Java 8 for the improved date/time classes.  The 2.6-m-java7 version (using a dependency to the threeten.org backport) is the last Java 7 version.  Users are encouraged to update to Java 8.
 
 Which operating systems are supported?
 ========

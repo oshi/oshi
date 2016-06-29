@@ -50,6 +50,9 @@ public class NetworkIF extends AbstractOshiJsonObject {
 
     private oshi.hardware.NetworkIF networkIf;
 
+    /**
+     * Creates a new NetworkIF object.
+     */
     public NetworkIF() {
         this.networkIf = new oshi.hardware.NetworkIF();
     }

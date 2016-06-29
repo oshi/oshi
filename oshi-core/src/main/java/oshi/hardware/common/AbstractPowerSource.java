@@ -35,6 +35,17 @@ public abstract class AbstractPowerSource implements PowerSource {
 
     protected double timeRemaining;
 
+    /**
+     * Super constructor used by platform-specific implementations of
+     * PowerSource
+     * 
+     * @param newName
+     *            The name to assign
+     * @param newRemainingCapacity
+     *            Fraction of remaining capacity
+     * @param newTimeRemaining
+     *            Seconds of time remaining
+     */
     public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
         this.remainingCapacity = newRemainingCapacity;

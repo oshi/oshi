@@ -31,6 +31,9 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement Sensors interface with platform-specific objects
+ */
 public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +42,13 @@ public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
 
     private oshi.hardware.Sensors sensors;
 
+    /**
+     * Creates a new platform-specific Sensors object wrapping the provided
+     * argument
+     * 
+     * @param sensors
+     *            a platform-specific Sensors object
+     */
     public SensorsImpl(oshi.hardware.Sensors sensors) {
         this.sensors = sensors;
     }

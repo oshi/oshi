@@ -17,7 +17,8 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides a cross-platform implementation to retrieve system information, such
- * as version, memory, CPU, disk, battery, etc.
+ * [oshi-json API] Provides a cross-platform implementation to retrieve
+ * JSON-formatted Operating System and Hardware Information, such as version,
+ * memory, CPU, disk, devices etc.
  */
 package oshi.json;

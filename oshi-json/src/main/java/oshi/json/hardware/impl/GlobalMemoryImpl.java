@@ -30,6 +30,10 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement GlobalMemory interface with platform-specific
+ * objects
+ */
 public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMemory {
 
     private static final long serialVersionUID = 1L;
@@ -38,6 +42,13 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
 
     private oshi.hardware.GlobalMemory memory;
 
+    /**
+     * Creates a new platform-specific GlobalMemory object wrapping the provided
+     * argument
+     * 
+     * @param memory
+     *            a platform-specific GlobalMemory object
+     */
     public GlobalMemoryImpl(oshi.hardware.GlobalMemory memory) {
         this.memory = memory;
     }

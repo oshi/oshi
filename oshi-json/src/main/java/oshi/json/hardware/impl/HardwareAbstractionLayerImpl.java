@@ -39,6 +39,10 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement HardwareAbstractionLayer interface with
+ * platform-specific objects
+ */
 public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject implements HardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
@@ -51,6 +55,13 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
     private GlobalMemory memory;
     private Sensors sensors;
 
+    /**
+     * Creates a new platform-specific HardwareAbstractionLayer object wrapping
+     * the provided argument
+     * 
+     * @param hardware
+     *            a platform-specific HardwareAbstractionLayer object
+     */
     public HardwareAbstractionLayerImpl(oshi.hardware.HardwareAbstractionLayer hardware) {
         this.hal = hardware;
     }

@@ -31,6 +31,10 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement CentralProcessor interface with platform-specific
+ * objects
+ */
 public class CentralProcessorImpl extends AbstractOshiJsonObject implements CentralProcessor {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +43,13 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
 
     private oshi.hardware.CentralProcessor processor;
 
+    /**
+     * Creates a new platform-specific CentralProcessor object wrapping the
+     * provided argument
+     * 
+     * @param processor
+     *            a platform-specific CentralProcessor object
+     */
     public CentralProcessorImpl(oshi.hardware.CentralProcessor processor) {
         this.processor = processor;
     }

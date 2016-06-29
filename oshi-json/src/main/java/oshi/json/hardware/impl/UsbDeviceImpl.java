@@ -31,6 +31,9 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement USBDevice interface with platform-specific objects
+ */
 public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +42,13 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private oshi.hardware.UsbDevice usbDevice;
 
+    /**
+     * Creates a new platform-specific USBDevice object wrapping the provided
+     * argument
+     * 
+     * @param usbDevice
+     *            a platform-specific USBDevice object
+     */
     public UsbDeviceImpl(oshi.hardware.UsbDevice usbDevice) {
         this.usbDevice = usbDevice;
     }

@@ -27,6 +27,10 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 
+/**
+ * Common fields or methods used by platform-specific implementations of
+ * HardwareAbstractionLayer
+ */
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;

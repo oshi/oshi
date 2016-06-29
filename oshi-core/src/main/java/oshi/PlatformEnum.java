@@ -24,5 +24,20 @@ package oshi;
  * @author alessandro[at]perucchi[dot]org
  */
 public enum PlatformEnum {
-    WINDOWS, LINUX, MACOSX, UNKNOWN;
+    /**
+     * Microsoft Windows
+     */
+    WINDOWS,
+    /**
+     * A flavor of Linux
+     */
+    LINUX,
+    /**
+     * macOS (OS X)
+     */
+    MACOSX,
+    /**
+     * Solaris, FreeBSD, OpenBSD, WindowsCE, or an unspecified system
+     */
+    UNKNOWN;
 }

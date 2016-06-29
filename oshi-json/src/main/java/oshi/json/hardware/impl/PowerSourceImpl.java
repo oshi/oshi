@@ -30,6 +30,10 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement PowerSource interface with platform-specific
+ * objects
+ */
 public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSource {
 
     private static final long serialVersionUID = 1L;
@@ -38,6 +42,13 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
 
     private oshi.hardware.PowerSource powerSource;
 
+    /**
+     * Creates a new platform-specific PowerSource object wrapping the provided
+     * argument
+     * 
+     * @param powerSource
+     *            a platform-specific PowerSource object
+     */
     public PowerSourceImpl(oshi.hardware.PowerSource powerSource) {
         this.powerSource = powerSource;
     }

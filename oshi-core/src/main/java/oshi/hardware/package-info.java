@@ -17,6 +17,8 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * Provides interfaces to hardware such as Memory, Power Sources, and Processor
+ * [oshi-core API] Provides cross-platform implementation to retrieve hardware
+ * information such as CPU, Memory, Display, Disks, Network Interfaces, Power
+ * Sources, Sensors, and USB Devices
  */
 package oshi.hardware;
