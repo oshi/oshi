@@ -30,7 +30,7 @@
         <include>com.github.dblock:oshi-json</include>
       </includes>
       <binaries>
-        <outputDirectory>modules/maven-assembly-plugin</outputDirectory>
+        <outputDirectory>modules/${artifactId}</outputDirectory>
         <unpack>false</unpack>
       </binaries>
     </moduleSet>

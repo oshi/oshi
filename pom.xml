@@ -342,12 +342,10 @@
                         ! Starting with Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940)
                         ! this is not needed anymore.
                       -->
-            <!-- seems not to attach sources with this suppressed 
             <execution>
               <id>attach-sources</id>
               <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase>
             </execution>
-             -->
           </executions>
         </plugin>
         <!-- External Tools -->
@@ -382,7 +380,6 @@
           <version>2.11</version>
           <configuration>
             <header>LICENSE_HEADER</header>
-            <!-- I'm not sure if the following excludes are needed. Take a deeper look into docs. -->
             <excludes>
               <exclude>**/*.txt</exclude>
               <exclude>**/*.xml</exclude>
