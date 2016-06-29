@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinuxUsbDevice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxUsbDevice.java</span></div><h1>LinuxUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import oshi.hardware.UsbDevice;
+import oshi.hardware.common.AbstractUsbDevice;
+import oshi.hardware.platform.mac.MacUsbDevice;
+import oshi.jna.platform.linux.Udev;
+import oshi.jna.platform.linux.Udev.UdevDevice;
+import oshi.jna.platform.linux.Udev.UdevEnumerate;
+import oshi.jna.platform.linux.Udev.UdevListEntry;
+
+public class LinuxUsbDevice extends AbstractUsbDevice {
+
+    private static final long serialVersionUID = 2L;
+
+    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+<span class="nc" id="L41">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
+<span class="nc" id="L42">    }</span>
+
+    /*
+     * Maps to store information using device node path as the key
+     */
+<span class="nc" id="L47">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">    private static Map&lt;String, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">    private static Map&lt;String, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L51">    private static Map&lt;String, String&gt; serialMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L52">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public static UsbDevice[] getUsbDevices(boolean tree) {
+<span class="nc" id="L58">        UsbDevice[] devices = getUsbDevices();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (tree) {</span>
+<span class="nc" id="L60">            return devices;</span>
+        }
+<span class="nc" id="L62">        List&lt;UsbDevice&gt; deviceList = new ArrayList&lt;&gt;();</span>
+        // Top level is controllers; they won't be added to the list, but all
+        // their connected devices will be
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (UsbDevice device : devices) {</span>
+<span class="nc" id="L66">            deviceList.add(new LinuxUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),</span>
+<span class="nc" id="L67">                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));</span>
+<span class="nc" id="L68">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+        }
+<span class="nc" id="L70">        return deviceList.toArray(new UsbDevice[deviceList.size()]);</span>
+    }
+
+    private static void addDevicesToList(List&lt;UsbDevice&gt; deviceList, UsbDevice[] connectedDevices) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (UsbDevice device : connectedDevices) {</span>
+<span class="nc" id="L75">            deviceList.add(device);</span>
+<span class="nc" id="L76">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+        }
+<span class="nc" id="L78">    }</span>
+
+    private static UsbDevice[] getUsbDevices() {
+        // Enumerate all usb devices and build information maps
+<span class="nc" id="L82">        Udev.UdevHandle udev = Udev.INSTANCE.udev_new();</span>
+        // Create a list of the devices in the 'usb' subsystem.
+<span class="nc" id="L84">        UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);</span>
+<span class="nc" id="L85">        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, &quot;usb&quot;);</span>
+<span class="nc" id="L86">        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);</span>
+<span class="nc" id="L87">        UdevListEntry devices = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);</span>
+
+        // Build a list of devices with no parent; these will be the roots
+<span class="nc" id="L90">        List&lt;String&gt; usbControllers = new ArrayList&lt;&gt;();</span>
+        // Empty out maps
+<span class="nc" id="L92">        nameMap.clear();</span>
+<span class="nc" id="L93">        vendorMap.clear();</span>
+<span class="nc" id="L94">        vendorIdMap.clear();</span>
+<span class="nc" id="L95">        productIdMap.clear();</span>
+<span class="nc" id="L96">        serialMap.clear();</span>
+<span class="nc" id="L97">        hubMap.clear();</span>
+
+        // For each item enumerated, store information in the maps
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (UdevListEntry dev_list_entry = devices; dev_list_entry != null; dev_list_entry = Udev.INSTANCE</span>
+<span class="nc" id="L101">                .udev_list_entry_get_next(dev_list_entry)) {</span>
+
+            // Get the filename of the /sys entry for the device and create a
+            // udev_device object (dev) representing it
+<span class="nc" id="L105">            String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);</span>
+<span class="nc" id="L106">            UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);</span>
+            // Ignore interfaces
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!Udev.INSTANCE.udev_device_get_devtype(dev).equals(&quot;usb_device&quot;)) {</span>
+<span class="nc" id="L109">                continue;</span>
+            }
+
+            // Use the path as the key for the maps
+<span class="nc" id="L113">            String value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, &quot;product&quot;);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L115">                nameMap.put(path, value);</span>
+            }
+<span class="nc" id="L117">            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, &quot;manufacturer&quot;);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L119">                vendorMap.put(path, value);</span>
+            }
+<span class="nc" id="L121">            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, &quot;idVendor&quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L123">                vendorIdMap.put(path, value);</span>
+            }
+<span class="nc" id="L125">            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, &quot;idProduct&quot;);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L127">                productIdMap.put(path, value);</span>
+            }
+<span class="nc" id="L129">            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, &quot;serial&quot;);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L131">                serialMap.put(path, value);</span>
+            }
+<span class="nc" id="L133">            UdevDevice parent = Udev.INSTANCE.udev_device_get_parent_with_subsystem_devtype(dev, &quot;usb&quot;, &quot;usb_device&quot;);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (parent == null) {</span>
+                // This is a controller with no parent, add to list
+<span class="nc" id="L136">                usbControllers.add(path);</span>
+            } else {
+                // Add child path (path variable) to parent's path
+<span class="nc" id="L139">                String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);</span>
+<span class="nc" id="L140">                hubMap.computeIfAbsent(parentPath, k -&gt; new ArrayList&lt;String&gt;()).add(path);</span>
+            }
+<span class="nc" id="L142">            Udev.INSTANCE.udev_device_unref(dev);</span>
+        }
+        // Free the enumerator object
+<span class="nc" id="L145">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
+<span class="nc" id="L146">        Udev.INSTANCE.udev_unref(udev);</span>
+
+        // Build tree and return
+<span class="nc" id="L149">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
+<span class="nc" id="L151">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc" id="L152">        }</span>
+<span class="nc" id="L153">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+    }
+
+    /**
+     * Recursively creates LinuxUsbDevices by fetching information from maps to
+     * populate fields
+     * 
+     * @param devPath
+     *            The device node path.
+     * @param vid
+     *            The default (parent) vendor ID
+     * @param pid
+     *            The default (parent) product ID
+     * @return A LinuxUsbDevice corresponding to this device
+     */
+    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
+<span class="nc" id="L169">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
+<span class="nc" id="L170">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
+<span class="nc" id="L171">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L172">        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        for (String path : childPaths) {</span>
+<span class="nc" id="L174">            usbDevices.add(getDeviceAndChildren(path, vid, pid));</span>
+<span class="nc" id="L175">        }</span>
+<span class="nc" id="L176">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L177">        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId),</span>
+<span class="nc" id="L178">                vendorMap.getOrDefault(devPath, &quot;&quot;), vendorId, productId, serialMap.getOrDefault(devPath, &quot;&quot;),</span>
+<span class="nc" id="L179">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

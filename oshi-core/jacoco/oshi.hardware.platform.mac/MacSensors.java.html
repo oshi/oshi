@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacSensors.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacSensors.java</span></div><h1>MacSensors.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.Arrays;
+
+import oshi.hardware.common.AbstractSensors;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.SmcUtil;
+
+public class MacSensors extends AbstractSensors {
+
+    private static final long serialVersionUID = 1L;
+
+    // Store some things to throttle SMC queries
+<span class="fc" id="L32">    private double lastTemp = 0d;</span>
+
+    private long lastTempTime;
+
+<span class="fc" id="L36">    private int numFans = 0;</span>
+
+<span class="fc" id="L38">    private int[] lastFanSpeeds = new int[0];</span>
+
+    private long lastFanSpeedsTime;
+
+<span class="fc" id="L42">    private double lastVolts = 0d;</span>
+
+    private long lastVoltsTime;
+
+<span class="fc" id="L46">    public MacSensors() {</span>
+<span class="fc" id="L47">        SmcUtil.smcOpen();</span>
+        // Do an initial read of temperature and fan speeds. This caches initial
+        // dataInfo and improves success of future queries
+<span class="fc" id="L50">        this.lastTemp = getCpuTemperature();</span>
+<span class="fc" id="L51">        this.lastFanSpeeds = getFanSpeeds();</span>
+
+<span class="fc" id="L53">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L56">                SmcUtil.smcClose();</span>
+<span class="fc" id="L57">            }</span>
+        });
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCpuTemperature() {
+        // Only update every second
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
+<span class="fc" id="L68">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (temp &gt; 0d) {</span>
+<span class="nc" id="L70">                this.lastTemp = temp;</span>
+<span class="nc" id="L71">                lastTempTime = System.currentTimeMillis();</span>
+            }
+        }
+<span class="fc" id="L74">        return this.lastTemp;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int[] getFanSpeeds() {
+        // Only update every second
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
+            // If we don't have fan # try to get it
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (this.numFans == 0) {</span>
+<span class="fc" id="L86">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
+<span class="fc" id="L87">                this.lastFanSpeeds = new int[this.numFans];</span>
+            }
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
+<span class="fc" id="L90">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">                if (speed &gt; 0) {</span>
+<span class="fc" id="L92">                    this.lastFanSpeeds[i] = speed;</span>
+<span class="fc" id="L93">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
+                }
+            }
+        }
+        // Make a copy to return
+<span class="fc" id="L98">        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCpuVoltage() {
+        // Only update every second
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (System.currentTimeMillis() - this.lastVoltsTime &gt; 900) {</span>
+<span class="fc" id="L108">            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
+<span class="fc" id="L110">                this.lastVolts = kiloVolts / 1000d;</span>
+<span class="fc" id="L111">                lastVoltsTime = System.currentTimeMillis();</span>
+            }
+        }
+<span class="fc" id="L114">        return this.lastVolts;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

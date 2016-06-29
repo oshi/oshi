@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HWDiskStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">HWDiskStore.java</span></div><h1>HWDiskStore.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware;
+
+import java.io.Serializable;
+
+/**
+ * A storage mechanism where data are recorded by various electronic, magnetic,
+ * optical, or mechanical changes to a surface layer of one or more rotating
+ * disks or or flash storage such as a removable or solid state drive. In
+ * constrast to a File System, defining the way an Operating system uses the
+ * storage, the Disk Store represents the hardware which a FileSystem uses for
+ * its File Stores.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+public class HWDiskStore implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private String model;
+    private String serial;
+    private long size;
+    private long reads;
+    private long writes;
+
+    /**
+     * Create an object with empty/default values
+     */
+    public HWDiskStore() {
+<span class="nc" id="L48">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0L, 0L);</span>
+<span class="nc" id="L49">    }</span>
+
+    /**
+     * Create an object with all values
+     * 
+     * @param name
+     *            Name of the disk (e.g., /dev/disk1)
+     * @param model
+     *            Model of the disk
+     * @param serial
+     *            Disk serial number, if available
+     * @param size
+     *            Disk capacity in bytes
+     * @param reads
+     *            Number of reads from the disk
+     * @param writes
+     *            Number of writes to the disk
+     */
+<span class="fc" id="L67">    public HWDiskStore(String name, String model, String serial, long size, long reads, long writes) {</span>
+<span class="fc" id="L68">        setName(name);</span>
+<span class="fc" id="L69">        setModel(model);</span>
+<span class="fc" id="L70">        setSerial(serial);</span>
+<span class="fc" id="L71">        setSize(size);</span>
+<span class="fc" id="L72">        setReads(reads);</span>
+<span class="fc" id="L73">        setWrites(writes);</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+<span class="fc" id="L80">        return name;</span>
+    }
+
+    /**
+     * @param name
+     *            the name to set
+     */
+    public void setName(String name) {
+<span class="fc" id="L88">        this.name = name;</span>
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * @return the model
+     */
+    public String getModel() {
+<span class="fc" id="L95">        return model;</span>
+    }
+
+    /**
+     * @param model
+     *            the model to set
+     */
+    public void setModel(String model) {
+<span class="fc" id="L103">        this.model = model;</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * @return the serial
+     */
+    public String getSerial() {
+<span class="fc" id="L110">        return serial;</span>
+    }
+
+    /**
+     * @param serial
+     *            the serial to set
+     */
+    public void setSerial(String serial) {
+<span class="fc" id="L118">        this.serial = serial;</span>
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * @return Get size of disk (in bytes)
+     */
+    public long getSize() {
+<span class="fc" id="L125">        return size;</span>
+    }
+
+    /**
+     * @param size
+     *            Set size of disk (in bytes)
+     */
+    public void setSize(long size) {
+<span class="fc" id="L133">        this.size = size;</span>
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * @return the reads
+     */
+    public long getReads() {
+<span class="fc" id="L140">        return reads;</span>
+    }
+
+    /**
+     * @param reads
+     *            the reads to set
+     */
+    public void setReads(long reads) {
+<span class="fc" id="L148">        this.reads = reads;</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * @return the writes
+     */
+    public long getWrites() {
+<span class="fc" id="L155">        return writes;</span>
+    }
+
+    /**
+     * @param writes
+     *            the writes to set
+     */
+    public void setWrites(long writes) {
+<span class="fc" id="L163">        this.writes = writes;</span>
+<span class="fc" id="L164">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemB.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.mac</a> &gt; <span class="el_source">SystemB.java</span></div><h1>SystemB.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.jna.platform.mac;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+
+/**
+ * Power Supply stats. This class should be considered non-API as it may be
+ * removed if/when its code is incorporated into the JNA project.
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface SystemB extends com.sun.jna.platform.mac.SystemB {
+<span class="fc" id="L35">    SystemB INSTANCE = (SystemB) Native.loadLibrary(&quot;System&quot;, SystemB.class);</span>
+
+    // params.h
+    int MAXCOMLEN = 16;
+    int MAXPATHLEN = 1024;
+    int PROC_PIDPATHINFO_MAXSIZE = MAXPATHLEN * 4;
+
+    // proc_info.h
+    int PROC_ALL_PIDS = 1;
+    int PROC_PIDTASKALLINFO = 2;
+    int PROC_PIDTBSDINFO = 3;
+    int PROC_PIDTASKINFO = 4;
+
+<span class="fc" id="L48">    class ProcTaskAllInfo extends Structure {</span>
+        public ProcBsdInfo pbsd;
+        public ProcTaskInfo ptinfo;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L54">            return Arrays.asList(new String[] { &quot;pbsd&quot;, &quot;ptinfo&quot; });</span>
+        }
+    }
+
+<span class="fc" id="L58">    class ProcBsdInfo extends Structure {</span>
+        public int pbi_flags;
+        public int pbi_status;
+        public int pbi_xstatus;
+        public int pbi_pid;
+        public int pbi_ppid;
+        public int pbi_uid;
+        public int pbi_gid;
+        public int pbi_ruid;
+        public int pbi_rgid;
+        public int pbi_svuid;
+        public int pbi_svgid;
+        public int rfu_1;
+<span class="fc" id="L71">        public byte[] pbi_comm = new byte[MAXCOMLEN];</span>
+<span class="fc" id="L72">        public byte[] pbi_name = new byte[2 * MAXCOMLEN];</span>
+        public int pbi_nfiles;
+        public int pbi_pgid;
+        public int pbi_pjobc;
+        public int e_tdev;
+        public int e_tpgid;
+        public int pbi_nice;
+        public long pbi_start_tvsec;
+        public long pbi_start_tvusec;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L84">            return Arrays.asList(new String[] { &quot;pbi_flags&quot;, &quot;pbi_status&quot;, &quot;pbi_xstatus&quot;, &quot;pbi_pid&quot;, &quot;pbi_ppid&quot;,</span>
+                    &quot;pbi_uid&quot;, &quot;pbi_gid&quot;, &quot;pbi_ruid&quot;, &quot;pbi_rgid&quot;, &quot;pbi_svuid&quot;, &quot;pbi_svgid&quot;, &quot;rfu_1&quot;, &quot;pbi_comm&quot;,
+                    &quot;pbi_name&quot;, &quot;pbi_nfiles&quot;, &quot;pbi_pgid&quot;, &quot;pbi_pjobc&quot;, &quot;e_tdev&quot;, &quot;e_tpgid&quot;, &quot;pbi_nice&quot;,
+                    &quot;pbi_start_tvsec&quot;, &quot;pbi_start_tvusec&quot; });
+        }
+    }
+
+<span class="fc" id="L91">    class ProcTaskInfo extends Structure {</span>
+        public long pti_virtual_size; /* virtual memory size (bytes) */
+        public long pti_resident_size; /* resident memory size (bytes) */
+        public long pti_total_user; /* total time (nanoseconds) */
+        public long pti_total_system;
+        public long pti_threads_user; /* existing threads only */
+        public long pti_threads_system;
+        public int pti_policy; /* default policy for new threads */
+        public int pti_faults; /* number of page faults */
+        public int pti_pageins; /* number of actual pageins */
+        public int pti_cow_faults; /* number of copy-on-write faults */
+        public int pti_messages_sent; /* number of messages sent */
+        public int pti_messages_received; /* number of messages received */
+        public int pti_syscalls_mach; /* number of mach system calls */
+        public int pti_syscalls_unix; /* number of unix system calls */
+        public int pti_csw; /* number of context switches */
+        public int pti_threadnum; /* number of threads in the task */
+        public int pti_numrunning; /* number of running threads */
+        public int pti_priority; /* task priority */
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L113">            return Arrays.asList(new String[] { &quot;pti_virtual_size&quot;, &quot;pti_resident_size&quot;, &quot;pti_total_user&quot;,</span>
+                    &quot;pti_total_system&quot;, &quot;pti_threads_user&quot;, &quot;pti_threads_system&quot;, &quot;pti_policy&quot;, &quot;pti_faults&quot;,
+                    &quot;pti_pageins&quot;, &quot;pti_cow_faults&quot;, &quot;pti_messages_sent&quot;, &quot;pti_messages_received&quot;, &quot;pti_syscalls_mach&quot;,
+                    &quot;pti_syscalls_unix&quot;, &quot;pti_csw&quot;, &quot;pti_threadnum&quot;, &quot;pti_numrunning&quot;, &quot;pti_priority&quot; });
+        }
+    };
+
+    // length of fs type name including null
+    int MFSTYPENAMELEN = 16;
+    // length of buffer for returned name
+    int MNAMELEN = MAXPATHLEN;
+
+    /**
+     * The statfs() routine returns information about a mounted file system. The
+     * path argument is the path name of any file or directory within the
+     * mounted file system. The buf argument is a pointer to a statfs structure.
+     */
+<span class="fc" id="L130">    class Statfs extends Structure {</span>
+        public int f_bsize; /* fundamental file system block size */
+        public int f_iosize; /* optimal transfer block size */
+        public long f_blocks; /* total data blocks in file system */
+        public long f_bfree; /* free blocks in fs */
+        public long f_bavail; /* free blocks avail to non-superuser */
+        public long f_files; /* total file nodes in file system */
+        public long f_ffree; /* free file nodes in fs */
+<span class="fc" id="L138">        public int[] f_fsid = new int[2]; /* file system id */</span>
+        public int f_owner; /* user that mounted the filesystem */
+        public int f_type; /* type of filesystem */
+        public int f_flags; /* copy of mount exported flags */
+        public int f_fssubtype; /* fs sub-type (flavor) */
+        /* fs type name */
+<span class="fc" id="L144">        public byte[] f_fstypename = new byte[MFSTYPENAMELEN];</span>
+        /* directory on which mounted */
+<span class="fc" id="L146">        public byte[] f_mntonname = new byte[MAXPATHLEN];</span>
+        /* mounted filesystem */
+<span class="fc" id="L148">        public byte[] f_mntfromname = new byte[MAXPATHLEN];</span>
+<span class="fc" id="L149">        public int[] f_reserved = new int[8]; /* For future use */</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L153">            return Arrays.asList(new String[] { &quot;f_bsize&quot;, &quot;f_iosize&quot;, &quot;f_blocks&quot;, &quot;f_bfree&quot;, &quot;f_bavail&quot;, &quot;f_files&quot;,</span>
+                    &quot;f_ffree&quot;, &quot;f_fsid&quot;, &quot;f_owner&quot;, &quot;f_type&quot;, &quot;f_flags&quot;, &quot;f_fssubtype&quot;, &quot;f_fstypename&quot;, &quot;f_mntonname&quot;,
+                    &quot;f_mntfromname&quot;, &quot;f_reserved&quot; });
+        }
+    };
+
+    /**
+     * Return type for sysctl vm.swapusage
+     */
+<span class="fc" id="L162">    class XswUsage extends Structure {</span>
+        public long xsu_total;
+        public long xsu_avail;
+        public long xsu_used;
+        public int xsu_pagesize;
+        public boolean xsu_encrypted;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L171">            return Arrays</span>
+<span class="fc" id="L172">                    .asList(new String[] { &quot;xsu_total&quot;, &quot;xsu_avail&quot;, &quot;xsu_used&quot;, &quot;xsu_pagesize&quot;, &quot;xsu_encrypted&quot; });</span>
+        }
+    };
+
+    /**
+     * Return type for sysctl kern.boottime
+     */
+<span class="fc" id="L179">    class Timeval extends Structure {</span>
+        public int tv_sec; // seconds
+        public int tv_usec; // microseconds
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L185">            return Arrays.asList(new String[] { &quot;tv_sec&quot;, &quot;tv_usec&quot; });</span>
+        }
+    };
+
+    /**
+     * Data type as part of IFmsgHdr
+     */
+<span class="fc" id="L192">    class IFdata extends Structure {</span>
+        public byte ifi_type; // ethernet, tokenring, etc
+        public byte ifi_typelen; // Length of frame type id
+        public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
+        public byte ifi_addrlen; // media address length
+        public byte ifi_hdrlen; // media header length
+        public byte ifi_recvquota; // polling quota for receive intrs
+        public byte ifi_xmitquota; // polling quota for xmit intrs
+        public byte ifi_unused1; // for future use
+        public int ifi_mtu; // maximum transmission unit
+        public int ifi_metric; // routing metric (external only)
+        public int ifi_baudrate; // linespeed
+        public int ifi_ipackets; // packets received on interface
+        public int ifi_ierrors; // input errors on interface
+        public int ifi_opackets; // packets sent on interface
+        public int ifi_oerrors; // output errors on interface
+        public int ifi_collisions; // collisions on csma interfaces
+        public int ifi_ibytes; // total number of octets received
+        public int ifi_obytes; // total number of octets sent
+        public int ifi_imcasts; // packets received via multicast
+        public int ifi_omcasts; // packets sent via multicast
+        public int ifi_iqdrops; // dropped on input, this interface
+        public int ifi_noproto; // destined for unsupported protocol
+        public int ifi_recvtiming; // usec spent receiving when timing
+        public int ifi_xmittiming; // usec spent xmitting when timing
+        public Timeval ifi_lastchange; // time of last administrative change
+        public int ifi_unused2; // used to be the default_proto
+        public int ifi_hwassist; // HW offload capabilities
+        public int ifi_reserved1; // for future use
+        public int ifi_reserved2; // for future use
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L225">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
+                    &quot;ifi_recvquota&quot;, &quot;ifi_xmitquota&quot;, &quot;ifi_unused1&quot;, &quot;ifi_mtu&quot;, &quot;ifi_metric&quot;, &quot;ifi_baudrate&quot;,
+                    &quot;ifi_ipackets&quot;, &quot;ifi_ierrors&quot;, &quot;ifi_opackets&quot;, &quot;ifi_oerrors&quot;, &quot;ifi_collisions&quot;, &quot;ifi_ibytes&quot;,
+                    &quot;ifi_obytes&quot;, &quot;ifi_imcasts&quot;, &quot;ifi_omcasts&quot;, &quot;ifi_iqdrops&quot;, &quot;ifi_noproto&quot;, &quot;ifi_recvtiming&quot;,
+                    &quot;ifi_xmittiming&quot;, &quot;ifi_lastchange&quot;, &quot;ifi_unused2&quot;, &quot;ifi_hwassist&quot;, &quot;ifi_reserved1&quot;,
+                    &quot;ifi_reserved2&quot; });
+        }
+    }
+
+    /**
+     * Return type for sysctl CTL_NET,PF_ROUTE
+     */
+    class IFmsgHdr extends Structure {
+        public short ifm_msglen; // to skip over non-understood messages
+        public byte ifm_version; // future binary compatability
+        public byte ifm_type; // message type
+        public int ifm_addrs; // like rtm_addrs
+        public int ifm_flags; // value of if_flags
+        public short ifm_index; // index for associated ifp
+        public IFdata ifm_data; // statistics and other data about if
+
+        public IFmsgHdr() {
+<span class="nc" id="L247">            super();</span>
+<span class="nc" id="L248">        }</span>
+
+        public IFmsgHdr(Pointer p) {
+<span class="fc" id="L251">            super(p);</span>
+<span class="fc" id="L252">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L256">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
+                    &quot;ifm_index&quot;, &quot;ifm_data&quot; });
+        }
+    }
+
+    /**
+     * Data type as part of IFmsgHdr
+     */
+<span class="fc" id="L264">    class IFdata64 extends Structure {</span>
+        public byte ifi_type; // ethernet, tokenring, etc
+        public byte ifi_typelen; // Length of frame type id
+        public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
+        public byte ifi_addrlen; // media address length
+        public byte ifi_hdrlen; // media header length
+        public byte ifi_recvquota; // polling quota for receive intrs
+        public byte ifi_xmitquota; // polling quota for xmit intrs
+        public byte ifi_unused1; // for future use
+        public int ifi_mtu; // maximum transmission unit
+        public int ifi_metric; // routing metric (external only)
+        public long ifi_baudrate; // linespeed
+        public long ifi_ipackets; // packets received on interface
+        public long ifi_ierrors; // input errors on interface
+        public long ifi_opackets; // packets sent on interface
+        public long ifi_oerrors; // output errors on interface
+        public long ifi_collisions; // collisions on csma interfaces
+        public long ifi_ibytes; // total number of octets received
+        public long ifi_obytes; // total number of octets sent
+        public long ifi_imcasts; // packets received via multicast
+        public long ifi_omcasts; // packets sent via multicast
+        public long ifi_iqdrops; // dropped on input, this interface
+        public long ifi_noproto; // destined for unsupported protocol
+        public int ifi_recvtiming; // usec spent receiving when timing
+        public int ifi_xmittiming; // usec spent xmitting when timing
+        public Timeval ifi_lastchange; // time of last administrative change
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L293">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
+                    &quot;ifi_recvquota&quot;, &quot;ifi_xmitquota&quot;, &quot;ifi_unused1&quot;, &quot;ifi_mtu&quot;, &quot;ifi_metric&quot;, &quot;ifi_baudrate&quot;,
+                    &quot;ifi_ipackets&quot;, &quot;ifi_ierrors&quot;, &quot;ifi_opackets&quot;, &quot;ifi_oerrors&quot;, &quot;ifi_collisions&quot;, &quot;ifi_ibytes&quot;,
+                    &quot;ifi_obytes&quot;, &quot;ifi_imcasts&quot;, &quot;ifi_omcasts&quot;, &quot;ifi_iqdrops&quot;, &quot;ifi_noproto&quot;, &quot;ifi_recvtiming&quot;,
+                    &quot;ifi_xmittiming&quot;, &quot;ifi_lastchange&quot; });
+        }
+    }
+
+    /**
+     * Return type for sysctl CTL_NET,PF_ROUTE
+     */
+    class IFmsgHdr2 extends Structure {
+        public short ifm_msglen; // to skip over non-understood messages
+        public byte ifm_version; // future binary compatability
+        public byte ifm_type; // message type
+        public int ifm_addrs; // like rtm_addrs
+        public int ifm_flags; // value of if_flags
+        public short ifm_index; // index for associated ifp
+        public int ifm_snd_len; // instantaneous length of send queue
+        public int ifm_snd_maxlen; // maximum length of send queue
+        public int ifm_snd_drops; // number of drops in send queue
+        public int ifm_timer; // time until if_watchdog called
+        public IFdata64 ifm_data; // statistics and other data about if
+
+        public IFmsgHdr2(Pointer p) {
+<span class="fc" id="L318">            super(p);</span>
+<span class="fc" id="L319">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="fc" id="L323">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
+                    &quot;ifm_index&quot;, &quot;ifm_snd_len&quot;, &quot;ifm_snd_maxlen&quot;, &quot;ifm_snd_drops&quot;, &quot;ifm_timer&quot;, &quot;ifm_data&quot; });
+        }
+    }
+
+    int mach_task_self();
+
+    // Native call for getting load average
+    int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Search through the current processes
+     * 
+     * @param type
+     *            types of processes to be searched
+     * @param typeinfo
+     *            adjunct information for type
+     * @param buffer
+     *            a C array of int-sized values to be filled with process
+     *            identifiers that hold an open file reference matching the
+     *            specified path or volume. Pass NULL to obtain the minimum
+     *            buffer size needed to hold the currently active processes.
+     * @param buffersize
+     *            the size (in bytes) of the provided buffer.
+     * @return the number of bytes of data returned in the provided buffer; -1
+     *         if an error was encountered;
+     */
+    int proc_listpids(int type, int typeinfo, int[] buffer, int buffersize);
+
+    /**
+     * Return in buffer a proc_*info structure corresponding to the flavor for
+     * the specified process
+     * 
+     * @param pid
+     *            the process identifier
+     * @param flavor
+     *            the type of information requested
+     * @param arg
+     *            argument possibly needed for some flavors
+     * @param buffer
+     *            holds results
+     * @param buffersize
+     *            size of results
+     * @return the number of bytes of data returned in the provided buffer; -1
+     *         if an error was encountered;
+     */
+    int proc_pidinfo(int pid, int flavor, long arg, Structure buffer, int buffersize);
+
+    /**
+     * Return in buffer the name of the specified process
+     * 
+     * @param pid
+     *            the process identifier
+     * @param buffer
+     *            holds results
+     * @param buffersize
+     *            size of results
+     * @return the length of the name returned in buffer if successful; 0
+     *         otherwise
+     */
+    int proc_pidpath(int pid, Pointer buffer, int buffersize);
+
+    int MNT_WAIT = 0x0001;
+    int MNT_NOWAIT = 0x0010;
+    int MNT_DWAIT = 0x0100;
+
+    /**
+     * The getfsstat() function returns information about all mounted file
+     * systems. The buf argument is a pointer to an array of statfs structures.
+     * 
+     * Fields that are undefined for a particular file system are set to -1. The
+     * buffer is filled with an array of statfs structures, one for each mounted
+     * file system up to the size specified by bufsize.
+     * 
+     * @param buf
+     *            Array of statfs structures that will be filled with results.
+     *            If buf is given as NULL, getfsstat() returns just the number
+     *            of mounted file systems.
+     * @param bufsize
+     *            Size of the buffer to fill
+     * @param flags
+     *            If flags is set to MNT_NOWAIT, getfsstat() will directly
+     *            return the information retained in the kernel to avoid delays
+     *            caused by waiting for updated information from a file system
+     *            that is perhaps temporarily unable to respond. Some of the
+     *            information returned may be out of date, however; if flags is
+     *            set to MNT_WAIT or MNT_DWAIT instead, getfsstat() will request
+     *            updated information from each mounted filesystem before
+     *            returning.
+     * @return Upon successful completion, the number of statfs structures is
+     *         returned. Otherwise, -1 is returned and the global variable errno
+     *         is set to indicate the error.
+     */
+    int getfsstat64(Statfs[] buf, int bufsize, int flags);
+
+    /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     * 
+     * @return the process ID of the calling process.
+     */
+    int getpid();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
