@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.dblock</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>3.0-rc1</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>oshi-core</artifactId>
@@ -17,7 +17,7 @@
     <connection>scm:git:git@github.com:dblock/oshi.git</connection>
     <developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
     <url>https://github.com/dblock/oshi.git</url>
-    <tag>oshi-parent-3.0-rc1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
