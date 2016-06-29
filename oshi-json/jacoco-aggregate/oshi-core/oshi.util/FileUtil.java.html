@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.util;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * File reading methods
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L37">public class FileUtil {</span>
+<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+
+    /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     * 
+     * @param filename
+     *            The file to read
+     * 
+     * @return A list of Strings representing each line of the file, or an empty
+     *         list if file could not be read or is empty
+     */
+    public static List&lt;String&gt; readFile(String filename) {
+<span class="fc" id="L51">        return readFile(filename, true);</span>
+    }
+
+    /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     * 
+     * @param filename
+     *            The file to read
+     * @param reportError
+     *            Whether to log errors reading the file
+     * 
+     * @return A list of Strings representing each line of the file, or an empty
+     *         list if file could not be read or is empty
+     */
+    public static List&lt;String&gt; readFile(String filename, boolean reportError) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (new File(filename).exists()) {</span>
+<span class="fc" id="L68">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+            try {
+<span class="fc" id="L70">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L71">            } catch (IOException e) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (reportError) {</span>
+<span class="nc" id="L73">                    LOG.error(&quot;Error reading file {}&quot;, filename);</span>
+                }
+<span class="nc" id="L75">            }</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (reportError) {</span>
+<span class="nc" id="L77">            LOG.warn(&quot;File not found: {}&quot;, filename);</span>
+        }
+<span class="nc" id="L79">        return new ArrayList&lt;String&gt;();</span>
+    }
+
+    /**
+     * Read a file and return the long value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise zero
+     */
+    public static long getLongFromFile(String filename) {
+<span class="nc" id="L91">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="nc" id="L92">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc" id="L94">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="nc" id="L95">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+        }
+<span class="nc" id="L97">        return 0L;</span>
+    }
+
+    /**
+     * Read a file and return the int value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise zero
+     */
+    public static int getIntFromFile(String filename) {
+<span class="nc" id="L109">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+        try {
+<span class="nc" id="L111">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
+<span class="nc" id="L113">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="nc" id="L114">                return Integer.parseInt(read.get(0));</span>
+            }
+<span class="nc" id="L116">        } catch (NumberFormatException ex) {</span>
+<span class="nc" id="L117">            LOG.debug(&quot;Unable to read value from {}&quot;, filename);</span>
+<span class="nc" id="L118">        }</span>
+<span class="nc" id="L119">        return 0;</span>
+    }
+
+    /**
+     * Read a file and return the String value contained therein. Intended
+     * primarily for Linux /sys filesystem
+     * 
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise emptpy string
+     */
+    public static String getStringFromFile(String filename) {
+<span class="nc" id="L131">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="nc" id="L132">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc" id="L134">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="nc" id="L135">            return read.get(0);</span>
+        }
+<span class="nc" id="L137">        return &quot;&quot;;</span>
+    }
+
+    /**
+     * Read a file and return an array of whitespace-delimited string values
+     * contained therein. Intended primarily for Linux /proc
+     * 
+     * @param filename
+     *            The file to read
+     * @return An array of strings containing delimited values
+     */
+    public static String[] getSplitFromFile(String filename) {
+<span class="nc" id="L149">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="nc" id="L150">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc" id="L152">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="nc" id="L153">            return read.get(0).split(&quot;\\s+&quot;);</span>
+        }
+<span class="nc" id="L155">        return new String[0];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

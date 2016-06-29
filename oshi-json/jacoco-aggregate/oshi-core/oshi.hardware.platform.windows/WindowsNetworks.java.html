@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsNetworks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsNetworks.java</span></div><h1>WindowsNetworks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.windows;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.NetworkIF;
+import oshi.hardware.common.AbstractNetworks;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
+
+/**
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L32">public class WindowsNetworks extends AbstractNetworks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     * 
+     * @param netIF
+     *            The interface on which to update statistics
+     */
+    public static void updateNetworkStats(NetworkIF netIF) {
+        // Create new MIB_IFROW and set index to this interface index
+<span class="nc" id="L47">        MIB_IFROW ifRow = new MIB_IFROW();</span>
+<span class="nc" id="L48">        ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+            // Error, abort
+<span class="nc" id="L51">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L52">                    netIF.getName());</span>
+<span class="nc" id="L53">            return;</span>
+        }
+
+<span class="nc" id="L56">        netIF.setBytesSent(ifRow.dwOutOctets);</span>
+<span class="nc" id="L57">        netIF.setBytesRecv(ifRow.dwInOctets);</span>
+<span class="nc" id="L58">        netIF.setPacketsSent(ifRow.dwOutUcastPkts);</span>
+<span class="nc" id="L59">        netIF.setPacketsRecv(ifRow.dwInUcastPkts);</span>
+<span class="nc" id="L60">        netIF.setSpeed(ifRow.dwSpeed);</span>
+<span class="nc" id="L61">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

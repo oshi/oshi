@@ -1,0 +1,21 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+oshi-json,oshi.json.software.os,OSFileStore,136,44,16,0,36,10,19,7,11,7
+oshi-json,oshi.json.util,PropertiesUtil,133,0,16,0,20,0,15,0,7,0
+oshi-json,oshi.json.util,JsonUtil,32,0,0,0,9,0,2,0,2,0
+oshi-json,oshi.json,SystemInfo,44,46,8,2,9,12,7,3,2,3
+oshi-json,oshi.json.hardware,NetworkIF.new Object() {...},26,0,0,0,1,0,1,0,1,0
+oshi-json,oshi.json.hardware,NetworkIF,193,90,30,0,40,28,19,19,3,19
+oshi-json,oshi.json.hardware,HWDiskStore,104,42,12,0,26,10,13,7,7,7
+oshi-json,oshi.json.software.os.impl,OSProcessImpl,187,14,26,0,40,5,26,2,13,2
+oshi-json,oshi.json.software.os.impl,OperatingSystemVersionImpl,57,22,6,0,15,7,8,4,5,4
+oshi-json,oshi.json.software.os.impl,FileSystemImpl,65,74,8,2,11,13,5,5,1,4
+oshi-json,oshi.json.software.os.impl,OperatingSystemImpl,132,85,18,2,24,18,11,11,2,10
+oshi-json,oshi.json.hardware.impl,UsbDeviceImpl,159,0,18,0,33,0,18,0,9,0
+oshi-json,oshi.json.hardware.impl,DisplayImpl,23,14,2,0,5,5,3,2,2,2
+oshi-json,oshi.json.hardware.impl,HardwareAbstractionLayerImpl,260,226,31,11,39,40,19,12,2,8
+oshi-json,oshi.json.hardware.impl,GlobalMemoryImpl,48,26,8,0,10,8,5,5,1,5
+oshi-json,oshi.json.hardware.impl,PowerSourceImpl,42,18,6,0,9,6,5,3,2,3
+oshi-json,oshi.json.hardware.impl,SensorsImpl,63,22,8,0,11,7,5,4,1,4
+oshi-json,oshi.json.hardware.impl,CentralProcessorImpl,323,122,46,0,56,37,26,27,3,27
+oshi-json,oshi.json.json,AbstractOshiJsonObject,33,8,0,0,7,2,5,1,5,1
+oshi-json,oshi.json.json,NullAwareJsonObjectBuilder,157,0,14,0,41,0,21,0,14,0

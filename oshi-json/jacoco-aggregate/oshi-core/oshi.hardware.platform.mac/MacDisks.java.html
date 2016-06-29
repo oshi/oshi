@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacDisks.java</span></div><h1>MacDisks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.common.AbstractDisks;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.DiskArbitration;
+import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
+import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
+
+/**
+ * Mac hard disk implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+<span class="fc" id="L51">public class MacDisks extends AbstractDisks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);</span>
+
+    @Override
+    public HWDiskStore[] getDisks() {
+<span class="fc" id="L59">        List&lt;HWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
+
+        // Use statfs to find all drives
+<span class="fc" id="L62">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+        // Create array to hold results
+<span class="fc" id="L64">        Statfs[] fs = new Statfs[numfs];</span>
+        // Fill array with results
+<span class="fc" id="L66">        numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
+
+        // Open a DiskArbitration session to get model and size of disks
+<span class="fc" id="L69">        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (session == null) {</span>
+<span class="nc" id="L71">            LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
+<span class="nc" id="L72">            return new HWDiskStore[0];</span>
+        }
+
+        // Iterate all mounted file systems
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (Statfs f : fs) {</span>
+<span class="fc" id="L77">            String model = &quot;&quot;;</span>
+<span class="fc" id="L78">            String serial = &quot;&quot;;</span>
+<span class="fc" id="L79">            long size = 0L;</span>
+<span class="fc" id="L80">            long read = 0L;</span>
+<span class="fc" id="L81">            long write = 0L;</span>
+            // Get a reference to the disk - only matching /dev/disk*s2
+<span class="fc" id="L83">            String[] split = new String(f.f_mntfromname).trim().split(&quot;/dev/|s2&quot;);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (split.length &lt; 2) {</span>
+<span class="fc" id="L85">                continue;</span>
+            }
+            // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
+<span class="fc" id="L88">            String bsdName = split[1];</span>
+<span class="fc" id="L89">            String path = &quot;/dev/&quot; + bsdName;</span>
+
+            // Get the DiskArbitration dictionary for this disk, which has model
+            // and size (capacity)
+<span class="fc" id="L93">            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (disk != null) {</span>
+<span class="fc" id="L95">                CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (diskInfo != null) {</span>
+                    // Parse out model and size from their respective keys
+<span class="fc" id="L98">                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="fc" id="L99">                            CfUtil.getCFString(&quot;DADeviceModel&quot;));</span>
+<span class="fc" id="L100">                    model = CfUtil.cfPointerToString(modelPtr);</span>
+<span class="fc" id="L101">                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="fc" id="L102">                            CfUtil.getCFString(&quot;DAMediaSize&quot;));</span>
+<span class="fc" id="L103">                    size = CfUtil.cfPointerToLong(sizePtr);</span>
+<span class="fc" id="L104">                    CfUtil.release(diskInfo);</span>
+
+                    // Use the model as a key to get serial from IOKit
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                    if (!model.equals(&quot;Disk Image&quot;)) {</span>
+<span class="fc" id="L108">                        CFStringRef modelNameRef = CFStringRef.toCFString(model);</span>
+<span class="fc" id="L109">                        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
+<span class="fc" id="L110">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="fc" id="L111">                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;Model&quot;),</span>
+                                modelNameRef);
+<span class="fc" id="L113">                        CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE</span>
+<span class="fc" id="L114">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="fc" id="L115">                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,</span>
+<span class="fc" id="L116">                                CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
+
+                        // search for all IOservices that match the model
+<span class="fc" id="L119">                        IntByReference serviceIterator = new IntByReference();</span>
+<span class="fc" id="L120">                        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
+                        // getMatchingServices releases matchingDict
+<span class="fc" id="L122">                        CfUtil.release(modelNameRef);</span>
+<span class="fc" id="L123">                        CfUtil.release(propertyDict);</span>
+<span class="fc" id="L124">                        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">                        while (sdService != 0) {</span>
+                            // look up the serial number
+<span class="fc" id="L127">                            serial = IOKitUtil.getIORegistryStringProperty(sdService, &quot;Serial Number&quot;);</span>
+<span class="fc" id="L128">                            IOKit.INSTANCE.IOObjectRelease(sdService);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">                            if (serial != null) {</span>
+<span class="fc" id="L130">                                break;</span>
+                            }
+                            // iterate
+<span class="nc" id="L133">                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+                        }
+<span class="fc" id="L135">                        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
+                    }
+                }
+<span class="fc" id="L138">                CfUtil.release(disk);</span>
+
+                // Now look up the device using the BSD Name to get its
+                // statistics
+<span class="fc" id="L142">                CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">                if (matchingDict != null) {</span>
+                    // search for all IOservices that match the bsd name
+<span class="fc" id="L145">                    IntByReference driveList = new IntByReference();</span>
+<span class="fc" id="L146">                    IOKitUtil.getMatchingServices(matchingDict, driveList);</span>
+                    // getMatchingServices releases matchingDict
+<span class="fc" id="L148">                    int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());</span>
+                    // Should only match one drive
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                    if (drive != 0) {</span>
+                        // Should be an IOMedia object with a parent
+                        // IOBlockStorageDriver object
+                        // Get the properties from the parent
+<span class="fc" id="L154">                        IntByReference parent = new IntByReference();</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                        if (IOKit.INSTANCE.IOObjectConformsTo(drive, &quot;IOMedia&quot;)</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                                &amp;&amp; IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, &quot;IOService&quot;, parent) == 0) {</span>
+<span class="fc" id="L157">                            PointerByReference propsPtr = new PointerByReference();</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                            if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), &quot;IOBlockStorageDriver&quot;)</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">                                    &amp;&amp; IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,</span>
+                                            CfUtil.ALLOCATOR, 0) == 0) {
+<span class="fc" id="L161">                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();</span>
+<span class="fc" id="L162">                                properties.setPointer(propsPtr.getValue());</span>
+                                // We now have a properties object with the
+                                // statistics we need on it. Fetch them
+<span class="fc" id="L165">                                Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
+<span class="fc" id="L166">                                        CfUtil.getCFString(&quot;Statistics&quot;));</span>
+<span class="fc" id="L167">                                CFDictionaryRef statistics = new CFDictionaryRef();</span>
+<span class="fc" id="L168">                                statistics.setPointer(statsPtr);</span>
+
+                                // Now get the stats we want
+<span class="fc" id="L171">                                Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="fc" id="L172">                                        CfUtil.getCFString(&quot;Bytes (Read)&quot;));</span>
+<span class="fc" id="L173">                                read = CfUtil.cfPointerToLong(stat);</span>
+<span class="fc" id="L174">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="fc" id="L175">                                        CfUtil.getCFString(&quot;Bytes (Write)&quot;));</span>
+<span class="fc" id="L176">                                write = CfUtil.cfPointerToLong(stat);</span>
+
+<span class="fc" id="L178">                                CfUtil.release(properties);</span>
+<span class="fc" id="L179">                            } else {</span>
+<span class="nc" id="L180">                                LOG.error(&quot;Unable to find block storage driver properties for {}&quot;, bsdName);</span>
+                            }
+<span class="fc" id="L182">                            IOKit.INSTANCE.IOObjectRelease(parent.getValue());</span>
+<span class="fc" id="L183">                        } else {</span>
+<span class="nc" id="L184">                            LOG.error(&quot;Unable to find IOMedia device or parent for &quot;, bsdName);</span>
+                        }
+<span class="fc" id="L186">                        IOKit.INSTANCE.IOObjectRelease(drive);</span>
+                    }
+<span class="fc" id="L188">                    IOKit.INSTANCE.IOObjectRelease(driveList.getValue());</span>
+                }
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">                if (size &gt; 0L) {</span>
+<span class="fc" id="L191">                    result.add(new HWDiskStore(bsdName, model.trim(), serial.trim(), size, read, write));</span>
+                }
+            }
+        }
+        // Close DA session
+<span class="fc" id="L196">        CfUtil.release(session);</span>
+<span class="fc" id="L197">        return result.toArray(new HWDiskStore[result.size()]);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

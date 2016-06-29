@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxOperatingSystem.java</span></div><h1>LinuxOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.linux;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+
+import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.Libc.Sysinfo;
+import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSProcess;
+import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
+
+/**
+ * Linux is a family of free operating systems most commonly used on personal
+ * computers.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class LinuxOperatingSystem extends AbstractOperatingSystem {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);</span>
+
+    // Populated with results of reading /etc/os-release or other files
+    protected String versionId;
+
+    protected String codeName;
+
+<span class="nc" id="L60">    public LinuxOperatingSystem() {</span>
+<span class="nc" id="L61">        this.manufacturer = &quot;GNU/Linux&quot;;</span>
+<span class="nc" id="L62">        setFamilyFromReleaseFiles();</span>
+        // The above call may also populate versionId and codeName
+        // to pass to version constructor
+<span class="nc" id="L65">        this.version = new LinuxOSVersionInfoEx(versionId, codeName);</span>
+<span class="nc" id="L66">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+<span class="nc" id="L73">        return new LinuxFileSystem();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+<span class="nc" id="L81">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L82">        File[] pids = ProcUtil.getPidFiles();</span>
+        // now for each file (with digit name) get process info
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (File pid : pids) {</span>
+<span class="nc" id="L85">            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (proc != null) {</span>
+<span class="nc" id="L87">                procs.add(proc);</span>
+            }
+        }
+<span class="nc" id="L90">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L91">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+<span class="nc" id="L99">        String[] split = FileUtil.getSplitFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (split.length &lt; 24) {</span>
+<span class="nc" id="L101">            return null;</span>
+        }
+<span class="nc" id="L103">        String path = &quot;&quot;;</span>
+<span class="nc" id="L104">        Pointer buf = new Memory(1024);</span>
+<span class="nc" id="L105">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (size &gt; 0) {</span>
+<span class="nc" id="L107">            path = buf.getString(0).substring(0, size);</span>
+        }
+<span class="nc" id="L109">        return new LinuxProcess(split[1].replaceFirst(&quot;\\(&quot;, &quot;&quot;).replace(&quot;)&quot;, &quot;&quot;), // name</span>
+                // See man proc for how to parse /proc/[pid]/stat
+                path, // path
+<span class="nc" id="L112">                split[2].charAt(0), // state, one of RSDZTW</span>
+                pid, // also split[0] but we already have
+<span class="nc" id="L114">                ParseUtil.parseIntOrDefault(split[3], 0), // ppid</span>
+<span class="nc" id="L115">                ParseUtil.parseIntOrDefault(split[19], 0), // thread count</span>
+<span class="nc" id="L116">                ParseUtil.parseIntOrDefault(split[17], 0), // priority</span>
+<span class="nc" id="L117">                ParseUtil.parseLongOrDefault(split[22], 0L), // VSZ</span>
+<span class="nc" id="L118">                ParseUtil.parseLongOrDefault(split[23], 0L), // RSS</span>
+                // The below values are in jiffies
+<span class="nc" id="L120">                ParseUtil.parseLongOrDefault(split[14], 0L), // kernelTime</span>
+<span class="nc" id="L121">                ParseUtil.parseLongOrDefault(split[13], 0L), // userTime</span>
+<span class="nc" id="L122">                ParseUtil.parseLongOrDefault(split[21], 0L), // startTime (after</span>
+                                                             // uptime)
+<span class="nc" id="L124">                System.currentTimeMillis() //</span>
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+<span class="nc" id="L133">        return Libc.INSTANCE.getpid();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessCount() {
+<span class="nc" id="L141">        return ProcUtil.getPidFiles().length;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getThreadCount() {
+        try {
+<span class="nc" id="L150">            Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L152">                LOG.error(&quot;Failed to get process thread count. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L153">                return 0;</span>
+            }
+<span class="nc" id="L155">            return info.procs;</span>
+<span class="nc" id="L156">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L157">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e.getMessage());</span>
+        }
+<span class="nc" id="L159">        return 0;</span>
+    }
+
+    private void setFamilyFromReleaseFiles() {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (this.family == null) {</span>
+            // There are two competing options for family/version information.
+            // Newer systems are adopting a standard /etc/os-release file:
+            // https://www.freedesktop.org/software/systemd/man/os-release.html
+            //
+            // Some systems are still using the lsb standard which parses a
+            // variety of /etc/*-release files and is most easily accessed via
+            // the commandline lsb_release -a, see here:
+            // http://linux.die.net/man/1/lsb_release
+            // In this case, the /etc/lsb-release file (if it exists) has
+            // optional overrides to the information in the /etc/distrib-release
+            // files, which show: &quot;Distributor release x.x (Codename)&quot;
+            //
+
+            // Attempt to read /etc/os-release file.
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            if (readOsRelease()) {</span>
+                // If successful, we're done. this.family has been set and
+                // possibly the versionID and codeName
+<span class="nc" id="L181">                return;</span>
+            }
+
+            // Attempt to execute the `lsb_release` command
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (execLsbRelease()) {</span>
+                // If successful, we're done. this.family has been set and
+                // possibly the versionID and codeName
+<span class="nc" id="L188">                return;</span>
+            }
+
+            // The above two options should hopefully work on most
+            // distributions. If not, we keep having fun.
+            // Attempt to read /etc/lsb-release file
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (readLsbRelease()) {</span>
+                // If successful, we're done. this.family has been set and
+                // possibly the versionID and codeName
+<span class="nc" id="L197">                return;</span>
+            }
+
+            // If we're still looking, we search for any /etc/*-release (or
+            // similar) filename, for which the first line should be of the
+            // &quot;Distributor release x.x (Codename)&quot; format or possibly a
+            // &quot;Distributor VERSION x.x (Codename)&quot; format
+<span class="nc" id="L204">            String etcDistribRelease = getReleaseFilename();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            if (readDistribRelease(etcDistribRelease)) {</span>
+                // If successful, we're done. this.family has been set and
+                // possibly the versionID and codeName
+<span class="nc" id="L208">                return;</span>
+            }
+            // If we've gotten this far with no match, use the distrib-release
+            // filename (defaults will eventually give &quot;Unknown&quot;)
+<span class="nc" id="L212">            this.family = filenameToFamily(etcDistribRelease.replace(&quot;/etc/&quot;, &quot;&quot;).replace(&quot;release&quot;, &quot;&quot;)</span>
+<span class="nc" id="L213">                    .replace(&quot;version&quot;, &quot;&quot;).replace(&quot;-&quot;, &quot;&quot;).replace(&quot;_&quot;, &quot;&quot;));</span>
+        }
+<span class="nc" id="L215">    }</span>
+
+    /**
+     * Attempts to read /etc/os-release
+     * 
+     * @return true if file successfully read and NAME= found
+     */
+    private boolean readOsRelease() {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        if (new File(&quot;/etc/os-release&quot;).exists()) {</span>
+<span class="nc" id="L224">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/os-release&quot;);</span>
+            // Search for NAME=
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if (line.startsWith(&quot;VERSION=&quot;)) {</span>
+<span class="nc" id="L228">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+                    // remove beginning and ending '&quot;' characters, etc from
+                    // VERSION=&quot;14.04.4 LTS, Trusty Tahr&quot; (Ubuntu style)
+                    // or VERSION=&quot;17 (Beefy Miracle)&quot; (os-release doc style)
+<span class="nc" id="L232">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L233">                    String[] split = line.split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
+                        // If no parentheses, check for Ubuntu's comma format
+<span class="nc" id="L236">                        split = line.split(&quot;, &quot;);</span>
+                    }
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                    if (split.length &gt; 0) {</span>
+<span class="nc" id="L239">                        this.versionId = split[0].trim();</span>
+                    }
+<span class="nc bnc" id="L241" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
+<span class="nc" id="L242">                        this.codeName = split[1].trim();</span>
+                    }
+<span class="nc bnc" id="L244" title="All 4 branches missed.">                } else if (line.startsWith(&quot;NAME=&quot;) &amp;&amp; this.family == null) {</span>
+<span class="nc" id="L245">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+                    // remove beginning and ending '&quot;' characters, etc from
+                    // NAME=&quot;Ubuntu&quot;
+<span class="nc" id="L248">                    this.family = line.replace(&quot;NAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L249" title="All 4 branches missed.">                } else if (line.startsWith(&quot;VERSION_ID=&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L250">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+                    // remove beginning and ending '&quot;' characters, etc from
+                    // VERSION_ID=&quot;14.04&quot;
+<span class="nc" id="L253">                    this.versionId = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+                }
+<span class="nc" id="L255">            }</span>
+        }
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        return this.family != null;</span>
+    }
+
+    /**
+     * Attempts to execute `lsb_release -a`
+     * 
+     * @return true if the command successfully executed and Distributor ID: or
+     *         Description: found
+     */
+    private boolean execLsbRelease() {
+<span class="nc" id="L267">        List&lt;String&gt; osRelease = ExecutingCommand.runNative(&quot;lsb_release -a&quot;);</span>
+        // null if failed
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (osRelease != null) {</span>
+            // If description is of the format Distrib release x.x (Codename)
+            // that is primary, otherwise use Distributor ID: which returns the
+            // distribution concatenated, e.g., RedHat instead of Red Hat
+<span class="nc bnc" id="L273" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                if (line.startsWith(&quot;Description:&quot;)) {</span>
+<span class="nc" id="L275">                    LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L276">                    line = line.replace(&quot;Description:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L278">                        this.family = parseRelease(line, &quot; release &quot;);</span>
+                    }
+<span class="nc bnc" id="L280" title="All 4 branches missed.">                } else if (line.startsWith(&quot;Distributor ID:&quot;) &amp;&amp; this.family == null) {</span>
+<span class="nc" id="L281">                    LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L282">                    this.family = line.replace(&quot;Distributor ID:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L283" title="All 4 branches missed.">                } else if (line.startsWith(&quot;Release:&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L284">                    LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L285">                    this.versionId = line.replace(&quot;Release:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L286" title="All 4 branches missed.">                } else if (line.startsWith(&quot;Codename:&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L287">                    LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L288">                    this.codeName = line.replace(&quot;Codename:&quot;, &quot;&quot;).trim();</span>
+                }
+<span class="nc" id="L290">            }</span>
+        }
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        return this.family != null;</span>
+    }
+
+    /**
+     * Attempts to read /etc/lsb-release
+     * 
+     * @return true if file successfully read and DISTRIB_ID or
+     *         DISTRIB_DESCRIPTION found
+     */
+    private boolean readLsbRelease() {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        if (new File(&quot;/etc/lsb-release&quot;).exists()) {</span>
+<span class="nc" id="L303">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/lsb-release&quot;);</span>
+            // Search for NAME=
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
+<span class="nc" id="L307">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L308">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L310">                        this.family = parseRelease(line, &quot; release &quot;);</span>
+                    }
+<span class="nc bnc" id="L312" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_ID=&quot;) &amp;&amp; this.family == null) {</span>
+<span class="nc" id="L313">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L314">                    this.family = line.replace(&quot;DISTRIB_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L315" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L316">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L317">                    this.versionId = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L318" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L319">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L320">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+                }
+<span class="nc" id="L322">            }</span>
+        }
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        return this.family != null;</span>
+    }
+
+    /**
+     * Attempts to read /etc/distrib-release (for some value of distrib)
+     * 
+     * @return true if file successfully read and &quot; release &quot; or &quot; VERSION &quot;
+     *         found
+     */
+    private boolean readDistribRelease(String filename) {
+<span class="nc bnc" id="L334" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
+<span class="nc" id="L335">            List&lt;String&gt; osRelease = FileUtil.readFile(filename);</span>
+            // Search for Distrib release x.x (Codename)
+<span class="nc bnc" id="L337" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc" id="L338">                LOG.debug(&quot;{}: {}&quot;, filename, line);</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L340">                    this.family = parseRelease(line, &quot; release &quot;);</span>
+                    // If this parses properly we're done
+<span class="nc" id="L342">                    break;</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">                } else if (line.contains(&quot; VERSION &quot;)) {</span>
+<span class="nc" id="L344">                    this.family = parseRelease(line, &quot; VERSION &quot;);</span>
+                    // If this parses properly we're done
+<span class="nc" id="L346">                    break;</span>
+                }
+<span class="nc" id="L348">            }</span>
+        }
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        return this.family != null;</span>
+    }
+
+    /**
+     * Helper method to parse version description line style
+     * 
+     * @param line
+     *            a String of the form &quot;Distributor release x.x (Codename)&quot;
+     * @param splitLine
+     *            A regex to split on, e.g. &quot; release &quot;
+     * @return the parsed family (versionID and codeName may have also been set)
+     */
+    private String parseRelease(String line, String splitLine) {
+<span class="nc" id="L363">        String[] split = line.split(splitLine);</span>
+<span class="nc" id="L364">        String family = split[0].trim();</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L366">            split = split[1].split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            if (split.length &gt; 0) {</span>
+<span class="nc" id="L368">                this.versionId = split[0].trim();</span>
+            }
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
+<span class="nc" id="L371">                this.codeName = split[1].trim();</span>
+            }
+        }
+<span class="nc" id="L374">        return family;</span>
+    }
+
+    /**
+     * Looks for a collection of possible distrib-release filenames
+     * 
+     * @return The first valid matching filename
+     */
+    protected static String getReleaseFilename() {
+        // Look for any /etc/*-release, *-version, and variants
+<span class="nc" id="L384">        File etc = new File(&quot;/etc&quot;);</span>
+<span class="nc" id="L385">        File[] files = etc.listFiles(new FilenameFilter() {</span>
+            @Override
+            public boolean accept(File dir, String name) {
+<span class="nc bnc" id="L388" title="All 6 branches missed.">                return (name.endsWith(&quot;-release&quot;) || name.endsWith(&quot;-version&quot;) || name.endsWith(&quot;_release&quot;)</span>
+<span class="nc bnc" id="L389" title="All 6 branches missed.">                        || name.endsWith(&quot;_version&quot;)) &amp;&amp; !(name.endsWith(&quot;os-release&quot;) || name.endsWith(&quot;lsb-release&quot;));</span>
+            }
+        });
+<span class="nc bnc" id="L392" title="All 4 branches missed.">        if (files != null &amp;&amp; files.length &gt; 0) {</span>
+<span class="nc" id="L393">            return files[0].getPath();</span>
+        }
+<span class="nc bnc" id="L395" title="All 2 branches missed.">        if (new File(&quot;/etc/release&quot;).exists()) {</span>
+<span class="nc" id="L396">            return &quot;/etc/release&quot;;</span>
+        }
+        // If all else fails, try this
+<span class="nc" id="L399">        return &quot;/etc/issue&quot;;</span>
+    }
+
+    /**
+     * Converts a portion of a filename (e.g. the 'redhat' in
+     * /etc/redhat-release) to a mixed case string representing the family
+     * (e.g., Red Hat)
+     * 
+     * @param name
+     *            Stripped version of filename after removing /etc and -release
+     * @return Mixed case family
+     */
+    private static String filenameToFamily(String name) {
+<span class="nc bnc" id="L412" title="All 105 branches missed.">        switch (name.toLowerCase()) {</span>
+        // Handle known special cases
+        case &quot;&quot;:
+<span class="nc" id="L415">            return &quot;Solaris&quot;;</span>
+        case &quot;blackcat&quot;:
+<span class="nc" id="L417">            return &quot;Black Cat&quot;;</span>
+        case &quot;bluewhite64&quot;:
+<span class="nc" id="L419">            return &quot;BlueWhite64&quot;;</span>
+        case &quot;e-smith&quot;:
+<span class="nc" id="L421">            return &quot;SME Server&quot;;</span>
+        case &quot;eos&quot;:
+<span class="nc" id="L423">            return &quot;FreeEOS&quot;;</span>
+        case &quot;hlfs&quot;:
+<span class="nc" id="L425">            return &quot;HLFS&quot;;</span>
+        case &quot;lfs&quot;:
+<span class="nc" id="L427">            return &quot;Linux-From-Scratch&quot;;</span>
+        case &quot;linuxppc&quot;:
+<span class="nc" id="L429">            return &quot;Linux-PPC&quot;;</span>
+        case &quot;meego&quot;:
+<span class="nc" id="L431">            return &quot;MeeGo&quot;;</span>
+        case &quot;mandakelinux&quot;:
+<span class="nc" id="L433">            return &quot;Mandrake&quot;;</span>
+        case &quot;mklinux&quot;:
+<span class="nc" id="L435">            return &quot;MkLinux&quot;;</span>
+        case &quot;nld&quot;:
+<span class="nc" id="L437">            return &quot;Novell Linux Desktop&quot;;</span>
+        case &quot;novell&quot;:
+        case &quot;SuSE&quot;:
+<span class="nc" id="L440">            return &quot;SUSE Linux&quot;;</span>
+        case &quot;pld&quot;:
+<span class="nc" id="L442">            return &quot;PLD&quot;;</span>
+        case &quot;redhat&quot;:
+<span class="nc" id="L444">            return &quot;Red Hat Linux&quot;;</span>
+        case &quot;sles&quot;:
+<span class="nc" id="L446">            return &quot;SUSE Linux ES9&quot;;</span>
+        case &quot;sun&quot;:
+<span class="nc" id="L448">            return &quot;Sun JDS&quot;;</span>
+        case &quot;synoinfo&quot;:
+<span class="nc" id="L450">            return &quot;Synology&quot;;</span>
+        case &quot;tinysofa&quot;:
+<span class="nc" id="L452">            return &quot;Tiny Sofa&quot;;</span>
+        case &quot;turbolinux&quot;:
+<span class="nc" id="L454">            return &quot;TurboLinux&quot;;</span>
+        case &quot;ultrapenguin&quot;:
+<span class="nc" id="L456">            return &quot;UltraPenguin&quot;;</span>
+        case &quot;va&quot;:
+<span class="nc" id="L458">            return &quot;VA-Linux&quot;;</span>
+        case &quot;vmware&quot;:
+<span class="nc" id="L460">            return &quot;VMWareESX&quot;;</span>
+        case &quot;yellowdog&quot;:
+<span class="nc" id="L462">            return &quot;Yellow Dog&quot;;</span>
+
+        // /etc/issue will end up here:
+        case &quot;issue&quot;:
+<span class="nc" id="L466">            return &quot;Unknown&quot;;</span>
+        // If not a special case just capitalize first letter
+        default:
+<span class="nc" id="L469">            return name.substring(0, 1).toUpperCase() + name.substring(1);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

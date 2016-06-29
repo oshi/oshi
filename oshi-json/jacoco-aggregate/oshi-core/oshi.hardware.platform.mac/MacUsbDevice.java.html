@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacUsbDevice.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacUsbDevice.java</span></div><h1>MacUsbDevice.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+
+import oshi.hardware.UsbDevice;
+import oshi.hardware.common.AbstractUsbDevice;
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.platform.mac.CfUtil;
+import oshi.util.platform.mac.IOKitUtil;
+
+public class MacUsbDevice extends AbstractUsbDevice {
+
+    private static final long serialVersionUID = 2L;
+
+    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+<span class="nc" id="L47">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
+<span class="nc" id="L48">    }</span>
+
+    /*
+     * Maps to store information using RegistryEntryID as the key
+     */
+<span class="nc" id="L53">    private static Map&lt;Long, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L54">    private static Map&lt;Long, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L55">    private static Map&lt;Long, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L56">    private static Map&lt;Long, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L57">    private static Map&lt;Long, String&gt; serialMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L58">    private static Map&lt;Long, List&lt;Long&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public static UsbDevice[] getUsbDevices(boolean tree) {
+<span class="nc" id="L64">        UsbDevice[] devices = getUsbDevices();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (tree) {</span>
+<span class="nc" id="L66">            return devices;</span>
+        }
+<span class="nc" id="L68">        List&lt;UsbDevice&gt; deviceList = new ArrayList&lt;&gt;();</span>
+        // Top level is controllers; they won't be added to the list, but all
+        // their connected devices will be
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (UsbDevice device : devices) {</span>
+<span class="nc" id="L72">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+        }
+<span class="nc" id="L74">        return deviceList.toArray(new UsbDevice[deviceList.size()]);</span>
+    }
+
+    private static void addDevicesToList(List&lt;UsbDevice&gt; deviceList, UsbDevice[] connectedDevices) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (UsbDevice device : connectedDevices) {</span>
+<span class="nc" id="L79">            deviceList.add(new MacUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),</span>
+<span class="nc" id="L80">                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));</span>
+<span class="nc" id="L81">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+        }
+<span class="nc" id="L83">    }</span>
+
+    private static UsbDevice[] getUsbDevices() {
+        // Reusable buffer for getting IO name strings
+<span class="nc" id="L87">        Pointer buffer = new Memory(128); // io_name_t is char[128]</span>
+
+        // Empty out maps
+<span class="nc" id="L90">        nameMap.clear();</span>
+<span class="nc" id="L91">        vendorMap.clear();</span>
+<span class="nc" id="L92">        vendorIdMap.clear();</span>
+<span class="nc" id="L93">        productIdMap.clear();</span>
+<span class="nc" id="L94">        serialMap.clear();</span>
+<span class="nc" id="L95">        hubMap.clear();</span>
+
+        // Iterate over USB Controllers. All devices are children of one of
+        // these controllers in the &quot;IOService&quot; plane
+<span class="nc" id="L99">        List&lt;Long&gt; usbControllers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L100">        IntByReference iter = new IntByReference();</span>
+<span class="nc" id="L101">        IOKitUtil.getMatchingServices(&quot;IOUSBController&quot;, iter);</span>
+<span class="nc" id="L102">        int device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        while (device != 0) {</span>
+            // Unique global identifier for this device
+<span class="nc" id="L105">            LongByReference id = new LongByReference();</span>
+<span class="nc" id="L106">            IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(device, id);</span>
+<span class="nc" id="L107">            usbControllers.add(id.getValue());</span>
+
+            // Get device name and store in map
+<span class="nc" id="L110">            IOKit.INSTANCE.IORegistryEntryGetName(device, buffer);</span>
+<span class="nc" id="L111">            nameMap.put(id.getValue(), buffer.getString(0));</span>
+            // The only information we have in registry for this device is the
+            // locationID. Use that to search for matching PCI device to obtain
+            // more information.
+<span class="nc" id="L115">            CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, CfUtil.getCFString(&quot;locationID&quot;),</span>
+                    CfUtil.ALLOCATOR, 0);
+<span class="nc bnc" id="L117" title="All 4 branches missed.">            if (ref != null &amp;&amp; ref.getPointer() != null) {</span>
+<span class="nc" id="L118">                getControllerIdByLocation(id.getValue(), ref);</span>
+            }
+<span class="nc" id="L120">            CfUtil.release(ref);</span>
+
+            // Now iterate the children of this device in the &quot;IOService&quot; plane.
+            // If device parent is root, link to the controller
+<span class="nc" id="L124">            IntByReference childIter = new IntByReference();</span>
+<span class="nc" id="L125">            IOKit.INSTANCE.IORegistryEntryGetChildIterator(device, &quot;IOService&quot;, childIter);</span>
+<span class="nc" id="L126">            int childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            while (childDevice != 0) {</span>
+                // Unique global identifier for this device
+<span class="nc" id="L129">                LongByReference childId = new LongByReference();</span>
+<span class="nc" id="L130">                IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(childDevice, childId);</span>
+
+                // Get this device's parent in the &quot;IOUSB&quot; plane
+<span class="nc" id="L133">                IntByReference parent = new IntByReference();</span>
+<span class="nc" id="L134">                IOKit.INSTANCE.IORegistryEntryGetParentEntry(childDevice, &quot;IOUSB&quot;, parent);</span>
+                // If the parent is not an IOUSBDevice (will be root), set the
+                // parentId to the controller
+<span class="nc" id="L137">                LongByReference parentId = new LongByReference();</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                if (!IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), &quot;IOUSBDevice&quot;)) {</span>
+<span class="nc" id="L139">                    parentId = id;</span>
+                } else {
+                    // Unique global identifier for the parent
+<span class="nc" id="L142">                    IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);</span>
+                }
+                // Store parent in map
+<span class="nc" id="L145">                hubMap.computeIfAbsent(parentId.getValue(), k -&gt; new ArrayList&lt;Long&gt;()).add(childId.getValue());</span>
+
+                // Get device name and store in map
+<span class="nc" id="L148">                IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);</span>
+<span class="nc" id="L149">                nameMap.put(childId.getValue(), buffer.getString(0));</span>
+                // Get vendor and store in map
+<span class="nc" id="L151">                String vendor = IOKitUtil.getIORegistryStringProperty(childDevice, &quot;USB Vendor Name&quot;);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                if (vendor != null) {</span>
+<span class="nc" id="L153">                    vendorMap.put(childId.getValue(), vendor);</span>
+                }
+                // Get vendorId and store in map
+<span class="nc" id="L156">                long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, &quot;idVendor&quot;);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                if (vendorId != 0) {</span>
+<span class="nc" id="L158">                    vendorIdMap.put(childId.getValue(), String.format(&quot;%04x&quot;, 0xffff &amp; vendorId));</span>
+                }
+                // Get productId and store in map
+<span class="nc" id="L161">                long productId = IOKitUtil.getIORegistryLongProperty(childDevice, &quot;idProduct&quot;);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                if (productId != 0) {</span>
+<span class="nc" id="L163">                    productIdMap.put(childId.getValue(), String.format(&quot;%04x&quot;, 0xffff &amp; productId));</span>
+                }
+                // Get serial and store in map
+<span class="nc" id="L166">                String serial = IOKitUtil.getIORegistryStringProperty(childDevice, &quot;USB Serial Number&quot;);</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                if (serial != null) {</span>
+<span class="nc" id="L168">                    serialMap.put(childId.getValue(), serial);</span>
+                }
+<span class="nc" id="L170">                IOKit.INSTANCE.IOObjectRelease(childDevice);</span>
+<span class="nc" id="L171">                childDevice = IOKit.INSTANCE.IOIteratorNext(childIter.getValue());</span>
+<span class="nc" id="L172">            }</span>
+<span class="nc" id="L173">            IOKit.INSTANCE.IOObjectRelease(childIter.getValue());</span>
+
+<span class="nc" id="L175">            IOKit.INSTANCE.IOObjectRelease(device);</span>
+<span class="nc" id="L176">            device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());</span>
+<span class="nc" id="L177">        }</span>
+<span class="nc" id="L178">        IOKit.INSTANCE.IOObjectRelease(iter.getValue());</span>
+
+        // Build tree and return
+<span class="nc" id="L181">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (Long controller : usbControllers) {</span>
+<span class="nc" id="L183">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc" id="L184">        }</span>
+<span class="nc" id="L185">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+    }
+
+    /**
+     * Looks up vendor and product id information for a USB Host Controller by
+     * cross-referencing the location
+     * 
+     * @param id
+     *            The global unique ID for the host controller used as a key for
+     *            maps
+     * @param locationId
+     *            The locationID of this controller returned from the registry
+     */
+    private static void getControllerIdByLocation(long id, CFTypeRef locationId) {
+        // Create a matching property dictionary from the locationId
+<span class="nc" id="L200">        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,</span>
+                null, null);
+<span class="nc" id="L202">        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;locationID&quot;), locationId);</span>
+<span class="nc" id="L203">        CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,</span>
+                null, null);
+<span class="nc" id="L205">        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
+
+        // search for all IOservices that match the locationID
+<span class="nc" id="L208">        IntByReference serviceIterator = new IntByReference();</span>
+<span class="nc" id="L209">        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
+        // getMatchingServices releases matchingDict
+<span class="nc" id="L211">        CfUtil.release(propertyDict);</span>
+
+        // Iterate matching services looking for devices whose parents have the
+        // vendor and device ids
+<span class="nc" id="L215">        boolean found = false;</span>
+<span class="nc" id="L216">        int matchingService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc bnc" id="L217" title="All 4 branches missed.">        while (matchingService != 0 &amp;&amp; !found) {</span>
+            // Get the parent, which contains the keys we need
+<span class="nc" id="L219">            IntByReference parent = new IntByReference();</span>
+<span class="nc" id="L220">            IOKit.INSTANCE.IORegistryEntryGetParentEntry(matchingService, &quot;IOService&quot;, parent);</span>
+            // look up the vendor-id by key
+            // vendor-id is a byte array of 4 bytes
+<span class="nc" id="L223">            byte[] vid = IOKitUtil.getIORegistryByteArrayProperty(parent.getValue(), &quot;vendor-id&quot;);</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">            if (vid != null &amp;&amp; vid.length &gt;= 2) {</span>
+<span class="nc" id="L225">                vendorIdMap.put(id, String.format(&quot;%02x%02x&quot;, vid[1], vid[0]));</span>
+<span class="nc" id="L226">                found = true;</span>
+            }
+            // look up the device-id by key
+            // device-id is a byte array of 4 bytes
+<span class="nc" id="L230">            byte[] pid = IOKitUtil.getIORegistryByteArrayProperty(parent.getValue(), &quot;device-id&quot;);</span>
+<span class="nc bnc" id="L231" title="All 4 branches missed.">            if (pid != null &amp;&amp; pid.length &gt;= 2) {</span>
+<span class="nc" id="L232">                productIdMap.put(id, String.format(&quot;%02x%02x&quot;, pid[1], pid[0]));</span>
+<span class="nc" id="L233">                found = true;</span>
+            }
+            // iterate
+<span class="nc" id="L236">            matchingService = IOKit.INSTANCE.IOIteratorNext(matchingService);</span>
+<span class="nc" id="L237">        }</span>
+<span class="nc" id="L238">    }</span>
+
+    /**
+     * Recursively creates MacUsbDevices by fetching information from maps to
+     * populate fields
+     * 
+     * @param registryEntryId
+     *            The device unique registry id.
+     * @param vid
+     *            The default (parent) vendor ID
+     * @param pid
+     *            The default (parent) product ID
+     * @return A MacUsbDevice corresponding to this device
+     */
+    private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid) {
+<span class="nc" id="L253">        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);</span>
+<span class="nc" id="L254">        String productId = productIdMap.getOrDefault(registryEntryId, pid);</span>
+<span class="nc" id="L255">        List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, new ArrayList&lt;Long&gt;());</span>
+<span class="nc" id="L256">        List&lt;MacUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (Long id : childIds) {</span>
+<span class="nc" id="L258">            usbDevices.add(getDeviceAndChildren(id, vendorId, productId));</span>
+<span class="nc" id="L259">        }</span>
+<span class="nc" id="L260">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L261">        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + &quot;:&quot; + productId),</span>
+<span class="nc" id="L262">                vendorMap.getOrDefault(registryEntryId, &quot;&quot;), vendorId, productId,</span>
+<span class="nc" id="L263">                serialMap.getOrDefault(registryEntryId, &quot;&quot;), usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

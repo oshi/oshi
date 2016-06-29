@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxBlockDevStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxBlockDevStats.java</span></div><h1>LinuxBlockDevStats.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import java.io.Serializable;
+
+import oshi.jna.platform.linux.Udev;
+import oshi.util.ParseUtil;
+
+/**
+ * POJO for mapping Linux block device stats info
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+public class LinuxBlockDevStats implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L35">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
+        String devstat;
+        String[] splitstats;
+
+<span class="nc" id="L39">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
+<span class="nc" id="L40">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
+
+<span class="nc" id="L42">        this.device = device;</span>
+<span class="nc" id="L43">        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);</span>
+<span class="nc" id="L44">        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);</span>
+<span class="nc" id="L45">        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);</span>
+<span class="nc" id="L46">        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);</span>
+<span class="nc" id="L47">        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);</span>
+<span class="nc" id="L48">        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);</span>
+<span class="nc" id="L49">        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);</span>
+<span class="nc" id="L50">        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);</span>
+<span class="nc" id="L51">        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);</span>
+<span class="nc" id="L52">        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);</span>
+<span class="nc" id="L53">        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);</span>
+<span class="nc" id="L54">    }</span>
+
+    // Device name
+    public final String device;
+    // Number of read I/Os processed
+    public final long read_ops;
+    // Number of read I/Os merged with in-queue I/O
+    public final long read_merged;
+    // Number of sectors read
+    public final long read_512bytes;
+    // Total wait time for read requests, milliseconds
+    public final long read_waits_ms;
+    // Number of write I/Os processed
+    public final long write_ops;
+    // Number of write I/Os merged with in-queue I/O
+    public final long write_merged;
+    // Number of sectors written
+    public final long write_512bytes;
+    // Total wait time for write requests, milliseconds */
+    public final long write_waits_ms;
+    // Number of I/Os currently in flight
+    public final long in_flight;
+    // Total active time, milliseconds
+    public final long active_ms;
+    // Total wait time, milliseconds
+    public final long waits_ms;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
