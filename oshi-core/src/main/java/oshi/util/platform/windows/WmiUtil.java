@@ -460,7 +460,8 @@ public class WmiUtil {
                     pclsObj, uReturn);
             // Requested 1; if 0 objects returned, we're done
             if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {
-                enumerator.Release();
+                // Enumerator will be released by calling method so no need to
+                // release it here.
                 return;
             }
             VARIANT.ByReference vtProp = new VARIANT.ByReference();

@@ -376,11 +376,21 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected void updateSystemTicks() {
         LOG.trace("Updating System Ticks");
-        // Copy to previous
-        System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-        this.tickTime = System.currentTimeMillis();
         long[] ticks = getSystemCpuLoadTicks();
-        System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
+        // Skip update if ticks is all zero.
+        // Iterate to find a nonzero tick value and return; this should quickly
+        // find a nonzero value if one exists and be fast in checking 0's
+        // through branch prediction if it doesn't
+        for (int i = 0; i < ticks.length; i++) {
+            if (ticks[i] != 0) {
+                // We have a nonzero tick array, update and return!
+                this.tickTime = System.currentTimeMillis();
+                // Copy to previous
+                System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
+                System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
+                return;
+            }
+        }
     }
 
     /**
@@ -462,14 +472,26 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected void updateProcessorTicks() {
         LOG.trace("Updating Processor Ticks");
-        // Copy to previous
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
-        }
-        this.procTickTime = System.currentTimeMillis();
         long[][] ticks = getProcessorCpuLoadTicks();
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-            System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+        // Skip update if ticks is all zero.
+        // Iterate to find a nonzero tick value and return; this should quickly
+        // find a nonzero value if one exists and be fast in checking 0's
+        // through branch prediction if it doesn't
+        for (int i = 0; i < ticks.length; i++) {
+            for (int j = 0; j < ticks[i].length; j++) {
+                if (ticks[i][j] != 0L) {
+                    // We have a nonzero tick array, update and return!
+                    this.procTickTime = System.currentTimeMillis();
+                    // Copy to previous
+                    for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+                        System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+                    }
+                    for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+                        System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+                    }
+                    return;
+                }
+            }
         }
     }
 
