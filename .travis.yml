@@ -9,5 +9,5 @@ matrix:
   include:
     - os: linux
       jdk: oraclejdk8
-#    - os: osx
-#      env: JAVA_HOME=$(/usr/libexec/java_home)
+    - os: osx
+      osx_image: xcode8
