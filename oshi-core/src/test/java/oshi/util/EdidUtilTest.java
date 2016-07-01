@@ -25,11 +25,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Test;
 
-/**
- * EDID parsing utility.
- * 
- * @author widdis[at]gmail[dot]com
- */
 public class EdidUtilTest {
 
     private final static String EDID_HEADER = "00FFFFFFFFFFFF00";
