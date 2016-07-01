@@ -1,1 +1,5 @@
 oshi.json
+oshi.json.hardware
+oshi.json.json
+oshi.json.software.os
+oshi.json.util

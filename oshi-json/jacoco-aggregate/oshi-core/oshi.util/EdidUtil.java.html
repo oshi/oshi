@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L35">public abstract class EdidUtil {</span>
+<span class="nc" id="L35">public class EdidUtil {</span>
 
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);</span>
+<span class="fc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);</span>
 
     /**
      * Converts a byte array to a hexadecimal string
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
      * @return A string representation of the byte array
      */
     public static String toHexString(byte[] edid) {
-<span class="nc" id="L47">        return DatatypeConverter.printHexBinary(edid);</span>
+<span class="fc" id="L47">        return DatatypeConverter.printHexBinary(edid);</span>
     }
 
     /**
@@ -56,13 +56,13 @@ import org.slf4j.LoggerFactory;
      */
     public static String getManufacturerID(byte[] edid) {
         // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
-<span class="nc" id="L59">        String temp = String</span>
-<span class="nc" id="L60">                .format(&quot;%8s%8s&quot;, Integer.toBinaryString(edid[8] &amp; 0xFF), Integer.toBinaryString(edid[9] &amp; 0xFF))</span>
-<span class="nc" id="L61">                .replace(' ', '0');</span>
-<span class="nc" id="L62">        LOG.debug(&quot;Manufacurer ID: {}&quot;, temp);</span>
-<span class="nc" id="L63">        return String.format(&quot;%s%s%s&quot;, (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),</span>
-<span class="nc" id="L64">                (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),</span>
-<span class="nc" id="L65">                (char) (64 + Integer.parseInt(temp.substring(12, 16), 2))).replace(&quot;@&quot;, &quot;&quot;);</span>
+<span class="fc" id="L59">        String temp = String</span>
+<span class="fc" id="L60">                .format(&quot;%8s%8s&quot;, Integer.toBinaryString(edid[8] &amp; 0xFF), Integer.toBinaryString(edid[9] &amp; 0xFF))</span>
+<span class="fc" id="L61">                .replace(' ', '0');</span>
+<span class="fc" id="L62">        LOG.debug(&quot;Manufacurer ID: {}&quot;, temp);</span>
+<span class="fc" id="L63">        return String.format(&quot;%s%s%s&quot;, (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),</span>
+<span class="fc" id="L64">                (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),</span>
+<span class="fc" id="L65">                (char) (64 + Integer.parseInt(temp.substring(12, 16), 2))).replace(&quot;@&quot;, &quot;&quot;);</span>
     }
 
     /**
@@ -74,8 +74,8 @@ import org.slf4j.LoggerFactory;
      */
     public static String getProductID(byte[] edid) {
         // Bytes 10-11 are product ID expressed in hex characters
-<span class="nc" id="L77">        return Integer.toHexString(</span>
-<span class="nc" id="L78">                ByteBuffer.wrap(Arrays.copyOfRange(edid, 10, 12)).order(ByteOrder.LITTLE_ENDIAN).getShort() &amp; 0xffff);</span>
+<span class="fc" id="L77">        return Integer.toHexString(</span>
+<span class="fc" id="L78">                ByteBuffer.wrap(Arrays.copyOfRange(edid, 10, 12)).order(ByteOrder.LITTLE_ENDIAN).getShort() &amp; 0xffff);</span>
     }
 
     /**
@@ -88,13 +88,13 @@ import org.slf4j.LoggerFactory;
      */
     public static String getSerialNo(byte[] edid) {
         // Bytes 12-15 are Serial number (last 4 characters)
-<span class="nc" id="L91">        LOG.debug(&quot;Serial number: {}&quot;, Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));</span>
-<span class="nc" id="L92">        return String.format(&quot;%s%s%s%s&quot;, getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),</span>
-<span class="nc" id="L93">                getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));</span>
+<span class="fc" id="L91">        LOG.debug(&quot;Serial number: {}&quot;, Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));</span>
+<span class="fc" id="L92">        return String.format(&quot;%s%s%s%s&quot;, getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),</span>
+<span class="fc" id="L93">                getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));</span>
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        return Character.isLetterOrDigit((char) b) ? String.format(&quot;%s&quot;, (char) b) : String.format(&quot;%02X&quot;, b);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        return Character.isLetterOrDigit((char) b) ? String.format(&quot;%s&quot;, (char) b) : String.format(&quot;%02X&quot;, b);</span>
     }
 
     /**
@@ -106,7 +106,7 @@ import org.slf4j.LoggerFactory;
      */
     public static byte getWeek(byte[] edid) {
         // Byte 16 is manufacture week
-<span class="nc" id="L109">        return edid[16];</span>
+<span class="fc" id="L109">        return edid[16];</span>
     }
 
     /**
@@ -118,9 +118,9 @@ import org.slf4j.LoggerFactory;
      */
     public static int getYear(byte[] edid) {
         // Byte 17 is manufacture year-1990
-<span class="nc" id="L121">        byte temp = edid[17];</span>
-<span class="nc" id="L122">        LOG.debug(&quot;Year-1990: {}&quot;, temp);</span>
-<span class="nc" id="L123">        return temp + 1990;</span>
+<span class="fc" id="L121">        byte temp = edid[17];</span>
+<span class="fc" id="L122">        LOG.debug(&quot;Year-1990: {}&quot;, temp);</span>
+<span class="fc" id="L123">        return temp + 1990;</span>
     }
 
     /**
@@ -132,7 +132,7 @@ import org.slf4j.LoggerFactory;
      */
     public static String getVersion(byte[] edid) {
         // Bytes 18-19 are EDID version
-<span class="nc" id="L135">        return edid[18] + &quot;.&quot; + edid[19];</span>
+<span class="fc" id="L135">        return edid[18] + &quot;.&quot; + edid[19];</span>
     }
 
     /**
@@ -144,7 +144,7 @@ import org.slf4j.LoggerFactory;
      */
     public static boolean isDigital(byte[] edid) {
         // Byte 20 is Video input params
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        return 1 == edid[20] &gt;&gt; 7;</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        return 1 == edid[20] &gt;&gt; 7;</span>
     }
 
     /**
@@ -156,7 +156,7 @@ import org.slf4j.LoggerFactory;
      */
     public static int getHcm(byte[] edid) {
         // Byte 21 is horizontal size in cm
-<span class="nc" id="L159">        return edid[21];</span>
+<span class="fc" id="L159">        return edid[21];</span>
     }
 
     /**
@@ -168,7 +168,7 @@ import org.slf4j.LoggerFactory;
      */
     public static int getVcm(byte[] edid) {
         // Byte 22 is vertical size in cm
-<span class="nc" id="L171">        return edid[22];</span>
+<span class="fc" id="L171">        return edid[22];</span>
     }
 
     /**
@@ -180,11 +180,11 @@ import org.slf4j.LoggerFactory;
      *         descriptors
      */
     public static byte[][] getDescriptors(byte[] edid) {
-<span class="nc" id="L183">        byte[][] desc = new byte[4][18];</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">        for (int i = 0; i &lt; desc.length; i++) {</span>
-<span class="nc" id="L185">            System.arraycopy(edid, 54 + 18 * i, desc[i], 0, 18);</span>
+<span class="fc" id="L183">        byte[][] desc = new byte[4][18];</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        for (int i = 0; i &lt; desc.length; i++) {</span>
+<span class="fc" id="L185">            System.arraycopy(edid, 54 + 18 * i, desc[i], 0, 18);</span>
         }
-<span class="nc" id="L187">        return desc;</span>
+<span class="fc" id="L187">        return desc;</span>
     }
 
     /**
@@ -196,7 +196,7 @@ import org.slf4j.LoggerFactory;
      *         descriptor
      */
     public static int getDescriptorType(byte[] desc) {
-<span class="nc" id="L199">        return ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 4)).getInt();</span>
+<span class="fc" id="L199">        return ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 4)).getInt();</span>
     }
 
     /**
@@ -207,10 +207,10 @@ import org.slf4j.LoggerFactory;
      * @return A string describing part of the detailed timing descriptor
      */
     public static String getTimingDescriptor(byte[] desc) {
-<span class="nc" id="L210">        int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;</span>
-<span class="nc" id="L211">        int hActive = (desc[2] &amp; 0xff) + (desc[4] &amp; 0xf0) &lt;&lt; 4;</span>
-<span class="nc" id="L212">        int vActive = (desc[5] &amp; 0xff) + (desc[7] &amp; 0xf0) &lt;&lt; 4;</span>
-<span class="nc" id="L213">        return String.format(&quot;Clock %dMHz, Active Pixels %dx%d &quot;, clock, hActive, vActive);</span>
+<span class="fc" id="L210">        int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;</span>
+<span class="fc" id="L211">        int hActive = (desc[2] &amp; 0xff) + (desc[4] &amp; 0xf0) &lt;&lt; 4;</span>
+<span class="fc" id="L212">        int vActive = (desc[5] &amp; 0xff) + (desc[7] &amp; 0xf0) &lt;&lt; 4;</span>
+<span class="fc" id="L213">        return String.format(&quot;Clock %dMHz, Active Pixels %dx%d &quot;, clock, hActive, vActive);</span>
     }
 
     /**
@@ -221,8 +221,8 @@ import org.slf4j.LoggerFactory;
      * @return A string describing some of the range limits
      */
     public static String getDescriptorRangeLimits(byte[] desc) {
-<span class="nc" id="L224">        return String.format(&quot;Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz&quot;, desc[5], desc[6],</span>
-<span class="nc" id="L225">                desc[7], desc[8], desc[9] * 10);</span>
+<span class="fc" id="L224">        return String.format(&quot;Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz&quot;, desc[5], desc[6],</span>
+<span class="fc" id="L225">                desc[7], desc[8], desc[9] * 10);</span>
     }
 
     /**
@@ -233,7 +233,7 @@ import org.slf4j.LoggerFactory;
      * @return Plain text starting at the 4th byte
      */
     public static String getDescriptorText(byte[] desc) {
-<span class="nc" id="L236">        return new String(Arrays.copyOfRange(desc, 4, 18)).trim();</span>
+<span class="fc" id="L236">        return new String(Arrays.copyOfRange(desc, 4, 18)).trim();</span>
     }
 
     /**
@@ -244,7 +244,7 @@ import org.slf4j.LoggerFactory;
      * @return A string showing the 18 bytes as hexadecimals
      */
     public static String getDescriptorHex(byte[] desc) {
-<span class="nc" id="L247">        return DatatypeConverter.printHexBinary(desc);</span>
+<span class="fc" id="L247">        return DatatypeConverter.printHexBinary(desc);</span>
     }
 
     /**
@@ -255,46 +255,46 @@ import org.slf4j.LoggerFactory;
      * @return User-readable text represented by the EDID
      */
     public static String toString(byte[] edid) {
-<span class="nc" id="L258">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L259">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid)).append(&quot;, Product ID=&quot;)</span>
-<span class="nc" id="L260">                .append(EdidUtil.getProductID(edid)).append(&quot;, &quot;)</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">                .append((EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;)).append(&quot;, Serial=&quot;)</span>
-<span class="nc" id="L262">                .append(EdidUtil.getSerialNo(edid)).append(&quot;, ManufDate=&quot;)</span>
-<span class="nc" id="L263">                .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + &quot;/&quot;).append(EdidUtil.getYear(edid)).append(&quot;, EDID v&quot;)</span>
-<span class="nc" id="L264">                .append(EdidUtil.getVersion(edid));</span>
-<span class="nc" id="L265">        int hSize = EdidUtil.getHcm(edid);</span>
-<span class="nc" id="L266">        int vSize = EdidUtil.getVcm(edid);</span>
-<span class="nc" id="L267">        sb.append(String.format(&quot;%n  %d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
-<span class="nc" id="L268">        byte[][] desc = EdidUtil.getDescriptors(edid);</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">        for (int d = 0; d &lt; desc.length; d++) {</span>
-<span class="nc bnc" id="L270" title="All 7 branches missed.">            switch (EdidUtil.getDescriptorType(desc[d])) {</span>
+<span class="fc" id="L258">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L259">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid)).append(&quot;, Product ID=&quot;)</span>
+<span class="fc" id="L260">                .append(EdidUtil.getProductID(edid)).append(&quot;, &quot;)</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">                .append((EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;)).append(&quot;, Serial=&quot;)</span>
+<span class="fc" id="L262">                .append(EdidUtil.getSerialNo(edid)).append(&quot;, ManufDate=&quot;)</span>
+<span class="fc" id="L263">                .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + &quot;/&quot;).append(EdidUtil.getYear(edid)).append(&quot;, EDID v&quot;)</span>
+<span class="fc" id="L264">                .append(EdidUtil.getVersion(edid));</span>
+<span class="fc" id="L265">        int hSize = EdidUtil.getHcm(edid);</span>
+<span class="fc" id="L266">        int vSize = EdidUtil.getVcm(edid);</span>
+<span class="fc" id="L267">        sb.append(String.format(&quot;%n  %d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
+<span class="fc" id="L268">        byte[][] desc = EdidUtil.getDescriptors(edid);</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">        for (int d = 0; d &lt; desc.length; d++) {</span>
+<span class="fc bfc" id="L270" title="All 7 branches covered.">            switch (EdidUtil.getDescriptorType(desc[d])) {</span>
             case 0xff:
-<span class="nc" id="L272">                sb.append(&quot;\n  Serial Number: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
-<span class="nc" id="L273">                break;</span>
+<span class="fc" id="L272">                sb.append(&quot;\n  Serial Number: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="fc" id="L273">                break;</span>
             case 0xfe:
-<span class="nc" id="L275">                sb.append(&quot;\n  Unspecified Text: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
-<span class="nc" id="L276">                break;</span>
+<span class="fc" id="L275">                sb.append(&quot;\n  Unspecified Text: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="fc" id="L276">                break;</span>
             case 0xfd:
-<span class="nc" id="L278">                sb.append(&quot;\n  Range Limits: &quot;).append(EdidUtil.getDescriptorRangeLimits(desc[d]));</span>
-<span class="nc" id="L279">                break;</span>
+<span class="fc" id="L278">                sb.append(&quot;\n  Range Limits: &quot;).append(EdidUtil.getDescriptorRangeLimits(desc[d]));</span>
+<span class="fc" id="L279">                break;</span>
             case 0xfc:
-<span class="nc" id="L281">                sb.append(&quot;\n  Monitor Name: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
-<span class="nc" id="L282">                break;</span>
+<span class="fc" id="L281">                sb.append(&quot;\n  Monitor Name: &quot;).append(EdidUtil.getDescriptorText(desc[d]));</span>
+<span class="fc" id="L282">                break;</span>
             case 0xfb:
-<span class="nc" id="L284">                sb.append(&quot;\n  White Point Data: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
-<span class="nc" id="L285">                break;</span>
+<span class="fc" id="L284">                sb.append(&quot;\n  White Point Data: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
+<span class="fc" id="L285">                break;</span>
             case 0xfa:
-<span class="nc" id="L287">                sb.append(&quot;\n  Standard Timing ID: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
-<span class="nc" id="L288">                break;</span>
+<span class="fc" id="L287">                sb.append(&quot;\n  Standard Timing ID: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
+<span class="fc" id="L288">                break;</span>
             default:
-<span class="nc bnc" id="L290" title="All 4 branches missed.">                if (EdidUtil.getDescriptorType(desc[d]) &lt;= 0x0f &amp;&amp; EdidUtil.getDescriptorType(desc[d]) &gt;= 0x00) {</span>
+<span class="pc bpc" id="L290" title="3 of 4 branches missed.">                if (EdidUtil.getDescriptorType(desc[d]) &lt;= 0x0f &amp;&amp; EdidUtil.getDescriptorType(desc[d]) &gt;= 0x00) {</span>
 <span class="nc" id="L291">                    sb.append(&quot;\n  Manufacturer Data: &quot;).append(EdidUtil.getDescriptorHex(desc[d]));</span>
                 } else {
-<span class="nc" id="L293">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(desc[d]));</span>
+<span class="fc" id="L293">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(desc[d]));</span>
                 }
             }
         }
-<span class="nc" id="L297">        return sb.toString();</span>
+<span class="fc" id="L297">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

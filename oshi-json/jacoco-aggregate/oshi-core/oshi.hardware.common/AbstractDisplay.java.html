@@ -32,16 +32,16 @@ public abstract class AbstractDisplay implements Display {
 
     protected byte[] edid;
 
-<span class="fc" id="L35">    protected AbstractDisplay(byte[] edid) {</span>
-<span class="fc" id="L36">        this.edid = edid;</span>
-<span class="fc" id="L37">    }</span>
+<span class="nc" id="L35">    protected AbstractDisplay(byte[] edid) {</span>
+<span class="nc" id="L36">        this.edid = edid;</span>
+<span class="nc" id="L37">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public byte[] getEdid() {
-<span class="fc" id="L44">        return Arrays.copyOf(edid, edid.length);</span>
+<span class="nc" id="L44">        return Arrays.copyOf(edid, edid.length);</span>
     }
 
     @Override

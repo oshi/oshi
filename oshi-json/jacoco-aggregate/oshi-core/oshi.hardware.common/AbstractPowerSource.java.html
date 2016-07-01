@@ -35,18 +35,29 @@ public abstract class AbstractPowerSource implements PowerSource {
 
     protected double timeRemaining;
 
-<span class="fc" id="L38">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
-<span class="fc" id="L39">        this.name = newName;</span>
-<span class="fc" id="L40">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="fc" id="L41">        this.timeRemaining = newTimeRemaining;</span>
-<span class="fc" id="L42">    }</span>
+    /**
+     * Super constructor used by platform-specific implementations of
+     * PowerSource
+     * 
+     * @param newName
+     *            The name to assign
+     * @param newRemainingCapacity
+     *            Fraction of remaining capacity
+     * @param newTimeRemaining
+     *            Seconds of time remaining
+     */
+<span class="nc" id="L49">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="nc" id="L50">        this.name = newName;</span>
+<span class="nc" id="L51">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="nc" id="L52">        this.timeRemaining = newTimeRemaining;</span>
+<span class="nc" id="L53">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L49">        return this.name;</span>
+<span class="nc" id="L60">        return this.name;</span>
     }
 
     /**
@@ -54,7 +65,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getRemainingCapacity() {
-<span class="fc" id="L57">        return this.remainingCapacity;</span>
+<span class="nc" id="L68">        return this.remainingCapacity;</span>
     }
 
     /**
@@ -62,7 +73,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getTimeRemaining() {
-<span class="fc" id="L65">        return this.timeRemaining;</span>
+<span class="nc" id="L76">        return this.timeRemaining;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -31,24 +31,34 @@ import oshi.json.software.os.OSProcess;
 import oshi.json.util.PropertiesUtil;
 import oshi.software.os.OSProcess.State;
 
+/**
+ * Wrapper class to implement OSProcess interface with platform-specific objects
+ */
 public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L38">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.OSProcess osProcess;
 
-<span class="fc" id="L42">    public OSProcessImpl(oshi.software.os.OSProcess osProcess) {</span>
-<span class="fc" id="L43">        this.osProcess = osProcess;</span>
-<span class="fc" id="L44">    }</span>
+    /**
+     * Creates a new platform-specific OSProcessor object wrapping the provided
+     * argument
+     * 
+     * @param osProcess
+     *            a platform-specific OSProcessor object
+     */
+<span class="nc" id="L52">    public OSProcessImpl(oshi.software.os.OSProcess osProcess) {</span>
+<span class="nc" id="L53">        this.osProcess = osProcess;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L51">        return this.osProcess.getName();</span>
+<span class="nc" id="L61">        return this.osProcess.getName();</span>
     }
 
     /**
@@ -56,7 +66,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public String getPath() {
-<span class="nc" id="L59">        return this.osProcess.getPath();</span>
+<span class="nc" id="L69">        return this.osProcess.getPath();</span>
     }
 
     /**
@@ -64,7 +74,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public State getState() {
-<span class="nc" id="L67">        return this.osProcess.getState();</span>
+<span class="nc" id="L77">        return this.osProcess.getState();</span>
     }
 
     /**
@@ -72,7 +82,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public int getProcessID() {
-<span class="fc" id="L75">        return this.osProcess.getProcessID();</span>
+<span class="nc" id="L85">        return this.osProcess.getProcessID();</span>
     }
 
     /**
@@ -80,7 +90,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L83">        return this.osProcess.getParentProcessID();</span>
+<span class="nc" id="L93">        return this.osProcess.getParentProcessID();</span>
     }
 
     /**
@@ -88,7 +98,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L91">        return this.osProcess.getThreadCount();</span>
+<span class="nc" id="L101">        return this.osProcess.getThreadCount();</span>
     }
 
     /**
@@ -96,7 +106,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public int getPriority() {
-<span class="nc" id="L99">        return this.osProcess.getPriority();</span>
+<span class="nc" id="L109">        return this.osProcess.getPriority();</span>
     }
 
     /**
@@ -104,7 +114,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L107">        return this.osProcess.getVirtualSize();</span>
+<span class="nc" id="L117">        return this.osProcess.getVirtualSize();</span>
     }
 
     /**
@@ -112,7 +122,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L115">        return this.osProcess.getResidentSetSize();</span>
+<span class="nc" id="L125">        return this.osProcess.getResidentSetSize();</span>
     }
 
     /**
@@ -120,7 +130,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getKernelTime() {
-<span class="nc" id="L123">        return this.osProcess.getKernelTime();</span>
+<span class="nc" id="L133">        return this.osProcess.getKernelTime();</span>
     }
 
     /**
@@ -128,7 +138,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getUserTime() {
-<span class="nc" id="L131">        return this.osProcess.getUserTime();</span>
+<span class="nc" id="L141">        return this.osProcess.getUserTime();</span>
     }
 
     /**
@@ -136,7 +146,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getUpTime() {
-<span class="nc" id="L139">        return this.osProcess.getUpTime();</span>
+<span class="nc" id="L149">        return this.osProcess.getUpTime();</span>
     }
 
     /**
@@ -144,7 +154,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public long getStartTime() {
-<span class="nc" id="L147">        return this.osProcess.getStartTime();</span>
+<span class="nc" id="L157">        return this.osProcess.getStartTime();</span>
     }
 
     /**
@@ -152,47 +162,47 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L155">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
-<span class="nc" id="L157">            json.add(&quot;name&quot;, getName());</span>
+<span class="nc" id="L165">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
+<span class="nc" id="L167">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
-<span class="nc" id="L160">            json.add(&quot;path&quot;, getPath());</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
+<span class="nc" id="L170">            json.add(&quot;path&quot;, getPath());</span>
         }
-<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
-<span class="nc" id="L163">            json.add(&quot;state&quot;, getState().name());</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
+<span class="nc" id="L173">            json.add(&quot;state&quot;, getState().name());</span>
         }
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
-<span class="nc" id="L166">            json.add(&quot;processID&quot;, getProcessID());</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
+<span class="nc" id="L176">            json.add(&quot;processID&quot;, getProcessID());</span>
         }
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
-<span class="nc" id="L169">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
+<span class="nc" id="L179">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
         }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
-<span class="nc" id="L172">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
+<span class="nc" id="L182">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
-<span class="nc" id="L175">            json.add(&quot;priority&quot;, getPriority());</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
+<span class="nc" id="L185">            json.add(&quot;priority&quot;, getPriority());</span>
         }
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
-<span class="nc" id="L178">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
+<span class="nc" id="L188">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
         }
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
-<span class="nc" id="L181">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
+<span class="nc" id="L191">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
         }
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
-<span class="nc" id="L184">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
+<span class="nc" id="L194">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
         }
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
-<span class="nc" id="L187">            json.add(&quot;userTime&quot;, getUserTime());</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
+<span class="nc" id="L197">            json.add(&quot;userTime&quot;, getUserTime());</span>
         }
-<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
-<span class="nc" id="L190">            json.add(&quot;upTime&quot;, getUpTime());</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
+<span class="nc" id="L200">            json.add(&quot;upTime&quot;, getUpTime());</span>
         }
-<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
-<span class="nc" id="L193">            json.add(&quot;startTime&quot;, getStartTime());</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
+<span class="nc" id="L203">            json.add(&quot;startTime&quot;, getStartTime());</span>
         }
-<span class="nc" id="L195">        return json.build();</span>
+<span class="nc" id="L205">        return json.build();</span>
     }
 
 }

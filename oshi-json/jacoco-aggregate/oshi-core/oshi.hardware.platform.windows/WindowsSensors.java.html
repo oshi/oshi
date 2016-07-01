@@ -176,54 +176,55 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc bnc" id="L176" title="All 4 branches missed.">            if ((decivolts &amp; 0x80) == 0 &amp;&amp; decivolts &gt; 0) {</span>
 <span class="nc" id="L177">                this.wmiVoltProperty = &quot;VoltageCaps&quot;;</span>
                 // really a bit setting, not decivolts, test later
-<span class="nc" id="L179">                decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
-<span class="nc" id="L180">                        .intValue();</span>
+<span class="nc" id="L179">                decivolts = WmiUtil</span>
+<span class="nc" id="L180">                        .selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
+<span class="nc" id="L181">                        .intValue();</span>
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
-<span class="nc" id="L185">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
-<span class="nc" id="L186">                    .intValue();</span>
+<span class="nc" id="L186">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
+<span class="nc" id="L187">                    .intValue();</span>
         }
         // Convert dV to V and return result
-<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (decivolts &gt; 0) {</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (this.wmiVoltProperty.equals(&quot;VoltageCaps&quot;)) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (decivolts &gt; 0) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (this.wmiVoltProperty.equals(&quot;VoltageCaps&quot;)) {</span>
                 // decivolts are bits
-<span class="nc bnc" id="L192" title="All 2 branches missed.">                if ((decivolts &amp; 0x1) &gt; 0) {</span>
-<span class="nc" id="L193">                    volts = 5.0;</span>
-<span class="nc bnc" id="L194" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
-<span class="nc" id="L195">                    volts = 3.3;</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
-<span class="nc" id="L197">                    volts = 2.9;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                if ((decivolts &amp; 0x1) &gt; 0) {</span>
+<span class="nc" id="L194">                    volts = 5.0;</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
+<span class="nc" id="L196">                    volts = 3.3;</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
+<span class="nc" id="L198">                    volts = 2.9;</span>
                 }
             } else {
                 // Value from bits 0-6
-<span class="nc" id="L201">                volts = (decivolts &amp; 0x7F) / 10d;</span>
+<span class="nc" id="L202">                volts = (decivolts &amp; 0x7F) / 10d;</span>
             }
         }
-<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (volts &lt;= 0d) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (volts &lt;= 0d) {</span>
             // Unable to get voltage via WMI. Future attempts will be
             // attempted via Open Hardware Monitor WMI if successful
-<span class="nc" id="L207">            Map&lt;String, List&lt;String&gt;&gt; voltIdentifiers = WmiUtil.selectStringsFrom(&quot;root\\OpenHardwareMonitor&quot;,</span>
+<span class="nc" id="L208">            Map&lt;String, List&lt;String&gt;&gt; voltIdentifiers = WmiUtil.selectStringsFrom(&quot;root\\OpenHardwareMonitor&quot;,</span>
                     &quot;Hardware&quot;, &quot;Identifier&quot;, &quot;WHERE SensorType=\&quot;Voltage\&quot;&quot;);
             // Look for identifier containing &quot;cpu&quot;
 
-<span class="nc bnc" id="L211" title="All 2 branches missed.">            for (String id : voltIdentifiers.get(&quot;Identifier&quot;)) {</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">                if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
-<span class="nc" id="L213">                    this.voltIdentifierStr = id;</span>
-<span class="nc" id="L214">                    break;</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            for (String id : voltIdentifiers.get(&quot;Identifier&quot;)) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
+<span class="nc" id="L214">                    this.voltIdentifierStr = id;</span>
+<span class="nc" id="L215">                    break;</span>
                 }
-<span class="nc" id="L216">            }</span>
+<span class="nc" id="L217">            }</span>
             // If none contain cpu just grab the first one
-<span class="nc bnc" id="L218" title="All 4 branches missed.">            if (this.voltIdentifierStr == null &amp;&amp; voltIdentifiers.get(&quot;Identifier&quot;).size() &gt; 0) {</span>
-<span class="nc" id="L219">                this.voltIdentifierStr = voltIdentifiers.get(&quot;Identifier&quot;).get(0);</span>
+<span class="nc bnc" id="L219" title="All 4 branches missed.">            if (this.voltIdentifierStr == null &amp;&amp; voltIdentifiers.get(&quot;Identifier&quot;).size() &gt; 0) {</span>
+<span class="nc" id="L220">                this.voltIdentifierStr = voltIdentifiers.get(&quot;Identifier&quot;).get(0);</span>
             }
             // If not null, recurse and get value via OHM
-<span class="nc bnc" id="L222" title="All 2 branches missed.">            if (this.voltIdentifierStr != null) {</span>
-<span class="nc" id="L223">                return getCpuVoltage();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (this.voltIdentifierStr != null) {</span>
+<span class="nc" id="L224">                return getCpuVoltage();</span>
             }
         }
-<span class="nc" id="L226">        return volts;</span>
+<span class="nc" id="L227">        return volts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
