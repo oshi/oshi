@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author alessio.fachechi[at]gmail[dot]com
  */
-<span class="nc" id="L42">public abstract class ParseUtil {</span>
+<span class="nc" id="L42">public class ParseUtil {</span>
 
 <span class="fc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
@@ -89,35 +89,33 @@ import org.slf4j.LoggerFactory;
      */
     public static long parseHertz(String hertz) {
 <span class="fc" id="L91">        Matcher matcher = HERTZ.matcher(hertz.trim());</span>
-<span class="pc bpc" id="L92" title="2 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
-            try {
-<span class="fc" id="L94">                Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                return value &lt; 0 ? -1L : value.longValue();</span>
-<span class="nc" id="L96">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L97">                LOG.trace(&quot;&quot;, e);</span>
-            }
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
+            // Regexp enforces #(.#) format so no test for NFE required
+<span class="fc" id="L94">            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
         }
-<span class="nc" id="L100">        return -1L;</span>
+<span class="fc" id="L97">        return -1L;</span>
     }
 
     /**
-     * Parse the last element of a string to a value
+     * Parse the last element of a space-delimited string to a value if there
+     * are at least two elements
      * 
      * @param s
      *            The string to parse
      * @param i
-     *            Default integer if not parsable
-     * @return {@link Integer} value or the given default if not parsable
+     *            Default integer if not parsable or less than two elements
+     * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
-<span class="fc" id="L113">        String[] ss = s.split(&quot;\\s+&quot;);</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
-<span class="fc" id="L115">            return i;</span>
+<span class="fc" id="L111">        String[] ss = s.split(&quot;\\s+&quot;);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
+<span class="fc" id="L113">            return i;</span>
         } else {
             try {
-<span class="fc" id="L118">                return Integer.parseInt(ss[ss.length - 1]);</span>
-<span class="nc" id="L119">            } catch (NumberFormatException nfe) {</span>
-<span class="nc" id="L120">                return i;</span>
+<span class="fc" id="L116">                return Integer.parseInt(ss[ss.length - 1]);</span>
+<span class="fc" id="L117">            } catch (NumberFormatException nfe) {</span>
+<span class="fc" id="L118">                return i;</span>
             }
         }
     }
@@ -127,21 +125,22 @@ import org.slf4j.LoggerFactory;
      * 
      * @param digits
      *            The string to be parsed
-     * @return a byte array with each pair of characters converted to a byte
+     * @return a byte array with each pair of characters converted to a byte, or
+     *         null if the string is not valid hex
      */
     public static byte[] hexStringToByteArray(String digits) {
+<span class="fc" id="L132">        int len = digits.length();</span>
         // Check if string is valid hex
-<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (!VALID_HEX.matcher(digits).matches()) {</span>
-<span class="nc" id="L135">            LOG.error(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
-<span class="nc" id="L136">            return null;</span>
+<span class="fc bfc" id="L134" title="All 4 branches covered.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
+<span class="fc" id="L135">            LOG.error(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
+<span class="fc" id="L136">            return null;</span>
         }
-<span class="fc" id="L138">        int len = digits.length();</span>
-<span class="fc" id="L139">        byte[] data = new byte[len / 2];</span>
-<span class="fc bfc" id="L140" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="fc" id="L141">            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) &lt;&lt; 4)</span>
-<span class="fc" id="L142">                    | Character.digit(digits.charAt(i + 1), 16));</span>
+<span class="fc" id="L138">        byte[] data = new byte[len / 2];</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="fc" id="L140">            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) &lt;&lt; 4)</span>
+<span class="fc" id="L141">                    | Character.digit(digits.charAt(i + 1), 16));</span>
         }
-<span class="fc" id="L144">        return data;</span>
+<span class="fc" id="L143">        return data;</span>
     }
 
     /**
@@ -157,7 +156,7 @@ import org.slf4j.LoggerFactory;
      *         provided string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
-<span class="fc" id="L160">        return Arrays.copyOf(text.getBytes(), length);</span>
+<span class="fc" id="L159">        return Arrays.copyOf(text.getBytes(), length);</span>
     }
 
     /**
@@ -175,14 +174,14 @@ import org.slf4j.LoggerFactory;
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
         // Convert the long to 8-byte BE representation
-<span class="fc" id="L178">        byte[] b = new byte[8];</span>
-<span class="pc bpc" id="L179" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; value != 0L; i--) {</span>
-<span class="fc" id="L180">            b[i] = (byte) value;</span>
-<span class="fc" id="L181">            value &gt;&gt;&gt;= 8;</span>
+<span class="fc" id="L177">        byte[] b = new byte[8];</span>
+<span class="pc bpc" id="L178" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; value != 0L; i--) {</span>
+<span class="fc" id="L179">            b[i] = (byte) value;</span>
+<span class="fc" id="L180">            value &gt;&gt;&gt;= 8;</span>
         }
         // Then copy the rightmost valueSize bytes
         // e.g., for an integer we want rightmost 4 bytes
-<span class="fc" id="L185">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
+<span class="fc" id="L184">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
     }
 
     /**
@@ -196,7 +195,7 @@ import org.slf4j.LoggerFactory;
      *         treated as a byte
      */
     public static long strToLong(String str, int size) {
-<span class="fc" id="L199">        return byteArrayToLong(str.getBytes(), size);</span>
+<span class="fc" id="L198">        return byteArrayToLong(str.getBytes(), size);</span>
     }
 
     /**
@@ -209,17 +208,17 @@ import org.slf4j.LoggerFactory;
      * @return An integer representing the byte array as a 64-bit number
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
-<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (size &gt; 8) {</span>
-<span class="nc" id="L213">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (size &gt; 8) {</span>
+<span class="fc" id="L212">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
         }
-<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        if (size &gt; bytes.length) {</span>
-<span class="nc" id="L216">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (size &gt; bytes.length) {</span>
+<span class="fc" id="L215">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
         }
-<span class="fc" id="L218">        long total = 0L;</span>
-<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
-<span class="fc" id="L220">            total = (total &lt;&lt; 8) | (bytes[i] &amp; 0xff);</span>
+<span class="fc" id="L217">        long total = 0L;</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L219">            total = (total &lt;&lt; 8) | (bytes[i] &amp; 0xff);</span>
         }
-<span class="fc" id="L222">        return total;</span>
+<span class="fc" id="L221">        return total;</span>
     }
 
     /**
@@ -236,14 +235,14 @@ import org.slf4j.LoggerFactory;
      *         remaining bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
-<span class="fc" id="L239">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
+<span class="fc" id="L238">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
     }
 
     /*
      * Format for parsing DATETIME originally 20160513072950.782000-420,
      * modified to 20160513072950.782000-07:00
      */
-<span class="fc" id="L246">    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;, Locale.US);</span>
+<span class="fc" id="L245">    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;, Locale.US);</span>
 
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
@@ -258,20 +257,21 @@ import org.slf4j.LoggerFactory;
         // Keep first 22 characters: digits, decimal, and + or - sign of
         // time zone. Parse last 3 digits from minutes to HH:mm
         try {
-<span class="fc" id="L261">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
-<span class="fc" id="L262">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
-<span class="fc" id="L263">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
-<span class="fc" id="L264">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
-<span class="fc" id="L265">            return dateTime.toInstant().toEpochMilli();</span>
-<span class="nc" id="L266">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
+<span class="fc" id="L260">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
+<span class="fc" id="L261">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
+<span class="fc" id="L262">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
+<span class="fc" id="L263">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
+<span class="fc" id="L264">            return dateTime.toInstant().toEpochMilli();</span>
+<span class="fc" id="L265">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-<span class="nc" id="L269">            return 0L;</span>
+<span class="fc" id="L268">            return 0L;</span>
         }
     }
 
     /**
-     * Parses a string of hex digits to a string
+     * Parses a string of hex digits to a string where each pair of hex digits
+     * represents an ASCII character
      * 
      * @param hexString
      *            A sequence of hex digits
@@ -280,10 +280,10 @@ import org.slf4j.LoggerFactory;
      */
     public static String hexStringToString(String hexString) {
         try {
-<span class="nc" id="L283">            return new String(DatatypeConverter.parseHexBinary(hexString));</span>
-<span class="nc" id="L284">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L283">            return new String(DatatypeConverter.parseHexBinary(hexString));</span>
+<span class="fc" id="L284">        } catch (IllegalArgumentException e) {</span>
             // Hex failed to parse, just return the existing string
-<span class="nc" id="L286">            return hexString;</span>
+<span class="fc" id="L286">            return hexString;</span>
         }
     }
 
@@ -298,9 +298,9 @@ import org.slf4j.LoggerFactory;
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
-<span class="nc" id="L301">            return Integer.parseInt(s);</span>
-<span class="nc" id="L302">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L303">            return defaultInt;</span>
+<span class="fc" id="L301">            return Integer.parseInt(s);</span>
+<span class="fc" id="L302">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L303">            return defaultInt;</span>
         }
     }
 
@@ -315,9 +315,9 @@ import org.slf4j.LoggerFactory;
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
-<span class="nc" id="L318">            return Long.parseLong(s);</span>
-<span class="nc" id="L319">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L320">            return defaultLong;</span>
+<span class="fc" id="L318">            return Long.parseLong(s);</span>
+<span class="fc" id="L319">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L320">            return defaultLong;</span>
         }
     }
 }

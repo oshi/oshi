@@ -33,7 +33,7 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 <span class="nc" id="L35">public class PropertiesUtil {</span>
-<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);</span>
+<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);</span>
 
     /**
      * Loads Java Properties from a file on the class path
@@ -43,15 +43,20 @@ import oshi.util.ParseUtil;
      * @return A Properties object from the loaded file
      */
     public static Properties loadProperties(String propertiesFile) {
-<span class="nc" id="L46">        Properties props = new Properties();</span>
+<span class="fc" id="L46">        Properties props = new Properties();</span>
 
-<span class="nc" id="L48">        try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile)) {</span>
-<span class="nc" id="L49">            props.load(input);</span>
-<span class="nc" id="L50">            LOG.debug(&quot;Loaded properties: {}&quot;, props.toString());</span>
-<span class="nc bnc" id="L51" title="All 8 branches missed.">        } catch (IOException ex) {</span>
-<span class="nc" id="L52">            LOG.error(&quot;No properties file {} on the classpath.&quot;, propertiesFile);</span>
-<span class="nc" id="L53">        }</span>
-<span class="nc" id="L54">        return props;</span>
+<span class="fc" id="L48">        InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (input == null) {</span>
+<span class="fc" id="L50">            LOG.error(&quot;No properties file {} on the classpath.&quot;, propertiesFile);</span>
+<span class="fc" id="L51">            return props;</span>
+        }
+        try {
+<span class="fc" id="L54">            props.load(input);</span>
+<span class="fc" id="L55">            LOG.debug(&quot;Loaded properties: {}&quot;, props.toString());</span>
+<span class="nc" id="L56">        } catch (IOException ex) {</span>
+<span class="nc" id="L57">            LOG.error(&quot;Error reading properties file {}.&quot;, propertiesFile);</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">        return props;</span>
     }
 
     /**
@@ -64,7 +69,7 @@ import oshi.util.ParseUtil;
      * @return False if the property is set to &quot;false&quot;; true otherwise
      */
     public static boolean getBoolean(Properties properties, String property) {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        return (!properties.getProperty(property, &quot;true&quot;).equalsIgnoreCase(&quot;false&quot;));</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        return (!properties.getProperty(property, &quot;true&quot;).equalsIgnoreCase(&quot;false&quot;));</span>
     }
 
     /**
@@ -79,7 +84,7 @@ import oshi.util.ParseUtil;
      * @return The integer value if parseable, or the default, otherwise
      */
     public static int getIntOrDefault(Properties properties, String property, int defaultInt) {
-<span class="nc" id="L82">        return ParseUtil.parseIntOrDefault(properties.getProperty(property), defaultInt);</span>
+<span class="fc" id="L87">        return ParseUtil.parseIntOrDefault(properties.getProperty(property), defaultInt);</span>
     }
 
     /**
@@ -92,8 +97,8 @@ import oshi.util.ParseUtil;
      * @return The string value if parseable, or the string &quot;null&quot;, otherwise
      */
     public static String getString(Properties properties, String property) {
-<span class="nc" id="L95">        String s = properties.getProperty(property);</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        return s == null ? &quot;null&quot; : s;</span>
+<span class="fc" id="L100">        String s = properties.getProperty(property);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        return s == null ? &quot;null&quot; : s;</span>
     }
 
     /**
@@ -110,15 +115,15 @@ import oshi.util.ParseUtil;
      * @return The enum value if parseable, or null, otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; T getEnum(Properties properties, String property, Class&lt;T&gt; enumClass) {
-<span class="nc" id="L113">        String s = properties.getProperty(property);</span>
-<span class="nc bnc" id="L114" title="All 4 branches missed.">        if (enumClass != null &amp;&amp; s != null) {</span>
+<span class="fc" id="L118">        String s = properties.getProperty(property);</span>
+<span class="pc bpc" id="L119" title="1 of 4 branches missed.">        if (enumClass != null &amp;&amp; s != null) {</span>
             try {
-<span class="nc" id="L116">                return Enum.valueOf(enumClass, s.trim().toUpperCase());</span>
-<span class="nc" id="L117">            } catch (IllegalArgumentException ex) {</span>
-<span class="nc" id="L118">                LOG.error(&quot;Invalid value {} for property {}. See {}.&quot;, s, property, enumClass.getName());</span>
+<span class="fc" id="L121">                return Enum.valueOf(enumClass, s.trim().toUpperCase());</span>
+<span class="fc" id="L122">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L123">                LOG.error(&quot;Invalid value {} for property {}. See {}.&quot;, s, property, enumClass.getName());</span>
             }
         }
-<span class="nc" id="L121">        return null;</span>
+<span class="fc" id="L126">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

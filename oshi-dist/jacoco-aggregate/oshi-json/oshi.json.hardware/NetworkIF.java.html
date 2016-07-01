@@ -50,15 +50,18 @@ public class NetworkIF extends AbstractOshiJsonObject {
 
     private oshi.hardware.NetworkIF networkIf;
 
-<span class="fc" id="L53">    public NetworkIF() {</span>
-<span class="fc" id="L54">        this.networkIf = new oshi.hardware.NetworkIF();</span>
-<span class="fc" id="L55">    }</span>
+    /**
+     * Creates a new NetworkIF object.
+     */
+<span class="fc" id="L56">    public NetworkIF() {</span>
+<span class="fc" id="L57">        this.networkIf = new oshi.hardware.NetworkIF();</span>
+<span class="fc" id="L58">    }</span>
 
     /**
      * @return the network interface
      */
     public NetworkInterface getNetworkInterface() {
-<span class="nc" id="L61">        return this.networkIf.getNetworkInterface();</span>
+<span class="fc" id="L64">        return this.networkIf.getNetworkInterface();</span>
     }
 
     /**
@@ -69,14 +72,14 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="fc" id="L72">        this.networkIf.setNetworkInterface(networkInterface);</span>
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L75">        this.networkIf.setNetworkInterface(networkInterface);</span>
+<span class="fc" id="L76">    }</span>
 
     /**
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L79">        return this.networkIf.getName();</span>
+<span class="fc" id="L82">        return this.networkIf.getName();</span>
     }
 
     /**
@@ -84,7 +87,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         is identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L87">        return this.networkIf.getDisplayName();</span>
+<span class="fc" id="L90">        return this.networkIf.getDisplayName();</span>
     }
 
     /**
@@ -94,7 +97,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L97">        return this.networkIf.getMTU();</span>
+<span class="fc" id="L100">        return this.networkIf.getMTU();</span>
     }
 
     /**
@@ -103,7 +106,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L106">        return this.networkIf.getMacaddr();</span>
+<span class="fc" id="L109">        return this.networkIf.getMacaddr();</span>
     }
 
     /**
@@ -112,7 +115,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L115">        return this.networkIf.getIPv4addr();</span>
+<span class="fc" id="L118">        return this.networkIf.getIPv4addr();</span>
     }
 
     /**
@@ -121,7 +124,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L124">        return this.networkIf.getIPv6addr();</span>
+<span class="fc" id="L127">        return this.networkIf.getIPv6addr();</span>
     }
 
     /**
@@ -130,7 +133,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L133">        return this.networkIf.getBytesRecv();</span>
+<span class="fc" id="L136">        return this.networkIf.getBytesRecv();</span>
     }
 
     /**
@@ -138,8 +141,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L141">        this.networkIf.setBytesRecv(bytesRecv);</span>
-<span class="fc" id="L142">    }</span>
+<span class="fc" id="L144">        this.networkIf.setBytesRecv(bytesRecv);</span>
+<span class="fc" id="L145">    }</span>
 
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
@@ -147,7 +150,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
-<span class="fc" id="L150">        return this.networkIf.getBytesSent();</span>
+<span class="fc" id="L153">        return this.networkIf.getBytesSent();</span>
     }
 
     /**
@@ -155,8 +158,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L158">        this.networkIf.setBytesSent(bytesSent);</span>
-<span class="fc" id="L159">    }</span>
+<span class="fc" id="L161">        this.networkIf.setBytesSent(bytesSent);</span>
+<span class="fc" id="L162">    }</span>
 
     /**
      * @return The Packets Received. This value is set when the
@@ -165,7 +168,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L168">        return this.networkIf.getPacketsRecv();</span>
+<span class="fc" id="L171">        return this.networkIf.getPacketsRecv();</span>
     }
 
     /**
@@ -173,8 +176,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L176">        this.networkIf.setPacketsRecv(packetsRecv);</span>
-<span class="fc" id="L177">    }</span>
+<span class="fc" id="L179">        this.networkIf.setPacketsRecv(packetsRecv);</span>
+<span class="fc" id="L180">    }</span>
 
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
@@ -182,7 +185,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L185">        return this.networkIf.getPacketsSent();</span>
+<span class="fc" id="L188">        return this.networkIf.getPacketsSent();</span>
     }
 
     /**
@@ -190,8 +193,8 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L193">        this.networkIf.setPacketsSent(packetsSent);</span>
-<span class="fc" id="L194">    }</span>
+<span class="fc" id="L196">        this.networkIf.setPacketsSent(packetsSent);</span>
+<span class="fc" id="L197">    }</span>
 
     /**
      * @return The speed of the network interface in bits per second. This value
@@ -200,7 +203,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
-<span class="fc" id="L203">        return this.networkIf.getSpeed();</span>
+<span class="fc" id="L206">        return this.networkIf.getSpeed();</span>
     }
 
     /**
@@ -208,77 +211,77 @@ public class NetworkIF extends AbstractOshiJsonObject {
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L211">        this.networkIf.setSpeed(speed);</span>
-<span class="fc" id="L212">    }</span>
+<span class="fc" id="L214">        this.networkIf.setSpeed(speed);</span>
+<span class="fc" id="L215">    }</span>
 
     /**
      * Updates interface network statistics on this interface. Statistics
      * include packets and bytes sent and received, and interface speed.
      */
     public void updateNetworkStats() {
-<span class="nc bnc" id="L219" title="All 4 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L222" title="3 of 4 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L221">            oshi.hardware.platform.windows.WindowsNetworks.updateNetworkStats(this.networkIf);</span>
-<span class="nc" id="L222">            break;</span>
-        case LINUX:
-<span class="nc" id="L224">            oshi.hardware.platform.linux.LinuxNetworks.updateNetworkStats(this.networkIf);</span>
+<span class="nc" id="L224">            oshi.hardware.platform.windows.WindowsNetworks.updateNetworkStats(this.networkIf);</span>
 <span class="nc" id="L225">            break;</span>
-        case MACOSX:
-<span class="nc" id="L227">            oshi.hardware.platform.mac.MacNetworks.updateNetworkStats(this.networkIf);</span>
+        case LINUX:
+<span class="nc" id="L227">            oshi.hardware.platform.linux.LinuxNetworks.updateNetworkStats(this.networkIf);</span>
 <span class="nc" id="L228">            break;</span>
+        case MACOSX:
+<span class="fc" id="L230">            oshi.hardware.platform.mac.MacNetworks.updateNetworkStats(this.networkIf);</span>
+<span class="fc" id="L231">            break;</span>
         default:
-<span class="nc" id="L230">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L233">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
         }
-<span class="nc" id="L232">    }</span>
+<span class="fc" id="L235">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L239">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.name&quot;)) {</span>
-<span class="nc" id="L241">            json.add(&quot;name&quot;, this.getName());</span>
+<span class="fc" id="L242">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.name&quot;)) {</span>
+<span class="fc" id="L244">            json.add(&quot;name&quot;, this.getName());</span>
         }
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.displayName&quot;)) {</span>
-<span class="nc" id="L244">            json.add(&quot;displayName&quot;, this.getDisplayName());</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.displayName&quot;)) {</span>
+<span class="fc" id="L247">            json.add(&quot;displayName&quot;, this.getDisplayName());</span>
         }
-<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.mac&quot;)) {</span>
-<span class="nc" id="L247">            json.add(&quot;mac&quot;, this.getMacaddr());</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.mac&quot;)) {</span>
+<span class="fc" id="L250">            json.add(&quot;mac&quot;, this.getMacaddr());</span>
         }
-<span class="nc bnc" id="L249" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.ipv4&quot;)) {</span>
-<span class="nc" id="L250">            JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L251" title="All 2 branches missed.">            for (String ipv4 : getIPv4addr()) {</span>
-<span class="nc" id="L252">                ipv4ArrayBuilder.add(ipv4);</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.ipv4&quot;)) {</span>
+<span class="fc" id="L253">            JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">            for (String ipv4 : getIPv4addr()) {</span>
+<span class="fc" id="L255">                ipv4ArrayBuilder.add(ipv4);</span>
             }
-<span class="nc" id="L254">            json.add(&quot;ipv4&quot;, ipv4ArrayBuilder.build());</span>
+<span class="fc" id="L257">            json.add(&quot;ipv4&quot;, ipv4ArrayBuilder.build());</span>
         }
-<span class="nc bnc" id="L256" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.ipv6&quot;)) {</span>
-<span class="nc" id="L257">            JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">            for (String ipv6 : getIPv6addr()) {</span>
-<span class="nc" id="L259">                ipv6ArrayBuilder.add(ipv6);</span>
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.ipv6&quot;)) {</span>
+<span class="fc" id="L260">            JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">            for (String ipv6 : getIPv6addr()) {</span>
+<span class="fc" id="L262">                ipv6ArrayBuilder.add(ipv6);</span>
             }
-<span class="nc" id="L261">            json.add(&quot;ipv6&quot;, ipv6ArrayBuilder.build());</span>
+<span class="fc" id="L264">            json.add(&quot;ipv6&quot;, ipv6ArrayBuilder.build());</span>
         }
-<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.mtu&quot;)) {</span>
-<span class="nc" id="L264">            json.add(&quot;mtu&quot;, this.getMTU());</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.mtu&quot;)) {</span>
+<span class="fc" id="L267">            json.add(&quot;mtu&quot;, this.getMTU());</span>
         }
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.bytesRecv&quot;)) {</span>
-<span class="nc" id="L267">            json.add(&quot;bytesRecv&quot;, this.getBytesRecv());</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.bytesRecv&quot;)) {</span>
+<span class="fc" id="L270">            json.add(&quot;bytesRecv&quot;, this.getBytesRecv());</span>
         }
-<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.bytesSent&quot;)) {</span>
-<span class="nc" id="L270">            json.add(&quot;bytesSent&quot;, this.getBytesSent());</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.bytesSent&quot;)) {</span>
+<span class="fc" id="L273">            json.add(&quot;bytesSent&quot;, this.getBytesSent());</span>
         }
-<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.packetsRecv&quot;)) {</span>
-<span class="nc" id="L273">            json.add(&quot;packetsRecv&quot;, this.getPacketsRecv());</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.packetsRecv&quot;)) {</span>
+<span class="fc" id="L276">            json.add(&quot;packetsRecv&quot;, this.getPacketsRecv());</span>
         }
-<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.packetsSent&quot;)) {</span>
-<span class="nc" id="L276">            json.add(&quot;packetsSent&quot;, this.getPacketsSent());</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.packetsSent&quot;)) {</span>
+<span class="fc" id="L279">            json.add(&quot;packetsSent&quot;, this.getPacketsSent());</span>
         }
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.speed&quot;)) {</span>
-<span class="nc" id="L279">            json.add(&quot;speed&quot;, this.getSpeed());</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.networks.speed&quot;)) {</span>
+<span class="fc" id="L282">            json.add(&quot;speed&quot;, this.getSpeed());</span>
         }
-<span class="nc" id="L281">        return json.build();</span>
+<span class="fc" id="L284">        return json.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

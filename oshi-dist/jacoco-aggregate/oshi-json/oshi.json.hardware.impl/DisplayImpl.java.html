@@ -31,24 +31,34 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 import oshi.util.EdidUtil;
 
+/**
+ * Wrapper class to implement Display interface with platform-specific objects
+ */
 public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L38">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.Display display;
 
-<span class="fc" id="L42">    public DisplayImpl(oshi.hardware.Display display) {</span>
-<span class="fc" id="L43">        this.display = display;</span>
-<span class="fc" id="L44">    }</span>
+    /**
+     * Creates a new platform-specific Display object wrapping the provided
+     * argument
+     * 
+     * @param display
+     *            a platform-specific Display object
+     */
+<span class="nc" id="L52">    public DisplayImpl(oshi.hardware.Display display) {</span>
+<span class="nc" id="L53">        this.display = display;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public byte[] getEdid() {
-<span class="fc" id="L51">        return this.display.getEdid();</span>
+<span class="nc" id="L61">        return this.display.getEdid();</span>
     }
 
     /**
@@ -56,16 +66,16 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L59">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.displays.edid&quot;)) {</span>
-<span class="nc" id="L61">            json.add(&quot;edid&quot;, EdidUtil.toHexString(getEdid()));</span>
+<span class="nc" id="L69">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.displays.edid&quot;)) {</span>
+<span class="nc" id="L71">            json.add(&quot;edid&quot;, EdidUtil.toHexString(getEdid()));</span>
         }
-<span class="nc" id="L63">        return json.build();</span>
+<span class="nc" id="L73">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L68">        return this.display.toString();</span>
+<span class="nc" id="L78">        return this.display.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

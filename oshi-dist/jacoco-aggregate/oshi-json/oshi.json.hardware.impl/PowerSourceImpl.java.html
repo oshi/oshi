@@ -30,24 +30,35 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement PowerSource interface with platform-specific
+ * objects
+ */
 public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSource {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.PowerSource powerSource;
 
-<span class="fc" id="L41">    public PowerSourceImpl(oshi.hardware.PowerSource powerSource) {</span>
-<span class="fc" id="L42">        this.powerSource = powerSource;</span>
-<span class="fc" id="L43">    }</span>
+    /**
+     * Creates a new platform-specific PowerSource object wrapping the provided
+     * argument
+     * 
+     * @param powerSource
+     *            a platform-specific PowerSource object
+     */
+<span class="nc" id="L52">    public PowerSourceImpl(oshi.hardware.PowerSource powerSource) {</span>
+<span class="nc" id="L53">        this.powerSource = powerSource;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L50">        return powerSource.getName();</span>
+<span class="nc" id="L61">        return powerSource.getName();</span>
     }
 
     /**
@@ -55,7 +66,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getRemainingCapacity() {
-<span class="fc" id="L58">        return powerSource.getRemainingCapacity();</span>
+<span class="nc" id="L69">        return powerSource.getRemainingCapacity();</span>
     }
 
     /**
@@ -63,7 +74,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getTimeRemaining() {
-<span class="fc" id="L66">        return powerSource.getTimeRemaining();</span>
+<span class="nc" id="L77">        return powerSource.getTimeRemaining();</span>
     }
 
     /**
@@ -71,17 +82,17 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L74">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.name&quot;)) {</span>
-<span class="nc" id="L76">            json.add(&quot;name&quot;, getName());</span>
+<span class="nc" id="L85">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.name&quot;)) {</span>
+<span class="nc" id="L87">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.remainingCapacity&quot;)) {</span>
-<span class="nc" id="L79">            json.add(&quot;remainingCapacity&quot;, getRemainingCapacity());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.remainingCapacity&quot;)) {</span>
+<span class="nc" id="L90">            json.add(&quot;remainingCapacity&quot;, getRemainingCapacity());</span>
         }
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.timeRemaining&quot;)) {</span>
-<span class="nc" id="L82">            json.add(&quot;timeRemaining&quot;, getTimeRemaining());</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.timeRemaining&quot;)) {</span>
+<span class="nc" id="L93">            json.add(&quot;timeRemaining&quot;, getTimeRemaining());</span>
         }
-<span class="nc" id="L84">        return json.build();</span>
+<span class="nc" id="L95">        return json.build();</span>
     }
 
 }

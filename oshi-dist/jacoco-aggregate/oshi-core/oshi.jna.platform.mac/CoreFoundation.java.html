@@ -34,7 +34,7 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-<span class="fc" id="L37">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
+<span class="nc" id="L37">    CoreFoundation INSTANCE = (CoreFoundation) Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
     int UTF_8 = 0x08000100;
 
@@ -43,22 +43,22 @@ public interface CoreFoundation extends Library {
     /*
      * Decorator class types for PointerType to better match ported code
      */
-<span class="fc" id="L46">    class CFTypeRef extends PointerType {</span>
+<span class="nc" id="L46">    class CFTypeRef extends PointerType {</span>
     }
 
-<span class="fc" id="L49">    class CFArrayRef extends PointerType {</span>
+<span class="nc" id="L49">    class CFArrayRef extends PointerType {</span>
     }
 
-<span class="fc" id="L52">    class CFDictionaryRef extends PointerType {</span>
+<span class="nc" id="L52">    class CFDictionaryRef extends PointerType {</span>
     }
 
-<span class="fc" id="L55">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
+<span class="nc" id="L55">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
     }
 
-<span class="fc" id="L58">    class CFAllocatorRef extends PointerType {</span>
+<span class="nc" id="L58">    class CFAllocatorRef extends PointerType {</span>
     }
 
-<span class="fc" id="L61">    class CFStringRef extends PointerType {</span>
+<span class="nc" id="L61">    class CFStringRef extends PointerType {</span>
         /**
          * Creates a new CFString from the given Java string.
          * 
@@ -67,9 +67,9 @@ public interface CoreFoundation extends Library {
          * @return A reference to a CFString representing s
          */
         public static CFStringRef toCFString(String s) {
-<span class="fc" id="L70">            final char[] chars = s.toCharArray();</span>
-<span class="fc" id="L71">            int length = chars.length;</span>
-<span class="fc" id="L72">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+<span class="nc" id="L70">            final char[] chars = s.toCharArray();</span>
+<span class="nc" id="L71">            int length = chars.length;</span>
+<span class="nc" id="L72">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 

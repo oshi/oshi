@@ -31,24 +31,34 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement USBDevice interface with platform-specific objects
+ */
 public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L38">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.UsbDevice usbDevice;
 
-<span class="nc" id="L42">    public UsbDeviceImpl(oshi.hardware.UsbDevice usbDevice) {</span>
-<span class="nc" id="L43">        this.usbDevice = usbDevice;</span>
-<span class="nc" id="L44">    }</span>
+    /**
+     * Creates a new platform-specific USBDevice object wrapping the provided
+     * argument
+     * 
+     * @param usbDevice
+     *            a platform-specific USBDevice object
+     */
+<span class="nc" id="L52">    public UsbDeviceImpl(oshi.hardware.UsbDevice usbDevice) {</span>
+<span class="nc" id="L53">        this.usbDevice = usbDevice;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L51">        return this.usbDevice.getName();</span>
+<span class="nc" id="L61">        return this.usbDevice.getName();</span>
     }
 
     /**
@@ -56,7 +66,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public String getVendor() {
-<span class="nc" id="L59">        return this.usbDevice.getVendor();</span>
+<span class="nc" id="L69">        return this.usbDevice.getVendor();</span>
     }
 
     /**
@@ -64,7 +74,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public String getVendorId() {
-<span class="nc" id="L67">        return this.usbDevice.getVendorId();</span>
+<span class="nc" id="L77">        return this.usbDevice.getVendorId();</span>
     }
 
     /**
@@ -72,7 +82,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public String getProductId() {
-<span class="nc" id="L75">        return this.usbDevice.getProductId();</span>
+<span class="nc" id="L85">        return this.usbDevice.getProductId();</span>
     }
 
     /**
@@ -80,7 +90,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L83">        return this.usbDevice.getSerialNumber();</span>
+<span class="nc" id="L93">        return this.usbDevice.getSerialNumber();</span>
     }
 
     /**
@@ -88,12 +98,12 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public UsbDevice[] getConnectedDevices() {
-<span class="nc" id="L91">        oshi.hardware.UsbDevice[] usbs = this.usbDevice.getConnectedDevices();</span>
-<span class="nc" id="L92">        UsbDevice[] usbDevices = new UsbDevice[usbs.length];</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int i = 0; i &lt; usbs.length; i++) {</span>
-<span class="nc" id="L94">            usbDevices[i] = new UsbDeviceImpl(usbs[i]);</span>
+<span class="nc" id="L101">        oshi.hardware.UsbDevice[] usbs = this.usbDevice.getConnectedDevices();</span>
+<span class="nc" id="L102">        UsbDevice[] usbDevices = new UsbDevice[usbs.length];</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (int i = 0; i &lt; usbs.length; i++) {</span>
+<span class="nc" id="L104">            usbDevices[i] = new UsbDeviceImpl(usbs[i]);</span>
         }
-<span class="nc" id="L96">        return usbDevices;</span>
+<span class="nc" id="L106">        return usbDevices;</span>
     }
 
     /**
@@ -101,36 +111,36 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L104">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.name&quot;)) {</span>
-<span class="nc" id="L106">            json.add(&quot;name&quot;, getName());</span>
+<span class="nc" id="L114">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.name&quot;)) {</span>
+<span class="nc" id="L116">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.vendor&quot;)) {</span>
-<span class="nc" id="L109">            json.add(&quot;vendor&quot;, getVendor());</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.vendor&quot;)) {</span>
+<span class="nc" id="L119">            json.add(&quot;vendor&quot;, getVendor());</span>
         }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.vendorId&quot;)) {</span>
-<span class="nc" id="L112">            json.add(&quot;vendorId&quot;, getVendorId());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.vendorId&quot;)) {</span>
+<span class="nc" id="L122">            json.add(&quot;vendorId&quot;, getVendorId());</span>
         }
-<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.productId&quot;)) {</span>
-<span class="nc" id="L115">            json.add(&quot;productId&quot;, getProductId());</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.productId&quot;)) {</span>
+<span class="nc" id="L125">            json.add(&quot;productId&quot;, getProductId());</span>
         }
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.serialNumber&quot;)) {</span>
-<span class="nc" id="L118">            json.add(&quot;serialNumber&quot;, getSerialNumber());</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.serialNumber&quot;)) {</span>
+<span class="nc" id="L128">            json.add(&quot;serialNumber&quot;, getSerialNumber());</span>
         }
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.connectedDevices&quot;)</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">                &amp;&amp; PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.tree&quot;)) {</span>
-<span class="nc" id="L122">            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            for (UsbDevice usbDevice : getConnectedDevices()) {</span>
-<span class="nc" id="L124">                usbDeviceArrayBuilder.add(usbDevice.toJSON());</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.connectedDevices&quot;)</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                &amp;&amp; PropertiesUtil.getBoolean(properties, &quot;hardware.usbDevices.tree&quot;)) {</span>
+<span class="nc" id="L132">            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            for (UsbDevice usbDevice : getConnectedDevices()) {</span>
+<span class="nc" id="L134">                usbDeviceArrayBuilder.add(usbDevice.toJSON());</span>
             }
-<span class="nc" id="L126">            json.add(&quot;connectedDevices&quot;, usbDeviceArrayBuilder.build());</span>
+<span class="nc" id="L136">            json.add(&quot;connectedDevices&quot;, usbDeviceArrayBuilder.build());</span>
         }
-<span class="nc" id="L128">        return json.build();</span>
+<span class="nc" id="L138">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L133">        return this.usbDevice.toString();</span>
+<span class="nc" id="L143">        return this.usbDevice.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename, boolean reportError) {
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (new File(filename).exists()) {</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (new File(filename).exists()) {</span>
 <span class="fc" id="L68">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
             try {
 <span class="fc" id="L70">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
@@ -73,10 +73,10 @@ import org.slf4j.LoggerFactory;
 <span class="nc" id="L73">                    LOG.error(&quot;Error reading file {}&quot;, filename);</span>
                 }
 <span class="nc" id="L75">            }</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (reportError) {</span>
-<span class="nc" id="L77">            LOG.warn(&quot;File not found: {}&quot;, filename);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        } else if (reportError) {</span>
+<span class="fc" id="L77">            LOG.warn(&quot;File not found: {}&quot;, filename);</span>
         }
-<span class="nc" id="L79">        return new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L79">        return new ArrayList&lt;String&gt;();</span>
     }
 
     /**
@@ -88,13 +88,13 @@ import org.slf4j.LoggerFactory;
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-<span class="nc" id="L91">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L92">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L94">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L95">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+<span class="fc" id="L91">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L92">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L94">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L95">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="nc" id="L97">        return 0L;</span>
+<span class="fc" id="L97">        return 0L;</span>
     }
 
     /**
@@ -106,17 +106,17 @@ import org.slf4j.LoggerFactory;
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-<span class="nc" id="L109">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L109">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         try {
-<span class="nc" id="L111">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
-<span class="nc" id="L113">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L114">                return Integer.parseInt(read.get(0));</span>
+<span class="fc" id="L111">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            if (!read.isEmpty()) {</span>
+<span class="fc" id="L113">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L114">                return Integer.parseInt(read.get(0));</span>
             }
-<span class="nc" id="L116">        } catch (NumberFormatException ex) {</span>
-<span class="nc" id="L117">            LOG.debug(&quot;Unable to read value from {}&quot;, filename);</span>
-<span class="nc" id="L118">        }</span>
-<span class="nc" id="L119">        return 0;</span>
+<span class="fc" id="L116">        } catch (NumberFormatException ex) {</span>
+<span class="fc" id="L117">            LOG.debug(&quot;Unable to read value from {}&quot;, filename);</span>
+<span class="fc" id="L118">        }</span>
+<span class="fc" id="L119">        return 0;</span>
     }
 
     /**
@@ -128,13 +128,13 @@ import org.slf4j.LoggerFactory;
      * @return The value contained in the file, if any; otherwise emptpy string
      */
     public static String getStringFromFile(String filename) {
-<span class="nc" id="L131">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L132">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L134">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L135">            return read.get(0);</span>
+<span class="fc" id="L131">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L132">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L134">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L135">            return read.get(0);</span>
         }
-<span class="nc" id="L137">        return &quot;&quot;;</span>
+<span class="fc" id="L137">        return &quot;&quot;;</span>
     }
 
     /**
@@ -146,13 +146,13 @@ import org.slf4j.LoggerFactory;
      * @return An array of strings containing delimited values
      */
     public static String[] getSplitFromFile(String filename) {
-<span class="nc" id="L149">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L150">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L152">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L153">            return read.get(0).split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L149">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L150">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L152">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L153">            return read.get(0).split(&quot;\\s+&quot;);</span>
         }
-<span class="nc" id="L155">        return new String[0];</span>
+<span class="fc" id="L155">        return new String[0];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

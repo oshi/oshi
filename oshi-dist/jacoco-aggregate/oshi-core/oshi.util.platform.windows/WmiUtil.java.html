@@ -460,45 +460,46 @@ import oshi.util.ParseUtil;
                     pclsObj, uReturn);
             // Requested 1; if 0 objects returned, we're done
 <span class="nc bnc" id="L462" title="All 4 branches missed.">            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L463">                enumerator.Release();</span>
-<span class="nc" id="L464">                return;</span>
+                // Enumerator will be released by calling method so no need to
+                // release it here.
+<span class="nc" id="L465">                return;</span>
             }
-<span class="nc" id="L466">            VARIANT.ByReference vtProp = new VARIANT.ByReference();</span>
+<span class="nc" id="L467">            VARIANT.ByReference vtProp = new VARIANT.ByReference();</span>
 
             // Get the value of the properties
-<span class="nc" id="L469">            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());</span>
-<span class="nc bnc" id="L470" title="All 2 branches missed.">            for (int p = 0; p &lt; properties.length; p++) {</span>
-<span class="nc" id="L471">                String property = properties[p];</span>
-<span class="nc" id="L472">                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);</span>
+<span class="nc" id="L470">            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">            for (int p = 0; p &lt; properties.length; p++) {</span>
+<span class="nc" id="L472">                String property = properties[p];</span>
+<span class="nc" id="L473">                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);</span>
 
-<span class="nc bnc" id="L474" title="All 2 branches missed.">                ValueType propertyType = propertyTypes.length &gt; 1 ? propertyTypes[p] : propertyTypes[0];</span>
-<span class="nc bnc" id="L475" title="All 5 branches missed.">                switch (propertyType) {</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">                ValueType propertyType = propertyTypes.length &gt; 1 ? propertyTypes[p] : propertyTypes[0];</span>
+<span class="nc bnc" id="L476" title="All 5 branches missed.">                switch (propertyType) {</span>
                 // WMI Longs will return as strings
                 case STRING:
-<span class="nc bnc" id="L478" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? &quot;unknown&quot; : vtProp.stringValue());</span>
-<span class="nc" id="L479">                    break;</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? &quot;unknown&quot; : vtProp.stringValue());</span>
+<span class="nc" id="L480">                    break;</span>
                 // WMI Uint32s will return as longs
                 case UINT32: // WinDef.LONG TODO improve in JNA 4.3
-<span class="nc" id="L482">                    values.get(property)</span>
-<span class="nc bnc" id="L483" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
-<span class="nc" id="L484">                    break;</span>
+<span class="nc" id="L483">                    values.get(property)</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
+<span class="nc" id="L485">                    break;</span>
                 case FLOAT:
-<span class="nc bnc" id="L486" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
-<span class="nc" id="L487">                    break;</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
+<span class="nc" id="L488">                    break;</span>
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
                     // parse to a long representing ms since eopch
-<span class="nc" id="L491">                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
-<span class="nc" id="L492">                    break;</span>
+<span class="nc" id="L492">                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
+<span class="nc" id="L493">                    break;</span>
                 default:
                     // Should never get here! If you get this exception you've
                     // added something to the enum without adding it here. Tsk.
-<span class="nc" id="L496">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
+<span class="nc" id="L497">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
                 }
-<span class="nc" id="L498">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
+<span class="nc" id="L499">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
             }
-<span class="nc" id="L500">            clsObj.Release();</span>
-<span class="nc" id="L501">        }</span>
-<span class="nc" id="L502">    }</span>
+<span class="nc" id="L501">            clsObj.Release();</span>
+<span class="nc" id="L502">        }</span>
+<span class="nc" id="L503">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

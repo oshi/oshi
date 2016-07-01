@@ -30,24 +30,35 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.OperatingSystemVersion;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement OperatingSystemVersion interface with
+ * platform-specific objects
+ */
 public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implements OperatingSystemVersion {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.OperatingSystemVersion version;
 
-<span class="fc" id="L41">    public OperatingSystemVersionImpl(oshi.software.os.OperatingSystemVersion version) {</span>
-<span class="fc" id="L42">        this.version = version;</span>
-<span class="fc" id="L43">    }</span>
+    /**
+     * Creates a new platform-specific OperatingSystemVersion object wrapping
+     * the provided argument
+     * 
+     * @param version
+     *            a platform-specific OperatingSystemVersion object
+     */
+<span class="nc" id="L52">    public OperatingSystemVersionImpl(oshi.software.os.OperatingSystemVersion version) {</span>
+<span class="nc" id="L53">        this.version = version;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getVersion() {
-<span class="fc" id="L50">        return this.version.getVersion();</span>
+<span class="nc" id="L61">        return this.version.getVersion();</span>
     }
 
     /**
@@ -55,15 +66,15 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
      */
     @Override
     public void setVersion(String version) {
-<span class="nc" id="L58">        this.version.setVersion(version);</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L69">        this.version.setVersion(version);</span>
+<span class="nc" id="L70">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getCodeName() {
-<span class="fc" id="L66">        return this.version.getCodeName();</span>
+<span class="nc" id="L77">        return this.version.getCodeName();</span>
     }
 
     /**
@@ -71,15 +82,15 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
      */
     @Override
     public void setCodeName(String codeName) {
-<span class="nc" id="L74">        this.version.setCodeName(codeName);</span>
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L85">        this.version.setCodeName(codeName);</span>
+<span class="nc" id="L86">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getBuildNumber() {
-<span class="fc" id="L82">        return this.version.getBuildNumber();</span>
+<span class="nc" id="L93">        return this.version.getBuildNumber();</span>
     }
 
     /**
@@ -87,30 +98,30 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
      */
     @Override
     public void setBuildNumber(String buildNumber) {
-<span class="nc" id="L90">        this.version.setBuildNumber(buildNumber);</span>
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L101">        this.version.setBuildNumber(buildNumber);</span>
+<span class="nc" id="L102">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L98">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.version&quot;)) {</span>
-<span class="nc" id="L100">            json.add(&quot;version&quot;, getVersion());</span>
+<span class="nc" id="L109">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.version&quot;)) {</span>
+<span class="nc" id="L111">            json.add(&quot;version&quot;, getVersion());</span>
         }
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.codeName&quot;)) {</span>
-<span class="nc" id="L103">            json.add(&quot;codeName&quot;, getCodeName());</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.codeName&quot;)) {</span>
+<span class="nc" id="L114">            json.add(&quot;codeName&quot;, getCodeName());</span>
         }
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.build&quot;)) {</span>
-<span class="nc" id="L106">            json.add(&quot;build&quot;, getBuildNumber());</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.build&quot;)) {</span>
+<span class="nc" id="L117">            json.add(&quot;build&quot;, getBuildNumber());</span>
         }
-<span class="nc" id="L108">        return json.build();</span>
+<span class="nc" id="L119">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L113">        return this.version.toString();</span>
+<span class="nc" id="L124">        return this.version.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

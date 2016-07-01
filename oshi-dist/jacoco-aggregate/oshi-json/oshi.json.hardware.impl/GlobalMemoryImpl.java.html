@@ -30,24 +30,35 @@ import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
 
+/**
+ * Wrapper class to implement GlobalMemory interface with platform-specific
+ * objects
+ */
 public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L37">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.GlobalMemory memory;
 
-<span class="fc" id="L41">    public GlobalMemoryImpl(oshi.hardware.GlobalMemory memory) {</span>
-<span class="fc" id="L42">        this.memory = memory;</span>
-<span class="fc" id="L43">    }</span>
+    /**
+     * Creates a new platform-specific GlobalMemory object wrapping the provided
+     * argument
+     * 
+     * @param memory
+     *            a platform-specific GlobalMemory object
+     */
+<span class="nc" id="L52">    public GlobalMemoryImpl(oshi.hardware.GlobalMemory memory) {</span>
+<span class="nc" id="L53">        this.memory = memory;</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public long getTotal() {
-<span class="fc" id="L50">        return this.memory.getTotal();</span>
+<span class="nc" id="L61">        return this.memory.getTotal();</span>
     }
 
     /**
@@ -55,7 +66,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getAvailable() {
-<span class="fc" id="L58">        return this.memory.getAvailable();</span>
+<span class="nc" id="L69">        return this.memory.getAvailable();</span>
     }
 
     /**
@@ -63,7 +74,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapTotal() {
-<span class="fc" id="L66">        return this.memory.getSwapTotal();</span>
+<span class="nc" id="L77">        return this.memory.getSwapTotal();</span>
     }
 
     /**
@@ -71,7 +82,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapUsed() {
-<span class="fc" id="L74">        return this.memory.getSwapUsed();</span>
+<span class="nc" id="L85">        return this.memory.getSwapUsed();</span>
     }
 
     /**
@@ -79,20 +90,20 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L82">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
-<span class="nc" id="L84">            json.add(&quot;available&quot;, getAvailable());</span>
+<span class="nc" id="L93">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
+<span class="nc" id="L95">            json.add(&quot;available&quot;, getAvailable());</span>
         }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
-<span class="nc" id="L87">            json.add(&quot;total&quot;, getTotal());</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
+<span class="nc" id="L98">            json.add(&quot;total&quot;, getTotal());</span>
         }
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
-<span class="nc" id="L90">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
+<span class="nc" id="L101">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
         }
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
-<span class="nc" id="L93">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
+<span class="nc" id="L104">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
         }
-<span class="nc" id="L95">        return json.build();</span>
+<span class="nc" id="L106">        return json.build();</span>
     }
 
 }

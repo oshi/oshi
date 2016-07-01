@@ -79,8 +79,8 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the name to set
      */
     public void setName(String name) {
-<span class="nc" id="L82">        this.hwDiskStore.setName(name);</span>
-<span class="nc" id="L83">    }</span>
+<span class="fc" id="L82">        this.hwDiskStore.setName(name);</span>
+<span class="fc" id="L83">    }</span>
 
     /**
      * @return the model
@@ -94,8 +94,8 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the model to set
      */
     public void setModel(String model) {
-<span class="nc" id="L97">        this.hwDiskStore.setModel(model);</span>
-<span class="nc" id="L98">    }</span>
+<span class="fc" id="L97">        this.hwDiskStore.setModel(model);</span>
+<span class="fc" id="L98">    }</span>
 
     /**
      * @return the serial
@@ -109,8 +109,8 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="nc" id="L112">        this.hwDiskStore.setSerial(serial);</span>
-<span class="nc" id="L113">    }</span>
+<span class="fc" id="L112">        this.hwDiskStore.setSerial(serial);</span>
+<span class="fc" id="L113">    }</span>
 
     /**
      * @return Get size of disk (in bytes)
@@ -124,8 +124,8 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-<span class="nc" id="L127">        this.hwDiskStore.setSize(size);</span>
-<span class="nc" id="L128">    }</span>
+<span class="fc" id="L127">        this.hwDiskStore.setSize(size);</span>
+<span class="fc" id="L128">    }</span>
 
     /**
      * @return the reads
@@ -139,8 +139,8 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the reads to set
      */
     public void setReads(long reads) {
-<span class="nc" id="L142">        this.hwDiskStore.setReads(reads);</span>
-<span class="nc" id="L143">    }</span>
+<span class="fc" id="L142">        this.hwDiskStore.setReads(reads);</span>
+<span class="fc" id="L143">    }</span>
 
     /**
      * @return the writes
@@ -154,34 +154,34 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the writes to set
      */
     public void setWrites(long writes) {
-<span class="nc" id="L157">        this.hwDiskStore.setWrites(writes);</span>
-<span class="nc" id="L158">    }</span>
+<span class="fc" id="L157">        this.hwDiskStore.setWrites(writes);</span>
+<span class="fc" id="L158">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L165">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.name&quot;)) {</span>
-<span class="nc" id="L167">            json.add(&quot;name&quot;, this.hwDiskStore.getName());</span>
+<span class="fc" id="L165">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.name&quot;)) {</span>
+<span class="fc" id="L167">            json.add(&quot;name&quot;, this.hwDiskStore.getName());</span>
         }
-<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.model&quot;)) {</span>
-<span class="nc" id="L170">            json.add(&quot;model&quot;, this.hwDiskStore.getModel());</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.model&quot;)) {</span>
+<span class="fc" id="L170">            json.add(&quot;model&quot;, this.hwDiskStore.getModel());</span>
         }
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.serial&quot;)) {</span>
-<span class="nc" id="L173">            json.add(&quot;serial&quot;, this.hwDiskStore.getSerial());</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.serial&quot;)) {</span>
+<span class="fc" id="L173">            json.add(&quot;serial&quot;, this.hwDiskStore.getSerial());</span>
         }
-<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.size&quot;)) {</span>
-<span class="nc" id="L176">            json.add(&quot;size&quot;, this.hwDiskStore.getSize());</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.size&quot;)) {</span>
+<span class="fc" id="L176">            json.add(&quot;size&quot;, this.hwDiskStore.getSize());</span>
         }
-<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.reads&quot;)) {</span>
-<span class="nc" id="L179">            json.add(&quot;reads&quot;, this.hwDiskStore.getReads());</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.reads&quot;)) {</span>
+<span class="fc" id="L179">            json.add(&quot;reads&quot;, this.hwDiskStore.getReads());</span>
         }
-<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writes&quot;)) {</span>
-<span class="nc" id="L182">            json.add(&quot;writes&quot;, this.hwDiskStore.getWrites());</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writes&quot;)) {</span>
+<span class="fc" id="L182">            json.add(&quot;writes&quot;, this.hwDiskStore.getWrites());</span>
         }
-<span class="nc" id="L184">        return json.build();</span>
+<span class="fc" id="L184">        return json.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
