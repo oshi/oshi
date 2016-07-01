@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 153,
-             Errors: 4367,
+      <title>File: 157,
+             Errors: 4374,
              Warnings: 0,
              Infos: 0
       </title>
@@ -172,6 +172,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.json.package-info.java">oshi/json/json/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.hardware.package-info.java">oshi/hardware/package-info.java</a>
                 </td>
                 <td>
@@ -293,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  36
+                  37
                 </td>
               </tr>
                           <tr>
@@ -503,7 +517,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  145
+                  146
                 </td>
               </tr>
                           <tr>
@@ -615,7 +629,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  39
+                  33
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.software.os.impl.package-info.java">oshi/json/software/os/impl/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -713,7 +741,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  22
                 </td>
               </tr>
                           <tr>
@@ -755,7 +783,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  53
+                  54
                 </td>
               </tr>
                           <tr>
@@ -783,7 +811,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  13
                 </td>
               </tr>
                           <tr>
@@ -1049,7 +1077,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  18
                 </td>
               </tr>
                           <tr>
@@ -1105,7 +1133,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1133,7 +1161,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  94
+                  95
                 </td>
               </tr>
                           <tr>
@@ -1273,7 +1301,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  35
                 </td>
               </tr>
                           <tr>
@@ -1399,7 +1427,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  26
                 </td>
               </tr>
                           <tr>
@@ -1455,7 +1483,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  71
+                  66
                 </td>
               </tr>
                           <tr>
@@ -1497,7 +1525,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
+                  45
                 </td>
               </tr>
                           <tr>
@@ -1651,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  31
                 </td>
               </tr>
                           <tr>
@@ -1721,7 +1749,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  27
                 </td>
               </tr>
                           <tr>
@@ -1735,7 +1763,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  15
                 </td>
               </tr>
                           <tr>
@@ -1792,6 +1820,20 @@ under the License.
                 </td>
                 <td>
                   16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.hardware.impl.package-info.java">oshi/json/hardware/impl/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -1861,7 +1903,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  18
                 </td>
               </tr>
                           <tr>
@@ -1978,6 +2020,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.util.package-info.java">oshi/json/util/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/checkstyle.html#oshi.json.json.AbstractOshiJsonObject.java">oshi/json/json/AbstractOshiJsonObject.java</a>
                 </td>
                 <td>
@@ -2071,7 +2127,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  18
                 </td>
               </tr>
                           <tr>
@@ -2099,7 +2155,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  18
                 </td>
               </tr>
                           <tr>
@@ -2155,7 +2211,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  5
                 </td>
               </tr>
                           <tr>
