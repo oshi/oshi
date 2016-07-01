@@ -176,7 +176,8 @@ public class WindowsSensors extends AbstractSensors {
             if ((decivolts & 0x80) == 0 && decivolts > 0) {
                 this.wmiVoltProperty = "VoltageCaps";
                 // really a bit setting, not decivolts, test later
-                decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
+                decivolts = WmiUtil
+                        .selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
                         .intValue();
             }
         } else {

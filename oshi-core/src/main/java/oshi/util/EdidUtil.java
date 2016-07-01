@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public abstract class EdidUtil {
+public class EdidUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);
 
