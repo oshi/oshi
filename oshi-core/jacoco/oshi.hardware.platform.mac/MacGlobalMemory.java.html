@@ -40,59 +40,59 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="fc" id="L45">    private XswUsage xswUsage = new XswUsage();</span>
-<span class="fc" id="L46">    private long lastUpdateSwap = 0;</span>
+<span class="nc" id="L45">    private XswUsage xswUsage = new XswUsage();</span>
+<span class="nc" id="L46">    private long lastUpdateSwap = 0;</span>
 
-<span class="fc" id="L48">    private VMStatistics vmStats = new VMStatistics();</span>
-<span class="fc" id="L49">    private long lastUpdateAvail = 0;</span>
+<span class="nc" id="L48">    private VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc" id="L49">    private long lastUpdateAvail = 0;</span>
 
-<span class="fc" id="L51">    private long pageSize = 4096;</span>
+<span class="nc" id="L51">    private long pageSize = 4096;</span>
 
-<span class="fc" id="L53">    public MacGlobalMemory() {</span>
-<span class="fc" id="L54">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (memory &gt;= 0) {</span>
-<span class="fc" id="L56">            this.memTotal = memory;</span>
+<span class="nc" id="L53">    public MacGlobalMemory() {</span>
+<span class="nc" id="L54">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (memory &gt;= 0) {</span>
+<span class="nc" id="L56">            this.memTotal = memory;</span>
         }
 
-<span class="fc" id="L59">        LongByReference pPageSize = new LongByReference();</span>
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L59">        LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
 <span class="nc" id="L61">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
 <span class="nc" id="L62">            return;</span>
         }
-<span class="fc" id="L64">        this.pageSize = pPageSize.getValue();</span>
-<span class="fc" id="L65">    }</span>
+<span class="nc" id="L64">        this.pageSize = pPageSize.getValue();</span>
+<span class="nc" id="L65">    }</span>
 
     /**
      * Updates available memory no more often than every 100ms
      */
     protected void updateMeminfo() {
-<span class="fc" id="L71">        long now = System.currentTimeMillis();</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (now - lastUpdateAvail &gt; 100) {</span>
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="fc" id="L74">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L71">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (now - lastUpdateAvail &gt; 100) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L74">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
 <span class="nc" id="L75">                LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
 <span class="nc" id="L76">                return;</span>
             }
-<span class="fc" id="L78">            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
-<span class="fc" id="L79">            lastUpdateAvail = now;</span>
+<span class="nc" id="L78">            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
+<span class="nc" id="L79">            lastUpdateAvail = now;</span>
         }
-<span class="fc" id="L81">    }</span>
+<span class="nc" id="L81">    }</span>
 
     /**
      * Updates swap file stats no more often than every 100ms
      */
     protected void updateSwap() {
-<span class="fc" id="L87">        long now = System.currentTimeMillis();</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (now - lastUpdateSwap &gt; 100) {</span>
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
+<span class="nc" id="L87">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (now - lastUpdateSwap &gt; 100) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
 <span class="nc" id="L90">                return;</span>
             }
-<span class="fc" id="L92">            this.swapUsed = xswUsage.xsu_used;</span>
-<span class="fc" id="L93">            this.swapTotal = xswUsage.xsu_total;</span>
-<span class="fc" id="L94">            lastUpdateSwap = now;</span>
+<span class="nc" id="L92">            this.swapUsed = xswUsage.xsu_used;</span>
+<span class="nc" id="L93">            this.swapTotal = xswUsage.xsu_total;</span>
+<span class="nc" id="L94">            lastUpdateSwap = now;</span>
         }
-<span class="fc" id="L96">    }</span>
+<span class="nc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -28,24 +28,24 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L31">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
+<span class="nc" id="L31">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
 
-<span class="fc" id="L33">    public MacOSVersionInfoEx() {</span>
-<span class="fc" id="L34">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
-<span class="fc" id="L35">        setCodeName(parseCodeName());</span>
-<span class="fc" id="L36">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
-<span class="fc" id="L37">    }</span>
+<span class="nc" id="L33">    public MacOSVersionInfoEx() {</span>
+<span class="nc" id="L34">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
+<span class="nc" id="L35">        setCodeName(parseCodeName());</span>
+<span class="nc" id="L36">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
+<span class="nc" id="L37">    }</span>
 
     private String parseCodeName() {
-<span class="fc" id="L40">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
-<span class="pc bpc" id="L41" title="2 of 4 branches missed.">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
-<span class="pc bpc" id="L42" title="13 of 14 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
+<span class="nc" id="L40">        String[] versionSplit = getVersion().split(&quot;\\.&quot;);</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        if (versionSplit.length &gt; 1 &amp;&amp; versionSplit[0].equals(&quot;10&quot;)) {</span>
+<span class="nc bnc" id="L42" title="All 14 branches missed.">            switch (Integer.parseInt(versionSplit[1])) {</span>
             // MacOS
             case 12:
 <span class="nc" id="L45">                return &quot;Sierra&quot;;</span>
             // OS X
             case 11:
-<span class="fc" id="L48">                return &quot;El Capitan&quot;;</span>
+<span class="nc" id="L48">                return &quot;El Capitan&quot;;</span>
             case 10:
 <span class="nc" id="L50">                return &quot;Yosemite&quot;;</span>
             case 9:

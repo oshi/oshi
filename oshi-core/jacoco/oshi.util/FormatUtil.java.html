@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author dblock[at]dblock[dot]org
  */
-<span class="nc" id="L29">public abstract class FormatUtil {</span>
+<span class="nc" id="L29">public class FormatUtil {</span>
 
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
@@ -74,12 +74,12 @@ import java.util.concurrent.TimeUnit;
 <span class="fc" id="L74">            return formatUnits(bytes, MEBI, &quot;MiB&quot;);</span>
 <span class="fc bfc" id="L75" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
 <span class="fc" id="L76">            return formatUnits(bytes, GIBI, &quot;GiB&quot;);</span>
-<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        } else if (bytes &lt; PEBI) { // TiB</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        } else if (bytes &lt; PEBI) { // TiB</span>
 <span class="fc" id="L78">            return formatUnits(bytes, TEBI, &quot;TiB&quot;);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        } else if (bytes &lt; EXBI) { // PiB</span>
-<span class="nc" id="L80">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        } else if (bytes &lt; EXBI) { // PiB</span>
+<span class="fc" id="L80">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
         } else { // EiB
-<span class="nc" id="L82">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
+<span class="fc" id="L82">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
         }
     }
 
@@ -151,12 +151,12 @@ import java.util.concurrent.TimeUnit;
 <span class="fc" id="L151">            return formatUnits(value, MEGA, &quot;M&quot; + unit);</span>
 <span class="fc bfc" id="L152" title="All 2 branches covered.">        } else if (value &lt; TERA) { // G</span>
 <span class="fc" id="L153">            return formatUnits(value, GIGA, &quot;G&quot; + unit);</span>
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        } else if (value &lt; PETA) { // T</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        } else if (value &lt; PETA) { // T</span>
 <span class="fc" id="L155">            return formatUnits(value, TERA, &quot;T&quot; + unit);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        } else if (value &lt; EXA) { // P</span>
-<span class="nc" id="L157">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        } else if (value &lt; EXA) { // P</span>
+<span class="fc" id="L157">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
         } else { // E
-<span class="nc" id="L159">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
+<span class="fc" id="L159">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
         }
     }
 
@@ -168,15 +168,15 @@ import java.util.concurrent.TimeUnit;
      * @return A string representation of elapsed time
      */
     public static String formatElapsedSecs(long secs) {
-<span class="nc" id="L171">        long eTime = secs;</span>
-<span class="nc" id="L172">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
-<span class="nc" id="L173">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
-<span class="nc" id="L174">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
-<span class="nc" id="L175">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
-<span class="nc" id="L176">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
-<span class="nc" id="L177">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
-<span class="nc" id="L178">        final long sec = eTime;</span>
-<span class="nc" id="L179">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
+<span class="fc" id="L171">        long eTime = secs;</span>
+<span class="fc" id="L172">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
+<span class="fc" id="L173">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
+<span class="fc" id="L174">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
+<span class="fc" id="L175">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
+<span class="fc" id="L176">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
+<span class="fc" id="L177">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
+<span class="fc" id="L178">        final long sec = eTime;</span>
+<span class="fc" id="L179">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
     }
 
     /**

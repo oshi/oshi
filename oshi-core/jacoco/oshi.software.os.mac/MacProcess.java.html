@@ -45,16 +45,16 @@ public class MacProcess extends AbstractProcess {
 
     public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-<span class="fc" id="L48">            long now) {</span>
-<span class="fc" id="L49">        this.name = name;</span>
-<span class="fc" id="L50">        this.path = path;</span>
-<span class="pc bpc" id="L51" title="6 of 7 branches missed.">        switch (osXState) {</span>
+<span class="nc" id="L48">            long now) {</span>
+<span class="nc" id="L49">        this.name = name;</span>
+<span class="nc" id="L50">        this.path = path;</span>
+<span class="nc bnc" id="L51" title="All 7 branches missed.">        switch (osXState) {</span>
         case SSLEEP:
 <span class="nc" id="L53">            this.state = OSProcess.State.SLEEPING;</span>
 <span class="nc" id="L54">            break;</span>
         case SWAIT:
-<span class="fc" id="L56">            this.state = OSProcess.State.WAITING;</span>
-<span class="fc" id="L57">            break;</span>
+<span class="nc" id="L56">            this.state = OSProcess.State.WAITING;</span>
+<span class="nc" id="L57">            break;</span>
         case SRUN:
 <span class="nc" id="L59">            this.state = OSProcess.State.RUNNING;</span>
 <span class="nc" id="L60">            break;</span>
@@ -71,17 +71,17 @@ public class MacProcess extends AbstractProcess {
 <span class="nc" id="L71">            this.state = OSProcess.State.OTHER;</span>
             break;
         }
-<span class="fc" id="L74">        this.processID = processID;</span>
-<span class="fc" id="L75">        this.parentProcessID = parentProcessID;</span>
-<span class="fc" id="L76">        this.threadCount = threadCount;</span>
-<span class="fc" id="L77">        this.priority = priority;</span>
-<span class="fc" id="L78">        this.virtualSize = virtualSize;</span>
-<span class="fc" id="L79">        this.residentSetSize = residentSetSize;</span>
-<span class="fc" id="L80">        this.kernelTime = kernelTime;</span>
-<span class="fc" id="L81">        this.userTime = userTime;</span>
-<span class="fc" id="L82">        this.startTime = startTime;</span>
-<span class="fc" id="L83">        this.upTime = now - startTime;</span>
-<span class="fc" id="L84">    }</span>
+<span class="nc" id="L74">        this.processID = processID;</span>
+<span class="nc" id="L75">        this.parentProcessID = parentProcessID;</span>
+<span class="nc" id="L76">        this.threadCount = threadCount;</span>
+<span class="nc" id="L77">        this.priority = priority;</span>
+<span class="nc" id="L78">        this.virtualSize = virtualSize;</span>
+<span class="nc" id="L79">        this.residentSetSize = residentSetSize;</span>
+<span class="nc" id="L80">        this.kernelTime = kernelTime;</span>
+<span class="nc" id="L81">        this.userTime = userTime;</span>
+<span class="nc" id="L82">        this.startTime = startTime;</span>
+<span class="nc" id="L83">        this.upTime = now - startTime;</span>
+<span class="nc" id="L84">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
