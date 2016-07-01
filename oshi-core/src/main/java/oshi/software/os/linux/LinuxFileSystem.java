@@ -20,7 +20,6 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -103,7 +102,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link FileStore} objects representing mounted
+     * @return An array of {@link OSFileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */

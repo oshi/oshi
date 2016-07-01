@@ -25,6 +25,9 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Test;
 
+/*
+ * Tests EdidUtil
+ */
 public class EdidUtilTest {
 
     private final static String EDID_HEADER = "00FFFFFFFFFFFF00";
@@ -39,10 +42,17 @@ public class EdidUtilTest {
     private final static String EDID_DESC2 = "1A1D008051D01C204080350055502100001C";
     private final static String EDID_DESC3 = "000000FF004330324A4D325046463247430A";
     private final static String EDID_DESC4 = "000000FC005468756E646572626F6C740A20";
+    private final static String EDID_DESC5 = "000000FA004330324A4D325046463247430A";
+    private final static String EDID_DESC6 = "000000FB005468756E646572626F6C740A20";
+    private final static String EDID_DESC7 = "000000FD004330324A4D325046463247430A";
+    private final static String EDID_DESC8 = "000000FE005468756E646572626F6C740A20";
     private final static String EDID_EXTS = "01";
     private final static String EDID_CHKSUM = "C7";
     private final static String EDID_STR = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
             + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC1 + EDID_DESC2 + EDID_DESC3 + EDID_DESC4 + EDID_EXTS
+            + EDID_CHKSUM;
+    private final static String EDID_STR2 = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
+            + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC5 + EDID_DESC6 + EDID_DESC7 + EDID_DESC8 + EDID_EXTS
             + EDID_CHKSUM;
     private final static byte[] EDID = DatatypeConverter.parseHexBinary(EDID_STR);
 
@@ -101,6 +111,8 @@ public class EdidUtilTest {
     @Test
     public void testToString() {
         String[] toString = EdidUtil.toString(EDID).split("\\n");
+        assertEquals(6, toString.length);
+        toString = EdidUtil.toString(DatatypeConverter.parseHexBinary(EDID_STR2)).split("\\n");
         assertEquals(6, toString.length);
     };
 }

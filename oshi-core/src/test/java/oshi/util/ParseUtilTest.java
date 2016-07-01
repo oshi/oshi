@@ -35,6 +35,9 @@ public class ParseUtilTest {
      */
     @Test
     public void testParseHertz() {
+        assertEquals(-1L, ParseUtil.parseHertz("OneHz"));
+        assertEquals(-1L, ParseUtil.parseHertz("NotEvenAHertz"));
+        assertEquals(Long.MAX_VALUE, ParseUtil.parseHertz("10000000000000000000 Hz"));
         assertEquals(1L, ParseUtil.parseHertz("1Hz"));
         assertEquals(500L, ParseUtil.parseHertz("500 Hz"));
         assertEquals(1000L, ParseUtil.parseHertz("1kHz"));
@@ -49,6 +52,7 @@ public class ParseUtilTest {
      */
     @Test
     public void testParseLastInt() {
+        assertEquals(-1, ParseUtil.parseLastInt("foo : bar", -1));
         assertEquals(1, ParseUtil.parseLastInt("foo : 1", 0));
         assertEquals(2, ParseUtil.parseLastInt("foo", 2));
     }
@@ -60,6 +64,8 @@ public class ParseUtilTest {
     public void testHexStringToByteArray() {
         byte[] temp = { (byte) 0x12, (byte) 0xaf };
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
+        assertEquals(null, ParseUtil.hexStringToByteArray("abcde"));
+        assertEquals(null, ParseUtil.hexStringToByteArray("not hex"));
     }
 
     /**
@@ -93,8 +99,18 @@ public class ParseUtilTest {
         assertEquals(abcde, ParseUtil.byteArrayToLong(temp, 5));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testByteArrayToLongSizeTooBig() {
+        ParseUtil.byteArrayToLong(new byte[10], 9);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testByteArrayToLongSizeBigger() {
+        ParseUtil.byteArrayToLong(new byte[7], 8);
+    }
+
     /**
-     * Test string to long.
+     * Test byte arry to float
      */
     @Test
     public void testByteArrayToFloat() {
@@ -108,11 +124,41 @@ public class ParseUtilTest {
     }
 
     /**
-     * Test string to long.
+     * Test CIM date to long.
      */
     @Test
     public void testCimDateTimeToDate() {
         assertEquals(1463149790782L, ParseUtil.cimDateTimeToMillis("20160513072950.782000-420"));
+        assertEquals(0L, ParseUtil.cimDateTimeToMillis("20160513072950.782000"));
+        assertEquals(0L, ParseUtil.cimDateTimeToMillis("20160513072950.782000-ABC"));
+        assertEquals(0L, ParseUtil.cimDateTimeToMillis("NotAValidDateString00-000"));
+    }
+
+    /**
+     * Test hex string to string
+     */
+    @Test
+    public void testHexStringToString() {
+        assertEquals("ABC", ParseUtil.hexStringToString("414243"));
+        assertEquals("not hex", ParseUtil.hexStringToString("not hex"));
+    }
+
+    /**
+     * Test parse int
+     */
+    @Test
+    public void testParseIntOrDefault() {
+        assertEquals(123, ParseUtil.parseIntOrDefault("123", 45));
+        assertEquals(45, ParseUtil.parseIntOrDefault("123X", 45));
+    }
+
+    /**
+     * Test parse long
+     */
+    @Test
+    public void testParseLongOrDefault() {
+        assertEquals(123L, ParseUtil.parseLongOrDefault("123", 45L));
+        assertEquals(45L, ParseUtil.parseLongOrDefault("123L", 45L));
     }
 
 }

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author alessio.fachechi[at]gmail[dot]com
  */
-public abstract class ParseUtil {
+public class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
@@ -90,24 +90,22 @@ public abstract class ParseUtil {
     public static long parseHertz(String hertz) {
         Matcher matcher = HERTZ.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
-            try {
-                Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
-                return value < 0 ? -1L : value.longValue();
-            } catch (NumberFormatException e) {
-                LOG.trace("", e);
-            }
+            // Regexp enforces #(.#) format so no test for NFE required
+            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
+            return value < 0d ? -1L : value.longValue();
         }
         return -1L;
     }
 
     /**
-     * Parse the last element of a string to a value
+     * Parse the last element of a space-delimited string to a value if there
+     * are at least two elements
      * 
      * @param s
      *            The string to parse
      * @param i
-     *            Default integer if not parsable
-     * @return {@link Integer} value or the given default if not parsable
+     *            Default integer if not parsable or less than two elements
+     * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
         String[] ss = s.split("\\s+");
@@ -127,15 +125,16 @@ public abstract class ParseUtil {
      * 
      * @param digits
      *            The string to be parsed
-     * @return a byte array with each pair of characters converted to a byte
+     * @return a byte array with each pair of characters converted to a byte, or
+     *         null if the string is not valid hex
      */
     public static byte[] hexStringToByteArray(String digits) {
+        int len = digits.length();
         // Check if string is valid hex
-        if (!VALID_HEX.matcher(digits).matches()) {
+        if (!VALID_HEX.matcher(digits).matches() || (len & 0x1) != 0) {
             LOG.error("Invalid hexadecimal string: {}", digits);
             return null;
         }
-        int len = digits.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) << 4)
@@ -271,7 +270,8 @@ public abstract class ParseUtil {
     }
 
     /**
-     * Parses a string of hex digits to a string
+     * Parses a string of hex digits to a string where each pair of hex digits
+     * represents an ASCII character
      * 
      * @param hexString
      *            A sequence of hex digits

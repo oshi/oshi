@@ -48,13 +48,16 @@ public class NullAwareJsonObjectBuilderTest {
         json.add("nullValue", JsonValue.NULL);
         json.add("false", JsonValue.FALSE);
 
-        json.add("nullString", (String) null);
+        String nullString = null;
+        json.add("nullString", nullString);
         json.add("string", "String");
 
-        json.add("nullBigInt", (BigInteger) null);
+        BigInteger nullBigInt = null;
+        json.add("nullBigInt", nullBigInt);
         json.add("big1", BigInteger.ONE);
 
-        json.add("nullBigDec", (BigDecimal) null);
+        BigDecimal nullBigDec = null;
+        json.add("nullBigDec", nullBigDec);
         json.add("big0.42", BigDecimal.valueOf(0.42));
 
         json.add("int", 42);
@@ -62,9 +65,18 @@ public class NullAwareJsonObjectBuilderTest {
         json.add("double", 42d);
         json.add("boolean", true);
 
-        JsonArrayBuilder arrayBuilder = jsonFactory.createArrayBuilder();
-        JsonObjectBuilder jsonA = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
-        JsonObject zero = jsonA.add("zero", 0).build();
+        JsonArrayBuilder arrayBuilder = null;
+        json.add("nullArray", arrayBuilder);
+
+        arrayBuilder = jsonFactory.createArrayBuilder();
+        JsonObjectBuilder jsonA = null;
+        json.add("nullBuilder", jsonA);
+
+        jsonA = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObject zero = null;
+        json.add("nullObject", zero);
+
+        zero = jsonA.add("zero", 0).build();
         arrayBuilder.add(zero);
         json.add("zeroArray", arrayBuilder);
         json.add("zeroObject", zero);
@@ -95,10 +107,15 @@ public class NullAwareJsonObjectBuilderTest {
         assertEquals("42.0", obj.get("double").toString());
         assertEquals(JsonValue.ValueType.TRUE, obj.get("boolean").getValueType());
         assertEquals("true", obj.get("boolean").toString());
+
         assertEquals(JsonValue.ValueType.ARRAY, obj.get("zeroArray").getValueType());
         assertEquals("[{\"zero\":0}]", obj.get("zeroArray").toString());
+
         assertEquals(JsonValue.ValueType.OBJECT, obj.get("zeroObject").getValueType());
         assertEquals("{\"zero\":0}", obj.get("zeroObject").toString());
 
+        assertEquals(JsonValue.NULL, obj.get("nullArray"));
+        assertEquals(JsonValue.NULL, obj.get("nullObject"));
+        assertEquals(JsonValue.NULL, obj.get("nullBuilder"));
     }
 }

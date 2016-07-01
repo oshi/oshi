@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author dblock[at]dblock[dot]org
  */
-public abstract class FormatUtil {
+public class FormatUtil {
 
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.

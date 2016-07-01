@@ -42,7 +42,8 @@ public class ExecutingCommand {
      * 
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command
+     * @return A list of Strings representing the result of the command, or null
+     *         if the command failed
      */
     public static ArrayList<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -61,7 +62,7 @@ public class ExecutingCommand {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
-        } catch (IOException e) {
+        } catch (SecurityException | IOException e) {
             LOG.trace("", e);
             return null;
         }

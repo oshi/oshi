@@ -25,12 +25,17 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * The Class FileUtilTest.
+ * Tests FileUtil
  */
 public class FileUtilTest {
 
-    /** The thisclass. */
+    /*
+     * File sources
+     */
     private static String THISCLASS = "src/test/java/oshi/util/FileUtilTest.java";
+    private static String INT_FILE = "src/test/resources/test.integer.txt";
+    private static String STRING_FILE = "src/test/resources/test.string.txt";
+    private static String NO_FILE = "does/not/exist";
 
     /**
      * Test read file.
@@ -38,6 +43,10 @@ public class FileUtilTest {
     @Test
     public void testReadFile() {
         List<String> thisFile = null;
+        // Try file not found
+        thisFile = FileUtil.readFile(NO_FILE);
+        assertEquals(0, thisFile.size());
+        // Try this file
         thisFile = FileUtil.readFile(THISCLASS);
         // Comment ONE line
         int lineOne = 0;
@@ -55,5 +64,25 @@ public class FileUtilTest {
             }
         }
         assertEquals(2, lineTwo - lineOne);
+    }
+
+    /**
+     * Test get*FromFile
+     */
+    @Test
+    public void testGetFromFile() {
+        assertEquals(123L, FileUtil.getLongFromFile(INT_FILE));
+        assertEquals(0L, FileUtil.getLongFromFile(STRING_FILE));
+        assertEquals(0L, FileUtil.getLongFromFile(NO_FILE));
+
+        assertEquals(123, FileUtil.getIntFromFile(INT_FILE));
+        assertEquals(0, FileUtil.getIntFromFile(STRING_FILE));
+        assertEquals(0, FileUtil.getIntFromFile(NO_FILE));
+
+        assertEquals("123", FileUtil.getStringFromFile(INT_FILE));
+        assertEquals("", FileUtil.getStringFromFile(NO_FILE));
+
+        assertEquals(5, FileUtil.getSplitFromFile(STRING_FILE).length);
+        assertEquals(0, FileUtil.getSplitFromFile(NO_FILE).length);
     }
 }
