@@ -1,4 +1,8 @@
-3.0 (in progress)
+3.1 (in progress)
+================
+* Your contribution here.
+
+3.0 (7/1/2016)
 ================
 * [#205](https://github.com/dblock/oshi/pull/205): Separated oshi-core and oshi-json modules - [@dbwiddis](https://github.com/dbwiddis).
 * [#209](https://github.com/dblock/oshi/pull/209): Move FileSystem and Processes to OperatingSystem - [@dbwiddis](https://github.com/dbwiddis).
@@ -8,7 +12,7 @@
 * [#214](https://github.com/dblock/oshi/pull/214): Offer flat or tree USB listing - [@dbwiddis](https://github.com/dbwiddis).
 * [#216](https://github.com/dblock/oshi/pull/216): Filter JSON output with properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#219](https://github.com/dblock/oshi/pull/219): NetworkIFs can now update stats - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#223](https://github.com/dblock/oshi/pull/223): JUnit Test overhaul, adds, refactoring - [@dbwiddis](https://github.com/dbwiddis).
 
 2.6.2 (6/21/2016)
 ================

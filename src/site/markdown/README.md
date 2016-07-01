@@ -1,27 +1,41 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
 
-[![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
-[![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+[![Coverage Status](https://coveralls.io/repos/github/dblock/oshi/badge.svg?branch=master)](https://coveralls.io/github/dblock/oshi?branch=master)
+[![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
+[![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
+[![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
+[![Project Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 
-OSHI is a free JNA-based (native) operating system and hardware information library for Java. It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, displays, etc.
+OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
+It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information,
+such as OS version, memory, CPU, disk, devices, sensors, etc.
+
+OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
+and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
 
 Essentials
 ----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-core)
-* [Download OSHI 2.6.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=2.6.2&amp;e=jar) (Read [UPGRADING.md](UPGRADING.md) if upgrading from version 1.x.)
-* [Download OSHI 3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.0-SNAPSHOT&amp;e=jar)
-* [View the API](http://dblock.github.io/oshi/apidocs/) - [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) - [View the Site](http://dblock.github.io/oshi/)
+* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
+* [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)
+* [View the API](http://dblock.github.io/oshi/apidocs/) • [View the Site](http://dblock.github.io/oshi/) • [Upgrading from an earlier version?](https://github.com/dblock/oshi/blob/master/UPGRADING.md) 
 * Dependencies:
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
-	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html)
+	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html) (for oshi-json)
 * Related projects:
 	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
 	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
 	* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
+
+Downloads
+----------
+| Stable Release Version | Current Development Version |
+| ------------- | ------------- |
+| [oshi-core-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.0&amp;e=jar)  | [oshi-core-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.1-SNAPSHOT&amp;e=jar) |
+| [oshi-json-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.0&amp;e=jar)   | [oshi-json-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.1-SNAPSHOT&amp;e=jar)  |
 
 Currently supported platforms 
 --------------------------- 
@@ -47,11 +61,16 @@ Currently supported features
 
 Output
 -------------
-OSHI provides output directly via java methods or in JSON format for each of its interfaces.
+OSHI provides output directly via java methods or, for the `oshi-json` project, in JSON format for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
-The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/src/test/java/oshi/SystemInfoTest.java) provides sample code demonstrating
-the use of the interfaces to retrieve information and calculate additional metrics such as the below examples.
+The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
+provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics such as the below examples.
+
+For `oshi-json`, [SystemInfoTest](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/java/oshi/SystemInfoTest.java) 
+enables the same capabilities via decorator classes. 
+See [oshi.json.properties](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
+for a sample properties configuration file to customize JSON results.
 
 General information about the operating system and processor.
 ```

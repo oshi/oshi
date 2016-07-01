@@ -342,10 +342,12 @@
                         ! Starting with Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940)
                         ! this is not needed anymore.
                       -->
+            <!--  except that OSSRH fails with no sources with this excluded
             <execution>
               <id>attach-sources</id>
               <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase>
             </execution>
+             -->
           </executions>
         </plugin>
         <!-- External Tools -->

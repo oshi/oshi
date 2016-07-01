@@ -34,8 +34,8 @@ Downloads
 ----------
 | Stable Release Version | Current Development Version |
 | ------------- | ------------- |
-| [oshi-core-3.0-rc1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=3.0-rc1&e=jar)  | [oshi-core-3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.0-SNAPSHOT&e=jar) |
-| [oshi-json-3.0-rc1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-json&v=3.0-rc1&e=jar)   | [oshi-json-3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.0-SNAPSHOT&e=jar)  |
+| [oshi-core-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=3.0&e=jar)  | [oshi-core-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.1-SNAPSHOT&e=jar) |
+| [oshi-json-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-json&v=3.0&e=jar)   | [oshi-json-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.1-SNAPSHOT&e=jar)  |
 
 Currently supported platforms 
 --------------------------- 
