@@ -153,6 +153,7 @@ public class SystemInfoTest {
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
+            assertNotNull(net.getNetworkInterface());
             assertNotNull(net.getName());
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
@@ -279,6 +280,20 @@ public class SystemInfoTest {
             FileStore store = Files.getFileStore((new File("/")).toPath());
             assertEquals("/", store.toString().replace(" (" + store.name() + ")", ""));
         }
+    }
+
+    /**
+     * Test JSON
+     */
+    @Test
+    public void testJSON() {
+        // TODO: test each class independently. This is here so coveralls more
+        // accurately shows other needed tests
+        SystemInfo si = new SystemInfo();
+        String[] compact = si.toCompactJSON().split("\\n");
+        String[] pretty = si.toPrettyJSON().split("\\n");
+        assertEquals(1, compact.length);
+        assertTrue(1 < pretty.length);
     }
 
     /**

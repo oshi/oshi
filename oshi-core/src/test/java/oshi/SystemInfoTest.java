@@ -151,6 +151,7 @@ public class SystemInfoTest {
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
+            assertNotNull(net.getNetworkInterface());
             assertNotNull(net.getName());
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
