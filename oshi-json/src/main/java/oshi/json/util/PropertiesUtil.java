@@ -45,12 +45,11 @@ public class PropertiesUtil {
     public static Properties loadProperties(String propertiesFile) {
         Properties props = new Properties();
 
-        InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile);
-        if (input == null) {
-            LOG.error("No properties file {} on the classpath.", propertiesFile);
-            return props;
-        }
-        try {
+        try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile)) {
+            if (input == null) {
+                LOG.error("No properties file {} on the classpath.", propertiesFile);
+                return props;
+            }
             props.load(input);
             LOG.debug("Loaded properties: {}", props.toString());
         } catch (IOException ex) {

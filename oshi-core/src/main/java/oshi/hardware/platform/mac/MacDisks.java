@@ -132,6 +132,9 @@ public class MacDisks extends AbstractDisks {
                             // iterate
                             sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
                         }
+                        if (serial == null) {
+                            serial = "";
+                        }
                         IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
                     }
                 }
