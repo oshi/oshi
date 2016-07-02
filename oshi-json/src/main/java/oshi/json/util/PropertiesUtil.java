@@ -68,7 +68,7 @@ public class PropertiesUtil {
      * @return False if the property is set to "false"; true otherwise
      */
     public static boolean getBoolean(Properties properties, String property) {
-        return (!properties.getProperty(property, "true").equalsIgnoreCase("false"));
+        return !properties.getProperty(property, "true").equalsIgnoreCase("false");
     }
 
     /**
