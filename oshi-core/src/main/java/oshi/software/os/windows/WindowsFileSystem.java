@@ -48,7 +48,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     private static final Pattern UUID_PATTERN = Pattern
             .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
 
-    private final int BUFSIZE = 255;
+    private static final int BUFSIZE = 255;
 
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom

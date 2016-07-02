@@ -63,7 +63,7 @@ public class MacDisks extends AbstractDisks {
         // Create array to hold results
         Statfs[] fs = new Statfs[numfs];
         // Fill array with results
-        numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
 
         // Open a DiskArbitration session to get model and size of disks
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);

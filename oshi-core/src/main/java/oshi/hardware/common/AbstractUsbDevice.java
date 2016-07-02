@@ -18,6 +18,8 @@
  */
 package oshi.hardware.common;
 
+import java.util.Arrays;
+
 import oshi.hardware.UsbDevice;
 
 /**
@@ -48,7 +50,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         this.vendorId = vendorId;
         this.productId = productId;
         this.serialNumber = serialNumber;
-        this.connectedDevices = connectedDevices;
+        this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);
     }
 
     /**
@@ -94,7 +96,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * {@inheritDoc}
      */
     public UsbDevice[] getConnectedDevices() {
-        return this.connectedDevices;
+        return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);
     }
 
     /**

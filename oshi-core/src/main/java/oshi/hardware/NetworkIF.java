@@ -45,7 +45,7 @@ public class NetworkIF implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
-    private NetworkInterface networkInterface;
+    private transient NetworkInterface networkInterface;
     private int mtu;
     private String mac;
     private String[] ipv4;
