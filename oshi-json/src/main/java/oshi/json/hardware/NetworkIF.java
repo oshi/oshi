@@ -46,7 +46,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private oshi.hardware.NetworkIF networkIf;
 
