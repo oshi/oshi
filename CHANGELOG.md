@@ -1,5 +1,6 @@
 3.1 (in progress)
 ================
+* [#225](https://github.com/dblock/oshi/pull/225): Bugfixes from Coverity, FindBugs, and PMD - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.0 (7/1/2016)
