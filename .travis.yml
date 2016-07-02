@@ -1,9 +1,27 @@
 language: java
+
 script: mvn test
+
 after_success:
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     mvn clean test jacoco:report coveralls:report;
   fi
+
+env:
+  global:
+   # COVERITY_SCAN_TOKEN
+   - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
+
+addons:
+  coverity_scan:
+    project:
+      name: "dblock/oshi"
+      description: "Build submitted via Travis CI"
+    notification_email: widdis@gmail.com
+    build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
+
 matrix:
   include:
     - os: linux
