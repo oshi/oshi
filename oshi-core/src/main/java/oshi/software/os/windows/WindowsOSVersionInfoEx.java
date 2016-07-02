@@ -41,7 +41,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
-    private OSVERSIONINFOEX versionInfo = null;
+    private transient OSVERSIONINFOEX versionInfo = null;
 
     public WindowsOSVersionInfoEx() {
         this.versionInfo = new OSVERSIONINFOEX();

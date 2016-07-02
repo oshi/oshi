@@ -38,7 +38,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 
     private static final long serialVersionUID = 1L;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private oshi.hardware.Display display;
 

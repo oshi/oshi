@@ -34,32 +34,32 @@ public interface OSProcess extends OshiJsonObject {
     /**
      * @return Returns the name of the process.
      */
-    public String getName();
+    String getName();
 
     /**
      * @return Returns the full path of the executing process.
      */
-    public String getPath();
+    String getPath();
 
     /**
      * @return Returns the execution state of the process.
      */
-    public State getState();
+    State getState();
 
     /**
      * @return Returns the processID.
      */
-    public int getProcessID();
+    int getProcessID();
 
     /**
      * @return Returns the parentProcessID, if any; 0 otherwise.
      */
-    public int getParentProcessID();
+    int getParentProcessID();
 
     /**
      * @return Returns the number of threads in this process.
      */
-    public int getThreadCount();
+    int getThreadCount();
 
     /**
      * @return Returns the priority of this process.
@@ -79,14 +79,14 @@ public interface OSProcess extends OshiJsonObject {
      *         96 through 127 correspond to real-time threads, which are treated
      *         differently than other threads by the scheduler.
      */
-    public int getPriority();
+    int getPriority();
 
     /**
      * @return Returns the Virtual Memory Size (VSZ). It includes all memory
      *         that the process can access, including memory that is swapped out
      *         and memory that is from shared libraries.
      */
-    public long getVirtualSize();
+    long getVirtualSize();
 
     /**
      * @return Returns the Resident Set Size (RSS). It is used to show how much
@@ -95,28 +95,28 @@ public interface OSProcess extends OshiJsonObject {
      *         shared libraries as long as the pages from those libraries are
      *         actually in memory. It does include all stack and heap memory.
      */
-    public long getResidentSetSize();
+    long getResidentSetSize();
 
     /**
      * @return Returns the number of milliseconds the process has executed in
      *         kernel mode.
      */
-    public long getKernelTime();
+    long getKernelTime();
 
     /**
      * @return Returns the number of milliseconds the process has executed in
      *         user mode.
      */
-    public long getUserTime();
+    long getUserTime();
 
     /**
      * @return Returns the number of milliseconds since the process started.
      */
-    public long getUpTime();
+    long getUpTime();
 
     /**
      * @return Returns the start time of the process in number of milliseconds
      *         since January 1, 1970.
      */
-    public long getStartTime();
+    long getStartTime();
 }

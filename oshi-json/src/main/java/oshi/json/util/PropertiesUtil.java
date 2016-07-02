@@ -45,12 +45,11 @@ public class PropertiesUtil {
     public static Properties loadProperties(String propertiesFile) {
         Properties props = new Properties();
 
-        InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile);
-        if (input == null) {
-            LOG.error("No properties file {} on the classpath.", propertiesFile);
-            return props;
-        }
-        try {
+        try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(propertiesFile)) {
+            if (input == null) {
+                LOG.error("No properties file {} on the classpath.", propertiesFile);
+                return props;
+            }
             props.load(input);
             LOG.debug("Loaded properties: {}", props.toString());
         } catch (IOException ex) {
@@ -69,7 +68,7 @@ public class PropertiesUtil {
      * @return False if the property is set to "false"; true otherwise
      */
     public static boolean getBoolean(Properties properties, String property) {
-        return (!properties.getProperty(property, "true").equalsIgnoreCase("false"));
+        return !properties.getProperty(property, "true").equalsIgnoreCase("false");
     }
 
     /**

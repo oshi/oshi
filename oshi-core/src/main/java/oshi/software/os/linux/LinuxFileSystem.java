@@ -153,8 +153,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
             String volume = split[0].replaceAll("\\\\040", " ");
             String uuid = uuidMap.getOrDefault(split[0], "");
-            long totalSpace = (new File(path)).getTotalSpace();
-            long usableSpace = (new File(path)).getUsableSpace();
+            long totalSpace = new File(path).getTotalSpace();
+            long usableSpace = new File(path).getUsableSpace();
 
             String description;
             if (volume.startsWith("/dev")) {

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,12 +112,12 @@ public class WmiUtil {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
                 wmiClass, whereClause, UINT32_TYPE);
         HashMap<String, List<Long>> longMap = new HashMap<>();
-        for (String key : result.keySet()) {
+        for (Entry<String, List<Object>> entry : result.entrySet()) {
             ArrayList<Long> longList = new ArrayList<>();
-            for (Object obj : result.get(key)) {
+            for (Object obj : entry.getValue()) {
                 longList.add((Long) obj);
             }
-            longMap.put(key, longList);
+            longMap.put(entry.getKey(), longList);
         }
         return longMap;
     }
@@ -163,12 +164,12 @@ public class WmiUtil {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
                 wmiClass, whereClause, FLOAT_TYPE);
         HashMap<String, List<Float>> floatMap = new HashMap<>();
-        for (String key : result.keySet()) {
+        for (Entry<String, List<Object>> entry : result.entrySet()) {
             ArrayList<Float> floatList = new ArrayList<>();
-            for (Object obj : result.get(key)) {
+            for (Object obj : entry.getValue()) {
                 floatList.add((Float) obj);
             }
-            floatMap.put(key, floatList);
+            floatMap.put(entry.getKey(), floatList);
         }
         return floatMap;
     }
@@ -215,12 +216,12 @@ public class WmiUtil {
         Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
                 wmiClass, whereClause, STRING_TYPE);
         HashMap<String, List<String>> strMap = new HashMap<>();
-        for (String key : result.keySet()) {
+        for (Entry<String, List<Object>> entry : result.entrySet()) {
             ArrayList<String> strList = new ArrayList<>();
-            for (Object obj : result.get(key)) {
+            for (Object obj : entry.getValue()) {
                 strList.add((String) obj);
             }
-            strMap.put(key, strList);
+            strMap.put(entry.getKey(), strList);
         }
         return strMap;
     }
@@ -489,7 +490,8 @@ public class WmiUtil {
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
                     // parse to a long representing ms since eopch
-                    values.get(property).add(ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
+                    values.get(property)
+                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
                 default:
                     // Should never get here! If you get this exception you've

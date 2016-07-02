@@ -42,7 +42,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
+    private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
 
     private long lastUpdate = 0;
 

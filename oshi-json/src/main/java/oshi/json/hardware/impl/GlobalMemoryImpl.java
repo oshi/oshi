@@ -38,7 +38,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
 
     private static final long serialVersionUID = 1L;
 
-    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
     private oshi.hardware.GlobalMemory memory;
 
