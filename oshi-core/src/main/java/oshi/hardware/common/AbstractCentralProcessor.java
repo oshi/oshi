@@ -264,6 +264,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public String getStepping() {
         if (this.cpuStepping == null) {
+            if (this.cpuIdentifier == null) {
+                return "?";
+            }
             setStepping(parseIdentifier("Stepping"));
         }
         return this.cpuStepping;
@@ -283,6 +286,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public String getModel() {
         if (this.cpuModel == null) {
+            if (this.cpuIdentifier == null) {
+                return "?";
+            }
             setModel(parseIdentifier("Model"));
         }
         return this.cpuModel;
@@ -302,6 +308,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public String getFamily() {
         if (this.cpuFamily == null) {
+            if (this.cpuIdentifier == null) {
+                return "?";
+            }
             setFamily(parseIdentifier("Family"));
         }
         return this.cpuFamily;
