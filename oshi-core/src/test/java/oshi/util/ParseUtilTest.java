@@ -161,4 +161,13 @@ public class ParseUtilTest {
         assertEquals(45L, ParseUtil.parseLongOrDefault("123L", 45L));
     }
 
+    /**
+     * Test parse double
+     */
+    @Test
+    public void testParseDoubleOrDefault() {
+        assertEquals(1.23d, ParseUtil.parseDoubleOrDefault("1.23", 4.5d), Double.MIN_VALUE);
+        assertEquals(4.5d, ParseUtil.parseDoubleOrDefault("one.twentythree", 4.5d), Double.MIN_VALUE);
+    }
+
 }

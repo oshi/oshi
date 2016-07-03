@@ -16,32 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi;
-
 /**
- * Enum of supported operating systems.
- * 
- * @author alessandro[at]perucchi[dot]org
+ * Provides information about Software and OS on Solaris
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD, OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
-}
+package oshi.software.os.unix.solaris;

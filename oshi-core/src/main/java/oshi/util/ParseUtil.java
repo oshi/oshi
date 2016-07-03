@@ -320,4 +320,21 @@ public class ParseUtil {
             return defaultLong;
         }
     }
+
+    /**
+     * Attempts to parse a string to a double. If it fails, returns the default
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultDouble
+     *            The value to return if parsing fails
+     * @return The parsed double, or the default if parsing failed
+     */
+    public static double parseDoubleOrDefault(String s, double defaultDouble) {
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return defaultDouble;
+        }
+    }
 }

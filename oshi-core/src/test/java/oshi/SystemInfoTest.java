@@ -121,7 +121,7 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
-
+        System.exit(0);
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
