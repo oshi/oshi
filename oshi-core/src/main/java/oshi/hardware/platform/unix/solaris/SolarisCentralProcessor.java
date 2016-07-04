@@ -32,10 +32,8 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * A CPU as defined in Linux /proc.
+ * A CPU
  *
- * @author alessandro[at]perucchi[dot]org
- * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisCentralProcessor extends AbstractCentralProcessor {
@@ -73,7 +71,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 this.setVendor(line.replace("vendor_id", "").trim());
                 break;
             case "brand":
-                this.setVendor(line.replace("brand", "").trim());
+                this.setModel(line.replace("brand", "").trim());
                 break;
             case "implementation":
                 if (splitLine[1].equals("x64")) {

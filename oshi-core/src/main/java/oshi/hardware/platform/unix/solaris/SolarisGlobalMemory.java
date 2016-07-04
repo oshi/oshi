@@ -19,9 +19,11 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.FileUtil;
+import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
@@ -34,79 +36,36 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    // Values read from /proc/meminfo used for other calculations
-    private long memFree = 0;
-    private long activeFile = 0;
-    private long inactiveFile = 0;
-    private long sReclaimable = 0;
-    private long swapFree = 0;
+    private static final long PAGESIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
+            4096L);
 
-    private long lastUpdate = 0;
+    private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
     /**
-     * Updates instance variables from reading /proc/meminfo no more frequently
-     * than every 100ms. While most of the information is available in the
-     * sysinfo structure, the most accurate calculation of MemAvailable is only
-     * available from reading this pseudo-file. The maintainers of the Linux
-     * Kernel have indicated this location will be kept up to date if the
-     * calculation changes: see
-     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
-     * id=34e431b0ae398fc54ea69ff85ec700722c9da773
-     * 
-     * Internally, reading /proc/meminfo is faster than sysinfo because it only
-     * spends time populating the memory components of the sysinfo structure.
+     * {@inheritDoc}
      */
+    @Override
     protected void updateMeminfo() {
-        long now = System.currentTimeMillis();
-        if (now - this.lastUpdate > 100) {
-            List<String> memInfo = null;
-            memInfo = FileUtil.readFile("/proc/meminfo");
-            if (memInfo.isEmpty()) {
-                return;
+        // TODO: Replace kstat command line with native kstat()
+        List<String> memInfo = ExecutingCommand.runNative("kstat -n system_pages");
+        if (memInfo.isEmpty()) {
+            return;
+        }
+        for (String line : memInfo) {
+            String[] splitLine = line.trim().split("\\s+");
+            if (splitLine.length < 2) {
+                break;
             }
-            boolean found = false;
-            for (String checkLine : memInfo) {
-                String[] memorySplit = checkLine.split("\\s+");
-                if (memorySplit.length > 1) {
-                    switch (memorySplit[0]) {
-                    case "MemTotal:":
-                        this.memTotal = parseMeminfo(memorySplit);
-                        break;
-                    case "MemFree:":
-                        this.memFree = parseMeminfo(memorySplit);
-                        break;
-                    case "MemAvailable:":
-                        this.memAvailable = parseMeminfo(memorySplit);
-                        found = true;
-                        break;
-                    case "Active(file):":
-                        this.activeFile = parseMeminfo(memorySplit);
-                        break;
-                    case "Inactive(file):":
-                        this.inactiveFile = parseMeminfo(memorySplit);
-                        break;
-                    case "SReclaimable:":
-                        this.sReclaimable = parseMeminfo(memorySplit);
-                        break;
-                    case "SwapTotal:":
-                        this.swapTotal = parseMeminfo(memorySplit);
-                        break;
-                    case "SwapFree:":
-                        this.swapFree = parseMeminfo(memorySplit);
-                        break;
-                    default:
-                        // do nothing with other lines
-                        break;
-                    }
-                }
+            switch (splitLine[0]) {
+            case "availrmem":
+                this.memAvailable = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
+                break;
+            case "physmem":
+                this.memTotal = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
+                break;
+            default:
+                // Do nothing
             }
-            this.swapUsed = this.swapTotal - this.swapFree;
-            // If no MemAvailable, calculate from other fields
-            if (!found) {
-                this.memAvailable = this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;
-            }
-
-            this.lastUpdate = now;
         }
     }
 
@@ -115,24 +74,17 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     protected void updateSwap() {
-        updateMeminfo();
-    }
-
-    /**
-     * Parses lines from the display of /proc/meminfo
-     * 
-     * @param memorySplit
-     *            Array of Strings representing the 3 columns of /proc/meminfo
-     * @return value, multiplied by 1024 if kB is specified
-     */
-    private long parseMeminfo(String[] memorySplit) {
-        if (memorySplit.length < 2) {
-            return 0l;
+        List<String> swapInfo = ExecutingCommand.runNative("swap -lk");
+        if (swapInfo.isEmpty()) {
+            return;
         }
-        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-        if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
-            memory *= 1024;
+        for (String line : swapInfo) {
+            Matcher m = SWAPINFO.matcher(line);
+            if (m.matches()) {
+                this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
+                this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+                break;
+            }
         }
-        return memory;
     }
 }

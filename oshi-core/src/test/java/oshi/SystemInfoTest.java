@@ -121,7 +121,7 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
-        System.exit(0);
+
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
@@ -136,6 +136,7 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
                     p.getName());
         }
+        System.exit(0);
 
         // hardware: sensors
         LOG.info("Checking Sensors...");
