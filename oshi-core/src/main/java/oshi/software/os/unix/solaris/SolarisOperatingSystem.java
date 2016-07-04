@@ -41,7 +41,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     public SolarisOperatingSystem() {
         this.manufacturer = "Oracle";
-        this.family = "Solaris";
+        this.family = "SunOS";
         this.version = new SolarisOSVersionInfoEx();
     }
 

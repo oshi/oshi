@@ -43,7 +43,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
 
     private static final Pattern PSRINFO = Pattern.compile("The physical processor has (\\d+) virtual processors.*");
-    private static final Pattern CPU_STAT = Pattern.compile("cpu_stat:(\\d+):cpu_stat(\\d+):intr(\\S*)\\s+(\\d+)");
+    private static final Pattern CPU_TICKS = Pattern.compile("cpu:(\\d+):sys:cpu_ticks_(\\S*)\\s+(\\d+)");
 
     /**
      * Create a Processor
@@ -73,11 +73,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             case "brand":
                 this.setName(line.replace("brand", "").trim());
                 break;
-            case "implementation":
-                if (splitLine[1].equals("x64")) {
-                    this.setCpu64(true);
-                }
-                break;
             case "stepping":
                 this.setStepping(splitLine[1]);
                 break;
@@ -91,6 +86,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 // Do nothing
             }
         }
+        this.setCpu64(ExecutingCommand.getFirstAnswer("isainfo -b").trim().equals("64"));
     }
 
     /**
@@ -123,13 +119,14 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public synchronized long[] getSystemCpuLoadTicks() {
-        long[] ticks = new long[curTicks.length];
-        // Sum up processor ticks and return
+        long[] ticks = new long[TickType.values().length];
+        // Average processor ticks
         long[][] procTicks = getProcessorCpuLoadTicks();
-        for (int cpu = 0; cpu < procTicks.length; cpu++) {
-            for (int i = 0; i < ticks.length; i++) {
+        for (int i = 0; i < ticks.length; i++) {
+            for (int cpu = 0; cpu < procTicks.length; cpu++) {
                 ticks[i] += procTicks[cpu][i];
             }
+            ticks[i] /= procTicks.length;
         }
         return ticks;
     }
@@ -161,34 +158,34 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][curProcTicks[0].length];
+        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         // TODO: Replace kstat command line with native kstat()
-        ArrayList<String> tickList = ExecutingCommand.runNative("kstat -p cpu_stat:::/^intr/");
+        ArrayList<String> tickList = ExecutingCommand.runNative("kstat -p cpu::sys:/^cpu_ticks_/");
         // Sample format (Solaris 11)
-        // cpu_stat:0:cpu_stat0:intr 29682330
-        // cpu_stat:0:cpu_stat0:intrblk 87
-        // cpu_stat:0:cpu_stat0:intrthread 15054222
+        // cpu:0:sys:cpu_ticks_idle 8507532
+        // cpu:0:sys:cpu_ticks_kernel 141883
+        // cpu:0:sys:cpu_ticks_stolen 0
+        // cpu:0:sys:cpu_ticks_user 142482
+        // cpu:0:sys:cpu_ticks_wait 0
         String instance = "";
-        String vproc = "";
         int cpu = -1;
         for (String s : tickList) {
-            Matcher m = CPU_STAT.matcher(s);
+            Matcher m = CPU_TICKS.matcher(s);
             if (m.matches()) {
-                if (!m.group(1).equals(instance) || !m.group(2).equals(vproc)) {
+                if (!m.group(1).equals(instance)) {
                     // This is a new CPU
                     if (++cpu >= ticks.length) {
                         // Shouldn't happen
                         break;
                     }
                     instance = m.group(1);
-                    vproc = m.group(2);
                 }
-                if (m.group(3).equals("blk")) {
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(4), 0L);
-                } else if (m.group(3).equals("thread")) {
-                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(4), 0L);
-                } else {
-                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(4), 0L);
+                if (m.group(2).equals("idle")) {
+                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
+                } else if (m.group(2).equals("kernel")) {
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
+                } else if (m.group(2).equals("user")) {
+                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
                 }
             }
         }

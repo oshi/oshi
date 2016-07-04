@@ -168,7 +168,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public synchronized long[] getSystemCpuLoadTicks() {
-        long[] ticks = new long[curTicks.length];
+        long[] ticks = new long[TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
@@ -227,7 +227,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][curProcTicks[0].length];
+        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {

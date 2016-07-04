@@ -125,7 +125,7 @@ public class SystemInfoTest {
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(10, ProcessSort.CPU));
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
 
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size(); i++) {
@@ -136,7 +136,6 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
                     p.getName());
         }
-        System.exit(0);
 
         // hardware: sensors
         LOG.info("Checking Sensors...");
@@ -144,6 +143,8 @@ public class SystemInfoTest {
         System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
         System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
         System.out.format(" CPU Voltage: %.1fV%n", hal.getSensors().getCpuVoltage());
+
+        System.exit(0);
 
         // hardware: power
         LOG.info("Checking Power sources...");

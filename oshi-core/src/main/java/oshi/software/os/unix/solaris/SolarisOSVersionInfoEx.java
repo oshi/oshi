@@ -30,11 +30,11 @@ public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
         String versionInfo = ExecutingCommand.getFirstAnswer("uname -rv");
         if (versionInfo != null) {
             String[] split = versionInfo.split("\\s+");
-            this.version = split[0];
+            this.setVersion(split[0]);
             if (split.length > 1) {
-                this.buildNumber = split[1];
+                this.setBuildNumber(split[1]);
             }
-            this.codeName = "SunOS";
+            this.setCodeName("Solaris");
         }
     }
 }
