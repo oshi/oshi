@@ -64,8 +64,8 @@ public class ParseUtilTest {
     public void testHexStringToByteArray() {
         byte[] temp = { (byte) 0x12, (byte) 0xaf };
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
+        assertEquals(null, ParseUtil.hexStringToByteArray("expected error abcde"));
         assertEquals(null, ParseUtil.hexStringToByteArray("abcde"));
-        assertEquals(null, ParseUtil.hexStringToByteArray("not hex"));
     }
 
     /**
@@ -168,6 +168,17 @@ public class ParseUtilTest {
     public void testParseDoubleOrDefault() {
         assertEquals(1.23d, ParseUtil.parseDoubleOrDefault("1.23", 4.5d), Double.MIN_VALUE);
         assertEquals(4.5d, ParseUtil.parseDoubleOrDefault("one.twentythree", 4.5d), Double.MIN_VALUE);
+    }
+
+    /**
+     * Test parse DHMS
+     */
+    @Test
+    public void testParseDHMSOrDefault() {
+        assertEquals(93784L, ParseUtil.parseDHMSOrDefault("1-02:03:04", 0L));
+        assertEquals(7384L, ParseUtil.parseDHMSOrDefault("02:03:04", 0L));
+        assertEquals(184L, ParseUtil.parseDHMSOrDefault("03:04", 0L));
+        assertEquals(0L, ParseUtil.parseDHMSOrDefault("04", 0L));
     }
 
 }

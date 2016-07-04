@@ -71,7 +71,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 this.setVendor(line.replace("vendor_id", "").trim());
                 break;
             case "brand":
-                this.setModel(line.replace("brand", "").trim());
+                this.setName(line.replace("brand", "").trim());
                 break;
             case "implementation":
                 if (splitLine[1].equals("x64")) {

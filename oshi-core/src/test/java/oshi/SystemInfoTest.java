@@ -125,10 +125,10 @@ public class SystemInfoTest {
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
+        List<OSProcess> procs = Arrays.asList(os.getProcesses(10, ProcessSort.CPU));
 
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
-        for (int i = 0; i < procs.size() && i < 5; i++) {
+        for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
             System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
