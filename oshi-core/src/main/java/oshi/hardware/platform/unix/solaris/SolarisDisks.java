@@ -19,94 +19,146 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractDisks;
-import oshi.jna.platform.linux.Udev;
+import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Linux hard disk implementation.
+ * Solaris hard disk implementation.
  *
- * @author enrico[dot]bianchi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 public class SolarisDisks extends AbstractDisks {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisDisks.class);
-
-    private final int SECTORSIZE = 512;
-
-    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
-        SolarisBlockDevStats stats;
-        stats = new SolarisBlockDevStats(store.getName(), disk);
-
-        // Reads and writes are converted in bytes
-        store.setReads(stats.read_512bytes * this.SECTORSIZE);
-        store.setWrites(stats.write_512bytes * this.SECTORSIZE);
-    }
-
     @Override
     public HWDiskStore[] getDisks() {
-        HWDiskStore store;
-        List<HWDiskStore> result;
+        // Create map indexed by device name for multiple command reference
+        Map<String, HWDiskStore> diskMap = new HashMap<>();
 
-        Udev.UdevHandle handle = null;
-        Udev.UdevDevice device = null;
-        Udev.UdevEnumerate enumerate = null;
-        Udev.UdevListEntry entry, oldEntry;
+        // First, run iostat -er to enumerate disks by name. Sample output:
+        ArrayList<String> disks = ExecutingCommand.runNative("iostat -er");
+        for (String line : disks) {
+            // The -r switch enables comma delimited for easy parsing!
+            String[] split = line.split(",");
+            if (split.length < 5 || split[0].equals("device")) {
+                continue;
+            }
+            HWDiskStore store = new HWDiskStore();
+            store.setName(split[0]);
+            diskMap.put(split[0], store);
+        }
 
-        result = new ArrayList<>();
-
-        handle = Udev.INSTANCE.udev_new();
-        enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
-        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "block");
-        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
-
-        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-        while (true) {
-            store = new HWDiskStore();
-            try {
-                oldEntry = entry;
-                device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
-                        Udev.INSTANCE.udev_list_entry_get_name(entry));
-                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
-                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
-
-                    // Avoid model and serial in virtual environments
-                    store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
-                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                    store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null)
-                            ? "Unknown"
-                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-
-                    store.setSize(ParseUtil.parseLongOrDefault(
-                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
-
-                    this.computeDiskStats(store, device);
-                    result.add(store);
+        // Next, run iostat -Er to get model, etc.
+        disks = ExecutingCommand.runNative("iostat -Er");
+        // We'll use Model if available, otherwise Vendor+Product
+        String disk = "";
+        String model = "";
+        String vendor = "";
+        String product = "";
+        String serial = "";
+        long size = 0;
+        for (String line : disks) {
+            // The -r switch enables comma delimited for easy parsing!
+            // No guarantees on which line the results appear so we'll nest a
+            // loop iterating on the comma splits
+            String[] split = line.split(",");
+            for (String keyValue : split) {
+                keyValue = keyValue.trim();
+                // If entry is tne name of a disk, this is beginning of new
+                // output for that disk.
+                if (diskMap.keySet().contains(keyValue)) {
+                    // First, if we have existing output from previous, update
+                    if (!disk.isEmpty()) {
+                        updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                    }
+                    // Reset values for next iteration
+                    disk = keyValue;
+                    model = "";
+                    vendor = "";
+                    product = "";
+                    serial = "";
+                    size = 0L;
+                    continue;
                 }
-                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (Exception ex) {
-                LOG.debug("Reached all disks. Exiting ");
-                break;
-            } finally {
-                if (device instanceof Udev.UdevDevice) {
-                    Udev.INSTANCE.udev_device_unref(device);
+                // Otherwise update variables
+                if (keyValue.startsWith("Model:")) {
+                    model = keyValue.replace("Model:", "").trim();
+                } else if (keyValue.startsWith("Serial No:")) {
+                    serial = keyValue.replace("Serial No:", "").trim();
+                } else if (keyValue.startsWith("Vendor:")) {
+                    vendor = keyValue.replace("Vendor:", "").trim();
+                } else if (keyValue.startsWith("Product:")) {
+                    product = keyValue.replace("Product:", "").trim();
+                } else if (keyValue.startsWith("Size:")) {
+                    // Size: 1.23GB <1227563008 bytes>
+                    String[] bytes = keyValue.split("<");
+                    if (bytes.length > 1) {
+                        bytes = bytes[1].split("\\s+");
+                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
+                    }
                 }
+            }
+            // At end of output update last entry
+            if (!disk.isEmpty()) {
+                updateStore(diskMap.get(disk), model, vendor, product, serial, size);
             }
         }
 
-        Udev.INSTANCE.udev_enumerate_unref(enumerate);
-        Udev.INSTANCE.udev_unref(handle);
+        // Finally use kstat to get reads/writes
+        // simultaneously populate result array
+        HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];
+        int index = 0;
+        for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
+            ArrayList<String> stats = ExecutingCommand.runNative("kstat -p ::" + entry.getKey());
+            if (stats != null) {
+                for (String line : stats) {
+                    String[] split = line.split("\\s+");
+                    if (split.length < 2) {
+                        continue;
+                    }
+                    if (split[0].endsWith(":nread")) {
+                        entry.getValue().setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
+                    } else if (split[0].endsWith(":nwritten")) {
+                        entry.getValue().setWrites(ParseUtil.parseLongOrDefault(split[1], 0L));
+                    }
+                }
+            }
+            results[index++] = entry.getValue();
+        }
 
-        return result.toArray(new HWDiskStore[result.size()]);
+        return results;
+    }
+
+    /**
+     * Updates the HWDiskStore. If model name is nonempty it is used, otherwise
+     * vendor+product are used for model
+     * 
+     * @param store
+     *            A HWDiskStore
+     * @param model
+     *            model name, or empty string if none
+     * @param vendor
+     *            vendor name, or empty string if none
+     * @param product
+     *            product nmae, or empty string if none
+     * @param serial
+     *            serial number, or empty string if none
+     * @param size
+     *            size of the drive in bytes
+     */
+    private void updateStore(HWDiskStore store, String model, String vendor, String product, String serial, long size) {
+        if (model.isEmpty()) {
+            model = (vendor + " " + product).trim();
+        }
+        store.setModel(model);
+        store.setSerial(serial);
+        store.setSize(size);
     }
 }

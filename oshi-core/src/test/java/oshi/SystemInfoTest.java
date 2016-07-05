@@ -164,7 +164,6 @@ public class SystemInfoTest {
             sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
         }
         System.out.println(sb.toString());
-        System.exit(0);
 
         // hardware: disks
         LOG.info("Checking Disks...");
@@ -179,6 +178,7 @@ public class SystemInfoTest {
                     readwrite ? FormatUtil.formatBytes(dsk.getReads()) : "?",
                     readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
         }
+        System.exit(0);
 
         // software: file system
         LOG.info("Checking File System...");
