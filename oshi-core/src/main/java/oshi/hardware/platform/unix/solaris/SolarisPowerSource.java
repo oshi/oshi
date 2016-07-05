@@ -18,16 +18,15 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import oshi.util.FileUtil;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -40,8 +39,6 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisPowerSource.class);
 
-    private static final String PS_PATH = "/sys/class/power_supply/";
-
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized LinuxPowerSource");
@@ -53,74 +50,52 @@ public class SolarisPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-        // Get list of power source names
-        File f = new File(PS_PATH);
-        String[] psNames = f.list();
-        // Empty directory will give null rather than empty array, so fix
-        if (psNames == null)
-            psNames = new String[0];
-        List<SolarisPowerSource> psList = new ArrayList<>(psNames.length);
-        // For each power source, output various info
-        for (String psName : psNames) {
-            // Skip if name is ADP* (AC power supply)
-            if (psName.startsWith("ADP"))
-                continue;
-            // Skip if can't read uevent file
-            List<String> psInfo;
-            psInfo = FileUtil.readFile(PS_PATH + psName + "/uevent", false);
-            if (psInfo.isEmpty()) {
-                continue;
-            }
-            // Initialize defaults
-            boolean isPresent = false;
+        SolarisPowerSource[] ps = new SolarisPowerSource[1];
+        ArrayList<String> batInfo = ExecutingCommand.runNative("kstat -m acpi_drv");
+        if (batInfo == null || batInfo.isEmpty()) {
+            batInfo = ExecutingCommand.runNative("kstat -m battery");
+        }
+        // Initialize defaults
+        if (batInfo != null) {
             boolean isCharging = false;
-            String name = "Unknown";
+            String name = "BST0";
             int energyNow = 0;
+            // defaults to avoid divide by zero
             int energyFull = 1;
             int powerNow = 1;
-            for (String checkLine : psInfo) {
-                if (checkLine.startsWith("POWER_SUPPLY_PRESENT")) {
-                    // Skip if not present
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1)
-                        isPresent = Integer.parseInt(psSplit[1]) > 0;
-                    if (!isPresent)
-                        continue;
-                } else if (checkLine.startsWith("POWER_SUPPLY_NAME")) {
-                    // Name
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1)
-                        name = psSplit[1];
-                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_NOW")
-                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_NOW")) {
-                    // Remaining Capacity = energyNow / energyFull
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1)
-                        energyNow = Integer.parseInt(psSplit[1]);
-                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL")
-                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL")) {
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1)
-                        energyFull = Integer.parseInt(psSplit[1]);
-                } else if (checkLine.startsWith("POWER_SUPPLY_STATUS")) {
-                    // Check if charging
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1 && psSplit[1].equals("Charging"))
-                        isCharging = true;
-                } else if (checkLine.startsWith("POWER_SUPPLY_POWER_NOW")
-                        || checkLine.startsWith("POWER_SUPPLY_CURRENT_NOW")) {
-                    // Time Remaining = energyNow / powerNow (hours)
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1)
-                        powerNow = Integer.parseInt(psSplit[1]);
-                    if (powerNow <= 0)
-                        isCharging = true;
+            for (String line : batInfo) {
+                String[] splitLine = line.trim().split("\\s+");
+                if (splitLine.length < 2) {
+                    break;
+                }
+                switch (splitLine[0]) {
+                case "bst_rate":
+                    // int rate in mA or mW
+                    powerNow = ParseUtil.parseIntOrDefault(splitLine[1], 1);
+                    break;
+                case "bif_last_cap":
+                    // full capacity in mAh or mWh
+                    energyFull = ParseUtil.parseIntOrDefault(splitLine[1], 1);
+                    break;
+                case "bif_rem_cap":
+                    // remaining capacity in mAh or mWh
+                    energyNow = ParseUtil.parseIntOrDefault(splitLine[1], 0);
+                    break;
+                case "bst_state":
+                    // bit 0 = discharging
+                    // bit 1 = charging
+                    // bit 2 = critical energy state
+                    isCharging = (ParseUtil.parseIntOrDefault(splitLine[1], 0) & 0x10) > 0;
+                    break;
+                default:
+                    // case "bif_unit"
+                    // 0 -> mW(h), 1 -> mA(h)
+                    // Math is the same in either case so we ignore it
                 }
             }
-            psList.add(new SolarisPowerSource(name, (double) energyNow / energyFull,
-                    isCharging ? -2d : 3600d * energyNow / powerNow));
+            ps[0] = new SolarisPowerSource(name, (double) energyNow / energyFull,
+                    isCharging ? -2d : 3600d * energyNow / powerNow);
         }
-
-        return psList.toArray(new SolarisPowerSource[psList.size()]);
+        return ps;
     }
 }
