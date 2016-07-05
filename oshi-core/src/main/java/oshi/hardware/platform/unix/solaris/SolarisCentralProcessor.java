@@ -42,7 +42,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
 
-    private static final Pattern PSRINFO = Pattern.compile("The physical processor has (\\d+) virtual processors.*");
+    private static final Pattern PSRINFO = Pattern.compile(".*physical processor has (\\d+) virtual processors.*");
     private static final Pattern CPU_TICKS = Pattern.compile("cpu:(\\d+):sys:cpu_ticks_(\\S*)\\s+(\\d+)");
 
     /**

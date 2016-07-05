@@ -18,88 +18,91 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.FileUtil;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 public class SolarisSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
-    // Possible sensor types. See sysfs documentation for others, e.g. current
-    private static final String TEMP = "temp";
-    private static final String FAN = "fan";
-    private static final String VOLTAGE = "in";
-    private static final String[] SENSORS = { TEMP, FAN, VOLTAGE };
-
-    // Base HWMON path, adds 0, 1, etc. to end for various sensors
-    private static final String HWMON = "/sys/class/hwmon/hwmon";
-
-    // Map from sensor to path
-    private Map<String, String> hwmonMap = new HashMap<String, String>();
-
-    public SolarisSensors() {
-        // Iterate over all hwmon* directories and look for sensor files
-        // e.g. /sys/class/hwmon/hwmon0/temp1_input
-        int i = 0;
-        while (Files.isDirectory(Paths.get(HWMON + i))) {
-            for (String sensor : SENSORS) {
-                String path = String.format("%s%d", HWMON, i);
-                // Final to pass to anonymous class
-                final String prefix = sensor;
-                // Find any *_input files in that path
-                File dir = new File(path);
-                File[] matchingFiles = dir.listFiles(new FileFilter() {
-                    public boolean accept(File pathname) {
-                        return pathname.getName().startsWith(prefix) && pathname.getName().endsWith("_input");
-                    }
-                });
-                if (matchingFiles != null && matchingFiles.length > 0) {
-                    hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
-                }
-            }
-            i++;
-        }
-    }
+    /*-
+     * 
+     
+     #prtpicl -v -c fan
+    f2_rs (fan, 4c00000923)
+    :_fru_parent   (4c000006ccH)
+    :Label         RS
+    :SpeedUnit      rpm
+    :LowWarningThreshold   0x7d0
+    :Speed         0x113b
+    :_class        fan
+    :name  f2_rs
+    f3_rs (fan, 4c0000092a)
+    :_fru_parent   (4c000006d1H)
+    :Label         RS
+    :SpeedUnit      rpm
+    :LowWarningThreshold   0x7d0
+    :Speed         0xf11
+    :_class        fan
+    :name  f3_rs
+    ...
+     
+     
+     optname="$optname fire_t_core mb_io_t_amb c0_p0_t_core ft0_f0_tach"        ## v440
+    optname="$optname cpu0 cpu0-fan int-amb0 int-amb1 dimm-fan"     ## b2k
+    optname="$optname cpu0 cpu0-ambient cpu system" ## b1k
+     
+    cmdfan="/usr/sbin/prtpicl -v -c fan"
+    iddsend=":name"
+    idkey=":name"
+    idval=":Temperature"
+    idvalsp=":Speed"
+    idvalsu=":SpeedUnit"
+    
+     prtpicl -c voltage-sensor -v 
+    prtpicl -c voltage-indicator -v 
+    
+    
+    prtpicl -c fan-tachometer -v  
+    prtpicl -c rpm-sensor -v
+    
+    
+      prtpicl -c temperature-sensor -v
+    CPU-sensor (temperature-sensor, 2600000041f)
+            :Temperature            74 
+    may repeat multiple cpus
+    
+    
+     */
 
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
-        if (hwmonMap.containsKey(TEMP)) {
-            String hwmon = hwmonMap.get(TEMP);
-            // First attempt should be CPU temperature at index 1, if available
-            long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
-            // Should return a single line of millidegrees Celsius
-            if (millidegrees > 0) {
-                return millidegrees / 1000d;
-            } else {
-                // If temp1_input doesn't exist, iterate over temp2..temp6_input
-                // and average
-                int sum = 0;
-                int count = 0;
-                for (int i = 2; i <= 6; i++) {
-                    millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
-                    if (millidegrees > 0) {
-                        sum += millidegrees;
-                        count++;
+        double maxTemp = 0d;
+        ArrayList<String> temps = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor");
+        if (temps != null) {
+            // Return max found temp
+            for (String line : temps) {
+                if (line.trim().startsWith("Temperature:")) {
+                    int temp = ParseUtil.parseLastInt(line, 0);
+                    if (temp > maxTemp) {
+                        maxTemp = temp;
                     }
                 }
-                if (count > 0) {
-                    return sum / (count * 1000d);
-                }
             }
+
         }
-        return 0d;
+        // If it's in millidegrees:
+        if (maxTemp > 1000) {
+            maxTemp /= 1000;
+        }
+        return maxTemp;
     }
 
     /**
@@ -107,28 +110,21 @@ public class SolarisSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (hwmonMap.containsKey(FAN)) {
-            String hwmon = hwmonMap.get(FAN);
-            List<Integer> speeds = new ArrayList<Integer>();
-            int fan = 1;
-            for (;;) {
-                String fanPath = String.format("%s%d_input", hwmon, fan);
-                if (!new File(fanPath).exists()) {
-                    // No file found, we've reached max fans
-                    break;
+        List<Integer> speedList = new ArrayList<>();
+        ArrayList<String> speeds = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan");
+        if (speeds != null) {
+            // Return max found temp
+            for (String line : speeds) {
+                if (line.trim().startsWith("Speed:")) {
+                    speedList.add(ParseUtil.parseLastInt(line, 0));
                 }
-                // Should return a single line of RPM
-                speeds.add(FileUtil.getIntFromFile(fanPath));
-                // Done reading data for current fan, read next fan
-                fan++;
             }
-            int[] fanSpeeds = new int[speeds.size()];
-            for (int i = 0; i < speeds.size(); i++) {
-                fanSpeeds[i] = speeds.get(i);
-            }
-            return fanSpeeds;
         }
-        return new int[0];
+        int[] fans = new int[speedList.size()];
+        for (int i = 0; i < speedList.size(); i++) {
+            fans[i] = speedList.get(i);
+        }
+        return fans;
     }
 
     /**
@@ -136,11 +132,18 @@ public class SolarisSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (hwmonMap.containsKey(VOLTAGE)) {
-            String hwmon = hwmonMap.get(VOLTAGE);
-            // Should return a single line of millidegrees Celsius
-            return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
+        double voltage = 0d;
+        ArrayList<String> volts = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor");
+        // TODO This is entirely a guess!
+        if (volts != null) {
+            for (String line : volts) {
+                if (line.trim().startsWith("Voltage:")) {
+                    voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
+                    break;
+                }
+            }
+
         }
-        return 0d;
+        return voltage;
     }
 }
