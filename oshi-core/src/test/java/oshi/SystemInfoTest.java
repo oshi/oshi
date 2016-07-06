@@ -178,7 +178,6 @@ public class SystemInfoTest {
                     readwrite ? FormatUtil.formatBytes(dsk.getReads()) : "?",
                     readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
         }
-        System.exit(0);
 
         // software: file system
         LOG.info("Checking File System...");
@@ -217,6 +216,7 @@ public class SystemInfoTest {
                     hasData ? net.getPacketsSent() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
+        System.exit(0);
 
         // hardware: displays
         LOG.info("Checking Displays...");
