@@ -29,56 +29,6 @@ public class SolarisSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
-    /*-
-     * 
-     
-     #prtpicl -v -c fan
-    f2_rs (fan, 4c00000923)
-    :_fru_parent   (4c000006ccH)
-    :Label         RS
-    :SpeedUnit      rpm
-    :LowWarningThreshold   0x7d0
-    :Speed         0x113b
-    :_class        fan
-    :name  f2_rs
-    f3_rs (fan, 4c0000092a)
-    :_fru_parent   (4c000006d1H)
-    :Label         RS
-    :SpeedUnit      rpm
-    :LowWarningThreshold   0x7d0
-    :Speed         0xf11
-    :_class        fan
-    :name  f3_rs
-    ...
-     
-     
-     optname="$optname fire_t_core mb_io_t_amb c0_p0_t_core ft0_f0_tach"        ## v440
-    optname="$optname cpu0 cpu0-fan int-amb0 int-amb1 dimm-fan"     ## b2k
-    optname="$optname cpu0 cpu0-ambient cpu system" ## b1k
-     
-    cmdfan="/usr/sbin/prtpicl -v -c fan"
-    iddsend=":name"
-    idkey=":name"
-    idval=":Temperature"
-    idvalsp=":Speed"
-    idvalsu=":SpeedUnit"
-    
-     prtpicl -c voltage-sensor -v 
-    prtpicl -c voltage-indicator -v 
-    
-    
-    prtpicl -c fan-tachometer -v  
-    prtpicl -c rpm-sensor -v
-    
-    
-      prtpicl -c temperature-sensor -v
-    CPU-sensor (temperature-sensor, 2600000041f)
-            :Temperature            74 
-    may repeat multiple cpus
-    
-    
-     */
-
     /**
      * {@inheritDoc}
      */

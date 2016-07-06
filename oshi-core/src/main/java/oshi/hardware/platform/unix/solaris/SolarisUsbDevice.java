@@ -86,6 +86,9 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 
         // Enumerate all usb devices and build information maps
         List<String> devices = ExecutingCommand.runNative("prtconf -pv");
+        if (devices == null) {
+            return new SolarisUsbDevice[0];
+        }
         // For each item enumerated, store information in the maps
         String key = "";
         int indent = 0;

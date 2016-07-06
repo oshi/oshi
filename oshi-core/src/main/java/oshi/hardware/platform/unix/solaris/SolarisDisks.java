@@ -44,70 +44,76 @@ public class SolarisDisks extends AbstractDisks {
 
         // First, run iostat -er to enumerate disks by name. Sample output:
         ArrayList<String> disks = ExecutingCommand.runNative("iostat -er");
-        for (String line : disks) {
-            // The -r switch enables comma delimited for easy parsing!
-            String[] split = line.split(",");
-            if (split.length < 5 || split[0].equals("device")) {
-                continue;
+        if (disks != null) {
+            for (String line : disks) {
+                // The -r switch enables comma delimited for easy parsing!
+                String[] split = line.split(",");
+                if (split.length < 5 || split[0].equals("device")) {
+                    continue;
+                }
+                HWDiskStore store = new HWDiskStore();
+                store.setName(split[0]);
+                diskMap.put(split[0], store);
             }
-            HWDiskStore store = new HWDiskStore();
-            store.setName(split[0]);
-            diskMap.put(split[0], store);
         }
 
         // Next, run iostat -Er to get model, etc.
         disks = ExecutingCommand.runNative("iostat -Er");
-        // We'll use Model if available, otherwise Vendor+Product
-        String disk = "";
-        String model = "";
-        String vendor = "";
-        String product = "";
-        String serial = "";
-        long size = 0;
-        for (String line : disks) {
-            // The -r switch enables comma delimited for easy parsing!
-            // No guarantees on which line the results appear so we'll nest a
-            // loop iterating on the comma splits
-            String[] split = line.split(",");
-            for (String keyValue : split) {
-                keyValue = keyValue.trim();
-                // If entry is tne name of a disk, this is beginning of new
-                // output for that disk.
-                if (diskMap.keySet().contains(keyValue)) {
-                    // First, if we have existing output from previous, update
-                    if (!disk.isEmpty()) {
-                        updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+        if (disks != null) {
+            // We'll use Model if available, otherwise Vendor+Product
+            String disk = "";
+            String model = "";
+            String vendor = "";
+            String product = "";
+            String serial = "";
+            long size = 0;
+            for (String line : disks) {
+                // The -r switch enables comma delimited for easy parsing!
+                // No guarantees on which line the results appear so we'll nest
+                // a
+                // loop iterating on the comma splits
+                String[] split = line.split(",");
+                for (String keyValue : split) {
+                    keyValue = keyValue.trim();
+                    // If entry is tne name of a disk, this is beginning of new
+                    // output for that disk.
+                    if (diskMap.keySet().contains(keyValue)) {
+                        // First, if we have existing output from previous,
+                        // update
+                        if (!disk.isEmpty()) {
+                            updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                        }
+                        // Reset values for next iteration
+                        disk = keyValue;
+                        model = "";
+                        vendor = "";
+                        product = "";
+                        serial = "";
+                        size = 0L;
+                        continue;
                     }
-                    // Reset values for next iteration
-                    disk = keyValue;
-                    model = "";
-                    vendor = "";
-                    product = "";
-                    serial = "";
-                    size = 0L;
-                    continue;
-                }
-                // Otherwise update variables
-                if (keyValue.startsWith("Model:")) {
-                    model = keyValue.replace("Model:", "").trim();
-                } else if (keyValue.startsWith("Serial No:")) {
-                    serial = keyValue.replace("Serial No:", "").trim();
-                } else if (keyValue.startsWith("Vendor:")) {
-                    vendor = keyValue.replace("Vendor:", "").trim();
-                } else if (keyValue.startsWith("Product:")) {
-                    product = keyValue.replace("Product:", "").trim();
-                } else if (keyValue.startsWith("Size:")) {
-                    // Size: 1.23GB <1227563008 bytes>
-                    String[] bytes = keyValue.split("<");
-                    if (bytes.length > 1) {
-                        bytes = bytes[1].split("\\s+");
-                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
+                    // Otherwise update variables
+                    if (keyValue.startsWith("Model:")) {
+                        model = keyValue.replace("Model:", "").trim();
+                    } else if (keyValue.startsWith("Serial No:")) {
+                        serial = keyValue.replace("Serial No:", "").trim();
+                    } else if (keyValue.startsWith("Vendor:")) {
+                        vendor = keyValue.replace("Vendor:", "").trim();
+                    } else if (keyValue.startsWith("Product:")) {
+                        product = keyValue.replace("Product:", "").trim();
+                    } else if (keyValue.startsWith("Size:")) {
+                        // Size: 1.23GB <1227563008 bytes>
+                        String[] bytes = keyValue.split("<");
+                        if (bytes.length > 1) {
+                            bytes = bytes[1].split("\\s+");
+                            size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
+                        }
                     }
                 }
-            }
-            // At end of output update last entry
-            if (!disk.isEmpty()) {
-                updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                // At end of output update last entry
+                if (!disk.isEmpty()) {
+                    updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                }
             }
         }
 

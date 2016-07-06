@@ -48,7 +48,7 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
     protected void updateMeminfo() {
         // TODO: Replace kstat command line with native kstat()
         List<String> memInfo = ExecutingCommand.runNative("kstat -n system_pages");
-        if (memInfo.isEmpty()) {
+        if (memInfo == null || memInfo.isEmpty()) {
             return;
         }
         for (String line : memInfo) {
@@ -75,7 +75,7 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
         List<String> swapInfo = ExecutingCommand.runNative("swap -lk");
-        if (swapInfo.isEmpty()) {
+        if (swapInfo == null || swapInfo.isEmpty()) {
             return;
         }
         for (String line : swapInfo) {
