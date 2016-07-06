@@ -59,7 +59,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
         if (batInfo != null) {
             boolean isCharging = false;
             String name = "BST0";
-            int energyNow = 0;
+            int energyNow = -1;
             // defaults to avoid divide by zero
             int energyFull = 1;
             int powerNow = 1;
@@ -92,6 +92,9 @@ public class SolarisPowerSource extends AbstractPowerSource {
                     // 0 -> mW(h), 1 -> mA(h)
                     // Math is the same in either case so we ignore it
                 }
+            }
+            if (energyNow < 0) {
+                return new SolarisPowerSource[0];
             }
             ps[0] = new SolarisPowerSource(name, (double) energyNow / energyFull,
                     isCharging ? -2d : 3600d * energyNow / powerNow);

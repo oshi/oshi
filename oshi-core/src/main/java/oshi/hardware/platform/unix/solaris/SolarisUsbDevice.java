@@ -27,10 +27,7 @@ import java.util.Map;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
-import oshi.jna.platform.linux.Udev;
-import oshi.jna.platform.linux.Udev.UdevDevice;
-import oshi.jna.platform.linux.Udev.UdevEnumerate;
-import oshi.jna.platform.linux.Udev.UdevListEntry;
+import oshi.util.ExecutingCommand;
 
 public class SolarisUsbDevice extends AbstractUsbDevice {
 
@@ -42,14 +39,17 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     /*
-     * Maps to store information using device node path as the key
+     * Maps to store information using node # as the key
      */
     private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
     private static Map<String, String> vendorIdMap = new HashMap<>();
     private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
+    private static Map<String, String> deviceTypeMap = new HashMap<>();
+    /*
+     * For parsing tree
+     */
+    private static Map<Integer, String> lastParent = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -78,84 +78,96 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     private static UsbDevice[] getUsbDevices() {
-        // Enumerate all usb devices and build information maps
-        Udev.UdevHandle udev = Udev.INSTANCE.udev_new();
-        // Create a list of the devices in the 'usb' subsystem.
-        UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);
-        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "usb");
-        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
-        UdevListEntry devices = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-
-        // Build a list of devices with no parent; these will be the roots
-        List<String> usbControllers = new ArrayList<>();
         // Empty out maps
         nameMap.clear();
-        vendorMap.clear();
         vendorIdMap.clear();
         productIdMap.clear();
-        serialMap.clear();
         hubMap.clear();
 
+        // Enumerate all usb devices and build information maps
+        List<String> devices = ExecutingCommand.runNative("prtconf -pv");
         // For each item enumerated, store information in the maps
-        for (UdevListEntry dev_list_entry = devices; dev_list_entry != null; dev_list_entry = Udev.INSTANCE
-                .udev_list_entry_get_next(dev_list_entry)) {
-
-            // Get the filename of the /sys entry for the device and create a
-            // udev_device object (dev) representing it
-            String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);
-            UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);
-            // Ignore interfaces
-            if (!Udev.INSTANCE.udev_device_get_devtype(dev).equals("usb_device")) {
+        String key = "";
+        int indent = 0;
+        List<String> usbControllers = new ArrayList<String>();
+        for (String line : devices) {
+            // Node 0x... identifies start of a new tree
+            if (line.contains("Node 0x")) {
+                // Remove indent for key
+                key = line.replaceFirst("^\\s*", "");
+                // Calculate indent and store as last parent at this depth
+                int depth = (line.length() - key.length());
+                // Store first indent for future use
+                if (indent == 0) {
+                    indent = depth;
+                }
+                // Store this Node ID as parent at this depth
+                lastParent.put(depth, key);
+                // Add as child to appropriate parent
+                if (depth > indent) {
+                    // Has a parent. Get parent and add this node to child list
+                    hubMap.computeIfAbsent(lastParent.get(depth - indent), k -> new ArrayList<String>()).add(key);
+                } else {
+                    // No parent, add to controllers list
+                    usbControllers.add(key);
+                }
+                continue;
+            } else if (key.isEmpty()) {
+                // Ignore everything preceding the first node
                 continue;
             }
-
-            // Use the path as the key for the maps
-            String value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "product");
-            if (value != null) {
-                nameMap.put(path, value);
+            // We are currently processing for node identified by key. Save
+            // approrpriate variables to maps.
+            line = line.trim();
+            if (line.startsWith("model:")) {
+                // Format: model: 'value'
+                String[] split = line.split("'");
+                if (split.length > 1) {
+                    nameMap.put(key, split[1]);
+                }
+            } else if (line.startsWith("name:")) {
+                // Format: name: 'value'
+                String[] split = line.split("'");
+                if (split.length > 1) {
+                    // Name is backup for model if model doesn't exist, so only
+                    // put if key doesn't yet exist
+                    nameMap.putIfAbsent(key, split[1]);
+                }
+            } else if (line.startsWith("vendor-id:")) {
+                // Format: vendor-id: 00008086
+                if (line.length() > 4) {
+                    vendorIdMap.put(key, line.substring(line.length() - 4));
+                }
+            } else if (line.startsWith("device-id:")) {
+                // Format: device-id: 00002440
+                if (line.length() > 4) {
+                    productIdMap.put(key, line.substring(line.length() - 4));
+                }
+            } else if (line.startsWith("device_type:")) {
+                // Format: device_type: 'value'
+                String[] split = line.split("'");
+                if (split.length > 1) {
+                    // Name is backup for model if model doesn't exist, so only
+                    // put if key doesn't yet exist
+                    deviceTypeMap.putIfAbsent(key, split[1]);
+                }
             }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "manufacturer");
-            if (value != null) {
-                vendorMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idVendor");
-            if (value != null) {
-                vendorIdMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idProduct");
-            if (value != null) {
-                productIdMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "serial");
-            if (value != null) {
-                serialMap.put(path, value);
-            }
-            UdevDevice parent = Udev.INSTANCE.udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
-            if (parent == null) {
-                // This is a controller with no parent, add to list
-                usbControllers.add(path);
-            } else {
-                // Add child path (path variable) to parent's path
-                String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                hubMap.computeIfAbsent(parentPath, k -> new ArrayList<String>()).add(path);
-            }
-            Udev.INSTANCE.udev_device_unref(dev);
         }
-        // Free the enumerator object
-        Udev.INSTANCE.udev_enumerate_unref(enumerate);
-        Udev.INSTANCE.udev_unref(udev);
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (String controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
+            // Only do controllers that are USB device type
+            if (deviceTypeMap.getOrDefault(controller, "").equals("usb")) {
+                controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
+            }
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
 
     /**
-     * Recursively creates LinuxUsbDevices by fetching information from maps to
-     * populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps
+     * to populate fields
      * 
      * @param devPath
      *            The device node path.
@@ -163,7 +175,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      *            The default (parent) vendor ID
      * @param pid
      *            The default (parent) product ID
-     * @return A LinuxUsbDevice corresponding to this device
+     * @return A SolarisUsbDevice corresponding to this device
      */
     private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
@@ -174,8 +186,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vid, pid));
         }
         Collections.sort(usbDevices);
-        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
-                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""),
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
+                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

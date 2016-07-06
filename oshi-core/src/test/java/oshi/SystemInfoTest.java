@@ -226,7 +226,6 @@ public class SystemInfoTest {
             System.out.println(display.toString());
             i++;
         }
-        System.exit(0);
 
         // hardware: USB devices
         LOG.info("Checking USB Devices...");

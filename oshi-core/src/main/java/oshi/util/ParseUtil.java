@@ -132,7 +132,7 @@ public class ParseUtil {
         int len = digits.length();
         // Check if string is valid hex
         if (!VALID_HEX.matcher(digits).matches() || (len & 0x1) != 0) {
-            LOG.error("Invalid hexadecimal string: {}", digits);
+            LOG.warn("Invalid hexadecimal string: {}", digits);
             return null;
         }
         byte[] data = new byte[len / 2];

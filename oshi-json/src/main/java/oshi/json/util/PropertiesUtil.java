@@ -119,7 +119,8 @@ public class PropertiesUtil {
             try {
                 return Enum.valueOf(enumClass, s.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                LOG.error("Invalid value {} for property {}. See {}.", s, property, enumClass.getName());
+                LOG.error("Property value {} from property {} does not match enum class {}.", s, property,
+                        enumClass.getName());
             }
         }
         return null;
