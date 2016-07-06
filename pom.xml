@@ -371,11 +371,13 @@
           <artifactId>tidy-maven-plugin</artifactId>
           <version>1.0.0</version>
         </plugin>
+        <!-- Not yet Mars compatible
         <plugin>
           <groupId>net.revelc.code</groupId>
           <artifactId>formatter-maven-plugin</artifactId>
           <version>0.5.2</version>
         </plugin>
+         -->
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
@@ -619,6 +621,7 @@
             <exclude>**/linux/**</exclude>
             <exclude>**/mac/**</exclude>
             <exclude>**/windows/**</exclude>
+            <exclude>**/unix/**</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -858,6 +861,7 @@
                         <ignore />
                       </action>
                     </pluginExecution>
+                    <!-- Not yet Mars compatible
                     <pluginExecution>
                       <pluginExecutionFilter>
                         <groupId>net.revelc.code</groupId>
@@ -871,6 +875,7 @@
                         <ignore />
                       </action>
                     </pluginExecution>
+                    -->
                     <pluginExecution>
                       <pluginExecutionFilter>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -892,6 +897,7 @@
         </pluginManagement>
       </build>
     </profile>
+    <!-- Not yet Mars compatible
     <profile>
       <id>format</id>
       <build>
@@ -900,8 +906,15 @@
             <groupId>net.revelc.code</groupId>
             <artifactId>formatter-maven-plugin</artifactId>
             <configuration>
-              <configFile>${project.basedir}/format.xml</configFile>
+              <configFile>eclipse/format.xml</configFile>
             </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${project.version}</version>
+              </dependency>
+            </dependencies>
             <executions>
               <execution>
                 <goals>
@@ -913,6 +926,7 @@
         </plugins>
       </build>
     </profile>
+    -->
     <profile>
       <id>sort</id>
       <build>

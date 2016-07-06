@@ -30,6 +30,8 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Windows 7 and higher. 
 * macOS (OS X) version 10.6 (Snow Leopard) and higher
 * Linux (Most major distributions) Kernel 2.6 and higher
+* Unix: Solaris 11 (SunOS 5.11) (beta)
+
 
 What API features are not implemented on some operating systems?
 ========
