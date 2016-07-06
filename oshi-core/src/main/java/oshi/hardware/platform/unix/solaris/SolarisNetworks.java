@@ -18,12 +18,15 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.ArrayList;
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.util.FileUtil;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
- * @author enrico[dot]bianchi[at]gmail[dot]com
+ * @author widdis[at]gmail[dot]com
  */
 public class SolarisNetworks extends AbstractNetworks {
 
@@ -37,16 +40,22 @@ public class SolarisNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netIF.getName());
-        String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netIF.getName());
-        String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netIF.getName());
-        String rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netIF.getName());
-        String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
-
-        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));
-        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));
-        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));
-        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));
-        netIF.setSpeed(FileUtil.getLongFromFile(speed));
+        ArrayList<String> stats = ExecutingCommand.runNative("kstat -p link::" + netIF.getName());
+        if (stats != null) {
+            for (String stat : stats) {
+                String[] split = stat.split("\\s+");
+                if (split[0].endsWith(":obytes") || split[0].endsWith(":obytes64")) {
+                    netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":rbytes") || split[0].endsWith(":rbytes64")) {
+                    netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":opackets") || split[0].endsWith(":opackets64")) {
+                    netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":ipackets") || split[0].endsWith(":ipackets64")) {
+                    netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":ifspeed")) {
+                    netIF.setSpeed(ParseUtil.parseLongOrDefault(split[1], 0L));
+                }
+            }
+        }
     }
 }
