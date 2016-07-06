@@ -216,7 +216,6 @@ public class SystemInfoTest {
                     hasData ? net.getPacketsSent() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
-        System.exit(0);
 
         // hardware: displays
         LOG.info("Checking Displays...");
@@ -227,6 +226,7 @@ public class SystemInfoTest {
             System.out.println(display.toString());
             i++;
         }
+        System.exit(0);
 
         // hardware: USB devices
         LOG.info("Checking USB Devices...");

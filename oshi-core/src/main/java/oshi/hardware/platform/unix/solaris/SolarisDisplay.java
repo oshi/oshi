@@ -42,7 +42,7 @@ public class SolarisDisplay extends AbstractDisplay {
 
     public SolarisDisplay(byte[] edid) {
         super(edid);
-        LOG.debug("Initialized LinuxDisplay");
+        LOG.debug("Initialized SolarisDisplay");
     }
 
     /**
