@@ -112,7 +112,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-        long[] ticks = new long[curTicks.length];
+        long[] ticks = new long[TickType.values().length];
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
         WinBase.FILETIME lpUserTime = new WinBase.FILETIME();

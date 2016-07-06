@@ -132,7 +132,7 @@ public class ParseUtil {
         int len = digits.length();
         // Check if string is valid hex
         if (!VALID_HEX.matcher(digits).matches() || (len & 0x1) != 0) {
-            LOG.error("Invalid hexadecimal string: {}", digits);
+            LOG.warn("Invalid hexadecimal string: {}", digits);
             return null;
         }
         byte[] data = new byte[len / 2];
@@ -244,6 +244,11 @@ public class ParseUtil {
      */
     private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
 
+    /*
+     * Pattern for [dd-[hh:[mm:ss]]]
+     */
+    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)");
+
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
      * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
@@ -320,4 +325,48 @@ public class ParseUtil {
             return defaultLong;
         }
     }
+
+    /**
+     * Attempts to parse a string to a double. If it fails, returns the default
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultDouble
+     *            The value to return if parsing fails
+     * @return The parsed double, or the default if parsing failed
+     */
+    public static double parseDoubleOrDefault(String s, double defaultDouble) {
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return defaultDouble;
+        }
+    }
+
+    /**
+     * Attempts to parse a string of the form [DD-[hh:[mm:ss]]] to a number of
+     * seconds. If it fails, returns the default.
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultLong
+     *            The value to return if parsing fails
+     * @return The parsed number of seconds, or the default if parsing fails
+     */
+    public static long parseDHMSOrDefault(String s, long defaultLong) {
+        Matcher m = DHMS.matcher(s);
+        long seconds = 0L;
+        if (m.matches()) {
+            if (m.group(1) != null) {
+                seconds += parseLongOrDefault(m.group(1), 0L) * 86400L;
+            }
+            if (m.group(2) != null) {
+                seconds += parseLongOrDefault(m.group(2), 0L) * 3600L;
+            }
+            seconds += parseLongOrDefault(m.group(3), 0L) * 60L;
+            seconds += parseLongOrDefault(m.group(4), 0L);
+        }
+        return seconds;
+    }
+
 }

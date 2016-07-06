@@ -25,10 +25,12 @@ import com.sun.jna.Platform;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
@@ -58,6 +60,8 @@ public class SystemInfo implements Serializable {
             currentPlatformEnum = PlatformEnum.LINUX;
         } else if (Platform.isMac()) {
             currentPlatformEnum = PlatformEnum.MACOSX;
+        } else if (Platform.isSolaris()) {
+            currentPlatformEnum = PlatformEnum.SOLARIS;
         } else {
             currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
@@ -89,6 +93,9 @@ public class SystemInfo implements Serializable {
             case MACOSX:
                 this.os = new MacOperatingSystem();
                 break;
+            case SOLARIS:
+                this.os = new SolarisOperatingSystem();
+                break;
             default:
                 throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
             }
@@ -114,6 +121,9 @@ public class SystemInfo implements Serializable {
                 break;
             case MACOSX:
                 this.hardware = new MacHardwareAbstractionLayer();
+                break;
+            case SOLARIS:
+                this.hardware = new SolarisHardwareAbstractionLayer();
                 break;
             default:
                 throw new RuntimeException("Operating system not supported: " + Platform.getOSType());

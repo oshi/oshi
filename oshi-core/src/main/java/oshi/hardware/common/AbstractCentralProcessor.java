@@ -86,37 +86,37 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     // Maintain previous ticks to be used for calculating usage between them.
     // System ticks
-    protected long tickTime;
+    private long tickTime;
 
-    protected long[] prevTicks;
+    private long[] prevTicks;
 
-    protected long[] curTicks;
+    private long[] curTicks;
 
     // Per-processor ticks [cpu][type]
-    protected long procTickTime;
+    private long procTickTime;
 
-    protected long[][] prevProcTicks;
+    private long[][] prevProcTicks;
 
-    protected long[][] curProcTicks;
+    private long[][] curProcTicks;
 
     // Processor info
-    protected String cpuVendor;
+    private String cpuVendor;
 
-    protected String cpuName;
+    private String cpuName;
 
     protected String cpuSerialNumber = null;
 
-    protected String cpuIdentifier;
+    private String cpuIdentifier;
 
-    protected String cpuStepping;
+    private String cpuStepping;
 
-    protected String cpuModel;
+    private String cpuModel;
 
-    protected String cpuFamily;
+    private String cpuFamily;
 
-    protected Long cpuVendorFreq;
+    private Long cpuVendorFreq;
 
-    protected Boolean cpu64;
+    private Boolean cpu64;
 
     /**
      * Create a Processor
@@ -130,15 +130,17 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Initializes tick arrays
      */
     protected synchronized void initTicks() {
+        // Per-processor ticks
+        this.prevProcTicks = new long[logicalProcessorCount][TickType.values().length];
+        this.curProcTicks = new long[logicalProcessorCount][TickType.values().length];
+        updateProcessorTicks();
+
+        // Solaris relies on procTicks init before system ticks
         // System ticks
         this.prevTicks = new long[TickType.values().length];
         this.curTicks = new long[TickType.values().length];
         updateSystemTicks();
 
-        // Per-processor ticks
-        this.prevProcTicks = new long[logicalProcessorCount][TickType.values().length];
-        this.curProcTicks = new long[logicalProcessorCount][TickType.values().length];
-        updateProcessorTicks();
     }
 
     /**

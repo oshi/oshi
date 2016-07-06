@@ -74,10 +74,7 @@ public class ExecutingCommand {
                 sa.add(line);
             }
             p.waitFor();
-        } catch (InterruptedException e) {
-            LOG.trace("", e);
-            return null;
-        } catch (IOException e) {
+        } catch (InterruptedException | IOException e) {
             LOG.trace("", e);
             return null;
         }

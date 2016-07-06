@@ -56,17 +56,17 @@ public class NetworksTest {
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
 
-            net.setBytesRecv(-10L);
-            net.setBytesSent(-20L);
-            net.setPacketsRecv(-30L);
-            net.setPacketsSent(-40L);
-            net.setSpeed(-50L);
+            net.setBytesRecv(10L);
+            net.setBytesSent(20L);
+            net.setPacketsRecv(30L);
+            net.setPacketsSent(40L);
+            net.setSpeed(50L);
 
-            assertEquals(-10L, net.getBytesRecv());
-            assertEquals(-20L, net.getBytesSent());
-            assertEquals(-30L, net.getPacketsRecv());
-            assertEquals(-40L, net.getPacketsSent());
-            assertEquals(-50L, net.getSpeed());
+            assertEquals(10L, net.getBytesRecv());
+            assertEquals(20L, net.getBytesSent());
+            assertEquals(30L, net.getPacketsRecv());
+            assertEquals(40L, net.getPacketsSent());
+            assertEquals(50L, net.getSpeed());
 
             net.updateNetworkStats();
             assertTrue(net.getBytesRecv() >= 0);
