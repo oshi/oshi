@@ -16,36 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi;
-
 /**
- * Enum of supported operating systems.
- * 
- * @author alessandro[at]perucchi[dot]org
+ * Provides utilities for FreeBSD
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
-}
+package oshi.util.platform.unix.freebsd;

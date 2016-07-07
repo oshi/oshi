@@ -25,11 +25,13 @@ import com.sun.jna.Platform;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
@@ -62,6 +64,8 @@ public class SystemInfo implements Serializable {
             currentPlatformEnum = PlatformEnum.MACOSX;
         } else if (Platform.isSolaris()) {
             currentPlatformEnum = PlatformEnum.SOLARIS;
+        } else if (Platform.isFreeBSD()) {
+            currentPlatformEnum = PlatformEnum.FREEBSD;
         } else {
             currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
@@ -96,8 +100,11 @@ public class SystemInfo implements Serializable {
             case SOLARIS:
                 this.os = new SolarisOperatingSystem();
                 break;
+            case FREEBSD:
+                this.os = new FreeBsdOperatingSystem();
+                break;
             default:
-                throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
+                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
             }
         }
         return this.os;
@@ -125,8 +132,11 @@ public class SystemInfo implements Serializable {
             case SOLARIS:
                 this.hardware = new SolarisHardwareAbstractionLayer();
                 break;
+            case FREEBSD:
+                this.hardware = new FreeBsdHardwareAbstractionLayer();
+                break;
             default:
-                throw new RuntimeException("Operating system not supported: " + Platform.getOSType());
+                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
             }
         }
         return this.hardware;
