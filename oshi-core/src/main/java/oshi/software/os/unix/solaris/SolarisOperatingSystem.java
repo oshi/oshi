@@ -148,7 +148,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getThreadCount() {
         ArrayList<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
-        if (threadList != null) {
+        if (!threadList.isEmpty()) {
             // Subtract 1 for header
             return threadList.size() - 1;
         }

@@ -90,49 +90,46 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
         // Get mount table
         ArrayList<String> mntTab = ExecutingCommand.runNative("cat /etc/mnttab");
-        if (mntTab != null) {
-            for (String fs : mntTab) {
-                String[] split = fs.split("\\s+");
-                if (split.length < 5) {
-                    continue;
-                }
-                // 1st field is volume name
-                // 2nd field is mount point
-                // 3rd field is fs type
-                // other fields ignored
-                String volume = split[0];
-                String path = split[1];
-                String type = split[2];
-
-                // Exclude pseudo file systems
-                if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
-                        || (volume.startsWith("rpool") && (!path.equals("/")))) {
-                    continue;
-                }
-
-                String name = path.substring(path.lastIndexOf("/") + 1);
-                // Special case for /, pull last element of volume instead
-                if (name.isEmpty()) {
-                    name = volume.substring(volume.lastIndexOf("/") + 1);
-                }
-                long totalSpace = new File(path).getTotalSpace();
-                long usableSpace = new File(path).getUsableSpace();
-
-                String description;
-                if (volume.startsWith("/dev") || path.equals("/")) {
-                    description = "Local Disk";
-                } else if (volume.equals("tmpfs")) {
-                    description = "Ram Disk";
-                } else if (type.startsWith("nfs") || type.equals("cifs")) {
-                    description = "Network Disk";
-                } else {
-                    description = "Mount Point";
-                }
-                // No UUID info on Solaris
-                OSFileStore osStore = new OSFileStore(name, volume, path, description, type, "", usableSpace,
-                        totalSpace);
-                fsList.add(osStore);
+        for (String fs : mntTab) {
+            String[] split = fs.split("\\s+");
+            if (split.length < 5) {
+                continue;
             }
+            // 1st field is volume name
+            // 2nd field is mount point
+            // 3rd field is fs type
+            // other fields ignored
+            String volume = split[0];
+            String path = split[1];
+            String type = split[2];
+
+            // Exclude pseudo file systems
+            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
+                    || (volume.startsWith("rpool") && (!path.equals("/")))) {
+                continue;
+            }
+
+            String name = path.substring(path.lastIndexOf("/") + 1);
+            // Special case for /, pull last element of volume instead
+            if (name.isEmpty()) {
+                name = volume.substring(volume.lastIndexOf("/") + 1);
+            }
+            long totalSpace = new File(path).getTotalSpace();
+            long usableSpace = new File(path).getUsableSpace();
+
+            String description;
+            if (volume.startsWith("/dev") || path.equals("/")) {
+                description = "Local Disk";
+            } else if (volume.equals("tmpfs")) {
+                description = "Ram Disk";
+            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+                description = "Network Disk";
+            } else {
+                description = "Mount Point";
+            }
+            // No UUID info on Solaris
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, "", usableSpace, totalSpace);
+            fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
     }
@@ -140,15 +137,13 @@ public class SolarisFileSystem extends AbstractFileSystem {
     @Override
     public long getOpenFileDescriptors() {
         ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        if (stats != null) {
-            for (String line : stats) {
-                String[] split = line.trim().split("\\s+");
-                if (split.length < 2) {
-                    break;
-                }
-                if (split[0].equals("buf_inuse")) {
-                    return ParseUtil.parseLongOrDefault(split[1], 0L);
-                }
+        for (String line : stats) {
+            String[] split = line.trim().split("\\s+");
+            if (split.length < 2) {
+                break;
+            }
+            if (split[0].equals("buf_inuse")) {
+                return ParseUtil.parseLongOrDefault(split[1], 0L);
             }
         }
         return 0L;
@@ -157,15 +152,13 @@ public class SolarisFileSystem extends AbstractFileSystem {
     @Override
     public long getMaxFileDescriptors() {
         ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        if (stats != null) {
-            for (String line : stats) {
-                String[] split = line.trim().split("\\s+");
-                if (split.length < 2) {
-                    break;
-                }
-                if (split[0].equals("buf_max")) {
-                    return ParseUtil.parseLongOrDefault(split[1], 0L);
-                }
+        for (String line : stats) {
+            String[] split = line.trim().split("\\s+");
+            if (split.length < 2) {
+                break;
+            }
+            if (split[0].equals("buf_max")) {
+                return ParseUtil.parseLongOrDefault(split[1], 0L);
             }
         }
         return 0L;

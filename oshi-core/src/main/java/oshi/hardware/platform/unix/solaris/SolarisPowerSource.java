@@ -52,53 +52,54 @@ public class SolarisPowerSource extends AbstractPowerSource {
     public static PowerSource[] getPowerSources() {
         SolarisPowerSource[] ps = new SolarisPowerSource[1];
         ArrayList<String> batInfo = ExecutingCommand.runNative("kstat -m acpi_drv");
-        if (batInfo == null || batInfo.isEmpty()) {
+        if (batInfo.isEmpty()) {
             batInfo = ExecutingCommand.runNative("kstat -m battery");
         }
-        // Initialize defaults
-        if (batInfo != null) {
-            boolean isCharging = false;
-            String name = "BST0";
-            int energyNow = -1;
-            // defaults to avoid divide by zero
-            int energyFull = 1;
-            int powerNow = 1;
-            for (String line : batInfo) {
-                String[] splitLine = line.trim().split("\\s+");
-                if (splitLine.length < 2) {
-                    break;
-                }
-                switch (splitLine[0]) {
-                case "bst_rate":
-                    // int rate in mA or mW
-                    powerNow = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                    break;
-                case "bif_last_cap":
-                    // full capacity in mAh or mWh
-                    energyFull = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                    break;
-                case "bif_rem_cap":
-                    // remaining capacity in mAh or mWh
-                    energyNow = ParseUtil.parseIntOrDefault(splitLine[1], 0);
-                    break;
-                case "bst_state":
-                    // bit 0 = discharging
-                    // bit 1 = charging
-                    // bit 2 = critical energy state
-                    isCharging = (ParseUtil.parseIntOrDefault(splitLine[1], 0) & 0x10) > 0;
-                    break;
-                default:
-                    // case "bif_unit"
-                    // 0 -> mW(h), 1 -> mA(h)
-                    // Math is the same in either case so we ignore it
-                }
-            }
-            if (energyNow < 0) {
-                return new SolarisPowerSource[0];
-            }
-            ps[0] = new SolarisPowerSource(name, (double) energyNow / energyFull,
-                    isCharging ? -2d : 3600d * energyNow / powerNow);
+        // If still empty...
+        if (batInfo.isEmpty()) {
+            return new SolarisPowerSource[0];
         }
+        boolean isCharging = false;
+        String name = "BST0";
+        int energyNow = -1;
+        // defaults to avoid divide by zero
+        int energyFull = 1;
+        int powerNow = 1;
+        for (String line : batInfo) {
+            String[] splitLine = line.trim().split("\\s+");
+            if (splitLine.length < 2) {
+                break;
+            }
+            switch (splitLine[0]) {
+            case "bst_rate":
+                // int rate in mA or mW
+                powerNow = ParseUtil.parseIntOrDefault(splitLine[1], 1);
+                break;
+            case "bif_last_cap":
+                // full capacity in mAh or mWh
+                energyFull = ParseUtil.parseIntOrDefault(splitLine[1], 1);
+                break;
+            case "bif_rem_cap":
+                // remaining capacity in mAh or mWh
+                energyNow = ParseUtil.parseIntOrDefault(splitLine[1], 0);
+                break;
+            case "bst_state":
+                // bit 0 = discharging
+                // bit 1 = charging
+                // bit 2 = critical energy state
+                isCharging = (ParseUtil.parseIntOrDefault(splitLine[1], 0) & 0x10) > 0;
+                break;
+            default:
+                // case "bif_unit"
+                // 0 -> mW(h), 1 -> mA(h)
+                // Math is the same in either case so we ignore it
+            }
+        }
+        if (energyNow < 0) {
+            return new SolarisPowerSource[0];
+        }
+        ps[0] = new SolarisPowerSource(name, (double) energyNow / energyFull,
+                isCharging ? -2d : 3600d * energyNow / powerNow);
         return ps;
     }
 }

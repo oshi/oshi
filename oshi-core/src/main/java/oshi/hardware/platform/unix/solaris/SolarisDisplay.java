@@ -55,7 +55,7 @@ public class SolarisDisplay extends AbstractDisplay {
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
-        if (xrandr != null) {
+        if (!xrandr.isEmpty()) {
             boolean foundEdid = false;
             StringBuilder sb = new StringBuilder();
             for (String s : xrandr) {

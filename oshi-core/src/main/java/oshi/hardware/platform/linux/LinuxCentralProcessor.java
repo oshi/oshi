@@ -281,12 +281,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             // If root privileges this will work
             ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
             String marker = "Serial Number:";
-            if (hwInfo != null) {
-                for (String checkLine : hwInfo) {
-                    if (checkLine.contains(marker)) {
-                        this.cpuSerialNumber = checkLine.split(marker)[1].trim();
-                        break;
-                    }
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains(marker)) {
+                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();
+                    break;
                 }
             }
             // if lshal command available (HAL deprecated in newer linuxes)

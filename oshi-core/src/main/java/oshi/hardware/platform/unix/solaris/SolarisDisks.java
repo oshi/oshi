@@ -44,17 +44,15 @@ public class SolarisDisks extends AbstractDisks {
 
         // First, run iostat -er to enumerate disks by name. Sample output:
         ArrayList<String> disks = ExecutingCommand.runNative("iostat -er");
-        if (disks != null) {
-            for (String line : disks) {
-                // The -r switch enables comma delimited for easy parsing!
-                String[] split = line.split(",");
-                if (split.length < 5 || split[0].equals("device")) {
-                    continue;
-                }
-                HWDiskStore store = new HWDiskStore();
-                store.setName(split[0]);
-                diskMap.put(split[0], store);
+        for (String line : disks) {
+            // The -r switch enables comma delimited for easy parsing!
+            String[] split = line.split(",");
+            if (split.length < 5 || split[0].equals("device")) {
+                continue;
             }
+            HWDiskStore store = new HWDiskStore();
+            store.setName(split[0]);
+            diskMap.put(split[0], store);
         }
 
         // Next, run iostat -Er to get model, etc.

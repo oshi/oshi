@@ -41,20 +41,18 @@ public class SolarisNetworks extends AbstractNetworks {
      */
     public static void updateNetworkStats(NetworkIF netIF) {
         ArrayList<String> stats = ExecutingCommand.runNative("kstat -p link::" + netIF.getName());
-        if (stats != null) {
-            for (String stat : stats) {
-                String[] split = stat.split("\\s+");
-                if (split[0].endsWith(":obytes") || split[0].endsWith(":obytes64")) {
-                    netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":rbytes") || split[0].endsWith(":rbytes64")) {
-                    netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":opackets") || split[0].endsWith(":opackets64")) {
-                    netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":ipackets") || split[0].endsWith(":ipackets64")) {
-                    netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":ifspeed")) {
-                    netIF.setSpeed(ParseUtil.parseLongOrDefault(split[1], 0L));
-                }
+        for (String stat : stats) {
+            String[] split = stat.split("\\s+");
+            if (split[0].endsWith(":obytes") || split[0].endsWith(":obytes64")) {
+                netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[1], 0L));
+            } else if (split[0].endsWith(":rbytes") || split[0].endsWith(":rbytes64")) {
+                netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
+            } else if (split[0].endsWith(":opackets") || split[0].endsWith(":opackets64")) {
+                netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[1], 0L));
+            } else if (split[0].endsWith(":ipackets") || split[0].endsWith(":ipackets64")) {
+                netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
+            } else if (split[0].endsWith(":ifspeed")) {
+                netIF.setSpeed(ParseUtil.parseLongOrDefault(split[1], 0L));
             }
         }
     }

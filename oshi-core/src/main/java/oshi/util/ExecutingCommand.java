@@ -42,8 +42,8 @@ public class ExecutingCommand {
      * 
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or null
-     *         if the command failed
+     * @return A list of Strings representing the result of the command, or
+     *         empty string if the command failed
      */
     public static ArrayList<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -55,8 +55,8 @@ public class ExecutingCommand {
      * 
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or null
-     *         if the command failed
+     * @return A list of Strings representing the result of the command, or
+     *         empty string if the command failed
      */
     public static ArrayList<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
@@ -64,7 +64,7 @@ public class ExecutingCommand {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("", e);
-            return null;
+            return new ArrayList<String>(0);
         }
 
         ArrayList<String> sa = new ArrayList<>();
@@ -76,7 +76,7 @@ public class ExecutingCommand {
             p.waitFor();
         } catch (InterruptedException | IOException e) {
             LOG.trace("", e);
-            return null;
+            return new ArrayList<String>(0);
         }
         return sa;
     }
@@ -86,7 +86,7 @@ public class ExecutingCommand {
      * 
      * @param cmd2launch
      *            String command to be launched
-     * @return String or null
+     * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
         return getAnswerAt(cmd2launch, 0);
@@ -100,16 +100,16 @@ public class ExecutingCommand {
      *            String command to be launched
      * @param answerIdx
      *            int index of line in response of the command
-     * @return String whole line in response or null if invalid index or running
-     *         of command fails
+     * @return String whole line in response or empty string if invalid index or
+     *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
         List<String> sa = ExecutingCommand.runNative(cmd2launch);
 
-        if (sa != null && answerIdx >= 0 && answerIdx < sa.size()) {
+        if (answerIdx >= 0 && answerIdx < sa.size()) {
             return sa.get(answerIdx);
         }
-        return null;
+        return "";
     }
 
 }

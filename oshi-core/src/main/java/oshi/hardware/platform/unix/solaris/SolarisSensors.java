@@ -36,17 +36,14 @@ public class SolarisSensors extends AbstractSensors {
     public double getCpuTemperature() {
         double maxTemp = 0d;
         ArrayList<String> temps = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor");
-        if (temps != null) {
-            // Return max found temp
-            for (String line : temps) {
-                if (line.trim().startsWith("Temperature:")) {
-                    int temp = ParseUtil.parseLastInt(line, 0);
-                    if (temp > maxTemp) {
-                        maxTemp = temp;
-                    }
+        // Return max found temp
+        for (String line : temps) {
+            if (line.trim().startsWith("Temperature:")) {
+                int temp = ParseUtil.parseLastInt(line, 0);
+                if (temp > maxTemp) {
+                    maxTemp = temp;
                 }
             }
-
         }
         // If it's in millidegrees:
         if (maxTemp > 1000) {
@@ -62,12 +59,10 @@ public class SolarisSensors extends AbstractSensors {
     public int[] getFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
         ArrayList<String> speeds = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan");
-        if (speeds != null) {
-            // Return max found temp
-            for (String line : speeds) {
-                if (line.trim().startsWith("Speed:")) {
-                    speedList.add(ParseUtil.parseLastInt(line, 0));
-                }
+        // Return max found temp
+        for (String line : speeds) {
+            if (line.trim().startsWith("Speed:")) {
+                speedList.add(ParseUtil.parseLastInt(line, 0));
             }
         }
         int[] fans = new int[speedList.size()];
@@ -85,14 +80,11 @@ public class SolarisSensors extends AbstractSensors {
         double voltage = 0d;
         ArrayList<String> volts = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor");
         // TODO This is entirely a guess!
-        if (volts != null) {
-            for (String line : volts) {
-                if (line.trim().startsWith("Voltage:")) {
-                    voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
-                    break;
-                }
+        for (String line : volts) {
+            if (line.trim().startsWith("Voltage:")) {
+                voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
+                break;
             }
-
         }
         return voltage;
     }

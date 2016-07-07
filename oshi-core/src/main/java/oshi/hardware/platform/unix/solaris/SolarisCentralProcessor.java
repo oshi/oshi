@@ -61,37 +61,32 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         List<String> cpuInfo = null;
         // TODO: Replace kstat command line with native kstat()
         cpuInfo = ExecutingCommand.runNative("kstat -m cpu_info");
-        if (cpuInfo != null) {
-            for (String line : cpuInfo) {
-                String[] splitLine = line.trim().split("\\s+");
-                if (splitLine.length < 2) {
-                    break;
-                }
-                switch (splitLine[0]) {
-                case "vendor_id":
-                    this.setVendor(line.replace("vendor_id", "").trim());
-                    break;
-                case "brand":
-                    this.setName(line.replace("brand", "").trim());
-                    break;
-                case "stepping":
-                    this.setStepping(splitLine[1]);
-                    break;
-                case "model":
-                    this.setModel(splitLine[1]);
-                    break;
-                case "family":
-                    this.setFamily(splitLine[1]);
-                    break;
-                default:
-                    // Do nothing
-                }
+        for (String line : cpuInfo) {
+            String[] splitLine = line.trim().split("\\s+");
+            if (splitLine.length < 2) {
+                break;
+            }
+            switch (splitLine[0]) {
+            case "vendor_id":
+                this.setVendor(line.replace("vendor_id", "").trim());
+                break;
+            case "brand":
+                this.setName(line.replace("brand", "").trim());
+                break;
+            case "stepping":
+                this.setStepping(splitLine[1]);
+                break;
+            case "model":
+                this.setModel(splitLine[1]);
+                break;
+            case "family":
+                this.setFamily(splitLine[1]);
+                break;
+            default:
+                // Do nothing
             }
         }
-        String bits = ExecutingCommand.getFirstAnswer("isainfo -b");
-        if (bits != null) {
-            this.setCpu64(bits.trim().equals("64"));
-        }
+        this.setCpu64(ExecutingCommand.getFirstAnswer("isainfo -b").trim().equals("64"));
     }
 
     /**
@@ -102,13 +97,11 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         this.physicalProcessorCount = 0;
         // Get number of logical processors
         List<String> procInfo = ExecutingCommand.runNative("psrinfo -pv");
-        if (procInfo != null) {
-            for (String cpu : procInfo) {
-                Matcher m = PSRINFO.matcher(cpu.trim());
-                if (m.matches()) {
-                    this.physicalProcessorCount++;
-                    this.logicalProcessorCount += ParseUtil.parseIntOrDefault(m.group(1), 0);
-                }
+        for (String cpu : procInfo) {
+            Matcher m = PSRINFO.matcher(cpu.trim());
+            if (m.matches()) {
+                this.physicalProcessorCount++;
+                this.logicalProcessorCount += ParseUtil.parseIntOrDefault(m.group(1), 0);
             }
         }
         if (this.logicalProcessorCount < 1) {
@@ -168,33 +161,31 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         // TODO: Replace kstat command line with native kstat()
         ArrayList<String> tickList = ExecutingCommand.runNative("kstat -p cpu::sys:/^cpu_ticks_/");
-        if (tickList != null) {
-            // Sample format (Solaris 11)
-            // cpu:0:sys:cpu_ticks_idle 8507532
-            // cpu:0:sys:cpu_ticks_kernel 141883
-            // cpu:0:sys:cpu_ticks_stolen 0
-            // cpu:0:sys:cpu_ticks_user 142482
-            // cpu:0:sys:cpu_ticks_wait 0
-            String instance = "";
-            int cpu = -1;
-            for (String s : tickList) {
-                Matcher m = CPU_TICKS.matcher(s);
-                if (m.matches()) {
-                    if (!m.group(1).equals(instance)) {
-                        // This is a new CPU
-                        if (++cpu >= ticks.length) {
-                            // Shouldn't happen
-                            break;
-                        }
-                        instance = m.group(1);
+        // Sample format (Solaris 11)
+        // cpu:0:sys:cpu_ticks_idle 8507532
+        // cpu:0:sys:cpu_ticks_kernel 141883
+        // cpu:0:sys:cpu_ticks_stolen 0
+        // cpu:0:sys:cpu_ticks_user 142482
+        // cpu:0:sys:cpu_ticks_wait 0
+        String instance = "";
+        int cpu = -1;
+        for (String s : tickList) {
+            Matcher m = CPU_TICKS.matcher(s);
+            if (m.matches()) {
+                if (!m.group(1).equals(instance)) {
+                    // This is a new CPU
+                    if (++cpu >= ticks.length) {
+                        // Shouldn't happen
+                        break;
                     }
-                    if (m.group(2).equals("idle")) {
-                        ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                    } else if (m.group(2).equals("kernel")) {
-                        ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                    } else if (m.group(2).equals("user")) {
-                        ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                    }
+                    instance = m.group(1);
+                }
+                if (m.group(2).equals("idle")) {
+                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
+                } else if (m.group(2).equals("kernel")) {
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
+                } else if (m.group(2).equals("user")) {
+                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
                 }
             }
         }
@@ -218,10 +209,10 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         // Returns a floating point decimal
         // TODO: Replace kstat command line with native kstat()
         String uptimeSecs = ExecutingCommand.getFirstAnswer("kstat -p unix:0:system_misc:snaptime");
-        if (uptimeSecs == null) {
+        String[] split = uptimeSecs.split("\\s+");
+        if (split.length < 2) {
             return 0d;
         }
-        String[] split = uptimeSecs.split("\\s+");
         return ParseUtil.parseDoubleOrDefault(split[1], 0d);
     }
 
@@ -233,12 +224,10 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (this.cpuSerialNumber == null) {
             ArrayList<String> hwInfo = ExecutingCommand.runNative("smbios -t SMB_TYPE_SYSTEM");
             String marker = "Serial Number:";
-            if (hwInfo != null) {
-                for (String checkLine : hwInfo) {
-                    if (checkLine.contains(marker)) {
-                        this.cpuSerialNumber = checkLine.split(marker)[1].trim();
-                        break;
-                    }
+            for (String checkLine : hwInfo) {
+                if (checkLine.contains(marker)) {
+                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();
+                    break;
                 }
             }
             // if that didn't work, try...
@@ -247,7 +236,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 this.cpuSerialNumber = ExecutingCommand.getFirstAnswer("sneep");
             }
             // if that didn't work, try...
-            if (this.cpuSerialNumber == null) {
+            if (this.cpuSerialNumber.isEmpty()) {
                 marker = "chassis-sn:";
                 hwInfo = ExecutingCommand.runNative("prtconf -pv");
                 if (hwInfo != null) {
@@ -255,13 +244,13 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                         if (checkLine.contains(marker)) {
                             String[] temp = checkLine.split(marker)[1].split("'");
                             // Format: '12345' (string)
-                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
+                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : "";
                             break;
                         }
                     }
                 }
             }
-            if (this.cpuSerialNumber == null) {
+            if (this.cpuSerialNumber.isEmpty()) {
                 this.cpuSerialNumber = "unknown";
             }
         }

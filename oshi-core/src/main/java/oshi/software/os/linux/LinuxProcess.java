@@ -107,7 +107,7 @@ public class LinuxProcess extends AbstractProcess {
         // Since we picked the youngest process, it's safe to assume an
         // etime close to 0 in case this command fails; the longer the system
         // has been up, the less impact this assumption will have
-        if (etime != null) {
+        if (!etime.isEmpty()) {
             LOG.debug("Etime is {} seconds", etime.trim());
             startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());
         }

@@ -265,28 +265,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     private boolean execLsbRelease() {
         List<String> osRelease = ExecutingCommand.runNative("lsb_release -a");
-        // null if failed
-        if (osRelease != null) {
-            // If description is of the format Distrib release x.x (Codename)
-            // that is primary, otherwise use Distributor ID: which returns the
-            // distribution concatenated, e.g., RedHat instead of Red Hat
-            for (String line : osRelease) {
-                if (line.startsWith("Description:")) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    line = line.replace("Description:", "").trim();
-                    if (line.contains(" release ")) {
-                        this.family = parseRelease(line, " release ");
-                    }
-                } else if (line.startsWith("Distributor ID:") && this.family == null) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    this.family = line.replace("Distributor ID:", "").trim();
-                } else if (line.startsWith("Release:") && this.versionId == null) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    this.versionId = line.replace("Release:", "").trim();
-                } else if (line.startsWith("Codename:") && this.codeName == null) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    this.codeName = line.replace("Codename:", "").trim();
+        // If description is of the format Distrib release x.x (Codename)
+        // that is primary, otherwise use Distributor ID: which returns the
+        // distribution concatenated, e.g., RedHat instead of Red Hat
+        for (String line : osRelease) {
+            if (line.startsWith("Description:")) {
+                LOG.debug("lsb_release -a: {}", line);
+                line = line.replace("Description:", "").trim();
+                if (line.contains(" release ")) {
+                    this.family = parseRelease(line, " release ");
                 }
+            } else if (line.startsWith("Distributor ID:") && this.family == null) {
+                LOG.debug("lsb_release -a: {}", line);
+                this.family = line.replace("Distributor ID:", "").trim();
+            } else if (line.startsWith("Release:") && this.versionId == null) {
+                LOG.debug("lsb_release -a: {}", line);
+                this.versionId = line.replace("Release:", "").trim();
+            } else if (line.startsWith("Codename:") && this.codeName == null) {
+                LOG.debug("lsb_release -a: {}", line);
+                this.codeName = line.replace("Codename:", "").trim();
             }
         }
         return this.family != null;

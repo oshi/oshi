@@ -168,25 +168,22 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      */
     private boolean execLsbRelease() {
         List<String> osRelease = ExecutingCommand.runNative("lsb_release -a");
-        // null if failed
-        if (osRelease != null) {
-            // If description is of the format Distrib release x.x (Codename)
-            // that is primary, otherwise use Distributor ID: which returns the
-            // distribution concatenated, e.g., RedHat instead of Red Hat
-            for (String line : osRelease) {
-                if (line.startsWith("Description:")) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    line = line.replace("Description:", "").trim();
-                    if (line.contains(" release ")) {
-                        this.version = parseRelease(line, " release ");
-                    }
-                } else if (line.startsWith("Release:") && this.version == null) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    this.version = line.replace("Release:", "").trim();
-                } else if (line.startsWith("Codename:") && this.codeName == null) {
-                    LOG.debug("lsb_release -a: {}", line);
-                    this.codeName = line.replace("Codename:", "").trim();
+        // If description is of the format Distrib release x.x (Codename)
+        // that is primary, otherwise use Distributor ID: which returns the
+        // distribution concatenated, e.g., RedHat instead of Red Hat
+        for (String line : osRelease) {
+            if (line.startsWith("Description:")) {
+                LOG.debug("lsb_release -a: {}", line);
+                line = line.replace("Description:", "").trim();
+                if (line.contains(" release ")) {
+                    this.version = parseRelease(line, " release ");
                 }
+            } else if (line.startsWith("Release:") && this.version == null) {
+                LOG.debug("lsb_release -a: {}", line);
+                this.version = line.replace("Release:", "").trim();
+            } else if (line.startsWith("Codename:") && this.codeName == null) {
+                LOG.debug("lsb_release -a: {}", line);
+                this.codeName = line.replace("Codename:", "").trim();
             }
         }
         return this.version != null;

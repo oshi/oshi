@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
@@ -39,7 +40,7 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private String parseCodeName() {
         String[] versionSplit = getVersion().split("\\.");
         if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
-            switch (Integer.parseInt(versionSplit[1])) {
+            switch (ParseUtil.parseIntOrDefault(versionSplit[1], -1)) {
             // MacOS
             case 12:
                 return "Sierra";
