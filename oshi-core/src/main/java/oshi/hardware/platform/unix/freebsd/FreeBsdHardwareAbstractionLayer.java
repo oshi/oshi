@@ -27,14 +27,14 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.solaris.SolarisCentralProcessor;
-import oshi.hardware.platform.unix.solaris.SolarisDisks;
-import oshi.hardware.platform.unix.solaris.SolarisDisplay;
-import oshi.hardware.platform.unix.solaris.SolarisGlobalMemory;
-import oshi.hardware.platform.unix.solaris.SolarisNetworks;
-import oshi.hardware.platform.unix.solaris.SolarisPowerSource;
-import oshi.hardware.platform.unix.solaris.SolarisSensors;
-import oshi.hardware.platform.unix.solaris.SolarisUsbDevice;
+import oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor;
+import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdDisplay;
+import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory;
+import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
+import oshi.hardware.platform.unix.freebsd.FreeBsdSensors;
+import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
 public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
@@ -46,7 +46,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
-            this.memory = new SolarisGlobalMemory();
+            this.memory = new FreeBsdGlobalMemory();
         }
         return this.memory;
     }
@@ -57,7 +57,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
-            this.processor = new SolarisCentralProcessor();
+            this.processor = new FreeBsdCentralProcessor();
         }
         return this.processor;
     }
@@ -67,7 +67,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public PowerSource[] getPowerSources() {
-        return SolarisPowerSource.getPowerSources();
+        return FreeBsdPowerSource.getPowerSources();
     }
 
     /**
@@ -75,7 +75,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new SolarisDisks().getDisks();
+        return new FreeBsdDisks().getDisks();
     }
 
     /**
@@ -83,7 +83,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public Display[] getDisplays() {
-        return SolarisDisplay.getDisplays();
+        return FreeBsdDisplay.getDisplays();
     }
 
     /**
@@ -92,7 +92,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
-            this.sensors = new SolarisSensors();
+            this.sensors = new FreeBsdSensors();
         }
         return this.sensors;
     }
@@ -102,7 +102,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-        return new SolarisNetworks().getNetworks();
+        return new FreeBsdNetworks().getNetworks();
     }
 
     /**
@@ -110,6 +110,6 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-        return SolarisUsbDevice.getUsbDevices(tree);
+        return FreeBsdUsbDevice.getUsbDevices(tree);
     }
 }

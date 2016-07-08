@@ -73,7 +73,7 @@ public class ParseUtil {
     /**
      * Used for matching
      */
-    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
+    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
 
     /**
      * Used to check validity of a hexadecimal string

@@ -26,10 +26,18 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.unix.freebsd.LibC;
+import oshi.jna.platform.unix.freebsd.LibC.CpTime;
+import oshi.jna.platform.unix.freebsd.LibC.Timeval;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.FileUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * A CPU
@@ -42,7 +50,11 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 
-    private static final Pattern PSRINFO = Pattern.compile(".*physical processor has (\\d+) virtual processors.*");
+    private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(?:0x)?(\\p{XDigit}+)\".*>.*</cpu>.*");
+
+    private static final Pattern CPUINFO = Pattern
+            .compile("Origin=\"([^\"]*)\".*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
+
     private static final Pattern CPU_TICKS = Pattern.compile("cpu:(\\d+):sys:cpu_ticks_(\\S*)\\s+(\\d+)");
 
     /**
@@ -58,52 +70,58 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     private void initVars() {
-        List<String> cpuInfo = null;
-        // TODO: Replace kstat command line with native kstat()
-        cpuInfo = ExecutingCommand.runNative("kstat -m cpu_info");
+        this.setName(BsdSysctlUtil.sysctl("hw.model", ""));
+        // This is apparently the only reliable source for this sstuff on
+        // FreeBSD...
+        List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot");
         for (String line : cpuInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
+            line = line.trim();
+            // Prefer hw.model to this one
+            if (line.startsWith("CPU:") && this.getName().isEmpty()) {
+                this.setName(line.replace("CPU:", "").trim());
+            } else if (line.startsWith("Origin=")) {
+                Matcher m = CPUINFO.matcher(line);
+                if (m.matches()) {
+                    this.setVendor(m.group(1));
+                    this.setFamily(Integer.decode(m.group(2)).toString());
+                    this.setModel(Integer.decode(m.group(3)).toString());
+                    this.setStepping(Integer.decode(m.group(4)).toString());
+                }
+                // No further interest in this file
                 break;
-            }
-            switch (splitLine[0]) {
-            case "vendor_id":
-                this.setVendor(line.replace("vendor_id", "").trim());
-                break;
-            case "brand":
-                this.setName(line.replace("brand", "").trim());
-                break;
-            case "stepping":
-                this.setStepping(splitLine[1]);
-                break;
-            case "model":
-                this.setModel(splitLine[1]);
-                break;
-            case "family":
-                this.setFamily(splitLine[1]);
-                break;
-            default:
-                // Do nothing
             }
         }
-        this.setCpu64(ExecutingCommand.getFirstAnswer("isainfo -b").trim().equals("64"));
+        this.setCpu64(ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64"));
     }
 
     /**
      * Updates logical and physical processor counts from psrinfo
      */
     protected void calculateProcessorCounts() {
-        this.logicalProcessorCount = 0;
-        this.physicalProcessorCount = 0;
-        // Get number of logical processors
-        List<String> procInfo = ExecutingCommand.runNative("psrinfo -pv");
-        for (String cpu : procInfo) {
-            Matcher m = PSRINFO.matcher(cpu.trim());
-            if (m.matches()) {
-                this.physicalProcessorCount++;
-                this.logicalProcessorCount += ParseUtil.parseIntOrDefault(m.group(1), 0);
+        String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
+        long physMask = 0;
+        long virtMask = 0;
+        long lastMask = 0;
+        for (String topo : topology) {
+            if (topo.contains("<cpu")) {
+                // Find <cpu> tag and extract bits
+                Matcher m = CPUMASK.matcher(topo);
+                if (m.matches()) {
+                    // Add this processor mask to cpus. Regex guarantees parsing
+                    lastMask = Long.parseLong(m.group(1), 16);
+                    physMask |= lastMask;
+                    virtMask |= lastMask;
+                }
+            } else if (topo.contains("<flags>")
+                    && (topo.contains("HTT") || topo.contains("SMT") || topo.contains("THREAD"))) {
+                // These are virtual cpus, remove processor mask from physical
+                physMask &= ~lastMask;
             }
         }
+
+        this.logicalProcessorCount = Long.bitCount(virtMask);
+        this.physicalProcessorCount = Long.bitCount(physMask);
+
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
@@ -120,14 +138,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public synchronized long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        // Average processor ticks
-        long[][] procTicks = getProcessorCpuLoadTicks();
-        for (int i = 0; i < ticks.length; i++) {
-            for (int cpu = 0; cpu < procTicks.length; cpu++) {
-                ticks[i] += procTicks[cpu][i];
-            }
-            ticks[i] /= procTicks.length;
-        }
+        CpTime cpTime = new CpTime();
+        BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
+        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[LibC.CP_USER];
+        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[LibC.CP_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[LibC.CP_SYS];
+        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[LibC.CP_INTR];
+        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[LibC.CP_IDLE];
         return ticks;
     }
 
@@ -144,7 +161,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             nelem = 3;
         }
         double[] average = new double[nelem];
-        int retval = Libc.INSTANCE.getloadavg(average, nelem);
+        int retval = LibC.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;
@@ -159,35 +176,24 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
-        // TODO: Replace kstat command line with native kstat()
-        ArrayList<String> tickList = ExecutingCommand.runNative("kstat -p cpu::sys:/^cpu_ticks_/");
-        // Sample format (Solaris 11)
-        // cpu:0:sys:cpu_ticks_idle 8507532
-        // cpu:0:sys:cpu_ticks_kernel 141883
-        // cpu:0:sys:cpu_ticks_stolen 0
-        // cpu:0:sys:cpu_ticks_user 142482
-        // cpu:0:sys:cpu_ticks_wait 0
-        String instance = "";
-        int cpu = -1;
-        for (String s : tickList) {
-            Matcher m = CPU_TICKS.matcher(s);
-            if (m.matches()) {
-                if (!m.group(1).equals(instance)) {
-                    // This is a new CPU
-                    if (++cpu >= ticks.length) {
-                        // Shouldn't happen
-                        break;
-                    }
-                    instance = m.group(1);
-                }
-                if (m.group(2).equals("idle")) {
-                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                } else if (m.group(2).equals("kernel")) {
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                } else if (m.group(2).equals("user")) {
-                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                }
-            }
+
+        // Allocate memory for array of CPTime
+        int offset = new CpTime().size();
+        int size = offset * this.logicalProcessorCount;
+        Pointer p = new Memory(size);
+        String name = "kern.cp_times";
+        // Fetch
+        if (0 != LibC.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {
+            LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
+            return ticks;
+        }
+        // p now points to the data; need to copy each element
+        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong(offset * cpu + LibC.CP_USER * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(offset * cpu + LibC.CP_NICE * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(offset * cpu + LibC.CP_SYS * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(offset * cpu + LibC.CP_INTR * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(offset * cpu + LibC.CP_IDLE * LibC.UINT64_SIZE);
         }
         return ticks;
     }
@@ -197,23 +203,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        return Math.round(getSystemUptimeAsDouble());
-    }
-
-    /**
-     * Gets system uptime in fractional seconds
-     * 
-     * @return a double representing system uptime in fractional seconds
-     */
-    private double getSystemUptimeAsDouble() {
-        // Returns a floating point decimal
-        // TODO: Replace kstat command line with native kstat()
-        String uptimeSecs = ExecutingCommand.getFirstAnswer("kstat -p unix:0:system_misc:snaptime");
-        String[] split = uptimeSecs.split("\\s+");
-        if (split.length < 2) {
-            return 0d;
+        Timeval tv = new Timeval();
+        if (!BsdSysctlUtil.sysctl("kern.boottime", tv)) {
+            return 0L;
         }
-        return ParseUtil.parseDoubleOrDefault(split[1], 0d);
+        // tv now points to a 16-bit timeval structure for boot time.
+        // First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
+        return System.currentTimeMillis() / 1000 - tv.tv_sec;
     }
 
     /**
@@ -222,7 +218,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("smbios -t SMB_TYPE_SYSTEM");
+            // If root privileges this will work
+            ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
             String marker = "Serial Number:";
             for (String checkLine : hwInfo) {
                 if (checkLine.contains(marker)) {
@@ -230,27 +227,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     break;
                 }
             }
-            // if that didn't work, try...
+            // if lshal command available (HAL deprecated in newer linuxes)
             if (this.cpuSerialNumber == null) {
-                // If they've installed STB (Sun Explorer) this should work
-                this.cpuSerialNumber = ExecutingCommand.getFirstAnswer("sneep");
-            }
-            // if that didn't work, try...
-            if (this.cpuSerialNumber.isEmpty()) {
-                marker = "chassis-sn:";
-                hwInfo = ExecutingCommand.runNative("prtconf -pv");
+                marker = "system.hardware.serial =";
+                hwInfo = ExecutingCommand.runNative("lshal");
                 if (hwInfo != null) {
                     for (String checkLine : hwInfo) {
                         if (checkLine.contains(marker)) {
                             String[] temp = checkLine.split(marker)[1].split("'");
                             // Format: '12345' (string)
-                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : "";
+                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
                             break;
                         }
                     }
                 }
             }
-            if (this.cpuSerialNumber.isEmpty()) {
+            if (this.cpuSerialNumber == null) {
                 this.cpuSerialNumber = "unknown";
             }
         }

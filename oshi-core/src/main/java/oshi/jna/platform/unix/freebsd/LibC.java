@@ -181,8 +181,8 @@ public interface LibC extends Library {
      * Return type for sysctl kern.boottime
      */
     class Timeval extends Structure {
-        public int tv_sec; // seconds
-        public int tv_usec; // microseconds
+        public long tv_sec; // seconds
+        public long tv_usec; // microseconds
 
         @Override
         protected List<String> getFieldOrder() {
@@ -430,12 +430,12 @@ public interface LibC extends Library {
     // host_statistics64()
     int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
 
-    // host_cpu_load_info()
-    int CPU_STATE_MAX = 4;
-    int CPU_STATE_USER = 0;
-    int CPU_STATE_SYSTEM = 1;
-    int CPU_STATE_IDLE = 2;
-    int CPU_STATE_NICE = 3;
+    int CPUSTATES = 5;
+    int CP_USER = 0;
+    int CP_NICE = 1;
+    int CP_SYS = 2;
+    int CP_INTR = 3;
+    int CP_IDLE = 4;
 
     // host_processor_info() flavor
     int PROCESSOR_BASIC_INFO = 1;
@@ -445,8 +445,8 @@ public interface LibC extends Library {
     int UINT64_SIZE = Native.getNativeSize(long.class);
     int INT_SIZE = Native.getNativeSize(int.class);
 
-    public static class HostCpuLoadInfo extends Structure {
-        public int cpu_ticks[] = new int[CPU_STATE_MAX];
+    public static class CpTime extends Structure {
+        public long cpu_ticks[] = new long[CPUSTATES];
 
         @Override
         protected List<String> getFieldOrder() {
