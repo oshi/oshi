@@ -18,13 +18,10 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
@@ -36,37 +33,21 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final long PAGESIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
-            4096L);
-
-    private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
+    private static final long PAGESIZE = BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateMeminfo() {
-        // TODO: Replace kstat command line with native kstat()
-        List<String> memInfo = ExecutingCommand.runNative("kstat -n system_pages");
-        if (memInfo.isEmpty()) {
-            return;
+        if (this.memTotal == 0L) {
+            this.memTotal = BsdSysctlUtil.sysctl("hw.physmem", 0L);
         }
-        for (String line : memInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "availrmem":
-                this.memAvailable = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
-                break;
-            case "physmem":
-                this.memTotal = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
-                break;
-            default:
-                // Do nothing
-            }
-        }
+        // get pages of available memory
+        long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
+        long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
+        long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
+        this.memAvailable = (inactive + cache + free) * PAGESIZE;
     }
 
     /**
@@ -74,17 +55,12 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     protected void updateSwap() {
-        List<String> swapInfo = ExecutingCommand.runNative("swap -lk");
-        if (swapInfo.isEmpty()) {
+        this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
+        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
+        String[] split = swapInfo.split("\\s+");
+        if (split.length < 5) {
             return;
         }
-        for (String line : swapInfo) {
-            Matcher m = SWAPINFO.matcher(line);
-            if (m.matches()) {
-                this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-                this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
-                break;
-            }
-        }
+        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
     }
 }

@@ -55,8 +55,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern CPUINFO = Pattern
             .compile("Origin=\"([^\"]*)\".*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
 
-    private static final Pattern CPU_TICKS = Pattern.compile("cpu:(\\d+):sys:cpu_ticks_(\\S*)\\s+(\\d+)");
-
     /**
      * Create a Processor
      */
