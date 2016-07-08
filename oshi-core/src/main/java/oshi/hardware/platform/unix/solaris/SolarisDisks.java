@@ -57,61 +57,59 @@ public class SolarisDisks extends AbstractDisks {
 
         // Next, run iostat -Er to get model, etc.
         disks = ExecutingCommand.runNative("iostat -Er");
-        if (disks != null) {
-            // We'll use Model if available, otherwise Vendor+Product
-            String disk = "";
-            String model = "";
-            String vendor = "";
-            String product = "";
-            String serial = "";
-            long size = 0;
-            for (String line : disks) {
-                // The -r switch enables comma delimited for easy parsing!
-                // No guarantees on which line the results appear so we'll nest
-                // a
-                // loop iterating on the comma splits
-                String[] split = line.split(",");
-                for (String keyValue : split) {
-                    keyValue = keyValue.trim();
-                    // If entry is tne name of a disk, this is beginning of new
-                    // output for that disk.
-                    if (diskMap.keySet().contains(keyValue)) {
-                        // First, if we have existing output from previous,
-                        // update
-                        if (!disk.isEmpty()) {
-                            updateStore(diskMap.get(disk), model, vendor, product, serial, size);
-                        }
-                        // Reset values for next iteration
-                        disk = keyValue;
-                        model = "";
-                        vendor = "";
-                        product = "";
-                        serial = "";
-                        size = 0L;
-                        continue;
+        // We'll use Model if available, otherwise Vendor+Product
+        String disk = "";
+        String model = "";
+        String vendor = "";
+        String product = "";
+        String serial = "";
+        long size = 0;
+        for (String line : disks) {
+            // The -r switch enables comma delimited for easy parsing!
+            // No guarantees on which line the results appear so we'll nest
+            // a
+            // loop iterating on the comma splits
+            String[] split = line.split(",");
+            for (String keyValue : split) {
+                keyValue = keyValue.trim();
+                // If entry is tne name of a disk, this is beginning of new
+                // output for that disk.
+                if (diskMap.keySet().contains(keyValue)) {
+                    // First, if we have existing output from previous,
+                    // update
+                    if (!disk.isEmpty()) {
+                        updateStore(diskMap.get(disk), model, vendor, product, serial, size);
                     }
-                    // Otherwise update variables
-                    if (keyValue.startsWith("Model:")) {
-                        model = keyValue.replace("Model:", "").trim();
-                    } else if (keyValue.startsWith("Serial No:")) {
-                        serial = keyValue.replace("Serial No:", "").trim();
-                    } else if (keyValue.startsWith("Vendor:")) {
-                        vendor = keyValue.replace("Vendor:", "").trim();
-                    } else if (keyValue.startsWith("Product:")) {
-                        product = keyValue.replace("Product:", "").trim();
-                    } else if (keyValue.startsWith("Size:")) {
-                        // Size: 1.23GB <1227563008 bytes>
-                        String[] bytes = keyValue.split("<");
-                        if (bytes.length > 1) {
-                            bytes = bytes[1].split("\\s+");
-                            size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
-                        }
+                    // Reset values for next iteration
+                    disk = keyValue;
+                    model = "";
+                    vendor = "";
+                    product = "";
+                    serial = "";
+                    size = 0L;
+                    continue;
+                }
+                // Otherwise update variables
+                if (keyValue.startsWith("Model:")) {
+                    model = keyValue.replace("Model:", "").trim();
+                } else if (keyValue.startsWith("Serial No:")) {
+                    serial = keyValue.replace("Serial No:", "").trim();
+                } else if (keyValue.startsWith("Vendor:")) {
+                    vendor = keyValue.replace("Vendor:", "").trim();
+                } else if (keyValue.startsWith("Product:")) {
+                    product = keyValue.replace("Product:", "").trim();
+                } else if (keyValue.startsWith("Size:")) {
+                    // Size: 1.23GB <1227563008 bytes>
+                    String[] bytes = keyValue.split("<");
+                    if (bytes.length > 1) {
+                        bytes = bytes[1].split("\\s+");
+                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
                     }
                 }
-                // At end of output update last entry
-                if (!disk.isEmpty()) {
-                    updateStore(diskMap.get(disk), model, vendor, product, serial, size);
-                }
+            }
+            // At end of output update last entry
+            if (!disk.isEmpty()) {
+                updateStore(diskMap.get(disk), model, vendor, product, serial, size);
             }
         }
 
@@ -121,17 +119,15 @@ public class SolarisDisks extends AbstractDisks {
         int index = 0;
         for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
             ArrayList<String> stats = ExecutingCommand.runNative("kstat -p ::" + entry.getKey());
-            if (stats != null) {
-                for (String line : stats) {
-                    String[] split = line.split("\\s+");
-                    if (split.length < 2) {
-                        continue;
-                    }
-                    if (split[0].endsWith(":nread")) {
-                        entry.getValue().setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
-                    } else if (split[0].endsWith(":nwritten")) {
-                        entry.getValue().setWrites(ParseUtil.parseLongOrDefault(split[1], 0L));
-                    }
+            for (String line : stats) {
+                String[] split = line.split("\\s+");
+                if (split.length < 2) {
+                    continue;
+                }
+                if (split[0].endsWith(":nread")) {
+                    entry.getValue().setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":nwritten")) {
+                    entry.getValue().setWrites(ParseUtil.parseLongOrDefault(split[1], 0L));
                 }
             }
             results[index++] = entry.getValue();

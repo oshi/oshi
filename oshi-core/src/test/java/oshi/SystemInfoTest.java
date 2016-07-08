@@ -165,8 +165,6 @@ public class SystemInfoTest {
         }
         System.out.println(sb.toString());
 
-        System.exit(0);
-
         // hardware: disks
         LOG.info("Checking Disks...");
         System.out.println("Disks:");
@@ -198,6 +196,7 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     fs.getVolume(), fs.getMount());
         }
+        System.exit(0);
 
         // hardware: network interfaces
         LOG.info("Checking Network interfaces...");
