@@ -34,17 +34,20 @@ public class FreeBsdProcess extends AbstractProcess {
     private static final long serialVersionUID = 1L;
 
     public FreeBsdProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long now) {
+            int priority, long virtualSize, long residentSetSize, long elapsedTime, long systemTime, long processTime,
+            long now) {
         this.name = name;
         this.path = path;
         switch (state) {
-        case 'O':
+        case 'R':
             this.state = OSProcess.State.RUNNING;
             break;
+        case 'I':
         case 'S':
             this.state = OSProcess.State.SLEEPING;
             break;
-        case 'R':
+        case 'D':
+        case 'L':
         case 'W':
             this.state = OSProcess.State.WAITING;
             break;
@@ -65,10 +68,10 @@ public class FreeBsdProcess extends AbstractProcess {
         // These are in KB, multiply
         this.virtualSize = virtualSize * 1024L;
         this.residentSetSize = residentSetSize * 1024L;
-        this.kernelTime = 0L; // No distinction in user/kernel
-        this.userTime = processTime * 1000L;
+        this.kernelTime = systemTime;
+        this.userTime = processTime - kernelTime;
         // Avoid divide by zero for processes up less than a second
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime * 1000L;
+        this.upTime = elapsedTime < 1L ? 1000L : elapsedTime * 1000;
         this.startTime = now - upTime;
     }
 }

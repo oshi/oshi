@@ -121,7 +121,6 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
-        System.exit(0);
 
         // Processes
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
@@ -144,6 +143,7 @@ public class SystemInfoTest {
         System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
         System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
         System.out.format(" CPU Voltage: %.1fV%n", hal.getSensors().getCpuVoltage());
+        System.exit(0);
 
         // hardware: power
         LOG.info("Checking Power sources...");

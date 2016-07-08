@@ -83,9 +83,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                     ParseUtil.parseIntOrDefault(split[4], 0), // priority
                     ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
                     ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                    // DHMS values are in seconds
-                    ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed time
-                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // process time
+                    ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
+                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
                     now //
             ));
         }
@@ -119,9 +118,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 ParseUtil.parseIntOrDefault(split[4], 0), // priority
                 ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
                 ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                // The below values are in seconds
-                ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed time
-                ParseUtil.parseDHMSOrDefault(split[8], 0L), // process time
+                ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
+                ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
                 System.currentTimeMillis() //
         );
     }

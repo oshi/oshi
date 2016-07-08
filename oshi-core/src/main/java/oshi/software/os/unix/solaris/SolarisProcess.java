@@ -66,9 +66,9 @@ public class SolarisProcess extends AbstractProcess {
         this.virtualSize = virtualSize * 1024L;
         this.residentSetSize = residentSetSize * 1024L;
         this.kernelTime = 0L; // No distinction in user/kernel
-        this.userTime = processTime * 1000L;
+        this.userTime = processTime;
         // Avoid divide by zero for processes up less than a second
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime * 1000L;
+        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - upTime;
     }
 }

@@ -33,7 +33,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final long PAGESIZE = BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+    private static final long PAGESIZE = BsdSysctlUtil.sysctl("hw.pagesize", 4096);
 
     /**
      * {@inheritDoc}

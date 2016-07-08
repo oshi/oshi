@@ -18,12 +18,12 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.jna.platform.unix.freebsd.LibC;
 
 public class FreeBsdSensors extends AbstractSensors {
 
@@ -34,22 +34,24 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        double maxTemp = 0d;
-        ArrayList<String> temps = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor");
-        // Return max found temp
-        for (String line : temps) {
-            if (line.trim().startsWith("Temperature:")) {
-                int temp = ParseUtil.parseLastInt(line, 0);
-                if (temp > maxTemp) {
-                    maxTemp = temp;
-                }
+        // Try with kldload coretemp
+        double sumTemp = 0d;
+        int cpu = 0;
+        String name = "dev.cpu.%d.temperature";
+        while (true) {
+            IntByReference size = new IntByReference(LibC.INT_SIZE);
+            Pointer p = new Memory(size.getValue());
+            if (0 != LibC.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
+                break;
             }
+            sumTemp += p.getInt(0) / 10d - 273.15;
+            cpu++;
         }
-        // If it's in millidegrees:
-        if (maxTemp > 1000) {
-            maxTemp /= 1000;
+        if (cpu > 0) {
+            return sumTemp / cpu;
         }
-        return maxTemp;
+        // TODO try other ways here
+        return 0d;
     }
 
     /**
@@ -57,18 +59,8 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        List<Integer> speedList = new ArrayList<>();
-        ArrayList<String> speeds = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan");
-        // Return max found temp
-        for (String line : speeds) {
-            if (line.trim().startsWith("Speed:")) {
-                speedList.add(ParseUtil.parseLastInt(line, 0));
-            }
-        }
-        int[] fans = new int[speedList.size()];
-        for (int i = 0; i < speedList.size(); i++) {
-            fans[i] = speedList.get(i);
-        }
+        // TODO try common software
+        int[] fans = new int[0];
         return fans;
     }
 
@@ -77,15 +69,8 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
+        // TODO try common software
         double voltage = 0d;
-        ArrayList<String> volts = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor");
-        // TODO This is entirely a guess!
-        for (String line : volts) {
-            if (line.trim().startsWith("Voltage:")) {
-                voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
-                break;
-            }
-        }
         return voltage;
     }
 }
