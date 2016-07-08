@@ -75,7 +75,7 @@ public class SystemInfoTest {
 
         System.out.println("Identifier: " + hal.getProcessor().getIdentifier());
         System.out.println("Serial Num: " + hal.getProcessor().getSystemSerialNumber());
-
+        System.exit(0);
         // hardware: memory
         LOG.info("Checking Memory...");
         System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"

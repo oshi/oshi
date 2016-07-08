@@ -20,19 +20,19 @@ package oshi.software.os.unix.freebsd;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ExecutingCommand;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
+    
+    
     public FreeBsdOSVersionInfoEx() {
-        // TODO use sysinfo() instead of commandline
-        String versionInfo = ExecutingCommand.getFirstAnswer("uname -rv");
-        String[] split = versionInfo.split("\\s+");
-        this.setVersion(split[0]);
-        if (split.length > 1) {
-            this.setBuildNumber(split[1]);
-        }
-        this.setCodeName("Solaris");
+        this.setVersion(BsdSysctlUtil.sysctl("kern.osrelease", ""));
+        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
+        String osType = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+        this.setBuildNumber(versionInfo.split(":")[0].replace(osType, "").replace(this.getVersion(), "").trim());
+        this.setCodeName("");
     }
 }

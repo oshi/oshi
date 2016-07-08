@@ -25,12 +25,13 @@ import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.solaris.SolarisFileSystem;
-import oshi.software.os.unix.solaris.SolarisOSVersionInfoEx;
-import oshi.software.os.unix.solaris.SolarisProcess;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdOSVersionInfoEx;
+import oshi.software.os.unix.freebsd.FreeBsdProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -43,9 +44,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
     public FreeBsdOperatingSystem() {
-        this.manufacturer = "Oracle";
-        this.family = "SunOS";
-        this.version = new SolarisOSVersionInfoEx();
+        this.manufacturer = "Unix/BSD";
+        this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+        this.version = new FreeBsdOSVersionInfoEx();
     }
 
     /**
@@ -53,7 +54,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public FileSystem getFileSystem() {
-        return new SolarisFileSystem();
+        return new FreeBsdFileSystem();
     }
 
     /**
@@ -77,7 +78,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             }
             String path = split[9];
             long now = System.currentTimeMillis();
-            procs.add(new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name
+            procs.add(new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
                     path, // path
                     split[0].charAt(0), // state, one of OSRTWZ
                     ParseUtil.parseIntOrDefault(split[1], 0), // pid
@@ -113,7 +114,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         String path = split[9];
-        return new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name
+        return new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
                 path, // path
                 split[0].charAt(0), // state, one of OSRTWZ
                 pid, // also split[1] but we already have

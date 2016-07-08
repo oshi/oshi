@@ -21,6 +21,7 @@ package oshi.jna.platform.unix.freebsd;
 import java.util.Arrays;
 import java.util.List;
 
+import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -34,8 +35,8 @@ import com.sun.jna.ptr.PointerByReference;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public interface LibC {
-    LibC INSTANCE = (LibC) Native.loadLibrary("System", LibC.class);
+public interface LibC extends Library {
+    LibC INSTANCE = (LibC) Native.loadLibrary("libc", LibC.class);
 
     // params.h
     int MAXCOMLEN = 16;
