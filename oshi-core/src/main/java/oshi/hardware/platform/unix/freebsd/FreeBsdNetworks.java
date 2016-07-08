@@ -18,8 +18,6 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
-
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.util.ExecutingCommand;
@@ -40,20 +38,15 @@ public class FreeBsdNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -p link::" + netIF.getName());
-        for (String stat : stats) {
-            String[] split = stat.split("\\s+");
-            if (split[0].endsWith(":obytes") || split[0].endsWith(":obytes64")) {
-                netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[1], 0L));
-            } else if (split[0].endsWith(":rbytes") || split[0].endsWith(":rbytes64")) {
-                netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
-            } else if (split[0].endsWith(":opackets") || split[0].endsWith(":opackets64")) {
-                netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[1], 0L));
-            } else if (split[0].endsWith(":ipackets") || split[0].endsWith(":ipackets64")) {
-                netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[1], 0L));
-            } else if (split[0].endsWith(":ifspeed")) {
-                netIF.setSpeed(ParseUtil.parseLongOrDefault(split[1], 0L));
-            }
+        String stats = ExecutingCommand.getAnswerAt("netstat -bI " + netIF.getName(), 1);
+        String[] split = stats.split("\\s+");
+        if (split.length < 12) {
+            // No update
+            return;
         }
+        netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[10], 0L));
+        netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));
+        netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));
+        netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));
     }
 }

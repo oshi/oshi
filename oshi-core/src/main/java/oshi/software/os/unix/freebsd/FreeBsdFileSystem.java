@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * The Solaris File System contains {@link OSFileStore}s which are a storage
@@ -161,31 +161,11 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_inuse")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
-        }
-        return 0L;
+        return BsdSysctlUtil.sysctl("kern.openfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_max")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
-        }
-        return 0L;
+        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
 }

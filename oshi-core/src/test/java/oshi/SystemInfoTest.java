@@ -196,7 +196,6 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     fs.getVolume(), fs.getMount());
         }
-        System.exit(0);
 
         // hardware: network interfaces
         LOG.info("Checking Network interfaces...");
@@ -217,6 +216,7 @@ public class SystemInfoTest {
                     hasData ? net.getPacketsSent() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
+        System.exit(0);
 
         // hardware: displays
         LOG.info("Checking Displays...");
