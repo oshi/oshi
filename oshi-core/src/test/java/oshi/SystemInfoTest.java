@@ -143,7 +143,6 @@ public class SystemInfoTest {
         System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
         System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
         System.out.format(" CPU Voltage: %.1fV%n", hal.getSensors().getCpuVoltage());
-        System.exit(0);
 
         // hardware: power
         LOG.info("Checking Power sources...");
@@ -165,6 +164,8 @@ public class SystemInfoTest {
             sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
         }
         System.out.println(sb.toString());
+
+        System.exit(0);
 
         // hardware: disks
         LOG.info("Checking Disks...");

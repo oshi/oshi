@@ -18,15 +18,12 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * A Power Source
@@ -41,7 +38,7 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
 
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized LinuxPowerSource");
+        LOG.debug("Initialized FreeBsdPowerSource");
     }
 
     /**
@@ -51,55 +48,14 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
      */
     public static PowerSource[] getPowerSources() {
         FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];
-        ArrayList<String> batInfo = ExecutingCommand.runNative("kstat -m acpi_drv");
-        if (batInfo.isEmpty()) {
-            batInfo = ExecutingCommand.runNative("kstat -m battery");
-        }
-        // If still empty...
-        if (batInfo.isEmpty()) {
-            return new FreeBsdPowerSource[0];
-        }
-        boolean isCharging = false;
-        String name = "BST0";
-        int energyNow = -1;
-        // defaults to avoid divide by zero
-        int energyFull = 1;
-        int powerNow = 1;
-        for (String line : batInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "bst_rate":
-                // int rate in mA or mW
-                powerNow = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                break;
-            case "bif_last_cap":
-                // full capacity in mAh or mWh
-                energyFull = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                break;
-            case "bif_rem_cap":
-                // remaining capacity in mAh or mWh
-                energyNow = ParseUtil.parseIntOrDefault(splitLine[1], 0);
-                break;
-            case "bst_state":
-                // bit 0 = discharging
-                // bit 1 = charging
-                // bit 2 = critical energy state
-                isCharging = (ParseUtil.parseIntOrDefault(splitLine[1], 0) & 0x10) > 0;
-                break;
-            default:
-                // case "bif_unit"
-                // 0 -> mW(h), 1 -> mA(h)
-                // Math is the same in either case so we ignore it
-            }
-        }
-        if (energyNow < 0) {
-            return new FreeBsdPowerSource[0];
-        }
-        ps[0] = new FreeBsdPowerSource(name, (double) energyNow / energyFull,
-                isCharging ? -2d : 3600d * energyNow / powerNow);
+        // state 0=full, 1=discharging, 2=charging
+        int state = BsdSysctlUtil.sysctl("hw.acpi.battery.state", 0);
+        // time is in minutes
+        int time = BsdSysctlUtil.sysctl("hw.acpi.battery.time", -1);
+        // life is in percent
+        int life = BsdSysctlUtil.sysctl("hw.acpi.battery.life", 100);
+        String name = "BAT0";
+        ps[0] = new FreeBsdPowerSource(name, life / 100d, (state == 2) ? -2d : 60d * time);
         return ps;
     }
 }
