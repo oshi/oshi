@@ -31,8 +31,8 @@ import oshi.util.ParseUtil;
 /**
  * The Solaris File System contains {@link OSFileStore}s which are a storage
  * pool, device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Linux, these are found in the /proc/mount
- * filesystem, excluding temporary and kernel mounts.
+ * specific means of file storage. In Solaris, these are found in the
+ * /proc/mount filesystem, excluding temporary and kernel mounts.
  *
  * @author widdis[at]gmail[dot]com
  */
@@ -40,7 +40,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
 
-    // Linux defines a set of virtual file systems
+    // Solaris defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(new String[] { //
             "proc", // Proc file system
             "devfs", // Dev temporary file system

@@ -21,7 +21,10 @@ package oshi.software.os.unix.freebsd;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -42,9 +45,10 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
 
     // Linux defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(new String[] { //
-            "proc", // Proc file system
+            "procfs", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
+            "fdescfs", // fd
             "objfs", // Object file system
             "mntfs", // Mount file system
             "sharefs", // Share file system
@@ -86,10 +90,23 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        // Find any UUIDs and map them
+        Map<String, String> uuidMap = new HashMap<>();
+        ArrayList<String> glabel = ExecutingCommand.runNative("glabel status");
+        for (String label : glabel) {
+            String[] split = label.split("\\s+");
+            if (split.length < 3) {
+                continue;
+            }
+            if (split[0].startsWith("gptid/")) {
+                uuidMap.put(split[2], split[0].replace("gptid/", ""));
+            }
+        }
+
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get mount table
-        ArrayList<String> mntTab = ExecutingCommand.runNative("cat /etc/mnttab");
+        ArrayList<String> mntTab = ExecutingCommand.runNative("mount -p");
         for (String fs : mntTab) {
             String[] split = fs.split("\\s+");
             if (split.length < 5) {
@@ -127,8 +144,16 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
             } else {
                 description = "Mount Point";
             }
-            // No UUID info on Solaris
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, "", usableSpace, totalSpace);
+            // Match UUID
+            String uuid = "";
+            for (Entry<String, String> entry : uuidMap.entrySet()) {
+                if (entry.getKey().startsWith(name)) {
+                    uuid = entry.getValue();
+                    break;
+                }
+            }
+
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
