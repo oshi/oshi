@@ -26,7 +26,6 @@ import java.util.Map;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.util.ExecutingCommand;
 
 public class SolarisUsbDevice extends AbstractUsbDevice {
@@ -64,7 +63,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // their connected devices will be
         for (UsbDevice device : devices) {
             deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), new SolarisUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList.toArray(new UsbDevice[deviceList.size()]);

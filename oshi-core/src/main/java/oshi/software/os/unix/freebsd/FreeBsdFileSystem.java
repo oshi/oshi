@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -90,16 +89,23 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        // Find any UUIDs and map them
+        // Find any partition UUIDs and map them
         Map<String, String> uuidMap = new HashMap<>();
-        ArrayList<String> glabel = ExecutingCommand.runNative("glabel status");
-        for (String label : glabel) {
-            String[] split = label.split("\\s+");
-            if (split.length < 3) {
+        // Now grab dmssg output
+        List<String> geom = ExecutingCommand.runNative("geom part list");
+        String device = "";
+        for (String line : geom) {
+            if (line.contains("Name: ")) {
+                device = line.substring(line.lastIndexOf(" ") + 1);
+            }
+            // If we aren't working with a current partition, continue
+            if (device.isEmpty()) {
                 continue;
             }
-            if (split[0].startsWith("gptid/")) {
-                uuidMap.put(split[2], split[0].replace("gptid/", ""));
+            line = line.trim();
+            if (line.startsWith("rawuuid:")) {
+                uuidMap.put(device, line.substring(line.lastIndexOf(" ") + 1));
+                device = "";
             }
         }
 
@@ -145,14 +151,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
                 description = "Mount Point";
             }
             // Match UUID
-            String uuid = "";
-            for (Entry<String, String> entry : uuidMap.entrySet()) {
-                if (entry.getKey().startsWith(name)) {
-                    uuid = entry.getValue();
-                    break;
-                }
-            }
-
+            String uuid = uuidMap.getOrDefault(name, "");
             OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }

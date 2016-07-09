@@ -42,7 +42,7 @@ public class FreeBsdDisplay extends AbstractDisplay {
 
     public FreeBsdDisplay(byte[] edid) {
         super(edid);
-        LOG.debug("Initialized SolarisDisplay");
+        LOG.debug("Initialized FreeBSDDisplay");
     }
 
     /**

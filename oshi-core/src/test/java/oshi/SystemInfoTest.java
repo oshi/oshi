@@ -216,7 +216,6 @@ public class SystemInfoTest {
                     hasData ? net.getPacketsSent() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
-        System.exit(0);
 
         // hardware: displays
         LOG.info("Checking Displays...");

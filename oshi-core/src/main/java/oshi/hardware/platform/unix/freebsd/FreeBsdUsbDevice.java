@@ -24,14 +24,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.util.ExecutingCommand;
 
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdUsbDevice.class);
 
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -55,6 +59,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
+
         UsbDevice[] devices = getUsbDevices();
         if (tree) {
             return devices;
@@ -64,7 +69,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         // their connected devices will be
         for (UsbDevice device : devices) {
             deviceList.add(new FreeBsdUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), new FreeBsdUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList.toArray(new UsbDevice[deviceList.size()]);
