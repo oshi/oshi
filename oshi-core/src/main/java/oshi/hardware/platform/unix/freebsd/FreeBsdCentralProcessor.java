@@ -69,7 +69,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private void initVars() {
         this.setName(BsdSysctlUtil.sysctl("hw.model", ""));
-        // This is apparently the only reliable source for this sstuff on
+        // This is apparently the only reliable source for this stuff on
         // FreeBSD...
         List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot");
         for (String line : cpuInfo) {
@@ -225,7 +225,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     break;
                 }
             }
-            // if lshal command available (HAL deprecated in newer linuxes)
+            // if lshal command available (hald must be manually installed)
             if (this.cpuSerialNumber == null) {
                 marker = "system.hardware.serial =";
                 hwInfo = ExecutingCommand.runNative("lshal");
