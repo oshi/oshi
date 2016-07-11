@@ -44,7 +44,7 @@ Currently supported platforms
 * Windows
 * Linux
 * macOS (OS X)
-* Solaris (SunOS) - beta<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+* Unix (Solaris, FreeBSD) <img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
 Currently supported features 
 --------------------------
