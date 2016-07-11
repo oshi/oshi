@@ -16,7 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.os.unix.freebsd;
 
 import oshi.software.common.AbstractProcess;
 import oshi.software.os.OSProcess;
@@ -29,22 +29,25 @@ import oshi.software.os.OSProcess;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class SolarisProcess extends AbstractProcess {
+public class FreeBsdProcess extends AbstractProcess {
 
     private static final long serialVersionUID = 1L;
 
-    public SolarisProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long now) {
+    public FreeBsdProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
+            int priority, long virtualSize, long residentSetSize, long elapsedTime, long systemTime, long processTime,
+            long now) {
         this.name = name;
         this.path = path;
         switch (state) {
-        case 'O':
+        case 'R':
             this.state = OSProcess.State.RUNNING;
             break;
+        case 'I':
         case 'S':
             this.state = OSProcess.State.SLEEPING;
             break;
-        case 'R':
+        case 'D':
+        case 'L':
         case 'W':
             this.state = OSProcess.State.WAITING;
             break;
@@ -65,10 +68,10 @@ public class SolarisProcess extends AbstractProcess {
         // These are in KB, multiply
         this.virtualSize = virtualSize * 1024L;
         this.residentSetSize = residentSetSize * 1024L;
-        this.kernelTime = 0L; // No distinction in user/kernel
-        this.userTime = processTime;
+        this.kernelTime = systemTime;
+        this.userTime = processTime - kernelTime;
         // Avoid divide by zero for processes up less than a second
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
+        this.upTime = elapsedTime < 1L ? 1000L : elapsedTime * 1000;
         this.startTime = now - upTime;
     }
 }

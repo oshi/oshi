@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
 import oshi.hardware.platform.linux.LinuxNetworks;
 import oshi.hardware.platform.mac.MacNetworks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
 
@@ -265,6 +266,9 @@ public class NetworkIF implements Serializable {
             break;
         case SOLARIS:
             SolarisNetworks.updateNetworkStats(this);
+            break;
+        case FREEBSD:
+            FreeBsdNetworks.updateNetworkStats(this);
             break;
         default:
             LOG.error("Unsupported platform. No update performed.");

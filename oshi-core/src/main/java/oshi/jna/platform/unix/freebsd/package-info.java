@@ -16,36 +16,9 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi;
-
 /**
- * Enum of supported operating systems.
- * 
- * @author alessandro[at]perucchi[dot]org
+ * Provides extensions of JNA libraries for FreeBSD. These classes should be
+ * considered non-API as they may be removed if/when their code is incorporated
+ * into the JNA project.
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
-}
+package oshi.jna.platform.unix.freebsd;

@@ -16,7 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.os.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -35,14 +35,14 @@ import oshi.util.platform.linux.ProcUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class SolarisOperatingSystem extends AbstractOperatingSystem {
+public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
-    public SolarisOperatingSystem() {
-        this.manufacturer = "Oracle";
-        this.family = "SunOS";
-        this.version = new SolarisOSVersionInfoEx();
+    public FreeBsdOperatingSystem() {
+        this.manufacturer = "Unix/BSD";
+        this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+        this.version = new FreeBsdOSVersionInfoEx();
     }
 
     /**
@@ -50,7 +50,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public FileSystem getFileSystem() {
-        return new SolarisFileSystem();
+        return new FreeBsdFileSystem();
     }
 
     /**
@@ -58,7 +58,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        ArrayList<String> procList = ExecutingCommand.runNative("ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm");
+        ArrayList<String> procList = ExecutingCommand
+                .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command");
         if (procList.isEmpty() || procList.size() < 2) {
             return new OSProcess[0];
         }
@@ -68,23 +69,25 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         for (String proc : procList) {
             String[] split = proc.trim().split("\\s+");
-            // Elements should match ps command order
-            if (split.length < 10) {
+            // Elements should match ps command order. Args will make split
+            // bigger than 11 but we ignore thems
+            if (split.length < 11) {
                 continue;
             }
-            String path = split[9];
+            String path = split[10];
             long now = System.currentTimeMillis();
-            procs.add(new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name
+            procs.add(new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
                     path, // path
-                    split[0].charAt(0), // state, one of OSRTWZ
+                    split[0].charAt(0), // state, one of DILRSTWZ
                     ParseUtil.parseIntOrDefault(split[1], 0), // pid
                     ParseUtil.parseIntOrDefault(split[2], 0), // ppid
                     ParseUtil.parseIntOrDefault(split[3], 0), // thread count
                     ParseUtil.parseIntOrDefault(split[4], 0), // priority
                     ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
                     ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                    ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
-                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
+                    ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
+                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
+                    ParseUtil.parseDHMSOrDefault(split[9], 0L), // usr+sys ms
                     now //
             ));
         }
@@ -98,28 +101,29 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess getProcess(int pid) {
         ArrayList<String> procList = ExecutingCommand
-                .runNative("ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p " + pid);
+                .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command -p " + pid);
         if (procList.isEmpty() || procList.size() < 2) {
             return null;
         }
         // remove header row
         String[] split = procList.get(1).trim().split("\\s+");
         // Elements should match ps command order
-        if (split.length < 10) {
+        if (split.length < 11) {
             return null;
         }
-        String path = split[9];
-        return new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name
+        String path = split[10];
+        return new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
                 path, // path
-                split[0].charAt(0), // state, one of OSRTWZ
+                split[0].charAt(0), // state, one of DILRSTWZ
                 pid, // also split[1] but we already have
                 ParseUtil.parseIntOrDefault(split[2], 0), // ppid
                 ParseUtil.parseIntOrDefault(split[3], 0), // thread count
                 ParseUtil.parseIntOrDefault(split[4], 0), // priority
                 ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
                 ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
-                ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
+                ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
+                ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
+                ParseUtil.parseDHMSOrDefault(split[9], 0L), // process ms
                 System.currentTimeMillis() //
         );
     }
@@ -137,7 +141,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-        return ProcUtil.getPidFiles().length;
+        ArrayList<String> procList = ExecutingCommand.runNative("ps -axo pid");
+        if (!procList.isEmpty()) {
+            // Subtract 1 for header
+            return procList.size() - 1;
+        }
+        return 0;
     }
 
     /**
@@ -145,11 +154,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-        ArrayList<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
-        if (!threadList.isEmpty()) {
-            // Subtract 1 for header
-            return threadList.size() - 1;
+        ArrayList<String> threadList = ExecutingCommand.runNative("ps -axo nlwp");
+        int threads = 0;
+        for (String proc : threadList) {
+            threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
         }
-        return getProcessCount();
+        return threads;
     }
 }

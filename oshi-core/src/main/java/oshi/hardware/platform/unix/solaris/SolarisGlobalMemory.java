@@ -74,17 +74,11 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     protected void updateSwap() {
-        List<String> swapInfo = ExecutingCommand.runNative("swap -lk");
-        if (swapInfo.isEmpty()) {
-            return;
-        }
-        for (String line : swapInfo) {
-            Matcher m = SWAPINFO.matcher(line);
-            if (m.matches()) {
-                this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-                this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
-                break;
-            }
+        String swapInfo = ExecutingCommand.getAnswerAt("swap -lk", 1);
+        Matcher m = SWAPINFO.matcher(swapInfo);
+        if (m.matches()) {
+            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
+            this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
         }
     }
 }

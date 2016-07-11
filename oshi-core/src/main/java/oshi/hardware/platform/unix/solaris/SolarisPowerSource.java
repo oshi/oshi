@@ -41,7 +41,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized LinuxPowerSource");
+        LOG.debug("Initialized SolarisPowerSource");
     }
 
     /**
@@ -60,7 +60,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
             return new SolarisPowerSource[0];
         }
         boolean isCharging = false;
-        String name = "BST0";
+        String name = "BAT0";
         int energyNow = -1;
         // defaults to avoid divide by zero
         int energyFull = 1;

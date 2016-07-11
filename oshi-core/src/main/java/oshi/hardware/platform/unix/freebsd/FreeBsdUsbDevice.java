@@ -16,7 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,12 +27,13 @@ import java.util.Map;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
-public class SolarisUsbDevice extends AbstractUsbDevice {
+public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+    public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
     }
@@ -41,19 +42,18 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * Maps to store information using node # as the key
      */
     private static Map<String, String> nameMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<>();
     private static Map<String, String> vendorIdMap = new HashMap<>();
     private static Map<String, String> productIdMap = new HashMap<>();
+    private static Map<String, String> serialMap = new HashMap<>();
+    private static Map<String, String> parentMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
-    private static Map<String, String> deviceTypeMap = new HashMap<>();
-    /*
-     * For parsing tree
-     */
-    private static Map<Integer, String> lastParent = new HashMap<>();
 
     /**
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
+
         UsbDevice[] devices = getUsbDevices();
         if (tree) {
             return devices;
@@ -62,8 +62,8 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
-            deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new SolarisUsbDevice[0]));
+            deviceList.add(new FreeBsdUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
+                    device.getProductId(), device.getSerialNumber(), new FreeBsdUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList.toArray(new UsbDevice[deviceList.size()]);
@@ -78,41 +78,32 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 
     private static UsbDevice[] getUsbDevices() {
         // Empty out maps
+        // Empty out maps
         nameMap.clear();
+        vendorMap.clear();
         vendorIdMap.clear();
         productIdMap.clear();
+        serialMap.clear();
         hubMap.clear();
+        parentMap.clear();
 
-        // Enumerate all usb devices and build information maps
-        List<String> devices = ExecutingCommand.runNative("prtconf -pv");
+        // Enumerate all devices and build information maps. This will build the
+        // entire device tree; we will identify the controllers as the parents
+        // of the usbus entries and eventually only populate the returned
+        // results with those
+        List<String> devices = ExecutingCommand.runNative("lshal");
         if (devices.isEmpty()) {
-            return new SolarisUsbDevice[0];
+            // TODO usbconfig, works as root
+            return new FreeBsdUsbDevice[0];
         }
         // For each item enumerated, store information in the maps
         String key = "";
-        int indent = 0;
-        List<String> usbControllers = new ArrayList<String>();
+        List<String> usBuses = new ArrayList<String>();
         for (String line : devices) {
-            // Node 0x... identifies start of a new tree
-            if (line.contains("Node 0x")) {
+            // udi = ... identifies start of a new tree
+            if (line.startsWith("udi =")) {
                 // Remove indent for key
-                key = line.replaceFirst("^\\s*", "");
-                // Calculate indent and store as last parent at this depth
-                int depth = (line.length() - key.length());
-                // Store first indent for future use
-                if (indent == 0) {
-                    indent = depth;
-                }
-                // Store this Node ID as parent at this depth
-                lastParent.put(depth, key);
-                // Add as child to appropriate parent
-                if (depth > indent) {
-                    // Has a parent. Get parent and add this node to child list
-                    hubMap.computeIfAbsent(lastParent.get(depth - indent), k -> new ArrayList<String>()).add(key);
-                } else {
-                    // No parent, add to controllers list
-                    usbControllers.add(key);
-                }
+                key = getLshalString(line);
                 continue;
             } else if (key.isEmpty()) {
                 // Ignore everything preceding the first node
@@ -121,36 +112,43 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             // We are currently processing for node identified by key. Save
             // approrpriate variables to maps.
             line = line.trim();
-            if (line.startsWith("model:")) {
-                nameMap.put(key, getPrtconfString(line));
-            } else if (line.startsWith("name:")) {
-                // Name is backup for model if model doesn't exist, so only
-                // put if key doesn't yet exist
-                nameMap.putIfAbsent(key, getPrtconfString(line));
-            } else if (line.startsWith("vendor-id:")) {
-                // Format: vendor-id: 00008086
-                if (line.length() > 4) {
-                    vendorIdMap.put(key, line.substring(line.length() - 4));
+            if (line.isEmpty()) {
+                continue;
+            } else if (line.startsWith("freebsd.driver =") && getLshalString(line).equals("usbus")) {
+                usBuses.add(key);
+            } else if (line.contains(".parent =")) {
+                String parent = getLshalString(line);
+                // If this is interface of parent, skip
+                if (key.replace(parent, "").startsWith("_if")) {
+                    continue;
                 }
-            } else if (line.startsWith("device-id:")) {
-                // Format: device-id: 00002440
-                if (line.length() > 4) {
-                    productIdMap.put(key, line.substring(line.length() - 4));
-                }
-            } else if (line.startsWith("device_type:")) {
-                // Name is backup for model if model doesn't exist, so only
-                // put if key doesn't yet exist
-                deviceTypeMap.putIfAbsent(key, getPrtconfString(line));
+                // Store parent for later usbus-skipping
+                parentMap.put(key, parent);
+                // Add this key to the parent's hubmap list
+                hubMap.computeIfAbsent(parent, k -> new ArrayList<String>()).add(key);
+            } else if (line.contains(".vendor =")) {
+                vendorMap.put(key, getLshalString(line));
+            } else if (line.contains(".product =")) {
+                nameMap.put(key, getLshalString(line));
+            } else if (line.contains(".serial =")) {
+                String serial = getLshalString(line);
+                serialMap.put(key,
+                        serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", "")) : serial);
+            } else if (line.contains(".vendor_id =")) {
+                vendorIdMap.put(key, getLshalIntAsHex(line));
+            } else if (line.contains(".product_id =")) {
+                vendorIdMap.put(key, getLshalIntAsHex(line));
             }
         }
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
-        for (String controller : usbControllers) {
-            // Only do controllers that are USB device type
-            if (deviceTypeMap.getOrDefault(controller, "").equals("usb")) {
-                controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
-            }
+        for (String usbus : usBuses) {
+            // Skip the usbuses: make their parents the controllers and replace
+            // parents' children with the buses' children
+            String parent = parentMap.get(usbus);
+            hubMap.put(parent, hubMap.get(usbus));
+            controllerDevices.add(getDeviceAndChildren(parent, "0000", "0000"));
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
     }
@@ -162,12 +160,27 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      *            The entire string from lshal
      * @return the value contained between single tick marks
      */
-    private static String getPrtconfString(String line) {
+    private static String getLshalString(String line) {
         String[] split = line.split("'");
         if (split.length < 2) {
             return "";
         }
         return split[1];
+    }
+
+    /**
+     * Parses a string key = 128 (0x80) (int)
+     * 
+     * @param line
+     *            The entire string from lshal
+     * @return a 4 digit hex string representing the int (e.g., "0080")
+     */
+    private static String getLshalIntAsHex(String line) {
+        String[] split = line.split("=|\\(");
+        if (split.length < 2) {
+            return "0000";
+        }
+        return String.format("%04x", ParseUtil.parseIntOrDefault(split[1].trim(), 0));
     }
 
     /**
@@ -182,16 +195,16 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      *            The default (parent) product ID
      * @return A SolarisUsbDevice corresponding to this device
      */
-    private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
+    private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
         String productId = productIdMap.getOrDefault(devPath, pid);
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
-        List<SolarisUsbDevice> usbDevices = new ArrayList<>();
+        List<FreeBsdUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vid, pid));
         }
         Collections.sort(usbDevices);
-        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
+        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
                 "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

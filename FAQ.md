@@ -38,7 +38,8 @@ What API features are not implemented on some operating systems?
 The following generally summarizes known exceptions. If you have missing data that is not on this list, please report it in an issue so we can investigate.
 * Windows does not provide a load average, so the Processor's `getSystemLoadAverage()` returns -1.
 * MacOS does not track time processors spend idle due to hard disk latency (iowait) or time spent processing hardware or software interrupts, and returns 0 for those associated tick values.
-* Windows sensor (temperature, fans, voltage) readings are drawn from Microsoft's Windows Management Instrumentation (WMI) API; however, most hardware manufacturers do not publish these readings to WMI. If a value is not available through the Microsoft API, Oshi will attempt to retrieve values as published by the [Open Hardware Monitor](http://openhardwaremonitor.org/) if it is running.
+* Windows sensor (temperature, fans, voltage) readings are drawn from Microsoft's Windows Management Instrumentation (WMI) API; however, most hardware manufacturers do not publish these readings to WMI. If a value is not available through the Microsoft API, Oshi will attempt to retrieve values as published by the [Open Hardware Monitor](http://openhardwaremonitor.org/) if it is running.  Only temperature sensors are detected on FreeBSD using `coretemp`.
+* Linux, Solaris, and FreeBSD may require either running as root or additional software installs for full capability, particularly HAL daemon (`hald`/`lshal`) and X (`xrandr`).
 
 Will you implement feature X?
 ========

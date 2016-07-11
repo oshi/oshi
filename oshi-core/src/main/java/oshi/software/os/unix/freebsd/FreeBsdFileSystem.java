@@ -16,35 +16,38 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.os.unix.freebsd;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * The Solaris File System contains {@link OSFileStore}s which are a storage
  * pool, device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Solaris, these are found in the
- * /proc/mount filesystem, excluding temporary and kernel mounts.
+ * specific means of file storage. In Linux, these are found in the /proc/mount
+ * filesystem, excluding temporary and kernel mounts.
  *
  * @author widdis[at]gmail[dot]com
  */
-public class SolarisFileSystem extends AbstractFileSystem {
+public class FreeBsdFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
 
-    // Solaris defines a set of virtual file systems
+    // Linux defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(new String[] { //
-            "proc", // Proc file system
+            "procfs", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
+            "fdescfs", // fd
             "objfs", // Object file system
             "mntfs", // Mount file system
             "sharefs", // Share file system
@@ -86,10 +89,30 @@ public class SolarisFileSystem extends AbstractFileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        // Find any partition UUIDs and map them
+        Map<String, String> uuidMap = new HashMap<>();
+        // Now grab dmssg output
+        List<String> geom = ExecutingCommand.runNative("geom part list");
+        String device = "";
+        for (String line : geom) {
+            if (line.contains("Name: ")) {
+                device = line.substring(line.lastIndexOf(" ") + 1);
+            }
+            // If we aren't working with a current partition, continue
+            if (device.isEmpty()) {
+                continue;
+            }
+            line = line.trim();
+            if (line.startsWith("rawuuid:")) {
+                uuidMap.put(device, line.substring(line.lastIndexOf(" ") + 1));
+                device = "";
+            }
+        }
+
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get mount table
-        ArrayList<String> mntTab = ExecutingCommand.runNative("cat /etc/mnttab");
+        ArrayList<String> mntTab = ExecutingCommand.runNative("mount -p");
         for (String fs : mntTab) {
             String[] split = fs.split("\\s+");
             if (split.length < 5) {
@@ -127,8 +150,9 @@ public class SolarisFileSystem extends AbstractFileSystem {
             } else {
                 description = "Mount Point";
             }
-            // No UUID info on Solaris
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, "", usableSpace, totalSpace);
+            // Match UUID
+            String uuid = uuidMap.getOrDefault(name, "");
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
@@ -136,31 +160,11 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_inuse")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
-        }
-        return 0L;
+        return BsdSysctlUtil.sysctl("kern.openfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_max")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
-        }
-        return 0L;
+        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
 }

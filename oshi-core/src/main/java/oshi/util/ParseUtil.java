@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +71,7 @@ public class ParseUtil {
     /**
      * Used for matching
      */
-    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz)");
+    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
 
     /**
      * Used to check validity of a hexadecimal string
@@ -244,11 +242,6 @@ public class ParseUtil {
      */
     private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
 
-    /*
-     * Pattern for [dd-[hh:[mm:ss]]]
-     */
-    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)");
-
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
      * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
@@ -284,12 +277,21 @@ public class ParseUtil {
      *         hexString
      */
     public static String hexStringToString(String hexString) {
+        int charAsInt;
+        StringBuilder sb = new StringBuilder();
         try {
-            return new String(DatatypeConverter.parseHexBinary(hexString));
-        } catch (IllegalArgumentException e) {
+            for (int pos = 0; pos < hexString.length(); pos += 2) {
+                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);
+                if (charAsInt < 32 || charAsInt > 127) {
+                    return hexString;
+                }
+                sb.append((char) charAsInt);
+            }
+        } catch (NumberFormatException e) {
             // Hex failed to parse, just return the existing string
             return hexString;
         }
+        return sb.toString();
     }
 
     /**
@@ -343,9 +345,14 @@ public class ParseUtil {
         }
     }
 
+    /*
+     * Pattern for [dd-[hh:[mm:ss]]]
+     */
+    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
+
     /**
-     * Attempts to parse a string of the form [DD-[hh:[mm:ss]]] to a number of
-     * seconds. If it fails, returns the default.
+     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number
+     * of milliseconds. If it fails, returns the default.
      * 
      * @param s
      *            The string to parse
@@ -355,18 +362,19 @@ public class ParseUtil {
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
         Matcher m = DHMS.matcher(s);
-        long seconds = 0L;
+        long milliseconds = 0L;
         if (m.matches()) {
             if (m.group(1) != null) {
-                seconds += parseLongOrDefault(m.group(1), 0L) * 86400L;
+                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;
             }
             if (m.group(2) != null) {
-                seconds += parseLongOrDefault(m.group(2), 0L) * 3600L;
+                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;
             }
-            seconds += parseLongOrDefault(m.group(3), 0L) * 60L;
-            seconds += parseLongOrDefault(m.group(4), 0L);
+            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
+            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
+            milliseconds += 1000 * parseDoubleOrDefault("0." + m.group(5), 0d);
         }
-        return seconds;
+        return milliseconds;
     }
 
 }
