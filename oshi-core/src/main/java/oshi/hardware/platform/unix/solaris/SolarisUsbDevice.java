@@ -122,19 +122,11 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             // approrpriate variables to maps.
             line = line.trim();
             if (line.startsWith("model:")) {
-                // Format: model: 'value'
-                String[] split = line.split("'");
-                if (split.length > 1) {
-                    nameMap.put(key, split[1]);
-                }
+                nameMap.put(key, getPrtconfString(line));
             } else if (line.startsWith("name:")) {
-                // Format: name: 'value'
-                String[] split = line.split("'");
-                if (split.length > 1) {
-                    // Name is backup for model if model doesn't exist, so only
-                    // put if key doesn't yet exist
-                    nameMap.putIfAbsent(key, split[1]);
-                }
+                // Name is backup for model if model doesn't exist, so only
+                // put if key doesn't yet exist
+                nameMap.putIfAbsent(key, getPrtconfString(line));
             } else if (line.startsWith("vendor-id:")) {
                 // Format: vendor-id: 00008086
                 if (line.length() > 4) {
@@ -146,13 +138,9 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                     productIdMap.put(key, line.substring(line.length() - 4));
                 }
             } else if (line.startsWith("device_type:")) {
-                // Format: device_type: 'value'
-                String[] split = line.split("'");
-                if (split.length > 1) {
-                    // Name is backup for model if model doesn't exist, so only
-                    // put if key doesn't yet exist
-                    deviceTypeMap.putIfAbsent(key, split[1]);
-                }
+                // Name is backup for model if model doesn't exist, so only
+                // put if key doesn't yet exist
+                deviceTypeMap.putIfAbsent(key, getPrtconfString(line));
             }
         }
 
@@ -165,6 +153,21 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             }
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
+    }
+
+    /**
+     * Parses a string key = 'value' (string)
+     * 
+     * @param line
+     *            The entire string from lshal
+     * @return the value contained between single tick marks
+     */
+    private static String getPrtconfString(String line) {
+        String[] split = line.split("'");
+        if (split.length < 2) {
+            return "";
+        }
+        return split[1];
     }
 
     /**
