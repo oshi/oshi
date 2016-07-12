@@ -32,11 +32,6 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-    }
-
     /*
      * Maps to store information using node # as the key
      */
@@ -49,6 +44,11 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * For parsing tree
      */
     private static Map<Integer, String> lastParent = new HashMap<>();
+
+    public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+    }
 
     /**
      * {@inheritDoc}

@@ -42,11 +42,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-    }
-
     /*
      * Maps to store information using RegistryEntryID as the key
      */
@@ -56,6 +51,11 @@ public class MacUsbDevice extends AbstractUsbDevice {
     private static Map<Long, String> productIdMap = new HashMap<>();
     private static Map<Long, String> serialMap = new HashMap<>();
     private static Map<Long, List<Long>> hubMap = new HashMap<>();
+
+    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+    }
 
     /**
      * {@inheritDoc}

@@ -32,27 +32,6 @@ public class LinuxBlockDevStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {
-        String devstat;
-        String[] splitstats;
-
-        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
-        splitstats = devstat.split("\\s+");
-
-        this.device = device;
-        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);
-        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);
-        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);
-        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);
-        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);
-        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);
-        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);
-        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);
-        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);
-        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);
-        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);
-    }
-
     // Device name
     public final String device;
     // Number of read I/Os processed
@@ -77,4 +56,26 @@ public class LinuxBlockDevStats implements Serializable {
     public final long active_ms;
     // Total wait time, milliseconds
     public final long waits_ms;
+
+    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {
+        String devstat;
+        String[] splitstats;
+
+        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
+        splitstats = devstat.split("\\s+");
+
+        this.device = device;
+        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);
+        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);
+        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);
+        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);
+        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);
+        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);
+        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);
+        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);
+        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);
+        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);
+        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);
+    }
+
 }

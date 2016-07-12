@@ -33,11 +33,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-    }
-
     /*
      * Maps to store information using node # as the key
      */
@@ -48,6 +43,11 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     private static Map<String, String> serialMap = new HashMap<>();
     private static Map<String, String> parentMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
+
+    public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+    }
 
     /**
      * {@inheritDoc}

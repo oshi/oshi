@@ -32,9 +32,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.freebsd.LibC;
-import oshi.jna.platform.unix.freebsd.LibC.CpTime;
-import oshi.jna.platform.unix.freebsd.LibC.Timeval;
+import oshi.jna.platform.unix.LibC;
+import oshi.jna.platform.unix.LibC.CpTime;
+import oshi.jna.platform.unix.LibC.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;

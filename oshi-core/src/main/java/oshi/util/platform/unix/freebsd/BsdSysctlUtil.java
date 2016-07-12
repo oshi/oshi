@@ -27,7 +27,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.unix.freebsd.LibC;
+import oshi.jna.platform.unix.LibC;
 
 /**
  * Provides access to sysctl calls on FreeBSD

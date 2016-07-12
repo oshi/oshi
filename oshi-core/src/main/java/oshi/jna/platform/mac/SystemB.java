@@ -45,6 +45,16 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     int PROC_PIDTBSDINFO = 3;
     int PROC_PIDTASKINFO = 4;
 
+    // length of fs type name including null
+    int MFSTYPENAMELEN = 16;
+    // length of buffer for returned name
+    int MNAMELEN = MAXPATHLEN;
+
+    // fsstat paths
+    int MNT_WAIT = 0x0001;
+    int MNT_NOWAIT = 0x0010;
+    int MNT_DWAIT = 0x0100;
+
     class ProcTaskAllInfo extends Structure {
         public ProcBsdInfo pbsd;
         public ProcTaskInfo ptinfo;
@@ -116,11 +126,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     "pti_syscalls_unix", "pti_csw", "pti_threadnum", "pti_numrunning", "pti_priority" });
         }
     };
-
-    // length of fs type name including null
-    int MFSTYPENAMELEN = 16;
-    // length of buffer for returned name
-    int MNAMELEN = MAXPATHLEN;
 
     /**
      * The statfs() routine returns information about a mounted file system. The
@@ -381,10 +386,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *         otherwise
      */
     int proc_pidpath(int pid, Pointer buffer, int buffersize);
-
-    int MNT_WAIT = 0x0001;
-    int MNT_NOWAIT = 0x0010;
-    int MNT_DWAIT = 0x0100;
 
     /**
      * The getfsstat() function returns information about all mounted file

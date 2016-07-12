@@ -201,7 +201,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.10</version>
+					<version>1.11</version>
 				</plugin>
 				<!-- Packaging types / tools -->
 				<plugin>
@@ -348,7 +348,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>findbugs-maven-plugin</artifactId>
-					<version>3.0.3</version>
+					<version>3.0.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
@@ -429,12 +429,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.9.4</version>
+					<version>1.9.5</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.scm</groupId>
 							<artifactId>maven-scm-provider-jgit</artifactId>
-							<version>1.9.4</version>
+							<version>1.9.5</version>
 						</dependency>
 						<dependency>
 							<groupId>com.googlecode.javaewah</groupId>

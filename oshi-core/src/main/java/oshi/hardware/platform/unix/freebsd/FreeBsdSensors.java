@@ -23,7 +23,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.freebsd.LibC;
+import oshi.jna.platform.unix.LibC;
 
 public class FreeBsdSensors extends AbstractSensors {
 

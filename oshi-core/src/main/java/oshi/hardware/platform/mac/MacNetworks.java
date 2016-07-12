@@ -49,9 +49,23 @@ public class MacNetworks extends AbstractNetworks {
     private static int RTM_IFINFO2 = 0x12;
 
     /**
+     * Update map no more frequently than 200ms.
+     * 
+     * Key is the index of the IF.
+     */
+    private static Map<Integer, IFdata> ifMap = new HashMap<>();
+    private static long lastIFmapTime = 0L;
+
+    /**
      * Class to store a subset of IF data in the ifMap
      */
     private static class IFdata {
+        public long oPackets;
+        public long iPackets;
+        public long oBytes;
+        public long iBytes;
+        public long speed;
+
         IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {
             this.oPackets = oPackets;
             this.iPackets = iPackets;
@@ -59,21 +73,7 @@ public class MacNetworks extends AbstractNetworks {
             this.iBytes = iBytes;
             this.speed = speed;
         }
-
-        long oPackets;
-        long iPackets;
-        long oBytes;
-        long iBytes;
-        long speed;
     }
-
-    /**
-     * Update map no more frequently than 200ms.
-     * 
-     * Key is the index of the IF.
-     */
-    private static Map<Integer, IFdata> ifMap = new HashMap<>();
-    private static long lastIFmapTime = 0L;
 
     /**
      * Map all network interfaces. Ported from source code of "netstat -ir". See

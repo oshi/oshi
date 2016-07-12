@@ -53,11 +53,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
-    public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-    }
-
     /*
      * Maps to store information using PNPDeviceID as the key
      */
@@ -65,6 +60,11 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static Map<String, String> vendorMap = new HashMap<>();
     private static Map<String, String> serialMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
+
+    public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+    }
 
     /**
      * {@inheritDoc}

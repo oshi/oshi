@@ -272,6 +272,7 @@ public class NetworkIF implements Serializable {
             break;
         default:
             LOG.error("Unsupported platform. No update performed.");
+            break;
         }
     }
 }

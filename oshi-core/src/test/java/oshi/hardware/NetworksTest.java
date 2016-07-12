@@ -76,12 +76,4 @@ public class NetworksTest {
             assertTrue(net.getSpeed() >= 0);
         }
     }
-
-    /**
-     * Updates interface network statistics on this interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
-     */
-    public void updateNetworkStats() {
-
-    }
 }

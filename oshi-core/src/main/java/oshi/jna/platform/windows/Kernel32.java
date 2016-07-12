@@ -31,6 +31,8 @@ import com.sun.jna.win32.W32APIOptions;
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
     Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, W32APIOptions.DEFAULT_OPTIONS);
 
+    int SEM_FAILCRITICALERRORS = 0x0001;
+
     // TODO: Submit this change to JNA Kernel32 class
     /**
      * Retrieves system timing information. On a multiprocessor system, the
@@ -62,8 +64,6 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      * @return The number of milliseconds.
      */
     long GetTickCount64();
-
-    int SEM_FAILCRITICALERRORS = 0x0001;
 
     /**
      * Controls whether the system will handle the specified types of serious

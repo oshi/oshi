@@ -36,11 +36,6 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-    }
-
     /*
      * Maps to store information using device node path as the key
      */
@@ -50,6 +45,11 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     private static Map<String, String> productIdMap = new HashMap<>();
     private static Map<String, String> serialMap = new HashMap<>();
     private static Map<String, List<String>> hubMap = new HashMap<>();
+
+    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+    }
 
     /**
      * {@inheritDoc}
