@@ -229,8 +229,15 @@ public class NetworkIF extends AbstractOshiJsonObject {
         case MACOSX:
             oshi.hardware.platform.mac.MacNetworks.updateNetworkStats(this.networkIf);
             break;
+        case SOLARIS:
+            oshi.hardware.platform.unix.solaris.SolarisNetworks.updateNetworkStats(this.networkIf);
+            break;
+        case FREEBSD:
+            oshi.hardware.platform.unix.freebsd.FreeBsdNetworks.updateNetworkStats(this.networkIf);
+            break;
         default:
             LOG.error("Unsupported platform. No update performed.");
+            break;
         }
     }
 

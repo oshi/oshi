@@ -68,7 +68,7 @@ public class FreeBsdDisks extends AbstractDisks {
         HWDiskStore store = null;
         for (String line : geom) {
             if (line.startsWith("Geom name:")) {
-                String device = line.substring(line.lastIndexOf(" ") + 1);
+                String device = line.substring(line.lastIndexOf(' ') + 1);
                 // Get the device.
                 if (devices.contains(device)) {
                     store = diskMap.get(device);

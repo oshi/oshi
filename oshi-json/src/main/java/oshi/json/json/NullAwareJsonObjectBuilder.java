@@ -31,6 +31,16 @@ import javax.json.JsonValue;
  * values properly
  */
 public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
+    /*
+     * Decorated object per Decorator Pattern.
+     */
+    private final JsonObjectBuilder builder;
+
+    // Private constructor that wraps the builder
+    private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {
+        this.builder = builder;
+    }
+
     /**
      * Wraps a {@link javax.json.JsonObjectBuilder}
      * 
@@ -43,14 +53,6 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
             throw new IllegalArgumentException("Can't wrap nothing.");
         }
         return new NullAwareJsonObjectBuilder(builder);
-    }
-
-    // Decorated object per Decorator Pattern.
-    private final JsonObjectBuilder builder;
-
-    // Private constructor that wraps the builder
-    private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {
-        this.builder = builder;
     }
 
     /**

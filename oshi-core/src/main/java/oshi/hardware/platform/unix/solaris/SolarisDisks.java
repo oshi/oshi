@@ -154,10 +154,7 @@ public class SolarisDisks extends AbstractDisks {
      *            size of the drive in bytes
      */
     private void updateStore(HWDiskStore store, String model, String vendor, String product, String serial, long size) {
-        if (model.isEmpty()) {
-            model = (vendor + " " + product).trim();
-        }
-        store.setModel(model);
+        store.setModel(model.isEmpty() ? (vendor + " " + product).trim() : model);
         store.setSerial(serial);
         store.setSize(size);
     }

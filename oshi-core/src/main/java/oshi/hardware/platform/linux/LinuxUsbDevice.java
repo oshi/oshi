@@ -171,7 +171,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vid, pid));
+            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
         return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),

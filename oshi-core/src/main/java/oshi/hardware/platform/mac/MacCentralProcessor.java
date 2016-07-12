@@ -106,12 +106,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-        if (nelem < 1) {
-            throw new IllegalArgumentException("Must include at least one element.");
-        }
-        if (nelem > 3) {
-            LOG.warn("Max elements of SystemLoadAverage is 3. " + nelem + " specified. Ignoring extra.");
-            nelem = 3;
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
         int retval = SystemB.INSTANCE.getloadavg(average, nelem);

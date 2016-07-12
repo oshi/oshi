@@ -98,11 +98,19 @@ public class WindowsFileSystem extends AbstractFileSystem {
      */
     private ArrayList<OSFileStore> getLocalVolumes() {
         ArrayList<OSFileStore> fs;
-        String volume, strFsType, strName, strMount;
+        String volume;
+        String strFsType;
+        String strName;
+        String strMount;
         WinNT.HANDLE hVol;
-        WinNT.LARGE_INTEGER userFreeBytes, totalBytes, systemFreeBytes;
+        WinNT.LARGE_INTEGER userFreeBytes;
+        WinNT.LARGE_INTEGER totalBytes;
+        WinNT.LARGE_INTEGER systemFreeBytes;
         boolean retVal;
-        char[] aVolume, fstype, name, mount;
+        char[] aVolume;
+        char[] fstype;
+        char[] name;
+        char[] mount;
 
         fs = new ArrayList<>();
         aVolume = new char[BUFSIZE];
@@ -161,7 +169,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
         Map<String, List<String>> drives;
         List<OSFileStore> fs;
         String volume;
-        long free, total;
+        long free;
+        long total;
 
         fs = new ArrayList<>();
 

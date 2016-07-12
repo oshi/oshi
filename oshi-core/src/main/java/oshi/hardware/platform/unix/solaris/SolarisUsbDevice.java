@@ -98,7 +98,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                 // Remove indent for key
                 key = line.replaceFirst("^\\s*", "");
                 // Calculate indent and store as last parent at this depth
-                int depth = (line.length() - key.length());
+                int depth = line.length() - key.length();
                 // Store first indent for future use
                 if (indent == 0) {
                     indent = depth;
@@ -188,7 +188,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<SolarisUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vid, pid));
+            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
         return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,

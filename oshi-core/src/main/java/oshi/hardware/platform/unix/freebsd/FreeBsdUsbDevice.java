@@ -201,7 +201,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<FreeBsdUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vid, pid));
+            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
         return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,

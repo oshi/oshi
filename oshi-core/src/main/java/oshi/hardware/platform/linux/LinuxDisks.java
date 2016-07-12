@@ -59,7 +59,8 @@ public class LinuxDisks extends AbstractDisks {
         Udev.UdevHandle handle = null;
         Udev.UdevDevice device = null;
         Udev.UdevEnumerate enumerate = null;
-        Udev.UdevListEntry entry, oldEntry;
+        Udev.UdevListEntry entry;
+        Udev.UdevListEntry oldEntry;
 
         result = new ArrayList<>();
 

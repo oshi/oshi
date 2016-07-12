@@ -71,7 +71,7 @@ public interface CentralProcessor extends Serializable {
 
         private int index;
 
-        private TickType(int value) {
+        TickType(int value) {
             this.index = value;
         }
 

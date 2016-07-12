@@ -109,10 +109,10 @@ public class SolarisFileSystem extends AbstractFileSystem {
                 continue;
             }
 
-            String name = path.substring(path.lastIndexOf("/") + 1);
+            String name = path.substring(path.lastIndexOf('/') + 1);
             // Special case for /, pull last element of volume instead
             if (name.isEmpty()) {
-                name = volume.substring(volume.lastIndexOf("/") + 1);
+                name = volume.substring(volume.lastIndexOf('/') + 1);
             }
             long totalSpace = new File(path).getTotalSpace();
             long usableSpace = new File(path).getUsableSpace();

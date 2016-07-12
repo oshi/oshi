@@ -101,7 +101,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     // Kernel and User time units are 100ns
                     ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
                     ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
-                    ((Long) procs.get("CreationDate").get(p)), now));
+                    (Long) procs.get("CreationDate").get(p), now));
         }
 
         return procList;

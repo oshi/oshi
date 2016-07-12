@@ -169,12 +169,14 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
             }
         }
+        // Return max of limit or process size
         // Nonpositive limit means return all
-        if (limit <= 0) {
-            limit = Integer.MAX_VALUE;
+        int maxProcs = processes.size();
+        if (limit > 0 && maxProcs > limit) {
+            maxProcs = limit;
         }
         List<OSProcess> procs = new ArrayList<>();
-        for (int i = 0; i < limit && i < processes.size(); i++) {
+        for (int i = 0; i < maxProcs; i++) {
             procs.add(processes.get(i));
         }
         return procs;
@@ -183,11 +185,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getManufacturer());
-        sb.append(" ");
-        sb.append(getFamily());
-        sb.append(" ");
-        sb.append(getVersion().toString());
+        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
         return sb.toString();
     }
 }

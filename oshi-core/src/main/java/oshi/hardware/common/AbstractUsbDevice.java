@@ -129,13 +129,13 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         StringBuilder sb = new StringBuilder(String.format(indentFmt, ""));
         sb.append(usbDevice.getName());
         if (usbDevice.getVendor().length() > 0) {
-            sb.append(" (").append(usbDevice.getVendor()).append(")");
+            sb.append(" (").append(usbDevice.getVendor()).append(')');
         }
         if (usbDevice.getSerialNumber().length() > 0) {
-            sb.append(" [s/n: ").append(usbDevice.getSerialNumber()).append("]");
+            sb.append(" [s/n: ").append(usbDevice.getSerialNumber()).append(']');
         }
         for (UsbDevice connected : usbDevice.getConnectedDevices()) {
-            sb.append("\n").append(indentUsb(connected, indent + 4));
+            sb.append('\n').append(indentUsb(connected, indent + 4));
         }
         return sb.toString();
     }

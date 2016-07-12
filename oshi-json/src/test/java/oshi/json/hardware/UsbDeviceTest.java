@@ -35,8 +35,8 @@ public class UsbDeviceTest {
     @Test
     public void testUsbDevices() {
         SystemInfo si = new SystemInfo();
-
         for (UsbDevice usb : si.getHardware().getUsbDevices(true)) {
+            assertNotNull(usb);
             testUsbRecursive(usb);
         }
     }

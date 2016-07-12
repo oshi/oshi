@@ -142,11 +142,12 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * 
      * @param deviceId
      *            The device to add respective children to the map
-     * @param devInst
+     * @param deviceInstance
      *            The device instance (devnode handle), if known. If set to 0,
      *            the code will search for a match.
      */
-    private static void putChildrenInDeviceTree(String deviceId, int devInst) {
+    private static void putChildrenInDeviceTree(String deviceId, int deviceInstance) {
+        int devInst = deviceInstance;
         // If no devInst provided, find it by matching deviceId
         if (devInst == 0) {
             // Get a handle to the device with this deviceId

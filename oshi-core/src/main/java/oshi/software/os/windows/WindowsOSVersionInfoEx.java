@@ -125,7 +125,8 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
                     return "NT4 SP6a";
                 }
             } else {
-                throw new RuntimeException("Unsupported Windows NT version: " + this.versionInfo.toString());
+                throw new UnsupportedOperationException(
+                        "Unsupported Windows NT version: " + this.versionInfo.toString());
             }
 
             if (this.versionInfo.wServicePackMajor.intValue() > 0) {
@@ -148,10 +149,11 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
                     version = "95";
                 }
             } else {
-                throw new RuntimeException("Unsupported Windows 9x version: " + this.versionInfo.toString());
+                throw new UnsupportedOperationException(
+                        "Unsupported Windows 9x version: " + this.versionInfo.toString());
             }
         } else {
-            throw new RuntimeException("Unsupported Windows platform: " + this.versionInfo.toString());
+            throw new UnsupportedOperationException("Unsupported Windows platform: " + this.versionInfo.toString());
         }
 
         return version;

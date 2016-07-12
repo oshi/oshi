@@ -362,7 +362,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // Calculate total
         long total = 0;
         for (int i = 0; i < curTicks.length; i++) {
-            total += (curTicks[i] - prevTicks[i]);
+            total += curTicks[i] - prevTicks[i];
         }
         // Calculate idle from difference in idle and IOwait
         long idle = curTicks[TickType.IDLE.getIndex()] + curTicks[TickType.IOWAIT.getIndex()]
@@ -453,7 +453,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
             long total = 0;
             for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
-                total += (this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i]);
+                total += this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i];
             }
             // Calculate idle from difference in idle and IOwait
             long idle = this.curProcTicks[cpu][TickType.IDLE.getIndex()]

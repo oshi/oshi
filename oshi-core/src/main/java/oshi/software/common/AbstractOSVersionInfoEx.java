@@ -90,7 +90,7 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
         if (this.versionStr == null) {
             StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : "Unknown");
             if (getCodeName().length() > 0) {
-                sb.append(" (").append(getCodeName()).append(")");
+                sb.append(" (").append(getCodeName()).append(')');
             }
             if (getBuildNumber().length() > 0) {
                 sb.append(" build ").append(getBuildNumber());

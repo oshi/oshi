@@ -258,7 +258,7 @@ public class EdidUtil {
         StringBuilder sb = new StringBuilder();
         sb.append("  Manuf. ID=").append(EdidUtil.getManufacturerID(edid)).append(", Product ID=")
                 .append(EdidUtil.getProductID(edid)).append(", ")
-                .append((EdidUtil.isDigital(edid) ? "Digital" : "Analog")).append(", Serial=")
+                .append(EdidUtil.isDigital(edid) ? "Digital" : "Analog").append(", Serial=")
                 .append(EdidUtil.getSerialNo(edid)).append(", ManufDate=")
                 .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + "/").append(EdidUtil.getYear(edid)).append(", EDID v")
                 .append(EdidUtil.getVersion(edid));
@@ -292,6 +292,7 @@ public class EdidUtil {
                 } else {
                     sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(desc[d]));
                 }
+                break;
             }
         }
         return sb.toString();

@@ -30,11 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.json.hardware.CentralProcessor;
 import oshi.json.hardware.Display;
+import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;
+import oshi.json.hardware.Sensors;
 import oshi.json.hardware.UsbDevice;
 import oshi.json.software.os.FileSystem;
 import oshi.json.software.os.OSFileStore;
@@ -66,39 +69,77 @@ public class SystemInfoTest {
         LOG.info("Initializing System...");
         SystemInfo si = new SystemInfo();
 
-        // software
-        // software: operating system
+        HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
 
-        // hardware
-        HardwareAbstractionLayer hal = si.getHardware();
+        printProcessor(hal.getProcessor());
 
-        // hardware: processors
-        System.out.println(hal.getProcessor());
-        System.out.println(" " + hal.getProcessor().getPhysicalProcessorCount() + " physical CPU(s)");
-        System.out.println(" " + hal.getProcessor().getLogicalProcessorCount() + " logical CPU(s)");
-
-        System.out.println("Identifier: " + hal.getProcessor().getIdentifier());
-        System.out.println("Serial Num: " + hal.getProcessor().getSystemSerialNumber());
-
-        // hardware: memory
         LOG.info("Checking Memory...");
-        System.out.println("Memory: " + FormatUtil.formatBytes(hal.getMemory().getAvailable()) + "/"
-                + FormatUtil.formatBytes(hal.getMemory().getTotal()));
-        System.out.println("Swap used: " + FormatUtil.formatBytes(hal.getMemory().getSwapUsed()) + "/"
-                + FormatUtil.formatBytes(hal.getMemory().getSwapTotal()));
-        // uptime
-        LOG.info("Checking Uptime...");
-        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(hal.getProcessor().getSystemUptime()));
+        printMemory(hal.getMemory());
 
-        // CPU
         LOG.info("Checking CPU...");
-        long[] prevTicks = hal.getProcessor().getSystemCpuLoadTicks();
+        printCpu(hal.getProcessor());
+
+        LOG.info("Checking Processes...");
+        printProcesses(os, hal.getMemory());
+
+        LOG.info("Checking Sensors...");
+        printSensors(hal.getSensors());
+
+        LOG.info("Checking Power sources...");
+        printPowerSources(hal.getPowerSources());
+
+        LOG.info("Checking Disks...");
+        printDisks(hal.getDiskStores());
+
+        LOG.info("Checking File System...");
+        printFileSystem(os.getFileSystem());
+
+        LOG.info("Checking Network interfaces...");
+        printNetworkInterfaces(hal.getNetworkIFs());
+
+        // hardware: displays
+        LOG.info("Checking Displays...");
+        printDisplays(hal.getDisplays());
+
+        // hardware: USB devices
+        LOG.info("Checking USB Devices...");
+        printUsbDevices(hal.getUsbDevices(true));
+
+        LOG.info("Printing JSON:");
+        // Load properties from this file on the classpath
+        Properties props = PropertiesUtil.loadProperties("oshi.json.properties");
+        // Pretty JSON
+        System.out.println(si.toPrettyJSON(props));
+        // Compact JSON
+        // System.out.println(si.toCompactJSON(props));
+    }
+
+    private static void printProcessor(CentralProcessor processor) {
+        System.out.println(processor);
+        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
+
+        System.out.println("Identifier: " + processor.getIdentifier());
+        System.out.println("Serial Num: " + processor.getSystemSerialNumber());
+    }
+
+    private static void printMemory(GlobalMemory memory) {
+        System.out.println("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
+                + FormatUtil.formatBytes(memory.getTotal()));
+        System.out.println("Swap used: " + FormatUtil.formatBytes(memory.getSwapUsed()) + "/"
+                + FormatUtil.formatBytes(memory.getSwapTotal()));
+    }
+
+    private static void printCpu(CentralProcessor processor) {
+        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(processor.getSystemUptime()));
+
+        long[] prevTicks = processor.getSystemCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
-        long[] ticks = hal.getProcessor().getSystemCpuLoadTicks();
+        long[] ticks = processor.getSystemCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
         long user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
         long nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
@@ -113,22 +154,22 @@ public class SystemInfoTest {
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%%%n",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu);
-        System.out.format("CPU load: %.1f%% (counting ticks)%n",
-                hal.getProcessor().getSystemCpuLoadBetweenTicks() * 100);
-        System.out.format("CPU load: %.1f%% (OS MXBean)%n", hal.getProcessor().getSystemCpuLoad() * 100);
-        double[] loadAverage = hal.getProcessor().getSystemLoadAverage(3);
+        System.out.format("CPU load: %.1f%% (counting ticks)%n", processor.getSystemCpuLoadBetweenTicks() * 100);
+        System.out.format("CPU load: %.1f%% (OS MXBean)%n", processor.getSystemCpuLoad() * 100);
+        double[] loadAverage = processor.getSystemLoadAverage(3);
         System.out.println("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
                 + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
                 + (loadAverage[2] < 0 ? " N/A" : String.format(" %.2f", loadAverage[2])));
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
-        double[] load = hal.getProcessor().getProcessorCpuLoadBetweenTicks();
+        double[] load = processor.getProcessorCpuLoadBetweenTicks();
         for (int cpu = 0; cpu < load.length; cpu++) {
             procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
         }
         System.out.println(procCpu.toString());
+    }
 
-        // Processes
+    private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
         System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
         List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
@@ -138,25 +179,24 @@ public class SystemInfoTest {
             OSProcess p = procs.get(i);
             System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-                    100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
-                    FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
-                    p.getName());
+                    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+                    FormatUtil.formatBytes(p.getResidentSetSize()), p.getName());
         }
+    }
 
-        // hardware: sensors
-        LOG.info("Checking Sensors...");
+    private static void printSensors(Sensors sensors) {
         System.out.println("Sensors:");
-        System.out.format(" CPU Temperature: %.1f°C%n", hal.getSensors().getCpuTemperature());
-        System.out.println(" Fan Speeds:" + Arrays.toString(hal.getSensors().getFanSpeeds()));
-        System.out.format(" CPU Voltage: %.1fV%n", hal.getSensors().getCpuVoltage());
+        System.out.format(" CPU Temperature: %.1f°C%n", sensors.getCpuTemperature());
+        System.out.println(" Fan Speeds: " + Arrays.toString(sensors.getFanSpeeds()));
+        System.out.format(" CPU Voltage: %.1fV%n", sensors.getCpuVoltage());
+    }
 
-        // hardware: power
-        LOG.info("Checking Power sources...");
+    private static void printPowerSources(PowerSource[] powerSources) {
         StringBuilder sb = new StringBuilder("Power: ");
-        if (hal.getPowerSources().length == 0) {
+        if (powerSources.length == 0) {
             sb.append("Unknown");
         } else {
-            double timeRemaining = hal.getPowerSources()[0].getTimeRemaining();
+            double timeRemaining = powerSources[0].getTimeRemaining();
             if (timeRemaining < -1d) {
                 sb.append("Charging");
             } else if (timeRemaining < 0d) {
@@ -166,34 +206,31 @@ public class SystemInfoTest {
                         (int) (timeRemaining / 60) % 60));
             }
         }
-        for (PowerSource pSource : hal.getPowerSources()) {
+        for (PowerSource pSource : powerSources) {
             sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
         }
         System.out.println(sb.toString());
+    }
 
-        // hardware: disks
-        LOG.info("Checking Disks...");
+    private static void printDisks(HWDiskStore[] diskStores) {
         System.out.println("Disks:");
-
-        HWDiskStore[] dskArray = hal.getDiskStores();
-        for (HWDiskStore dsk : dskArray) {
-            boolean readwrite = dsk.getReads() > 0 || dsk.getWrites() > 0;
-            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", dsk.getName(),
-                    dsk.getModel(), dsk.getSerial(),
-                    dsk.getSize() > 0 ? FormatUtil.formatBytesDecimal(dsk.getSize()) : "?",
-                    readwrite ? FormatUtil.formatBytes(dsk.getReads()) : "?",
-                    readwrite ? FormatUtil.formatBytes(dsk.getWrites()) : "?");
+        for (HWDiskStore disk : diskStores) {
+            boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
+            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", disk.getName(),
+                    disk.getModel(), disk.getSerial(),
+                    disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
+                    readwrite ? FormatUtil.formatBytes(disk.getReads()) : "?",
+                    readwrite ? FormatUtil.formatBytes(disk.getWrites()) : "?");
         }
+    }
 
-        // software: file system
-        LOG.info("Checking File System...");
+    private static void printFileSystem(FileSystem fileSystem) {
         System.out.println("File System:");
 
-        FileSystem filesystem = os.getFileSystem();
-        System.out.format(" File Descriptors: %d/%d%n", filesystem.getOpenFileDescriptors(),
-                filesystem.getMaxFileDescriptors());
+        System.out.format(" File Descriptors: %d/%d%n", fileSystem.getOpenFileDescriptors(),
+                fileSystem.getMaxFileDescriptors());
 
-        OSFileStore[] fsArray = filesystem.getFileStores();
+        OSFileStore[] fsArray = fileSystem.getFileStores();
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
@@ -202,13 +239,11 @@ public class SystemInfoTest {
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     fs.getVolume(), fs.getMount());
         }
+    }
 
-        // hardware: network interfaces
-        LOG.info("Checking Network interfaces...");
+    private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
         System.out.println("Network interfaces:");
-
-        NetworkIF[] netArray = hal.getNetworkIFs();
-        for (NetworkIF net : netArray) {
+        for (NetworkIF net : networkIFs) {
             System.out.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName());
             System.out.format("   MAC Address: %s %n", net.getMacaddr());
             System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
@@ -222,33 +257,23 @@ public class SystemInfoTest {
                     hasData ? net.getPacketsSent() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
         }
+    }
 
-        // hardware: displays
-        LOG.info("Checking Displays...");
+    private static void printDisplays(Display[] displays) {
         System.out.println("Displays:");
         int i = 0;
-        for (Display display : hal.getDisplays()) {
+        for (Display display : displays) {
             System.out.println(" Display " + i + ":");
             System.out.println(display.toString());
             i++;
         }
+    }
 
-        // hardware: USB devices
-        LOG.info("Checking USB Devices...");
+    private static void printUsbDevices(UsbDevice[] usbDevices) {
         System.out.println("USB Devices:");
-        for (UsbDevice usbDevice : hal.getUsbDevices(true)) {
+        for (UsbDevice usbDevice : usbDevices) {
             System.out.println(usbDevice.toString());
         }
-
-        // LOG.info("Printing JSON:");
-        // Load properties from this file on the classpath
-        Properties props = PropertiesUtil.loadProperties("oshi.json.properties");
-        // Compact JSON
-        // System.out.println(si.toCompactJSON(props));
-
-        // Pretty JSON
-        System.out.println(si.toPrettyJSON(props));
-
     }
 
     /**

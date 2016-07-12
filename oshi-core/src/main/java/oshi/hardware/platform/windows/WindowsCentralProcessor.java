@@ -150,7 +150,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         ticks[TickType.USER.getIndex()] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
         // Additional decrement to avoid double counting in the total array
         ticks[TickType.IDLE.getIndex()] -= ticks[TickType.IOWAIT.getIndex()];
-        ticks[TickType.SYSTEM.getIndex()] -= (ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()]);
+        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
     }
 
@@ -159,12 +159,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-        if (nelem < 1) {
-            throw new IllegalArgumentException("Must include at least one element.");
-        }
-        if (nelem > 3) {
-            LOG.warn("Max elements of SystemLoadAverage is 3. " + nelem + " specified. Ignoring extra.");
-            nelem = 3;
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
         // TODO: If Windows ever actually implements a laod average for 1/5/15,
@@ -208,8 +204,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                             .parseLongOrDefault(wmiTicks.get("PercentDPCTime").get(index), 0L) / 10000L;
                     // Additional decrement to avoid double counting in the
                     // total array
-                    ticks[cpu][TickType.SYSTEM.getIndex()] -= (ticks[cpu][TickType.IRQ.getIndex()]
-                            + ticks[cpu][TickType.SOFTIRQ.getIndex()]);
+                    ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
+                            + ticks[cpu][TickType.SOFTIRQ.getIndex()];
                     break;
                 }
             }

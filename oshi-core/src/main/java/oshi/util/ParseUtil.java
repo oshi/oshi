@@ -41,7 +41,28 @@ public class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
-    /**
+    /*
+     * Used for matching
+     */
+    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
+
+    /*
+     * Used to check validity of a hexadecimal string
+     */
+    final private static Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
+
+    /*
+     * Format for parsing DATETIME originally 20160513072950.782000-420,
+     * modified to 20160513072950.782000-07:00
+     */
+    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
+
+    /*
+     * Pattern for [dd-[hh:[mm:ss]]]
+     */
+    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
+
+    /*
      * Hertz related variables.
      */
     final private static String Hertz = "Hz";
@@ -67,16 +88,6 @@ public class ParseUtil {
         multipliers.put(teraHertz, 1000000000000L);
         multipliers.put(petaHertz, 1000000000000000L);
     }
-
-    /**
-     * Used for matching
-     */
-    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
-
-    /**
-     * Used to check validity of a hexadecimal string
-     */
-    final private static Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
     /**
      * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
@@ -171,11 +182,12 @@ public class ParseUtil {
      *         first valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
+        long val = value;
         // Convert the long to 8-byte BE representation
         byte[] b = new byte[8];
-        for (int i = 7; i >= 0 && value != 0L; i--) {
-            b[i] = (byte) value;
-            value >>>= 8;
+        for (int i = 7; i >= 0 && val != 0L; i--) {
+            b[i] = (byte) val;
+            val >>>= 8;
         }
         // Then copy the rightmost valueSize bytes
         // e.g., for an integer we want rightmost 4 bytes
@@ -235,12 +247,6 @@ public class ParseUtil {
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
         return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
-
-    /*
-     * Format for parsing DATETIME originally 20160513072950.782000-420,
-     * modified to 20160513072950.782000-07:00
-     */
-    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
 
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
@@ -344,11 +350,6 @@ public class ParseUtil {
             return defaultDouble;
         }
     }
-
-    /*
-     * Pattern for [dd-[hh:[mm:ss]]]
-     */
-    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
 
     /**
      * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number

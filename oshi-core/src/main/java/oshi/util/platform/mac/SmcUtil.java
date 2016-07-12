@@ -197,6 +197,7 @@ public class SmcUtil {
 
         inputStructure.key = (int) ParseUtil.strToLong(key, 4);
         int result;
+        int retry = 0;
         do {
             result = smcGetKeyInfo(inputStructure, outputStructure);
             if (result != 0) {
@@ -215,7 +216,7 @@ public class SmcUtil {
             if (result == 0) {
                 break;
             }
-        } while (--retries > 0);
+        } while (++retry < retries);
         // If we errored out return code
         if (result != 0) {
             return result;
