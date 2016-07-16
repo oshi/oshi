@@ -60,11 +60,19 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            Disk capacity in bytes
      * @param reads
      *            Number of reads from the disk
+     * @param readBytes
+     *            Number of bytes read from the disk
      * @param writes
      *            Number of writes to the disk
+     * @param writeBytes
+     *            Number of bytes written to the disk
+     * @param transferTime
+     *            milliseconds spent reading or writing to the disk
      */
-    public HWDiskStore(String name, String model, String serial, long size, long reads, long writes) {
-        this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, writes);
+    public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
+            long writeBytes, long transferTime) {
+        this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
+                writeBytes, transferTime);
     }
 
     /**
@@ -72,6 +80,62 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      */
     public String getName() {
         return this.hwDiskStore.getName();
+    }
+
+    /**
+     * @return the model
+     */
+    public String getModel() {
+        return this.hwDiskStore.getModel();
+    }
+
+    /**
+     * @return the serial
+     */
+    public String getSerial() {
+        return this.hwDiskStore.getSerial();
+    }
+
+    /**
+     * @return Get size of disk (in bytes)
+     */
+    public long getSize() {
+        return this.hwDiskStore.getSize();
+    }
+
+    /**
+     * @return the reads
+     */
+    public long getReads() {
+        return this.hwDiskStore.getReads();
+    }
+
+    /**
+     * @return the bytes read
+     */
+    public long getReadBytes() {
+        return this.hwDiskStore.getReadBytes();
+    }
+
+    /**
+     * @return the writes
+     */
+    public long getWrites() {
+        return this.hwDiskStore.getWrites();
+    }
+
+    /**
+     * @return the bytes written
+     */
+    public long getWriteBytes() {
+        return this.hwDiskStore.getWriteBytes();
+    }
+
+    /**
+     * @return the milliseconds spent reading or writing
+     */
+    public long getTransferTime() {
+        return this.hwDiskStore.getTransferTime();
     }
 
     /**
@@ -83,25 +147,11 @@ public class HWDiskStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * @return the model
-     */
-    public String getModel() {
-        return this.hwDiskStore.getModel();
-    }
-
-    /**
      * @param model
      *            the model to set
      */
     public void setModel(String model) {
         this.hwDiskStore.setModel(model);
-    }
-
-    /**
-     * @return the serial
-     */
-    public String getSerial() {
-        return this.hwDiskStore.getSerial();
     }
 
     /**
@@ -113,25 +163,11 @@ public class HWDiskStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * @return Get size of disk (in bytes)
-     */
-    public long getSize() {
-        return this.hwDiskStore.getSize();
-    }
-
-    /**
      * @param size
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
         this.hwDiskStore.setSize(size);
-    }
-
-    /**
-     * @return the reads
-     */
-    public long getReads() {
-        return this.hwDiskStore.getReads();
     }
 
     /**
@@ -143,10 +179,11 @@ public class HWDiskStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * @return the writes
+     * @param readBytes
+     *            the bytes read to set
      */
-    public long getWrites() {
-        return this.hwDiskStore.getWrites();
+    public void setReadBytes(long readBytes) {
+        this.hwDiskStore.setReadBytes(readBytes);
     }
 
     /**
@@ -155,6 +192,22 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      */
     public void setWrites(long writes) {
         this.hwDiskStore.setWrites(writes);
+    }
+
+    /**
+     * @param writeBytes
+     *            the bytes written to set
+     */
+    public void setWriteBytes(long writeBytes) {
+        this.hwDiskStore.setWriteBytes(writeBytes);
+    }
+
+    /**
+     * @param transferTime
+     *            milliseconds spent reading or writing to set
+     */
+    public void setTransferTime(long transferTime) {
+        this.hwDiskStore.setTransferTime(transferTime);
     }
 
     /**
@@ -178,8 +231,17 @@ public class HWDiskStore extends AbstractOshiJsonObject {
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.reads")) {
             json.add("reads", this.hwDiskStore.getReads());
         }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.readBytes")) {
+            json.add("readBytes", this.hwDiskStore.getReadBytes());
+        }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.writes")) {
             json.add("writes", this.hwDiskStore.getWrites());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
+            json.add("writeBytes", this.hwDiskStore.getWriteBytes());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
+            json.add("transferTime", this.hwDiskStore.getTransferTime());
         }
         return json.build();
     }

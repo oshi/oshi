@@ -57,8 +57,13 @@ public class FreeBsdDisks extends AbstractDisks {
             }
             HWDiskStore store = new HWDiskStore();
             store.setName(split[0]);
-            store.setReads((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
-            store.setWrites((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
+            store.setReads((long) (ParseUtil.parseDoubleOrDefault(split[1], 0d)));
+            store.setWrites((long) (ParseUtil.parseDoubleOrDefault(split[2], 0d)));
+            // In KB
+            store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
+            store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
+            // In seconds, multiply for ms
+            store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
             diskMap.put(split[0], store);
         }
 

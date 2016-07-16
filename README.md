@@ -18,6 +18,10 @@ such as OS version, memory, CPU, disk, devices, sensors, etc.
 OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
 and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
 
+Currently supported platforms 
+--------------------------- 
+Windows • Linux • macOS (OS X) • Unix (Solaris, FreeBSD) 
+
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
@@ -39,12 +43,7 @@ Downloads
 | [oshi-core-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=3.0&e=jar)  | [oshi-core-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.1-SNAPSHOT&e=jar) |
 | [oshi-json-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-json&v=3.0&e=jar)   | [oshi-json-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.1-SNAPSHOT&e=jar)  |
 
-Currently supported platforms 
---------------------------- 
-* Windows
-* Linux
-* macOS (OS X)
-* Unix (Solaris, FreeBSD) <img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
 
 Currently supported features 
 --------------------------

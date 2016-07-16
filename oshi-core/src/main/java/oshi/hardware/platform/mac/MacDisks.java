@@ -77,8 +77,7 @@ public class MacDisks extends AbstractDisks {
             String model = "";
             String serial = "";
             long size = 0L;
-            long read = 0L;
-            long write = 0L;
+            long xferTime = 0L;
             // Get a reference to the disk - only matching /dev/disk*s2
             String[] split = new String(f.f_mntfromname).trim().split("/dev/|s2");
             if (split.length < 2) {
@@ -140,6 +139,12 @@ public class MacDisks extends AbstractDisks {
                 }
                 CfUtil.release(disk);
 
+                //
+                if (size <= 0) {
+                    continue;
+                }
+                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L);
+
                 // Now look up the device using the BSD Name to get its
                 // statistics
                 CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
@@ -172,11 +177,28 @@ public class MacDisks extends AbstractDisks {
 
                                 // Now get the stats we want
                                 Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Operations (Read)"));
+                                diskStore.setReads(CfUtil.cfPointerToLong(stat));
+                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
                                         CfUtil.getCFString("Bytes (Read)"));
-                                read = CfUtil.cfPointerToLong(stat);
+                                diskStore.setReadBytes(CfUtil.cfPointerToLong(stat));
+
+                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Operations (Write)"));
+                                diskStore.setWrites(CfUtil.cfPointerToLong(stat));
                                 stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
                                         CfUtil.getCFString("Bytes (Write)"));
-                                write = CfUtil.cfPointerToLong(stat);
+                                diskStore.setWriteBytes(CfUtil.cfPointerToLong(stat));
+
+                                // Total time is in nanoseconds. Add read+write
+                                // and convert total to ms
+                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Total Time (Read)"));
+                                xferTime = CfUtil.cfPointerToLong(stat);
+                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                        CfUtil.getCFString("Total Time (Write)"));
+                                xferTime += CfUtil.cfPointerToLong(stat);
+                                diskStore.setTransferTime(xferTime / 10000L);
 
                                 CfUtil.release(properties);
                             } else {
@@ -190,9 +212,7 @@ public class MacDisks extends AbstractDisks {
                     }
                     IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
                 }
-                if (size > 0L) {
-                    result.add(new HWDiskStore(bsdName, model.trim(), serial.trim(), size, read, write));
-                }
+                result.add(diskStore);
             }
         }
         // Close DA session
