@@ -67,8 +67,7 @@ public class SolarisDisks extends AbstractDisks {
         for (String line : disks) {
             // The -r switch enables comma delimited for easy parsing!
             // No guarantees on which line the results appear so we'll nest
-            // a
-            // loop iterating on the comma splits
+            // a loop iterating on the comma splits
             String[] split = line.split(",");
             for (String keyValue : split) {
                 keyValue = keyValue.trim();
@@ -124,10 +123,16 @@ public class SolarisDisks extends AbstractDisks {
                 if (split.length < 2) {
                     continue;
                 }
-                if (split[0].endsWith(":nread")) {
+                if (split[0].endsWith(":reads")) {
                     entry.getValue().setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":nwritten")) {
+                } else if (split[0].endsWith(":writes")) {
                     entry.getValue().setWrites(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":nread")) {
+                    entry.getValue().setReadBytes(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":nwritten")) {
+                    entry.getValue().setWriteBytes(ParseUtil.parseLongOrDefault(split[1], 0L));
+                } else if (split[0].endsWith(":rtime")) {
+                    entry.getValue().setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[1], 0d) * 1000));
                 }
             }
             results[index++] = entry.getValue();

@@ -47,8 +47,11 @@ public class LinuxDisks extends AbstractDisks {
         stats = new LinuxBlockDevStats(store.getName(), disk);
 
         // Reads and writes are converted in bytes
-        store.setReads(stats.read_512bytes * this.SECTORSIZE);
-        store.setWrites(stats.write_512bytes * this.SECTORSIZE);
+        store.setReads(stats.read_ops);
+        store.setReadBytes(stats.read_512bytes * this.SECTORSIZE);
+        store.setWrites(stats.write_ops);
+        store.setWriteBytes(stats.write_512bytes * this.SECTORSIZE);
+        store.setTransferTime(stats.active_ms);
     }
 
     @Override

@@ -202,11 +202,12 @@ public class SystemInfoTest {
         System.out.println("Disks:");
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", disk.getName(),
-                    disk.getModel(), disk.getSerial(),
+            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), %s ms%n",
+                    disk.getName(), disk.getModel(), disk.getSerial(),
                     disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
-                    readwrite ? FormatUtil.formatBytes(disk.getReads()) : "?",
-                    readwrite ? FormatUtil.formatBytes(disk.getWrites()) : "?");
+                    readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
+                    readwrite ? disk.getWrites() : "?", readwrite ? FormatUtil.formatBytes(disk.getWriteBytes()) : "?",
+                    readwrite ? disk.getTransferTime() : "?");
         }
     }
 

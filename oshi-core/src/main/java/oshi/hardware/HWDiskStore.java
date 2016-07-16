@@ -34,18 +34,21 @@ public class HWDiskStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String name;
     private String model;
+    private String name;
     private String serial;
     private long size;
     private long reads;
+    private long readBytes;
     private long writes;
+    private long writeBytes;
+    private long transferTime;
 
     /**
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L);
+        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L);
     }
 
     /**
@@ -61,16 +64,26 @@ public class HWDiskStore implements Serializable {
      *            Disk capacity in bytes
      * @param reads
      *            Number of reads from the disk
+     * @param readBytes
+     *            Number of bytes read from the disk
      * @param writes
      *            Number of writes to the disk
+     * @param writeBytes
+     *            Number of bytes written to the disk
+     * @param transferTime
+     *            milliseconds spent reading or writing to the disk
      */
-    public HWDiskStore(String name, String model, String serial, long size, long reads, long writes) {
+    public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
+            long writeBytes, long transferTime) {
         setName(name);
         setModel(model);
         setSerial(serial);
         setSize(size);
         setReads(reads);
+        setReadBytes(readBytes);
         setWrites(writes);
+        setWriteBytes(writeBytes);
+        setTransferTime(transferTime);
     }
 
     /**
@@ -78,6 +91,62 @@ public class HWDiskStore implements Serializable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @return the model
+     */
+    public String getModel() {
+        return model;
+    }
+
+    /**
+     * @return the serial
+     */
+    public String getSerial() {
+        return serial;
+    }
+
+    /**
+     * @return Get size of disk (in bytes)
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     * @return the reads
+     */
+    public long getReads() {
+        return reads;
+    }
+
+    /**
+     * @return the bytes read
+     */
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    /**
+     * @return the writes
+     */
+    public long getWrites() {
+        return writes;
+    }
+
+    /**
+     * @return the bytes written
+     */
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    /**
+     * @return the milliseconds spent reading or writing
+     */
+    public long getTransferTime() {
+        return transferTime;
     }
 
     /**
@@ -89,25 +158,11 @@ public class HWDiskStore implements Serializable {
     }
 
     /**
-     * @return the model
-     */
-    public String getModel() {
-        return model;
-    }
-
-    /**
      * @param model
      *            the model to set
      */
     public void setModel(String model) {
         this.model = model;
-    }
-
-    /**
-     * @return the serial
-     */
-    public String getSerial() {
-        return serial;
     }
 
     /**
@@ -119,25 +174,11 @@ public class HWDiskStore implements Serializable {
     }
 
     /**
-     * @return Get size of disk (in bytes)
-     */
-    public long getSize() {
-        return size;
-    }
-
-    /**
      * @param size
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
         this.size = size;
-    }
-
-    /**
-     * @return the reads
-     */
-    public long getReads() {
-        return reads;
     }
 
     /**
@@ -149,10 +190,11 @@ public class HWDiskStore implements Serializable {
     }
 
     /**
-     * @return the writes
+     * @param readBytes
+     *            the bytes read to set
      */
-    public long getWrites() {
-        return writes;
+    public void setReadBytes(long readBytes) {
+        this.readBytes = readBytes;
     }
 
     /**
@@ -161,5 +203,21 @@ public class HWDiskStore implements Serializable {
      */
     public void setWrites(long writes) {
         this.writes = writes;
+    }
+
+    /**
+     * @param writeBytes
+     *            the bytes written to set
+     */
+    public void setWriteBytes(long writeBytes) {
+        this.writeBytes = writeBytes;
+    }
+
+    /**
+     * @param transferTime
+     *            milliseconds spent reading or writing to set
+     */
+    public void setTransferTime(long transferTime) {
+        this.transferTime = transferTime;
     }
 }
