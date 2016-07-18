@@ -63,6 +63,12 @@ public class ParseUtil {
     private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
 
     /*
+     * Pattern for a UUID
+     */
+    private static final Pattern UUID_PATTERN = Pattern
+            .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
+
+    /*
      * Hertz related variables.
      */
     final private static String Hertz = "Hz";
@@ -376,6 +382,23 @@ public class ParseUtil {
             milliseconds += 1000 * parseDoubleOrDefault("0." + m.group(5), 0d);
         }
         return milliseconds;
+    }
+
+    /**
+     * Attempts to parse a UUID. If it fails, returns the default.
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultStr
+     *            The value to return if parsing fails
+     * @return The parsed UUID, or the default if parsing fails
+     */
+    public static String parseUuidOrDefault(String s, String defaultStr) {
+        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());
+        if (m.matches()) {
+            return m.group(1);
+        }
+        return defaultStr;
     }
 
 }

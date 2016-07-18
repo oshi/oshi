@@ -68,6 +68,7 @@ public class SystemInfoTest {
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
         printDisks(hal.getDiskStores());
+        printFileSystem(os.getFileSystem());
         System.exit(0);
 
         printProcessor(hal.getProcessor());
@@ -219,7 +220,8 @@ public class SystemInfoTest {
             for (HWPartition part : partitions) {
                 System.out.format(" |-- %s: %s (%s) Maj:Min=%d:%d, size: %s%s%n", part.getIdentification(),
                         part.getName(), part.getType(), part.getMajor(), part.getMinor(),
-                        FormatUtil.formatBytesDecimal(part.getSize()), part.isActive() ? " (active)" : "");
+                        FormatUtil.formatBytesDecimal(part.getSize()),
+                        part.getMountPoint().isEmpty() ? "" : " @ " + part.getMountPoint());
             }
         }
     }

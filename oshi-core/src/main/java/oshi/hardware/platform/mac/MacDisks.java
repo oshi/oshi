@@ -20,8 +20,10 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -60,8 +62,11 @@ public class MacDisks extends AbstractDisks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
+    private static final Map<String, String> mountPointMap = new HashMap<>();
+
     @Override
     public HWDiskStore[] getDisks() {
+        mountPointMap.clear();
         List<HWDiskStore> result = new ArrayList<>();
 
         // Use statfs to find all drives
@@ -82,12 +87,14 @@ public class MacDisks extends AbstractDisks {
         Set<String> bsdNames = new HashSet<String>();
         // Iterate all mounted file systems
         for (Statfs f : fs) {
+            String mntFrom = new String(f.f_mntfromname).trim();
             // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
             // Strip off the partition # to get base disk name
-            String[] split = new String(f.f_mntfromname).trim().split("/dev/|s\\d+");
+            String[] split = mntFrom.split("/dev/|s\\d+");
             if (split.length > 1) {
                 bsdNames.add(split[1]);
             }
+            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
         }
         // Now iterate the bsdNames
         for (String bsdName : bsdNames) {
@@ -282,7 +289,7 @@ public class MacDisks extends AbstractDisks {
                                             IOKitUtil.getIORegistryLongProperty(sdService, "Size"),
                                             IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major"),
                                             IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"),
-                                            IOKitUtil.getIORegistryBooleanProperty(sdService, "Open")));
+                                            mountPointMap.getOrDefault(partBsdName, "")));
                                     IOKit.INSTANCE.IOObjectRelease(sdService);
                                     // iterate
                                     sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());

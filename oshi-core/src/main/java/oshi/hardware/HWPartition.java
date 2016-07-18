@@ -39,7 +39,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     private long size;
     private int major;
     private int minor;
-    private boolean active;
+    private String mountPoint;
 
     /**
      * Creates a new HWPartition
@@ -58,11 +58,11 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            Device ID (Major)
      * @param minor
      *            Device ID (Minor)
-     * @param active
-     *            Whether the partition is active/mounted
+     * @param mountPoint
+     *            Where the partition is mounted
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
-            boolean active) {
+            String mountPoint) {
         this.identification = identification;
         this.name = name;
         this.type = type;
@@ -70,7 +70,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         this.size = size;
         this.major = major;
         this.minor = minor;
-        this.active = active;
+        this.mountPoint = mountPoint;
     }
 
     /**
@@ -123,10 +123,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
-     * @return Returns the active.
+     * @return Returns the mount point.
      */
-    public boolean isActive() {
-        return active;
+    public String getMountPoint() {
+        return mountPoint;
     }
 
     /**
@@ -189,8 +189,8 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      * @param active
      *            Set whether the partition is active.
      */
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setMountPoint(String mountPoint) {
+        this.mountPoint = mountPoint;
     }
 
     /**

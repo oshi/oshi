@@ -101,6 +101,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         nameMap.clear();
         vendorMap.clear();
         serialMap.clear();
+        hubMap.clear();
 
         // Query Win32_PnPEntity to populate the maps
         Map<String, List<String>> usbMap = WmiUtil.selectStringsFrom(null, "Win32_PnPEntity",
