@@ -60,7 +60,7 @@ public class WmiUtil {
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
     public enum ValueType {
-        STRING, UINT32, FLOAT, DATETIME
+        STRING, UINT32, FLOAT, DATETIME, BOOLEAN
     }
 
     /**
@@ -492,6 +492,10 @@ public class WmiUtil {
                     // parse to a long representing ms since eopch
                     values.get(property)
                             .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
+                    break;
+                case BOOLEAN: // WinDef.BOOL TODO improve in JNA 4.3
+                    values.get(property)
+                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());
                     break;
                 default:
                     // Should never get here! If you get this exception you've

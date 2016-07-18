@@ -43,6 +43,7 @@ public class HWDiskStore implements Serializable {
     private long writes;
     private long writeBytes;
     private long transferTime;
+    private HWPartition[] partitions;
 
     /**
      * Create an object with empty/default values
@@ -150,6 +151,13 @@ public class HWDiskStore implements Serializable {
     }
 
     /**
+     * @return Returns the partitions on this drive.
+     */
+    public HWPartition[] getPartitions() {
+        return partitions;
+    }
+
+    /**
      * @param name
      *            the name to set
      */
@@ -219,5 +227,13 @@ public class HWDiskStore implements Serializable {
      */
     public void setTransferTime(long transferTime) {
         this.transferTime = transferTime;
+    }
+
+    /**
+     * @param partitions
+     *            The partitions to set.
+     */
+    public void setPartitions(HWPartition[] partitions) {
+        this.partitions = partitions;
     }
 }

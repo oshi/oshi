@@ -29,6 +29,7 @@ import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -66,6 +67,8 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
+        printDisks(hal.getDiskStores());
+        System.exit(0);
 
         printProcessor(hal.getProcessor());
 
@@ -208,6 +211,15 @@ public class SystemInfoTest {
                     readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
                     readwrite ? disk.getWrites() : "?", readwrite ? FormatUtil.formatBytes(disk.getWriteBytes()) : "?",
                     readwrite ? disk.getTransferTime() : "?");
+            HWPartition[] partitions = disk.getPartitions();
+            if (partitions == null) {
+                // TODO Remove when all OS's implemented
+                continue;
+            }
+            for (HWPartition part : partitions) {
+                System.out.format(" |-- %s (%s, %s) #%d:%d (%d bytes) %s%n", part.getIdentification(), part.getName(),
+                        part.getType(), part.getDiskId(), part.getPartitionId(), part.getSize(), part.getUuid());
+            }
         }
     }
 
