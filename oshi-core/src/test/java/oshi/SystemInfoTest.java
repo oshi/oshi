@@ -205,7 +205,7 @@ public class SystemInfoTest {
         System.out.println("Disks:");
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), %s ms%n",
+            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), xfer: %s ms%n",
                     disk.getName(), disk.getModel(), disk.getSerial(),
                     disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
                     readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
@@ -217,8 +217,9 @@ public class SystemInfoTest {
                 continue;
             }
             for (HWPartition part : partitions) {
-                System.out.format(" |-- %s (%s, %s) #%d:%d (%d bytes) %s%n", part.getIdentification(), part.getName(),
-                        part.getType(), part.getDiskId(), part.getPartitionId(), part.getSize(), part.getUuid());
+                System.out.format(" |-- %s: %s (%s) Maj:Min=%d:%d, size: %s%s%n", part.getIdentification(),
+                        part.getName(), part.getType(), part.getMajor(), part.getMinor(),
+                        FormatUtil.formatBytesDecimal(part.getSize()), part.isActive() ? " (active)" : "");
             }
         }
     }

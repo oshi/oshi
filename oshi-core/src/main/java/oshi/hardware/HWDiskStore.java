@@ -30,7 +30,7 @@ import java.io.Serializable;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class HWDiskStore implements Serializable {
+public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     private static final long serialVersionUID = 1L;
 
@@ -235,5 +235,14 @@ public class HWDiskStore implements Serializable {
      */
     public void setPartitions(HWPartition[] partitions) {
         this.partitions = partitions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWDiskStore store) {
+        // Naturally sort by device name
+        return this.getName().compareTo(store.getName());
     }
 }

@@ -171,6 +171,48 @@ public class IOKitUtil {
     }
 
     /**
+     * Convenience method to get an Int value from an IO Registry
+     * 
+     * @param entry
+     *            A handle to the registry entry
+     * @param key
+     *            The string name of the key to retrieve
+     * @return The value of the registry entry if it exists; 0 otherwise
+     */
+    public static int getIORegistryIntProperty(int entry, String key) {
+        int value = 0;
+        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFTypeRef valueAsCFNumber = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
+                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+        if (valueAsCFNumber != null && valueAsCFNumber.getPointer() != null) {
+            value = CfUtil.cfPointerToInt(valueAsCFNumber.getPointer());
+        }
+        CfUtil.release(valueAsCFNumber);
+        return value;
+    }
+
+    /**
+     * Convenience method to get a Boolean value from an IO Registry
+     * 
+     * @param entry
+     *            A handle to the registry entry
+     * @param key
+     *            The string name of the key to retrieve
+     * @return The value of the registry entry if it exists; false otherwise
+     */
+    public static boolean getIORegistryBooleanProperty(int entry, String key) {
+        boolean value = false;
+        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFTypeRef valueAsCFBoolean = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
+                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+        if (valueAsCFBoolean != null && valueAsCFBoolean.getPointer() != null) {
+            value = CfUtil.cfPointerToBoolean(valueAsCFBoolean.getPointer());
+        }
+        CfUtil.release(valueAsCFBoolean);
+        return value;
+    }
+
+    /**
      * Convenience method to get a byte array value from an IO Registry
      * 
      * @param entry
@@ -206,5 +248,4 @@ public class IOKitUtil {
         }
         return null;
     }
-
 }

@@ -28,7 +28,7 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class HWPartition implements Serializable {
+public class HWPartition implements Serializable, Comparable<HWPartition> {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,9 +37,41 @@ public class HWPartition implements Serializable {
     private String type;
     private String uuid;
     private long size;
-    private int diskId;
-    private int partitionId;
+    private int major;
+    private int minor;
     private boolean active;
+
+    /**
+     * Creates a new HWPartition
+     * 
+     * @param identification
+     *            The unique partition id
+     * @param name
+     *            Friendly name of the partition
+     * @param type
+     *            Type or description of the partition
+     * @param uuid
+     *            UUID
+     * @param size
+     *            Size in bytes
+     * @param major
+     *            Device ID (Major)
+     * @param minor
+     *            Device ID (Minor)
+     * @param active
+     *            Whether the partition is active/mounted
+     */
+    public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
+            boolean active) {
+        this.identification = identification;
+        this.name = name;
+        this.type = type;
+        this.uuid = uuid;
+        this.size = size;
+        this.major = major;
+        this.minor = minor;
+        this.active = active;
+    }
 
     /**
      * @return Returns the identification.
@@ -77,17 +109,17 @@ public class HWPartition implements Serializable {
     }
 
     /**
-     * @return Returns the diskId.
+     * @return Returns the major device ID.
      */
-    public int getDiskId() {
-        return diskId;
+    public int getMajor() {
+        return major;
     }
 
     /**
-     * @return Returns the partitionId.
+     * @return Returns the minor device ID.
      */
-    public int getPartitionId() {
-        return partitionId;
+    public int getMinor() {
+        return minor;
     }
 
     /**
@@ -138,19 +170,19 @@ public class HWPartition implements Serializable {
     }
 
     /**
-     * @param diskId
-     *            The diskId to set.
+     * @param major
+     *            The major device ID to set.
      */
-    public void setDiskId(int diskId) {
-        this.diskId = diskId;
+    public void setMajor(int major) {
+        this.major = major;
     }
 
     /**
-     * @param partitionId
-     *            The partitionId to set.
+     * @param minor
+     *            The minor device ID to set.
      */
-    public void setPartitionId(int partitionId) {
-        this.partitionId = partitionId;
+    public void setMinor(int minor) {
+        this.minor = minor;
     }
 
     /**
@@ -161,4 +193,12 @@ public class HWPartition implements Serializable {
         this.active = active;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWPartition part) {
+        // Naturally sort by device ID
+        return this.getIdentification().compareTo(part.getIdentification());
+    }
 }
