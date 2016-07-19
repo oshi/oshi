@@ -20,12 +20,15 @@ package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractDisks;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -40,13 +43,31 @@ public class FreeBsdDisks extends AbstractDisks {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
+
+    // Create map indexed by device name to populate data from multiple commands
+    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
+    // Map of partitions to mount points
+    private static final Map<String, String> mountMap = new HashMap<>();
+
     @Override
     public HWDiskStore[] getDisks() {
+        // Parse 'mount' to map partitions to mount point
+        mountMap.clear();
+        ArrayList<String> mount = ExecutingCommand.runNative("mount");
+        for (String mnt : mount) {
+            Matcher m = MOUNT_PATTERN.matcher(mnt);
+            if (m.matches()) {
+                mountMap.put(m.group(1), m.group(2));
+            }
+        }
+
         // Get list of valid disks
+        diskMap.clear();
         List<String> devices = Arrays.asList(BsdSysctlUtil.sysctl("kern.disks", "").split("\\s+"));
 
-        // Create map indexed by device name for multiple command reference
-        Map<String, HWDiskStore> diskMap = new HashMap<>();
+        // Temporary list to hold partitions
+        List<HWPartition> partList = new ArrayList<>();
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
         ArrayList<String> disks = ExecutingCommand.runNative("iostat -Ix");
@@ -67,12 +88,16 @@ public class FreeBsdDisks extends AbstractDisks {
             diskMap.put(split[0], store);
         }
 
-        // Now grab dmssg output
+        // Now grab geom output for disks
         List<String> geom = ExecutingCommand.runNative("geom disk list");
 
         HWDiskStore store = null;
         for (String line : geom) {
             if (line.startsWith("Geom name:")) {
+                // Process partition list on current store, if any
+                if (store != null) {
+                    setPartitions(store, partList);
+                }
                 String device = line.substring(line.lastIndexOf(' ') + 1);
                 // Get the device.
                 if (devices.contains(device)) {
@@ -105,13 +130,89 @@ public class FreeBsdDisks extends AbstractDisks {
             }
         }
 
-        // Populate result array
-        HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];
-        int index = 0;
-        for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
-            results[index++] = entry.getValue();
+        // Now grab geom output for partitions
+        geom = ExecutingCommand.runNative("geom part list");
+        store = null;
+        HWPartition partition = null;
+        for (String line : geom) {
+            line = line.trim();
+            if (line.startsWith("Geom name:")) {
+                String device = line.substring(line.lastIndexOf(' ') + 1);
+                // Get the device.
+                if (devices.contains(device)) {
+                    store = diskMap.get(device);
+                    // If for some reason we didn't have one, create
+                    // a new value here.
+                    if (store == null) {
+                        store = new HWDiskStore();
+                        store.setName(device);
+                    }
+                }
+            }
+            // If we don't have a valid store, don't bother parsing anything
+            // until we do.
+            if (store == null) {
+                continue;
+            }
+            if (line.contains("Name:")) {
+                // Save the current partition, if any
+                if (partition != null) {
+                    partList.add(partition);
+                    partition = null;
+                }
+                // Verify new entry is a partition
+                // (will happen in 'providers' section)
+                String part = line.substring(line.lastIndexOf(' ') + 1);
+                if (part.startsWith(store.getName())) {
+                    // Create a new partition.
+                    partition = new HWPartition();
+                    partition.setIdentification(part);
+                    partition.setName(part);
+                    partition.setMountPoint(mountMap.getOrDefault(part, ""));
+                }
+            }
+            // If we don't have a valid store, don't bother parsing anything
+            // until we do.
+            if (partition == null) {
+                continue;
+            }
+            String[] split = line.split("\\s+");
+            if (split.length < 2) {
+                continue;
+            }
+            if (line.startsWith("Mediasize:")) {
+                partition.setSize(ParseUtil.parseLongOrDefault(split[1], 0L));
+            } else if (line.startsWith("rawuuid:")) {
+                partition.setUuid(split[1]);
+            } else if (line.startsWith("type:")) {
+                partition.setType(split[1]);
+            }
+        }
+        // Process last partition list
+        if (store != null) {
+            setPartitions(store, partList);
         }
 
-        return results;
+        // Populate result array
+        List<HWDiskStore> diskList = new ArrayList<>(diskMap.keySet().size());
+        diskList.addAll(diskMap.values());
+        Collections.sort(diskList);
+
+        return diskList.toArray(new HWDiskStore[diskList.size()]);
+    }
+
+    private void setPartitions(HWDiskStore store, List<HWPartition> partList) {
+        HWPartition[] partitions = new HWPartition[partList.size()];
+        int index = 0;
+        Collections.sort(partList);
+        for (HWPartition partition : partList) {
+            // FreeBSD Major # is 0.
+            // Minor # is filesize of /dev entry.
+            partition.setMinor(ParseUtil
+                    .parseIntOrDefault(ExecutingCommand.getFirstAnswer("stat -f %i /dev/" + partition.getName()), 0));
+            partitions[index++] = partition;
+        }
+        partList.clear();
+        store.setPartitions(partitions);
     }
 }

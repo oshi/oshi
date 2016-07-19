@@ -74,6 +74,13 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * Creates a new HWPartition
+     */
+    public HWPartition() {
+        this("", "", "", "", 0L, 0, 0, "");
+    }
+
+    /**
      * @return Returns the identification.
      */
     public String getIdentification() {
