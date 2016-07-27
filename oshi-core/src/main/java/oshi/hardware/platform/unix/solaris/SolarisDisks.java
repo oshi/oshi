@@ -20,10 +20,12 @@ package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractDisks;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -41,24 +43,66 @@ public class SolarisDisks extends AbstractDisks {
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
         Map<String, HWDiskStore> diskMap = new HashMap<>();
-
         // First, run iostat -er to enumerate disks by name. Sample output:
+        // errors
+        // device,s/w,h/w,trn,tot
+        // cmdk0,0,0,0,0
+        // sd0,0,0,0
         ArrayList<String> disks = ExecutingCommand.runNative("iostat -er");
-        for (String line : disks) {
-            // The -r switch enables comma delimited for easy parsing!
-            String[] split = line.split(",");
-            if (split.length < 5 || split[0].equals("device")) {
+
+        // Create map to correlate disk name with block device mount point for
+        // later use in partition info
+        Map<String, String> deviceMap = new HashMap<>();
+        // Also run iostat -ern to get the same list by mount point. Sample
+        // output:
+        // errors
+        // s/w,h/w,trn,tot,device
+        // 0,0,0,0,c1d0
+        // 0,0,0,0,c1t1d0
+        ArrayList<String> mountpoints = ExecutingCommand.runNative("iostat -erm");
+        String disk;
+        for (int i = 0; i < disks.size() && i < mountpoints.size(); i++) {
+            // Map disk
+            disk = disks.get(i);
+            String[] diskSplit = disk.split(",");
+            if (diskSplit.length < 5 || diskSplit[0].equals("device")) {
                 continue;
             }
             HWDiskStore store = new HWDiskStore();
-            store.setName(split[0]);
-            diskMap.put(split[0], store);
+            store.setName(diskSplit[0]);
+            diskMap.put(diskSplit[0], store);
+            // Map mount
+            String mount = mountpoints.get(i);
+            String[] mountSplit = mount.split(",");
+            if (mountSplit.length < 5 || mountSplit[4].equals("device")) {
+                continue;
+            }
+            deviceMap.put(diskSplit[0], mountSplit[4]);
+        }
+
+        // Create map to correlate disk name with blick device mount point for
+        // later use in partition info
+        Map<String, Integer> majorMap = new HashMap<>();
+        // Run lshal, if available, to get block device major (we'll use
+        // partition # for minor)
+        ArrayList<String> lshal = ExecutingCommand.runNative("lshal");
+        disk = "";
+        for (String line : lshal) {
+            if (line.startsWith("udi ")) {
+                String udi = ParseUtil.getSingleQuoteStringValue(line);
+                disk = udi.substring(udi.lastIndexOf('/') + 1);
+                continue;
+            }
+            line = line.trim();
+            if (line.startsWith("block.major")) {
+                majorMap.put(disk, ParseUtil.getFirstIntValue(line));
+            }
         }
 
         // Next, run iostat -Er to get model, etc.
         disks = ExecutingCommand.runNative("iostat -Er");
         // We'll use Model if available, otherwise Vendor+Product
-        String disk = "";
+        disk = "";
         String model = "";
         String vendor = "";
         String product = "";
@@ -77,7 +121,8 @@ public class SolarisDisks extends AbstractDisks {
                     // First, if we have existing output from previous,
                     // update
                     if (!disk.isEmpty()) {
-                        updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                        updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),
+                                majorMap.getOrDefault(disk, 0));
                     }
                     // Reset values for next iteration
                     disk = keyValue;
@@ -108,7 +153,8 @@ public class SolarisDisks extends AbstractDisks {
             }
             // At end of output update last entry
             if (!disk.isEmpty()) {
-                updateStore(diskMap.get(disk), model, vendor, product, serial, size);
+                updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),
+                        majorMap.getOrDefault(disk, 0));
             }
         }
 
@@ -157,10 +203,133 @@ public class SolarisDisks extends AbstractDisks {
      *            serial number, or empty string if none
      * @param size
      *            size of the drive in bytes
+     * @param mount
+     *            The mount point of this store, used to fetch partition info
+     * @param major
+     *            The major device number for the partition
      */
-    private void updateStore(HWDiskStore store, String model, String vendor, String product, String serial, long size) {
+    private void updateStore(HWDiskStore store, String model, String vendor, String product, String serial, long size,
+            String mount, int major) {
         store.setModel(model.isEmpty() ? (vendor + " " + product).trim() : model);
         store.setSerial(serial);
         store.setSize(size);
+
+        // Temporary list to hold partitions
+        List<HWPartition> partList = new ArrayList<>();
+
+        // Now grab prtvotc output for partitions
+        // This requires sudo permissions; will result in "permission denied
+        // otherwise" in which case we return empty partition list
+        List<String> prtvotc = ExecutingCommand.runNative("prtvtoc /dev/dsk/" + mount);
+        // Sample output - see man prtvtoc
+        if (prtvotc.size() > 1) {
+            int bytesPerSector = 0;
+            String[] split;
+            // We have a result, parse partition table
+            for (String line : prtvotc) {
+                // If line starts with asterisk we ignore except for the one
+                // specifying bytes per sector
+                if (line.startsWith("*")) {
+                    if (line.endsWith("bytes/sector")) {
+                        split = line.split("\\s+");
+                        if (split.length > 0) {
+                            bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);
+                        }
+                    }
+                    continue;
+                }
+                // If bytes/sector is still 0, these are not real partitions so
+                // ignore.
+                if (bytesPerSector == 0) {
+                    continue;
+                }
+                // Lines without asterisk have 6 or 7 whitespace-split values
+                // representing (last field optional):
+                // Partition Tag Flags Sector Count Sector Mount
+                split = line.trim().split("\\s+");
+                // Partition 2 is always the whole disk so we ignore it
+                if (split.length < 6 || split[0].equals("2")) {
+                    continue;
+                }
+                HWPartition partition = new HWPartition();
+                // First field is partition number
+                partition.setIdentification(mount + "s" + split[0]);
+                partition.setMajor(major);
+                partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));
+                // Second field is tag. Parse:
+                switch (ParseUtil.parseIntOrDefault(split[1], 0)) {
+                case 0x01:
+                case 0x18:
+                    partition.setName("boot");
+                    break;
+                case 0x02:
+                    partition.setName("root");
+                    break;
+                case 0x03:
+                    partition.setName("swap");
+                    break;
+                case 0x04:
+                    partition.setName("usr");
+                    break;
+                case 0x05:
+                    partition.setName("backup");
+                    break;
+                case 0x06:
+                    partition.setName("stand");
+                    break;
+                case 0x07:
+                    partition.setName("var");
+                    break;
+                case 0x08:
+                    partition.setName("home");
+                    break;
+                case 0x09:
+                    partition.setName("altsctr");
+                    break;
+                case 0x0a:
+                    partition.setName("cache");
+                    break;
+                case 0x0b:
+                    partition.setName("reserved");
+                    break;
+                case 0x0c:
+                    partition.setName("system");
+                    break;
+                case 0x0e:
+                    partition.setName("public region");
+                    break;
+                case 0x0f:
+                    partition.setName("private region");
+                    break;
+                default:
+                    partition.setName("unknown");
+                    break;
+                }
+                // Third field is flags.
+                // First character writable, second is mountable
+                switch (split[2]) {
+                case "00":
+                    partition.setType("wm");
+                    break;
+                case "10":
+                    partition.setType("rm");
+                    break;
+                case "01":
+                    partition.setType("wu");
+                    break;
+                default:
+                    partition.setType("ru");
+                    break;
+                }
+                // Fifth field is sector count
+                partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));
+                // Seventh field (if present) is mount point
+                if (split.length > 6) {
+                    partition.setMountPoint(split[6]);
+                }
+                partList.add(partition);
+            }
+            store.setPartitions(partList.toArray(new HWPartition[partList.size()]));
+        }
     }
 }

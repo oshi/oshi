@@ -401,4 +401,33 @@ public class ParseUtil {
         return defaultStr;
     }
 
+    /**
+     * Parses a string key = 'value' (string)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value contained between single tick marks
+     */
+    public static String getSingleQuoteStringValue(String line) {
+        String[] split = line.split("'");
+        if (split.length < 2) {
+            return "";
+        }
+        return split[1];
+    }
+
+    /**
+     * Parses a string such as key = 1 (0x1) (int)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value of first int past equals sign
+     */
+    public static int getFirstIntValue(String line) {
+        String[] split = line.split("=");
+        if (split.length < 2) {
+            return 0;
+        }
+        return parseIntOrDefault(split[1].split("\\s+")[0], 0);
+    }
 }
