@@ -184,4 +184,22 @@ public class ParseUtilTest {
         assertEquals(0L, ParseUtil.parseDHMSOrDefault("04", 0L));
     }
 
+    /**
+     * Test parse SingleQuoteString
+     */
+    @Test
+    public void testGetSingleQuoteStringValue() {
+        assertEquals("bar", ParseUtil.getSingleQuoteStringValue("foo = 'bar' (string)"));
+        assertEquals("", ParseUtil.getSingleQuoteStringValue("foo = bar (string)"));
+    }
+
+    /**
+     * Test parse FirstIntValue
+     */
+    @Test
+    public void testGetFirstIntValue() {
+        assertEquals(42, ParseUtil.getFirstIntValue("foo = 42 (0x2a) (int)"));
+        assertEquals(0, ParseUtil.getFirstIntValue("foo = 0x2a (int)"));
+    }
+
 }

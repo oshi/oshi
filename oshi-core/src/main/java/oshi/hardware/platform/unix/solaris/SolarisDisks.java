@@ -59,7 +59,7 @@ public class SolarisDisks extends AbstractDisks {
         // s/w,h/w,trn,tot,device
         // 0,0,0,0,c1d0
         // 0,0,0,0,c1t1d0
-        ArrayList<String> mountpoints = ExecutingCommand.runNative("iostat -erm");
+        ArrayList<String> mountpoints = ExecutingCommand.runNative("iostat -ern");
         String disk;
         for (int i = 0; i < disks.size() && i < mountpoints.size(); i++) {
             // Map disk
