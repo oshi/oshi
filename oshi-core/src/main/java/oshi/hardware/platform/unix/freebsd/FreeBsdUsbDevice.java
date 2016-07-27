@@ -103,7 +103,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             // udi = ... identifies start of a new tree
             if (line.startsWith("udi =")) {
                 // Remove indent for key
-                key = getLshalString(line);
+                key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
             } else if (key.isEmpty()) {
                 // Ignore everything preceding the first node
@@ -114,10 +114,11 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             line = line.trim();
             if (line.isEmpty()) {
                 continue;
-            } else if (line.startsWith("freebsd.driver =") && getLshalString(line).equals("usbus")) {
+            } else if (line.startsWith("freebsd.driver =")
+                    && ParseUtil.getSingleQuoteStringValue(line).equals("usbus")) {
                 usBuses.add(key);
             } else if (line.contains(".parent =")) {
-                String parent = getLshalString(line);
+                String parent = ParseUtil.getSingleQuoteStringValue(line);
                 // If this is interface of parent, skip
                 if (key.replace(parent, "").startsWith("_if")) {
                     continue;
@@ -127,17 +128,17 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 // Add this key to the parent's hubmap list
                 hubMap.computeIfAbsent(parent, k -> new ArrayList<String>()).add(key);
             } else if (line.contains(".vendor =")) {
-                vendorMap.put(key, getLshalString(line));
+                vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.contains(".product =")) {
-                nameMap.put(key, getLshalString(line));
+                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.contains(".serial =")) {
-                String serial = getLshalString(line);
+                String serial = ParseUtil.getSingleQuoteStringValue(line);
                 serialMap.put(key,
                         serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", "")) : serial);
             } else if (line.contains(".vendor_id =")) {
-                vendorIdMap.put(key, getLshalIntAsHex(line));
+                vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
             } else if (line.contains(".product_id =")) {
-                vendorIdMap.put(key, getLshalIntAsHex(line));
+                vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
             }
         }
 
@@ -151,36 +152,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             controllerDevices.add(getDeviceAndChildren(parent, "0000", "0000"));
         }
         return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
-    }
-
-    /**
-     * Parses a string key = 'value' (string)
-     * 
-     * @param line
-     *            The entire string from lshal
-     * @return the value contained between single tick marks
-     */
-    private static String getLshalString(String line) {
-        String[] split = line.split("'");
-        if (split.length < 2) {
-            return "";
-        }
-        return split[1];
-    }
-
-    /**
-     * Parses a string key = 128 (0x80) (int)
-     * 
-     * @param line
-     *            The entire string from lshal
-     * @return a 4 digit hex string representing the int (e.g., "0080")
-     */
-    private static String getLshalIntAsHex(String line) {
-        String[] split = line.split("=|\\(");
-        if (split.length < 2) {
-            return "0000";
-        }
-        return String.format("%04x", ParseUtil.parseIntOrDefault(split[1].trim(), 0));
     }
 
     /**

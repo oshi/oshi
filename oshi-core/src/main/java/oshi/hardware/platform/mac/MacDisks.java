@@ -162,7 +162,8 @@ public class MacDisks extends AbstractDisks {
                 if (size <= 0) {
                     continue;
                 }
-                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L);
+                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
+                        new HWPartition[0]);
 
                 // Now look up the device using the BSD Name to get its
                 // statistics

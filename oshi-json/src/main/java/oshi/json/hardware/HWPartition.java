@@ -16,9 +16,18 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware;
+package oshi.json.hardware;
 
-import java.io.Serializable;
+import java.util.Properties;
+
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import oshi.json.json.AbstractOshiJsonObject;
+import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.util.PropertiesUtil;
 
 /**
  * A region on a hard disk or other secondary storage, so that an operating
@@ -28,18 +37,13 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class HWPartition implements Serializable, Comparable<HWPartition> {
+public class HWPartition extends AbstractOshiJsonObject {
 
     private static final long serialVersionUID = 1L;
 
-    private String identification;
-    private String name;
-    private String type;
-    private String uuid;
-    private long size;
-    private int major;
-    private int minor;
-    private String mountPoint;
+    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
+
+    private oshi.hardware.HWPartition hwPartition;
 
     /**
      * Creates a new HWPartition
@@ -63,77 +67,71 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
             String mountPoint) {
-        this.identification = identification;
-        this.name = name;
-        this.type = type;
-        this.uuid = uuid;
-        this.size = size;
-        this.major = major;
-        this.minor = minor;
-        this.mountPoint = mountPoint;
+        this.hwPartition = new oshi.hardware.HWPartition(identification, name, type, uuid, size, major, minor,
+                mountPoint);
     }
 
     /**
      * Creates a new HWPartition
      */
     public HWPartition() {
-        this("", "", "", "", 0L, 0, 0, "");
+        this.hwPartition = new oshi.hardware.HWPartition();
     }
 
     /**
      * @return Returns the identification.
      */
     public String getIdentification() {
-        return identification;
+        return hwPartition.getIdentification();
     }
 
     /**
      * @return Returns the name.
      */
     public String getName() {
-        return name;
+        return hwPartition.getName();
     }
 
     /**
      * @return Returns the type.
      */
     public String getType() {
-        return type;
+        return hwPartition.getType();
     }
 
     /**
      * @return Returns the uuid.
      */
     public String getUuid() {
-        return uuid;
+        return hwPartition.getUuid();
     }
 
     /**
      * @return Returns the size in bytes.
      */
     public long getSize() {
-        return size;
+        return hwPartition.getSize();
     }
 
     /**
      * @return Returns the major device ID.
      */
     public int getMajor() {
-        return major;
+        return hwPartition.getMajor();
     }
 
     /**
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-        return minor;
+        return hwPartition.getMinor();
     }
 
     /**
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-        return mountPoint;
+        return hwPartition.getMountPoint();
     }
 
     /**
@@ -141,7 +139,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The identification to set.
      */
     public void setIdentification(String identification) {
-        this.identification = identification;
+        this.hwPartition.setIdentification(identification);
     }
 
     /**
@@ -149,7 +147,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The name to set.
      */
     public void setName(String name) {
-        this.name = name;
+        this.hwPartition.setName(name);
     }
 
     /**
@@ -157,7 +155,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The type to set.
      */
     public void setType(String type) {
-        this.type = type;
+        this.hwPartition.setType(type);
     }
 
     /**
@@ -165,7 +163,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The uuid to set.
      */
     public void setUuid(String uuid) {
-        this.uuid = uuid;
+        this.hwPartition.setUuid(uuid);
     }
 
     /**
@@ -173,7 +171,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The size (in bytes) to set.
      */
     public void setSize(long size) {
-        this.size = size;
+        this.hwPartition.setSize(size);
     }
 
     /**
@@ -181,7 +179,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The major device ID to set.
      */
     public void setMajor(int major) {
-        this.major = major;
+        this.hwPartition.setMajor(major);
     }
 
     /**
@@ -189,7 +187,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The minor device ID to set.
      */
     public void setMinor(int minor) {
-        this.minor = minor;
+        this.hwPartition.setMinor(minor);
     }
 
     /**
@@ -197,15 +195,39 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            Mount point of the partition
      */
     public void setMountPoint(String mountPoint) {
-        this.mountPoint = mountPoint;
+        this.hwPartition.setMountPoint(mountPoint);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int compareTo(HWPartition part) {
-        // Naturally sort by device ID
-        return this.getIdentification().compareTo(part.getIdentification());
+    public JsonObject toJSON(Properties properties) {
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.identification")) {
+            json.add("identification", this.hwPartition.getIdentification());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.name")) {
+            json.add("name", this.hwPartition.getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.type")) {
+            json.add("type", this.hwPartition.getType());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.uuid")) {
+            json.add("uuid", this.hwPartition.getUuid());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.size")) {
+            json.add("size", this.hwPartition.getSize());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.major")) {
+            json.add("major", this.hwPartition.getMajor());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.minor")) {
+            json.add("minor", this.hwPartition.getMinor());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.mountPoint")) {
+            json.add("mountPoint", this.hwPartition.getMountPoint());
+        }
+        return json.build();
     }
 }

@@ -49,7 +49,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L);
+        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0]);
     }
 
     /**
@@ -73,9 +73,11 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            Number of bytes written to the disk
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
+     * @param partitions
+     *            Partitions on this disk
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime) {
+            long writeBytes, long transferTime, HWPartition[] partitions) {
         setName(name);
         setModel(model);
         setSerial(serial);
@@ -85,6 +87,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         setWrites(writes);
         setWriteBytes(writeBytes);
         setTransferTime(transferTime);
+        setPartitions(partitions);
     }
 
     /**

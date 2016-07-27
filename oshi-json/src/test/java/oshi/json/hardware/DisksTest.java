@@ -73,6 +73,35 @@ public class DisksTest {
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
             assertEquals(161718L, disk.getTransferTime());
+
+            for (HWPartition partition : disk.getPartitions()) {
+                assertNotNull(partition.getIdentification());
+                assertNotNull(partition.getName());
+                assertNotNull(partition.getType());
+                assertNotNull(partition.getUuid());
+                assertNotNull(partition.getMountPoint());
+                assertTrue(partition.getSize() >= 0);
+                assertTrue(partition.getMajor() >= 0);
+                assertTrue(partition.getMinor() >= 0);
+
+                partition.setIdentification("id");
+                partition.setName("name");
+                partition.setType("type");
+                partition.setUuid("uuid");
+                partition.setMountPoint("mount");
+                partition.setSize(123L);
+                partition.setMajor(345);
+                partition.setMinor(456);
+
+                assertEquals("id", partition.getIdentification());
+                assertEquals("name", partition.getName());
+                assertEquals("type", partition.getType());
+                assertEquals("uuid", partition.getUuid());
+                assertEquals("mount", partition.getMountPoint());
+                assertEquals(123L, partition.getSize());
+                assertEquals(345, partition.getMajor());
+                assertEquals(456, partition.getMinor());
+            }
         }
     }
 }

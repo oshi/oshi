@@ -30,6 +30,7 @@ import oshi.json.hardware.CentralProcessor;
 import oshi.json.hardware.Display;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
+import oshi.json.hardware.HWPartition;
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;
@@ -109,9 +110,17 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
         oshi.hardware.HWDiskStore[] ds = this.hal.getDiskStores();
         HWDiskStore[] diskStores = new HWDiskStore[ds.length];
         for (int i = 0; i < ds.length; i++) {
+            HWPartition[] partitions = new HWPartition[ds[i].getPartitions().length];
+            for (int j = 0; j < partitions.length; j++) {
+                partitions[j] = new HWPartition(ds[j].getPartitions()[i].getIdentification(),
+                        ds[j].getPartitions()[i].getName(), ds[j].getPartitions()[i].getType(),
+                        ds[j].getPartitions()[i].getUuid(), ds[j].getPartitions()[i].getSize(),
+                        ds[j].getPartitions()[i].getMajor(), ds[j].getPartitions()[i].getMinor(),
+                        ds[j].getPartitions()[i].getMountPoint());
+            }
             diskStores[i] = new HWDiskStore(ds[i].getName(), ds[i].getModel(), ds[i].getSerial(), ds[i].getSize(),
                     ds[i].getReads(), ds[i].getReadBytes(), ds[i].getWrites(), ds[i].getWriteBytes(),
-                    ds[i].getTransferTime());
+                    ds[i].getTransferTime(), partitions);
         }
         return diskStores;
     }
