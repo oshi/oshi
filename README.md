@@ -20,7 +20,7 @@ and extends that with flexible, configurable JSON-formatted data in the `oshi-js
 
 Supported platforms 
 --------------------------- 
-Windows • Linux • macOS (OS X) • Unix (Solaris, FreeBSD) 
+Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD) 
 
 Essentials
 ----------
@@ -31,10 +31,6 @@ Essentials
 	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
 	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
 	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html) (for oshi-json)
-* Related projects:
-	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
-	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
-	* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
 
 Downloads
 ----------
@@ -158,7 +154,18 @@ USB Devices:
 
 Where are we?
 -------------
-OSHI is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html).
+[OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) as a platform-independent library that did not require additional software and had a license compatible with other open source, and even commercial products. We've developed a strong core of features on major Operating Systems, but we would love *you* to help by:
+* Testing!  Download and test the program on different software and hardware and help identify gaps that our limited development and testing may have missed.
+* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified.
+* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
+* Documenting implementation.  Our Wiki is blank.  Want to help new users follow in your footsteps?
+* Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
+
+Related projects
+------------------------------
+* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
+* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and *Nix
+* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
 
 How is this different from ...
 ------------------------------
@@ -168,8 +175,8 @@ How is this different from ...
 	* Sigar is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
 	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2016.
 * [jHardware](https://github.com/profesorfalken/jHardware):
-	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing.  OSHI uses some command line parsing but attempts to use native commands whenever possible.
-	* jHardware presently only supports Windows and Unix systems.
+	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing and has a limited set of features.  OSHI integrates more native code through JNA and supports more platforms and more features.
+	* jHardware presently only supports Windows and *Nix systems.
 	* jHardware is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
 	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
@@ -178,4 +185,4 @@ How is this different from ...
 
 License
 -------
-This project is licensed under the [Eclipse Public License 1.0](LICENSE_EPL).
+This project is licensed under the [Eclipse Public License 1.0](https://www.eclipse.org/legal/epl-v10.html).

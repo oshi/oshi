@@ -73,6 +73,39 @@ public class DisksTest {
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
             assertEquals(161718L, disk.getTransferTime());
+
+            for (HWPartition partition : disk.getPartitions()) {
+                assertNotNull(partition.getIdentification());
+                assertNotNull(partition.getName());
+                assertNotNull(partition.getType());
+                assertNotNull(partition.getUuid());
+                assertNotNull(partition.getMountPoint());
+                assertTrue(partition.getSize() >= 0);
+                assertTrue(partition.getMajor() >= 0);
+                assertTrue(partition.getMinor() >= 0);
+            }
+
+            HWPartition[] partitions = new HWPartition[1];
+            partitions[0] = new HWPartition();
+            partitions[0].setIdentification("id");
+            partitions[0].setName("name");
+            partitions[0].setType("type");
+            partitions[0].setUuid("uuid");
+            partitions[0].setMountPoint("mount");
+            partitions[0].setSize(123L);
+            partitions[0].setMajor(345);
+            partitions[0].setMinor(456);
+            disk.setPartitions(partitions);
+
+            partitions = disk.getPartitions();
+            assertEquals("id", partitions[0].getIdentification());
+            assertEquals("name", partitions[0].getName());
+            assertEquals("type", partitions[0].getType());
+            assertEquals("uuid", partitions[0].getUuid());
+            assertEquals("mount", partitions[0].getMountPoint());
+            assertEquals(123L, partitions[0].getSize());
+            assertEquals(345, partitions[0].getMajor());
+            assertEquals(456, partitions[0].getMinor());
         }
     }
 }

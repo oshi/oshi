@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sun.jna.platform.win32.WinNT;
 
@@ -45,9 +43,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Pattern UUID_PATTERN = Pattern
-            .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
-
     private static final int BUFSIZE = 255;
 
     public WindowsFileSystem() {
@@ -62,6 +57,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
+    @Override
     public OSFileStore[] getFileStores() {
         // Create list to hold results
         ArrayList<OSFileStore> result;
@@ -138,11 +134,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             strName = new String(name).trim();
             strFsType = new String(fstype).trim();
             // Parse uuid from volume name
-            String uuid = "";
-            Matcher m = UUID_PATTERN.matcher(volume.toLowerCase());
-            if (m.matches()) {
-                uuid = m.group(1);
-            }
+            String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted

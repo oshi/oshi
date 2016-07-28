@@ -19,14 +19,18 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.linux.Udev;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -42,22 +46,14 @@ public class LinuxDisks extends AbstractDisks {
 
     private final int SECTORSIZE = 512;
 
-    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
-        LinuxBlockDevStats stats;
-        stats = new LinuxBlockDevStats(store.getName(), disk);
-
-        // Reads and writes are converted in bytes
-        store.setReads(stats.read_ops);
-        store.setReadBytes(stats.read_512bytes * this.SECTORSIZE);
-        store.setWrites(stats.write_ops);
-        store.setWriteBytes(stats.write_512bytes * this.SECTORSIZE);
-        store.setTransferTime(stats.active_ms);
-    }
+    private final Map<String, String> mountsMap = new HashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
-        HWDiskStore store;
+        HWDiskStore store = null;
         List<HWDiskStore> result;
+
+        updateMountsMap();
 
         Udev.UdevHandle handle = null;
         Udev.UdevDevice device = null;
@@ -74,14 +70,15 @@ public class LinuxDisks extends AbstractDisks {
 
         entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
         while (true) {
-            store = new HWDiskStore();
             try {
                 oldEntry = entry;
                 device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
                         Udev.INSTANCE.udev_list_entry_get_name(entry));
-                if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
+                if (Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
+                        || Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
+                    // Ignore loopback and ram disks; do nothing
+                } else if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
+                    store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
                     // Avoid model and serial in virtual environments
@@ -93,12 +90,32 @@ public class LinuxDisks extends AbstractDisks {
 
                     store.setSize(ParseUtil.parseLongOrDefault(
                             Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
-
+                    store.setPartitions(new HWPartition[0]);
                     this.computeDiskStats(store, device);
                     result.add(store);
+                } else if (Udev.INSTANCE.udev_device_get_devtype(device).equals("partition") && store != null) {
+                    // `store` should still point to the HWDiskStore this
+                    // partition is attached to. If not, it's an error, so skip.
+                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
+                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
+                    String name = Udev.INSTANCE.udev_device_get_devnode(device);
+                    partArray[partArray.length - 1] = new HWPartition(name,
+                            Udev.INSTANCE.udev_device_get_sysname(device),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
+                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"),
+                                    0L) * SECTORSIZE,
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"),
+                                    0),
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
+                                    0),
+                            mountsMap.getOrDefault(name, ""));
+                    store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 LOG.debug("Reached all disks. Exiting ");
                 break;
             } finally {
@@ -112,5 +129,29 @@ public class LinuxDisks extends AbstractDisks {
         Udev.INSTANCE.udev_unref(handle);
 
         return result.toArray(new HWDiskStore[result.size()]);
+    }
+
+    private void updateMountsMap() {
+        mountsMap.clear();
+        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        for (String mount : mounts) {
+            String[] split = mount.split("\\s+");
+            if (split.length < 2 || !split[0].startsWith("/dev/")) {
+                continue;
+            }
+            mountsMap.put(split[0], split[1]);
+        }
+    }
+
+    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
+        LinuxBlockDevStats stats;
+        stats = new LinuxBlockDevStats(store.getName(), disk);
+
+        // Reads and writes are converted in bytes
+        store.setReads(stats.read_ops);
+        store.setReadBytes(stats.read_512bytes * this.SECTORSIZE);
+        store.setWrites(stats.write_ops);
+        store.setWriteBytes(stats.write_512bytes * this.SECTORSIZE);
+        store.setTransferTime(stats.active_ms);
     }
 }

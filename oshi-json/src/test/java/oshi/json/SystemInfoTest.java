@@ -34,6 +34,7 @@ import oshi.json.hardware.CentralProcessor;
 import oshi.json.hardware.Display;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
+import oshi.json.hardware.HWPartition;
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;
@@ -216,11 +217,23 @@ public class SystemInfoTest {
         System.out.println("Disks:");
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s, writes: %s %n", disk.getName(),
-                    disk.getModel(), disk.getSerial(),
+            System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), xfer: %s ms%n",
+                    disk.getName(), disk.getModel(), disk.getSerial(),
                     disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
-                    readwrite ? FormatUtil.formatBytes(disk.getReads()) : "?",
-                    readwrite ? FormatUtil.formatBytes(disk.getWrites()) : "?");
+                    readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
+                    readwrite ? disk.getWrites() : "?", readwrite ? FormatUtil.formatBytes(disk.getWriteBytes()) : "?",
+                    readwrite ? disk.getTransferTime() : "?");
+            HWPartition[] partitions = disk.getPartitions();
+            if (partitions == null) {
+                // TODO Remove when all OS's implemented
+                continue;
+            }
+            for (HWPartition part : partitions) {
+                System.out.format(" |-- %s: %s (%s) Maj:Min=%d:%d, size: %s%s%n", part.getIdentification(),
+                        part.getName(), part.getType(), part.getMajor(), part.getMinor(),
+                        FormatUtil.formatBytesDecimal(part.getSize()),
+                        part.getMountPoint().isEmpty() ? "" : " @ " + part.getMountPoint());
+            }
         }
     }
 

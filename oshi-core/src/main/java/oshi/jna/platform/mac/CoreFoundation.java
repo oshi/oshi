@@ -46,6 +46,12 @@ public interface CoreFoundation extends Library {
     class CFTypeRef extends PointerType {
     }
 
+    class CFNumberRef extends PointerType {
+    }
+
+    class CFBooleanRef extends PointerType {
+    }
+
     class CFArrayRef extends PointerType {
     }
 

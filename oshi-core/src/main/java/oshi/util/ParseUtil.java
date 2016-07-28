@@ -63,6 +63,12 @@ public class ParseUtil {
     private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
 
     /*
+     * Pattern for a UUID
+     */
+    private static final Pattern UUID_PATTERN = Pattern
+            .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
+
+    /*
      * Hertz related variables.
      */
     final private static String Hertz = "Hz";
@@ -378,4 +384,50 @@ public class ParseUtil {
         return milliseconds;
     }
 
+    /**
+     * Attempts to parse a UUID. If it fails, returns the default.
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultStr
+     *            The value to return if parsing fails
+     * @return The parsed UUID, or the default if parsing fails
+     */
+    public static String parseUuidOrDefault(String s, String defaultStr) {
+        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());
+        if (m.matches()) {
+            return m.group(1);
+        }
+        return defaultStr;
+    }
+
+    /**
+     * Parses a string key = 'value' (string)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value contained between single tick marks
+     */
+    public static String getSingleQuoteStringValue(String line) {
+        String[] split = line.split("'");
+        if (split.length < 2) {
+            return "";
+        }
+        return split[1];
+    }
+
+    /**
+     * Parses a string such as key = 1 (0x1) (int)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value of first int past equals sign
+     */
+    public static int getFirstIntValue(String line) {
+        String[] split = line.split("=");
+        if (split.length < 2) {
+            return 0;
+        }
+        return parseIntOrDefault(split[1].trim().split("\\s+")[0], 0);
+    }
 }

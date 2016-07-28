@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
@@ -76,6 +77,31 @@ public class CfUtil {
     }
 
     /**
+     * Convert a pointer representing a Core Foundations LongLong into its long
+     * 
+     * @param p
+     *            The pointer to an integer
+     * @return The corresponding int
+     */
+    public static int cfPointerToInt(Pointer p) {
+        IntByReference ibr = new IntByReference();
+        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);
+        return ibr.getValue();
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations Boolean into its
+     * boolean
+     * 
+     * @param p
+     *            The pointer to a boolean
+     * @return The corresponding boolean
+     */
+    public static boolean cfPointerToBoolean(Pointer p) {
+        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);
+    }
+
+    /**
      * Convert a pointer representing a Core Foundations String into its string
      * 
      * @param p
@@ -105,4 +131,5 @@ public class CfUtil {
             CoreFoundation.INSTANCE.CFRelease(ref);
         }
     }
+
 }

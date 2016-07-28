@@ -21,6 +21,7 @@ package oshi.json.hardware;
 import java.util.Properties;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -68,11 +69,19 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            Number of bytes written to the disk
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
+     * @param partitions
+     *            Partitions on this disk
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime) {
+            long writeBytes, long transferTime, HWPartition[] partitions) {
+        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];
+        for (int i = 0; i < partitions.length; i++) {
+            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),
+                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),
+                    partitions[i].getMinor(), partitions[i].getMountPoint());
+        }
         this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
-                writeBytes, transferTime);
+                writeBytes, transferTime, parts);
     }
 
     /**
@@ -136,6 +145,21 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      */
     public long getTransferTime() {
         return this.hwDiskStore.getTransferTime();
+    }
+
+    /**
+     * @return the partitions of this disk
+     */
+    public HWPartition[] getPartitions() {
+        HWPartition[] partitions = new HWPartition[this.hwDiskStore.getPartitions().length];
+        for (int i = 0; i < partitions.length; i++) {
+            partitions[i] = new HWPartition(this.hwDiskStore.getPartitions()[i].getIdentification(),
+                    this.hwDiskStore.getPartitions()[i].getName(), this.hwDiskStore.getPartitions()[i].getType(),
+                    this.hwDiskStore.getPartitions()[i].getUuid(), this.hwDiskStore.getPartitions()[i].getSize(),
+                    this.hwDiskStore.getPartitions()[i].getMajor(), this.hwDiskStore.getPartitions()[i].getMinor(),
+                    this.hwDiskStore.getPartitions()[i].getMountPoint());
+        }
+        return partitions;
     }
 
     /**
@@ -211,6 +235,20 @@ public class HWDiskStore extends AbstractOshiJsonObject {
     }
 
     /**
+     * @param partitions
+     *            Partitions of this disk
+     */
+    public void setPartitions(HWPartition[] partitions) {
+        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];
+        for (int i = 0; i < partitions.length; i++) {
+            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),
+                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),
+                    partitions[i].getMinor(), partitions[i].getMountPoint());
+        }
+        this.hwDiskStore.setPartitions(parts);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -243,6 +281,14 @@ public class HWDiskStore extends AbstractOshiJsonObject {
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
             json.add("transferTime", this.hwDiskStore.getTransferTime());
         }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions")) {
+            JsonArrayBuilder partitionArrayBuilder = jsonFactory.createArrayBuilder();
+            for (HWPartition partition : getPartitions()) {
+                partitionArrayBuilder.add(partition.toJSON(properties));
+            }
+            json.add("partitions", partitionArrayBuilder.build());
+        }
         return json.build();
     }
+
 }
