@@ -83,25 +83,29 @@ public class DisksTest {
                 assertTrue(partition.getSize() >= 0);
                 assertTrue(partition.getMajor() >= 0);
                 assertTrue(partition.getMinor() >= 0);
-
-                partition.setIdentification("id");
-                partition.setName("name");
-                partition.setType("type");
-                partition.setUuid("uuid");
-                partition.setMountPoint("mount");
-                partition.setSize(123L);
-                partition.setMajor(345);
-                partition.setMinor(456);
-
-                assertEquals("id", partition.getIdentification());
-                assertEquals("name", partition.getName());
-                assertEquals("type", partition.getType());
-                assertEquals("uuid", partition.getUuid());
-                assertEquals("mount", partition.getMountPoint());
-                assertEquals(123L, partition.getSize());
-                assertEquals(345, partition.getMajor());
-                assertEquals(456, partition.getMinor());
             }
+
+            HWPartition[] partitions = new HWPartition[1];
+            partitions[0] = new HWPartition();
+            partitions[0].setIdentification("id");
+            partitions[0].setName("name");
+            partitions[0].setType("type");
+            partitions[0].setUuid("uuid");
+            partitions[0].setMountPoint("mount");
+            partitions[0].setSize(123L);
+            partitions[0].setMajor(345);
+            partitions[0].setMinor(456);
+            disk.setPartitions(partitions);
+
+            partitions = disk.getPartitions();
+            assertEquals("id", partitions[0].getIdentification());
+            assertEquals("name", partitions[0].getName());
+            assertEquals("type", partitions[0].getType());
+            assertEquals("uuid", partitions[0].getUuid());
+            assertEquals("mount", partitions[0].getMountPoint());
+            assertEquals(123L, partitions[0].getSize());
+            assertEquals(345, partitions[0].getMajor());
+            assertEquals(456, partitions[0].getMinor());
         }
     }
 }

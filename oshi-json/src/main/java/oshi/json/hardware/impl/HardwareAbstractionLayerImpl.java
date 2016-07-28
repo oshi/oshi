@@ -112,11 +112,11 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
         for (int i = 0; i < ds.length; i++) {
             HWPartition[] partitions = new HWPartition[ds[i].getPartitions().length];
             for (int j = 0; j < partitions.length; j++) {
-                partitions[j] = new HWPartition(ds[j].getPartitions()[i].getIdentification(),
-                        ds[j].getPartitions()[i].getName(), ds[j].getPartitions()[i].getType(),
-                        ds[j].getPartitions()[i].getUuid(), ds[j].getPartitions()[i].getSize(),
-                        ds[j].getPartitions()[i].getMajor(), ds[j].getPartitions()[i].getMinor(),
-                        ds[j].getPartitions()[i].getMountPoint());
+                partitions[j] = new HWPartition(ds[i].getPartitions()[j].getIdentification(),
+                        ds[i].getPartitions()[j].getName(), ds[i].getPartitions()[j].getType(),
+                        ds[i].getPartitions()[j].getUuid(), ds[i].getPartitions()[j].getSize(),
+                        ds[i].getPartitions()[j].getMajor(), ds[i].getPartitions()[j].getMinor(),
+                        ds[i].getPartitions()[j].getMountPoint());
             }
             diskStores[i] = new HWDiskStore(ds[i].getName(), ds[i].getModel(), ds[i].getSerial(), ds[i].getSize(),
                     ds[i].getReads(), ds[i].getReadBytes(), ds[i].getWrites(), ds[i].getWriteBytes(),

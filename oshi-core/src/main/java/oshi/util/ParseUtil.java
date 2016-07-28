@@ -66,7 +66,7 @@ public class ParseUtil {
      * Pattern for a UUID
      */
     private static final Pattern UUID_PATTERN = Pattern
-            .compile(".+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+");
+            .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
 
     /*
      * Hertz related variables.

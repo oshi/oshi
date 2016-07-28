@@ -185,6 +185,18 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test parse UUID
+     */
+    @Test
+    public void testParseUuidOrDefault() {
+        assertEquals("123e4567-e89b-12d3-a456-426655440000",
+                ParseUtil.parseUuidOrDefault("123e4567-e89b-12d3-a456-426655440000", "default"));
+        assertEquals("123e4567-e89b-12d3-a456-426655440000",
+                ParseUtil.parseUuidOrDefault("The UUID is 123E4567-E89B-12D3-A456-426655440000!", "default"));
+        assertEquals("default", ParseUtil.parseUuidOrDefault("foo", "default"));
+    }
+
+    /**
      * Test parse SingleQuoteString
      */
     @Test
@@ -200,6 +212,7 @@ public class ParseUtilTest {
     public void testGetFirstIntValue() {
         assertEquals(42, ParseUtil.getFirstIntValue("foo = 42 (0x2a) (int)"));
         assertEquals(0, ParseUtil.getFirstIntValue("foo = 0x2a (int)"));
+        assertEquals(0, ParseUtil.getFirstIntValue("42"));
     }
 
 }

@@ -67,9 +67,6 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
-        printDisks(hal.getDiskStores());
-        printFileSystem(os.getFileSystem());
-        System.exit(0);
 
         printProcessor(hal.getProcessor());
 
