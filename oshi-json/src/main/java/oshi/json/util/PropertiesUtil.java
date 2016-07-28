@@ -44,8 +44,11 @@ public class PropertiesUtil {
      */
     public static Properties loadProperties(String propertiesFile) {
         Properties props = new Properties();
-
-        try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile)) {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            return props;
+        }
+        try (InputStream input = loader.getResourceAsStream(propertiesFile)) {
             if (input == null) {
                 LOG.error("No properties file {} on the classpath.", propertiesFile);
                 return props;
