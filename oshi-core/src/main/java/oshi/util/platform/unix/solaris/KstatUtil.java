@@ -27,6 +27,7 @@ import com.sun.jna.Pointer;
 import oshi.jna.platform.unix.solaris.LibKstat;
 import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.jna.platform.unix.solaris.LibKstat.KstatCtl;
+import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
 import oshi.jna.platform.unix.solaris.LibKstat.KstatNamed;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
@@ -130,13 +131,14 @@ public class KstatUtil {
 
     // TODO Temp for testing, remove
     public static void main(String[] args) {
-        // unix:0:system_misc:snaptime
-        Kstat ksp = kstatLookup("unix", 0, "system_misc");
+        Kstat ksp = kstatLookup(null, 0, "cmdk0");
         System.out.println(
                 new String(ksp.ks_module).trim() + ":" + ksp.ks_instance + ":" + new String(ksp.ks_name).trim());
         System.out.println(ksp.toString());
         if (!kstatRead(ksp)) {
             System.out.println("Failed Read");
         }
+        KstatIO data = new KstatIO(ksp.ks_data);
+        System.out.println(data.toString());
     }
 }

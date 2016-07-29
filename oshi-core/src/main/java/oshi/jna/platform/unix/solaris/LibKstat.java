@@ -299,6 +299,15 @@ public interface LibKstat extends Library {
         public int wcnt; // count of elements in wait state
         public int rcnt; // count of elements in run state
 
+        public KstatIO() {
+            super();
+        }
+
+        public KstatIO(Pointer p) {
+            super(p);
+            this.read();
+        }
+
         @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "nread", "nwritten", "reads", "writes", "wtime", "wlentime",
