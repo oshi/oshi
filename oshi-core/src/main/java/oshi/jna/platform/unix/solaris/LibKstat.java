@@ -72,6 +72,8 @@ public interface LibKstat extends Library {
 
     int KSTAT_STRLEN = 31; // 30 chars + NULL; must be 16 * n - 1
 
+    int EAGAIN = 11; // Temporarily busy
+
     /**
      * The kernel maintains a linked list of statistics structures, or kstats.
      * Each kstat has a common header section and a type-specific data section.

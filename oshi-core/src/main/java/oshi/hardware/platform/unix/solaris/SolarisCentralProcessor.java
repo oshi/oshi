@@ -28,8 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A CPU
@@ -43,7 +45,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
 
     private static final Pattern PSRINFO = Pattern.compile(".*physical processor has (\\d+) virtual processors.*");
-    private static final Pattern CPU_TICKS = Pattern.compile("cpu:(\\d+):sys:cpu_ticks_(\\S*)\\s+(\\d+)");
 
     /**
      * Create a Processor
@@ -58,33 +59,15 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     private void initVars() {
-        List<String> cpuInfo = null;
-        // TODO: Replace kstat command line with native kstat()
-        cpuInfo = ExecutingCommand.runNative("kstat -m cpu_info");
-        for (String line : cpuInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "vendor_id":
-                this.setVendor(line.replace("vendor_id", "").trim());
-                break;
-            case "brand":
-                this.setName(line.replace("brand", "").trim());
-                break;
-            case "stepping":
-                this.setStepping(splitLine[1]);
-                break;
-            case "model":
-                this.setModel(splitLine[1]);
-                break;
-            case "family":
-                this.setFamily(splitLine[1]);
-                break;
-            default:
-                // Do nothing
-            }
+        // Get first result
+        Kstat ksp = KstatUtil.kstatLookup("cpu_info", -1, null);
+        // Set values
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            this.setVendor(KstatUtil.kstatDataLookupString(ksp, "vendor_id"));
+            this.setName(KstatUtil.kstatDataLookupString(ksp, "brand"));
+            this.setStepping(KstatUtil.kstatDataLookupString(ksp, "stepping"));
+            this.setModel(KstatUtil.kstatDataLookupString(ksp, "model"));
+            this.setFamily(KstatUtil.kstatDataLookupString(ksp, "family"));
         }
         this.setCpu64(ExecutingCommand.getFirstAnswer("isainfo -b").trim().equals("64"));
     }
@@ -155,34 +138,20 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
-        // TODO: Replace kstat command line with native kstat()
-        ArrayList<String> tickList = ExecutingCommand.runNative("kstat -p cpu::sys:/^cpu_ticks_/");
-        // Sample format (Solaris 11)
-        // cpu:0:sys:cpu_ticks_idle 8507532
-        // cpu:0:sys:cpu_ticks_kernel 141883
-        // cpu:0:sys:cpu_ticks_stolen 0
-        // cpu:0:sys:cpu_ticks_user 142482
-        // cpu:0:sys:cpu_ticks_wait 0
-        String instance = "";
         int cpu = -1;
-        for (String s : tickList) {
-            Matcher m = CPU_TICKS.matcher(s);
-            if (m.matches()) {
-                if (!m.group(1).equals(instance)) {
-                    // This is a new CPU
-                    if (++cpu >= ticks.length) {
-                        // Shouldn't happen
-                        break;
-                    }
-                    instance = m.group(1);
-                }
-                if (m.group(2).equals("idle")) {
-                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                } else if (m.group(2).equals("kernel")) {
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                } else if (m.group(2).equals("user")) {
-                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                }
+        for (Kstat ksp = KstatUtil.kstatLookup("cpu", -1, "sys"); ksp != null; ksp = ksp.next()) {
+            if (!"cpu".equals(new String(ksp.ks_module).trim()) || !"sys".equals(new String(ksp.ks_name).trim())) {
+                continue;
+            }
+            // This is a new CPU
+            if (++cpu >= ticks.length) {
+                // Shouldn't happen
+                break;
+            }
+            if (KstatUtil.kstatRead(ksp)) {
+                ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, "cpu_ticks_idle");
+                ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, "cpu_ticks_kernel");
+                ticks[cpu][TickType.USER.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, "cpu_ticks_user");
             }
         }
         return ticks;
@@ -193,23 +162,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        return Math.round(getSystemUptimeAsDouble());
-    }
-
-    /**
-     * Gets system uptime in fractional seconds
-     * 
-     * @return a double representing system uptime in fractional seconds
-     */
-    private double getSystemUptimeAsDouble() {
-        // Returns a floating point decimal
-        // TODO: Replace kstat command line with native kstat()
-        String uptimeSecs = ExecutingCommand.getFirstAnswer("kstat -p unix:0:system_misc:snaptime");
-        String[] split = uptimeSecs.split("\\s+");
-        if (split.length < 2) {
-            return 0d;
+        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        if (ksp == null) {
+            return 0L;
         }
-        return ParseUtil.parseDoubleOrDefault(split[1], 0d);
+        // Snap Time is in nanoseconds; divide for seconds
+        return ksp.ks_snaptime / 1000000000L;
     }
 
     /**
