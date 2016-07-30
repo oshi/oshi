@@ -18,13 +18,14 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
@@ -46,26 +47,12 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     protected void updateMeminfo() {
-        // TODO: Replace kstat command line with native kstat()
-        List<String> memInfo = ExecutingCommand.runNative("kstat -n system_pages");
-        if (memInfo.isEmpty()) {
-            return;
-        }
-        for (String line : memInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "availrmem":
-                this.memAvailable = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
-                break;
-            case "physmem":
-                this.memTotal = ParseUtil.parseLongOrDefault(splitLine[1], 0L) * PAGESIZE;
-                break;
-            default:
-                // Do nothing
-            }
+        // Get first result
+        Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
+        // Set values
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * PAGESIZE;
+            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * PAGESIZE;
         }
     }
 
