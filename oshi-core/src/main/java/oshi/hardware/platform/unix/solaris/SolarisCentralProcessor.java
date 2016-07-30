@@ -139,10 +139,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         int cpu = -1;
-        for (Kstat ksp = KstatUtil.kstatLookup("cpu", -1, "sys"); ksp != null; ksp = ksp.next()) {
-            if (!"cpu".equals(new String(ksp.ks_module).trim()) || !"sys".equals(new String(ksp.ks_name).trim())) {
-                continue;
-            }
+        for (Kstat ksp : KstatUtil.kstatLookupAll("cpu", -1, "sys")) {
             // This is a new CPU
             if (++cpu >= ticks.length) {
                 // Shouldn't happen

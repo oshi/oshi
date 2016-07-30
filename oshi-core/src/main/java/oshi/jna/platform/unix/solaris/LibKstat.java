@@ -124,39 +124,28 @@ public interface LibKstat extends Library {
      * A list of arbitrary name=value statistics.
      */
     class KstatNamed extends Structure {
+        public byte[] name = new byte[KSTAT_STRLEN]; // name of counter
+        public byte data_type; // data type
+        public UNION value; // value of counter
+
         public static class UNION extends Union {
+            public byte[] charc = new byte[16]; // enough for 128-bit ints
+            public int i32;
+            public int ui32;
+            public long i64;
+            public long ui64;
+            public STR str;
+
             public static class STR extends Structure {
-                public static class PTR extends Union {
-                    public Pointer ptr; // NULL-terminated string
-                }
-
-                public PTR addr;
+                public Pointer addr;
                 public int len; // length of string
-
-                @Override
-                public void read() {
-                    super.read();
-                    addr.setType(Pointer.class);
-                    addr.read();
-                }
 
                 @Override
                 protected List<String> getFieldOrder() {
                     return Arrays.asList(new String[] { "addr", "len" });
                 }
             }
-
-            public byte[] charc = new byte[16]; // enough for 128-bit ints
-            public STR str; // KstatNamedString
-            public int i32;
-            public int ui32;
-            public long i64;
-            public long ui64;
         }
-
-        public byte[] name = new byte[KSTAT_STRLEN]; // name of counter
-        public byte data_type; // data type
-        public UNION value; // value of counter
 
         public KstatNamed() {
             super();

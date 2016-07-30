@@ -18,6 +18,9 @@
  */
 package oshi.util.platform.unix.solaris;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +89,7 @@ public class KstatUtil {
         case LibKstat.KSTAT_DATA_UINT64:
             return Long.toUnsignedString(data.value.ui64);
         case LibKstat.KSTAT_DATA_STRING:
-            return ((KstatNamed.UNION.STR) data.value.str).addr.ptr.getString(0);
+            return data.value.str.addr.getString(0);
         default:
             LOG.error("Unimplemented kstat data type {}", data.data_type);
             return "";
@@ -183,5 +186,38 @@ public class KstatUtil {
         }
         Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);
         return ksp;
+    }
+
+    /**
+     * Convenience method for kstat_lookup(). Traverses the kstat chain,
+     * searching for all kstats with the same ks_module, ks_instance, and
+     * ks_name fields; this triplet uniquely identifies a kstat. If ks_module is
+     * NULL, ks_instance is -1, or ks_name is NULL, then those fields will be
+     * ignored in the search.
+     * 
+     * @param module
+     *            The module, or null to ignore
+     * @param instance
+     *            The instance, or -1 to ignore
+     * @param name
+     *            The name, or null to ignore
+     * @return All matches of the requested Kstat structure if found, or an
+     *         empty list otherwise
+     */
+    public static List<Kstat> kstatLookupAll(String module, int instance, String name) {
+        List<Kstat> kstats = new ArrayList<>();
+        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
+        if (ret < 0) {
+            LOG.error("Failed to update kstat chain");
+            return kstats;
+        }
+        for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {
+            if ((module == null || module.equals(new String(ksp.ks_module).trim()))
+                    && (instance < 0 || instance == ksp.ks_instance)
+                    && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
+                kstats.add(ksp);
+            }
+        }
+        return kstats;
     }
 }
