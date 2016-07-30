@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 [![Coverage Status](https://coveralls.io/repos/github/dblock/oshi/badge.svg?branch=master)](https://coveralls.io/github/dblock/oshi?branch=master)
+[![codecov.io](https://codecov.io/github/dblock/oshi/coverage.svg?branch=master)](https://codecov.io/github/dblock/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
 [![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dblock/oshi&amp;utm_campaign=Badge_Grade)
 [![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)

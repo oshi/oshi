@@ -3,9 +3,10 @@ language: java
 script: mvn test
 
 after_success:
-  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    mvn clean test jacoco:report coveralls:report;
-  fi
+  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      mvn clean test jacoco:report coveralls:report;
+    fi
 
 env:
   global:
