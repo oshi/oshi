@@ -27,8 +27,11 @@ import java.util.Map.Entry;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractDisks;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
+import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * Solaris hard disk implementation.
@@ -163,23 +166,15 @@ public class SolarisDisks extends AbstractDisks {
         HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];
         int index = 0;
         for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
-            ArrayList<String> stats = ExecutingCommand.runNative("kstat -p ::" + entry.getKey());
-            for (String line : stats) {
-                String[] split = line.split("\\s+");
-                if (split.length < 2) {
-                    continue;
-                }
-                if (split[0].endsWith(":reads")) {
-                    entry.getValue().setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":writes")) {
-                    entry.getValue().setWrites(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":nread")) {
-                    entry.getValue().setReadBytes(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":nwritten")) {
-                    entry.getValue().setWriteBytes(ParseUtil.parseLongOrDefault(split[1], 0L));
-                } else if (split[0].endsWith(":rtime")) {
-                    entry.getValue().setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[1], 0d) * 1000));
-                }
+            Kstat ksp = KstatUtil.kstatLookup(null, 0, entry.getKey());
+            if (KstatUtil.kstatRead(ksp)) {
+                KstatIO data = new KstatIO(ksp.ks_data);
+                entry.getValue().setReads(data.reads);
+                entry.getValue().setWrites(data.writes);
+                entry.getValue().setReadBytes(data.nread);
+                entry.getValue().setWriteBytes(data.nwritten);
+                // rtime is nanoseconds, convert to millis
+                entry.getValue().setTransferTime(data.rtime / 1000000L);
             }
             results[index++] = entry.getValue();
         }

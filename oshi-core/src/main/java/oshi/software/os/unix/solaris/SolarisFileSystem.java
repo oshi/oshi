@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * The Solaris File System contains {@link OSFileStore}s which are a storage
@@ -136,30 +137,20 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_inuse")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
+        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
+        // Set values
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            return KstatUtil.kstatDataLookupLong(ksp, "buf_inuse");
         }
         return 0L;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        ArrayList<String> stats = ExecutingCommand.runNative("kstat -n file_cache");
-        for (String line : stats) {
-            String[] split = line.trim().split("\\s+");
-            if (split.length < 2) {
-                break;
-            }
-            if (split[0].equals("buf_max")) {
-                return ParseUtil.parseLongOrDefault(split[1], 0L);
-            }
+        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
+        // Set values
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            return KstatUtil.kstatDataLookupLong(ksp, "buf_max");
         }
         return 0L;
     }
