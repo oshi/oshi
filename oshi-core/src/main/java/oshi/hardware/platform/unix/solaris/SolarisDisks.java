@@ -167,7 +167,7 @@ public class SolarisDisks extends AbstractDisks {
         int index = 0;
         for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
             Kstat ksp = KstatUtil.kstatLookup(null, 0, entry.getKey());
-            if (KstatUtil.kstatRead(ksp)) {
+            if (ksp != null && KstatUtil.kstatRead(ksp)) {
                 KstatIO data = new KstatIO(ksp.ks_data);
                 entry.getValue().setReads(data.reads);
                 entry.getValue().setWrites(data.writes);
