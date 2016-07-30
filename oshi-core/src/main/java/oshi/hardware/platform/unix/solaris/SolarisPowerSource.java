@@ -18,15 +18,13 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A Power Source
@@ -39,6 +37,23 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisPowerSource.class);
 
+    /*
+     * One-time lookup to see which kstat module to use
+     */
+    private static final String[] KSTAT_BATT_MOD = { null, "battery", "acpi_drv" };
+
+    private static final int KSTAT_BATT_IDX;
+
+    static {
+        if (KstatUtil.kstatLookup(KSTAT_BATT_MOD[1], 0, null) != null) {
+            KSTAT_BATT_IDX = 1;
+        } else if (KstatUtil.kstatLookup(KSTAT_BATT_MOD[2], 0, null) != null) {
+            KSTAT_BATT_IDX = 2;
+        } else {
+            KSTAT_BATT_IDX = 0;
+        }
+    }
+
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized SolarisPowerSource");
@@ -50,56 +65,53 @@ public class SolarisPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-        SolarisPowerSource[] ps = new SolarisPowerSource[1];
-        ArrayList<String> batInfo = ExecutingCommand.runNative("kstat -m acpi_drv");
-        if (batInfo.isEmpty()) {
-            batInfo = ExecutingCommand.runNative("kstat -m battery");
-        }
-        // If still empty...
-        if (batInfo.isEmpty()) {
+        // If no kstat info, return empty
+        if (KSTAT_BATT_IDX == 0) {
             return new SolarisPowerSource[0];
         }
-        boolean isCharging = false;
-        String name = "BAT0";
-        int energyNow = -1;
-        // defaults to avoid divide by zero
-        int energyFull = 1;
-        int powerNow = 1;
-        for (String line : batInfo) {
-            String[] splitLine = line.trim().split("\\s+");
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "bst_rate":
-                // int rate in mA or mW
-                powerNow = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                break;
-            case "bif_last_cap":
-                // full capacity in mAh or mWh
-                energyFull = ParseUtil.parseIntOrDefault(splitLine[1], 1);
-                break;
-            case "bif_rem_cap":
-                // remaining capacity in mAh or mWh
-                energyNow = ParseUtil.parseIntOrDefault(splitLine[1], 0);
-                break;
-            case "bst_state":
-                // bit 0 = discharging
-                // bit 1 = charging
-                // bit 2 = critical energy state
-                isCharging = (ParseUtil.parseIntOrDefault(splitLine[1], 0) & 0x10) > 0;
-                break;
-            default:
-                // case "bif_unit"
-                // 0 -> mW(h), 1 -> mA(h)
-                // Math is the same in either case so we ignore it
-            }
+        // Get kstat for the battery information
+        Kstat ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
+        if (ksp == null) {
+            return new SolarisPowerSource[0];
         }
+
+        // Predicted battery capacity when fully charged.
+        long energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_last_cap");
+        if (energyFull == 0xffffffff || energyFull <= 0) {
+            energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_design_cap");
+        }
+        if (energyFull == 0xffffffff || energyFull <= 0) {
+            return new SolarisPowerSource[0];
+        }
+
+        // Get kstat for the battery state
+        ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
+        if (ksp == null) {
+            return new SolarisPowerSource[0];
+        }
+
+        // estimated remaining battery capacity
+        long energyNow = KstatUtil.kstatDataLookupLong(ksp, "bst_rem_cap");
         if (energyNow < 0) {
             return new SolarisPowerSource[0];
         }
-        ps[0] = new SolarisPowerSource(name, (double) energyNow / energyFull,
-                isCharging ? -2d : 3600d * energyNow / powerNow);
+
+        // power or current supplied at battery terminal
+        long powerNow = KstatUtil.kstatDataLookupLong(ksp, "bst_rate");
+        if (powerNow == 0xFFFFFFFF) {
+            powerNow = 0L;
+        }
+
+        // Battery State:
+        // bit 0 = discharging
+        // bit 1 = charging
+        // bit 2 = critical energy state
+        boolean isCharging = (KstatUtil.kstatDataLookupLong(ksp, "bst_state") & 0x10) > 0;
+
+        // Set up single battery in array
+        SolarisPowerSource[] ps = new SolarisPowerSource[1];
+        ps[0] = new SolarisPowerSource("BAT0", (double) energyNow / energyFull,
+                isCharging ? -2d : (powerNow > 0 ? 3600d * energyNow / powerNow : -1d));
         return ps;
     }
 }
