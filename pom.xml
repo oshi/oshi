@@ -4,7 +4,7 @@
 
 	<groupId>com.github.dblock</groupId>
 	<artifactId>oshi-parent</artifactId>
-	<version>3.1</version>
+	<version>3.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Operating System and Hardware Information</name>
@@ -52,7 +52,7 @@
 		<connection>scm:git:git@github.com:dblock/oshi.git</connection>
 		<developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
 		<url>https://github.com/dblock/oshi.git</url>
-		<tag>oshi-parent-3.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<issueManagement>
 		<system>Github</system>
