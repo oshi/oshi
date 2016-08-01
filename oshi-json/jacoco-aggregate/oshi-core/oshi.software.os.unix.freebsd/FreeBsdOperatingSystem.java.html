@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdOperatingSystem.java</span></div><h1>FreeBsdOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.software.os.unix.freebsd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import oshi.jna.platform.linux.Libc;
+import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSProcess;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+
+/**
+ * Linux is a family of free operating systems most commonly used on personal
+ * computers.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L42">    public FreeBsdOperatingSystem() {</span>
+<span class="nc" id="L43">        this.manufacturer = &quot;Unix/BSD&quot;;</span>
+<span class="nc" id="L44">        this.family = BsdSysctlUtil.sysctl(&quot;kern.ostype&quot;, &quot;FreeBSD&quot;);</span>
+<span class="nc" id="L45">        this.version = new FreeBsdOSVersionInfoEx();</span>
+<span class="nc" id="L46">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FileSystem getFileSystem() {
+<span class="nc" id="L53">        return new FreeBsdFileSystem();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+<span class="nc" id="L61">        ArrayList&lt;String&gt; procList = ExecutingCommand</span>
+<span class="nc" id="L62">                .runNative(&quot;ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command&quot;);</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
+<span class="nc" id="L64">            return new OSProcess[0];</span>
+        }
+        // remove header row
+<span class="nc" id="L67">        procList.remove(0);</span>
+        // Fill list
+<span class="nc" id="L69">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (String proc : procList) {</span>
+<span class="nc" id="L71">            String[] split = proc.trim().split(&quot;\\s+&quot;);</span>
+            // Elements should match ps command order. Args will make split
+            // bigger than 11 but we ignore thems
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (split.length &lt; 11) {</span>
+<span class="nc" id="L75">                continue;</span>
+            }
+<span class="nc" id="L77">            String path = split[10];</span>
+<span class="nc" id="L78">            long now = System.currentTimeMillis();</span>
+<span class="nc" id="L79">            procs.add(new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name</span>
+                    path, // path
+<span class="nc" id="L81">                    split[0].charAt(0), // state, one of DILRSTWZ</span>
+<span class="nc" id="L82">                    ParseUtil.parseIntOrDefault(split[1], 0), // pid</span>
+<span class="nc" id="L83">                    ParseUtil.parseIntOrDefault(split[2], 0), // ppid</span>
+<span class="nc" id="L84">                    ParseUtil.parseIntOrDefault(split[3], 0), // thread count</span>
+<span class="nc" id="L85">                    ParseUtil.parseIntOrDefault(split[4], 0), // priority</span>
+<span class="nc" id="L86">                    ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb</span>
+<span class="nc" id="L87">                    ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb</span>
+<span class="nc" id="L88">                    ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs</span>
+<span class="nc" id="L89">                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms</span>
+<span class="nc" id="L90">                    ParseUtil.parseDHMSOrDefault(split[9], 0L), // usr+sys ms</span>
+                    now //
+            ));
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L95">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess getProcess(int pid) {
+<span class="nc" id="L103">        ArrayList&lt;String&gt; procList = ExecutingCommand</span>
+<span class="nc" id="L104">                .runNative(&quot;ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command -p &quot; + pid);</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
+<span class="nc" id="L106">            return null;</span>
+        }
+        // remove header row
+<span class="nc" id="L109">        String[] split = procList.get(1).trim().split(&quot;\\s+&quot;);</span>
+        // Elements should match ps command order
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (split.length &lt; 11) {</span>
+<span class="nc" id="L112">            return null;</span>
+        }
+<span class="nc" id="L114">        String path = split[10];</span>
+<span class="nc" id="L115">        return new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name</span>
+                path, // path
+<span class="nc" id="L117">                split[0].charAt(0), // state, one of DILRSTWZ</span>
+                pid, // also split[1] but we already have
+<span class="nc" id="L119">                ParseUtil.parseIntOrDefault(split[2], 0), // ppid</span>
+<span class="nc" id="L120">                ParseUtil.parseIntOrDefault(split[3], 0), // thread count</span>
+<span class="nc" id="L121">                ParseUtil.parseIntOrDefault(split[4], 0), // priority</span>
+<span class="nc" id="L122">                ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb</span>
+<span class="nc" id="L123">                ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb</span>
+<span class="nc" id="L124">                ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs</span>
+<span class="nc" id="L125">                ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms</span>
+<span class="nc" id="L126">                ParseUtil.parseDHMSOrDefault(split[9], 0L), // process ms</span>
+<span class="nc" id="L127">                System.currentTimeMillis() //</span>
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessId() {
+<span class="nc" id="L136">        return Libc.INSTANCE.getpid();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getProcessCount() {
+<span class="nc" id="L144">        ArrayList&lt;String&gt; procList = ExecutingCommand.runNative(&quot;ps -axo pid&quot;);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (!procList.isEmpty()) {</span>
+            // Subtract 1 for header
+<span class="nc" id="L147">            return procList.size() - 1;</span>
+        }
+<span class="nc" id="L149">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getThreadCount() {
+<span class="nc" id="L157">        ArrayList&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -axo nlwp&quot;);</span>
+<span class="nc" id="L158">        int threads = 0;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (String proc : threadList) {</span>
+<span class="nc" id="L160">            threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);</span>
+<span class="nc" id="L161">        }</span>
+<span class="nc" id="L162">        return threads;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

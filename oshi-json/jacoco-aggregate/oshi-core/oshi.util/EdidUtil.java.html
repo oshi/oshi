@@ -258,7 +258,7 @@ import org.slf4j.LoggerFactory;
 <span class="fc" id="L258">        StringBuilder sb = new StringBuilder();</span>
 <span class="fc" id="L259">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid)).append(&quot;, Product ID=&quot;)</span>
 <span class="fc" id="L260">                .append(EdidUtil.getProductID(edid)).append(&quot;, &quot;)</span>
-<span class="pc bpc" id="L261" title="1 of 2 branches missed.">                .append((EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;)).append(&quot;, Serial=&quot;)</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">                .append(EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;).append(&quot;, Serial=&quot;)</span>
 <span class="fc" id="L262">                .append(EdidUtil.getSerialNo(edid)).append(&quot;, ManufDate=&quot;)</span>
 <span class="fc" id="L263">                .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + &quot;/&quot;).append(EdidUtil.getYear(edid)).append(&quot;, EDID v&quot;)</span>
 <span class="fc" id="L264">                .append(EdidUtil.getVersion(edid));</span>
@@ -292,9 +292,10 @@ import org.slf4j.LoggerFactory;
                 } else {
 <span class="fc" id="L293">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(desc[d]));</span>
                 }
+                break;
             }
         }
-<span class="fc" id="L297">        return sb.toString();</span>
+<span class="fc" id="L298">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

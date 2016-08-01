@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
@@ -35,13 +36,13 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
  * 
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L38">public class CfUtil {</span>
-<span class="nc" id="L39">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+<span class="nc" id="L39">public class CfUtil {</span>
+<span class="nc" id="L40">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
 
     /**
      * Cache cfStrings
      */
-<span class="nc" id="L44">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -51,15 +52,15 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-<span class="nc" id="L54">        return cfStringMap.computeIfAbsent(key, k -&gt; CFStringRef.toCFString(k));</span>
+<span class="nc" id="L55">        return cfStringMap.computeIfAbsent(key, k -&gt; CFStringRef.toCFString(k));</span>
     }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
      * fetch the corresponding constant.
      */
-<span class="nc" id="L61">    public enum CFNumberType {</span>
-<span class="nc" id="L62">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+<span class="nc" id="L62">    public enum CFNumberType {</span>
+<span class="nc" id="L63">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
     };
 
     /**
@@ -70,9 +71,34 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding long
      */
     public static long cfPointerToLong(Pointer p) {
-<span class="nc" id="L73">        LongByReference lbr = new LongByReference();</span>
-<span class="nc" id="L74">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
-<span class="nc" id="L75">        return lbr.getValue();</span>
+<span class="nc" id="L74">        LongByReference lbr = new LongByReference();</span>
+<span class="nc" id="L75">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="nc" id="L76">        return lbr.getValue();</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations LongLong into its long
+     * 
+     * @param p
+     *            The pointer to an integer
+     * @return The corresponding int
+     */
+    public static int cfPointerToInt(Pointer p) {
+<span class="nc" id="L87">        IntByReference ibr = new IntByReference();</span>
+<span class="nc" id="L88">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
+<span class="nc" id="L89">        return ibr.getValue();</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations Boolean into its
+     * boolean
+     * 
+     * @param p
+     *            The pointer to a boolean
+     * @return The corresponding boolean
+     */
+    public static boolean cfPointerToBoolean(Pointer p) {
+<span class="nc" id="L101">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
     }
 
     /**
@@ -83,14 +109,14 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
-<span class="nc" id="L86">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="nc" id="L87">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (maxSize == 0) {</span>
-<span class="nc" id="L89">            maxSize = 1;</span>
+<span class="nc" id="L112">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="nc" id="L113">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L115">            maxSize = 1;</span>
         }
-<span class="nc" id="L91">        Pointer buf = new Memory(maxSize);</span>
-<span class="nc" id="L92">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="nc" id="L93">        return buf.getString(0);</span>
+<span class="nc" id="L117">        Pointer buf = new Memory(maxSize);</span>
+<span class="nc" id="L118">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="nc" id="L119">        return buf.getString(0);</span>
     }
 
     /**
@@ -101,9 +127,10 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      *            The reference to release
      */
     public static void release(PointerType ref) {
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (ref != null) {</span>
-<span class="nc" id="L105">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (ref != null) {</span>
+<span class="nc" id="L131">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
         }
-<span class="nc" id="L107">    }</span>
+<span class="nc" id="L133">    }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

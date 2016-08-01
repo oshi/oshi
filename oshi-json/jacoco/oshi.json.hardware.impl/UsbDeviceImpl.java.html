@@ -38,7 +38,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L41">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L41">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.UsbDevice usbDevice;
 

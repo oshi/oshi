@@ -42,10 +42,10 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
 <span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="nc" id="L45">    private XswUsage xswUsage = new XswUsage();</span>
+<span class="nc" id="L45">    private transient XswUsage xswUsage = new XswUsage();</span>
 <span class="nc" id="L46">    private long lastUpdateSwap = 0;</span>
 
-<span class="nc" id="L48">    private VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc" id="L48">    private transient VMStatistics vmStats = new VMStatistics();</span>
 <span class="nc" id="L49">    private long lastUpdateAvail = 0;</span>
 
 <span class="nc" id="L51">    private long pageSize = 4096;</span>

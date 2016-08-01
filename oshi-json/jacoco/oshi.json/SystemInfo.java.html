@@ -53,7 +53,7 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
 
 <span class="fc" id="L54">    private HardwareAbstractionLayer hardware = null;</span>
 
-<span class="fc" id="L56">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L56">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * Primary entry point for OSHI API.

@@ -40,7 +40,7 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L43">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L43">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.FileSystem fileSystem;
 

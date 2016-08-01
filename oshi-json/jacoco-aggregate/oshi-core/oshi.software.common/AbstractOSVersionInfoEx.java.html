@@ -90,7 +90,7 @@ import oshi.software.os.OperatingSystemVersion;
 <span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.versionStr == null) {</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : &quot;Unknown&quot;);</span>
 <span class="nc bnc" id="L92" title="All 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
-<span class="nc" id="L93">                sb.append(&quot; (&quot;).append(getCodeName()).append(&quot;)&quot;);</span>
+<span class="nc" id="L93">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
 <span class="nc bnc" id="L95" title="All 2 branches missed.">            if (getBuildNumber().length() &gt; 0) {</span>
 <span class="nc" id="L96">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>

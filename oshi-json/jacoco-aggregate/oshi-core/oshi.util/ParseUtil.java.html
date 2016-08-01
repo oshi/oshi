@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +37,38 @@ import org.slf4j.LoggerFactory;
  * 
  * @author alessio.fachechi[at]gmail[dot]com
  */
-<span class="nc" id="L42">public class ParseUtil {</span>
+<span class="nc" id="L40">public class ParseUtil {</span>
 
-<span class="fc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
+<span class="fc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
-    /**
+    /*
+     * Used for matching
+     */
+<span class="fc" id="L47">    final private static Pattern HERTZ = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz).*&quot;);</span>
+
+    /*
+     * Used to check validity of a hexadecimal string
+     */
+<span class="fc" id="L52">    final private static Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
+
+    /*
+     * Format for parsing DATETIME originally 20160513072950.782000-420,
+     * modified to 20160513072950.782000-07:00
+     */
+<span class="fc" id="L58">    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;, Locale.US);</span>
+
+    /*
+     * Pattern for [dd-[hh:[mm:ss]]]
+     */
+<span class="fc" id="L63">    private static final Pattern DHMS = Pattern.compile(&quot;(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?&quot;);</span>
+
+    /*
+     * Pattern for a UUID
+     */
+<span class="fc" id="L68">    private static final Pattern UUID_PATTERN = Pattern</span>
+<span class="fc" id="L69">            .compile(&quot;.*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*&quot;);</span>
+
+    /*
      * Hertz related variables.
      */
     final private static String Hertz = &quot;Hz&quot;;
@@ -61,24 +86,14 @@ import org.slf4j.LoggerFactory;
     final private static Map&lt;String, Long&gt; multipliers;
 
     static {
-<span class="fc" id="L64">        multipliers = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L65">        multipliers.put(Hertz, 1L);</span>
-<span class="fc" id="L66">        multipliers.put(kiloHertz, 1000L);</span>
-<span class="fc" id="L67">        multipliers.put(megaHertz, 1000000L);</span>
-<span class="fc" id="L68">        multipliers.put(gigaHertz, 1000000000L);</span>
-<span class="fc" id="L69">        multipliers.put(teraHertz, 1000000000000L);</span>
-<span class="fc" id="L70">        multipliers.put(petaHertz, 1000000000000000L);</span>
-    }
-
-    /**
-     * Used for matching
-     */
-<span class="fc" id="L76">    final private static Pattern HERTZ = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz)&quot;);</span>
-
-    /**
-     * Used to check validity of a hexadecimal string
-     */
-<span class="fc" id="L81">    final private static Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
+<span class="fc" id="L89">        multipliers = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L90">        multipliers.put(Hertz, 1L);</span>
+<span class="fc" id="L91">        multipliers.put(kiloHertz, 1000L);</span>
+<span class="fc" id="L92">        multipliers.put(megaHertz, 1000000L);</span>
+<span class="fc" id="L93">        multipliers.put(gigaHertz, 1000000000L);</span>
+<span class="fc" id="L94">        multipliers.put(teraHertz, 1000000000000L);</span>
+<span class="fc" id="L95">        multipliers.put(petaHertz, 1000000000000000L);</span>
+<span class="fc" id="L96">    }</span>
 
     /**
      * Parse hertz from a string, eg. &quot;2.00MHz&quot; in 2000000L.
@@ -88,13 +103,13 @@ import org.slf4j.LoggerFactory;
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-<span class="fc" id="L91">        Matcher matcher = HERTZ.matcher(hertz.trim());</span>
-<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
+<span class="fc" id="L106">        Matcher matcher = HERTZ.matcher(hertz.trim());</span>
+<span class="pc bpc" id="L107" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
             // Regexp enforces #(.#) format so no test for NFE required
-<span class="fc" id="L94">            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
+<span class="fc" id="L109">            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
         }
-<span class="fc" id="L97">        return -1L;</span>
+<span class="fc" id="L112">        return -1L;</span>
     }
 
     /**
@@ -108,14 +123,14 @@ import org.slf4j.LoggerFactory;
      * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
-<span class="fc" id="L111">        String[] ss = s.split(&quot;\\s+&quot;);</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
-<span class="fc" id="L113">            return i;</span>
+<span class="fc" id="L126">        String[] ss = s.split(&quot;\\s+&quot;);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (ss.length &lt; 2) {</span>
+<span class="fc" id="L128">            return i;</span>
         } else {
             try {
-<span class="fc" id="L116">                return Integer.parseInt(ss[ss.length - 1]);</span>
-<span class="fc" id="L117">            } catch (NumberFormatException nfe) {</span>
-<span class="fc" id="L118">                return i;</span>
+<span class="fc" id="L131">                return Integer.parseInt(ss[ss.length - 1]);</span>
+<span class="fc" id="L132">            } catch (NumberFormatException nfe) {</span>
+<span class="fc" id="L133">                return i;</span>
             }
         }
     }
@@ -129,18 +144,18 @@ import org.slf4j.LoggerFactory;
      *         null if the string is not valid hex
      */
     public static byte[] hexStringToByteArray(String digits) {
-<span class="fc" id="L132">        int len = digits.length();</span>
+<span class="fc" id="L147">        int len = digits.length();</span>
         // Check if string is valid hex
-<span class="fc bfc" id="L134" title="All 4 branches covered.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
-<span class="fc" id="L135">            LOG.error(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
-<span class="fc" id="L136">            return null;</span>
+<span class="fc bfc" id="L149" title="All 4 branches covered.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
+<span class="fc" id="L150">            LOG.warn(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
+<span class="fc" id="L151">            return null;</span>
         }
-<span class="fc" id="L138">        byte[] data = new byte[len / 2];</span>
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="fc" id="L140">            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) &lt;&lt; 4)</span>
-<span class="fc" id="L141">                    | Character.digit(digits.charAt(i + 1), 16));</span>
+<span class="fc" id="L153">        byte[] data = new byte[len / 2];</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="fc" id="L155">            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) &lt;&lt; 4)</span>
+<span class="fc" id="L156">                    | Character.digit(digits.charAt(i + 1), 16));</span>
         }
-<span class="fc" id="L143">        return data;</span>
+<span class="fc" id="L158">        return data;</span>
     }
 
     /**
@@ -156,7 +171,7 @@ import org.slf4j.LoggerFactory;
      *         provided string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
-<span class="fc" id="L159">        return Arrays.copyOf(text.getBytes(), length);</span>
+<span class="fc" id="L174">        return Arrays.copyOf(text.getBytes(), length);</span>
     }
 
     /**
@@ -173,15 +188,16 @@ import org.slf4j.LoggerFactory;
      *         first valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
+<span class="fc" id="L191">        long val = value;</span>
         // Convert the long to 8-byte BE representation
-<span class="fc" id="L177">        byte[] b = new byte[8];</span>
-<span class="pc bpc" id="L178" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; value != 0L; i--) {</span>
-<span class="fc" id="L179">            b[i] = (byte) value;</span>
-<span class="fc" id="L180">            value &gt;&gt;&gt;= 8;</span>
+<span class="fc" id="L193">        byte[] b = new byte[8];</span>
+<span class="pc bpc" id="L194" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {</span>
+<span class="fc" id="L195">            b[i] = (byte) val;</span>
+<span class="fc" id="L196">            val &gt;&gt;&gt;= 8;</span>
         }
         // Then copy the rightmost valueSize bytes
         // e.g., for an integer we want rightmost 4 bytes
-<span class="fc" id="L184">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
+<span class="fc" id="L200">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
     }
 
     /**
@@ -195,7 +211,7 @@ import org.slf4j.LoggerFactory;
      *         treated as a byte
      */
     public static long strToLong(String str, int size) {
-<span class="fc" id="L198">        return byteArrayToLong(str.getBytes(), size);</span>
+<span class="fc" id="L214">        return byteArrayToLong(str.getBytes(), size);</span>
     }
 
     /**
@@ -208,17 +224,17 @@ import org.slf4j.LoggerFactory;
      * @return An integer representing the byte array as a 64-bit number
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
-<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (size &gt; 8) {</span>
-<span class="fc" id="L212">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (size &gt; 8) {</span>
+<span class="fc" id="L228">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
         }
-<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (size &gt; bytes.length) {</span>
-<span class="fc" id="L215">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (size &gt; bytes.length) {</span>
+<span class="fc" id="L231">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
         }
-<span class="fc" id="L217">        long total = 0L;</span>
-<span class="fc bfc" id="L218" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
-<span class="fc" id="L219">            total = (total &lt;&lt; 8) | (bytes[i] &amp; 0xff);</span>
+<span class="fc" id="L233">        long total = 0L;</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L235">            total = (total &lt;&lt; 8) | (bytes[i] &amp; 0xff);</span>
         }
-<span class="fc" id="L221">        return total;</span>
+<span class="fc" id="L237">        return total;</span>
     }
 
     /**
@@ -235,14 +251,8 @@ import org.slf4j.LoggerFactory;
      *         remaining bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
-<span class="fc" id="L238">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
+<span class="fc" id="L254">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
     }
-
-    /*
-     * Format for parsing DATETIME originally 20160513072950.782000-420,
-     * modified to 20160513072950.782000-07:00
-     */
-<span class="fc" id="L245">    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;, Locale.US);</span>
 
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
@@ -257,15 +267,15 @@ import org.slf4j.LoggerFactory;
         // Keep first 22 characters: digits, decimal, and + or - sign of
         // time zone. Parse last 3 digits from minutes to HH:mm
         try {
-<span class="fc" id="L260">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
-<span class="fc" id="L261">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
-<span class="fc" id="L262">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
-<span class="fc" id="L263">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
-<span class="fc" id="L264">            return dateTime.toInstant().toEpochMilli();</span>
-<span class="fc" id="L265">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
+<span class="fc" id="L270">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
+<span class="fc" id="L271">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
+<span class="fc" id="L272">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
+<span class="fc" id="L273">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
+<span class="fc" id="L274">            return dateTime.toInstant().toEpochMilli();</span>
+<span class="fc" id="L275">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-<span class="fc" id="L268">            return 0L;</span>
+<span class="fc" id="L278">            return 0L;</span>
         }
     }
 
@@ -279,12 +289,21 @@ import org.slf4j.LoggerFactory;
      *         hexString
      */
     public static String hexStringToString(String hexString) {
+        int charAsInt;
+<span class="fc" id="L293">        StringBuilder sb = new StringBuilder();</span>
         try {
-<span class="fc" id="L283">            return new String(DatatypeConverter.parseHexBinary(hexString));</span>
-<span class="fc" id="L284">        } catch (IllegalArgumentException e) {</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
+<span class="fc" id="L296">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
+<span class="pc bpc" id="L297" title="1 of 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
+<span class="fc" id="L298">                    return hexString;</span>
+                }
+<span class="fc" id="L300">                sb.append((char) charAsInt);</span>
+            }
+<span class="fc" id="L302">        } catch (NumberFormatException e) {</span>
             // Hex failed to parse, just return the existing string
-<span class="fc" id="L286">            return hexString;</span>
-        }
+<span class="fc" id="L304">            return hexString;</span>
+<span class="fc" id="L305">        }</span>
+<span class="fc" id="L306">        return sb.toString();</span>
     }
 
     /**
@@ -298,9 +317,9 @@ import org.slf4j.LoggerFactory;
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
-<span class="fc" id="L301">            return Integer.parseInt(s);</span>
-<span class="fc" id="L302">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L303">            return defaultInt;</span>
+<span class="fc" id="L320">            return Integer.parseInt(s);</span>
+<span class="fc" id="L321">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L322">            return defaultInt;</span>
         }
     }
 
@@ -315,10 +334,101 @@ import org.slf4j.LoggerFactory;
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
-<span class="fc" id="L318">            return Long.parseLong(s);</span>
-<span class="fc" id="L319">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L320">            return defaultLong;</span>
+<span class="fc" id="L337">            return Long.parseLong(s);</span>
+<span class="fc" id="L338">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L339">            return defaultLong;</span>
         }
+    }
+
+    /**
+     * Attempts to parse a string to a double. If it fails, returns the default
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultDouble
+     *            The value to return if parsing fails
+     * @return The parsed double, or the default if parsing failed
+     */
+    public static double parseDoubleOrDefault(String s, double defaultDouble) {
+        try {
+<span class="fc" id="L354">            return Double.parseDouble(s);</span>
+<span class="fc" id="L355">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L356">            return defaultDouble;</span>
+        }
+    }
+
+    /**
+     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number
+     * of milliseconds. If it fails, returns the default.
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultLong
+     *            The value to return if parsing fails
+     * @return The parsed number of seconds, or the default if parsing fails
+     */
+    public static long parseDHMSOrDefault(String s, long defaultLong) {
+<span class="fc" id="L371">        Matcher m = DHMS.matcher(s);</span>
+<span class="fc" id="L372">        long milliseconds = 0L;</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
+<span class="fc" id="L375">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
+            }
+<span class="fc bfc" id="L377" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
+<span class="fc" id="L378">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
+            }
+<span class="fc" id="L380">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
+<span class="fc" id="L381">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
+<span class="fc" id="L382">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
+        }
+<span class="fc" id="L384">        return milliseconds;</span>
+    }
+
+    /**
+     * Attempts to parse a UUID. If it fails, returns the default.
+     * 
+     * @param s
+     *            The string to parse
+     * @param defaultStr
+     *            The value to return if parsing fails
+     * @return The parsed UUID, or the default if parsing fails
+     */
+    public static String parseUuidOrDefault(String s, String defaultStr) {
+<span class="fc" id="L397">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L399">            return m.group(1);</span>
+        }
+<span class="fc" id="L401">        return defaultStr;</span>
+    }
+
+    /**
+     * Parses a string key = 'value' (string)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value contained between single tick marks
+     */
+    public static String getSingleQuoteStringValue(String line) {
+<span class="fc" id="L412">        String[] split = line.split(&quot;'&quot;);</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L414">            return &quot;&quot;;</span>
+        }
+<span class="fc" id="L416">        return split[1];</span>
+    }
+
+    /**
+     * Parses a string such as key = 1 (0x1) (int)
+     * 
+     * @param line
+     *            The entire string
+     * @return the value of first int past equals sign
+     */
+    public static int getFirstIntValue(String line) {
+<span class="fc" id="L427">        String[] split = line.split(&quot;=&quot;);</span>
+<span class="fc bfc" id="L428" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L429">            return 0;</span>
+        }
+<span class="fc" id="L431">        return parseIntOrDefault(split[1].trim().split(&quot;\\s+&quot;)[0], 0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

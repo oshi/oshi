@@ -153,8 +153,8 @@ import oshi.util.ParseUtil;
             }
 <span class="nc" id="L154">            String volume = split[0].replaceAll(&quot;\\\\040&quot;, &quot; &quot;);</span>
 <span class="nc" id="L155">            String uuid = uuidMap.getOrDefault(split[0], &quot;&quot;);</span>
-<span class="nc" id="L156">            long totalSpace = (new File(path)).getTotalSpace();</span>
-<span class="nc" id="L157">            long usableSpace = (new File(path)).getUsableSpace();</span>
+<span class="nc" id="L156">            long totalSpace = new File(path).getTotalSpace();</span>
+<span class="nc" id="L157">            long usableSpace = new File(path).getUsableSpace();</span>
 
             String description;
 <span class="nc bnc" id="L160" title="All 2 branches missed.">            if (volume.startsWith(&quot;/dev&quot;)) {</span>

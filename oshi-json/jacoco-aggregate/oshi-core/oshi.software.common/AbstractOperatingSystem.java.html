@@ -169,26 +169,24 @@ import oshi.software.os.OperatingSystemVersion;
 <span class="nc" id="L169">                throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + sort.toString());</span>
             }
         }
+        // Return max of limit or process size
         // Nonpositive limit means return all
-<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (limit &lt;= 0) {</span>
-<span class="nc" id="L174">            limit = Integer.MAX_VALUE;</span>
+<span class="nc" id="L174">        int maxProcs = processes.size();</span>
+<span class="nc bnc" id="L175" title="All 4 branches missed.">        if (limit &gt; 0 &amp;&amp; maxProcs &gt; limit) {</span>
+<span class="nc" id="L176">            maxProcs = limit;</span>
         }
-<span class="nc" id="L176">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L177" title="All 4 branches missed.">        for (int i = 0; i &lt; limit &amp;&amp; i &lt; processes.size(); i++) {</span>
-<span class="nc" id="L178">            procs.add(processes.get(i));</span>
+<span class="nc" id="L178">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; maxProcs; i++) {</span>
+<span class="nc" id="L180">            procs.add(processes.get(i));</span>
         }
-<span class="nc" id="L180">        return procs;</span>
+<span class="nc" id="L182">        return procs;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L185">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L186">        sb.append(getManufacturer());</span>
-<span class="nc" id="L187">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L188">        sb.append(getFamily());</span>
-<span class="nc" id="L189">        sb.append(&quot; &quot;);</span>
-<span class="nc" id="L190">        sb.append(getVersion().toString());</span>
-<span class="nc" id="L191">        return sb.toString();</span>
+<span class="nc" id="L187">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L188">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());</span>
+<span class="nc" id="L189">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
