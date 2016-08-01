@@ -34,15 +34,15 @@ import com.sun.jna.win32.W32APIOptions;
 public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
 <span class="nc" id="L35">    Ole32 INSTANCE = (Ole32) Native.loadLibrary(&quot;Ole32&quot;, Ole32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
 
-    public static final int RPC_C_AUTHN_LEVEL_DEFAULT = 0;
-    public static final int RPC_C_AUTHN_WINNT = 10;
-    public static final int RPC_C_IMP_LEVEL_IMPERSONATE = 3;
-    public static final int RPC_C_AUTHZ_NONE = 0;
-    public static final int RPC_C_AUTHN_LEVEL_CALL = 3;
+    int RPC_C_AUTHN_LEVEL_DEFAULT = 0;
+    int RPC_C_AUTHN_WINNT = 10;
+    int RPC_C_IMP_LEVEL_IMPERSONATE = 3;
+    int RPC_C_AUTHZ_NONE = 0;
+    int RPC_C_AUTHN_LEVEL_CALL = 3;
 
-    public static final int RPC_E_TOO_LATE = 0x80010119;
+    int RPC_E_TOO_LATE = 0x80010119;
 
-    public static final int EOAC_NONE = 0;
+    int EOAC_NONE = 0;
 
     // TODO: Submit this change to JNA Ole32 class
     /**

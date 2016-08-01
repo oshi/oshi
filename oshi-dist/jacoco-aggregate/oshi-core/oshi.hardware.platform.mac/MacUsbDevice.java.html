@@ -42,20 +42,20 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-<span class="nc" id="L47">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
-<span class="nc" id="L48">    }</span>
-
     /*
      * Maps to store information using RegistryEntryID as the key
      */
-<span class="nc" id="L53">    private static Map&lt;Long, String&gt; nameMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L54">    private static Map&lt;Long, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L55">    private static Map&lt;Long, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L56">    private static Map&lt;Long, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L57">    private static Map&lt;Long, String&gt; serialMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L58">    private static Map&lt;Long, List&lt;Long&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">    private static Map&lt;Long, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">    private static Map&lt;Long, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">    private static Map&lt;Long, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L51">    private static Map&lt;Long, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L52">    private static Map&lt;Long, String&gt; serialMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L53">    private static Map&lt;Long, List&lt;Long&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+
+    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+<span class="nc" id="L57">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
+<span class="nc" id="L58">    }</span>
 
     /**
      * {@inheritDoc}

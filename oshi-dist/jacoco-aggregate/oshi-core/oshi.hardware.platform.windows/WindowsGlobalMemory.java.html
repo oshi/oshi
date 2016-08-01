@@ -42,7 +42,7 @@ import oshi.util.platform.windows.WmiUtil;
 
 <span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L45">    private PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc" id="L45">    private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
 
 <span class="nc" id="L47">    private long lastUpdate = 0;</span>
 

@@ -43,7 +43,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L46">    private JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L46">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.OperatingSystem os;
 

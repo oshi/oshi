@@ -18,6 +18,8 @@
  */
 package oshi.hardware.common;
 
+import java.util.Arrays;
+
 import oshi.hardware.UsbDevice;
 
 /**
@@ -42,21 +44,21 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     protected UsbDevice[] connectedDevices;
 
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-<span class="nc" id="L45">            UsbDevice[] connectedDevices) {</span>
-<span class="nc" id="L46">        this.name = name;</span>
-<span class="nc" id="L47">        this.vendor = vendor;</span>
-<span class="nc" id="L48">        this.vendorId = vendorId;</span>
-<span class="nc" id="L49">        this.productId = productId;</span>
-<span class="nc" id="L50">        this.serialNumber = serialNumber;</span>
-<span class="nc" id="L51">        this.connectedDevices = connectedDevices;</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L47">            UsbDevice[] connectedDevices) {</span>
+<span class="nc" id="L48">        this.name = name;</span>
+<span class="nc" id="L49">        this.vendor = vendor;</span>
+<span class="nc" id="L50">        this.vendorId = vendorId;</span>
+<span class="nc" id="L51">        this.productId = productId;</span>
+<span class="nc" id="L52">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L53">        this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L59">        return this.name;</span>
+<span class="nc" id="L61">        return this.name;</span>
     }
 
     /**
@@ -64,7 +66,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     @Override
     public String getVendor() {
-<span class="nc" id="L67">        return this.vendor;</span>
+<span class="nc" id="L69">        return this.vendor;</span>
     }
 
     /**
@@ -72,7 +74,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     @Override
     public String getVendorId() {
-<span class="nc" id="L75">        return this.vendorId;</span>
+<span class="nc" id="L77">        return this.vendorId;</span>
     }
 
     /**
@@ -80,21 +82,21 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     @Override
     public String getProductId() {
-<span class="nc" id="L83">        return this.productId;</span>
+<span class="nc" id="L85">        return this.productId;</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public String getSerialNumber() {
-<span class="nc" id="L90">        return this.serialNumber;</span>
+<span class="nc" id="L92">        return this.serialNumber;</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public UsbDevice[] getConnectedDevices() {
-<span class="nc" id="L97">        return this.connectedDevices;</span>
+<span class="nc" id="L99">        return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);</span>
     }
 
     /**
@@ -103,7 +105,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
-<span class="nc" id="L106">        return this.getName().compareTo(usb.getName());</span>
+<span class="nc" id="L108">        return this.getName().compareTo(usb.getName());</span>
     }
 
     /**
@@ -111,7 +113,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     @Override
     public String toString() {
-<span class="nc" id="L114">        return indentUsb(this, 1);</span>
+<span class="nc" id="L116">        return indentUsb(this, 1);</span>
     }
 
     /**
@@ -123,19 +125,19 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      *            number of spaces to indent
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
-<span class="nc" id="L127">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
-<span class="nc" id="L128">        sb.append(usbDevice.getName());</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
-<span class="nc" id="L130">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(&quot;)&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc" id="L129">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
+<span class="nc" id="L130">        sb.append(usbDevice.getName());</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc" id="L132">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(')');</span>
         }
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
-<span class="nc" id="L133">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(&quot;]&quot;);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc" id="L135">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(']');</span>
         }
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
-<span class="nc" id="L136">            sb.append(&quot;\n&quot;).append(indentUsb(connected, indent + 4));</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
+<span class="nc" id="L138">            sb.append('\n').append(indentUsb(connected, indent + 4));</span>
         }
-<span class="nc" id="L138">        return sb.toString();</span>
+<span class="nc" id="L140">        return sb.toString();</span>
     }
 
 }

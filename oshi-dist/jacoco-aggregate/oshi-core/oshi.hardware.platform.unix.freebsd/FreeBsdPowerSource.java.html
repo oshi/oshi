@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdPowerSource.java</span></div><h1>FreeBsdPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.unix.freebsd;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+
+/**
+ * A Power Source
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public class FreeBsdPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);</span>
+
+    public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+<span class="nc" id="L40">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L41">        LOG.debug(&quot;Initialized FreeBsdPowerSource&quot;);</span>
+<span class="nc" id="L42">    }</span>
+
+    /**
+     * Gets Battery Information
+     * 
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static PowerSource[] getPowerSources() {
+<span class="nc" id="L50">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
+        // state 0=full, 1=discharging, 2=charging
+<span class="nc" id="L52">        int state = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.state&quot;, 0);</span>
+        // time is in minutes
+<span class="nc" id="L54">        int time = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.time&quot;, -1);</span>
+        // life is in percent
+<span class="nc" id="L56">        int life = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.life&quot;, 100);</span>
+<span class="nc" id="L57">        String name = &quot;BAT0&quot;;</span>
+<span class="nc bnc" id="L58" title="All 4 branches missed.">        ps[0] = new FreeBsdPowerSource(name, life / 100d, (state == 2) ? -2d : (time == -1) ? -1d : 60d * time);</span>
+<span class="nc" id="L59">        return ps;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

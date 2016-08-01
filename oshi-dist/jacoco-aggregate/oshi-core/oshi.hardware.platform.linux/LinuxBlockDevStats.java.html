@@ -32,27 +32,6 @@ public class LinuxBlockDevStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L35">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
-        String devstat;
-        String[] splitstats;
-
-<span class="nc" id="L39">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
-<span class="nc" id="L40">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
-
-<span class="nc" id="L42">        this.device = device;</span>
-<span class="nc" id="L43">        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);</span>
-<span class="nc" id="L44">        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);</span>
-<span class="nc" id="L45">        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);</span>
-<span class="nc" id="L46">        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);</span>
-<span class="nc" id="L47">        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);</span>
-<span class="nc" id="L48">        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);</span>
-<span class="nc" id="L49">        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);</span>
-<span class="nc" id="L50">        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);</span>
-<span class="nc" id="L51">        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);</span>
-<span class="nc" id="L52">        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);</span>
-<span class="nc" id="L53">        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);</span>
-<span class="nc" id="L54">    }</span>
-
     // Device name
     public final String device;
     // Number of read I/Os processed
@@ -77,5 +56,27 @@ public class LinuxBlockDevStats implements Serializable {
     public final long active_ms;
     // Total wait time, milliseconds
     public final long waits_ms;
+
+<span class="nc" id="L60">    public LinuxBlockDevStats(String device, Udev.UdevDevice disk) {</span>
+        String devstat;
+        String[] splitstats;
+
+<span class="nc" id="L64">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
+<span class="nc" id="L65">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
+
+<span class="nc" id="L67">        this.device = device;</span>
+<span class="nc" id="L68">        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);</span>
+<span class="nc" id="L69">        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);</span>
+<span class="nc" id="L70">        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);</span>
+<span class="nc" id="L71">        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);</span>
+<span class="nc" id="L72">        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);</span>
+<span class="nc" id="L73">        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);</span>
+<span class="nc" id="L74">        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);</span>
+<span class="nc" id="L75">        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);</span>
+<span class="nc" id="L76">        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);</span>
+<span class="nc" id="L77">        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);</span>
+<span class="nc" id="L78">        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);</span>
+<span class="nc" id="L79">    }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
