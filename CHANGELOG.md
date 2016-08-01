@@ -1,11 +1,14 @@
-3.1 (in progress)
+3.2 (in progress)
+================
+* Your contribution here.
+
+3.1 (8/1/2016)
 ================
 * [#225](https://github.com/dblock/oshi/pull/225): Bugfixes from Coverity, FindBugs, and PMD - [@dbwiddis](https://github.com/dbwiddis).
 * [#229](https://github.com/dblock/oshi/pull/229): Solaris port - [@dbwiddis](https://github.com/dbwiddis).
 * [#232](https://github.com/dblock/oshi/pull/232): FreeBSD port - [@dbwiddis](https://github.com/dbwiddis).
 * [#234](https://github.com/dblock/oshi/pull/234): Add read/write count and active disk time to HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 * [#235](https://github.com/dblock/oshi/pull/235): Add partition information to HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.0 (7/1/2016)
 ================

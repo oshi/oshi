@@ -139,10 +139,10 @@ public class KstatUtil {
 
     /**
      * Convenience method for kstat_read() which gets data from the kernel for
-     * the kstat pointed to by ksp. ksp->ks_data is automatically allocated (or
-     * reallocated) to be large enough to hold all of the data. ksp->ks_ndata is
-     * set to the number of data fields, ksp->ks_data_size is set to the total
-     * size of the data, and ksp->ks_snaptime is set to the high-resolution time
+     * the kstat pointed to by ksp. ksp.ks_data is automatically allocated (or
+     * reallocated) to be large enough to hold all of the data. ksp.ks_ndata is
+     * set to the number of data fields, ksp.ks_data_size is set to the total
+     * size of the data, and ksp.ks_snaptime is set to the high-resolution time
      * at which the data snapshot was taken.
      * 
      * @param ksp

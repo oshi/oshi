@@ -1,49 +1,30 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
 
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|oshi-)
 [![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
 [![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 [![Coverage Status](https://coveralls.io/repos/github/dblock/oshi/badge.svg?branch=master)](https://coveralls.io/github/dblock/oshi?branch=master)
+[![codecov.io](https://codecov.io/github/dblock/oshi/coverage.svg?branch=master)](https://codecov.io/github/dblock/oshi?branch=master)
+[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
+[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dblock/oshi&amp;utm_campaign=Badge_Grade)
 [![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
 [![Project Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
-It doesn't require any additional native DLLs and aims to provide a cross-platform implementation to retrieve system information,
-such as OS version, memory, CPU, disk, devices, sensors, etc.
+It doesn't require the installation of any additional native libraries and aims to provide a 
+cross-platform implementation to retrieve system information, such as OS version, processes, 
+memory & CPU usage, disks & partitions, devices, sensors, etc.
 
 OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
 and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
 
-Essentials
-----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
-* [View the FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)
-* [View the API](http://dblock.github.io/oshi/apidocs/) • [View the Site](http://dblock.github.io/oshi/) • [Upgrading from an earlier version?](https://github.com/dblock/oshi/blob/master/UPGRADING.md) 
-* Dependencies:
-	* [Java Native Access (JNA)](https://github.com/java-native-access/jna)
-	* [Simple Logging Facade for Java (SLF4J)](http://www.slf4j.org/)
-	* [Java API for JSON Processing (javax.json)](https://jsonp.java.net/download.html) (for oshi-json)
-* Related projects:
-	* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
-	* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and Unix
-	* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
-
-Downloads
-----------
-| Stable Release Version | Current Development Version |
-| ------------- | ------------- |
-| [oshi-core-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.0&amp;e=jar)  | [oshi-core-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.1-SNAPSHOT&amp;e=jar) |
-| [oshi-json-3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.0&amp;e=jar)   | [oshi-json-3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.1-SNAPSHOT&amp;e=jar)  |
-
-Currently supported platforms 
+Supported platforms 
 --------------------------- 
-* Windows
-* Linux
-* macOS (OS X)<img align="right" src="https://dl.dropboxusercontent.com/u/41603526/samplejson.png" />
+Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD) 
 
-Currently supported features 
+Supported features 
 --------------------------
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs 
@@ -51,13 +32,26 @@ Currently supported features
 * CPU uptime, processes, and threads
 * Process uptime, cpu, memory usage
 * Physical and virtual memory used/available
+* Mounted filesystems (type, usable and total space)
+* Disk drives (model, serial, size) and partitions
 * Network interfaces (IPs, bandwidth in/out)
 * Battery state (% capacity, time remaining)
-* Disk drives (model, serial, size)
-* File stores (usable and total space)
 * Connected displays (with EDID info)
 * USB Devices
 * Sensors (temperature, fan speeds, voltage)
+
+Essentials
+----------
+* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
+* [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) • [API](http://dblock.github.io/oshi/apidocs/) • [Site](http://dblock.github.io/oshi/) 
+* [Upgrading from an earlier version?](https://github.com/dblock/oshi/blob/master/UPGRADING.md) 
+
+Downloads
+----------
+| Stable Release Version | Current Development Version | Dependencies |
+| ------------- | ------------- | ------------- |
+| [oshi-core-3.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.1&amp;e=jar)  | [oshi-core-3.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.2-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.1&amp;e=jar)   | [oshi-json-3.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.2-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -81,16 +75,6 @@ Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
 Identifier: Intel64 Family 6 Model 42 Stepping 7
 Serial Num: 09203-891-5001202-52183
 ```
-Process information is available
-```
-Processes: 401, Threads: 1159
-   PID  %CPU %MEM       VSZ       RSS Name
- 55977  27.9  0.2   6.8 GiB  34.3 MiB java
- 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
- 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
- 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
- 35301   5.4  0.5   1.7 GiB  89.8 MiB Microsoft Excel
- ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.
 ```
@@ -102,12 +86,20 @@ CPU load: 9.0% (OS MXBean)
 CPU load averages: 2.69 2.47 2.38
 CPU load per processor: 23.6% 1.3% 18.2% 0.7% 12.9% 0.7% 12.1% 1.3%
 ```
-Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)).
+Process information including CPU and memory per process is available.
 ```
-Sensors:
- CPU Temperature: 69.8°C
- Fan Speeds:[4685, 4687]
- CPU Voltage: 3.9V
+Processes: 401, Threads: 1159
+   PID  %CPU %MEM       VSZ       RSS Name
+ 55977  27.9  0.2   6.8 GiB  34.3 MiB java
+ 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
+ 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
+ 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
+ 35301   5.4  0.5   1.7 GiB  89.8 MiB Microsoft Excel
+ ```
+Memory and swapfile information is available.
+```
+Memory: 2.9 GiB/16 GiB
+Swap used: 90.8 MiB/1 GiB
 ```
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
 ```
@@ -126,6 +118,24 @@ Displays:
   Range Limits: Field Rate 56-75 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
   Monitor Name: SyncMaster
   Serial Number: HMCP431880
+```
+Disks and usage (reads, writes, transfer times) are shown, and partitions can be mapped to filesystems.
+```
+Disks:
+ disk0: (model: SanDisk Ultra II 960GB - S/N: 161008800550) size: 960.2 GB, reads: 1053132 (23.0 GiB), writes: 243792 (11.1 GiB), xfer: 73424854 ms
+ |-- disk0s1: EFI (EFI System Partition) Maj:Min=1:1, size: 209.7 MB
+ |-- disk0s2: Macintosh HD (Macintosh SSD) Maj:Min=1:2, size: 959.3 GB @ /
+ disk1: (model: Disk Image - S/N: ) size: 960.0 GB, reads: 3678 (60.0 MiB), writes: 281 (8.6 MiB), xfer: 213627 ms
+ |-- disk1s1: EFI (EFI System Partition) Maj:Min=1:4, size: 209.7 MB
+ |-- disk1s2: Dropbox (disk image) Maj:Min=1:5, size: 959.7 GB @ /Volumes/Dropbox
+
+```
+Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)).
+```
+Sensors:
+ CPU Temperature: 69.8°C
+ Fan Speeds:[4685, 4687]
+ CPU Voltage: 3.9V
 ```
 Attached USB devices can be listed:
 ```
@@ -156,7 +166,21 @@ USB Devices:
 
 Where are we?
 -------------
-OSHI is a young project. While we've developed a strong core of features on major Operating Systems, we'd like *you* to contribute ports, and help implement more methods, and suggest new features. Read the [project intro](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html).
+[OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
+as a platform-independent library that did not require additional software and had a license compatible with 
+both open source and commercial products. We've developed a strong core of features on major Operating Systems, 
+but we would love *you* to help by:
+* Testing!  Download and test the program on different software and hardware and help identify gaps that our limited development and testing may have missed.
+* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified.
+* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
+* Documenting implementation.  Our Wiki is blank.  Want to help new users follow in your footsteps?
+* Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
+
+Related projects
+------------------------------
+* [oren](https://github.com/zcaudate/oren), a Clojure wrapper for OSHI
+* [jHardware](https://github.com/profesorfalken/jHardware), a pure Java (no JNA) project providing similar information for Windows and *Nix
+* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
 
 How is this different from ...
 ------------------------------
@@ -164,16 +188,15 @@ How is this different from ...
 * [Sigar](http://sigar.hyperic.com): 
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. OSHI uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
-	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2016.
+	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2016. 
 * [jHardware](https://github.com/profesorfalken/jHardware):
-	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing.  OSHI uses some command line parsing but attempts to use native commands whenever possible.
-	* jHardware presently only supports Windows and Unix systems.
-	* jHardware is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
+	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing and has a limited set of features.  OSHI integrates more native code through JNA and supports more platforms and more features.
+	* jHardware presently only supports Windows and *Nix systems.
 * [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
-	* The `com.sun.management` MXBean may not be availabile in non-Oracle JVMs.
+	* The `com.sun.management` MXBean may not be available in non-Oracle JVMs.
 	* The `MXBean` has very few methods that address system-wide statistics.
 	* OSHI provides significantly more information than the `OperatingSystemMXBean`.
 
 License
 -------
-This project is licensed under the [Eclipse Public License 1.0](LICENSE_EPL).
+This project is licensed under the [Eclipse Public License 1.0](https://www.eclipse.org/legal/epl-v10.html).

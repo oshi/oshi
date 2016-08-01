@@ -255,7 +255,7 @@ public interface LibKstat extends Library {
         *       2_______|           |
         *       |    i1             |
         *       |_______________________________|
-        *       Time->  t1  t2  t3  t4
+        *       Time--  t1  t2  t3  t4
         *
         * At each change of state (entry or exit from the queue),
         * we add the elapsed time (since the previous state change)
@@ -337,7 +337,7 @@ public interface LibKstat extends Library {
     /**
      * The kstat_chain_update() function brings the user's kstat header chain in
      * sync with that of the kernel. The kstat chain is a linked list of kstat
-     * headers (kstat_t's) pointed to by kc->kc_chain, which is initialized by
+     * headers (kstat_t's) pointed to by kc.kc_chain, which is initialized by
      * kstat_open(3KSTAT). This chain constitutes a list of all kstats currently
      * in the system.
      * 
@@ -346,10 +346,10 @@ public interface LibKstat extends Library {
      * the user's copy of the kstat chain to become out of date. The
      * kstat_chain_update() function detects this condition by comparing the
      * kernel's current kstat chain ID(KCID), which is incremented every time
-     * the kstat chain changes, to the user's KCID, kc->kc_chain_id. If the
+     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the
      * KCIDs match, kstat_chain_update() does nothing. Otherwise, it deletes any
      * invalid kstat headers from the user's kstat chain, adds any new ones, and
-     * sets kc->kc_chain_id to the new KCID. All other kstat headers in the
+     * sets kc.kc_chain_id to the new KCID. All other kstat headers in the
      * user's kstat chain are unmodified.
      * 
      * @param kc
@@ -361,10 +361,10 @@ public interface LibKstat extends Library {
 
     /**
      * kstat_read() gets data from the kernel for the kstat pointed to by ksp.
-     * ksp->ks_data is automatically allocated (or reallocated) to be large
-     * enough to hold all of the data. ksp->ks_ndata is set to the number of
-     * data fields, ksp->ks_data_size is set to the total size of the data, and
-     * ksp->ks_snaptime is set to the high-resolution time at which the data
+     * ksp.ks_data is automatically allocated (or reallocated) to be large
+     * enough to hold all of the data. ksp.ks_ndata is set to the number of
+     * data fields, ksp.ks_data_size is set to the total size of the data, and
+     * ksp.ks_snaptime is set to the high-resolution time at which the data
      * snapshot was taken.
      * 
      * @param kc
@@ -372,7 +372,7 @@ public interface LibKstat extends Library {
      * @param ksp
      *            The kstat from which to retrieve data
      * @param p
-     *            If buf is non-NULL , the data is copied from ksp->ks_data into
+     *            If buf is non-NULL , the data is copied from ksp.ks_data into
      *            buf.
      * @return On success, return the current kstat chain ID (KCID). On failure,
      *         return -1.
@@ -380,7 +380,7 @@ public interface LibKstat extends Library {
     int kstat_read(KstatCtl kc, Kstat ksp, Pointer p);
 
     /**
-     * kstat_write() writes data from buf, or from ksp->ks_data if buf is NULL,
+     * kstat_write() writes data from buf, or from ksp.ks_data if buf is NULL,
      * to the corresponding kstat in the kernel. Only the superuser can use
      * kstat_write() .
      * 
@@ -390,14 +390,14 @@ public interface LibKstat extends Library {
      *            The kstat on which to set data
      * @param buf
      *            If buf is non-NULL, the data is copied from buf into
-     *            ksp->ks_data.
+     *            ksp.ks_data.
      * @return On success, return the current kstat chain ID (KCID). On failure,
      *         return -1.
      */
     int kstat_write(KstatCtl kc, Kstat ksp, Pointer buf);
 
     /**
-     * The kstat_lookup() function traverses the kstat chain, kc->kc_chain,
+     * The kstat_lookup() function traverses the kstat chain, kc.kc_chain,
      * searching for a kstat with the same ks_module, ks_instance, and ks_name
      * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
      * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
