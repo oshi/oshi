@@ -3,9 +3,13 @@ oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux
 oshi.hardware.platform.mac
+oshi.hardware.platform.unix.freebsd
+oshi.hardware.platform.unix.solaris
 oshi.hardware.platform.windows
 oshi.jna.platform.linux
 oshi.jna.platform.mac
+oshi.jna.platform.unix
+oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
 oshi.jna.platform.windows.COM
 oshi.json
@@ -19,8 +23,12 @@ oshi.software.common
 oshi.software.os
 oshi.software.os.linux
 oshi.software.os.mac
+oshi.software.os.unix.freebsd
+oshi.software.os.unix.solaris
 oshi.software.os.windows
 oshi.util
 oshi.util.platform.linux
 oshi.util.platform.mac
+oshi.util.platform.unix.freebsd
+oshi.util.platform.unix.solaris
 oshi.util.platform.windows

@@ -266,7 +266,7 @@
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         sb.append(<span class="jxr_string">"  Manuf. ID="</span>).append(EdidUtil.getManufacturerID(edid)).append(<span class="jxr_string">", Product ID="</span>)
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>                 .append(EdidUtil.getProductID(edid)).append(<span class="jxr_string">", "</span>)
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 .append((EdidUtil.isDigital(edid) ? <span class="jxr_string">"Digital"</span> : <span class="jxr_string">"Analog"</span>)).append(<span class="jxr_string">", Serial="</span>)
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 .append(EdidUtil.isDigital(edid) ? <span class="jxr_string">"Digital"</span> : <span class="jxr_string">"Analog"</span>).append(<span class="jxr_string">", Serial="</span>)
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>                 .append(EdidUtil.getSerialNo(edid)).append(<span class="jxr_string">", ManufDate="</span>)
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>                 .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + <span class="jxr_string">"/"</span>).append(EdidUtil.getYear(edid)).append(<span class="jxr_string">", EDID v"</span>)
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>                 .append(EdidUtil.getVersion(edid));
@@ -300,11 +300,12 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>                     sb.append(<span class="jxr_string">"\n  Preferred Timing: "</span>).append(EdidUtil.getTimingDescriptor(desc[d]));
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>                 }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>             }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         }
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> }
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>             }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         }
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

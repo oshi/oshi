@@ -72,8 +72,8 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testHexStringToByteArray() {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          byte[] temp = { (byte) 0x12, (byte) 0xaf };
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray(<span class="jxr_string">"12af"</span>)));
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertEquals(<strong class="jxr_keyword">null</strong>, ParseUtil.hexStringToByteArray(<span class="jxr_string">"abcde"</span>));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertEquals(<strong class="jxr_keyword">null</strong>, ParseUtil.hexStringToByteArray(<span class="jxr_string">"not hex"</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertEquals(<strong class="jxr_keyword">null</strong>, ParseUtil.hexStringToByteArray(<span class="jxr_string">"expected error abcde"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertEquals(<strong class="jxr_keyword">null</strong>, ParseUtil.hexStringToByteArray(<span class="jxr_string">"abcde"</span>));
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
@@ -148,28 +148,82 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     @Test
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testHexStringToString() {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         assertEquals(<span class="jxr_string">"ABC"</span>, ParseUtil.hexStringToString(<span class="jxr_string">"414243"</span>));
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertEquals(<span class="jxr_string">"not hex"</span>, ParseUtil.hexStringToString(<span class="jxr_string">"not hex"</span>));
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * Test parse int</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     @Test
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseIntOrDefault() {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertEquals(123, ParseUtil.parseIntOrDefault(<span class="jxr_string">"123"</span>, 45));
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertEquals(45, ParseUtil.parseIntOrDefault(<span class="jxr_string">"123X"</span>, 45));
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     * Test parse long</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     @Test
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLongOrDefault() {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertEquals(123L, ParseUtil.parseLongOrDefault(<span class="jxr_string">"123"</span>, 45L));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertEquals(45L, ParseUtil.parseLongOrDefault(<span class="jxr_string">"123L"</span>, 45L));
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertEquals(<span class="jxr_string">"ab00cd"</span>, ParseUtil.hexStringToString(<span class="jxr_string">"ab00cd"</span>));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertEquals(<span class="jxr_string">"not hex"</span>, ParseUtil.hexStringToString(<span class="jxr_string">"not hex"</span>));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * Test parse int</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     @Test
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseIntOrDefault() {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertEquals(123, ParseUtil.parseIntOrDefault(<span class="jxr_string">"123"</span>, 45));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         assertEquals(45, ParseUtil.parseIntOrDefault(<span class="jxr_string">"123X"</span>, 45));
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * Test parse long</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     @Test
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLongOrDefault() {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertEquals(123L, ParseUtil.parseLongOrDefault(<span class="jxr_string">"123"</span>, 45L));
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertEquals(45L, ParseUtil.parseLongOrDefault(<span class="jxr_string">"123L"</span>, 45L));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     * Test parse double</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     @Test
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseDoubleOrDefault() {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         assertEquals(1.23d, ParseUtil.parseDoubleOrDefault(<span class="jxr_string">"1.23"</span>, 4.5d), Double.MIN_VALUE);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         assertEquals(4.5d, ParseUtil.parseDoubleOrDefault(<span class="jxr_string">"one.twentythree"</span>, 4.5d), Double.MIN_VALUE);
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * Test parse DHMS</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     @Test
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseDHMSOrDefault() {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         assertEquals(93784050L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"1-02:03:04.05"</span>, 0L));
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         assertEquals(93784000L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"1-02:03:04"</span>, 0L));
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         assertEquals(7384000L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"02:03:04"</span>, 0L));
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         assertEquals(184050L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"03:04.05"</span>, 0L));
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertEquals(184000L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"03:04"</span>, 0L));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertEquals(0L, ParseUtil.parseDHMSOrDefault(<span class="jxr_string">"04"</span>, 0L));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * Test parse UUID</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     @Test
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseUuidOrDefault() {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         assertEquals(<span class="jxr_string">"123e4567-e89b-12d3-a456-426655440000"</span>,
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 ParseUtil.parseUuidOrDefault(<span class="jxr_string">"123e4567-e89b-12d3-a456-426655440000"</span>, <span class="jxr_string">"default"</span>));
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertEquals(<span class="jxr_string">"123e4567-e89b-12d3-a456-426655440000"</span>,
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 ParseUtil.parseUuidOrDefault(<span class="jxr_string">"The UUID is 123E4567-E89B-12D3-A456-426655440000!"</span>, <span class="jxr_string">"default"</span>));
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         assertEquals(<span class="jxr_string">"default"</span>, ParseUtil.parseUuidOrDefault(<span class="jxr_string">"foo"</span>, <span class="jxr_string">"default"</span>));
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * Test parse SingleQuoteString</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     @Test
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetSingleQuoteStringValue() {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         assertEquals(<span class="jxr_string">"bar"</span>, ParseUtil.getSingleQuoteStringValue(<span class="jxr_string">"foo = 'bar' (string)"</span>));
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         assertEquals(<span class="jxr_string">""</span>, ParseUtil.getSingleQuoteStringValue(<span class="jxr_string">"foo = bar (string)"</span>));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * Test parse FirstIntValue</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     @Test
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetFirstIntValue() {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         assertEquals(42, ParseUtil.getFirstIntValue(<span class="jxr_string">"foo = 42 (0x2a) (int)"</span>));
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         assertEquals(0, ParseUtil.getFirstIntValue(<span class="jxr_string">"foo = 0x2a (int)"</span>));
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         assertEquals(0, ParseUtil.getFirstIntValue(<span class="jxr_string">"42"</span>));
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

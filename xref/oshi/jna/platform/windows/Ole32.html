@@ -42,15 +42,15 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/windows/Ole32.html">Ole32</a> <strong class="jxr_keyword">extends</strong> com.sun.jna.platform.win32.Ole32 {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <a href="../../../../oshi/jna/platform/windows/Ole32.html">Ole32</a> INSTANCE = (Ole32) Native.loadLibrary(<span class="jxr_string">"Ole32"</span>, Ole32.<strong class="jxr_keyword">class</strong>, W32APIOptions.DEFAULT_OPTIONS);
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_LEVEL_DEFAULT = 0;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_WINNT = 10;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_C_IMP_LEVEL_IMPERSONATE = 3;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_C_AUTHZ_NONE = 0;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_LEVEL_CALL = 3;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_LEVEL_DEFAULT = 0;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_WINNT = 10;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">int</strong> RPC_C_IMP_LEVEL_IMPERSONATE = 3;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">int</strong> RPC_C_AUTHZ_NONE = 0;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">int</strong> RPC_C_AUTHN_LEVEL_CALL = 3;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RPC_E_TOO_LATE = 0x80010119;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">int</strong> RPC_E_TOO_LATE = 0x80010119;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> EOAC_NONE = 0;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">int</strong> EOAC_NONE = 0;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_comment">// TODO: Submit this change to JNA Ole32 class</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_javadoccomment">/**</em>

@@ -57,31 +57,31 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> RTM_IFINFO2 = 0x12;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Class to store a subset of IF data in the ifMap</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a> {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a>(<strong class="jxr_keyword">long</strong> oPackets, <strong class="jxr_keyword">long</strong> iPackets, <strong class="jxr_keyword">long</strong> oBytes, <strong class="jxr_keyword">long</strong> iBytes, <strong class="jxr_keyword">long</strong> speed) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">this</strong>.oPackets = oPackets;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">this</strong>.iPackets = iPackets;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">this</strong>.oBytes = oBytes;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">this</strong>.iBytes = iBytes;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">this</strong>.speed = speed;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">long</strong> oPackets;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">long</strong> iPackets;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">long</strong> oBytes;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">long</strong> iBytes;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">long</strong> speed;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * Update map no more frequently than 200ms.</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * Key is the index of the IF.</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, IFdata&gt; ifMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> lastIFmapTime = 0L;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Update map no more frequently than 200ms.</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * Key is the index of the IF.</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, IFdata&gt; ifMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> lastIFmapTime = 0L;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * Class to store a subset of IF data in the ifMap</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a> {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> oPackets;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> iPackets;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> oBytes;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> iBytes;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> speed;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <a href="../../../../oshi/jna/platform/mac/SystemB.html">IFdata</a>(<strong class="jxr_keyword">long</strong> oPackets, <strong class="jxr_keyword">long</strong> iPackets, <strong class="jxr_keyword">long</strong> oBytes, <strong class="jxr_keyword">long</strong> iBytes, <strong class="jxr_keyword">long</strong> speed) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">this</strong>.oPackets = oPackets;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">this</strong>.iPackets = iPackets;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">this</strong>.oBytes = oBytes;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">this</strong>.iBytes = iBytes;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">this</strong>.speed = speed;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * Map all network interfaces. Ported from source code of "netstat -ir". See</em>

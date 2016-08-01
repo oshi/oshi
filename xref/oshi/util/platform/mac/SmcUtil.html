@@ -205,63 +205,64 @@
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> 
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>         inputStructure.key = (<strong class="jxr_keyword">int</strong>) ParseUtil.strToLong(key, 4);
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">int</strong> result;
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             result = smcGetKeyInfo(inputStructure, outputStructure);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">if</strong> (result != 0) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             val.dataSize = outputStructure.keyInfo.dataSize;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             inputStructure.keyInfo.dataSize = val.dataSize;
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>             inputStructure.data8 = IOKit.SMC_CMD_READ_BYTES;
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             Util.sleep(4);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <em class="jxr_comment">// If we got success, exit!</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">if</strong> (result == 0) {
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             }
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         } <strong class="jxr_keyword">while</strong> (--retries &gt; 0);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <em class="jxr_comment">// If we errored out return code</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">if</strong> (result != 0) {
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> 
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <em class="jxr_comment">// Success</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * Call SMC</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @param index</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     *            Kernel index</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     *            Key data input</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     *            Key data output</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcCall(<strong class="jxr_keyword">int</strong> index, <a href="../../../../oshi/jna/platform/mac/IOKit.html">SMCKeyData</a> inputStructure, <a href="../../../../oshi/jna/platform/mac/IOKit.html">SMCKeyData</a> outputStructure) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">int</strong> structureInputSize = inputStructure.size();
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         IntByReference structureOutputSizePtr = <strong class="jxr_keyword">new</strong> IntByReference(outputStructure.size());
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">int</strong> result = IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure,
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 structureInputSize, outputStructure, structureOutputSizePtr);
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">if</strong> (result != 0) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <em class="jxr_comment">// This frequently resulted in kIOReturnIPCError in testing. TODO</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <em class="jxr_comment">// find out why!</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <em class="jxr_comment">// LOG.error(String.format("Error: IOConnectCallStructMethod() =</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <em class="jxr_comment">// 0x%08x", result));</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <em class="jxr_comment">// Success</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> }
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">int</strong> retry = 0;
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             result = smcGetKeyInfo(inputStructure, outputStructure);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">if</strong> (result != 0) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             val.dataSize = outputStructure.keyInfo.dataSize;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             inputStructure.keyInfo.dataSize = val.dataSize;
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             inputStructure.data8 = IOKit.SMC_CMD_READ_BYTES;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             Util.sleep(4);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <em class="jxr_comment">// If we got success, exit!</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             }
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         } <strong class="jxr_keyword">while</strong> (++retry &lt; retries);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// If we errored out return code</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">if</strong> (result != 0) {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         }
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <em class="jxr_comment">// Success</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * Call SMC</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @param index</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     *            Kernel index</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     *            Key data input</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     *            Key data output</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcCall(<strong class="jxr_keyword">int</strong> index, <a href="../../../../oshi/jna/platform/mac/IOKit.html">SMCKeyData</a> inputStructure, <a href="../../../../oshi/jna/platform/mac/IOKit.html">SMCKeyData</a> outputStructure) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">int</strong> structureInputSize = inputStructure.size();
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         IntByReference structureOutputSizePtr = <strong class="jxr_keyword">new</strong> IntByReference(outputStructure.size());
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">int</strong> result = IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure,
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 structureInputSize, outputStructure, structureOutputSizePtr);
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">if</strong> (result != 0) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <em class="jxr_comment">// This frequently resulted in kIOReturnIPCError in testing. TODO</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <em class="jxr_comment">// find out why!</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <em class="jxr_comment">// LOG.error(String.format("Error: IOConnectCallStructMethod() =</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <em class="jxr_comment">// 0x%08x", result));</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <em class="jxr_comment">// Success</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

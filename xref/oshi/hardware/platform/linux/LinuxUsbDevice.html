@@ -44,20 +44,20 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 2L;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxUsbDevice.html">LinuxUsbDevice</a>(String name, String vendor, String vendorId, String productId, String serialNumber,
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <a href="../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[] connectedDevices) {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">super</strong>(name, vendor, vendorId, productId, serialNumber, connectedDevices);
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_comment">     * Maps to store information using device node path as the key</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; nameMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; vendorMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; vendorIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; productIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; serialMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, List&lt;String&gt;&gt; hubMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_comment">     * Maps to store information using device node path as the key</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; nameMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; vendorMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; vendorIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; productIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; serialMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, List&lt;String&gt;&gt; hubMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxUsbDevice.html">LinuxUsbDevice</a>(String name, String vendor, String vendorId, String productId, String serialNumber,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <a href="../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[] connectedDevices) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">super</strong>(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
@@ -179,7 +179,7 @@
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         List&lt;LinuxUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">for</strong> (String path : childPaths) {
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>             usbDevices.add(getDeviceAndChildren(path, vid, pid));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         Collections.sort(usbDevices);
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxUsbDevice.html">LinuxUsbDevice</a>(nameMap.getOrDefault(devPath, vendorId + <span class="jxr_string">":"</span> + productId),
