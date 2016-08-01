@@ -107,7 +107,7 @@ public class LinuxProcess extends AbstractProcess {
         // Since we picked the youngest process, it's safe to assume an
         // etime close to 0 in case this command fails; the longer the system
         // has been up, the less impact this assumption will have
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (etime != null) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!etime.isEmpty()) {</span>
 <span class="nc" id="L111">            LOG.debug(&quot;Etime is {} seconds&quot;, etime.trim());</span>
 <span class="nc" id="L112">            startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());</span>
         }

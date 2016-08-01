@@ -64,17 +64,17 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>              assertTrue(net.getSpeed() &gt;= 0);
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              assertTrue(net.getMTU() &gt;= 0);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              net.setBytesRecv(-10L);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              net.setBytesSent(-20L);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              net.setPacketsRecv(-30L);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              net.setPacketsSent(-40L);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              net.setSpeed(-50L);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              net.setBytesRecv(10L);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              net.setBytesSent(20L);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              net.setPacketsRecv(30L);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              net.setPacketsSent(40L);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              net.setSpeed(50L);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              assertEquals(-10L, net.getBytesRecv());
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertEquals(-20L, net.getBytesSent());
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              assertEquals(-30L, net.getPacketsRecv());
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertEquals(-40L, net.getPacketsSent());
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              assertEquals(-50L, net.getSpeed());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              assertEquals(10L, net.getBytesRecv());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertEquals(20L, net.getBytesSent());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              assertEquals(30L, net.getPacketsRecv());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertEquals(40L, net.getPacketsSent());
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              assertEquals(50L, net.getSpeed());
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>              net.updateNetworkStats();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              assertTrue(net.getBytesRecv() &gt;= 0);
@@ -84,15 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              assertTrue(net.getSpeed() &gt;= 0);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * Updates interface network statistics on this interface. Statistics</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * include packets and bytes sent and received, and interface speed.</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateNetworkStats() {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>

@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
      * 
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or null
-     *         if the command failed
+     * @return A list of Strings representing the result of the command, or
+     *         empty string if the command failed
      */
     public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
 <span class="fc" id="L49">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
@@ -55,8 +55,8 @@ import org.slf4j.LoggerFactory;
      * 
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or null
-     *         if the command failed
+     * @return A list of Strings representing the result of the command, or
+     *         empty string if the command failed
      */
     public static ArrayList&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
 <span class="fc" id="L62">        Process p = null;</span>
@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 <span class="fc" id="L64">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
 <span class="fc" id="L65">        } catch (SecurityException | IOException e) {</span>
 <span class="fc" id="L66">            LOG.trace(&quot;&quot;, e);</span>
-<span class="fc" id="L67">            return null;</span>
+<span class="fc" id="L67">            return new ArrayList&lt;String&gt;(0);</span>
 <span class="fc" id="L68">        }</span>
 
 <span class="fc" id="L70">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
@@ -74,14 +74,11 @@ import org.slf4j.LoggerFactory;
 <span class="fc" id="L74">                sa.add(line);</span>
             }
 <span class="fc" id="L76">            p.waitFor();</span>
-<span class="pc bpc" id="L77" title="6 of 8 branches missed.">        } catch (InterruptedException e) {</span>
+<span class="pc bpc" id="L77" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
 <span class="nc" id="L78">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L79">            return null;</span>
-<span class="nc" id="L80">        } catch (IOException e) {</span>
-<span class="nc" id="L81">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L82">            return null;</span>
-<span class="fc" id="L83">        }</span>
-<span class="fc" id="L84">        return sa;</span>
+<span class="nc" id="L79">            return new ArrayList&lt;String&gt;(0);</span>
+<span class="fc" id="L80">        }</span>
+<span class="fc" id="L81">        return sa;</span>
     }
 
     /**
@@ -89,10 +86,10 @@ import org.slf4j.LoggerFactory;
      * 
      * @param cmd2launch
      *            String command to be launched
-     * @return String or null
+     * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L95">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="fc" id="L92">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -103,16 +100,16 @@ import org.slf4j.LoggerFactory;
      *            String command to be launched
      * @param answerIdx
      *            int index of line in response of the command
-     * @return String whole line in response or null if invalid index or running
-     *         of command fails
+     * @return String whole line in response or empty string if invalid index or
+     *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L110">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="fc" id="L107">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L112" title="2 of 6 branches missed.">        if (sa != null &amp;&amp; answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L113">            return sa.get(answerIdx);</span>
+<span class="pc bpc" id="L109" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="fc" id="L110">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L115">        return null;</span>
+<span class="fc" id="L112">        return &quot;&quot;;</span>
     }
 
 }

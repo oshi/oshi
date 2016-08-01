@@ -36,20 +36,20 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-<span class="nc" id="L41">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
-<span class="nc" id="L42">    }</span>
-
     /*
      * Maps to store information using device node path as the key
      */
-<span class="nc" id="L47">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L48">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L49">    private static Map&lt;String, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L50">    private static Map&lt;String, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L51">    private static Map&lt;String, String&gt; serialMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L52">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L42">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L43">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L44">    private static Map&lt;String, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private static Map&lt;String, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">    private static Map&lt;String, String&gt; serialMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L47">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+
+    public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+            UsbDevice[] connectedDevices) {
+<span class="nc" id="L51">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
+<span class="nc" id="L52">    }</span>
 
     /**
      * {@inheritDoc}
@@ -171,7 +171,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L171">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
 <span class="nc" id="L172">        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L173" title="All 2 branches missed.">        for (String path : childPaths) {</span>
-<span class="nc" id="L174">            usbDevices.add(getDeviceAndChildren(path, vid, pid));</span>
+<span class="nc" id="L174">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
 <span class="nc" id="L175">        }</span>
 <span class="nc" id="L176">        Collections.sort(usbDevices);</span>
 <span class="nc" id="L177">        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId),</span>

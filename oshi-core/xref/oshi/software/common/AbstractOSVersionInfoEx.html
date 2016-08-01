@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.versionStr == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : <span class="jxr_string">"Unknown"</span>);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">if</strong> (getCodeName().length() &gt; 0) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(<span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              }
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">if</strong> (getBuildNumber().length() &gt; 0) {
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarisCentralProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisCentralProcessor.java</span></div><h1>SolarisCentralProcessor.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.unix.solaris;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
+
+/**
+ * A CPU
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class SolarisCentralProcessor extends AbstractCentralProcessor {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);</span>
+
+<span class="nc" id="L47">    private static final Pattern PSRINFO = Pattern.compile(&quot;.*physical processor has (\\d+) virtual processors.*&quot;);</span>
+
+    /**
+     * Create a Processor
+     */
+<span class="nc" id="L52">    public SolarisCentralProcessor() {</span>
+        // Initialize class variables
+<span class="nc" id="L54">        initVars();</span>
+        // Initialize tick arrays
+<span class="nc" id="L56">        initTicks();</span>
+
+<span class="nc" id="L58">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L59">    }</span>
+
+    private void initVars() {
+        // Get first result
+<span class="nc" id="L63">        Kstat ksp = KstatUtil.kstatLookup(&quot;cpu_info&quot;, -1, null);</span>
+        // Set values
+<span class="nc bnc" id="L65" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L66">            this.setVendor(KstatUtil.kstatDataLookupString(ksp, &quot;vendor_id&quot;));</span>
+<span class="nc" id="L67">            this.setName(KstatUtil.kstatDataLookupString(ksp, &quot;brand&quot;));</span>
+<span class="nc" id="L68">            this.setStepping(KstatUtil.kstatDataLookupString(ksp, &quot;stepping&quot;));</span>
+<span class="nc" id="L69">            this.setModel(KstatUtil.kstatDataLookupString(ksp, &quot;model&quot;));</span>
+<span class="nc" id="L70">            this.setFamily(KstatUtil.kstatDataLookupString(ksp, &quot;family&quot;));</span>
+        }
+<span class="nc" id="L72">        this.setCpu64(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;).trim().equals(&quot;64&quot;));</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Updates logical and physical processor counts from psrinfo
+     */
+    protected void calculateProcessorCounts() {
+<span class="nc" id="L79">        this.logicalProcessorCount = 0;</span>
+<span class="nc" id="L80">        this.physicalProcessorCount = 0;</span>
+        // Get number of logical processors
+<span class="nc" id="L82">        List&lt;String&gt; procInfo = ExecutingCommand.runNative(&quot;psrinfo -pv&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String cpu : procInfo) {</span>
+<span class="nc" id="L84">            Matcher m = PSRINFO.matcher(cpu.trim());</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (m.matches()) {</span>
+<span class="nc" id="L86">                this.physicalProcessorCount++;</span>
+<span class="nc" id="L87">                this.logicalProcessorCount += ParseUtil.parseIntOrDefault(m.group(1), 0);</span>
+            }
+<span class="nc" id="L89">        }</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.logicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L91">            LOG.error(&quot;Couldn't find logical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L92">            this.logicalProcessorCount = 1;</span>
+        }
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (this.physicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L95">            LOG.error(&quot;Couldn't find physical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L96">            this.physicalProcessorCount = 1;</span>
+        }
+<span class="nc" id="L98">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized long[] getSystemCpuLoadTicks() {
+<span class="nc" id="L105">        long[] ticks = new long[TickType.values().length];</span>
+        // Average processor ticks
+<span class="nc" id="L107">        long[][] procTicks = getProcessorCpuLoadTicks();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (int i = 0; i &lt; ticks.length; i++) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (int cpu = 0; cpu &lt; procTicks.length; cpu++) {</span>
+<span class="nc" id="L110">                ticks[i] += procTicks[cpu][i];</span>
+            }
+<span class="nc" id="L112">            ticks[i] /= procTicks.length;</span>
+        }
+<span class="nc" id="L114">        return ticks;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+<span class="nc bnc" id="L122" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L123">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+        }
+<span class="nc" id="L125">        double[] average = new double[nelem];</span>
+<span class="nc" id="L126">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L129">                average[i] = -1d;</span>
+            }
+        }
+<span class="nc" id="L132">        return average;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[][] getProcessorCpuLoadTicks() {
+<span class="nc" id="L140">        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L141">        int cpu = -1;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu&quot;, -1, &quot;sys&quot;)) {</span>
+            // This is a new CPU
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if (++cpu &gt;= ticks.length) {</span>
+                // Shouldn't happen
+<span class="nc" id="L146">                break;</span>
+            }
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L149">                ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_idle&quot;);</span>
+<span class="nc" id="L150">                ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_kernel&quot;);</span>
+<span class="nc" id="L151">                ticks[cpu][TickType.USER.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_user&quot;);</span>
+            }
+<span class="nc" id="L153">        }</span>
+<span class="nc" id="L154">        return ticks;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemUptime() {
+<span class="nc" id="L162">        Kstat ksp = KstatUtil.kstatLookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (ksp == null) {</span>
+<span class="nc" id="L164">            return 0L;</span>
+        }
+        // Snap Time is in nanoseconds; divide for seconds
+<span class="nc" id="L167">        return ksp.ks_snaptime / 1000000000L;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSystemSerialNumber() {
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (this.cpuSerialNumber == null) {</span>
+<span class="nc" id="L176">            ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;smbios -t SMB_TYPE_SYSTEM&quot;);</span>
+<span class="nc" id="L177">            String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            for (String checkLine : hwInfo) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L180">                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L181">                    break;</span>
+                }
+<span class="nc" id="L183">            }</span>
+            // if that didn't work, try...
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
+                // If they've installed STB (Sun Explorer) this should work
+<span class="nc" id="L187">                this.cpuSerialNumber = ExecutingCommand.getFirstAnswer(&quot;sneep&quot;);</span>
+            }
+            // if that didn't work, try...
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (this.cpuSerialNumber.isEmpty()) {</span>
+<span class="nc" id="L191">                marker = &quot;chassis-sn:&quot;;</span>
+<span class="nc" id="L192">                hwInfo = ExecutingCommand.runNative(&quot;prtconf -pv&quot;);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                if (hwInfo != null) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                    for (String checkLine : hwInfo) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                        if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L196">                            String[] temp = checkLine.split(marker)[1].split(&quot;'&quot;);</span>
+                            // Format: '12345' (string)
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                            this.cpuSerialNumber = temp.length &gt; 0 ? temp[1] : &quot;&quot;;</span>
+<span class="nc" id="L199">                            break;</span>
+                        }
+<span class="nc" id="L201">                    }</span>
+                }
+            }
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            if (this.cpuSerialNumber.isEmpty()) {</span>
+<span class="nc" id="L205">                this.cpuSerialNumber = &quot;unknown&quot;;</span>
+            }
+        }
+<span class="nc" id="L208">        return this.cpuSerialNumber;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

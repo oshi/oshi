@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibKstat.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix.solaris</a> &gt; <span class="el_source">LibKstat.java</span></div><h1>LibKstat.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.jna.platform.unix.solaris;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Union;
+
+/**
+ * Kstat library. The kstat facility is a general-purpose mechanism for
+ * providing kernel statistics to users.
+ * 
+ * This class should be considered non-API as it may be removed if/when its code
+ * is incorporated into the JNA project.
+ * 
+ * @author widdis[at]gmail[dot]com
+ */
+public interface LibKstat extends Library {
+<span class="nc" id="L40">    LibKstat INSTANCE = (LibKstat) Native.loadLibrary(&quot;kstat&quot;, LibKstat.class);</span>
+
+    /*
+     * Kstat Data Types
+     */
+    // The &quot;raw&quot; kstat type is just treated as an array of bytes. This is
+    // generally used to export well-known structures, like sysinfo.
+    byte KSTAT_TYPE_RAW = 0;
+    byte KSTAT_TYPE_NAMED = 1; // name/value pairs
+    byte KSTAT_TYPE_INTR = 2; // interrupt statistics
+    byte KSTAT_TYPE_IO = 3; // I/O statistics
+    byte KSTAT_TYPE_TIMER = 4; // event timers
+
+    /*
+     * KstatNamed Data Types (for selecting from Union)
+     */
+    byte KSTAT_DATA_CHAR = 0;
+    byte KSTAT_DATA_INT32 = 1;
+    byte KSTAT_DATA_UINT32 = 2;
+    byte KSTAT_DATA_INT64 = 3;
+    byte KSTAT_DATA_UINT64 = 4;
+    byte KSTAT_DATA_STRING = 9;
+
+    /*
+     * KstatIntr Interrupts
+     */
+    int KSTAT_INTR_HARD = 0;
+    int KSTAT_INTR_SOFT = 1;
+    int KSTAT_INTR_WATCHDOG = 2;
+    int KSTAT_INTR_SPURIOUS = 3;
+    int KSTAT_INTR_MULTSVC = 4;
+    int KSTAT_NUM_INTRS = 5;
+
+    int KSTAT_STRLEN = 31; // 30 chars + NULL; must be 16 * n - 1
+
+    int EAGAIN = 11; // Temporarily busy
+
+    /**
+     * The kernel maintains a linked list of statistics structures, or kstats.
+     * Each kstat has a common header section and a type-specific data section.
+     * The header section is defined by the kstat_t structure
+     */
+<span class="nc" id="L82">    class Kstat extends Structure {</span>
+        // Fields relevant to both kernel and user
+        public long ks_crtime; // creation time
+        public Pointer ks_next; // kstat chain linkage
+        public int ks_kid; // unique kstat ID
+<span class="nc" id="L87">        public byte[] ks_module = new byte[KSTAT_STRLEN]; // module name</span>
+        public byte ks_resv; // reserved
+        public int ks_instance; // module's instance
+<span class="nc" id="L90">        public byte[] ks_name = new byte[KSTAT_STRLEN]; // kstat name</span>
+        public byte ks_type; // kstat data type
+<span class="nc" id="L92">        public byte[] ks_class = new byte[KSTAT_STRLEN]; // kstat class</span>
+        public byte ks_flags; // kstat flags
+        public Pointer ks_data; // kstat type-specific data
+        public int ks_ndata; // # of data records
+        public long ks_data_size; // size of kstat data section
+        public long ks_snaptime; // time of last data snapshot
+
+        // Fields relevant to kernel only
+        public int ks_update; // dynamic update function
+        public Pointer ks_private; // provider-private data
+        public int ks_snapshot; // snapshot function
+        public Pointer ks_lock; // protects this kstat's data
+
+        public Kstat next() {
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (ks_next == null) {</span>
+<span class="nc" id="L107">                return null;</span>
+            }
+<span class="nc" id="L109">            Kstat n = new Kstat();</span>
+<span class="nc" id="L110">            n.useMemory(ks_next);</span>
+<span class="nc" id="L111">            n.read();</span>
+<span class="nc" id="L112">            return n;</span>
+        }
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L117">            return Arrays.asList(new String[] { &quot;ks_crtime&quot;, &quot;ks_next&quot;, &quot;ks_kid&quot;, &quot;ks_module&quot;, &quot;ks_resv&quot;, &quot;ks_instance&quot;,</span>
+                    &quot;ks_name&quot;, &quot;ks_type&quot;, &quot;ks_class&quot;, &quot;ks_flags&quot;, &quot;ks_data&quot;, &quot;ks_ndata&quot;, &quot;ks_data_size&quot;, &quot;ks_snaptime&quot;,
+                    &quot;ks_update&quot;, &quot;ks_private&quot;, &quot;ks_snapshot&quot;, &quot;ks_lock&quot; });
+        }
+    }
+
+    /**
+     * A list of arbitrary name=value statistics.
+     */
+    class KstatNamed extends Structure {
+<span class="nc" id="L127">        public byte[] name = new byte[KSTAT_STRLEN]; // name of counter</span>
+        public byte data_type; // data type
+        public UNION value; // value of counter
+
+<span class="nc" id="L131">        public static class UNION extends Union {</span>
+<span class="nc" id="L132">            public byte[] charc = new byte[16]; // enough for 128-bit ints</span>
+            public int i32;
+            public int ui32;
+            public long i64;
+            public long ui64;
+            public STR str;
+
+<span class="nc" id="L139">            public static class STR extends Structure {</span>
+                public Pointer addr;
+                public int len; // length of string
+
+                @Override
+                protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L145">                    return Arrays.asList(new String[] { &quot;addr&quot;, &quot;len&quot; });</span>
+                }
+            }
+        }
+
+        public KstatNamed() {
+<span class="nc" id="L151">            super();</span>
+<span class="nc" id="L152">        }</span>
+
+        public KstatNamed(Pointer p) {
+<span class="nc" id="L155">            super(p);</span>
+<span class="nc" id="L156">            this.read();</span>
+<span class="nc" id="L157">        }</span>
+
+        @Override
+        public void read() {
+<span class="nc" id="L161">            super.read();</span>
+<span class="nc bnc" id="L162" title="All 5 branches missed.">            switch (data_type) {</span>
+            case KSTAT_DATA_CHAR:
+<span class="nc" id="L164">                value.setType(byte[].class);</span>
+<span class="nc" id="L165">                break;</span>
+            case KSTAT_DATA_STRING:
+<span class="nc" id="L167">                value.setType(UNION.STR.class);</span>
+<span class="nc" id="L168">                break;</span>
+            case KSTAT_DATA_INT32:
+            case KSTAT_DATA_UINT32:
+<span class="nc" id="L171">                value.setType(int.class);</span>
+<span class="nc" id="L172">                break;</span>
+            case KSTAT_DATA_INT64:
+            case KSTAT_DATA_UINT64:
+<span class="nc" id="L175">                value.setType(long.class);</span>
+<span class="nc" id="L176">                break;</span>
+            default:
+                break;
+            }
+<span class="nc" id="L180">            value.read();</span>
+<span class="nc" id="L181">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L185">            return Arrays.asList(new String[] { &quot;name&quot;, &quot;data_type&quot;, &quot;value&quot; });</span>
+        }
+    }
+
+    /**
+     * Interrupt statistics.
+     * 
+     * An interrupt is a hard interrupt (sourced from the hardware device
+     * itself), a soft interrupt (induced by the system via the use of some
+     * system interrupt source), a watchdog interrupt (induced by a periodic
+     * timer call), spurious (an interrupt entry point was entered but there was
+     * no interrupt to service), or multiple service (an interrupt was detected
+     * and serviced just prior to returning from any of the other types).
+     */
+<span class="nc" id="L199">    class KstatIntr extends Structure {</span>
+<span class="nc" id="L200">        public int[] intrs = new int[KSTAT_NUM_INTRS]; // interrupt counters</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L204">            return Arrays.asList(new String[] { &quot;intrs&quot; });</span>
+        }
+    };
+
+    /**
+     * Event timer statistics.
+     * 
+     * These provide basic counting and timing information for any type of
+     * event.
+     */
+<span class="nc" id="L214">    class KstatTimer extends Structure {</span>
+<span class="nc" id="L215">        public byte[] name = new byte[KSTAT_STRLEN]; // event name</span>
+        public byte resv; // reserved
+        public long num_events; // number of events
+        public long elapsed_time; // cumulative elapsed time
+        public long min_time; // shortest event duration
+        public long max_time; // longest event duration
+        public long start_time; // previous event start time
+        public long stop_time; // previous event stop time
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L226">            return Arrays.asList(new String[] { &quot;name&quot;, &quot;resv&quot;, &quot;num_events&quot;, &quot;elapsed_time&quot;, &quot;min_time&quot;, &quot;max_time&quot;,</span>
+                    &quot;start_time&quot;, &quot;stop_time&quot; });
+        }
+    }
+
+    /**
+     * IO Statistics.
+     */
+    class KstatIO extends Structure {
+        // Basic counters.
+        public long nread; // number of bytes read
+        public long nwritten; // number of bytes written
+        public int reads; // number of read operations
+        public int writes; // number of write operations
+        /*-
+        * Accumulated time and queue length statistics.
+        *
+        * Time statistics are kept as a running sum of &quot;active&quot; time.
+        * Queue length statistics are kept as a running sum of the
+        * product of queue length and elapsed time at that length --
+        * that is, a Riemann sum for queue length integrated against time.
+        *       ^
+        *       |           _________
+        *       8           | i4    |
+        *       |           |   |
+        *   Queue   6           |   |
+        *   Length  |   _________   |   |
+        *       4   | i2    |_______|   |
+        *       |   |   i3      |
+        *       2_______|           |
+        *       |    i1             |
+        *       |_______________________________|
+        *       Time--  t1  t2  t3  t4
+        *
+        * At each change of state (entry or exit from the queue),
+        * we add the elapsed time (since the previous state change)
+        * to the active time if the queue length was non-zero during
+        * that interval; and we add the product of the elapsed time
+        * times the queue length to the running length*time sum.
+        *
+        * This method is generalizable to measuring residency
+        * in any defined system: instead of queue lengths, think
+        * of &quot;outstanding RPC calls to server X&quot;.
+        *
+        * A large number of I/O subsystems have at least two basic
+        * &quot;lists&quot; of transactions they manage: one for transactions
+        * that have been accepted for processing but for which processing
+        * has yet to begin, and one for transactions which are actively
+        * being processed (but not done). For this reason, two cumulative
+        * time statistics are defined here: pre-service (wait) time,
+        * and service (run) time.
+        *
+        * The units of cumulative busy time are accumulated nanoseconds.
+        * The units of cumulative length*time products are elapsed time
+        * times queue length.
+        */
+        public long wtime; // cumulative wait (pre-service) time
+        public long wlentime; // cumulative wait length*time product
+        public long wlastupdate; // last time wait queue changed
+        public long rtime; // cumulative run (service) time
+        public long rlentime; // cumulative run length*time product
+        public long rlastupdate; // last time run queue changed
+        public int wcnt; // count of elements in wait state
+        public int rcnt; // count of elements in run state
+
+        public KstatIO() {
+<span class="nc" id="L292">            super();</span>
+<span class="nc" id="L293">        }</span>
+
+        public KstatIO(Pointer p) {
+<span class="nc" id="L296">            super(p);</span>
+<span class="nc" id="L297">            this.read();</span>
+<span class="nc" id="L298">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L302">            return Arrays.asList(new String[] { &quot;nread&quot;, &quot;nwritten&quot;, &quot;reads&quot;, &quot;writes&quot;, &quot;wtime&quot;, &quot;wlentime&quot;,</span>
+                    &quot;wlastupdate&quot;, &quot;rtime&quot;, &quot;rlentime&quot;, &quot;rlastupdate&quot;, &quot;wcnt&quot;, &quot;rcnt&quot; });
+        }
+    }
+
+<span class="nc" id="L307">    class KstatCtl extends Structure {</span>
+        public int kc_chain_id; // current kstat chain ID
+        public Kstat kc_chain; // pointer to kstat chain
+        public int kc_kd; // /dev/kstat descriptor - not public interface
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L314">            return Arrays.asList(new String[] { &quot;kc_chain_id&quot;, &quot;kc_chain&quot;, &quot;kc_kd&quot; });</span>
+        }
+    }
+
+    /**
+     * The kstat_open() function initializes a kstat control structure, which
+     * provides access to the kernel statistics library.
+     * 
+     * @return A pointer to this structure, which must be supplied as the kc
+     *         argument in subsequent libkstat function calls.
+     */
+    KstatCtl kstat_open();
+
+    /**
+     * The kstat_close() function frees all resources that were associated with
+     * kc.
+     * 
+     * @param kc
+     *            a kstat control structure
+     * @return 0 on success and -1 on failure.
+     */
+    int kstat_close(KstatCtl kc);
+
+    /**
+     * The kstat_chain_update() function brings the user's kstat header chain in
+     * sync with that of the kernel. The kstat chain is a linked list of kstat
+     * headers (kstat_t's) pointed to by kc.kc_chain, which is initialized by
+     * kstat_open(3KSTAT). This chain constitutes a list of all kstats currently
+     * in the system.
+     * 
+     * During normal operation, the kernel creates new kstats and delete old
+     * ones as various device instances are added and removed, thereby causing
+     * the user's copy of the kstat chain to become out of date. The
+     * kstat_chain_update() function detects this condition by comparing the
+     * kernel's current kstat chain ID(KCID), which is incremented every time
+     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the
+     * KCIDs match, kstat_chain_update() does nothing. Otherwise, it deletes any
+     * invalid kstat headers from the user's kstat chain, adds any new ones, and
+     * sets kc.kc_chain_id to the new KCID. All other kstat headers in the
+     * user's kstat chain are unmodified.
+     * 
+     * @param kc
+     *            a kstat control structure
+     * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or
+     *         -1 on failure.
+     */
+    int kstat_chain_update(KstatCtl kc);
+
+    /**
+     * kstat_read() gets data from the kernel for the kstat pointed to by ksp.
+     * ksp.ks_data is automatically allocated (or reallocated) to be large
+     * enough to hold all of the data. ksp.ks_ndata is set to the number of
+     * data fields, ksp.ks_data_size is set to the total size of the data, and
+     * ksp.ks_snaptime is set to the high-resolution time at which the data
+     * snapshot was taken.
+     * 
+     * @param kc
+     *            The kstat control structure
+     * @param ksp
+     *            The kstat from which to retrieve data
+     * @param p
+     *            If buf is non-NULL , the data is copied from ksp.ks_data into
+     *            buf.
+     * @return On success, return the current kstat chain ID (KCID). On failure,
+     *         return -1.
+     */
+    int kstat_read(KstatCtl kc, Kstat ksp, Pointer p);
+
+    /**
+     * kstat_write() writes data from buf, or from ksp.ks_data if buf is NULL,
+     * to the corresponding kstat in the kernel. Only the superuser can use
+     * kstat_write() .
+     * 
+     * @param kc
+     *            The kstat control structure
+     * @param ksp
+     *            The kstat on which to set data
+     * @param buf
+     *            If buf is non-NULL, the data is copied from buf into
+     *            ksp.ks_data.
+     * @return On success, return the current kstat chain ID (KCID). On failure,
+     *         return -1.
+     */
+    int kstat_write(KstatCtl kc, Kstat ksp, Pointer buf);
+
+    /**
+     * The kstat_lookup() function traverses the kstat chain, kc.kc_chain,
+     * searching for a kstat with the same ks_module, ks_instance, and ks_name
+     * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
+     * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
+     * in the search. For example, kstat_lookup(kc, NULL, -1, &quot;foo&quot;) will simply
+     * find the first kstat with name &quot;foo&quot;.
+     * 
+     * @param kc
+     *            The kstat control structure
+     * @param ks_module
+     *            The kstat module to search
+     * @param ks_instance
+     *            The kstat instance number
+     * @param ks_name
+     *            The kstat name to search
+     * @return a pointer to the requested kstat if it is found, or NULL if it is
+     *         not.
+     */
+    Kstat kstat_lookup(KstatCtl kc, String ks_module, int ks_instance, String ks_name);
+
+    /**
+     * The kstat_data_lookup() function searches the kstat's data section for
+     * the record with the specified name . This operation is valid only for
+     * kstat types which have named data records. Currently, only the
+     * KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
+     * 
+     * @param ksp
+     *            The kstat to search
+     * @param name
+     *            The key for the name-value pair, or name of the timer as
+     *            applicable
+     * @return a pointer to the requested data record if it is found. If the
+     *         requested record is not found, or if the kstat type is invalid,
+     *         returns NULL.
+     */
+    Pointer kstat_data_lookup(Kstat ksp, String name);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -55,7 +55,7 @@ public class LinuxDisplay extends AbstractDisplay {
 <span class="nc" id="L55">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (xrandr != null) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (!xrandr.isEmpty()) {</span>
 <span class="nc" id="L59">            boolean foundEdid = false;</span>
 <span class="nc" id="L60">            StringBuilder sb = new StringBuilder();</span>
 <span class="nc bnc" id="L61" title="All 2 branches missed.">            for (String s : xrandr) {</span>

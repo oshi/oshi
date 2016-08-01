@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 119,
-             Errors: 3668,
+      <title>File: 158,
+             Errors: 4715,
              Warnings: 0,
              Infos: 0
       </title>
@@ -69,7 +69,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  145
+                  149
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisUsbDevice.java">oshi/hardware/platform/unix/solaris/SolarisUsbDevice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  44
                 </td>
               </tr>
                           <tr>
@@ -88,6 +102,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisOSVersionInfoEx.java">oshi/software/os/unix/solaris/SolarisOSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer.java">oshi/hardware/platform/linux/LinuxHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -98,6 +126,20 @@ under the License.
                 </td>
                 <td>
                   12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.freebsd.BsdSysctlUtil.java">oshi/util/platform/unix/freebsd/BsdSysctlUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
                 </td>
               </tr>
                           <tr>
@@ -125,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  47
+                  78
                 </td>
               </tr>
                           <tr>
@@ -186,6 +228,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.package-info.java">oshi/software/os/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.WindowsOSSystemInfo.java">oshi/software/os/windows/WindowsOSSystemInfo.java</a>
                 </td>
                 <td>
@@ -228,6 +284,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdProcess.java">oshi/software/os/unix/freebsd/FreeBsdProcess.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.WindowsFileSystem.java">oshi/software/os/windows/WindowsFileSystem.java</a>
                 </td>
                 <td>
@@ -237,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  27
                 </td>
               </tr>
                           <tr>
@@ -251,7 +321,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  48
                 </td>
               </tr>
                           <tr>
@@ -298,6 +368,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer.java">oshi/hardware/platform/unix/freebsd/FreeBsdHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.PlatformEnum.java">oshi/PlatformEnum.java</a>
                 </td>
                 <td>
@@ -307,7 +391,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  7
                 </td>
               </tr>
                           <tr>
@@ -363,7 +447,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  16
                 </td>
               </tr>
                           <tr>
@@ -396,6 +480,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisFileSystem.java">oshi/software/os/unix/solaris/SolarisFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.package-info.java">oshi/hardware/platform/linux/package-info.java</a>
                 </td>
                 <td>
@@ -419,7 +517,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  27
+                  24
                 </td>
               </tr>
                           <tr>
@@ -434,6 +532,20 @@ under the License.
                 </td>
                 <td>
                   17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdNetworks.java">oshi/hardware/platform/unix/freebsd/FreeBsdNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
                 </td>
               </tr>
                           <tr>
@@ -475,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  34
                 </td>
               </tr>
                           <tr>
@@ -517,7 +629,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisGlobalMemory.java">oshi/hardware/platform/unix/solaris/SolarisGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
                 </td>
               </tr>
                           <tr>
@@ -546,6 +672,48 @@ under the License.
                 </td>
                 <td>
                   24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.HWPartition.java">oshi/hardware/HWPartition.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  64
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdDisplay.java">oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.java">oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  34
                 </td>
               </tr>
                           <tr>
@@ -643,7 +811,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  50
                 </td>
               </tr>
                           <tr>
@@ -685,7 +853,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  12
                 </td>
               </tr>
                           <tr>
@@ -704,6 +872,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisDisplay.java">oshi/hardware/platform/unix/solaris/SolarisDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.linux.LinuxOperatingSystem.java">oshi/software/os/linux/LinuxOperatingSystem.java</a>
                 </td>
                 <td>
@@ -713,7 +895,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  71
+                  69
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdDisks.java">oshi/hardware/platform/unix/freebsd/FreeBsdDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
                 </td>
               </tr>
                           <tr>
@@ -783,7 +979,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  60
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory.java">oshi/hardware/platform/unix/freebsd/FreeBsdGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
                 </td>
               </tr>
                           <tr>
@@ -797,7 +1007,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  53
                 </td>
               </tr>
                           <tr>
@@ -812,6 +1022,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisSensors.java">oshi/hardware/platform/unix/solaris/SolarisSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
                 </td>
               </tr>
                           <tr>
@@ -839,7 +1063,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  31
                 </td>
               </tr>
                           <tr>
@@ -858,6 +1082,34 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.solaris.LibKstat.java">oshi/jna/platform/unix/solaris/LibKstat.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  201
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer.java">oshi/hardware/platform/unix/solaris/SolarisHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.linux.Libc.java">oshi/jna/platform/linux/Libc.java</a>
                 </td>
                 <td>
@@ -868,6 +1120,34 @@ under the License.
                 </td>
                 <td>
                   40
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.package-info.java">oshi/jna/platform/unix/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.solaris.package-info.java">oshi/util/platform/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -900,6 +1180,34 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.package-info.java">oshi/software/os/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdSensors.java">oshi/hardware/platform/unix/freebsd/FreeBsdSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Cfgmgr32.java">oshi/jna/platform/windows/Cfgmgr32.java</a>
                 </td>
                 <td>
@@ -923,7 +1231,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  95
+                  127
                 </td>
               </tr>
                           <tr>
@@ -984,6 +1292,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisDisks.java">oshi/hardware/platform/unix/solaris/SolarisDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  44
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.common.AbstractCentralProcessor.java">oshi/hardware/common/AbstractCentralProcessor.java</a>
                 </td>
                 <td>
@@ -993,7 +1315,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  99
+                  84
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor.java">oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  39
                 </td>
               </tr>
                           <tr>
@@ -1040,6 +1376,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisOperatingSystem.java">oshi/software/os/unix/solaris/SolarisOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.Display.java">oshi/hardware/Display.java</a>
                 </td>
                 <td>
@@ -1077,7 +1427,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  32
+                  25
                 </td>
               </tr>
                           <tr>
@@ -1091,7 +1441,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  54
                 </td>
               </tr>
                           <tr>
@@ -1106,6 +1456,20 @@ under the License.
                 </td>
                 <td>
                   8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.LibC.java">oshi/jna/platform/unix/LibC.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  27
                 </td>
               </tr>
                           <tr>
@@ -1138,6 +1502,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisCentralProcessor.java">oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  29
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.OSFileStore.java">oshi/software/os/OSFileStore.java</a>
                 </td>
                 <td>
@@ -1161,7 +1539,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  66
+                  64
                 </td>
               </tr>
                           <tr>
@@ -1176,6 +1554,20 @@ under the License.
                 </td>
                 <td>
                   70
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOSVersionInfoEx.java">oshi/software/os/unix/freebsd/FreeBsdOSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
                 </td>
               </tr>
                           <tr>
@@ -1208,6 +1600,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.package-info.java">oshi/hardware/platform/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.mac.MacOperatingSystem.java">oshi/software/os/mac/MacOperatingSystem.java</a>
                 </td>
                 <td>
@@ -1218,6 +1624,20 @@ under the License.
                 </td>
                 <td>
                   30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisPowerSource.java">oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
                 </td>
               </tr>
                           <tr>
@@ -1292,6 +1712,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.solaris.KstatUtil.java">oshi/util/platform/unix/solaris/KstatUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.common.AbstractProcess.java">oshi/software/common/AbstractProcess.java</a>
                 </td>
                 <td>
@@ -1302,6 +1736,20 @@ under the License.
                 </td>
                 <td>
                   41
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdFileSystem.java">oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
                 </td>
               </tr>
                           <tr>
@@ -1418,6 +1866,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.solaris.package-info.java">oshi/jna/platform/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.mac.MacCentralProcessor.java">oshi/hardware/platform/mac/MacCentralProcessor.java</a>
                 </td>
                 <td>
@@ -1427,7 +1889,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  36
                 </td>
               </tr>
                           <tr>
@@ -1516,6 +1978,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource.java">oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.windows.WindowsDisks.java">oshi/hardware/platform/windows/WindowsDisks.java</a>
                 </td>
                 <td>
@@ -1525,7 +2001,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  55
                 </td>
               </tr>
                           <tr>
@@ -1567,7 +2043,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  87
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.package-info.java">oshi/hardware/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisProcess.java">oshi/software/os/unix/solaris/SolarisProcess.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
                 </td>
               </tr>
                           <tr>
@@ -1614,6 +2118,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisNetworks.java">oshi/hardware/platform/unix/solaris/SolarisNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.mac.SystemB.java">oshi/jna/platform/mac/SystemB.java</a>
                 </td>
                 <td>
@@ -1656,6 +2174,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.freebsd.package-info.java">oshi/util/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.mac.MacHardwareAbstractionLayer.java">oshi/hardware/platform/mac/MacHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -1693,7 +2225,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  60
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice.java">oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  43
                 </td>
               </tr>
                           <tr>

@@ -115,7 +115,7 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// Since we picked the youngest process, it's safe to assume an</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <em class="jxr_comment">// etime close to 0 in case this command fails; the longer the system</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// has been up, the less impact this assumption will have</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">if</strong> (etime != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">if</strong> (!etime.isEmpty()) {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>             LOG.debug(<span class="jxr_string">"Etime is {} seconds"</span>, etime.trim());
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>             startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         }

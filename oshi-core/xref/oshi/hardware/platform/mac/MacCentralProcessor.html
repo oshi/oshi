@@ -92,7 +92,7 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      @Override
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] getSystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[curTicks.length];
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">int</strong> machPort = SystemB.INSTANCE.mach_host_self();
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          HostCpuLoadInfo cpuLoadInfo = <strong class="jxr_keyword">new</strong> HostCpuLoadInfo();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
@@ -114,86 +114,82 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Override
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include at least one element."</span>);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">if</strong> (nelem &gt; 3) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             LOG.warn(<span class="jxr_string">"Max elements of SystemLoadAverage is 3. "</span> + nelem + <span class="jxr_string">" specified. Ignoring extra."</span>);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             nelem = 3;
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">int</strong> retval = SystemB.INSTANCE.getloadavg(average, nelem);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = Math.max(retval, 0); i &lt; average.length; i++) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 average[i] = -1d;
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>             }
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     @Override
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[logicalProcessorCount][TickType.values().length];
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">int</strong> machPort = SystemB.INSTANCE.mach_host_self();
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         IntByReference procCount = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         PointerByReference procCpuLoadInfo = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         IntByReference procInfoCount = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 procCpuLoadInfo, procInfoCount)) {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: "</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                     .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     @Override
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">Timeval</a> tv = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">Timeval</a>();
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">if</strong> (!SysctlUtil.sysctl(<span class="jxr_string">"kern.boottime"</span>, tv)) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// tv now points to a 16-bit timeval structure for boot time.</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> System.currentTimeMillis() / 1000 - tv.tv_sec;
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     @Override
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">int</strong> service = IOKitUtil.getMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">if</strong> (service != 0) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 <em class="jxr_comment">// Fetch the serial number</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = IOKitUtil.getIORegistryStringProperty(service, <span class="jxr_string">"IOPlatformSerialNumber"</span>);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 IOKit.INSTANCE.IOObjectRelease(service);
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             }
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = <span class="jxr_string">"unknown"</span>;
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         }
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.cpuSerialNumber;
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">int</strong> retval = SystemB.INSTANCE.getloadavg(average, nelem);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = Math.max(retval, 0); i &lt; average.length; i++) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 average[i] = -1d;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     @Override
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[logicalProcessorCount][TickType.values().length];
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">int</strong> machPort = SystemB.INSTANCE.mach_host_self();
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         IntByReference procCount = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         PointerByReference procCpuLoadInfo = <strong class="jxr_keyword">new</strong> PointerByReference();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         IntByReference procInfoCount = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 procCpuLoadInfo, procInfoCount)) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Override
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">Timeval</a> tv = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">Timeval</a>();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">if</strong> (!SysctlUtil.sysctl(<span class="jxr_string">"kern.boottime"</span>, tv)) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <em class="jxr_comment">// tv now points to a 16-bit timeval structure for boot time.</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// First 8 bytes are seconds, second 8 bytes are microseconds (ignore)</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> System.currentTimeMillis() / 1000 - tv.tv_sec;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     @Override
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">int</strong> service = IOKitUtil.getMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">if</strong> (service != 0) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 <em class="jxr_comment">// Fetch the serial number</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = IOKitUtil.getIORegistryStringProperty(service, <span class="jxr_string">"IOPlatformSerialNumber"</span>);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                 IOKit.INSTANCE.IOObjectRelease(service);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.cpuSerialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 <strong class="jxr_keyword">this</strong>.cpuSerialNumber = <span class="jxr_string">"unknown"</span>;
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.cpuSerialNumber;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
