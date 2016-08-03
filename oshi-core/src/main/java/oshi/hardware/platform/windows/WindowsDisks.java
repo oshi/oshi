@@ -93,7 +93,7 @@ public class WindowsDisks extends AbstractDisks {
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
             List<String> partList = driveToPartitionMap.get(ds.getName());
-            if (!partList.isEmpty()) {
+            if (partList != null && !partList.isEmpty()) {
                 for (String part : partList) {
                     partitions.add(partitionMap.get(part));
                 }
