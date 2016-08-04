@@ -1,5 +1,6 @@
 3.2 (in progress)
 ================
+* [#240](https://github.com/dblock/oshi/pull/240): Check sysfs for Linux system serial number - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.1 (8/1/2016)
