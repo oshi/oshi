@@ -19,7 +19,7 @@ oshi-core,oshi.hardware.platform.windows,WindowsHardwareAbstractionLayer,53,0,6,
 oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,536,0,38,0,102,0,27,0,8,0
 oshi-core,oshi.hardware.platform.windows,WindowsNetworks,57,0,2,0,14,0,4,0,3,0
 oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,118,0,6,0,20,0,7,0,4,0
-oshi-core,oshi.hardware.platform.windows,WindowsDisks,663,0,24,0,87,0,18,0,6,0
+oshi-core,oshi.hardware.platform.windows,WindowsDisks,665,0,26,0,87,0,19,0,6,0
 oshi-core,oshi.software.os,OperatingSystem.ProcessSort,88,0,0,0,2,0,4,0,4,0
 oshi-core,oshi.software.os,OSProcess.State,9,79,0,0,0,8,2,2,2,2
 oshi-core,oshi.software.os,OSFileStore,0,83,0,0,0,34,0,17,0,17
@@ -89,7 +89,7 @@ oshi-core,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,25,0,9,0,3,0
 oshi-core,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},24,0,4,0,2,0,4,0,2,0
 oshi-core,oshi.hardware.platform.linux,LinuxNetworks,74,0,0,0,12,0,2,0,2,0
 oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,382,0,26,0,78,0,20,0,7,0
-oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,626,0,112,0,134,0,70,0,9,0
+oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,652,0,120,0,138,0,74,0,9,0
 oshi-core,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
 oshi-core,oshi.hardware.platform.linux,LinuxDisks,353,0,30,0,71,0,20,0,5,0
 oshi-core,oshi.hardware.platform.linux,LinuxBlockDevStats,92,0,0,0,16,0,1,0,1,0
@@ -164,7 +164,7 @@ oshi-core,oshi.jna.platform.mac,SystemB.XswUsage,27,0,0,0,3,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.util,Util,13,33,0,2,4,11,1,4,1,3
 oshi-core,oshi.util,EdidUtil,33,533,6,15,2,64,6,27,1,19
-oshi-core,oshi.util,ParseUtil,5,488,4,38,1,101,5,35,1,18
+oshi-core,oshi.util,ParseUtil,5,495,4,40,1,103,5,36,1,18
 oshi-core,oshi.util,ExecutingCommand,43,86,7,7,3,22,6,7,1,5
 oshi-core,oshi.util,FormatUtil,3,340,0,32,1,49,1,24,1,8
 oshi-core,oshi.util,FileUtil,11,143,2,12,5,35,2,13,1,7
