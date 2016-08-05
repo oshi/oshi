@@ -289,6 +289,10 @@ public class ParseUtil {
      *         hexString
      */
     public static String hexStringToString(String hexString) {
+        // Odd length strings won't parse, return
+        if (hexString.length() % 2 > 0) {
+            return hexString;
+        }
         int charAsInt;
         StringBuilder sb = new StringBuilder();
         try {
