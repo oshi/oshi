@@ -289,21 +289,25 @@ import org.slf4j.LoggerFactory;
      *         hexString
      */
     public static String hexStringToString(String hexString) {
+        // Odd length strings won't parse, return
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        if (hexString.length() % 2 &gt; 0) {</span>
+<span class="fc" id="L294">            return hexString;</span>
+        }
         int charAsInt;
-<span class="fc" id="L293">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L297">        StringBuilder sb = new StringBuilder();</span>
         try {
-<span class="fc bfc" id="L295" title="All 2 branches covered.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
-<span class="fc" id="L296">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
-<span class="pc bpc" id="L297" title="1 of 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
-<span class="fc" id="L298">                    return hexString;</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
+<span class="fc" id="L300">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
+<span class="pc bpc" id="L301" title="1 of 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
+<span class="fc" id="L302">                    return hexString;</span>
                 }
-<span class="fc" id="L300">                sb.append((char) charAsInt);</span>
+<span class="fc" id="L304">                sb.append((char) charAsInt);</span>
             }
-<span class="fc" id="L302">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L306">        } catch (NumberFormatException e) {</span>
             // Hex failed to parse, just return the existing string
-<span class="fc" id="L304">            return hexString;</span>
-<span class="fc" id="L305">        }</span>
-<span class="fc" id="L306">        return sb.toString();</span>
+<span class="fc" id="L308">            return hexString;</span>
+<span class="fc" id="L309">        }</span>
+<span class="fc" id="L310">        return sb.toString();</span>
     }
 
     /**
@@ -317,9 +321,9 @@ import org.slf4j.LoggerFactory;
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
-<span class="fc" id="L320">            return Integer.parseInt(s);</span>
-<span class="fc" id="L321">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L322">            return defaultInt;</span>
+<span class="fc" id="L324">            return Integer.parseInt(s);</span>
+<span class="fc" id="L325">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L326">            return defaultInt;</span>
         }
     }
 
@@ -334,9 +338,9 @@ import org.slf4j.LoggerFactory;
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
-<span class="fc" id="L337">            return Long.parseLong(s);</span>
-<span class="fc" id="L338">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L339">            return defaultLong;</span>
+<span class="fc" id="L341">            return Long.parseLong(s);</span>
+<span class="fc" id="L342">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L343">            return defaultLong;</span>
         }
     }
 
@@ -351,9 +355,9 @@ import org.slf4j.LoggerFactory;
      */
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
         try {
-<span class="fc" id="L354">            return Double.parseDouble(s);</span>
-<span class="fc" id="L355">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L356">            return defaultDouble;</span>
+<span class="fc" id="L358">            return Double.parseDouble(s);</span>
+<span class="fc" id="L359">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L360">            return defaultDouble;</span>
         }
     }
 
@@ -368,20 +372,20 @@ import org.slf4j.LoggerFactory;
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
-<span class="fc" id="L371">        Matcher m = DHMS.matcher(s);</span>
-<span class="fc" id="L372">        long milliseconds = 0L;</span>
-<span class="fc bfc" id="L373" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc bfc" id="L374" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
-<span class="fc" id="L375">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
+<span class="fc" id="L375">        Matcher m = DHMS.matcher(s);</span>
+<span class="fc" id="L376">        long milliseconds = 0L;</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
+<span class="fc" id="L379">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
             }
-<span class="fc bfc" id="L377" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
-<span class="fc" id="L378">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
+<span class="fc bfc" id="L381" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
+<span class="fc" id="L382">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
             }
-<span class="fc" id="L380">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
-<span class="fc" id="L381">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
-<span class="fc" id="L382">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
+<span class="fc" id="L384">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
+<span class="fc" id="L385">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
+<span class="fc" id="L386">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
         }
-<span class="fc" id="L384">        return milliseconds;</span>
+<span class="fc" id="L388">        return milliseconds;</span>
     }
 
     /**
@@ -394,11 +398,11 @@ import org.slf4j.LoggerFactory;
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
-<span class="fc" id="L397">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
-<span class="fc bfc" id="L398" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc" id="L399">            return m.group(1);</span>
+<span class="fc" id="L401">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L403">            return m.group(1);</span>
         }
-<span class="fc" id="L401">        return defaultStr;</span>
+<span class="fc" id="L405">        return defaultStr;</span>
     }
 
     /**
@@ -409,11 +413,11 @@ import org.slf4j.LoggerFactory;
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-<span class="fc" id="L412">        String[] split = line.split(&quot;'&quot;);</span>
-<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
-<span class="fc" id="L414">            return &quot;&quot;;</span>
+<span class="fc" id="L416">        String[] split = line.split(&quot;'&quot;);</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L418">            return &quot;&quot;;</span>
         }
-<span class="fc" id="L416">        return split[1];</span>
+<span class="fc" id="L420">        return split[1];</span>
     }
 
     /**
@@ -424,11 +428,11 @@ import org.slf4j.LoggerFactory;
      * @return the value of first int past equals sign
      */
     public static int getFirstIntValue(String line) {
-<span class="fc" id="L427">        String[] split = line.split(&quot;=&quot;);</span>
-<span class="fc bfc" id="L428" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
-<span class="fc" id="L429">            return 0;</span>
+<span class="fc" id="L431">        String[] split = line.split(&quot;=&quot;);</span>
+<span class="fc bfc" id="L432" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L433">            return 0;</span>
         }
-<span class="fc" id="L431">        return parseIntOrDefault(split[1].trim().split(&quot;\\s+&quot;)[0], 0);</span>
+<span class="fc" id="L435">        return parseIntOrDefault(split[1].trim().split(&quot;\\s+&quot;)[0], 0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

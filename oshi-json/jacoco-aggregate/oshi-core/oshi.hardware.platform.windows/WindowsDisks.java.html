@@ -93,7 +93,7 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
             // Get partitions
 <span class="nc" id="L94">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L95">            List&lt;String&gt; partList = driveToPartitionMap.get(ds.getName());</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (!partList.isEmpty()) {</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (partList != null &amp;&amp; !partList.isEmpty()) {</span>
 <span class="nc bnc" id="L97" title="All 2 branches missed.">                for (String part : partList) {</span>
 <span class="nc" id="L98">                    partitions.add(partitionMap.get(part));</span>
 <span class="nc" id="L99">                }</span>
