@@ -163,7 +163,7 @@ public class MacDisks extends AbstractDisks {
                     continue;
                 }
                 HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
-                        new HWPartition[0]);
+                        new HWPartition[0], 0L);
 
                 // Now look up the device using the BSD Name to get its
                 // statistics
@@ -192,6 +192,7 @@ public class MacDisks extends AbstractDisks {
                                 // statistics we need on it. Fetch them
                                 Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
                                         CfUtil.getCFString("Statistics"));
+                                diskStore.setTimeStamp(System.currentTimeMillis());
                                 CFDictionaryRef statistics = new CFDictionaryRef();
                                 statistics.setPointer(statsPtr);
 

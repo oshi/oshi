@@ -44,12 +44,13 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     private long writeBytes;
     private long transferTime;
     private HWPartition[] partitions;
+    private long timeStamp;
 
     /**
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0]);
+        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
     }
 
     /**
@@ -75,9 +76,11 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            milliseconds spent reading or writing to the disk
      * @param partitions
      *            Partitions on this disk
+     * @param timeStamp
+     *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime, HWPartition[] partitions) {
+            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {
         setName(name);
         setModel(model);
         setSerial(serial);
@@ -88,6 +91,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         setWriteBytes(writeBytes);
         setTransferTime(transferTime);
         setPartitions(partitions);
+        setTimeStamp(timeStamp);
     }
 
     /**
@@ -158,6 +162,13 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      */
     public HWPartition[] getPartitions() {
         return partitions;
+    }
+
+    /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+        return timeStamp;
     }
 
     /**
@@ -241,6 +252,14 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -248,4 +267,5 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         // Naturally sort by device name
         return this.getName().compareTo(store.getName());
     }
+
 }

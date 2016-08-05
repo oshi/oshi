@@ -71,9 +71,11 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            milliseconds spent reading or writing to the disk
      * @param partitions
      *            Partitions on this disk
+     * @param timeStamp
+     *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime, HWPartition[] partitions) {
+            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {
         oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];
         for (int i = 0; i < partitions.length; i++) {
             parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),
@@ -81,7 +83,7 @@ public class HWDiskStore extends AbstractOshiJsonObject {
                     partitions[i].getMinor(), partitions[i].getMountPoint());
         }
         this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
-                writeBytes, transferTime, parts);
+                writeBytes, transferTime, parts, timeStamp);
     }
 
     /**
@@ -160,6 +162,13 @@ public class HWDiskStore extends AbstractOshiJsonObject {
                     this.hwDiskStore.getPartitions()[i].getMountPoint());
         }
         return partitions;
+    }
+
+    /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+        return this.hwDiskStore.getTimeStamp();
     }
 
     /**
@@ -249,6 +258,14 @@ public class HWDiskStore extends AbstractOshiJsonObject {
     }
 
     /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.hwDiskStore.setTimeStamp(timeStamp);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -287,6 +304,9 @@ public class HWDiskStore extends AbstractOshiJsonObject {
                 partitionArrayBuilder.add(partition.toJSON(properties));
             }
             json.add("partitions", partitionArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.timeStamp")) {
+            json.add("timeStamp", this.hwDiskStore.getTimeStamp());
         }
         return json.build();
     }

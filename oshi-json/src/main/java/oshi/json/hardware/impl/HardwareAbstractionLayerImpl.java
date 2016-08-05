@@ -120,7 +120,7 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
             }
             diskStores[i] = new HWDiskStore(ds[i].getName(), ds[i].getModel(), ds[i].getSerial(), ds[i].getSize(),
                     ds[i].getReads(), ds[i].getReadBytes(), ds[i].getWrites(), ds[i].getWriteBytes(),
-                    ds[i].getTransferTime(), partitions);
+                    ds[i].getTransferTime(), partitions, ds[i].getTimeStamp());
         }
         return diskStores;
     }

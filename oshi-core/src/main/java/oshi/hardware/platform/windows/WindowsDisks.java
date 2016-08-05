@@ -50,6 +50,7 @@ public class WindowsDisks extends AbstractDisks {
     private static Map<String, Long> writeMap = new HashMap<>();
     private static Map<String, Long> writeByteMap = new HashMap<>();
     private static Map<String, Long> xferTimeMap = new HashMap<>();
+    private static Map<String, Long> timeStampMap = new HashMap<>();
     private static Map<String, List<String>> driveToPartitionMap = new HashMap<>();
     private static Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
     private static Map<String, HWPartition> partitionMap = new HashMap<>();
@@ -58,7 +59,7 @@ public class WindowsDisks extends AbstractDisks {
             ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
 
     private static final ValueType[] READ_WRITE_TYPES = { ValueType.STRING, ValueType.UINT32, ValueType.STRING,
-            ValueType.UINT32, ValueType.STRING, ValueType.STRING };
+            ValueType.UINT32, ValueType.STRING, ValueType.STRING, ValueType.STRING };
 
     private static final ValueType[] PARTITION_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.UINT32, ValueType.UINT32, ValueType.BOOLEAN };
@@ -88,6 +89,7 @@ public class WindowsDisks extends AbstractDisks {
             ds.setWrites(writeMap.getOrDefault(index, 0L));
             ds.setWriteBytes(writeByteMap.getOrDefault(index, 0L));
             ds.setTransferTime(xferTimeMap.getOrDefault(index, 0L));
+            ds.setTimeStamp(timeStampMap.getOrDefault(index, 0L));
             // If successful this line is the desired value
             ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get("Size").get(i), 0L));
             // Get partitions
@@ -111,12 +113,13 @@ public class WindowsDisks extends AbstractDisks {
         writeMap.clear();
         writeByteMap.clear();
         xferTimeMap.clear();
+        timeStampMap.clear();
         // Although the field names say "PerSec" this is the Raw Data from which
         // the associated fields are populated in the Formatted Data class, so
         // in fact this is the data we want
         Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfDisk_PhysicalDisk",
-                "Name,DiskReadsPerSec,DiskReadBytesPerSec,DiskWritesPerSec,DiskWriteBytesPerSec,PercentDiskTime", null,
-                READ_WRITE_TYPES);
+                "Name,DiskReadsPerSec,DiskReadBytesPerSec,DiskWritesPerSec,DiskWriteBytesPerSec,PercentDiskTime,Timestamp_Sys100NS",
+                null, READ_WRITE_TYPES);
         for (int i = 0; i < vals.get("Name").size(); i++) {
             String name = ((String) vals.get("Name").get(i)).split("\\s+")[0];
             readMap.put(name, (long) vals.get("DiskReadsPerSec").get(i));
@@ -126,6 +129,8 @@ public class WindowsDisks extends AbstractDisks {
             // Units are 100-ns, divide to get ms
             xferTimeMap.put(name,
                     ParseUtil.parseLongOrDefault((String) vals.get("PercentDiskTime").get(i), 0L) / 10000L);
+            timeStampMap.put(name,
+                    ParseUtil.parseLongOrDefault((String) vals.get("Timestamp_Sys100NS").get(i), 0L) / 10000L);
         }
     }
 
