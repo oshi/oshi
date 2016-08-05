@@ -140,6 +140,7 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
             networkIFs[i].setPacketsRecv(ifs[i].getPacketsRecv());
             networkIFs[i].setPacketsSent(ifs[i].getPacketsSent());
             networkIFs[i].setSpeed(ifs[i].getSpeed());
+            networkIFs[i].setTimeStamp(ifs[i].getTimeStamp());
         }
         return networkIFs;
     }

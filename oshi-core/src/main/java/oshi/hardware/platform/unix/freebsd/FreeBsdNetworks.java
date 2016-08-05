@@ -39,6 +39,7 @@ public class FreeBsdNetworks extends AbstractNetworks {
      */
     public static void updateNetworkStats(NetworkIF netIF) {
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + netIF.getName(), 1);
+        netIF.setTimeStamp(System.currentTimeMillis());
         String[] split = stats.split("\\s+");
         if (split.length < 12) {
             // No update

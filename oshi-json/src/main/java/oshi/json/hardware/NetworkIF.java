@@ -215,6 +215,21 @@ public class NetworkIF extends AbstractOshiJsonObject {
     }
 
     /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+        return this.networkIf.getTimeStamp();
+    }
+
+    /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.networkIf.setTimeStamp(timeStamp);
+    }
+
+    /**
      * Updates interface network statistics on this interface. Statistics
      * include packets and bytes sent and received, and interface speed.
      */
@@ -287,6 +302,9 @@ public class NetworkIF extends AbstractOshiJsonObject {
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.speed")) {
             json.add("speed", this.getSpeed());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.timeStamp")) {
+            json.add("timeStamp", this.getSpeed());
         }
         return json.build();
     }

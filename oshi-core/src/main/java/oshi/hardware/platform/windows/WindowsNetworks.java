@@ -54,6 +54,7 @@ public class WindowsNetworks extends AbstractNetworks {
                     netIF.getName());
             return;
         }
+        netIF.setTimeStamp(System.currentTimeMillis());
         netIF.setBytesSent(ifRow.OutOctets);
         netIF.setBytesRecv(ifRow.InOctets);
         netIF.setPacketsSent(ifRow.OutUcastPkts);
