@@ -46,6 +46,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
+    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
+    // official/approved path for sysfs information
+    private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
+
     /**
      * Create a Processor
      */
@@ -298,8 +302,16 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                     }
                 }
             }
+            // These sysfs files can be chmod'd at boot time to enable access
+            // without root
             if (this.cpuSerialNumber == null) {
-                this.cpuSerialNumber = "unknown";
+                this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
+                if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals("None")) {
+                    this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
+                    if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals("None")) {
+                        this.cpuSerialNumber = "unknown";
+                    }
+                }
             }
         }
         return this.cpuSerialNumber;

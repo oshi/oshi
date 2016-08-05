@@ -125,7 +125,7 @@ public class FileUtil {
      * 
      * @param filename
      *            The file to read
-     * @return The value contained in the file, if any; otherwise emptpy string
+     * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
         LOG.debug("Reading file {}", filename);
