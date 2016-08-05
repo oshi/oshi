@@ -1,8 +1,11 @@
-3.1.1 (in progress)
+3.2 (in progress)
+================
+* Your contribution here.
+
+3.1.1 (8/5/2016)
 ================
 * [#239](https://github.com/dblock/oshi/pull/239): Fix exceptions on windows disks/partitions - [@dbwiddis](https://github.com/dbwiddis).
 * [#240](https://github.com/dblock/oshi/pull/240): Check sysfs for Linux system serial number - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.1 (8/1/2016)
 ================
