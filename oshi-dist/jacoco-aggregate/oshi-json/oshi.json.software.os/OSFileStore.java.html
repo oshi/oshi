@@ -40,7 +40,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L43">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L43">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.OSFileStore fileStore;
 
@@ -65,10 +65,10 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Total bytes
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-<span class="fc" id="L68">            String newUuid, long newUsableSpace, long newTotalSpace) {</span>
-<span class="fc" id="L69">        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,</span>
+<span class="nc" id="L68">            String newUuid, long newUsableSpace, long newTotalSpace) {</span>
+<span class="nc" id="L69">        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,</span>
                 newUuid, newUsableSpace, newTotalSpace);
-<span class="fc" id="L71">    }</span>
+<span class="nc" id="L71">    }</span>
 
     /**
      * Name of the File System
@@ -76,7 +76,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The file system name
      */
     public String getName() {
-<span class="fc" id="L79">        return this.fileStore.getName();</span>
+<span class="nc" id="L79">        return this.fileStore.getName();</span>
     }
 
     /**
@@ -86,8 +86,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The name
      */
     public void setName(String value) {
-<span class="fc" id="L89">        this.fileStore.setName(value);</span>
-<span class="fc" id="L90">    }</span>
+<span class="nc" id="L89">        this.fileStore.setName(value);</span>
+<span class="nc" id="L90">    }</span>
 
     /**
      * Volume of the File System
@@ -95,7 +95,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The volume of the file system
      */
     public String getVolume() {
-<span class="fc" id="L98">        return this.fileStore.getVolume();</span>
+<span class="nc" id="L98">        return this.fileStore.getVolume();</span>
     }
 
     /**
@@ -105,8 +105,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The volume
      */
     public void setVolume(String value) {
-<span class="fc" id="L108">        this.fileStore.setVolume(value);</span>
-<span class="fc" id="L109">    }</span>
+<span class="nc" id="L108">        this.fileStore.setVolume(value);</span>
+<span class="nc" id="L109">    }</span>
 
     /**
      * Mountpoint of the File System
@@ -114,7 +114,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The mountpoint of the file system
      */
     public String getMount() {
-<span class="fc" id="L117">        return this.fileStore.getMount();</span>
+<span class="nc" id="L117">        return this.fileStore.getMount();</span>
     }
 
     /**
@@ -124,8 +124,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The mountpoint
      */
     public void setMount(String value) {
-<span class="fc" id="L127">        this.fileStore.setMount(value);</span>
-<span class="fc" id="L128">    }</span>
+<span class="nc" id="L127">        this.fileStore.setMount(value);</span>
+<span class="nc" id="L128">    }</span>
 
     /**
      * Description of the File System
@@ -133,7 +133,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The file system description
      */
     public String getDescription() {
-<span class="fc" id="L136">        return this.fileStore.getDescription();</span>
+<span class="nc" id="L136">        return this.fileStore.getDescription();</span>
     }
 
     /**
@@ -143,8 +143,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The description
      */
     public void setDescription(String value) {
-<span class="fc" id="L146">        this.fileStore.setDescription(value);</span>
-<span class="fc" id="L147">    }</span>
+<span class="nc" id="L146">        this.fileStore.setDescription(value);</span>
+<span class="nc" id="L147">    }</span>
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
@@ -152,7 +152,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The file system type
      */
     public String getType() {
-<span class="fc" id="L155">        return this.fileStore.getType();</span>
+<span class="nc" id="L155">        return this.fileStore.getType();</span>
     }
 
     /**
@@ -162,8 +162,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The type
      */
     public void setType(String value) {
-<span class="fc" id="L165">        this.fileStore.setType(value);</span>
-<span class="fc" id="L166">    }</span>
+<span class="nc" id="L165">        this.fileStore.setType(value);</span>
+<span class="nc" id="L166">    }</span>
 
     /**
      * UUID/GUID of the File System
@@ -171,7 +171,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return The file system UUID/GUID
      */
     public String getUUID() {
-<span class="fc" id="L174">        return this.fileStore.getUUID();</span>
+<span class="nc" id="L174">        return this.fileStore.getUUID();</span>
     }
 
     /**
@@ -181,8 +181,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            The UUID/GUID
      */
     public void setUUID(String value) {
-<span class="fc" id="L184">        this.fileStore.setUUID(value);</span>
-<span class="fc" id="L185">    }</span>
+<span class="nc" id="L184">        this.fileStore.setUUID(value);</span>
+<span class="nc" id="L185">    }</span>
 
     /**
      * Usable space on the drive.
@@ -190,7 +190,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="fc" id="L193">        return this.fileStore.getUsableSpace();</span>
+<span class="nc" id="L193">        return this.fileStore.getUsableSpace();</span>
     }
 
     /**
@@ -200,8 +200,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="fc" id="L203">        this.fileStore.setUsableSpace(value);</span>
-<span class="fc" id="L204">    }</span>
+<span class="nc" id="L203">        this.fileStore.setUsableSpace(value);</span>
+<span class="nc" id="L204">    }</span>
 
     /**
      * Total space/capacity of the drive.
@@ -209,7 +209,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="fc" id="L212">        return this.fileStore.getTotalSpace();</span>
+<span class="nc" id="L212">        return this.fileStore.getTotalSpace();</span>
     }
 
     /**
@@ -219,40 +219,40 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="fc" id="L222">        this.fileStore.setTotalSpace(value);</span>
-<span class="fc" id="L223">    }</span>
+<span class="nc" id="L222">        this.fileStore.setTotalSpace(value);</span>
+<span class="nc" id="L223">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="fc" id="L230">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.name&quot;)) {</span>
-<span class="fc" id="L232">            json.add(&quot;name&quot;, getName());</span>
+<span class="nc" id="L230">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.name&quot;)) {</span>
+<span class="nc" id="L232">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.volume&quot;)) {</span>
-<span class="fc" id="L235">            json.add(&quot;volume&quot;, getVolume());</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.volume&quot;)) {</span>
+<span class="nc" id="L235">            json.add(&quot;volume&quot;, getVolume());</span>
         }
-<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.mountPoint&quot;)) {</span>
-<span class="fc" id="L238">            json.add(&quot;mountPoint&quot;, getMount());</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.mountPoint&quot;)) {</span>
+<span class="nc" id="L238">            json.add(&quot;mountPoint&quot;, getMount());</span>
         }
-<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.description&quot;)) {</span>
-<span class="fc" id="L241">            json.add(&quot;description&quot;, getDescription());</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.description&quot;)) {</span>
+<span class="nc" id="L241">            json.add(&quot;description&quot;, getDescription());</span>
         }
-<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.fsType&quot;)) {</span>
-<span class="fc" id="L244">            json.add(&quot;fsType&quot;, getType());</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.fsType&quot;)) {</span>
+<span class="nc" id="L244">            json.add(&quot;fsType&quot;, getType());</span>
         }
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.uuid&quot;)) {</span>
-<span class="fc" id="L247">            json.add(&quot;uuid&quot;, getUUID());</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.uuid&quot;)) {</span>
+<span class="nc" id="L247">            json.add(&quot;uuid&quot;, getUUID());</span>
         }
-<span class="pc bpc" id="L249" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.usableSpace&quot;)) {</span>
-<span class="fc" id="L250">            json.add(&quot;usableSpace&quot;, getUsableSpace());</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.usableSpace&quot;)) {</span>
+<span class="nc" id="L250">            json.add(&quot;usableSpace&quot;, getUsableSpace());</span>
         }
-<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.totalSpace&quot;)) {</span>
-<span class="fc" id="L253">            json.add(&quot;totalSpace&quot;, getTotalSpace());</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores.totalSpace&quot;)) {</span>
+<span class="nc" id="L253">            json.add(&quot;totalSpace&quot;, getTotalSpace());</span>
         }
-<span class="fc" id="L255">        return json.build();</span>
+<span class="nc" id="L255">        return json.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

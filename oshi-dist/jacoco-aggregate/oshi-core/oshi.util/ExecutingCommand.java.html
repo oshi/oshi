@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 <span class="nc" id="L36">public class ExecutingCommand {</span>
 
-<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
     /**
      * Executes a command on the native command line and returns the result.
@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
      *         empty string if the command failed
      */
     public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
-<span class="fc" id="L49">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
-<span class="fc" id="L50">        return runNative(cmd);</span>
+<span class="nc" id="L49">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="nc" id="L50">        return runNative(cmd);</span>
     }
 
     /**
@@ -59,26 +59,26 @@ import org.slf4j.LoggerFactory;
      *         empty string if the command failed
      */
     public static ArrayList&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L62">        Process p = null;</span>
+<span class="nc" id="L62">        Process p = null;</span>
         try {
-<span class="fc" id="L64">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
-<span class="fc" id="L65">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L66">            LOG.trace(&quot;&quot;, e);</span>
-<span class="fc" id="L67">            return new ArrayList&lt;String&gt;(0);</span>
-<span class="fc" id="L68">        }</span>
+<span class="nc" id="L64">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
+<span class="nc" id="L65">        } catch (SecurityException | IOException e) {</span>
+<span class="nc" id="L66">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L67">            return new ArrayList&lt;String&gt;(0);</span>
+<span class="nc" id="L68">        }</span>
 
-<span class="fc" id="L70">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L71">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
+<span class="nc" id="L70">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L71">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
             String line;
-<span class="fc bfc" id="L73" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L74">                sa.add(line);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L74">                sa.add(line);</span>
             }
-<span class="fc" id="L76">            p.waitFor();</span>
-<span class="pc bpc" id="L77" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
+<span class="nc" id="L76">            p.waitFor();</span>
+<span class="nc bnc" id="L77" title="All 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
 <span class="nc" id="L78">            LOG.trace(&quot;&quot;, e);</span>
 <span class="nc" id="L79">            return new ArrayList&lt;String&gt;(0);</span>
-<span class="fc" id="L80">        }</span>
-<span class="fc" id="L81">        return sa;</span>
+<span class="nc" id="L80">        }</span>
+<span class="nc" id="L81">        return sa;</span>
     }
 
     /**
@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L92">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="nc" id="L92">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -104,12 +104,12 @@ import org.slf4j.LoggerFactory;
      *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L107">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="nc" id="L107">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L109" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L110">            return sa.get(answerIdx);</span>
+<span class="nc bnc" id="L109" title="All 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="nc" id="L110">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L112">        return &quot;&quot;;</span>
+<span class="nc" id="L112">        return &quot;&quot;;</span>
     }
 
 }

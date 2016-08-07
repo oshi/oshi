@@ -27,47 +27,47 @@ import oshi.json.util.JsonUtil;
 /**
  * Implements common methods for the OshiJsonObject interface
  */
-<span class="fc" id="L30">public abstract class AbstractOshiJsonObject implements OshiJsonObject {</span>
+<span class="nc" id="L30">public abstract class AbstractOshiJsonObject implements OshiJsonObject {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L34">    private Properties properties = new Properties();</span>
+<span class="nc" id="L34">    private Properties properties = new Properties();</span>
 
     /**
      * {@inheritDoc}
      */
     public String toCompactJSON() {
-<span class="fc" id="L40">        return toCompactJSON(this.properties);</span>
+<span class="nc" id="L40">        return toCompactJSON(this.properties);</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public String toCompactJSON(Properties properties) {
-<span class="fc" id="L47">        this.properties = properties;</span>
-<span class="fc" id="L48">        return toJSON(this.properties).toString();</span>
+<span class="nc" id="L47">        this.properties = properties;</span>
+<span class="nc" id="L48">        return toJSON(this.properties).toString();</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public String toPrettyJSON() {
-<span class="fc" id="L55">        return toPrettyJSON(this.properties);</span>
+<span class="nc" id="L55">        return toPrettyJSON(this.properties);</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public String toPrettyJSON(Properties properties) {
-<span class="fc" id="L62">        this.properties = properties;</span>
-<span class="fc" id="L63">        return JsonUtil.jsonPrettyPrint(toJSON(this.properties));</span>
+<span class="nc" id="L62">        this.properties = properties;</span>
+<span class="nc" id="L63">        return JsonUtil.jsonPrettyPrint(toJSON(this.properties));</span>
     }
 
     /**
      * {@inheritDoc}
      */
     public JsonObject toJSON() {
-<span class="fc" id="L70">        return toJSON(this.properties);</span>
+<span class="nc" id="L70">        return toJSON(this.properties);</span>
     }
 
     @Override

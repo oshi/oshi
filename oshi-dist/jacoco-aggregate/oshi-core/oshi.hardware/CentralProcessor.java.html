@@ -33,54 +33,54 @@ public interface CentralProcessor extends Serializable {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
-<span class="pc" id="L36">    enum TickType {</span>
+<span class="nc" id="L36">    enum TickType {</span>
         /**
          * CPU utilization that occurred while executing at the user level
          * (application).
          */
-<span class="fc" id="L41">        USER(0),</span>
+<span class="nc" id="L41">        USER(0),</span>
         /**
          * CPU utilization that occurred while executing at the user level with
          * nice priority.
          */
-<span class="fc" id="L46">        NICE(1),</span>
+<span class="nc" id="L46">        NICE(1),</span>
         /**
          * CPU utilization that occurred while executing at the system level
          * (kernel). Also includes CPU time which the hypervisor dedicated for
          * other guests in the system (steal).
          */
-<span class="fc" id="L52">        SYSTEM(2),</span>
+<span class="nc" id="L52">        SYSTEM(2),</span>
         /**
          * Time that the CPU or CPUs were idle and the system did not have an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L57">        IDLE(3),</span>
+<span class="nc" id="L57">        IDLE(3),</span>
         /**
          * Time that the CPU or CPUs were idle during which the system had an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L62">        IOWAIT(4),</span>
+<span class="nc" id="L62">        IOWAIT(4),</span>
         /**
          * Time that the CPU used to service hardware IRQs
          */
-<span class="fc" id="L66">        IRQ(5),</span>
+<span class="nc" id="L66">        IRQ(5),</span>
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L70">        SOFTIRQ(6);</span>
+<span class="nc" id="L70">        SOFTIRQ(6);</span>
 
         private int index;
 
-<span class="fc" id="L74">        TickType(int value) {</span>
-<span class="fc" id="L75">            this.index = value;</span>
-<span class="fc" id="L76">        }</span>
+<span class="nc" id="L74">        TickType(int value) {</span>
+<span class="nc" id="L75">            this.index = value;</span>
+<span class="nc" id="L76">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays,
          *         which matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L83">            return index;</span>
+<span class="nc" id="L83">            return index;</span>
         }
     }
 
@@ -338,12 +338,9 @@ public interface CentralProcessor extends Serializable {
     long getSystemUptime();
 
     /**
-     * Get the System/CPU Serial Number, if available.
-     * 
-     * On Linux and FreeBSD, this requires either root permissions, installation
-     * of the (deprecated) HAL library (lshal command). Linux also attempts to
-     * read the dmi/id serial number files in sysfs, which are read-only root by
-     * default but may have permissions altered by the user.
+     * Get the System/CPU Serial Number, if available. On Linux, this requires
+     * either root permissions, or installation of the (deprecated) HAL library
+     * (lshal command).
      * 
      * @return the System/CPU Serial Number, if available, otherwise returns
      *         &quot;unknown&quot;
