@@ -24,6 +24,9 @@ import java.util.List;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import com.sun.jna.platform.win32.Guid.GUID;
+import com.sun.jna.platform.win32.WinDef.UCHAR;
+import com.sun.jna.platform.win32.WinDef.ULONG;
 
 /**
  * Windows IP Helper API. This class should be considered non-API as it may be
@@ -32,20 +35,22 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface IPHlpAPI extends Library {
-<span class="nc" id="L35">    IPHlpAPI INSTANCE = (IPHlpAPI) Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
+<span class="nc" id="L38">    IPHlpAPI INSTANCE = (IPHlpAPI) Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
 
+    int IF_MAX_STRING_SIZE = 256;
+    int IF_MAX_PHYS_ADDRESS_LENGTH = 32;
     int MAX_INTERFACE_NAME_LEN = 256;
     int MAXLEN_IFDESCR = 256;
     int MAXLEN_PHYSADDR = 8;
 
-<span class="nc" id="L41">    class MIB_IFROW extends Structure {</span>
-<span class="nc" id="L42">        public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];</span>
+<span class="nc" id="L46">    class MIB_IFROW extends Structure {</span>
+<span class="nc" id="L47">        public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];</span>
         public int dwIndex;
         public int dwType;
         public int dwMtu;
         public int dwSpeed;
         public int dwPhysAddrLen;
-<span class="nc" id="L48">        public byte[] bPhysAddr = new byte[MAXLEN_PHYSADDR];</span>
+<span class="nc" id="L53">        public byte[] bPhysAddr = new byte[MAXLEN_PHYSADDR];</span>
         public int dwAdminStatus;
         public int dwOperStatus;
         public int dwLastChange;
@@ -62,15 +67,74 @@ public interface IPHlpAPI extends Library {
         public int dwOutErrors;
         public int dwOutQLen;
         public int dwDescrLen;
-<span class="nc" id="L65">        public byte[] bDescr = new byte[MAXLEN_IFDESCR];</span>
+<span class="nc" id="L70">        public byte[] bDescr = new byte[MAXLEN_IFDESCR];</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L69">            return Arrays.asList(new String[] { &quot;wszName&quot;, &quot;dwIndex&quot;, &quot;dwType&quot;, &quot;dwMtu&quot;, &quot;dwSpeed&quot;, &quot;dwPhysAddrLen&quot;,</span>
+<span class="nc" id="L74">            return Arrays.asList(new String[] { &quot;wszName&quot;, &quot;dwIndex&quot;, &quot;dwType&quot;, &quot;dwMtu&quot;, &quot;dwSpeed&quot;, &quot;dwPhysAddrLen&quot;,</span>
                     &quot;bPhysAddr&quot;, &quot;dwAdminStatus&quot;, &quot;dwOperStatus&quot;, &quot;dwLastChange&quot;, &quot;dwInOctets&quot;, &quot;dwInUcastPkts&quot;,
                     &quot;dwInNUcastPkts&quot;, &quot;dwInDiscards&quot;, &quot;dwInErrors&quot;, &quot;dwInUnknownProtos&quot;, &quot;dwOutOctets&quot;,
                     &quot;dwOutUcastPkts&quot;, &quot;dwOutNUcastPkts&quot;, &quot;dwOutDiscards&quot;, &quot;dwOutErrors&quot;, &quot;dwOutQLen&quot;, &quot;dwDescrLen&quot;,
                     &quot;bDescr&quot; });
+        }
+    }
+
+<span class="nc" id="L82">    class MIB_IFROW2 extends Structure {</span>
+        public long InterfaceLuid; // 64-bit union
+        public ULONG InterfaceIndex;
+        public GUID InterfaceGuid;
+<span class="nc" id="L86">        public char[] Alias = new char[IF_MAX_STRING_SIZE + 1];</span>
+<span class="nc" id="L87">        public char[] Description = new char[IF_MAX_STRING_SIZE + 1];</span>
+        public ULONG PhysicalAddressLength;
+<span class="nc" id="L89">        public UCHAR[] PhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
+<span class="nc" id="L90">        public UCHAR[] PermanentPhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
+        public ULONG Mtu;
+        public ULONG Type;
+        // enums
+        public int TunnelType;
+        public int MediaType;
+        public int PhysicalMediumType;
+        public int AccessType;
+        public int DirectionType;
+        // 8-bit structure
+        public byte InterfaceAndOperStatusFlags;
+        // enums
+        public int OperStatus;
+        public int AdminStatus;
+        public int MediaConnectState;
+        public GUID NetworkGuid;
+        public int ConnectionType;
+        public long TransmitLinkSpeed;
+        public long ReceiveLinkSpeed;
+        public long InOctets;
+        public long InUcastPkts;
+        public long InNUcastPkts;
+        public long InDiscards;
+        public long InErrors;
+        public long InUnknownProtos;
+        public long InUcastOctets;
+        public long InMulticastOctets;
+        public long InBroadcastOctets;
+        public long OutOctets;
+        public long OutUcastPkts;
+        public long OutNUcastPkts;
+        public long OutDiscards;
+        public long OutErrors;
+        public long OutUcastOctets;
+        public long OutMulticastOctets;
+        public long OutBroadcastOctets;
+        public long OutQLen;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L130">            return Arrays.asList(new String[] { &quot;InterfaceLuid&quot;, &quot;InterfaceIndex&quot;, &quot;InterfaceGuid&quot;, &quot;Alias&quot;,</span>
+                    &quot;Description&quot;, &quot;PhysicalAddressLength&quot;, &quot;PhysicalAddress&quot;, &quot;PermanentPhysicalAddress&quot;, &quot;Mtu&quot;,
+                    &quot;Type&quot;, &quot;TunnelType&quot;, &quot;MediaType&quot;, &quot;PhysicalMediumType&quot;, &quot;AccessType&quot;, &quot;DirectionType&quot;,
+                    &quot;InterfaceAndOperStatusFlags&quot;, &quot;OperStatus&quot;, &quot;AdminStatus&quot;, &quot;MediaConnectState&quot;, &quot;NetworkGuid&quot;,
+                    &quot;ConnectionType&quot;, &quot;TransmitLinkSpeed&quot;, &quot;ReceiveLinkSpeed&quot;, &quot;InOctets&quot;, &quot;InUcastPkts&quot;,
+                    &quot;InNUcastPkts&quot;, &quot;InDiscards&quot;, &quot;InErrors&quot;, &quot;InUnknownProtos&quot;, &quot;InUcastOctets&quot;, &quot;InMulticastOctets&quot;,
+                    &quot;InBroadcastOctets&quot;, &quot;OutOctets&quot;, &quot;OutUcastPkts&quot;, &quot;OutNUcastPkts&quot;, &quot;OutDiscards&quot;, &quot;OutErrors&quot;,
+                    &quot;OutUcastOctets&quot;, &quot;OutMulticastOctets&quot;, &quot;OutBroadcastOctets&quot;, &quot;OutQLen&quot; });
         }
     }
 
@@ -87,5 +151,17 @@ public interface IPHlpAPI extends Library {
      */
     int GetIfEntry(MIB_IFROW pIfRow);
 
+    /**
+     * The GetIfEntry function retrieves information for the specified interface
+     * on the local computer
+     * 
+     * @param pIfRow2
+     *            A pointer to a MIB_IFROW structure that, on successful return,
+     *            receives information for an interface on the local computer.
+     *            On input, set the dwIndex member of MIB_IFROW to the index of
+     *            the interface for which to retrieve information.
+     * @return If the function succeeds, the return value is NO_ERROR.
+     */
+    int GetIfEntry2(MIB_IFROW2 pIfRow2);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sun.jna.platform.win32.WinNT;
 
@@ -45,15 +43,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L48">    private static final Pattern UUID_PATTERN = Pattern</span>
-<span class="nc" id="L49">            .compile(&quot;.+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).+&quot;);</span>
-
     private static final int BUFSIZE = 255;
 
-<span class="nc" id="L53">    public WindowsFileSystem() {</span>
+<span class="nc" id="L48">    public WindowsFileSystem() {</span>
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
-<span class="nc" id="L55">        Kernel32.INSTANCE.SetErrorMode(Kernel32.SEM_FAILCRITICALERRORS);</span>
-<span class="nc" id="L56">    }</span>
+<span class="nc" id="L50">        Kernel32.INSTANCE.SetErrorMode(Kernel32.SEM_FAILCRITICALERRORS);</span>
+<span class="nc" id="L51">    }</span>
 
     /**
      * Gets File System Information.
@@ -62,32 +57,33 @@ public class WindowsFileSystem extends AbstractFileSystem {
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
+    @Override
     public OSFileStore[] getFileStores() {
         // Create list to hold results
         ArrayList&lt;OSFileStore&gt; result;
 
         // Begin with all the local volumes
-<span class="nc" id="L70">        result = getLocalVolumes();</span>
+<span class="nc" id="L66">        result = getLocalVolumes();</span>
 
         // Build a map of existing mount point to OSFileStore
-<span class="nc" id="L73">        Map&lt;String, OSFileStore&gt; volumeMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (OSFileStore volume : result) {</span>
-<span class="nc" id="L75">            volumeMap.put(volume.getMount(), volume);</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L69">        Map&lt;String, OSFileStore&gt; volumeMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (OSFileStore volume : result) {</span>
+<span class="nc" id="L71">            volumeMap.put(volume.getMount(), volume);</span>
+<span class="nc" id="L72">        }</span>
 
         // Iterate through volumes in WMI and update description (if it exists)
         // or add new if it doesn't (expected for network drives)
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (OSFileStore wmiVolume : getWmiVolumes()) {</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (volumeMap.containsKey(wmiVolume.getMount())) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (OSFileStore wmiVolume : getWmiVolumes()) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (volumeMap.containsKey(wmiVolume.getMount())) {</span>
                 // If the volume is already in our list, update the name field
                 // using WMI's more verbose name
-<span class="nc" id="L84">                volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());</span>
+<span class="nc" id="L80">                volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());</span>
             } else {
                 // Otherwise add the new volume in its entirety
-<span class="nc" id="L87">                result.add(wmiVolume);</span>
+<span class="nc" id="L83">                result.add(wmiVolume);</span>
             }
-<span class="nc" id="L89">        }</span>
-<span class="nc" id="L90">        return result.toArray(new OSFileStore[result.size()]);</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return result.toArray(new OSFileStore[result.size()]);</span>
     }
 
     /**
@@ -112,51 +108,47 @@ public class WindowsFileSystem extends AbstractFileSystem {
         char[] name;
         char[] mount;
 
-<span class="nc" id="L115">        fs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L116">        aVolume = new char[BUFSIZE];</span>
+<span class="nc" id="L111">        fs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L112">        aVolume = new char[BUFSIZE];</span>
 
-<span class="nc" id="L118">        hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (hVol == WinNT.INVALID_HANDLE_VALUE) {</span>
-<span class="nc" id="L120">            return fs;</span>
+<span class="nc" id="L114">        hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (hVol == WinNT.INVALID_HANDLE_VALUE) {</span>
+<span class="nc" id="L116">            return fs;</span>
         }
 
         while (true) {
-<span class="nc" id="L124">            fstype = new char[16];</span>
-<span class="nc" id="L125">            name = new char[BUFSIZE];</span>
-<span class="nc" id="L126">            mount = new char[BUFSIZE];</span>
+<span class="nc" id="L120">            fstype = new char[16];</span>
+<span class="nc" id="L121">            name = new char[BUFSIZE];</span>
+<span class="nc" id="L122">            mount = new char[BUFSIZE];</span>
 
-<span class="nc" id="L128">            userFreeBytes = new WinNT.LARGE_INTEGER(0L);</span>
-<span class="nc" id="L129">            totalBytes = new WinNT.LARGE_INTEGER(0L);</span>
-<span class="nc" id="L130">            systemFreeBytes = new WinNT.LARGE_INTEGER(0L);</span>
+<span class="nc" id="L124">            userFreeBytes = new WinNT.LARGE_INTEGER(0L);</span>
+<span class="nc" id="L125">            totalBytes = new WinNT.LARGE_INTEGER(0L);</span>
+<span class="nc" id="L126">            systemFreeBytes = new WinNT.LARGE_INTEGER(0L);</span>
 
-<span class="nc" id="L132">            volume = new String(aVolume).trim();</span>
-<span class="nc" id="L133">            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, null, fstype, 16);</span>
-<span class="nc" id="L134">            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);</span>
-<span class="nc" id="L135">            Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);</span>
+<span class="nc" id="L128">            volume = new String(aVolume).trim();</span>
+<span class="nc" id="L129">            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, null, fstype, 16);</span>
+<span class="nc" id="L130">            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);</span>
+<span class="nc" id="L131">            Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);</span>
 
-<span class="nc" id="L137">            strMount = new String(mount).trim();</span>
-<span class="nc" id="L138">            strName = new String(name).trim();</span>
-<span class="nc" id="L139">            strFsType = new String(fstype).trim();</span>
+<span class="nc" id="L133">            strMount = new String(mount).trim();</span>
+<span class="nc" id="L134">            strName = new String(name).trim();</span>
+<span class="nc" id="L135">            strFsType = new String(fstype).trim();</span>
             // Parse uuid from volume name
-<span class="nc" id="L141">            String uuid = &quot;&quot;;</span>
-<span class="nc" id="L142">            Matcher m = UUID_PATTERN.matcher(volume.toLowerCase());</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (m.matches()) {</span>
-<span class="nc" id="L144">                uuid = m.group(1);</span>
-            }
+<span class="nc" id="L137">            String uuid = ParseUtil.parseUuidOrDefault(volume, &quot;&quot;);</span>
 
-<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (!strMount.isEmpty()) {</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (!strMount.isEmpty()) {</span>
                 // Volume is mounted
-<span class="nc" id="L149">                fs.add(new OSFileStore(String.format(&quot;%s (%s)&quot;, strName, strMount), volume, strMount,</span>
-<span class="nc" id="L150">                        getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));</span>
+<span class="nc" id="L141">                fs.add(new OSFileStore(String.format(&quot;%s (%s)&quot;, strName, strMount), volume, strMount,</span>
+<span class="nc" id="L142">                        getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));</span>
             }
-<span class="nc" id="L152">            retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (!retVal) {</span>
-<span class="nc" id="L154">                Kernel32.INSTANCE.FindVolumeClose(hVol);</span>
-<span class="nc" id="L155">                break;</span>
+<span class="nc" id="L144">            retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (!retVal) {</span>
+<span class="nc" id="L146">                Kernel32.INSTANCE.FindVolumeClose(hVol);</span>
+<span class="nc" id="L147">                break;</span>
             }
-<span class="nc" id="L157">        }</span>
+<span class="nc" id="L149">        }</span>
 
-<span class="nc" id="L159">        return fs;</span>
+<span class="nc" id="L151">        return fs;</span>
     }
 
     /**
@@ -172,38 +164,38 @@ public class WindowsFileSystem extends AbstractFileSystem {
         long free;
         long total;
 
-<span class="nc" id="L175">        fs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L167">        fs = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L177">        drives = WmiUtil.selectStringsFrom(null, &quot;Win32_LogicalDisk&quot;,</span>
+<span class="nc" id="L169">        drives = WmiUtil.selectStringsFrom(null, &quot;Win32_LogicalDisk&quot;,</span>
                 &quot;Name,Description,ProviderName,FileSystem,Freespace,Size&quot;, null);
 
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        for (int i = 0; i &lt; drives.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L181">            free = 0L;</span>
-<span class="nc" id="L182">            total = 0L;</span>
-<span class="nc" id="L183">            free = ParseUtil.parseLongOrDefault(drives.get(&quot;Freespace&quot;).get(i), 0L);</span>
-<span class="nc" id="L184">            total = ParseUtil.parseLongOrDefault(drives.get(&quot;Size&quot;).get(i), 0L);</span>
-<span class="nc" id="L185">            String description = drives.get(&quot;Description&quot;).get(i);</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (int i = 0; i &lt; drives.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L173">            free = 0L;</span>
+<span class="nc" id="L174">            total = 0L;</span>
+<span class="nc" id="L175">            free = ParseUtil.parseLongOrDefault(drives.get(&quot;Freespace&quot;).get(i), 0L);</span>
+<span class="nc" id="L176">            total = ParseUtil.parseLongOrDefault(drives.get(&quot;Size&quot;).get(i), 0L);</span>
+<span class="nc" id="L177">            String description = drives.get(&quot;Description&quot;).get(i);</span>
 
-<span class="nc" id="L187">            long type = WmiUtil.selectUint32From(null, &quot;Win32_LogicalDisk&quot;, &quot;DriveType&quot;,</span>
-<span class="nc" id="L188">                    &quot;WHERE Name = '&quot; + drives.get(&quot;Name&quot;).get(i) + &quot;'&quot;);</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (type != 4) {</span>
-<span class="nc" id="L190">                char[] chrVolume = new char[BUFSIZE];</span>
-<span class="nc" id="L191">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get(&quot;Name&quot;).get(i) + &quot;\\&quot;, chrVolume,</span>
+<span class="nc" id="L179">            long type = WmiUtil.selectUint32From(null, &quot;Win32_LogicalDisk&quot;, &quot;DriveType&quot;,</span>
+<span class="nc" id="L180">                    &quot;WHERE Name = '&quot; + drives.get(&quot;Name&quot;).get(i) + &quot;'&quot;);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (type != 4) {</span>
+<span class="nc" id="L182">                char[] chrVolume = new char[BUFSIZE];</span>
+<span class="nc" id="L183">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get(&quot;Name&quot;).get(i) + &quot;\\&quot;, chrVolume,</span>
                         BUFSIZE);
-<span class="nc" id="L193">                volume = new String(chrVolume).trim();</span>
-<span class="nc" id="L194">            } else {</span>
-<span class="nc" id="L195">                volume = drives.get(&quot;ProviderName&quot;).get(i);</span>
-<span class="nc" id="L196">                String[] split = volume.split(&quot;\\\\&quot;);</span>
-<span class="nc bnc" id="L197" title="All 4 branches missed.">                if (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {</span>
-<span class="nc" id="L198">                    description = split[split.length - 1];</span>
+<span class="nc" id="L185">                volume = new String(chrVolume).trim();</span>
+<span class="nc" id="L186">            } else {</span>
+<span class="nc" id="L187">                volume = drives.get(&quot;ProviderName&quot;).get(i);</span>
+<span class="nc" id="L188">                String[] split = volume.split(&quot;\\\\&quot;);</span>
+<span class="nc bnc" id="L189" title="All 4 branches missed.">                if (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {</span>
+<span class="nc" id="L190">                    description = split[split.length - 1];</span>
                 }
             }
 
-<span class="nc" id="L202">            fs.add(new OSFileStore(String.format(&quot;%s (%s)&quot;, description, drives.get(&quot;Name&quot;).get(i)), volume,</span>
-<span class="nc" id="L203">                    drives.get(&quot;Name&quot;).get(i) + &quot;\\&quot;, getDriveType(drives.get(&quot;Name&quot;).get(i)),</span>
-<span class="nc" id="L204">                    drives.get(&quot;FileSystem&quot;).get(i), &quot;&quot;, free, total));</span>
+<span class="nc" id="L194">            fs.add(new OSFileStore(String.format(&quot;%s (%s)&quot;, description, drives.get(&quot;Name&quot;).get(i)), volume,</span>
+<span class="nc" id="L195">                    drives.get(&quot;Name&quot;).get(i) + &quot;\\&quot;, getDriveType(drives.get(&quot;Name&quot;).get(i)),</span>
+<span class="nc" id="L196">                    drives.get(&quot;FileSystem&quot;).get(i), &quot;&quot;, free, total));</span>
         }
-<span class="nc" id="L206">        return fs;</span>
+<span class="nc" id="L198">        return fs;</span>
     }
 
     /**
@@ -214,30 +206,30 @@ public class WindowsFileSystem extends AbstractFileSystem {
      * @return A drive type description
      */
     private String getDriveType(String drive) {
-<span class="nc bnc" id="L217" title="All 6 branches missed.">        switch (Kernel32.INSTANCE.GetDriveType(drive)) {</span>
+<span class="nc bnc" id="L209" title="All 6 branches missed.">        switch (Kernel32.INSTANCE.GetDriveType(drive)) {</span>
         case 2:
-<span class="nc" id="L219">            return &quot;Removable drive&quot;;</span>
+<span class="nc" id="L211">            return &quot;Removable drive&quot;;</span>
         case 3:
-<span class="nc" id="L221">            return &quot;Fixed drive&quot;;</span>
+<span class="nc" id="L213">            return &quot;Fixed drive&quot;;</span>
         case 4:
-<span class="nc" id="L223">            return &quot;Network drive&quot;;</span>
+<span class="nc" id="L215">            return &quot;Network drive&quot;;</span>
         case 5:
-<span class="nc" id="L225">            return &quot;CD-ROM&quot;;</span>
+<span class="nc" id="L217">            return &quot;CD-ROM&quot;;</span>
         case 6:
-<span class="nc" id="L227">            return &quot;RAM drive&quot;;</span>
+<span class="nc" id="L219">            return &quot;RAM drive&quot;;</span>
         default:
-<span class="nc" id="L229">            return &quot;Unknown drive type&quot;;</span>
+<span class="nc" id="L221">            return &quot;Unknown drive type&quot;;</span>
         }
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L235">        return 0L;</span>
+<span class="nc" id="L227">        return 0L;</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L240">        return 0L;</span>
+<span class="nc" id="L232">        return 0L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

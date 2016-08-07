@@ -62,78 +62,78 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            Where the partition is mounted
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
-<span class="fc" id="L65">            String mountPoint) {</span>
-<span class="fc" id="L66">        this.identification = identification;</span>
-<span class="fc" id="L67">        this.name = name;</span>
-<span class="fc" id="L68">        this.type = type;</span>
-<span class="fc" id="L69">        this.uuid = uuid;</span>
-<span class="fc" id="L70">        this.size = size;</span>
-<span class="fc" id="L71">        this.major = major;</span>
-<span class="fc" id="L72">        this.minor = minor;</span>
-<span class="fc" id="L73">        this.mountPoint = mountPoint;</span>
-<span class="fc" id="L74">    }</span>
+<span class="nc" id="L65">            String mountPoint) {</span>
+<span class="nc" id="L66">        this.identification = identification;</span>
+<span class="nc" id="L67">        this.name = name;</span>
+<span class="nc" id="L68">        this.type = type;</span>
+<span class="nc" id="L69">        this.uuid = uuid;</span>
+<span class="nc" id="L70">        this.size = size;</span>
+<span class="nc" id="L71">        this.major = major;</span>
+<span class="nc" id="L72">        this.minor = minor;</span>
+<span class="nc" id="L73">        this.mountPoint = mountPoint;</span>
+<span class="nc" id="L74">    }</span>
 
     /**
      * Creates a new HWPartition
      */
     public HWPartition() {
-<span class="fc" id="L80">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0, 0, &quot;&quot;);</span>
-<span class="fc" id="L81">    }</span>
+<span class="nc" id="L80">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0, 0, &quot;&quot;);</span>
+<span class="nc" id="L81">    }</span>
 
     /**
      * @return Returns the identification.
      */
     public String getIdentification() {
-<span class="fc" id="L87">        return identification;</span>
+<span class="nc" id="L87">        return identification;</span>
     }
 
     /**
      * @return Returns the name.
      */
     public String getName() {
-<span class="fc" id="L94">        return name;</span>
+<span class="nc" id="L94">        return name;</span>
     }
 
     /**
      * @return Returns the type.
      */
     public String getType() {
-<span class="fc" id="L101">        return type;</span>
+<span class="nc" id="L101">        return type;</span>
     }
 
     /**
      * @return Returns the uuid.
      */
     public String getUuid() {
-<span class="fc" id="L108">        return uuid;</span>
+<span class="nc" id="L108">        return uuid;</span>
     }
 
     /**
      * @return Returns the size in bytes.
      */
     public long getSize() {
-<span class="fc" id="L115">        return size;</span>
+<span class="nc" id="L115">        return size;</span>
     }
 
     /**
      * @return Returns the major device ID.
      */
     public int getMajor() {
-<span class="fc" id="L122">        return major;</span>
+<span class="nc" id="L122">        return major;</span>
     }
 
     /**
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-<span class="fc" id="L129">        return minor;</span>
+<span class="nc" id="L129">        return minor;</span>
     }
 
     /**
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-<span class="fc" id="L136">        return mountPoint;</span>
+<span class="nc" id="L136">        return mountPoint;</span>
     }
 
     /**
@@ -141,64 +141,64 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The identification to set.
      */
     public void setIdentification(String identification) {
-<span class="fc" id="L144">        this.identification = identification;</span>
-<span class="fc" id="L145">    }</span>
+<span class="nc" id="L144">        this.identification = identification;</span>
+<span class="nc" id="L145">    }</span>
 
     /**
      * @param name
      *            The name to set.
      */
     public void setName(String name) {
-<span class="fc" id="L152">        this.name = name;</span>
-<span class="fc" id="L153">    }</span>
+<span class="nc" id="L152">        this.name = name;</span>
+<span class="nc" id="L153">    }</span>
 
     /**
      * @param type
      *            The type to set.
      */
     public void setType(String type) {
-<span class="fc" id="L160">        this.type = type;</span>
-<span class="fc" id="L161">    }</span>
+<span class="nc" id="L160">        this.type = type;</span>
+<span class="nc" id="L161">    }</span>
 
     /**
      * @param uuid
      *            The uuid to set.
      */
     public void setUuid(String uuid) {
-<span class="fc" id="L168">        this.uuid = uuid;</span>
-<span class="fc" id="L169">    }</span>
+<span class="nc" id="L168">        this.uuid = uuid;</span>
+<span class="nc" id="L169">    }</span>
 
     /**
      * @param size
      *            The size (in bytes) to set.
      */
     public void setSize(long size) {
-<span class="fc" id="L176">        this.size = size;</span>
-<span class="fc" id="L177">    }</span>
+<span class="nc" id="L176">        this.size = size;</span>
+<span class="nc" id="L177">    }</span>
 
     /**
      * @param major
      *            The major device ID to set.
      */
     public void setMajor(int major) {
-<span class="fc" id="L184">        this.major = major;</span>
-<span class="fc" id="L185">    }</span>
+<span class="nc" id="L184">        this.major = major;</span>
+<span class="nc" id="L185">    }</span>
 
     /**
      * @param minor
      *            The minor device ID to set.
      */
     public void setMinor(int minor) {
-<span class="fc" id="L192">        this.minor = minor;</span>
-<span class="fc" id="L193">    }</span>
+<span class="nc" id="L192">        this.minor = minor;</span>
+<span class="nc" id="L193">    }</span>
 
     /**
      * @param mountPoint
      *            Mount point of the partition
      */
     public void setMountPoint(String mountPoint) {
-<span class="fc" id="L200">        this.mountPoint = mountPoint;</span>
-<span class="fc" id="L201">    }</span>
+<span class="nc" id="L200">        this.mountPoint = mountPoint;</span>
+<span class="nc" id="L201">    }</span>
 
     /**
      * {@inheritDoc}
@@ -206,7 +206,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
     @Override
     public int compareTo(HWPartition part) {
         // Naturally sort by device ID
-<span class="fc" id="L209">        return this.getIdentification().compareTo(part.getIdentification());</span>
+<span class="nc" id="L209">        return this.getIdentification().compareTo(part.getIdentification());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
