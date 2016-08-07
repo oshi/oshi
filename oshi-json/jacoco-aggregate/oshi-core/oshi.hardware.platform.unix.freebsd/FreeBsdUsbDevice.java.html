@@ -103,7 +103,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             // udi = ... identifies start of a new tree
 <span class="nc bnc" id="L104" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
                 // Remove indent for key
-<span class="nc" id="L106">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc" id="L106">                key = getLshalString(line);</span>
 <span class="nc" id="L107">                continue;</span>
 <span class="nc bnc" id="L108" title="All 2 branches missed.">            } else if (key.isEmpty()) {</span>
                 // Ignore everything preceding the first node
@@ -114,44 +114,73 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L114">            line = line.trim();</span>
 <span class="nc bnc" id="L115" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
 <span class="nc" id="L116">                continue;</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">            } else if (line.startsWith(&quot;freebsd.driver =&quot;)</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    &amp;&amp; ParseUtil.getSingleQuoteStringValue(line).equals(&quot;usbus&quot;)) {</span>
-<span class="nc" id="L119">                usBuses.add(key);</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            } else if (line.contains(&quot;.parent =&quot;)) {</span>
-<span class="nc" id="L121">                String parent = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">            } else if (line.startsWith(&quot;freebsd.driver =&quot;) &amp;&amp; getLshalString(line).equals(&quot;usbus&quot;)) {</span>
+<span class="nc" id="L118">                usBuses.add(key);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            } else if (line.contains(&quot;.parent =&quot;)) {</span>
+<span class="nc" id="L120">                String parent = getLshalString(line);</span>
                 // If this is interface of parent, skip
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                if (key.replace(parent, &quot;&quot;).startsWith(&quot;_if&quot;)) {</span>
-<span class="nc" id="L124">                    continue;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                if (key.replace(parent, &quot;&quot;).startsWith(&quot;_if&quot;)) {</span>
+<span class="nc" id="L123">                    continue;</span>
                 }
                 // Store parent for later usbus-skipping
-<span class="nc" id="L127">                parentMap.put(key, parent);</span>
+<span class="nc" id="L126">                parentMap.put(key, parent);</span>
                 // Add this key to the parent's hubmap list
-<span class="nc" id="L129">                hubMap.computeIfAbsent(parent, k -&gt; new ArrayList&lt;String&gt;()).add(key);</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            } else if (line.contains(&quot;.vendor =&quot;)) {</span>
-<span class="nc" id="L131">                vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            } else if (line.contains(&quot;.product =&quot;)) {</span>
-<span class="nc" id="L133">                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            } else if (line.contains(&quot;.serial =&quot;)) {</span>
-<span class="nc" id="L135">                String serial = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc" id="L136">                serialMap.put(key,</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">                        serial.startsWith(&quot;0x&quot;) ? ParseUtil.hexStringToString(serial.replace(&quot;0x&quot;, &quot;&quot;)) : serial);</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            } else if (line.contains(&quot;.vendor_id =&quot;)) {</span>
-<span class="nc" id="L139">                vendorIdMap.put(key, String.format(&quot;%04x&quot;, ParseUtil.getFirstIntValue(line)));</span>
-<span class="nc bnc" id="L140" title="All 2 branches missed.">            } else if (line.contains(&quot;.product_id =&quot;)) {</span>
-<span class="nc" id="L141">                vendorIdMap.put(key, String.format(&quot;%04x&quot;, ParseUtil.getFirstIntValue(line)));</span>
+<span class="nc" id="L128">                hubMap.computeIfAbsent(parent, k -&gt; new ArrayList&lt;String&gt;()).add(key);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            } else if (line.contains(&quot;.vendor =&quot;)) {</span>
+<span class="nc" id="L130">                vendorMap.put(key, getLshalString(line));</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            } else if (line.contains(&quot;.product =&quot;)) {</span>
+<span class="nc" id="L132">                nameMap.put(key, getLshalString(line));</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            } else if (line.contains(&quot;.serial =&quot;)) {</span>
+<span class="nc" id="L134">                String serial = getLshalString(line);</span>
+<span class="nc" id="L135">                serialMap.put(key,</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                        serial.startsWith(&quot;0x&quot;) ? ParseUtil.hexStringToString(serial.replace(&quot;0x&quot;, &quot;&quot;)) : serial);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            } else if (line.contains(&quot;.vendor_id =&quot;)) {</span>
+<span class="nc" id="L138">                vendorIdMap.put(key, getLshalIntAsHex(line));</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            } else if (line.contains(&quot;.product_id =&quot;)) {</span>
+<span class="nc" id="L140">                vendorIdMap.put(key, getLshalIntAsHex(line));</span>
             }
-<span class="nc" id="L143">        }</span>
+<span class="nc" id="L142">        }</span>
 
         // Build tree and return
-<span class="nc" id="L146">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (String usbus : usBuses) {</span>
+<span class="nc" id="L145">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (String usbus : usBuses) {</span>
             // Skip the usbuses: make their parents the controllers and replace
             // parents' children with the buses' children
-<span class="nc" id="L150">            String parent = parentMap.get(usbus);</span>
-<span class="nc" id="L151">            hubMap.put(parent, hubMap.get(usbus));</span>
-<span class="nc" id="L152">            controllerDevices.add(getDeviceAndChildren(parent, &quot;0000&quot;, &quot;0000&quot;));</span>
-<span class="nc" id="L153">        }</span>
-<span class="nc" id="L154">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+<span class="nc" id="L149">            String parent = parentMap.get(usbus);</span>
+<span class="nc" id="L150">            hubMap.put(parent, hubMap.get(usbus));</span>
+<span class="nc" id="L151">            controllerDevices.add(getDeviceAndChildren(parent, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc" id="L152">        }</span>
+<span class="nc" id="L153">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+    }
+
+    /**
+     * Parses a string key = 'value' (string)
+     * 
+     * @param line
+     *            The entire string from lshal
+     * @return the value contained between single tick marks
+     */
+    private static String getLshalString(String line) {
+<span class="nc" id="L164">        String[] split = line.split(&quot;'&quot;);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (split.length &lt; 2) {</span>
+<span class="nc" id="L166">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L168">        return split[1];</span>
+    }
+
+    /**
+     * Parses a string key = 128 (0x80) (int)
+     * 
+     * @param line
+     *            The entire string from lshal
+     * @return a 4 digit hex string representing the int (e.g., &quot;0080&quot;)
+     */
+    private static String getLshalIntAsHex(String line) {
+<span class="nc" id="L179">        String[] split = line.split(&quot;=|\\(&quot;);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (split.length &lt; 2) {</span>
+<span class="nc" id="L181">            return &quot;0000&quot;;</span>
+        }
+<span class="nc" id="L183">        return String.format(&quot;%04x&quot;, ParseUtil.parseIntOrDefault(split[1].trim(), 0));</span>
     }
 
     /**
@@ -167,16 +196,16 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-<span class="nc" id="L170">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
-<span class="nc" id="L171">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
-<span class="nc" id="L172">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
-<span class="nc" id="L173">        List&lt;FreeBsdUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        for (String path : childPaths) {</span>
-<span class="nc" id="L175">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
-<span class="nc" id="L176">        }</span>
-<span class="nc" id="L177">        Collections.sort(usbDevices);</span>
-<span class="nc" id="L178">        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId, productId,</span>
-<span class="nc" id="L179">                &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+<span class="nc" id="L199">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
+<span class="nc" id="L200">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
+<span class="nc" id="L201">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L202">        List&lt;FreeBsdUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (String path : childPaths) {</span>
+<span class="nc" id="L204">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
+<span class="nc" id="L205">        }</span>
+<span class="nc" id="L206">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L207">        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId, productId,</span>
+<span class="nc" id="L208">                &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

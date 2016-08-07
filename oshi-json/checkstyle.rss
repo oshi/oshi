@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 39,
-             Errors: 799,
+      <title>File: 38,
+             Errors: 725,
              Warnings: 0,
              Infos: 0
       </title>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  34
                 </td>
               </tr>
                           <tr>
@@ -111,7 +111,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  33
                 </td>
               </tr>
                           <tr>
@@ -210,20 +210,6 @@ under the License.
                 </td>
                 <td>
                   2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/oshi-json/checkstyle.html#oshi.json.hardware.HWPartition.java">oshi/json/hardware/HWPartition.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  53
                 </td>
               </tr>
                           <tr>
@@ -503,7 +489,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  67
+                  50
                 </td>
               </tr>
                           <tr>

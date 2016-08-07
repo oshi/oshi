@@ -32,35 +32,35 @@ public interface OSProcess extends Serializable {
     /**
      * Process Execution States
      */
-<span class="pc" id="L35">    enum State {</span>
+<span class="nc" id="L35">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L39">        NEW,</span>
+<span class="nc" id="L39">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L43">        RUNNING,</span>
+<span class="nc" id="L43">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L47">        SLEEPING,</span>
+<span class="nc" id="L47">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L51">        WAITING,</span>
+<span class="nc" id="L51">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L55">        ZOMBIE,</span>
+<span class="nc" id="L55">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L59">        STOPPED,</span>
+<span class="nc" id="L59">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L63">        OTHER</span>
+<span class="nc" id="L63">        OTHER</span>
     }
 
     /**

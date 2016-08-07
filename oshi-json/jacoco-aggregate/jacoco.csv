@@ -8,21 +8,21 @@ oshi-json/oshi-core,oshi.jna.platform.windows,Psapi,6,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.windows,IPHlpAPI,6,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.windows,Ole32,7,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.windows,Psapi.PERFORMANCE_INFORMATION,63,0,0,0,2,0,2,0,2,0
-oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil.ValueType,68,0,0,0,2,0,4,0,4,0
-oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil.new Object() {...},40,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil,832,0,94,0,147,0,63,0,14,0
+oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil.ValueType,58,0,0,0,2,0,4,0,4,0
+oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil.new Object() {...},33,0,0,0,1,0,1,0,1,0
+oshi-json/oshi-core,oshi.util.platform.windows,WmiUtil,813,0,91,0,144,0,61,0,14,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisplay,118,0,8,0,25,0,7,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsSensors,474,0,60,0,99,0,34,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsPowerSource,90,0,10,0,17,0,8,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,503,0,34,0,84,0,26,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
-oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,536,0,38,0,102,0,27,0,8,0
+oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,534,0,38,0,101,0,27,0,8,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsNetworks,57,0,2,0,14,0,4,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,118,0,6,0,20,0,7,0,4,0
-oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisks,665,0,26,0,87,0,19,0,6,0
-oshi-json/oshi-core,oshi.software.os,OperatingSystem.ProcessSort,5,83,0,0,0,2,1,3,1,3
-oshi-json/oshi-core,oshi.software.os,OSProcess.State,9,79,0,0,0,8,2,2,2,2
-oshi-json/oshi-core,oshi.software.os,OSFileStore,0,83,0,0,0,34,0,17,0,17
+oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisks,336,0,4,0,40,0,6,0,4,0
+oshi-json/oshi-core,oshi.software.os,OperatingSystem.ProcessSort,88,0,0,0,2,0,4,0,4,0
+oshi-json/oshi-core,oshi.software.os,OSProcess.State,88,0,0,0,8,0,4,0,4,0
+oshi-json/oshi-core,oshi.software.os,OSFileStore,83,0,0,0,34,0,17,0,17,0
 oshi-json/oshi-core,oshi.hardware.common,AbstractUsbDevice,156,0,8,0,26,0,14,0,10,0
 oshi-json/oshi-core,oshi.hardware.common,AbstractPowerSource,21,0,0,0,8,0,4,0,4,0
 oshi-json/oshi-core,oshi.hardware.common,AbstractGlobalMemory,40,0,2,0,14,0,6,0,5,0
@@ -35,17 +35,15 @@ oshi-json/oshi-core,oshi.hardware.common,AbstractDisplay,17,0,0,0,5,0,3,0,3,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOSSystemInfo,61,0,4,0,19,0,6,0,4,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,303,0,8,0,43,0,13,0,9,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsProcess,70,0,7,0,28,0,7,0,1,0
-oshi-json/oshi-core,oshi.software.os.windows,WindowsFileSystem,428,0,26,0,74,0,22,0,7,0
+oshi-json/oshi-core,oshi.software.os.windows,WindowsFileSystem,442,0,28,0,79,0,24,0,8,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx,581,0,148,0,126,0,86,0,12,0
-oshi-json/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,318,0,48,0,60,0,35,0,7,0
-oshi-json/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-json/oshi-core,oshi.software.os.mac,MacProcess,70,0,7,0,28,0,7,0,1,0
 oshi-json/oshi-core,oshi.software.os.mac,MacOSVersionInfoEx,74,0,18,0,24,0,18,0,3,0
 oshi-json/oshi-core,oshi.software.os.mac,MacOperatingSystem,269,0,20,0,47,0,17,0,7,0
 oshi-json/oshi-core,oshi.software.os.mac,MacFileSystem,243,0,34,0,58,0,22,0,5,0
-oshi-json/oshi-core,oshi,SystemInfo.new Object() {...},5,35,0,0,0,1,0,1,0,1
-oshi-json/oshi-core,oshi,PlatformEnum,5,73,0,0,0,7,1,3,1,3
-oshi-json/oshi-core,oshi,SystemInfo,90,55,19,7,25,19,17,5,0,5
+oshi-json/oshi-core,oshi,SystemInfo.new Object() {...},40,0,0,0,1,0,1,0,1,0
+oshi-json/oshi-core,oshi,PlatformEnum,78,0,0,0,7,0,4,0,4,0
+oshi-json/oshi-core,oshi,SystemInfo,145,0,26,0,44,0,22,0,5,0
 oshi-json/oshi-core,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.linux,Libc.Sysinfo,67,0,0,0,4,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.linux,Udev,6,0,0,0,1,0,1,0,1,0
@@ -63,9 +61,9 @@ oshi-json/oshi-core,oshi.util.platform.linux,ProcUtil,41,0,4,0,11,0,5,0,3,0
 oshi-json/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,150,0,10,0,28,0,11,0,6,0
 oshi-json/oshi-core,oshi.util.platform.mac,SysctlUtil,150,0,10,0,28,0,11,0,6,0
 oshi-json/oshi-core,oshi.util.platform.mac,CfUtil.CFNumberType,198,0,0,0,2,0,4,0,4,0
-oshi-json/oshi-core,oshi.util.platform.mac,IOKitUtil,251,0,38,0,76,0,32,0,13,0
+oshi-json/oshi-core,oshi.util.platform.mac,IOKitUtil,199,0,30,0,60,0,26,0,11,0
 oshi-json/oshi-core,oshi.util.platform.mac,SmcUtil,311,0,28,0,76,0,24,0,10,0
-oshi-json/oshi-core,oshi.util.platform.mac,CfUtil,87,0,4,0,21,0,11,0,9,0
+oshi-json/oshi-core,oshi.util.platform.mac,CfUtil,70,0,4,0,17,0,9,0,7,0
 oshi-json/oshi-core,oshi.jna.platform.unix,LibC,12,0,0,0,3,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.unix,LibC.Timeval,15,0,0,0,2,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.unix,LibC.CpTime,15,0,0,0,3,0,2,0,2,0
@@ -74,9 +72,9 @@ oshi-json/oshi-core,oshi.software.os.unix.freebsd,FreeBsdProcess,82,0,8,0,26,0,7
 oshi-json/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,283,0,18,0,62,0,16,0,7,0
 oshi-json/oshi-core,oshi.software.os.unix.freebsd,FreeBsdFileSystem,311,0,40,0,52,0,25,0,5,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdNetworks,53,0,2,0,10,0,3,0,2,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdUsbDevice,419,0,40,0,82,0,27,0,7,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdUsbDevice,442,0,44,0,89,0,31,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdDisplay,88,0,12,0,25,0,9,0,3,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdDisks,463,0,60,0,105,0,34,0,4,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdDisks,229,0,26,0,45,0,15,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,537,0,60,0,105,0,39,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,70,0,4,0,18,0,6,0,4,0
@@ -89,42 +87,33 @@ oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,25,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},24,0,4,0,2,0,4,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxNetworks,74,0,0,0,12,0,2,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,382,0,26,0,78,0,20,0,7,0
-oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,652,0,120,0,138,0,74,0,9,0
+oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,626,0,112,0,134,0,70,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
-oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisks,353,0,30,0,71,0,20,0,5,0
+oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisks,203,0,16,0,43,0,12,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxBlockDevStats,92,0,0,0,16,0,1,0,1,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,387,0,38,0,74,0,26,0,7,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisPowerSource,173,0,28,0,34,0,17,0,3,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworks,40,0,4,0,9,0,4,0,2,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,401,0,40,0,78,0,28,0,8,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisPowerSource,164,0,32,0,33,0,22,0,3,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworks,123,0,20,0,16,0,12,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisSensors,130,0,18,0,30,0,13,0,4,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,376,0,52,0,85,0,35,0,9,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisks,676,0,95,0,150,0,59,0,3,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,500,0,82,0,107,0,55,0,10,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisks,382,0,46,0,74,0,26,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisplay,88,0,12,0,25,0,9,0,3,0
-oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,70,0,6,0,14,0,7,0,4,0
+oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,118,0,18,0,23,0,14,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,53,0,6,0,15,0,12,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacSensors,142,0,16,0,32,0,12,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacDisplay,96,0,6,0,24,0,6,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacNetworks,201,0,12,0,45,0,10,0,4,0
-oshi-json/oshi-core,oshi.hardware.platform.mac,MacDisks,636,0,42,0,168,0,24,0,3,0
+oshi-json/oshi-core,oshi.hardware.platform.mac,MacDisks,401,0,32,0,106,0,19,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacSensors.new Thread() {...},9,0,0,0,3,0,2,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,346,0,30,0,68,0,24,0,9,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacPowerSource,126,0,10,0,29,0,8,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacGlobalMemory,146,0,12,0,33,0,10,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacNetworks.IFdata,18,0,0,0,7,0,1,0,1,0
 oshi-json/oshi-core,oshi.hardware.platform.mac,MacUsbDevice,625,0,40,0,115,0,28,0,8,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatNamed.UNION.STR,15,0,0,0,2,0,2,0,2,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatCtl,19,0,0,0,2,0,2,0,2,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatNamed,62,0,5,0,19,0,8,0,4,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat,6,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatTimer,43,0,0,0,3,0,2,0,2,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.Kstat,108,0,2,0,11,0,4,0,3,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatNamed.UNION,7,0,0,0,2,0,1,0,1,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatIntr,15,0,0,0,3,0,2,0,2,0
-oshi-json/oshi-core,oshi.jna.platform.unix.solaris,LibKstat.KstatIO,61,0,0,0,6,0,3,0,3,0
 oshi-json/oshi-core,oshi.software.os.unix.solaris,SolarisOSVersionInfoEx,27,0,2,0,8,0,2,0,1,0
 oshi-json/oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,250,0,16,0,54,0,15,0,7,0
-oshi-json/oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,267,0,40,0,44,0,25,0,5,0
+oshi-json/oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,311,0,44,0,54,0,27,0,5,0
 oshi-json/oshi-core,oshi.software.os.unix.solaris,SolarisProcess,77,0,8,0,26,0,7,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.windows.COM,WbemLocator,102,0,2,0,14,0,5,0,4,0
 oshi-json/oshi-core,oshi.jna.platform.windows.COM,EnumWbemClassObject,35,0,0,0,5,0,2,0,2,0
@@ -144,7 +133,6 @@ oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.ProcTaskInfo,79,0,0,0,2,0,2,0,
 oshi-json/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataVers,31,0,0,0,3,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,IOKit.SMCVal,35,0,0,0,5,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.IFdata,123,0,0,0,2,0,2,0,2,0
-oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFNumberRef,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,DiskArbitration,6,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.ProcBsdInfo,103,0,0,0,4,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation,6,0,0,0,1,0,1,0,1,0
@@ -157,17 +145,16 @@ oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.Timeval,15,0,0,0,2,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.IFmsgHdr,39,0,0,0,5,0,3,0,3,0
 oshi-json/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,27,0,0,0,2,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFArrayRef,3,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFBooleanRef,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.IFmsgHdr2,52,0,0,0,3,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.Statfs,91,0,0,0,7,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,SystemB.XswUsage,27,0,0,0,3,0,2,0,2,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.util,Util,13,33,0,2,4,11,1,4,1,3
-oshi-json/oshi-core,oshi.util,EdidUtil,33,533,6,15,2,64,6,27,1,19
-oshi-json/oshi-core,oshi.util,ParseUtil,5,495,4,40,1,103,5,36,1,18
-oshi-json/oshi-core,oshi.util,ExecutingCommand,43,86,7,7,3,22,6,7,1,5
-oshi-json/oshi-core,oshi.util,FormatUtil,3,340,0,32,1,49,1,24,1,8
-oshi-json/oshi-core,oshi.util,FileUtil,11,143,2,12,5,35,2,13,1,7
+oshi-json/oshi-core,oshi.util,Util,46,0,2,0,15,0,5,0,4,0
+oshi-json/oshi-core,oshi.util,EdidUtil,566,0,21,0,66,0,33,0,20,0
+oshi-json/oshi-core,oshi.util,ParseUtil,441,0,36,0,88,0,34,0,16,0
+oshi-json/oshi-core,oshi.util,ExecutingCommand,129,0,14,0,25,0,13,0,6,0
+oshi-json/oshi-core,oshi.util,FormatUtil,343,0,32,0,50,0,25,0,9,0
+oshi-json/oshi-core,oshi.util,FileUtil,154,0,14,0,40,0,15,0,8,0
 oshi-json/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-json/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
@@ -180,8 +167,7 @@ oshi-json/oshi-core,oshi.software.common,AbstractOperatingSystem,141,0,16,0,38,0
 oshi-json/oshi-core,oshi.software.common,AbstractProcess,57,0,2,0,16,0,15,0,14,0
 oshi-json/oshi-core,oshi.software.common,AbstractFileSystem,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
-oshi-json/oshi-core,oshi.hardware,HWPartition,0,100,0,0,0,37,0,19,0,19
-oshi-json/oshi-core,oshi.hardware,NetworkIF,25,204,7,11,14,50,7,25,0,21
-oshi-json/oshi-core,oshi.hardware,CentralProcessor.TickType,5,96,0,0,0,12,1,4,1,4
-oshi-json/oshi-core,oshi.hardware,NetworkIF.new Object() {...},5,35,0,0,0,1,0,1,0,1
-oshi-json/oshi-core,oshi.hardware,HWDiskStore,14,109,0,0,2,43,1,22,1,22
+oshi-json/oshi-core,oshi.hardware,NetworkIF,229,0,18,0,64,0,32,0,21,0
+oshi-json/oshi-core,oshi.hardware,CentralProcessor.TickType,101,0,0,0,12,0,5,0,5,0
+oshi-json/oshi-core,oshi.hardware,NetworkIF.new Object() {...},40,0,0,0,1,0,1,0,1,0
+oshi-json/oshi-core,oshi.hardware,HWDiskStore,105,0,0,0,40,0,20,0,20,0

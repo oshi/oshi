@@ -81,42 +81,9 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>              assertEquals(101112L, disk.getWrites());
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              assertEquals(131415L, disk.getWriteBytes());
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              assertEquals(161718L, disk.getTransferTime());
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">for</strong> (HWPartition partition : disk.getPartitions()) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  assertNotNull(partition.getIdentification());
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  assertNotNull(partition.getName());
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  assertNotNull(partition.getType());
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  assertNotNull(partition.getUuid());
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  assertNotNull(partition.getMountPoint());
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  assertTrue(partition.getSize() &gt;= 0);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  assertTrue(partition.getMajor() &gt;= 0);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  assertTrue(partition.getMinor() &gt;= 0);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              HWPartition[] partitions = <strong class="jxr_keyword">new</strong> HWPartition[1];
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              partitions[0] = <strong class="jxr_keyword">new</strong> HWPartition();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              partitions[0].setIdentification(<span class="jxr_string">"id"</span>);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              partitions[0].setName(<span class="jxr_string">"name"</span>);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              partitions[0].setType(<span class="jxr_string">"type"</span>);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              partitions[0].setUuid(<span class="jxr_string">"uuid"</span>);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              partitions[0].setMountPoint(<span class="jxr_string">"mount"</span>);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              partitions[0].setSize(123L);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              partitions[0].setMajor(345);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              partitions[0].setMinor(456);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              disk.setPartitions(partitions);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             partitions = disk.getPartitions();
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             assertEquals(<span class="jxr_string">"id"</span>, partitions[0].getIdentification());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             assertEquals(<span class="jxr_string">"name"</span>, partitions[0].getName());
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             assertEquals(<span class="jxr_string">"type"</span>, partitions[0].getType());
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             assertEquals(<span class="jxr_string">"uuid"</span>, partitions[0].getUuid());
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             assertEquals(<span class="jxr_string">"mount"</span>, partitions[0].getMountPoint());
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             assertEquals(123L, partitions[0].getSize());
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>             assertEquals(345, partitions[0].getMajor());
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             assertEquals(456, partitions[0].getMinor());
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
