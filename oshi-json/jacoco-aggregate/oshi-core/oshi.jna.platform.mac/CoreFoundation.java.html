@@ -46,19 +46,25 @@ public interface CoreFoundation extends Library {
 <span class="nc" id="L46">    class CFTypeRef extends PointerType {</span>
     }
 
-<span class="nc" id="L49">    class CFArrayRef extends PointerType {</span>
+<span class="nc" id="L49">    class CFNumberRef extends PointerType {</span>
     }
 
-<span class="nc" id="L52">    class CFDictionaryRef extends PointerType {</span>
+<span class="nc" id="L52">    class CFBooleanRef extends PointerType {</span>
     }
 
-<span class="nc" id="L55">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
+<span class="nc" id="L55">    class CFArrayRef extends PointerType {</span>
     }
 
-<span class="nc" id="L58">    class CFAllocatorRef extends PointerType {</span>
+<span class="nc" id="L58">    class CFDictionaryRef extends PointerType {</span>
     }
 
-<span class="nc" id="L61">    class CFStringRef extends PointerType {</span>
+<span class="nc" id="L61">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
+    }
+
+<span class="nc" id="L64">    class CFAllocatorRef extends PointerType {</span>
+    }
+
+<span class="nc" id="L67">    class CFStringRef extends PointerType {</span>
         /**
          * Creates a new CFString from the given Java string.
          * 
@@ -67,9 +73,9 @@ public interface CoreFoundation extends Library {
          * @return A reference to a CFString representing s
          */
         public static CFStringRef toCFString(String s) {
-<span class="nc" id="L70">            final char[] chars = s.toCharArray();</span>
-<span class="nc" id="L71">            int length = chars.length;</span>
-<span class="nc" id="L72">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+<span class="nc" id="L76">            final char[] chars = s.toCharArray();</span>
+<span class="nc" id="L77">            int length = chars.length;</span>
+<span class="nc" id="L78">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 
@@ -111,7 +117,7 @@ public interface CoreFoundation extends Library {
 
     CFAllocatorRef CFAllocatorGetDefault();
 
-<span class="nc" id="L114">    class CFDataRef extends CFTypeRef {</span>
+<span class="nc" id="L120">    class CFDataRef extends CFTypeRef {</span>
     }
 
     int CFDataGetLength(CFTypeRef theData);

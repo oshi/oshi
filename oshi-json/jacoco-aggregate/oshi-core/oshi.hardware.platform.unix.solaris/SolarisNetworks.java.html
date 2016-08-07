@@ -18,17 +18,15 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.ArrayList;
-
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L31">public class SolarisNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L29">public class SolarisNetworks extends AbstractNetworks {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -40,21 +38,14 @@ import oshi.util.ParseUtil;
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L43">        ArrayList&lt;String&gt; stats = ExecutingCommand.runNative(&quot;kstat -p link::&quot; + netIF.getName());</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String stat : stats) {</span>
-<span class="nc" id="L45">            String[] split = stat.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L46" title="All 4 branches missed.">            if (split[0].endsWith(&quot;:obytes&quot;) || split[0].endsWith(&quot;:obytes64&quot;)) {</span>
-<span class="nc" id="L47">                netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
-<span class="nc bnc" id="L48" title="All 4 branches missed.">            } else if (split[0].endsWith(&quot;:rbytes&quot;) || split[0].endsWith(&quot;:rbytes64&quot;)) {</span>
-<span class="nc" id="L49">                netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
-<span class="nc bnc" id="L50" title="All 4 branches missed.">            } else if (split[0].endsWith(&quot;:opackets&quot;) || split[0].endsWith(&quot;:opackets64&quot;)) {</span>
-<span class="nc" id="L51">                netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
-<span class="nc bnc" id="L52" title="All 4 branches missed.">            } else if (split[0].endsWith(&quot;:ipackets&quot;) || split[0].endsWith(&quot;:ipackets64&quot;)) {</span>
-<span class="nc" id="L53">                netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">            } else if (split[0].endsWith(&quot;:ifspeed&quot;)) {</span>
-<span class="nc" id="L55">                netIF.setSpeed(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
-            }
-<span class="nc" id="L57">        }</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L41">        Kstat ksp = KstatUtil.kstatLookup(&quot;link&quot;, -1, netIF.getName());</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L43">            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, &quot;obytes64&quot;));</span>
+<span class="nc" id="L44">            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;rbytes64&quot;));</span>
+<span class="nc" id="L45">            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, &quot;opackets64&quot;));</span>
+<span class="nc" id="L46">            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;ipackets64&quot;));</span>
+<span class="nc" id="L47">            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, &quot;ifspeed&quot;));</span>
+        }
+<span class="nc" id="L49">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -30,7 +30,7 @@ import java.io.Serializable;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class HWDiskStore implements Serializable {
+public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,13 +43,14 @@ public class HWDiskStore implements Serializable {
     private long writes;
     private long writeBytes;
     private long transferTime;
+    private HWPartition[] partitions;
 
     /**
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-<span class="nc" id="L51">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0L, 0L, 0L, 0L, 0L);</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L52">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0]);</span>
+<span class="nc" id="L53">    }</span>
 
     /**
      * Create an object with all values
@@ -72,81 +73,91 @@ public class HWDiskStore implements Serializable {
      *            Number of bytes written to the disk
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
+     * @param partitions
+     *            Partitions on this disk
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-<span class="nc" id="L77">            long writeBytes, long transferTime) {</span>
-<span class="nc" id="L78">        setName(name);</span>
-<span class="nc" id="L79">        setModel(model);</span>
-<span class="nc" id="L80">        setSerial(serial);</span>
-<span class="nc" id="L81">        setSize(size);</span>
-<span class="nc" id="L82">        setReads(reads);</span>
-<span class="nc" id="L83">        setReadBytes(readBytes);</span>
-<span class="nc" id="L84">        setWrites(writes);</span>
-<span class="nc" id="L85">        setWriteBytes(writeBytes);</span>
-<span class="nc" id="L86">        setTransferTime(transferTime);</span>
-<span class="nc" id="L87">    }</span>
+<span class="nc" id="L80">            long writeBytes, long transferTime, HWPartition[] partitions) {</span>
+<span class="nc" id="L81">        setName(name);</span>
+<span class="nc" id="L82">        setModel(model);</span>
+<span class="nc" id="L83">        setSerial(serial);</span>
+<span class="nc" id="L84">        setSize(size);</span>
+<span class="nc" id="L85">        setReads(reads);</span>
+<span class="nc" id="L86">        setReadBytes(readBytes);</span>
+<span class="nc" id="L87">        setWrites(writes);</span>
+<span class="nc" id="L88">        setWriteBytes(writeBytes);</span>
+<span class="nc" id="L89">        setTransferTime(transferTime);</span>
+<span class="nc" id="L90">        setPartitions(partitions);</span>
+<span class="nc" id="L91">    }</span>
 
     /**
      * @return the name
      */
     public String getName() {
-<span class="nc" id="L93">        return name;</span>
+<span class="nc" id="L97">        return name;</span>
     }
 
     /**
      * @return the model
      */
     public String getModel() {
-<span class="nc" id="L100">        return model;</span>
+<span class="nc" id="L104">        return model;</span>
     }
 
     /**
      * @return the serial
      */
     public String getSerial() {
-<span class="nc" id="L107">        return serial;</span>
+<span class="nc" id="L111">        return serial;</span>
     }
 
     /**
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-<span class="nc" id="L114">        return size;</span>
+<span class="nc" id="L118">        return size;</span>
     }
 
     /**
      * @return the reads
      */
     public long getReads() {
-<span class="nc" id="L121">        return reads;</span>
+<span class="nc" id="L125">        return reads;</span>
     }
 
     /**
      * @return the bytes read
      */
     public long getReadBytes() {
-<span class="nc" id="L128">        return readBytes;</span>
+<span class="nc" id="L132">        return readBytes;</span>
     }
 
     /**
      * @return the writes
      */
     public long getWrites() {
-<span class="nc" id="L135">        return writes;</span>
+<span class="nc" id="L139">        return writes;</span>
     }
 
     /**
      * @return the bytes written
      */
     public long getWriteBytes() {
-<span class="nc" id="L142">        return writeBytes;</span>
+<span class="nc" id="L146">        return writeBytes;</span>
     }
 
     /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-<span class="nc" id="L149">        return transferTime;</span>
+<span class="nc" id="L153">        return transferTime;</span>
+    }
+
+    /**
+     * @return Returns the partitions on this drive.
+     */
+    public HWPartition[] getPartitions() {
+<span class="nc" id="L160">        return partitions;</span>
     }
 
     /**
@@ -154,71 +165,88 @@ public class HWDiskStore implements Serializable {
      *            the name to set
      */
     public void setName(String name) {
-<span class="nc" id="L157">        this.name = name;</span>
-<span class="nc" id="L158">    }</span>
+<span class="nc" id="L168">        this.name = name;</span>
+<span class="nc" id="L169">    }</span>
 
     /**
      * @param model
      *            the model to set
      */
     public void setModel(String model) {
-<span class="nc" id="L165">        this.model = model;</span>
-<span class="nc" id="L166">    }</span>
+<span class="nc" id="L176">        this.model = model;</span>
+<span class="nc" id="L177">    }</span>
 
     /**
      * @param serial
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="nc" id="L173">        this.serial = serial;</span>
-<span class="nc" id="L174">    }</span>
+<span class="nc" id="L184">        this.serial = serial;</span>
+<span class="nc" id="L185">    }</span>
 
     /**
      * @param size
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-<span class="nc" id="L181">        this.size = size;</span>
-<span class="nc" id="L182">    }</span>
+<span class="nc" id="L192">        this.size = size;</span>
+<span class="nc" id="L193">    }</span>
 
     /**
      * @param reads
      *            the reads to set
      */
     public void setReads(long reads) {
-<span class="nc" id="L189">        this.reads = reads;</span>
-<span class="nc" id="L190">    }</span>
+<span class="nc" id="L200">        this.reads = reads;</span>
+<span class="nc" id="L201">    }</span>
 
     /**
      * @param readBytes
      *            the bytes read to set
      */
     public void setReadBytes(long readBytes) {
-<span class="nc" id="L197">        this.readBytes = readBytes;</span>
-<span class="nc" id="L198">    }</span>
+<span class="nc" id="L208">        this.readBytes = readBytes;</span>
+<span class="nc" id="L209">    }</span>
 
     /**
      * @param writes
      *            the writes to set
      */
     public void setWrites(long writes) {
-<span class="nc" id="L205">        this.writes = writes;</span>
-<span class="nc" id="L206">    }</span>
+<span class="nc" id="L216">        this.writes = writes;</span>
+<span class="nc" id="L217">    }</span>
 
     /**
      * @param writeBytes
      *            the bytes written to set
      */
     public void setWriteBytes(long writeBytes) {
-<span class="nc" id="L213">        this.writeBytes = writeBytes;</span>
-<span class="nc" id="L214">    }</span>
+<span class="nc" id="L224">        this.writeBytes = writeBytes;</span>
+<span class="nc" id="L225">    }</span>
 
     /**
      * @param transferTime
      *            milliseconds spent reading or writing to set
      */
     public void setTransferTime(long transferTime) {
-<span class="nc" id="L221">        this.transferTime = transferTime;</span>
-<span class="nc" id="L222">    }</span>
+<span class="nc" id="L232">        this.transferTime = transferTime;</span>
+<span class="nc" id="L233">    }</span>
+
+    /**
+     * @param partitions
+     *            The partitions to set.
+     */
+    public void setPartitions(HWPartition[] partitions) {
+<span class="nc" id="L240">        this.partitions = partitions;</span>
+<span class="nc" id="L241">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWDiskStore store) {
+        // Naturally sort by device name
+<span class="nc" id="L249">        return this.getName().compareTo(store.getName());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

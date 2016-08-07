@@ -171,6 +171,48 @@ import oshi.jna.platform.mac.IOKit.MachPort;
     }
 
     /**
+     * Convenience method to get an Int value from an IO Registry
+     * 
+     * @param entry
+     *            A handle to the registry entry
+     * @param key
+     *            The string name of the key to retrieve
+     * @return The value of the registry entry if it exists; 0 otherwise
+     */
+    public static int getIORegistryIntProperty(int entry, String key) {
+<span class="nc" id="L183">        int value = 0;</span>
+<span class="nc" id="L184">        CFStringRef keyAsCFString = CfUtil.getCFString(key);</span>
+<span class="nc" id="L185">        CFTypeRef valueAsCFNumber = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,</span>
+<span class="nc" id="L186">                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">        if (valueAsCFNumber != null &amp;&amp; valueAsCFNumber.getPointer() != null) {</span>
+<span class="nc" id="L188">            value = CfUtil.cfPointerToInt(valueAsCFNumber.getPointer());</span>
+        }
+<span class="nc" id="L190">        CfUtil.release(valueAsCFNumber);</span>
+<span class="nc" id="L191">        return value;</span>
+    }
+
+    /**
+     * Convenience method to get a Boolean value from an IO Registry
+     * 
+     * @param entry
+     *            A handle to the registry entry
+     * @param key
+     *            The string name of the key to retrieve
+     * @return The value of the registry entry if it exists; false otherwise
+     */
+    public static boolean getIORegistryBooleanProperty(int entry, String key) {
+<span class="nc" id="L204">        boolean value = false;</span>
+<span class="nc" id="L205">        CFStringRef keyAsCFString = CfUtil.getCFString(key);</span>
+<span class="nc" id="L206">        CFTypeRef valueAsCFBoolean = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,</span>
+<span class="nc" id="L207">                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);</span>
+<span class="nc bnc" id="L208" title="All 4 branches missed.">        if (valueAsCFBoolean != null &amp;&amp; valueAsCFBoolean.getPointer() != null) {</span>
+<span class="nc" id="L209">            value = CfUtil.cfPointerToBoolean(valueAsCFBoolean.getPointer());</span>
+        }
+<span class="nc" id="L211">        CfUtil.release(valueAsCFBoolean);</span>
+<span class="nc" id="L212">        return value;</span>
+    }
+
+    /**
      * Convenience method to get a byte array value from an IO Registry
      * 
      * @param entry
@@ -180,17 +222,17 @@ import oshi.jna.platform.mac.IOKit.MachPort;
      * @return The value of the registry entry if it exists; null otherwise
      */
     public static byte[] getIORegistryByteArrayProperty(int entry, String key) {
-<span class="nc" id="L183">        byte[] value = null;</span>
-<span class="nc" id="L184">        CFStringRef keyAsCFString = CfUtil.getCFString(key);</span>
-<span class="nc" id="L185">        CFTypeRef valueAsCFData = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,</span>
-<span class="nc" id="L186">                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);</span>
-<span class="nc bnc" id="L187" title="All 4 branches missed.">        if (valueAsCFData != null &amp;&amp; valueAsCFData.getPointer() != null) {</span>
-<span class="nc" id="L188">            int length = CoreFoundation.INSTANCE.CFDataGetLength(valueAsCFData);</span>
-<span class="nc" id="L189">            PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(valueAsCFData);</span>
-<span class="nc" id="L190">            value = p.getPointer().getByteArray(0, length);</span>
+<span class="nc" id="L225">        byte[] value = null;</span>
+<span class="nc" id="L226">        CFStringRef keyAsCFString = CfUtil.getCFString(key);</span>
+<span class="nc" id="L227">        CFTypeRef valueAsCFData = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,</span>
+<span class="nc" id="L228">                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);</span>
+<span class="nc bnc" id="L229" title="All 4 branches missed.">        if (valueAsCFData != null &amp;&amp; valueAsCFData.getPointer() != null) {</span>
+<span class="nc" id="L230">            int length = CoreFoundation.INSTANCE.CFDataGetLength(valueAsCFData);</span>
+<span class="nc" id="L231">            PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(valueAsCFData);</span>
+<span class="nc" id="L232">            value = p.getPointer().getByteArray(0, length);</span>
         }
-<span class="nc" id="L192">        CfUtil.release(valueAsCFData);</span>
-<span class="nc" id="L193">        return value;</span>
+<span class="nc" id="L234">        CfUtil.release(valueAsCFData);</span>
+<span class="nc" id="L235">        return value;</span>
     }
 
     /**
@@ -201,11 +243,10 @@ import oshi.jna.platform.mac.IOKit.MachPort;
      * @return The dictionary ref
      */
     public static CFMutableDictionaryRef getBSDNameMatchingDict(String bsdName) {
-<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (setMasterPort() == 0) {</span>
-<span class="nc" id="L205">            return IOKit.INSTANCE.IOBSDNameMatching(masterPort.getValue(), 0, bsdName);</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (setMasterPort() == 0) {</span>
+<span class="nc" id="L247">            return IOKit.INSTANCE.IOBSDNameMatching(masterPort.getValue(), 0, bsdName);</span>
         }
-<span class="nc" id="L207">        return null;</span>
+<span class="nc" id="L249">        return null;</span>
     }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
