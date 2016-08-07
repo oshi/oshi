@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
     <item>
-      <title>File: 158,
-             Errors: 4722,
+      <title>File: 153,
+             Errors: 4277,
              Warnings: 0,
              Infos: 0
       </title>
@@ -69,7 +69,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  149
+                  146
                 </td>
               </tr>
                           <tr>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  45
                 </td>
               </tr>
                           <tr>
@@ -167,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  78
+                  69
                 </td>
               </tr>
                           <tr>
@@ -307,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  27
+                  29
                 </td>
               </tr>
                           <tr>
@@ -321,7 +321,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  41
                 </td>
               </tr>
                           <tr>
@@ -489,7 +489,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  19
                 </td>
               </tr>
                           <tr>
@@ -517,7 +517,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  24
                 </td>
               </tr>
                           <tr>
@@ -587,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  18
                 </td>
               </tr>
                           <tr>
@@ -629,7 +629,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  32
                 </td>
               </tr>
                           <tr>
@@ -643,7 +643,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  15
                 </td>
               </tr>
                           <tr>
@@ -672,20 +672,6 @@ under the License.
                 </td>
                 <td>
                   24
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.HWPartition.java">oshi/hardware/HWPartition.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  64
                 </td>
               </tr>
                           <tr>
@@ -909,7 +895,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  16
                 </td>
               </tr>
                           <tr>
@@ -979,7 +965,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  60
+                  50
                 </td>
               </tr>
                           <tr>
@@ -1082,20 +1068,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.solaris.LibKstat.java">oshi/jna/platform/unix/solaris/LibKstat.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  201
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer.java">oshi/hardware/platform/unix/solaris/SolarisHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -1134,20 +1106,6 @@ under the License.
                 </td>
                 <td>
                   1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.solaris.package-info.java">oshi/util/platform/unix/solaris/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
                 </td>
               </tr>
                           <tr>
@@ -1231,7 +1189,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  127
+                  116
                 </td>
               </tr>
                           <tr>
@@ -1301,7 +1259,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  22
                 </td>
               </tr>
                           <tr>
@@ -1441,7 +1399,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  52
                 </td>
               </tr>
                           <tr>
@@ -1511,7 +1469,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  40
                 </td>
               </tr>
                           <tr>
@@ -1637,7 +1595,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  18
                 </td>
               </tr>
                           <tr>
@@ -1708,20 +1666,6 @@ under the License.
                 </td>
                 <td>
                   2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.util.platform.unix.solaris.KstatUtil.java">oshi/util/platform/unix/solaris/KstatUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  35
                 </td>
               </tr>
                           <tr>
@@ -1866,20 +1810,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.solaris.package-info.java">oshi/jna/platform/unix/solaris/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/dblock/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.mac.MacCentralProcessor.java">oshi/hardware/platform/mac/MacCentralProcessor.java</a>
                 </td>
                 <td>
@@ -2001,7 +1931,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  55
+                  25
                 </td>
               </tr>
                           <tr>
@@ -2043,7 +1973,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  87
+                  51
                 </td>
               </tr>
                           <tr>
@@ -2127,7 +2057,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  10
                 </td>
               </tr>
                           <tr>
@@ -2239,7 +2169,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  43
+                  48
                 </td>
               </tr>
                           <tr>
