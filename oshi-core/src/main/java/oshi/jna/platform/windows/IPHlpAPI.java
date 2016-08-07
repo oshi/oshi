@@ -155,7 +155,7 @@ public interface IPHlpAPI extends Library {
      * The GetIfEntry function retrieves information for the specified interface
      * on the local computer
      * 
-     * @param pIfRow
+     * @param pIfRow2
      *            A pointer to a MIB_IFROW structure that, on successful return,
      *            receives information for an interface on the local computer.
      *            On input, set the dwIndex member of MIB_IFROW to the index of
