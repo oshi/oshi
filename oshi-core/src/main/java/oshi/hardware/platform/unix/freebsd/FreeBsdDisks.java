@@ -71,6 +71,7 @@ public class FreeBsdDisks extends AbstractDisks {
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
         ArrayList<String> disks = ExecutingCommand.runNative("iostat -Ix");
+        long timeStamp = System.currentTimeMillis();
         for (String line : disks) {
             String[] split = line.split("\\s+");
             if (split.length < 7 || !devices.contains(split[0])) {
@@ -85,6 +86,7 @@ public class FreeBsdDisks extends AbstractDisks {
             store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
             // In seconds, multiply for ms
             store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
+            store.setTimeStamp(timeStamp);
             diskMap.put(split[0], store);
         }
 

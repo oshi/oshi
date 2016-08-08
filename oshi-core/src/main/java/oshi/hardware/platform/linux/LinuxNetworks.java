@@ -43,6 +43,7 @@ public class LinuxNetworks extends AbstractNetworks {
         String rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netIF.getName());
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
 
+        netIF.setTimeStamp(System.currentTimeMillis());
         netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));
         netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));
         netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));

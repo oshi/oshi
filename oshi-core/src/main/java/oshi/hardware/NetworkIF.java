@@ -57,6 +57,7 @@ public class NetworkIF implements Serializable {
     private long packetsRecv;
     private long packetsSent;
     private long speed;
+    private long timeStamp;
 
     /**
      * @return the network interface
@@ -247,6 +248,21 @@ public class NetworkIF implements Serializable {
      */
     public void setSpeed(long speed) {
         this.speed = speed;
+    }
+
+    /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     /**

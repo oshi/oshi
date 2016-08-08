@@ -1,6 +1,7 @@
 3.2 (in progress)
 ================
-* [#243](https://github.com/dblock/oshi/pull/242): Make Windows network statistics 64-bit - [@dbwiddis](https://github.com/dbwiddis).
+* [#243](https://github.com/dblock/oshi/pull/243): Make Windows network statistics 64-bit - [@dbwiddis](https://github.com/dbwiddis).
+* [#244](https://github.com/dblock/oshi/pull/244): Add timestamps to Disk and Network IO Stats - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.1.1 (8/5/2016)

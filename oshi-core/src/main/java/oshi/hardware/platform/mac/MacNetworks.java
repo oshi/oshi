@@ -79,27 +79,28 @@ public class MacNetworks extends AbstractNetworks {
      * Map all network interfaces. Ported from source code of "netstat -ir". See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
+     * 
+     * @return timestamp when the data was read
      */
-    private static synchronized void mapIFs() {
-        long now = System.currentTimeMillis();
-        if (now - lastIFmapTime < 200L) {
+    private static synchronized long mapIFs() {
+        if (System.currentTimeMillis() - lastIFmapTime < 200L) {
             // Polled too recently; do nothing
-            return;
+            return lastIFmapTime;
         }
-        lastIFmapTime = now;
 
         // Get buffer of all interface information
         int mib[] = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
         IntByReference len = new IntByReference();
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {
             LOG.error("Didn't get buffer length for IFLIST2");
-            return;
+            return lastIFmapTime;
         }
         Pointer buf = new Memory(len.getValue());
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {
             LOG.error("Didn't get buffer for IFLIST2");
-            return;
+            return lastIFmapTime;
         }
+        lastIFmapTime = System.currentTimeMillis();
 
         // CLear out old hashmap
         ifMap.clear();
@@ -127,6 +128,7 @@ public class MacNetworks extends AbstractNetworks {
                     new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
                             if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
         }
+        return lastIFmapTime;
     }
 
     /**
@@ -138,7 +140,7 @@ public class MacNetworks extends AbstractNetworks {
      */
     public static synchronized void updateNetworkStats(NetworkIF netIF) {
         // Update data
-        mapIFs();
+        long timeStamp = mapIFs();
 
         Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());
         IFdata ifData = ifMap.get(index);
@@ -149,6 +151,7 @@ public class MacNetworks extends AbstractNetworks {
             netIF.setPacketsSent(ifData.oPackets);
             netIF.setPacketsRecv(ifData.iPackets);
             netIF.setSpeed(ifData.speed);
+            netIF.setTimeStamp(timeStamp);
         }
     }
 }

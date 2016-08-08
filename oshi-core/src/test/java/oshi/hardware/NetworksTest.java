@@ -40,6 +40,7 @@ public class NetworksTest {
      */
     @Test
     public void testNetworkInterfaces() throws IOException {
+        long timeStamp = System.currentTimeMillis();
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
@@ -55,18 +56,21 @@ public class NetworksTest {
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
+            assertTrue(net.getTimeStamp() >= timeStamp);
 
             net.setBytesRecv(10L);
             net.setBytesSent(20L);
             net.setPacketsRecv(30L);
             net.setPacketsSent(40L);
             net.setSpeed(50L);
+            net.setTimeStamp(timeStamp);
 
             assertEquals(10L, net.getBytesRecv());
             assertEquals(20L, net.getBytesSent());
             assertEquals(30L, net.getPacketsRecv());
             assertEquals(40L, net.getPacketsSent());
             assertEquals(50L, net.getSpeed());
+            assertEquals(timeStamp, net.getTimeStamp());
 
             net.updateNetworkStats();
             assertTrue(net.getBytesRecv() >= 0);
@@ -74,6 +78,7 @@ public class NetworksTest {
             assertTrue(net.getPacketsRecv() >= 0);
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getSpeed() >= 0);
+            assertTrue(net.getTimeStamp() >= timeStamp);
         }
     }
 }

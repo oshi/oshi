@@ -105,7 +105,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      * @return Returns the uuid.
      */
     public String getUuid() {
-        return uuid;
+        return uuid == null ? "" : uuid;
     }
 
     /**

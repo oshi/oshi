@@ -146,6 +146,7 @@ public class LinuxDisks extends AbstractDisks {
     private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
         LinuxBlockDevStats stats;
         stats = new LinuxBlockDevStats(store.getName(), disk);
+        store.setTimeStamp(System.currentTimeMillis());
 
         // Reads and writes are converted in bytes
         store.setReads(stats.read_ops);

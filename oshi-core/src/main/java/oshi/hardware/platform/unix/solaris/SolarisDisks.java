@@ -173,8 +173,9 @@ public class SolarisDisks extends AbstractDisks {
                 entry.getValue().setWrites(data.writes);
                 entry.getValue().setReadBytes(data.nread);
                 entry.getValue().setWriteBytes(data.nwritten);
-                // rtime is nanoseconds, convert to millis
+                // rtime and snaptime are nanoseconds, convert to millis
                 entry.getValue().setTransferTime(data.rtime / 1000000L);
+                entry.getValue().setTimeStamp(ksp.ks_snaptime / 1000000L);
             }
             results[index++] = entry.getValue();
         }

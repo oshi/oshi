@@ -41,6 +41,7 @@ public class DisksTest {
      */
     @Test
     public void testDisks() throws IOException {
+        long timeStamp = System.currentTimeMillis();
         SystemInfo si = new SystemInfo();
 
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
@@ -53,6 +54,7 @@ public class DisksTest {
             assertTrue(disk.getWrites() >= 0);
             assertTrue(disk.getWriteBytes() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
+            assertTrue(disk.getTimeStamp() >= 0);
 
             disk.setName("name");
             disk.setModel("model");
@@ -63,6 +65,7 @@ public class DisksTest {
             disk.setWrites(101112L);
             disk.setWriteBytes(131415L);
             disk.setTransferTime(161718L);
+            disk.setTimeStamp(timeStamp);
 
             assertEquals("name", disk.getName());
             assertEquals("model", disk.getModel());
@@ -73,6 +76,7 @@ public class DisksTest {
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
             assertEquals(161718L, disk.getTransferTime());
+            assertEquals(timeStamp, disk.getTimeStamp());
 
             for (HWPartition partition : disk.getPartitions()) {
                 assertNotNull(partition.getIdentification());
