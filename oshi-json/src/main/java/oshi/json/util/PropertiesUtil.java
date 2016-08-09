@@ -56,7 +56,7 @@ public class PropertiesUtil {
             props.load(input);
             LOG.debug("Loaded properties: {}", props.toString());
         } catch (IOException ex) {
-            LOG.error("Error reading properties file {}.", propertiesFile);
+            LOG.error("Error reading properties file {}. {}", propertiesFile, ex);
         }
         return props;
     }
@@ -71,7 +71,7 @@ public class PropertiesUtil {
      * @return False if the property is set to "false"; true otherwise
      */
     public static boolean getBoolean(Properties properties, String property) {
-        return !properties.getProperty(property, "true").equalsIgnoreCase("false");
+        return !"false".equalsIgnoreCase(properties.getProperty(property, "true"));
     }
 
     /**
@@ -122,8 +122,8 @@ public class PropertiesUtil {
             try {
                 return Enum.valueOf(enumClass, s.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                LOG.error("Property value {} from property {} does not match enum class {}.", s, property,
-                        enumClass.getName());
+                LOG.error("Property value {} from property {} does not match enum class {}. {}", s, property,
+                        enumClass.getName(), ex);
             }
         }
         return null;

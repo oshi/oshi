@@ -70,7 +70,7 @@ public class FileUtil {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}", filename);
+                    LOG.error("Error reading file {}. {}", filename, e);
                 }
             }
         } else if (reportError) {
@@ -114,7 +114,7 @@ public class FileUtil {
                 return Integer.parseInt(read.get(0));
             }
         } catch (NumberFormatException ex) {
-            LOG.debug("Unable to read value from {}", filename);
+            LOG.debug("Unable to read value from {}. {}", filename, ex);
         }
         return 0;
     }

@@ -26,10 +26,10 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.LibC;
@@ -183,11 +183,11 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p.getLong(offset * cpu + LibC.CP_USER * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(offset * cpu + LibC.CP_NICE * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(offset * cpu + LibC.CP_SYS * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(offset * cpu + LibC.CP_INTR * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(offset * cpu + LibC.CP_IDLE * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_USER * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_NICE * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_SYS * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_INTR * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_IDLE * LibC.UINT64_SIZE);
         }
         return ticks;
     }
@@ -225,14 +225,12 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             if (this.cpuSerialNumber == null) {
                 marker = "system.hardware.serial =";
                 hwInfo = ExecutingCommand.runNative("lshal");
-                if (hwInfo != null) {
-                    for (String checkLine : hwInfo) {
-                        if (checkLine.contains(marker)) {
-                            String[] temp = checkLine.split(marker)[1].split("'");
-                            // Format: '12345' (string)
-                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
-                            break;
-                        }
+                for (String checkLine : hwInfo) {
+                    if (checkLine.contains(marker)) {
+                        String[] temp = checkLine.split(marker)[1].split("'");
+                        // Format: '12345' (string)
+                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
+                        break;
                     }
                 }
             }

@@ -117,7 +117,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                     // Store UUID as value with path (e.g., /dev/sda1) as key
                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
                 } catch (IOException e) {
-                    LOG.error("Couldn't get canonical path for {}", uuid.getName());
+                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e);
                 }
             }
         }

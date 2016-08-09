@@ -154,7 +154,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
             return info.procs;
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get procs from sysinfo. {}", e.getMessage());
+            LOG.error("Failed to get procs from sysinfo. {}", e);
         }
         return 0;
     }

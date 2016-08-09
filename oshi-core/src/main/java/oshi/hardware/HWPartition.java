@@ -208,4 +208,29 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         // Naturally sort by device ID
         return this.getIdentification().compareTo(part.getIdentification());
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((identification == null) ? 0 : identification.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HWPartition other = (HWPartition) obj;
+        if (identification == null) {
+            if (other.identification != null)
+                return false;
+        } else if (!identification.equals(other.identification))
+            return false;
+        return true;
+    }
 }

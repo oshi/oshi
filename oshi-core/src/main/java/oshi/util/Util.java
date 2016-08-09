@@ -39,7 +39,7 @@ public class Util {
         try {
             LOG.trace("Sleeping for {} ms", ms);
             Thread.sleep(ms);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e) { // NOSONAR squid:S2142
             LOG.trace("", e);
             LOG.warn("Interrupted while sleeping for {} ms", ms);
         }

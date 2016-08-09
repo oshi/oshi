@@ -59,7 +59,7 @@ public abstract class AbstractNetworks implements Networks {
                 }
             }
         } catch (SocketException ex) {
-            LOG.error("Socket exception when retrieving network interfaces: " + ex.getMessage());
+            LOG.error("Socket exception when retrieving network interfaces: " + ex);
         }
         return result.toArray(new NetworkIF[result.size()]);
     }

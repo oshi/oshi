@@ -129,7 +129,8 @@ public class ParseUtil {
         } else {
             try {
                 return Integer.parseInt(ss[ss.length - 1]);
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException e) {
+                LOG.trace("{} didn't parse. Returning default. {}", s, e);
                 return i;
             }
         }
@@ -275,6 +276,7 @@ public class ParseUtil {
         } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
+            LOG.trace("{} didn't parse. Returning default. {}", cimDate, e);
             return 0L;
         }
     }
@@ -304,6 +306,7 @@ public class ParseUtil {
                 sb.append((char) charAsInt);
             }
         } catch (NumberFormatException e) {
+            LOG.trace("{} didn't parse. Returning default. {}", hexString, e);
             // Hex failed to parse, just return the existing string
             return hexString;
         }
@@ -323,6 +326,7 @@ public class ParseUtil {
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {
+            LOG.trace("{} didn't parse. Returning default. {}", s, e);
             return defaultInt;
         }
     }
@@ -340,6 +344,7 @@ public class ParseUtil {
         try {
             return Long.parseLong(s);
         } catch (NumberFormatException e) {
+            LOG.trace("{} didn't parse. Returning default. {}", s, e);
             return defaultLong;
         }
     }
@@ -357,6 +362,7 @@ public class ParseUtil {
         try {
             return Double.parseDouble(s);
         } catch (NumberFormatException e) {
+            LOG.trace("{} didn't parse. Returning default. {}", s, e);
             return defaultDouble;
         }
     }
@@ -373,8 +379,8 @@ public class ParseUtil {
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
         Matcher m = DHMS.matcher(s);
-        long milliseconds = 0L;
         if (m.matches()) {
+            long milliseconds = 0L;
             if (m.group(1) != null) {
                 milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;
             }
@@ -384,8 +390,9 @@ public class ParseUtil {
             milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
             milliseconds += 1000 * parseDoubleOrDefault("0." + m.group(5), 0d);
+            return milliseconds;
         }
-        return milliseconds;
+        return defaultLong;
     }
 
     /**

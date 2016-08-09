@@ -45,7 +45,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * Instantiate an OperatingSystemMXBean for future convenience
      */
-    private final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory.getOperatingSystemMXBean();
+    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
+            .getOperatingSystemMXBean();
 
     /**
      * Calling OperatingSystemMxBean too rapidly results in NaN. Store the

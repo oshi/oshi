@@ -44,7 +44,7 @@ public class LinuxDisks extends AbstractDisks {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
-    private final int SECTORSIZE = 512;
+    private static final int SECTORSIZE = 512;
 
     private final Map<String, String> mountsMap = new HashMap<>();
 
@@ -77,7 +77,7 @@ public class LinuxDisks extends AbstractDisks {
                 if (Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
                         || Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
                     // Ignore loopback and ram disks; do nothing
-                } else if (Udev.INSTANCE.udev_device_get_devtype(device).equals("disk")) {
+                } else if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
                     store = new HWDiskStore();
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
@@ -93,7 +93,7 @@ public class LinuxDisks extends AbstractDisks {
                     store.setPartitions(new HWPartition[0]);
                     this.computeDiskStats(store, device);
                     result.add(store);
-                } else if (Udev.INSTANCE.udev_device_get_devtype(device).equals("partition") && store != null) {
+                } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
                     // partition is attached to. If not, it's an error, so skip.
                     HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
@@ -115,7 +115,7 @@ public class LinuxDisks extends AbstractDisks {
                     store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (NullPointerException ex) {
+            } catch (NullPointerException ex) { // NOSONAR squid:S1166
                 LOG.debug("Reached all disks. Exiting ");
                 break;
             } finally {
@@ -150,9 +150,9 @@ public class LinuxDisks extends AbstractDisks {
 
         // Reads and writes are converted in bytes
         store.setReads(stats.read_ops);
-        store.setReadBytes(stats.read_512bytes * this.SECTORSIZE);
+        store.setReadBytes(stats.read_512bytes * SECTORSIZE);
         store.setWrites(stats.write_ops);
-        store.setWriteBytes(stats.write_512bytes * this.SECTORSIZE);
+        store.setWriteBytes(stats.write_512bytes * SECTORSIZE);
         store.setTransferTime(stats.active_ms);
     }
 }
