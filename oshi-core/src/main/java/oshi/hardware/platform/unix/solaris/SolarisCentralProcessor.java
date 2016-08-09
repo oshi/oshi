@@ -50,6 +50,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public SolarisCentralProcessor() {
+        super();
         // Initialize class variables
         initVars();
         // Initialize tick arrays
@@ -69,12 +70,13 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             this.setModel(KstatUtil.kstatDataLookupString(ksp, "model"));
             this.setFamily(KstatUtil.kstatDataLookupString(ksp, "family"));
         }
-        this.setCpu64(ExecutingCommand.getFirstAnswer("isainfo -b").trim().equals("64"));
+        this.setCpu64("64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim()));
     }
 
     /**
      * Updates logical and physical processor counts from psrinfo
      */
+    @Override
     protected void calculateProcessorCounts() {
         this.logicalProcessorCount = 0;
         this.physicalProcessorCount = 0;

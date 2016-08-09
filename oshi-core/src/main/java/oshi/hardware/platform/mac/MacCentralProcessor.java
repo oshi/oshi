@@ -21,10 +21,10 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo; // NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
+import com.sun.jna.ptr.PointerByReference; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.IOKit;
@@ -51,6 +51,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public MacCentralProcessor() {
+        super();
         // Initialize class variables
         initVars();
         // Initialize tick arrays

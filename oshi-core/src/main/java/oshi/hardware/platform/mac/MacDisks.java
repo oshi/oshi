@@ -29,9 +29,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.Pointer; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.ptr.PointerByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
@@ -84,7 +84,7 @@ public class MacDisks implements Disks {
         }
 
         // Create a set in case we have multiple partitions mounted
-        Set<String> bsdNames = new HashSet<String>();
+        Set<String> bsdNames = new HashSet<>();
         // Iterate all mounted file systems
         for (Statfs f : fs) {
             String mntFrom = new String(f.f_mntfromname).trim();
@@ -101,7 +101,7 @@ public class MacDisks implements Disks {
             String model = "";
             String serial = "";
             long size = 0L;
-            long xferTime = 0L;
+            long xferTime;
 
             // Get a reference to the disk - only matching /dev/disk*
             String path = "/dev/" + bsdName;
@@ -122,7 +122,7 @@ public class MacDisks implements Disks {
                     CfUtil.release(diskInfo);
 
                     // Use the model as a key to get serial from IOKit
-                    if (!model.equals("Disk Image")) {
+                    if (!"Disk Image".equals(model)) {
                         CFStringRef modelNameRef = CFStringRef.toCFString(model);
                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);

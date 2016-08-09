@@ -24,14 +24,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32Util;
-import com.sun.jna.platform.win32.WinBase;
-import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
-import com.sun.jna.platform.win32.WinReg;
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinBase; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinReg; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
@@ -56,6 +56,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public WindowsCentralProcessor() {
+        super();
         // Initialize class variables
         initVars();
         // Initialize tick arrays
@@ -135,7 +136,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         Map<String, List<String>> irq = WmiUtil.selectStringsFrom(null,
                 "Win32_PerfRawData_Counters_ProcessorInformation", "PercentInterruptTime,PercentDPCTime",
                 "WHERE Name=\"_Total\"");
-        if (irq.get("PercentInterruptTime").size() > 0) {
+        if (!irq.get("PercentInterruptTime").isEmpty()) {
             ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get("PercentInterruptTime").get(0), 0L)
                     / 10000L;
             ticks[TickType.SOFTIRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get("PercentDPCTime").get(0), 0L)
@@ -230,10 +231,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             // This should always work
             this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_BIOS", "SerialNumber", null);
             // If the above doesn't work, this might
-            if (this.cpuSerialNumber.equals("")) {
+            if ("".equals(this.cpuSerialNumber)) {
                 this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_Csproduct", "IdentifyingNumber", null);
             }
-            if (this.cpuSerialNumber.equals("")) {
+            if ("".equals(this.cpuSerialNumber)) {
                 this.cpuSerialNumber = "unknown";
             }
         }

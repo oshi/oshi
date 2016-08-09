@@ -51,7 +51,7 @@ public class FreeBsdDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<Display>();
+        List<Display> displays = new ArrayList<>();
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached

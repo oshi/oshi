@@ -29,13 +29,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.win32.SetupApi;
-import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.NativeLongByReference;
+import com.sun.jna.Native; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.SetupApi; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT.HANDLE; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.ptr.NativeLongByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -129,7 +129,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         // Build the device tree. Start with the USB Controllers
         // and recurse downward to devices as needed
         usbMap = WmiUtil.selectStringsFrom(null, "Win32_USBController", "PNPDeviceID", null);
-        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controllerDeviceId : usbMap.get("PNPDeviceID")) {
             putChildrenInDeviceTree(controllerDeviceId, 0);
             controllerDevices.add(getDeviceAndChildren(controllerDeviceId, "0000", "0000"));

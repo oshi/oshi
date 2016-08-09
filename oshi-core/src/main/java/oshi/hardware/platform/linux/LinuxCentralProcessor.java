@@ -54,6 +54,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public LinuxCentralProcessor() {
+        super();
         // Initialize class variables
         initVars();
         // Initialize tick arrays
@@ -63,8 +64,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private void initVars() {
-        List<String> cpuInfo = null;
-        cpuInfo = FileUtil.readFile("/proc/cpuinfo");
+        List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
             String[] splitLine = line.split("\\s+:\\s");
             if (splitLine.length < 2) {
@@ -81,7 +81,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 String[] flags = splitLine[1].toUpperCase().split(" ");
                 boolean found = false;
                 for (String flag : flags) {
-                    if (flag.equals("LM")) {
+                    if ("LM".equals(flag)) {
                         found = true;
                         break;
                     }
@@ -116,12 +116,12 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Get number of physical processors
         int siblings = 0;
-        int cpucores = 0;
+        int cpucores;
         int[] uniqueID = new int[2];
         uniqueID[0] = -1;
         uniqueID[1] = -1;
 
-        Set<String> ids = new HashSet<String>();
+        Set<String> ids = new HashSet<>();
 
         for (String cpu : procCpu) {
             if (cpu.startsWith("siblings")) {
@@ -176,7 +176,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-        String tickStr = "";
+        String tickStr;
         List<String> procStat = FileUtil.readFile("/proc/stat");
         if (!procStat.isEmpty()) {
             tickStr = procStat.get(0);
@@ -230,7 +230,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
-        // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {
+        // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
         int cpu = 0;
         List<String> procStat = FileUtil.readFile("/proc/stat");
@@ -306,9 +306,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             // without root
             if (this.cpuSerialNumber == null) {
                 this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
-                if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals("None")) {
+                if (this.cpuSerialNumber.isEmpty() || "None".equals(this.cpuSerialNumber)) {
                     this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
-                    if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals("None")) {
+                    if (this.cpuSerialNumber.isEmpty() || "None".equals(this.cpuSerialNumber)) {
                         this.cpuSerialNumber = "unknown";
                     }
                 }

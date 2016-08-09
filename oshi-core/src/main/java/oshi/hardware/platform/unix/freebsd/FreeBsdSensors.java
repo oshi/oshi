@@ -18,9 +18,9 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.Memory; //NOSONAR squid:S1191
+import com.sun.jna.Pointer; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.Sensors;
 import oshi.jna.platform.unix.LibC;
@@ -60,8 +60,7 @@ public class FreeBsdSensors implements Sensors {
     @Override
     public int[] getFanSpeeds() {
         // TODO try common software
-        int[] fans = new int[0];
-        return fans;
+        return new int[0];
     }
 
     /**
@@ -70,7 +69,6 @@ public class FreeBsdSensors implements Sensors {
     @Override
     public double getCpuVoltage() {
         // TODO try common software
-        double voltage = 0d;
-        return voltage;
+        return 0d;
     }
 }

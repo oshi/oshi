@@ -59,8 +59,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
-            List<String> memInfo = null;
-            memInfo = FileUtil.readFile("/proc/meminfo");
+            List<String> memInfo = FileUtil.readFile("/proc/meminfo");
             if (memInfo.isEmpty()) {
                 return;
             }
@@ -130,7 +129,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             return 0l;
         }
         long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-        if (memorySplit.length > 2 && memorySplit[2].equals("kB")) {
+        if (memorySplit.length > 2 && "kB".equals(memorySplit[2])) {
             memory *= 1024;
         }
         return memory;

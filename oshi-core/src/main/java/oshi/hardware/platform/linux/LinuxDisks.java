@@ -119,9 +119,7 @@ public class LinuxDisks implements Disks {
                 LOG.debug("Reached all disks. Exiting ");
                 break;
             } finally {
-                if (device instanceof Udev.UdevDevice) {
-                    Udev.INSTANCE.udev_device_unref(device);
-                }
+                Udev.INSTANCE.udev_device_unref(device);
             }
         }
 

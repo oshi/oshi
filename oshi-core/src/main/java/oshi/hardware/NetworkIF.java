@@ -25,6 +25,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,18 +80,16 @@ public class NetworkIF implements Serializable {
             // Set MTU
             this.mtu = networkInterface.getMTU();
             // Set MAC
-            StringBuilder sb = new StringBuilder(18);
-            byte[] mac = networkInterface.getHardwareAddress();
-            if (mac != null) {
-                for (byte b : mac) {
-                    if (sb.length() > 0)
-                        sb.append(':');
-                    sb.append(String.format("%02x", b));
+            byte[] hwmac = networkInterface.getHardwareAddress();
+            if (hwmac != null) {
+                StringJoiner sj = new StringJoiner(":");
+                for (byte b : hwmac) {
+                    sj.add(String.format("%02x", b));
                 }
+                this.mac = sj.toString();
             } else {
                 this.mac = "Unknown";
             }
-            this.mac = sb.toString();
             // Set IP arrays
             ArrayList<String> ipv4list = new ArrayList<>();
             ArrayList<String> ipv6list = new ArrayList<>();

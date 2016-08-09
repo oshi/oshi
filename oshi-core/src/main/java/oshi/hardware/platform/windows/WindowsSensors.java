@@ -63,7 +63,7 @@ public class WindowsSensors implements Sensors {
         if (this.tempIdentifierStr != null) {
             Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
                     "WHERE Parent=\"" + this.tempIdentifierStr + "\" AND SensorType=\"Temperature\"");
-            if (vals.get("Value").size() > 0) {
+            if (!vals.get("Value").isEmpty()) {
                 double sum = 0;
                 for (double val : vals.get("Value")) {
                     sum += val;
@@ -75,7 +75,7 @@ public class WindowsSensors implements Sensors {
         // This branch is used the first time and all subsequent times if
         // successful (tempIdenifierStr == null)
         // Try to get value using initial or updated successful values
-        long tempK = 0;
+        long tempK;
         if (this.wmiTempClass == null) {
             this.wmiTempNamespace = "root\\cimv2";
             this.wmiTempClass = "Win32_Temperature";
@@ -133,7 +133,7 @@ public class WindowsSensors implements Sensors {
         if (!this.fanSpeedWMI) {
             Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
                     "WHERE Parent=\"" + this.tempIdentifierStr + "\" AND SensorType=\"Fan\"");
-            if (vals.get("Value").size() > 0) {
+            if (!vals.get("Value").isEmpty()) {
                 fanSpeeds = new int[vals.get("Value").size()];
                 for (int i = 0; i < vals.get("Value").size(); i++) {
                     fanSpeeds[i] = vals.get("Value").get(i).intValue();
@@ -172,7 +172,7 @@ public class WindowsSensors implements Sensors {
         // successful (voltIdenifierStr == null)
         // Try to get value
         // Try to get value using initial or updated successful values
-        int decivolts = 0;
+        int decivolts;
         if (this.wmiVoltClass == null) {
             this.wmiVoltNamespace = "root\\cimv2";
             this.wmiVoltClass = "Win32_Processor";
@@ -197,7 +197,7 @@ public class WindowsSensors implements Sensors {
         }
         // Convert dV to V and return result
         if (decivolts > 0) {
-            if (this.wmiVoltProperty.equals("VoltageCaps")) {
+            if ("VoltageCaps".equals(this.wmiVoltProperty)) {
                 // decivolts are bits
                 if ((decivolts & 0x1) > 0) {
                     volts = 5.0;
@@ -225,7 +225,7 @@ public class WindowsSensors implements Sensors {
                 }
             }
             // If none contain cpu just grab the first one
-            if (this.voltIdentifierStr == null && voltIdentifiers.get("Identifier").size() > 0) {
+            if (this.voltIdentifierStr == null && !voltIdentifiers.get("Identifier").isEmpty()) {
                 this.voltIdentifierStr = voltIdentifiers.get("Identifier").get(0);
             }
             // If not null, recurse and get value via OHM

@@ -21,7 +21,7 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.WinDef.ULONG;
+import com.sun.jna.platform.win32.WinDef.ULONG; //NOSONAR squid:S1191
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;

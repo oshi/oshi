@@ -105,7 +105,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);
             UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);
             // Ignore interfaces
-            if (!Udev.INSTANCE.udev_device_get_devtype(dev).equals("usb_device")) {
+            if (!"usb_device".equals(Udev.INSTANCE.udev_device_get_devtype(dev))) {
                 continue;
             }
 
@@ -146,7 +146,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         Udev.INSTANCE.udev_unref(udev);
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controller : usbControllers) {
             controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
         }

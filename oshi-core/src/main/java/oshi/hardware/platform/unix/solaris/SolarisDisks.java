@@ -68,7 +68,7 @@ public class SolarisDisks implements Disks {
             // Map disk
             disk = disks.get(i);
             String[] diskSplit = disk.split(",");
-            if (diskSplit.length < 5 || diskSplit[0].equals("device")) {
+            if (diskSplit.length < 5 || "device".equals(diskSplit[0])) {
                 continue;
             }
             HWDiskStore store = new HWDiskStore();
@@ -77,7 +77,7 @@ public class SolarisDisks implements Disks {
             // Map mount
             String mount = mountpoints.get(i);
             String[] mountSplit = mount.split(",");
-            if (mountSplit.length < 5 || mountSplit[4].equals("device")) {
+            if (mountSplit.length < 5 || "device".equals(mountSplit[4])) {
                 continue;
             }
             deviceMap.put(diskSplit[0], mountSplit[4]);
@@ -244,7 +244,7 @@ public class SolarisDisks implements Disks {
                 // Partition Tag Flags Sector Count Sector Mount
                 split = line.trim().split("\\s+");
                 // Partition 2 is always the whole disk so we ignore it
-                if (split.length < 6 || split[0].equals("2")) {
+                if (split.length < 6 || "2".equals(split[0])) {
                     continue;
                 }
                 HWPartition partition = new HWPartition();

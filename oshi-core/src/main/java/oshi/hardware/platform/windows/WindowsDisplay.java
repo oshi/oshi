@@ -24,15 +24,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32;
-import com.sun.jna.platform.win32.Guid;
-import com.sun.jna.platform.win32.SetupApi;
-import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
-import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
-import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinReg.HKEY;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.win32.Advapi32; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Guid; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.SetupApi; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinError; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinReg.HKEY; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
@@ -59,7 +59,7 @@ public class WindowsDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<Display>();
+        List<Display> displays = new ArrayList<>();
 
         Guid.GUID monitorGuid = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
         WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,

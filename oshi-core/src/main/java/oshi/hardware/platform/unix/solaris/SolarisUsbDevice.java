@@ -92,7 +92,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // For each item enumerated, store information in the maps
         String key = "";
         int indent = 0;
-        List<String> usbControllers = new ArrayList<String>();
+        List<String> usbControllers = new ArrayList<>();
         for (String line : devices) {
             // Node 0x... identifies start of a new tree
             if (line.contains("Node 0x")) {
@@ -146,10 +146,10 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         }
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controller : usbControllers) {
             // Only do controllers that are USB device type
-            if (deviceTypeMap.getOrDefault(controller, "").equals("usb")) {
+            if ("usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
                 controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
             }
         }

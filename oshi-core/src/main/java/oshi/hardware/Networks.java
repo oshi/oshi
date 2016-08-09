@@ -25,6 +25,7 @@ import java.io.Serializable;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
+@FunctionalInterface
 public interface Networks extends Serializable {
 
     /**

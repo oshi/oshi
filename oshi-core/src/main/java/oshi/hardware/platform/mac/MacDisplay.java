@@ -24,8 +24,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
+import com.sun.jna.ptr.PointerByReference; // NOSONAR squid:S1191
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
@@ -60,7 +60,7 @@ public class MacDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<Display>();
+        List<Display> displays = new ArrayList<>();
         // Iterate IO Registry IODisplayConnect
         IntByReference serviceIterator = new IntByReference();
         IOKitUtil.getMatchingServices("IODisplayConnect", serviceIterator);

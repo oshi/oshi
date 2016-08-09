@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.Memory; //NOSONAR squid:S1191
+import com.sun.jna.Pointer; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.ptr.LongByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -178,7 +178,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         IOKit.INSTANCE.IOObjectRelease(iter.getValue());
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        List<UsbDevice> controllerDevices = new ArrayList<>();
         for (Long controller : usbControllers) {
             controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
         }

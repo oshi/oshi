@@ -98,7 +98,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         }
         // For each item enumerated, store information in the maps
         String key = "";
-        List<String> usBuses = new ArrayList<String>();
+        List<String> usBuses = new ArrayList<>();
         for (String line : devices) {
             // udi = ... identifies start of a new tree
             if (line.startsWith("udi =")) {
@@ -115,7 +115,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             if (line.isEmpty()) {
                 continue;
             } else if (line.startsWith("freebsd.driver =")
-                    && ParseUtil.getSingleQuoteStringValue(line).equals("usbus")) {
+                    && "usbus".equals(ParseUtil.getSingleQuoteStringValue(line))) {
                 usBuses.add(key);
             } else if (line.contains(".parent =")) {
                 String parent = ParseUtil.getSingleQuoteStringValue(line);
@@ -135,15 +135,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 String serial = ParseUtil.getSingleQuoteStringValue(line);
                 serialMap.put(key,
                         serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", "")) : serial);
-            } else if (line.contains(".vendor_id =")) {
-                vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
-            } else if (line.contains(".product_id =")) {
+            } else if (line.contains(".vendor_id =") || line.contains(".product_id =")) {
                 vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
             }
         }
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
+        List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String usbus : usBuses) {
             // Skip the usbuses: make their parents the controllers and replace
             // parents' children with the buses' children

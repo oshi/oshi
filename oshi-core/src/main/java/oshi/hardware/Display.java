@@ -26,6 +26,7 @@ import java.io.Serializable;
  * 
  * @author widdis[at]gmail[dot]com
  */
+@FunctionalInterface
 public interface Display extends Serializable {
     /**
      * The EDID byte array.

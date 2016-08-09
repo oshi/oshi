@@ -59,6 +59,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public FreeBsdCentralProcessor() {
+        super();
         // Initialize class variables
         initVars();
         // Initialize tick arrays
@@ -95,6 +96,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     /**
      * Updates logical and physical processor counts from psrinfo
      */
+    @Override
     protected void calculateProcessorCounts() {
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
         long physMask = 0;

@@ -21,11 +21,11 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.VMStatistics;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB.VMStatistics; // NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
+import com.sun.jna.ptr.LongByReference; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.mac.SystemB.XswUsage;
@@ -67,6 +67,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     /**
      * Updates available memory no more often than every 100ms
      */
+    @Override
     protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - lastUpdateAvail > 100) {
@@ -83,6 +84,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     /**
      * Updates swap file stats no more often than every 100ms
      */
+    @Override
     protected void updateSwap() {
         long now = System.currentTimeMillis();
         if (now - lastUpdateSwap > 100) {

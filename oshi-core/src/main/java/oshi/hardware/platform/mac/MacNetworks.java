@@ -24,9 +24,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.Memory; //NOSONAR squid:S1191
+import com.sun.jna.Pointer; //NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
@@ -43,10 +43,10 @@ public class MacNetworks extends AbstractNetworks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);
 
-    private static int CTL_NET = 4;
-    private static int PF_ROUTE = 17;
-    private static int NET_RT_IFLIST2 = 6;
-    private static int RTM_IFINFO2 = 0x12;
+    private static final int CTL_NET = 4;
+    private static final int PF_ROUTE = 17;
+    private static final int NET_RT_IFLIST2 = 6;
+    private static final int RTM_IFINFO2 = 0x12;
 
     /**
      * Update map no more frequently than 200ms.
@@ -60,11 +60,11 @@ public class MacNetworks extends AbstractNetworks {
      * Class to store a subset of IF data in the ifMap
      */
     private static class IFdata {
-        public long oPackets;
-        public long iPackets;
-        public long oBytes;
-        public long iBytes;
-        public long speed;
+        private long oPackets;
+        private long iPackets;
+        private long oBytes;
+        private long iBytes;
+        private long speed;
 
         IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {
             this.oPackets = oPackets;
@@ -89,7 +89,7 @@ public class MacNetworks extends AbstractNetworks {
         }
 
         // Get buffer of all interface information
-        int mib[] = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
+        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
         IntByReference len = new IntByReference();
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {
             LOG.error("Didn't get buffer length for IFLIST2");
@@ -107,7 +107,8 @@ public class MacNetworks extends AbstractNetworks {
 
         // Iterate offset from buf's pointer up to limit of buf
         int lim = len.getValue();
-        for (int next = 0; next < lim;) {
+        int next = 0;
+        while (next < lim) {
             // Get pointer to current native part of buf
             Pointer p = new Pointer(Pointer.nativeValue(buf) + next);
             // Cast pointer to if_msghdr
