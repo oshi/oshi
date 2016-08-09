@@ -1,19 +1,8 @@
 /**
- * Oshi (https://github.com/dblock/oshi)
- *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Oshi (https://github.com/dblock/oshi) Copyright (c) 2010 - 2016 The Oshi Project Team All rights reserved. This
+ * program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html Maintainers:
+ * dblock[at]dblock[dot]org widdis[at]gmail[dot]com enrico.bianchi[at]gmail[dot]com Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
@@ -30,9 +19,12 @@ public class WindowsSensors extends AbstractSensors {
 
     // If null, haven't attempted OHM.
     private String tempIdentifierStr = null;
+
     // Successful (?) WMI namespace, path and property
     private String wmiTempNamespace = null;
+
     private String wmiTempClass = null;
+
     private String wmiTempProperty = null;
 
     // If false, can't get from WMI
@@ -40,9 +32,12 @@ public class WindowsSensors extends AbstractSensors {
 
     // If null, haven't attempted OHM.
     private String voltIdentifierStr = null;
+
     // Successful (?) WMI path and property
     private String wmiVoltNamespace = null;
+
     private String wmiVoltClass = null;
+
     private String wmiVoltProperty = null;
 
     /**
@@ -96,8 +91,10 @@ public class WindowsSensors extends AbstractSensors {
             tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
         }
         // Convert K to C and return result
-        if (tempK > 0) {
+        if (tempK > 2732) {
             tempC = tempK / 10d - 273.15;
+        } else if (tempK > 274) {
+            tempC = tempK - 273;
         }
         if (tempC <= 0d) {
             // Unable to get temperature via WMI. Future attempts will be
@@ -109,6 +106,7 @@ public class WindowsSensors extends AbstractSensors {
             if (this.tempIdentifierStr != null) {
                 return getCpuTemperature();
             }
+            tempC = 0d;
         }
         return tempC;
     }

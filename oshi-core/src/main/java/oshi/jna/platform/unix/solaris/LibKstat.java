@@ -346,8 +346,8 @@ public interface LibKstat extends Library {
      * the user's copy of the kstat chain to become out of date. The
      * kstat_chain_update() function detects this condition by comparing the
      * kernel's current kstat chain ID(KCID), which is incremented every time
-     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the
-     * KCIDs match, kstat_chain_update() does nothing. Otherwise, it deletes any
+     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the KCIDs
+     * match, kstat_chain_update() does nothing. Otherwise, it deletes any
      * invalid kstat headers from the user's kstat chain, adds any new ones, and
      * sets kc.kc_chain_id to the new KCID. All other kstat headers in the
      * user's kstat chain are unmodified.
@@ -362,8 +362,8 @@ public interface LibKstat extends Library {
     /**
      * kstat_read() gets data from the kernel for the kstat pointed to by ksp.
      * ksp.ks_data is automatically allocated (or reallocated) to be large
-     * enough to hold all of the data. ksp.ks_ndata is set to the number of
-     * data fields, ksp.ks_data_size is set to the total size of the data, and
+     * enough to hold all of the data. ksp.ks_ndata is set to the number of data
+     * fields, ksp.ks_data_size is set to the total size of the data, and
      * ksp.ks_snaptime is set to the high-resolution time at which the data
      * snapshot was taken.
      * 
