@@ -74,11 +74,11 @@ public class ParseUtil {
      * Hertz related variables.
      */
     private static final String HZ = "Hz";
-    private static final String KHZ = "kHZ";
-    private static final String MHZ = "MHZ";
-    private static final String GHZ = "GHZ";
-    private static final String THZ = "THZ";
-    private static final String PHZ = "PHZ";
+    private static final String KHZ = "kHz";
+    private static final String MHZ = "MHz";
+    private static final String GHZ = "GHz";
+    private static final String THZ = "THz";
+    private static final String PHZ = "PHz";
 
     private static final Map<String, Long> multipliers;
 

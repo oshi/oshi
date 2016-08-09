@@ -19,7 +19,6 @@
 package oshi.software.os.linux;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -379,15 +378,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     protected static String getReleaseFilename() {
         // Look for any /etc/*-release, *-version, and variants
         File etc = new File("/etc");
-        File[] files = etc.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return (name.endsWith("-release") || name.endsWith("-version") || name.endsWith("_release")
-                        || name.endsWith("_version")) && !(name.endsWith("os-release") || name.endsWith("lsb-release"));
-            }
-        });
-        if (files != null && files.length > 0) {
-            return files[0].getPath();
+        // Find any *_input files in that path
+        File[] matchingFiles = etc.listFiles(f -> (f.getName().endsWith("-release") || f.getName().endsWith("-version")
+                || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
+                && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release")));
+        if (matchingFiles != null && matchingFiles.length > 0) {
+            return matchingFiles[0].getPath();
         }
         if (new File("/etc/release").exists()) {
             return "/etc/release";

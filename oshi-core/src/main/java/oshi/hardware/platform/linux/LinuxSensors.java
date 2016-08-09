@@ -19,7 +19,6 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -52,17 +51,13 @@ public class LinuxSensors implements Sensors {
         int i = 0;
         while (Files.isDirectory(Paths.get(HWMON + i))) {
             for (String sensor : SENSORS) {
-                String path = String.format("%s%d", HWMON, i);
+                String path = HWMON + i;
                 // Final to pass to anonymous class
                 final String prefix = sensor;
                 // Find any *_input files in that path
                 File dir = new File(path);
-                File[] matchingFiles = dir.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.getName().startsWith(prefix) && pathname.getName().endsWith("_input");
-                    }
-                });
+                File[] matchingFiles = dir
+                        .listFiles(f -> f.getName().startsWith(prefix) && f.getName().endsWith("_input"));
                 if (matchingFiles != null && matchingFiles.length > 0) {
                     hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
                 }

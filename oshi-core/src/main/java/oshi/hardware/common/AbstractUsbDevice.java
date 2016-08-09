@@ -88,6 +88,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getSerialNumber() {
         return this.serialNumber;
     }
@@ -95,6 +96,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     /**
      * {@inheritDoc}
      */
+    @Override
     public UsbDevice[] getConnectedDevices() {
         return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);
     }
