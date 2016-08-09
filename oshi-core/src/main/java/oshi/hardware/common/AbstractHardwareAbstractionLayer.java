@@ -19,13 +19,9 @@
 package oshi.hardware.common;
 
 import oshi.hardware.CentralProcessor;
-import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -41,45 +37,4 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     protected Sensors sensors;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract GlobalMemory getMemory();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract CentralProcessor getProcessor();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract PowerSource[] getPowerSources();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract HWDiskStore[] getDiskStores();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract Display[] getDisplays();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract Sensors getSensors();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract UsbDevice[] getUsbDevices(boolean tree);
 }

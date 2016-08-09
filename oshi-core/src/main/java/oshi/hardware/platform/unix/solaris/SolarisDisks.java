@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
 import oshi.util.ExecutingCommand;
@@ -38,7 +38,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class SolarisDisks extends AbstractDisks {
+public class SolarisDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 

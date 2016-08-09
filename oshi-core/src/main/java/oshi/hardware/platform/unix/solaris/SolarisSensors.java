@@ -21,11 +21,11 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-public class SolarisSensors extends AbstractSensors {
+public class SolarisSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 

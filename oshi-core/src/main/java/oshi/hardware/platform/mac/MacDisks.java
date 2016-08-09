@@ -33,9 +33,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -56,7 +56,7 @@ import oshi.util.platform.mac.IOKitUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class MacDisks extends AbstractDisks {
+public class MacDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 

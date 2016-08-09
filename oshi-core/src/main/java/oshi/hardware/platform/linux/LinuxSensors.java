@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.util.FileUtil;
 
-public class LinuxSensors extends AbstractSensors {
+public class LinuxSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +44,7 @@ public class LinuxSensors extends AbstractSensors {
     private static final String HWMON = "/sys/class/hwmon/hwmon";
 
     // Map from sensor to path
-    private Map<String, String> hwmonMap = new HashMap<String, String>();
+    private Map<String, String> hwmonMap = new HashMap<>();
 
     public LinuxSensors() {
         // Iterate over all hwmon* directories and look for sensor files
@@ -58,6 +58,7 @@ public class LinuxSensors extends AbstractSensors {
                 // Find any *_input files in that path
                 File dir = new File(path);
                 File[] matchingFiles = dir.listFiles(new FileFilter() {
+                    @Override
                     public boolean accept(File pathname) {
                         return pathname.getName().startsWith(prefix) && pathname.getName().endsWith("_input");
                     }
@@ -75,29 +76,29 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (hwmonMap.containsKey(TEMP)) {
-            String hwmon = hwmonMap.get(TEMP);
-            // First attempt should be CPU temperature at index 1, if available
-            long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
-            // Should return a single line of millidegrees Celsius
+        if (!hwmonMap.containsKey(TEMP)) {
+            return 0d;
+        }
+        String hwmon = hwmonMap.get(TEMP);
+        // First attempt should be CPU temperature at index 1, if available
+        long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
+        // Should return a single line of millidegrees Celsius
+        if (millidegrees > 0) {
+            return millidegrees / 1000d;
+        }
+        // If temp1_input doesn't exist, iterate over temp2..temp6_input
+        // and average
+        int sum = 0;
+        int count = 0;
+        for (int i = 2; i <= 6; i++) {
+            millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
             if (millidegrees > 0) {
-                return millidegrees / 1000d;
-            } else {
-                // If temp1_input doesn't exist, iterate over temp2..temp6_input
-                // and average
-                int sum = 0;
-                int count = 0;
-                for (int i = 2; i <= 6; i++) {
-                    millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
-                    if (millidegrees > 0) {
-                        sum += millidegrees;
-                        count++;
-                    }
-                }
-                if (count > 0) {
-                    return sum / (count * 1000d);
-                }
+                sum += millidegrees;
+                count++;
             }
+        }
+        if (count > 0) {
+            return sum / (count * 1000d);
         }
         return 0d;
     }
@@ -109,7 +110,7 @@ public class LinuxSensors extends AbstractSensors {
     public int[] getFanSpeeds() {
         if (hwmonMap.containsKey(FAN)) {
             String hwmon = hwmonMap.get(FAN);
-            List<Integer> speeds = new ArrayList<Integer>();
+            List<Integer> speeds = new ArrayList<>();
             int fan = 1;
             for (;;) {
                 String fanPath = String.format("%s%d_input", hwmon, fan);

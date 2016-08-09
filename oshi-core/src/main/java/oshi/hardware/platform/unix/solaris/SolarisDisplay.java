@@ -51,31 +51,29 @@ public class SolarisDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<Display>();
         ArrayList<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
-        if (!xrandr.isEmpty()) {
-            boolean foundEdid = false;
-            StringBuilder sb = new StringBuilder();
-            for (String s : xrandr) {
-                if (s.contains("EDID")) {
-                    foundEdid = true;
-                    sb = new StringBuilder();
+        if (xrandr.isEmpty()) {
+            return new Display[0];
+        }
+        List<Display> displays = new ArrayList<>();
+        StringBuilder sb = null;
+        for (String s : xrandr) {
+            if (s.contains("EDID")) {
+                sb = new StringBuilder();
+            } else if (sb != null) {
+                sb.append(s.trim());
+                if (sb.length() < 256) {
                     continue;
                 }
-                if (foundEdid) {
-                    sb.append(s.trim());
-                    if (sb.length() >= 256) {
-                        String edidStr = sb.toString();
-                        LOG.debug("Parsed EDID: {}", edidStr);
-                        byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
-                        if (edid != null) {
-                            displays.add(new SolarisDisplay(edid));
-                        }
-                        foundEdid = false;
-                    }
+                String edidStr = sb.toString();
+                LOG.debug("Parsed EDID: {}", edidStr);
+                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
+                if (edid.length >= 128) {
+                    displays.add(new SolarisDisplay(edid));
                 }
+                sb = null;
             }
         }
 

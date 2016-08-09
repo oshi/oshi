@@ -22,10 +22,10 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.jna.platform.unix.LibC;
 
-public class FreeBsdSensors extends AbstractSensors {
+public class FreeBsdSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 

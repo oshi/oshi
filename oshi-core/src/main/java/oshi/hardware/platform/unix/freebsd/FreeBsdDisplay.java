@@ -70,7 +70,7 @@ public class FreeBsdDisplay extends AbstractDisplay {
                         String edidStr = sb.toString();
                         LOG.debug("Parsed EDID: {}", edidStr);
                         byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
-                        if (edid != null) {
+                        if (edid.length >= 128) {
                             displays.add(new FreeBsdDisplay(edid));
                         }
                         foundEdid = false;

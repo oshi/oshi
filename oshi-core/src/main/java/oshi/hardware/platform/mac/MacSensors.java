@@ -20,11 +20,11 @@ package oshi.hardware.platform.mac;
 
 import java.util.Arrays;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
-public class MacSensors extends AbstractSensors {
+public class MacSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 

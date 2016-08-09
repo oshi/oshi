@@ -64,8 +64,9 @@ public class ParseUtilTest {
     public void testHexStringToByteArray() {
         byte[] temp = { (byte) 0x12, (byte) 0xaf };
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
-        assertEquals(null, ParseUtil.hexStringToByteArray("expected error abcde"));
-        assertEquals(null, ParseUtil.hexStringToByteArray("abcde"));
+        temp = new byte[0];
+        assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("expected error abcde")));
+        assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("abcde")));
     }
 
     /**

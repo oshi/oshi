@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -38,7 +38,7 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class WindowsDisks extends AbstractDisks {
+public class WindowsDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 

@@ -37,6 +37,9 @@ import org.slf4j.LoggerFactory;
 public class FileUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
+    private FileUtil() {
+    }
+
     /**
      * Read an entire file at one time. Intended primarily for Linux /proc
      * filesystem to avoid recalculating file contents on iterative reads.

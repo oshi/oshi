@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
+    private Util() {
+    }
+
     /**
      * Sleeps for the specified number of milliseconds.
      * 

@@ -323,10 +323,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         } else if (!serial.equals(other.serial)) {
             return false;
         }
-        if (size != other.size) {
-            return false;
-        }
-        return true;
+        return size == other.size;
     }
 
 }

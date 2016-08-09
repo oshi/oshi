@@ -63,22 +63,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * Keep track whether MXBean supports Oracle JVM methods
      */
-    private boolean sunMXBean;
-
-    {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            // Initialize CPU usage
-            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            lastCpuLoadTime = System.currentTimeMillis();
-            sunMXBean = true;
-            LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException e) {
-            sunMXBean = false;
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
-        }
-    }
+    private boolean sunMXBean = false;
 
     // Logical and Physical Processor Counts
     protected int logicalProcessorCount = 0;
@@ -123,8 +108,27 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Create a Processor
      */
     public AbstractCentralProcessor() {
+        initMXBean();
         // Initialize processor counts
         calculateProcessorCounts();
+    }
+
+    /**
+     * Initializes mxBean boolean
+     */
+    private void initMXBean() {
+        try {
+            Class.forName("com.sun.management.OperatingSystemMXBean");
+            // Initialize CPU usage
+            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad(); // NOSONAR
+                                                                                                     // squid:S1191
+            lastCpuLoadTime = System.currentTimeMillis();
+            sunMXBean = true;
+            LOG.debug("Oracle MXBean detected.");
+        } catch (ClassNotFoundException e) {
+            LOG.debug("Oracle MXBean not detected.");
+            LOG.trace("", e);
+        }
     }
 
     /**
@@ -374,12 +378,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract long[] getSystemCpuLoadTicks();
-
-    /**
      * Updates system tick information. Stores in array with seven elements
      * representing clock ticks or milliseconds (platform dependent) spent in
      * User (0), Nice (1), System (2), Idle (3), IOwait (4), IRQ (5), and
@@ -416,7 +414,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             if (now - lastCpuLoadTime < 200) {
                 return lastCpuLoad;
             }
-            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad(); // NOSONAR
+                                                                                                     // squid:S1191
             lastCpuLoadTime = now;
             return lastCpuLoad;
         }
@@ -430,12 +429,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public double getSystemLoadAverage() {
         return getSystemLoadAverage(1)[0];
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract double[] getSystemLoadAverage(int nelem);
 
     /**
      * {@inheritDoc}
@@ -469,12 +462,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract long[][] getProcessorCpuLoadTicks();
-
-    /**
      * Updates per-processor tick information. Stores in 2D array; an array for
      * each logical processor with with seven elements representing clock ticks
      * or milliseconds (platform dependent) spent in User (0), Nice (1), System
@@ -491,33 +478,22 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // through branch prediction if it doesn't
         for (int i = 0; i < ticks.length; i++) {
             for (int j = 0; j < ticks[i].length; j++) {
-                if (ticks[i][j] != 0L) {
-                    // We have a nonzero tick array, update and return!
-                    this.procTickTime = System.currentTimeMillis();
-                    // Copy to previous
-                    for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-                        System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
-                    }
-                    for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-                        System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
-                    }
-                    return;
+                if (ticks[i][j] == 0L) {
+                    continue;
                 }
+                // We have a nonzero tick array, update and return!
+                this.procTickTime = System.currentTimeMillis();
+                // Copy to previous
+                for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+                    System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+                }
+                for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+                    System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+                }
+                return;
             }
         }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract long getSystemUptime();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract String getSystemSerialNumber();
 
     /**
      * {@inheritDoc}

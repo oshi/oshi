@@ -26,9 +26,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -38,7 +38,7 @@ import oshi.util.ParseUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class LinuxDisks extends AbstractDisks {
+public class LinuxDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 

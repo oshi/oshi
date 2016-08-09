@@ -21,10 +21,10 @@ package oshi.hardware.platform.windows;
 import java.util.List;
 import java.util.Map;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.util.platform.windows.WmiUtil;
 
-public class WindowsSensors extends AbstractSensors {
+public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 

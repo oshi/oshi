@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -39,7 +39,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class FreeBsdDisks extends AbstractDisks {
+public class FreeBsdDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 

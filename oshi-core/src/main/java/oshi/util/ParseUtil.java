@@ -41,21 +41,23 @@ public class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
+    private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default. {}";
     /*
      * Used for matching
      */
-    final private static Pattern HERTZ = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
+    private static final Pattern HERTZ_PATTERN = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
 
     /*
      * Used to check validity of a hexadecimal string
      */
-    final private static Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
+    private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
     /*
      * Format for parsing DATETIME originally 20160513072950.782000-420,
      * modified to 20160513072950.782000-07:00
      */
-    private static DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ", Locale.US);
+    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ",
+            Locale.US);
 
     /*
      * Pattern for [dd-[hh:[mm:ss]]]
@@ -71,28 +73,26 @@ public class ParseUtil {
     /*
      * Hertz related variables.
      */
-    final private static String Hertz = "Hz";
+    private static final String HZ = "Hz";
+    private static final String KHZ = "kHZ";
+    private static final String MHZ = "MHZ";
+    private static final String GHZ = "GHZ";
+    private static final String THZ = "THZ";
+    private static final String PHZ = "PHZ";
 
-    final private static String kiloHertz = "k" + Hertz;
-
-    final private static String megaHertz = "M" + Hertz;
-
-    final private static String gigaHertz = "G" + Hertz;
-
-    final private static String teraHertz = "T" + Hertz;
-
-    final private static String petaHertz = "P" + Hertz;
-
-    final private static Map<String, Long> multipliers;
+    private static final Map<String, Long> multipliers;
 
     static {
         multipliers = new HashMap<>();
-        multipliers.put(Hertz, 1L);
-        multipliers.put(kiloHertz, 1000L);
-        multipliers.put(megaHertz, 1000000L);
-        multipliers.put(gigaHertz, 1000000000L);
-        multipliers.put(teraHertz, 1000000000000L);
-        multipliers.put(petaHertz, 1000000000000000L);
+        multipliers.put(HZ, 1L);
+        multipliers.put(KHZ, 1000L);
+        multipliers.put(MHZ, 1000000L);
+        multipliers.put(GHZ, 1000000000L);
+        multipliers.put(THZ, 1000000000000L);
+        multipliers.put(PHZ, 1000000000000000L);
+    }
+
+    private ParseUtil() {
     }
 
     /**
@@ -103,7 +103,7 @@ public class ParseUtil {
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-        Matcher matcher = HERTZ.matcher(hertz.trim());
+        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
             // Regexp enforces #(.#) format so no test for NFE required
             Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
@@ -130,7 +130,7 @@ public class ParseUtil {
             try {
                 return Integer.parseInt(ss[ss.length - 1]);
             } catch (NumberFormatException e) {
-                LOG.trace("{} didn't parse. Returning default. {}", s, e);
+                LOG.trace(DEFAULT_LOG_MSG, s, e);
                 return i;
             }
         }
@@ -142,14 +142,14 @@ public class ParseUtil {
      * @param digits
      *            The string to be parsed
      * @return a byte array with each pair of characters converted to a byte, or
-     *         null if the string is not valid hex
+     *         empty array if the string is not valid hex
      */
     public static byte[] hexStringToByteArray(String digits) {
         int len = digits.length();
         // Check if string is valid hex
         if (!VALID_HEX.matcher(digits).matches() || (len & 0x1) != 0) {
             LOG.warn("Invalid hexadecimal string: {}", digits);
-            return null;
+            return new byte[0];
         }
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -276,7 +276,7 @@ public class ParseUtil {
         } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-            LOG.trace("{} didn't parse. Returning default. {}", cimDate, e);
+            LOG.trace(DEFAULT_LOG_MSG, cimDate, e);
             return 0L;
         }
     }
@@ -306,7 +306,7 @@ public class ParseUtil {
                 sb.append((char) charAsInt);
             }
         } catch (NumberFormatException e) {
-            LOG.trace("{} didn't parse. Returning default. {}", hexString, e);
+            LOG.trace(DEFAULT_LOG_MSG, hexString, e);
             // Hex failed to parse, just return the existing string
             return hexString;
         }
@@ -326,7 +326,7 @@ public class ParseUtil {
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            LOG.trace("{} didn't parse. Returning default. {}", s, e);
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultInt;
         }
     }
@@ -344,7 +344,7 @@ public class ParseUtil {
         try {
             return Long.parseLong(s);
         } catch (NumberFormatException e) {
-            LOG.trace("{} didn't parse. Returning default. {}", s, e);
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
         }
     }
@@ -362,7 +362,7 @@ public class ParseUtil {
         try {
             return Double.parseDouble(s);
         } catch (NumberFormatException e) {
-            LOG.trace("{} didn't parse. Returning default. {}", s, e);
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultDouble;
         }
     }
