@@ -37,7 +37,7 @@ import oshi.json.util.PropertiesUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class HWPartition extends AbstractOshiJsonObject {
+public class HWPartition extends AbstractOshiJsonObject implements Comparable<HWPartition> {
 
     private static final long serialVersionUID = 1L;
 
@@ -230,4 +230,49 @@ public class HWPartition extends AbstractOshiJsonObject {
         }
         return json.build();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWPartition part) {
+        return this.hwPartition.compareTo(part.hwPartition);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((hwPartition == null) ? 0 : hwPartition.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof HWPartition)) {
+            return false;
+        }
+        HWPartition other = (HWPartition) obj;
+        if (hwPartition == null) {
+            if (other.hwPartition != null) {
+                return false;
+            }
+        } else if (!hwPartition.equals(other.hwPartition)) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -214,23 +214,73 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((identification == null) ? 0 : identification.hashCode());
+        result = prime * result + major;
+        result = prime * result + minor;
+        result = prime * result + ((mountPoint == null) ? 0 : mountPoint.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + (int) (size ^ (size >>> 32));
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (!(obj instanceof HWPartition)) {
             return false;
+        }
         HWPartition other = (HWPartition) obj;
         if (identification == null) {
-            if (other.identification != null)
+            if (other.identification != null) {
                 return false;
-        } else if (!identification.equals(other.identification))
+            }
+        } else if (!identification.equals(other.identification)) {
             return false;
+        }
+        if (major != other.major) {
+            return false;
+        }
+        if (minor != other.minor) {
+            return false;
+        }
+        if (mountPoint == null) {
+            if (other.mountPoint != null) {
+                return false;
+            }
+        } else if (!mountPoint.equals(other.mountPoint)) {
+            return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (size != other.size) {
+            return false;
+        }
+        if (type == null) {
+            if (other.type != null) {
+                return false;
+            }
+        } else if (!type.equals(other.type)) {
+            return false;
+        }
+        if (uuid == null) {
+            if (other.uuid != null) {
+                return false;
+            }
+        } else if (!uuid.equals(other.uuid)) {
+            return false;
+        }
         return true;
     }
+
 }

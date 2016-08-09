@@ -40,7 +40,7 @@ import oshi.json.util.PropertiesUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class HWDiskStore extends AbstractOshiJsonObject {
+public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HWDiskStore> {
 
     private static final long serialVersionUID = 1L;
 
@@ -84,6 +84,13 @@ public class HWDiskStore extends AbstractOshiJsonObject {
         }
         this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
                 writeBytes, transferTime, parts, timeStamp);
+    }
+
+    /**
+     * Create a new HWDiskStore with default/empty values
+     */
+    public HWDiskStore() {
+        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
     }
 
     /**
@@ -309,6 +316,50 @@ public class HWDiskStore extends AbstractOshiJsonObject {
             json.add("timeStamp", this.hwDiskStore.getTimeStamp());
         }
         return json.build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWDiskStore store) {
+        return hwDiskStore.compareTo(store.hwDiskStore);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((hwDiskStore == null) ? 0 : hwDiskStore.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof HWDiskStore)) {
+            return false;
+        }
+        HWDiskStore other = (HWDiskStore) obj;
+        if (hwDiskStore == null) {
+            if (other.hwDiskStore != null) {
+                return false;
+            }
+        } else if (!hwDiskStore.equals(other.hwDiskStore)) {
+            return false;
+        }
+        return true;
     }
 
 }

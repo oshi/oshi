@@ -19,6 +19,7 @@
 package oshi.hardware;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
@@ -268,28 +269,64 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         return this.getName().compareTo(store.getName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((model == null) ? 0 : model.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + Arrays.hashCode(partitions);
+        result = prime * result + ((serial == null) ? 0 : serial.hashCode());
+        result = prime * result + (int) (size ^ (size >>> 32));
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (!(obj instanceof HWDiskStore)) {
             return false;
+        }
         HWDiskStore other = (HWDiskStore) obj;
-        if (name == null) {
-            if (other.name != null)
+        if (model == null) {
+            if (other.model != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!model.equals(other.model)) {
             return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (!Arrays.equals(partitions, other.partitions)) {
+            return false;
+        }
+        if (serial == null) {
+            if (other.serial != null) {
+                return false;
+            }
+        } else if (!serial.equals(other.serial)) {
+            return false;
+        }
+        if (size != other.size) {
+            return false;
+        }
         return true;
     }
+
 }

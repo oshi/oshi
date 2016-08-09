@@ -6,6 +6,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       mvn clean test jacoco:report coveralls:report;
+      mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=df16219a00545aae71f880423a6f23191330744f;
     fi
 
 env:

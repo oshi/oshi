@@ -13,6 +13,8 @@ Releasing OSHI
 ### Prepare
 
 * Make sure tests are green on [Travis CI](https://travis-ci.org/dblock/oshi).
+* Review [SonarQube](https://sonarqube.com/overview?id=com.github.dblock%3Aoshi-parent) for any bugs.
+* Run `mvn clean test` on every OS you have access to
 * Choose an appropriate [version number](http://semver.org/) for the release
  	* Proactively change version numbers in the download links on [README.md](README.md).
 	* Copy [README.md](README.md) to [src/site/markdown/README.md](src/site/markdown/README.md)
