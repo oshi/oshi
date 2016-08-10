@@ -83,7 +83,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             return System.getProperty("os.version");
         }
 
-        String version = null;
+        String version;
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
@@ -242,7 +242,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return Suites
      */
     private String parseCodeName() {
-        List<String> suites = new ArrayList<String>();
+        List<String> suites = new ArrayList<>();
         int bitmask = getSuiteMask();
         if ((bitmask & 0x00000004) != 0) {
             suites.add("BackOffice");

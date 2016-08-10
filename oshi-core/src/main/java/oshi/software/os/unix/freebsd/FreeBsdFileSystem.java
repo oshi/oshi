@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -38,7 +38,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class FreeBsdFileSystem extends AbstractFileSystem {
+public class FreeBsdFileSystem implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 

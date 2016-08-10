@@ -63,10 +63,10 @@ public interface LibC extends Library {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "tv_sec", "tv_usec" });
         }
-    };
+    }
 
     class CpTime extends Structure {
-        public long cpu_ticks[] = new long[CPUSTATES];
+        public long[] cpu_ticks = new long[CPUSTATES];
 
         @Override
         protected List<String> getFieldOrder() {

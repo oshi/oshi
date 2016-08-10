@@ -59,6 +59,43 @@ public class LinuxProcess extends AbstractProcess {
         init();
     }
 
+    public LinuxProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
+            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
+            long now) {
+        this.name = name;
+        this.path = path;
+        switch (state) {
+        case 'R':
+            this.state = OSProcess.State.RUNNING;
+            break;
+        case 'S':
+            this.state = OSProcess.State.SLEEPING;
+            break;
+        case 'D':
+            this.state = OSProcess.State.WAITING;
+            break;
+        case 'Z':
+            this.state = OSProcess.State.ZOMBIE;
+            break;
+        case 'T':
+            this.state = OSProcess.State.STOPPED;
+            break;
+        default:
+            this.state = OSProcess.State.OTHER;
+            break;
+        }
+        this.processID = processID;
+        this.parentProcessID = parentProcessID;
+        this.threadCount = threadCount;
+        this.priority = priority;
+        this.virtualSize = virtualSize;
+        this.residentSetSize = residentSetSize;
+        this.kernelTime = kernelTime * 1000L / hz;
+        this.userTime = userTime * 1000L / hz;
+        this.startTime = bootTime + startTime * 1000L / hz;
+        this.upTime = now - this.startTime;
+    }
+
     /**
      * Correlate the youngest process start time in seconds with start time in
      * jiffies
@@ -74,7 +111,7 @@ public class LinuxProcess extends AbstractProcess {
         String youngestPid = "";
         for (File pid : pids) {
             List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()));
-            if (stat.size() != 0) {
+            if (!stat.isEmpty()) {
                 String[] split = stat.get(0).split("\\s+");
                 if (split.length < 22) {
                     continue;
@@ -124,42 +161,4 @@ public class LinuxProcess extends AbstractProcess {
         // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
     }
-
-    public LinuxProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long now) {
-        this.name = name;
-        this.path = path;
-        switch (state) {
-        case 'R':
-            this.state = OSProcess.State.RUNNING;
-            break;
-        case 'S':
-            this.state = OSProcess.State.SLEEPING;
-            break;
-        case 'D':
-            this.state = OSProcess.State.WAITING;
-            break;
-        case 'Z':
-            this.state = OSProcess.State.ZOMBIE;
-            break;
-        case 'T':
-            this.state = OSProcess.State.STOPPED;
-            break;
-        default:
-            this.state = OSProcess.State.OTHER;
-            break;
-        }
-        this.processID = processID;
-        this.parentProcessID = parentProcessID;
-        this.threadCount = threadCount;
-        this.priority = priority;
-        this.virtualSize = virtualSize;
-        this.residentSetSize = residentSetSize;
-        this.kernelTime = kernelTime * 1000L / hz;
-        this.userTime = userTime * 1000L / hz;
-        this.startTime = bootTime + startTime * 1000L / hz;
-        this.upTime = now - this.startTime;
-    }
-
 }

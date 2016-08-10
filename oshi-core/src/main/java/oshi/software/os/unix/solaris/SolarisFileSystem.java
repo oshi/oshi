@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -37,7 +37,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class SolarisFileSystem extends AbstractFileSystem {
+public class SolarisFileSystem implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 

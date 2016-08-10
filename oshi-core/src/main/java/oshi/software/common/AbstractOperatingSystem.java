@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -35,6 +34,25 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
+
+    /*
+     * Comparators for use in processSort()
+     */
+    private static final Comparator<OSProcess> CPU_DESC_SORT = (p1, p2) -> Double.compare(
+            (p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
+            (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
+    private static final Comparator<OSProcess> RSS_DESC_SORT = (p1, p2) -> Long.compare(p2.getResidentSetSize(),
+            p1.getResidentSetSize());
+    private static final Comparator<OSProcess> UPTIME_DESC_SORT = (p1, p2) -> Long.compare(p2.getUpTime(),
+            p1.getUpTime());
+    private static final Comparator<OSProcess> UPTIME_ASC_SORT = (p1, p2) -> Long.compare(p1.getUpTime(),
+            p2.getUpTime());
+    private static final Comparator<OSProcess> PID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getProcessID(),
+            p2.getProcessID());
+    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getParentProcessID(),
+            p2.getParentProcessID());
+    private static final Comparator<OSProcess> NAME_ASC_SORT = (p1, p2) -> p1.getName().toLowerCase()
+            .compareTo(p2.getName().toLowerCase());
 
     /**
      * {@inheritDoc}
@@ -58,44 +76,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public String getManufacturer() {
         return this.manufacturer;
-    };
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract FileSystem getFileSystem();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract int getProcessCount();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract int getThreadCount();
-
-    /*
-     * Comparators for use in processSort()
-     */
-    private static final Comparator<OSProcess> CPU_DESC_SORT = (p1, p2) -> Double.compare(
-            (p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
-            (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
-    private static final Comparator<OSProcess> RSS_DESC_SORT = (p1, p2) -> Long.compare(p2.getResidentSetSize(),
-            p1.getResidentSetSize());
-    private static final Comparator<OSProcess> UPTIME_DESC_SORT = (p1, p2) -> Long.compare(p2.getUpTime(),
-            p1.getUpTime());
-    private static final Comparator<OSProcess> UPTIME_ASC_SORT = (p1, p2) -> Long.compare(p1.getUpTime(),
-            p2.getUpTime());
-    private static final Comparator<OSProcess> PID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getProcessID(),
-            p2.getProcessID());
-    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getParentProcessID(),
-            p2.getParentProcessID());
-    private static final Comparator<OSProcess> NAME_ASC_SORT = (p1, p2) -> p1.getName().toLowerCase()
-            .compareTo(p2.getName().toLowerCase());
+    }
 
     /**
      * Sorts an array of processes using the specified sorting, returning an

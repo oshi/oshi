@@ -35,6 +35,9 @@ import oshi.util.ParseUtil;
 public class PropertiesUtil {
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);
 
+    private PropertiesUtil() {
+    }
+
     /**
      * Loads Java Properties from a file on the class path
      *

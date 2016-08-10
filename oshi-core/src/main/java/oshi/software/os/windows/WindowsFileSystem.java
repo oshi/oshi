@@ -26,7 +26,7 @@ import java.util.Map;
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.jna.platform.windows.Kernel32;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -39,7 +39,7 @@ import oshi.util.platform.windows.WmiUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class WindowsFileSystem extends AbstractFileSystem {
+public class WindowsFileSystem implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 
@@ -170,8 +170,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 "Name,Description,ProviderName,FileSystem,Freespace,Size", null);
 
         for (int i = 0; i < drives.get("Name").size(); i++) {
-            free = 0L;
-            total = 0L;
             free = ParseUtil.parseLongOrDefault(drives.get("Freespace").get(i), 0L);
             total = ParseUtil.parseLongOrDefault(drives.get("Size").get(i), 0L);
             String description = drives.get("Description").get(i);

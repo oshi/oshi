@@ -38,7 +38,7 @@ import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
@@ -52,7 +52,7 @@ import oshi.util.platform.mac.SysctlUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class MacFileSystem extends AbstractFileSystem {
+public class MacFileSystem implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 

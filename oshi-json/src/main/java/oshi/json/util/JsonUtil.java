@@ -34,6 +34,9 @@ import javax.json.stream.JsonGenerator;
  * @author widdis[at]gmail[dot]com
  */
 public class JsonUtil {
+    private JsonUtil() {
+    }
+
     /**
      * Pretty print a JSON string.
      *
@@ -47,7 +50,7 @@ public class JsonUtil {
         // Output stream
         StringWriter stringWriter = new StringWriter();
         // Config
-        Map<String, Boolean> config = new HashMap<String, Boolean>();
+        Map<String, Boolean> config = new HashMap<>();
         config.put(JsonGenerator.PRETTY_PRINTING, true);
         JsonWriterFactory writerFactory = Json.createWriterFactory(config);
         // Writer

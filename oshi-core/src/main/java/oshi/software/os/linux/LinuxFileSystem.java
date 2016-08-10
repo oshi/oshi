@@ -29,7 +29,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -42,7 +42,7 @@ import oshi.util.ParseUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class LinuxFileSystem extends AbstractFileSystem {
+public class LinuxFileSystem implements FileSystem {
 
     private static final long serialVersionUID = 1L;
 

@@ -125,7 +125,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     "pti_pageins", "pti_cow_faults", "pti_messages_sent", "pti_messages_received", "pti_syscalls_mach",
                     "pti_syscalls_unix", "pti_csw", "pti_threadnum", "pti_numrunning", "pti_priority" });
         }
-    };
+    }
 
     /**
      * The statfs() routine returns information about a mounted file system. The
@@ -159,7 +159,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     "f_ffree", "f_fsid", "f_owner", "f_type", "f_flags", "f_fssubtype", "f_fstypename", "f_mntonname",
                     "f_mntfromname", "f_reserved" });
         }
-    };
+    }
 
     /**
      * Return type for sysctl vm.swapusage
@@ -176,7 +176,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
             return Arrays
                     .asList(new String[] { "xsu_total", "xsu_avail", "xsu_used", "xsu_pagesize", "xsu_encrypted" });
         }
-    };
+    }
 
     /**
      * Return type for sysctl kern.boottime
@@ -189,7 +189,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "tv_sec", "tv_usec" });
         }
-    };
+    }
 
     /**
      * Data type as part of IFmsgHdr
