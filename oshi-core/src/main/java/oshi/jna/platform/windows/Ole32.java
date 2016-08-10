@@ -28,7 +28,7 @@ import com.sun.jna.win32.W32APIOptions;
 /**
  * Windows Kernel32. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
@@ -47,7 +47,7 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
     // TODO: Submit this change to JNA Ole32 class
     /**
      * Registers security and sets the default security values for the process.
-     * 
+     *
      * @param pSecDesc
      *            [in, optional] The access permissions that a server will use
      *            to receive calls. This parameter is used by COM only when a
@@ -111,16 +111,16 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
      *            [in, optional] This parameter is reserved and must be NULL.
      * @return This function can return the standard return value E_INVALIDARG,
      *         as well as the following values.
-     * 
+     *
      *         S_OK Indicates success.
-     * 
+     *
      *         RPC_E_TOO_LATE CoInitializeSecurity has already been called.
-     * 
+     *
      *         RPC_E_NO_GOOD_SECURITY_PACKAGES The asAuthSvc parameter was not
      *         NULL, and none of the authentication services in the list could
      *         be registered. Check the results saved in asAuthSvc for
      *         authentication service–specific error codes.
-     * 
+     *
      *         E_OUT_OF_MEMORY Out of memory.
      */
     HRESULT CoInitializeSecurity(Pointer pSecDesc, NativeLong cAuthSvc, Pointer asAuthSvc, Pointer pReserved1,
@@ -130,7 +130,7 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
      * Sets the authentication information that will be used to make calls on
      * the specified proxy. This is a helper function for
      * IClientSecurity::SetBlanket.
-     * 
+     *
      * @param pProxy
      *            [in] The proxy to be set.
      * @param dwAuthnSvc
@@ -231,9 +231,9 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
      *            capability flags other than those mentioned here are set,
      *            CoSetProxyBlanket will fail.
      * @return This function can return the following values.
-     * 
+     *
      *         S_OK The function was successful.
-     * 
+     *
      *         E_INVALIDARG One or more arguments is invalid.
      */
     HRESULT CoSetProxyBlanket(Pointer pProxy, //

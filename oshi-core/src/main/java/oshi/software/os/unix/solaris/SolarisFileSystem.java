@@ -61,7 +61,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     /**
      * Checks if file path equals or starts with an element in the given list
-     * 
+     *
      * @param aList
      *            A list of path prefixes
      * @param charSeq
@@ -106,7 +106,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
             // Exclude pseudo file systems
             if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
-                    || (volume.startsWith("rpool") && (!path.equals("/")))) {
+                    || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
 

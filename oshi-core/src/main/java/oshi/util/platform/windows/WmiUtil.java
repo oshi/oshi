@@ -46,7 +46,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Provides access to WMI queries
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
@@ -72,7 +72,7 @@ public class WmiUtil {
 
     /**
      * Get a single Unsigned Integer value from WMI (as Long)
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -94,7 +94,7 @@ public class WmiUtil {
 
     /**
      * Get multiple Unsigned Integer values from WMI (as Longs)
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -124,7 +124,7 @@ public class WmiUtil {
 
     /**
      * Get a single Float value from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -146,7 +146,7 @@ public class WmiUtil {
 
     /**
      * Get multiple Float values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -176,7 +176,7 @@ public class WmiUtil {
 
     /**
      * Get a single String value from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -198,7 +198,7 @@ public class WmiUtil {
 
     /**
      * Get multiple String values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -228,7 +228,7 @@ public class WmiUtil {
 
     /**
      * Get multiple individually typed values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -256,7 +256,7 @@ public class WmiUtil {
 
     /**
      * Query WMI for values
-     * 
+     *
      * @param namespace
      *            The namespace to query
      * @param properties
@@ -277,8 +277,8 @@ public class WmiUtil {
         // Set up empty map
         Map<String, List<Object>> values = new HashMap<>();
         String[] props = properties.split(",");
-        for (int i = 0; i < props.length; i++) {
-            values.put(props[i], new ArrayList<Object>());
+        for (String prop : props) {
+            values.put(prop, new ArrayList<Object>());
         }
 
         // Initialize COM
@@ -314,12 +314,12 @@ public class WmiUtil {
     /*
      * Below methods ported from: Getting WMI Data from Local Computer
      * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
-     * 
+     *
      * Steps 1 - 7 correspond to the above link.
      */
     /**
      * Initializes COM library and sets security to impersonate the local user
-     * 
+     *
      * @return true if COM successfull initialized
      */
     private static boolean initCOM() {
@@ -350,7 +350,7 @@ public class WmiUtil {
     /**
      * Obtains a locator to the WMI server and connects to the specified
      * namespace
-     * 
+     *
      * @param namespace
      *            The namespace to connect to
      * @param pSvc
@@ -397,7 +397,7 @@ public class WmiUtil {
      * Selects properties from WMI. Returns immediately, even while results are
      * being retrieved; results may begun to be enumerated in the forward
      * direction only.
-     * 
+     *
      * @param svc
      *            A WbemServices object to make the calls
      * @param pEnumerator
@@ -434,7 +434,7 @@ public class WmiUtil {
     /**
      * Enumerate the results of a WMI query. This method is called while results
      * are still being retrieved and may iterate in the forward direction only.
-     * 
+     *
      * @param values
      *            A map to hold the results of the query using the property as
      *            the key, and placing each enumerated result in a

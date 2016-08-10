@@ -50,7 +50,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
 
     /**
      * Create an object with all values
-     * 
+     *
      * @param name
      *            Name of the disk (e.g., /dev/disk1)
      * @param model
@@ -277,7 +277,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.name")) {
             json.add("name", this.hwDiskStore.getName());
         }
@@ -306,7 +306,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
             json.add("transferTime", this.hwDiskStore.getTransferTime());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions")) {
-            JsonArrayBuilder partitionArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder partitionArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (HWPartition partition : getPartitions()) {
                 partitionArrayBuilder.add(partition.toJSON(properties));
             }
@@ -323,7 +323,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      */
     @Override
     public int compareTo(HWDiskStore store) {
-        return hwDiskStore.compareTo(store.hwDiskStore);
+        return this.hwDiskStore.compareTo(store.hwDiskStore);
     }
 
     /**
@@ -333,7 +333,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((hwDiskStore == null) ? 0 : hwDiskStore.hashCode());
+        result = prime * result + (this.hwDiskStore == null ? 0 : this.hwDiskStore.hashCode());
         return result;
     }
 
@@ -352,11 +352,11 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
             return false;
         }
         HWDiskStore other = (HWDiskStore) obj;
-        if (hwDiskStore == null) {
+        if (this.hwDiskStore == null) {
             if (other.hwDiskStore != null) {
                 return false;
             }
-        } else if (!hwDiskStore.equals(other.hwDiskStore)) {
+        } else if (!this.hwDiskStore.equals(other.hwDiskStore)) {
             return false;
         }
         return true;

@@ -30,7 +30,7 @@ public interface Disks extends Serializable {
 
     /**
      * Get hard drives on this machine
-     * 
+     *
      * @return Array of {@link HWDiskStore} objects
      */
     HWDiskStore[] getDisks();

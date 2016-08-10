@@ -45,7 +45,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
     /**
      * Creates a new platform-specific PowerSource object wrapping the provided
      * argument
-     * 
+     *
      * @param powerSource
      *            a platform-specific PowerSource object
      */
@@ -58,7 +58,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public String getName() {
-        return powerSource.getName();
+        return this.powerSource.getName();
     }
 
     /**
@@ -66,7 +66,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getRemainingCapacity() {
-        return powerSource.getRemainingCapacity();
+        return this.powerSource.getRemainingCapacity();
     }
 
     /**
@@ -74,7 +74,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getTimeRemaining() {
-        return powerSource.getTimeRemaining();
+        return this.powerSource.getTimeRemaining();
     }
 
     /**
@@ -82,7 +82,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.powerSources.name")) {
             json.add("name", getName());
         }

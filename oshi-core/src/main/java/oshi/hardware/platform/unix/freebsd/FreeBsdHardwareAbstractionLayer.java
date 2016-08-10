@@ -27,14 +27,6 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisplay;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory;
-import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSensors;
-import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
 public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 

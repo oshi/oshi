@@ -26,13 +26,18 @@ import oshi.util.FileUtil;
 
 /**
  * Provides access to some /proc filesystem info on Linux
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
+    private static final Pattern DIGITS = Pattern.compile("\\d+"); // NOSONAR-squid:S1068
+
+    private ProcUtil() {
+    }
+
     /**
      * Parses the first value in /proc/uptime for seconds since boot
-     * 
+     *
      * @return Seconds since boot
      */
     public static float getSystemUptimeFromProc() {
@@ -50,18 +55,12 @@ public class ProcUtil {
     /**
      * Gets an array of files in the /proc directory with only numeric digit
      * filenames, corresponding to processes
-     * 
+     *
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
         File procdir = new File("/proc");
-        final Pattern p = Pattern.compile("\\d+");
-        File[] pids = procdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return p.matcher(file.getName()).matches();
-            }
-        });
+        File[] pids = procdir.listFiles((FileFilter) file -> DIGITS.matcher(file.getName()).matches());
         return pids != null ? pids : new File[0];
     }
 }

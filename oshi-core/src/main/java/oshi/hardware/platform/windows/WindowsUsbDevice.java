@@ -29,13 +29,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.SetupApi; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT.HANDLE; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
-import com.sun.jna.ptr.NativeLongByReference; //NOSONAR squid:S1191
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.SetupApi;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.NativeLongByReference;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -140,7 +140,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Navigates the Device Tree to place all children PNPDeviceIDs into the map
      * for the specified deviceID. Recursively adds children's children, etc.
-     * 
+     *
      * @param deviceId
      *            The device to add respective children to the map
      * @param deviceInstance
@@ -197,7 +197,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
     /**
      * Gets the device id for a devnode
-     * 
+     *
      * @param devInst
      *            the handle to the devnode
      * @return The PNPDeviceID
@@ -221,7 +221,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates WindowsUsbDevices by fetching information from maps
      * to populate fields
-     * 
+     *
      * @param hubDeviceId
      *            The PNPdeviceID of this device.
      * @param vid

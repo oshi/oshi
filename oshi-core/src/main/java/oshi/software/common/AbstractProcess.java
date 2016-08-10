@@ -25,7 +25,7 @@ import oshi.software.os.OSProcess;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class AbstractProcess implements OSProcess {
@@ -49,6 +49,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return this.name;
     }
@@ -56,6 +57,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getPath() {
         return this.path;
     }
@@ -63,6 +65,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public State getState() {
         return this.state;
     }
@@ -70,6 +73,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getProcessID() {
         return this.processID;
     }
@@ -77,6 +81,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getParentProcessID() {
         return this.parentProcessID;
     }
@@ -84,6 +89,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getThreadCount() {
         return this.threadCount;
     }
@@ -91,6 +97,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPriority() {
         return this.priority;
     }
@@ -98,6 +105,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getVirtualSize() {
         return this.virtualSize;
     }
@@ -105,6 +113,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getResidentSetSize() {
         return this.residentSetSize;
     }
@@ -112,6 +121,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getKernelTime() {
         return this.kernelTime;
     }
@@ -119,6 +129,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getUserTime() {
         return this.userTime;
     }
@@ -126,6 +137,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getUpTime() {
         if (this.upTime < this.kernelTime + this.userTime) {
             return this.kernelTime + this.userTime;
@@ -136,6 +148,7 @@ public class AbstractProcess implements OSProcess {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getStartTime() {
         return this.startTime;
     }

@@ -34,8 +34,8 @@ public class WbemServices extends Unknown {
     public HRESULT ExecQuery(BSTR strQueryLanguage, BSTR strQuery, NativeLong lFlags, Pointer pCtx,
             PointerByReference ppEnum) {
         // ExecQuery is 21th method of vtable for WbemServices in WbemCli.h
-        HRESULT result = (HRESULT) this._invokeNativeObject(20,
-                new Object[] { this.getPointer(), strQueryLanguage, strQuery, lFlags, pCtx, ppEnum }, HRESULT.class);
+        HRESULT result = (HRESULT) _invokeNativeObject(20,
+                new Object[] { getPointer(), strQueryLanguage, strQuery, lFlags, pCtx, ppEnum }, HRESULT.class);
 
         return result;
     }

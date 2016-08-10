@@ -120,10 +120,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         try {
             Class.forName("com.sun.management.OperatingSystemMXBean");
             // Initialize CPU usage
-            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad(); // NOSONAR
-                                                                                                     // squid:S1191
-            lastCpuLoadTime = System.currentTimeMillis();
-            sunMXBean = true;
+            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            this.lastCpuLoadTime = System.currentTimeMillis();
+            this.sunMXBean = true;
             LOG.debug("Oracle MXBean detected.");
         } catch (ClassNotFoundException e) {
             LOG.debug("Oracle MXBean not detected.");
@@ -136,8 +135,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected synchronized void initTicks() {
         // Per-processor ticks
-        this.prevProcTicks = new long[logicalProcessorCount][TickType.values().length];
-        this.curProcTicks = new long[logicalProcessorCount][TickType.values().length];
+        this.prevProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
+        this.curProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
         updateProcessorTicks();
 
         // Solaris relies on procTicks init before system ticks
@@ -333,7 +332,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Parses identifier string
-     * 
+     *
      * @param id
      *            the id to retrieve
      * @return the string following id
@@ -359,19 +358,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public synchronized double getSystemCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, tickTime);
-        if (now - tickTime > 950) {
+        LOG.trace("Current time: {}  Last tick time: {}", now, this.tickTime);
+        if (now - this.tickTime > 950) {
             // Enough time has elapsed.
             updateSystemTicks();
         }
         // Calculate total
         long total = 0;
-        for (int i = 0; i < curTicks.length; i++) {
-            total += curTicks[i] - prevTicks[i];
+        for (int i = 0; i < this.curTicks.length; i++) {
+            total += this.curTicks[i] - this.prevTicks[i];
         }
         // Calculate idle from difference in idle and IOwait
-        long idle = curTicks[TickType.IDLE.getIndex()] + curTicks[TickType.IOWAIT.getIndex()]
-                - prevTicks[TickType.IDLE.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
+        long idle = this.curTicks[TickType.IDLE.getIndex()] + this.curTicks[TickType.IOWAIT.getIndex()]
+                - this.prevTicks[TickType.IDLE.getIndex()] - this.prevTicks[TickType.IOWAIT.getIndex()];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
@@ -391,13 +390,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // Iterate to find a nonzero tick value and return; this should quickly
         // find a nonzero value if one exists and be fast in checking 0's
         // through branch prediction if it doesn't
-        for (int i = 0; i < ticks.length; i++) {
-            if (ticks[i] != 0) {
+        for (long tick : ticks) {
+            if (tick != 0) {
                 // We have a nonzero tick array, update and return!
                 this.tickTime = System.currentTimeMillis();
                 // Copy to previous
-                System.arraycopy(curTicks, 0, prevTicks, 0, curTicks.length);
-                System.arraycopy(ticks, 0, curTicks, 0, ticks.length);
+                System.arraycopy(this.curTicks, 0, this.prevTicks, 0, this.curTicks.length);
+                System.arraycopy(ticks, 0, this.curTicks, 0, ticks.length);
                 return;
             }
         }
@@ -408,16 +407,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemCpuLoad() {
-        if (sunMXBean) {
+        if (this.sunMXBean) {
             long now = System.currentTimeMillis();
             // If called too recently, return latest value
-            if (now - lastCpuLoadTime < 200) {
-                return lastCpuLoad;
+            if (now - this.lastCpuLoadTime < 200) {
+                return this.lastCpuLoad;
             }
-            lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad(); // NOSONAR
-                                                                                                     // squid:S1191
-            lastCpuLoadTime = now;
-            return lastCpuLoad;
+            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
+            this.lastCpuLoadTime = now;
+            return this.lastCpuLoad;
         }
         return getSystemCpuLoadBetweenTicks();
     }
@@ -437,14 +435,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public double[] getProcessorCpuLoadBetweenTicks() {
         // Check if > ~ 0.95 seconds since last tick count.
         long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, procTickTime);
-        if (now - procTickTime > 950) {
+        LOG.trace("Current time: {}  Last tick time: {}", now, this.procTickTime);
+        if (now - this.procTickTime > 950) {
             // Enough time has elapsed.
             // Update latest
             updateProcessorTicks();
         }
-        double[] load = new double[logicalProcessorCount];
-        for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
+        double[] load = new double[this.logicalProcessorCount];
+        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
             long total = 0;
             for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
                 total += this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i];
@@ -476,19 +474,20 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // Iterate to find a nonzero tick value and return; this should quickly
         // find a nonzero value if one exists and be fast in checking 0's
         // through branch prediction if it doesn't
-        for (int i = 0; i < ticks.length; i++) {
-            for (int j = 0; j < ticks[i].length; j++) {
-                if (ticks[i][j] == 0L) {
+        for (long[] tick : ticks) {
+            for (long element : tick) {
+                if (element == 0L) {
                     continue;
                 }
                 // We have a nonzero tick array, update and return!
                 this.procTickTime = System.currentTimeMillis();
                 // Copy to previous
-                for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-                    System.arraycopy(curProcTicks[cpu], 0, prevProcTicks[cpu], 0, curProcTicks[cpu].length);
+                for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+                    System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,
+                            this.curProcTicks[cpu].length);
                 }
-                for (int cpu = 0; cpu < logicalProcessorCount; cpu++) {
-                    System.arraycopy(ticks[cpu], 0, curProcTicks[cpu], 0, ticks[cpu].length);
+                for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+                    System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);
                 }
                 return;
             }

@@ -67,7 +67,7 @@ public class NetworkIF extends AbstractOshiJsonObject {
     /**
      * Sets the network interface and calculates other information derived from
      * it
-     * 
+     *
      * @param networkInterface
      *            The network interface to set
      */
@@ -261,50 +261,50 @@ public class NetworkIF extends AbstractOshiJsonObject {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.name")) {
-            json.add("name", this.getName());
+            json.add("name", getName());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.displayName")) {
-            json.add("displayName", this.getDisplayName());
+            json.add("displayName", getDisplayName());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.mac")) {
-            json.add("mac", this.getMacaddr());
+            json.add("mac", getMacaddr());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.ipv4")) {
-            JsonArrayBuilder ipv4ArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder ipv4ArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (String ipv4 : getIPv4addr()) {
                 ipv4ArrayBuilder.add(ipv4);
             }
             json.add("ipv4", ipv4ArrayBuilder.build());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.ipv6")) {
-            JsonArrayBuilder ipv6ArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder ipv6ArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (String ipv6 : getIPv6addr()) {
                 ipv6ArrayBuilder.add(ipv6);
             }
             json.add("ipv6", ipv6ArrayBuilder.build());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.mtu")) {
-            json.add("mtu", this.getMTU());
+            json.add("mtu", getMTU());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.bytesRecv")) {
-            json.add("bytesRecv", this.getBytesRecv());
+            json.add("bytesRecv", getBytesRecv());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.bytesSent")) {
-            json.add("bytesSent", this.getBytesSent());
+            json.add("bytesSent", getBytesSent());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.packetsRecv")) {
-            json.add("packetsRecv", this.getPacketsRecv());
+            json.add("packetsRecv", getPacketsRecv());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.packetsSent")) {
-            json.add("packetsSent", this.getPacketsSent());
+            json.add("packetsSent", getPacketsSent());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.speed")) {
-            json.add("speed", this.getSpeed());
+            json.add("speed", getSpeed());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.timeStamp")) {
-            json.add("timeStamp", this.getSpeed());
+            json.add("timeStamp", getSpeed());
         }
         return json.build();
     }

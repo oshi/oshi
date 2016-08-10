@@ -30,7 +30,7 @@ import com.sun.jna.ptr.PointerByReference;
  * CoreFoundation framework for power supply stats. This class should be
  * considered non-API as it may be removed if/when its code is incorporated into
  * the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
@@ -67,7 +67,7 @@ public interface CoreFoundation extends Library {
     class CFStringRef extends PointerType {
         /**
          * Creates a new CFString from the given Java string.
-         * 
+         *
          * @param s
          *            A string
          * @return A reference to a CFString representing s

@@ -43,7 +43,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
 
     /**
      * Creates a new HWPartition
-     * 
+     *
      * @param identification
      *            The unique partition id
      * @param name
@@ -84,56 +84,56 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      * @return Returns the identification.
      */
     public String getIdentification() {
-        return identification;
+        return this.identification;
     }
 
     /**
      * @return Returns the name.
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
      * @return Returns the type.
      */
     public String getType() {
-        return type;
+        return this.type;
     }
 
     /**
      * @return Returns the uuid.
      */
     public String getUuid() {
-        return uuid == null ? "" : uuid;
+        return this.uuid == null ? "" : this.uuid;
     }
 
     /**
      * @return Returns the size in bytes.
      */
     public long getSize() {
-        return size;
+        return this.size;
     }
 
     /**
      * @return Returns the major device ID.
      */
     public int getMajor() {
-        return major;
+        return this.major;
     }
 
     /**
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-        return minor;
+        return this.minor;
     }
 
     /**
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-        return mountPoint;
+        return this.mountPoint;
     }
 
     /**
@@ -206,21 +206,21 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     @Override
     public int compareTo(HWPartition part) {
         // Naturally sort by device ID
-        return this.getIdentification().compareTo(part.getIdentification());
+        return getIdentification().compareTo(part.getIdentification());
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((identification == null) ? 0 : identification.hashCode());
-        result = prime * result + major;
-        result = prime * result + minor;
-        result = prime * result + ((mountPoint == null) ? 0 : mountPoint.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + (int) (size ^ (size >>> 32));
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+        result = prime * result + (this.identification == null ? 0 : this.identification.hashCode());
+        result = prime * result + this.major;
+        result = prime * result + this.minor;
+        result = prime * result + (this.mountPoint == null ? 0 : this.mountPoint.hashCode());
+        result = prime * result + (this.name == null ? 0 : this.name.hashCode());
+        result = prime * result + (int) (this.size ^ this.size >>> 32);
+        result = prime * result + (this.type == null ? 0 : this.type.hashCode());
+        result = prime * result + (this.uuid == null ? 0 : this.uuid.hashCode());
         return result;
     }
 
@@ -236,48 +236,48 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
             return false;
         }
         HWPartition other = (HWPartition) obj;
-        if (identification == null) {
+        if (this.identification == null) {
             if (other.identification != null) {
                 return false;
             }
-        } else if (!identification.equals(other.identification)) {
+        } else if (!this.identification.equals(other.identification)) {
             return false;
         }
-        if (major != other.major) {
+        if (this.major != other.major) {
             return false;
         }
-        if (minor != other.minor) {
+        if (this.minor != other.minor) {
             return false;
         }
-        if (mountPoint == null) {
+        if (this.mountPoint == null) {
             if (other.mountPoint != null) {
                 return false;
             }
-        } else if (!mountPoint.equals(other.mountPoint)) {
+        } else if (!this.mountPoint.equals(other.mountPoint)) {
             return false;
         }
-        if (name == null) {
+        if (this.name == null) {
             if (other.name != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!this.name.equals(other.name)) {
             return false;
         }
-        if (size != other.size) {
+        if (this.size != other.size) {
             return false;
         }
-        if (type == null) {
+        if (this.type == null) {
             if (other.type != null) {
                 return false;
             }
-        } else if (!type.equals(other.type)) {
+        } else if (!this.type.equals(other.type)) {
             return false;
         }
-        if (uuid == null) {
+        if (this.uuid == null) {
             if (other.uuid != null) {
                 return false;
             }
-        } else if (!uuid.equals(other.uuid)) {
+        } else if (!this.uuid.equals(other.uuid)) {
             return false;
         }
         return true;

@@ -36,7 +36,7 @@ import oshi.util.Util;
 
 /**
  * Provides access to kstat information on Solaris
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class KstatUtil {
@@ -59,7 +59,7 @@ public class KstatUtil {
      * This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
-     * 
+     *
      * @param ksp
      *            The kstat to search
      * @param name
@@ -102,7 +102,7 @@ public class KstatUtil {
      * This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
-     * 
+     *
      * @param ksp
      *            The kstat to search
      * @param name
@@ -144,7 +144,7 @@ public class KstatUtil {
      * set to the number of data fields, ksp.ks_data_size is set to the total
      * size of the data, and ksp.ks_snaptime is set to the high-resolution time
      * at which the data snapshot was taken.
-     * 
+     *
      * @param ksp
      *            The kstat from which to retrieve data
      * @return True if successful; false otherwise
@@ -168,7 +168,7 @@ public class KstatUtil {
      * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
      * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
      * in the search.
-     * 
+     *
      * @param module
      *            The module, or null to ignore
      * @param instance
@@ -194,7 +194,7 @@ public class KstatUtil {
      * ks_name fields; this triplet uniquely identifies a kstat. If ks_module is
      * NULL, ks_instance is -1, or ks_name is NULL, then those fields will be
      * ignored in the search.
-     * 
+     *
      * @param module
      *            The module, or null to ignore
      * @param instance

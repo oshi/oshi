@@ -45,7 +45,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
     /**
      * Creates a new platform-specific GlobalMemory object wrapping the provided
      * argument
-     * 
+     *
      * @param memory
      *            a platform-specific GlobalMemory object
      */
@@ -90,7 +90,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.memory.available")) {
             json.add("available", getAvailable());
         }

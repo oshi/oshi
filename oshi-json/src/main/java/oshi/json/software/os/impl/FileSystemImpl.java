@@ -47,7 +47,7 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
     /**
      * Creates a new platform-specific FileSystem object wrapping the provided
      * argument
-     * 
+     *
      * @param fileSystem
      *            a platform-specific FileSystem object
      */
@@ -91,9 +91,9 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores")) {
-            JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder fileStoreArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (OSFileStore fileStore : getFileStores()) {
                 fileStoreArrayBuilder.add(fileStore.toJSON(properties));
             }

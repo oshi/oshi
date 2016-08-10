@@ -49,7 +49,7 @@ import oshi.util.platform.mac.SysctlUtil;
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Mac OS X, these are found in the /Volumes
  * directory.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacFileSystem extends AbstractFileSystem {
@@ -63,11 +63,12 @@ public class MacFileSystem extends AbstractFileSystem {
 
     /**
      * Gets File System Information.
-     * 
+     *
      * @return An array of {@link OSFileStore} objects representing mounted
      *         volumes. May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
+    @Override
     public OSFileStore[] getFileStores() {
         // Open a DiskArbitration session to get VolumeName of file systems with
         // bsd names
@@ -87,7 +88,7 @@ public class MacFileSystem extends AbstractFileSystem {
             // Create array to hold results
             Statfs[] fs = new Statfs[numfs];
             // Fill array with results
-            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * (new Statfs()).size(), SystemB.MNT_NOWAIT);
+            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
             for (int f = 0; f < numfs; f++) {
                 // Mount on name will match mounted path, e.g. /Volumes/foo
                 // Mount to name will match canonical path., e.g., /dev/disk0s2

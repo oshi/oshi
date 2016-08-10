@@ -45,7 +45,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
     /**
      * Creates a new platform-specific OSProcessor object wrapping the provided
      * argument
-     * 
+     *
      * @param osProcess
      *            a platform-specific OSProcessor object
      */
@@ -162,7 +162,7 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.name")) {
             json.add("name", getName());
         }

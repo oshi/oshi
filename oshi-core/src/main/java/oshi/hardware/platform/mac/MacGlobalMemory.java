@@ -21,11 +21,11 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.SystemB.VMStatistics; // NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
-import com.sun.jna.ptr.LongByReference; // NOSONAR squid:S1191
+import com.sun.jna.Native;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.VMStatistics;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.mac.SystemB.XswUsage;
@@ -33,7 +33,7 @@ import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacGlobalMemory extends AbstractGlobalMemory {
@@ -70,14 +70,14 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateMeminfo() {
         long now = System.currentTimeMillis();
-        if (now - lastUpdateAvail > 100) {
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+        if (now - this.lastUpdateAvail > 100) {
+            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,
+                    this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {
                 LOG.error("Failed to get host VM info. Error code: " + Native.getLastError());
                 return;
             }
-            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;
-            lastUpdateAvail = now;
+            this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;
+            this.lastUpdateAvail = now;
         }
     }
 
@@ -87,13 +87,13 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
         long now = System.currentTimeMillis();
-        if (now - lastUpdateSwap > 100) {
-            if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+        if (now - this.lastUpdateSwap > 100) {
+            if (!SysctlUtil.sysctl("vm.swapusage", this.xswUsage)) {
                 return;
             }
-            this.swapUsed = xswUsage.xsu_used;
-            this.swapTotal = xswUsage.xsu_total;
-            lastUpdateSwap = now;
+            this.swapUsed = this.xswUsage.xsu_used;
+            this.swapTotal = this.xswUsage.xsu_total;
+            this.lastUpdateSwap = now;
         }
     }
 }

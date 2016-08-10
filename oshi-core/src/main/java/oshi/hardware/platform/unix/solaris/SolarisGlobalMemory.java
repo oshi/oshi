@@ -65,7 +65,7 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         Matcher m = SWAPINFO.matcher(swapInfo);
         if (m.matches()) {
             this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-            this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
         }
     }
 }

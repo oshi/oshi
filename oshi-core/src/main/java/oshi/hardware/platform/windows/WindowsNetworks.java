@@ -21,7 +21,7 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.WinDef.ULONG; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinDef.ULONG;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
@@ -40,7 +40,7 @@ public class WindowsNetworks extends AbstractNetworks {
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */

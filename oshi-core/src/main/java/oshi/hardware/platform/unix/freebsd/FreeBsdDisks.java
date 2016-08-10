@@ -79,8 +79,8 @@ public class FreeBsdDisks implements Disks {
             }
             HWDiskStore store = new HWDiskStore();
             store.setName(split[0]);
-            store.setReads((long) (ParseUtil.parseDoubleOrDefault(split[1], 0d)));
-            store.setWrites((long) (ParseUtil.parseDoubleOrDefault(split[2], 0d)));
+            store.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
+            store.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
             // In KB
             store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
             store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));

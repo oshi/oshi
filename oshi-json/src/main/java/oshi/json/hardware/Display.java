@@ -23,13 +23,13 @@ import oshi.json.json.OshiJsonObject;
 /**
  * Display refers to the information regarding a video source and monitor
  * identified by the EDID standard.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface Display extends OshiJsonObject {
     /**
      * The EDID byte array.
-     * 
+     *
      * @return The original unparsed EDID byte array.
      */
     byte[] getEdid();

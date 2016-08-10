@@ -82,16 +82,15 @@ public class LinuxDisks implements Disks {
                     store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
                     // Avoid model and serial in virtual environments
-                    store.setModel((Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null)
-                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                    store.setSerial((Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null)
-                            ? "Unknown"
-                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                    store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null
+                            ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
                     store.setSize(ParseUtil.parseLongOrDefault(
                             Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
                     store.setPartitions(new HWPartition[0]);
-                    this.computeDiskStats(store, device);
+                    computeDiskStats(store, device);
                     result.add(store);
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
@@ -111,7 +110,7 @@ public class LinuxDisks implements Disks {
                                     0),
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
-                            mountsMap.getOrDefault(name, ""));
+                            this.mountsMap.getOrDefault(name, ""));
                     store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
@@ -130,14 +129,14 @@ public class LinuxDisks implements Disks {
     }
 
     private void updateMountsMap() {
-        mountsMap.clear();
+        this.mountsMap.clear();
         List<String> mounts = FileUtil.readFile("/proc/self/mounts");
         for (String mount : mounts) {
             String[] split = mount.split("\\s+");
             if (split.length < 2 || !split[0].startsWith("/dev/")) {
                 continue;
             }
-            mountsMap.put(split[0], split[1]);
+            this.mountsMap.put(split[0], split[1]);
         }
     }
 

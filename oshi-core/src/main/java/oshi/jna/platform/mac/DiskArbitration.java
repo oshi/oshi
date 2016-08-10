@@ -29,7 +29,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
  * DiskArbitration framework for disk stats. This class should be considered
  * non-API as it may be removed if/when its code is incorporated into the JNA
  * project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface DiskArbitration extends Library {
@@ -45,7 +45,7 @@ public interface DiskArbitration extends Library {
      * Creates a new session. The caller of this function receives a reference
      * to the returned object. The caller also implicitly retains the object and
      * is responsible for releasing it with CFRelease().
-     * 
+     *
      * @param allocator
      *            The allocator object to be used to allocate memory.
      * @return A reference to a new DASession.
@@ -56,7 +56,7 @@ public interface DiskArbitration extends Library {
      * Creates a new disk object. The caller of this function receives a
      * reference to the returned object. The caller also implicitly retains the
      * object and is responsible for releasing it with CFRelease().
-     * 
+     *
      * @param allocator
      *            The allocator object to be used to allocate memory.
      * @param session
@@ -73,11 +73,11 @@ public interface DiskArbitration extends Library {
      * of the specified disk, unless this function is called on a disk object
      * passed within the context of a registered callback, in which case the
      * description is current as of that callback event.
-     * 
+     *
      * The caller of this function receives a reference to the returned object.
      * The caller also implicitly retains the object and is responsible for
      * releasing it with CFRelease().
-     * 
+     *
      * @param disk
      *            The DADisk for which to obtain the Disk Arbitration
      *            description.

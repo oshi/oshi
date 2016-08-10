@@ -24,7 +24,7 @@ import java.io.Serializable;
  * The Central Processing Unit (CPU) or the processor is the portion of a
  * computer system that carries out the instructions of a computer program, and
  * is the primary element carrying out the computer's functions.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public interface CentralProcessor extends Serializable {
@@ -86,14 +86,14 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Processor vendor.
-     * 
+     *
      * @return vendor string.
      */
     String getVendor();
 
     /**
      * Set processor vendor.
-     * 
+     *
      * @param vendor
      *            Vendor.
      */
@@ -101,14 +101,14 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
-     * 
+     *
      * @return Processor name.
      */
     String getName();
 
     /**
      * Set processor name.
-     * 
+     *
      * @param name
      *            Name.
      */
@@ -117,14 +117,14 @@ public interface CentralProcessor extends Serializable {
     /**
      * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
      * CPU T7300 @ 2.00GHz the vendor frequency is 2000000000.
-     * 
+     *
      * @return Processor frequency or -1 if unknown.
      */
     long getVendorFreq();
 
     /**
      * Set processor vendor frequency (in Hz).
-     * 
+     *
      * @param freq
      *            Frequency.
      */
@@ -132,14 +132,14 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
-     * 
+     *
      * @return Processor identifier.
      */
     String getIdentifier();
 
     /**
      * Set processor identifier.
-     * 
+     *
      * @param identifier
      *            Identifier.
      */
@@ -147,14 +147,14 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Is CPU 64bit?
-     * 
+     *
      * @return True if cpu is 64bit.
      */
     boolean isCpu64bit();
 
     /**
      * Set flag is cpu is 64bit.
-     * 
+     *
      * @param cpu64
      *            True if cpu is 64.
      */
@@ -203,7 +203,7 @@ public interface CentralProcessor extends Serializable {
      * load for the interval and update the "last called" times. This method is
      * intended to be used for periodic polling at intervals of 1 second or
      * longer.
-     * 
+     *
      * @return CPU load between 0 and 1 (100%)
      */
     double getSystemCpuLoadBetweenTicks();
@@ -216,16 +216,16 @@ public interface CentralProcessor extends Serializable {
      * states. Use {@link TickType#getIndex()} to retrieve the appropriate
      * index. By measuring the difference between ticks across a time interval,
      * CPU load over that interval may be calculated.
-     * 
+     *
      * Nice information is not available on Windows, and IOwait and IRQ
      * information is not available on macOS, so these ticks will always be
      * zero.
-     * 
+     *
      * To calculate overall Idle time using this method, include both Idle and
      * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
      * System value to get the total. System ticks also include time executing
      * other virtual hosts (steal).
-     * 
+     *
      * @return An array of 7 long values representing time spent in User, Nice,
      *         System, Idle, IOwait, IRQ, and SoftIRQ states.
      */
@@ -245,7 +245,7 @@ public interface CentralProcessor extends Serializable {
      * unreliable results. If a user is not running the Oracle JVM, this method
      * will default to the behavior and return value of
      * {@link #getSystemCpuLoadBetweenTicks()}.
-     * 
+     *
      * @return the "recent cpu usage" for the whole system; a negative value if
      *         not available.
      */
@@ -257,7 +257,7 @@ public interface CentralProcessor extends Serializable {
      * to calling {@link CentralProcessor#getSystemLoadAverage(int)} with an
      * argument of 1 and returning the first value, and is retained for
      * compatibility.
-     * 
+     *
      * @return the system load average; or a negative value if not available.
      */
     double getSystemLoadAverage();
@@ -274,7 +274,7 @@ public interface CentralProcessor extends Serializable {
      * system load and may be queried frequently. The load average may be
      * unavailable on some platforms (e.g., Windows) where it is expensive to
      * implement this method.
-     * 
+     *
      * @param nelem
      *            Number of elements to return.
      * @return an array of the system load averages for 1, 5, and 15 minutes
@@ -294,7 +294,7 @@ public interface CentralProcessor extends Serializable {
      * "last called" times. This method is intended to be used for periodic
      * polling (iterating over all processors) at intervals of 1 second or
      * longer.
-     * 
+     *
      * @return array of CPU load between 0 and 1 (100%) for each logical
      *         processor
      */
@@ -309,21 +309,21 @@ public interface CentralProcessor extends Serializable {
      * states. Use {@link TickType#getIndex()} to retrieve the appropriate
      * index. By measuring the difference between ticks across a time interval,
      * CPU load over that interval may be calculated.
-     * 
+     *
      * Nice and IOwait per processor information is not available on Windows,
      * and IOwait and IRQ information is not available on macOS, so these ticks
      * will always be zero.
-     * 
+     *
      * To calculate overall Idle time using this method, include both Idle and
      * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
      * System value to get the total. System ticks also include time executing
      * other virtual hosts (steal).
-     * 
+     *
      * Note that the System IOwait reported by {@link #getSystemCpuLoadTicks()}
      * will be included in the per-processor Idle time rather than attributed to
      * any logical processor's IOwait counter (i.e., the sum of per-processor
      * Idle time will equal the System Idle + IOwait time.)
-     * 
+     *
      * @return A 2D array of logicalProcessorCount x 7 long values representing
      *         time spent in User, Nice, System, Idle, IOwait, IRQ, and SoftIRQ
      *         states.
@@ -332,19 +332,19 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Get the System uptime (time since boot).
-     * 
+     *
      * @return Number of seconds since boot.
      */
     long getSystemUptime();
 
     /**
      * Get the System/CPU Serial Number, if available.
-     * 
+     *
      * On Linux and FreeBSD, this requires either root permissions, installation
      * of the (deprecated) HAL library (lshal command). Linux also attempts to
      * read the dmi/id serial number files in sysfs, which are read-only root by
      * default but may have permissions altered by the user.
-     * 
+     *
      * @return the System/CPU Serial Number, if available, otherwise returns
      *         "unknown"
      */
@@ -352,14 +352,14 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Get the number of logical CPUs available for processing.
-     * 
+     *
      * @return The number of logical CPUs available.
      */
     int getLogicalProcessorCount();
 
     /**
      * Get the number of physical CPUs/cores available for processing.
-     * 
+     *
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();

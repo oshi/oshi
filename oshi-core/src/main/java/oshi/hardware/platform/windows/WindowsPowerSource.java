@@ -21,7 +21,7 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong; //NOSONAR squid:S1191
+import com.sun.jna.NativeLong;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
@@ -31,7 +31,7 @@ import oshi.util.FormatUtil;
 
 /**
  * A Power Source
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource extends AbstractPowerSource {
@@ -47,7 +47,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
 
     /**
      * Gets Battery Information.
-     * 
+     *
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {

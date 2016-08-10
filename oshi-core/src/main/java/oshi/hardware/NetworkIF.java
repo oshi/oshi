@@ -70,7 +70,7 @@ public class NetworkIF implements Serializable {
     /**
      * Sets the network interface and calculates other information derived from
      * it
-     * 
+     *
      * @param networkInterface
      *            The network interface to set
      */
@@ -114,7 +114,7 @@ public class NetworkIF implements Serializable {
      * @return The interface name.
      */
     public String getName() {
-        return networkInterface.getName();
+        return this.networkInterface.getName();
     }
 
     /**
@@ -122,7 +122,7 @@ public class NetworkIF implements Serializable {
      *         is identical to the name.
      */
     public String getDisplayName() {
-        return networkInterface.getDisplayName();
+        return this.networkInterface.getDisplayName();
     }
 
     /**
@@ -132,7 +132,7 @@ public class NetworkIF implements Serializable {
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-        return mtu;
+        return this.mtu;
     }
 
     /**
@@ -141,7 +141,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-        return mac;
+        return this.mac;
     }
 
     /**
@@ -150,7 +150,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-        return Arrays.copyOf(this.ipv4, ipv4.length);
+        return Arrays.copyOf(this.ipv4, this.ipv4.length);
     }
 
     /**
@@ -159,7 +159,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-        return Arrays.copyOf(this.ipv6, ipv6.length);
+        return Arrays.copyOf(this.ipv6, this.ipv6.length);
     }
 
     /**
@@ -168,7 +168,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
-        return bytesRecv;
+        return this.bytesRecv;
     }
 
     /**
@@ -185,7 +185,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
-        return bytesSent;
+        return this.bytesSent;
     }
 
     /**
@@ -203,7 +203,7 @@ public class NetworkIF implements Serializable {
      *         method
      */
     public long getPacketsRecv() {
-        return packetsRecv;
+        return this.packetsRecv;
     }
 
     /**
@@ -220,7 +220,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
-        return packetsSent;
+        return this.packetsSent;
     }
 
     /**
@@ -238,7 +238,7 @@ public class NetworkIF implements Serializable {
      *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
-        return speed;
+        return this.speed;
     }
 
     /**
@@ -253,7 +253,7 @@ public class NetworkIF implements Serializable {
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-        return timeStamp;
+        return this.timeStamp;
     }
 
     /**

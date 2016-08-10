@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * EDID parsing utility.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class EdidUtil {
@@ -38,7 +38,7 @@ public class EdidUtil {
 
     /**
      * Converts a byte array to a hexadecimal string
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return A string representation of the byte array
@@ -49,7 +49,7 @@ public class EdidUtil {
 
     /**
      * Gets the Manufacturer ID from (up to) 3 5-bit characters in bytes 8 and 9
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return The manufacturer ID
@@ -67,7 +67,7 @@ public class EdidUtil {
 
     /**
      * Gets the Product ID, bytes 10 and 11
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return The product ID
@@ -80,7 +80,7 @@ public class EdidUtil {
 
     /**
      * Gets the Serial number, bytes 12-15
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return If all 4 bytes represent alphanumeric characters, a 4-character
@@ -99,7 +99,7 @@ public class EdidUtil {
 
     /**
      * Return the week of year of manufacture
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return The week of year
@@ -111,7 +111,7 @@ public class EdidUtil {
 
     /**
      * Return the year of manufacture
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return The year of manufacture
@@ -125,7 +125,7 @@ public class EdidUtil {
 
     /**
      * Return the EDID version
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return The EDID version
@@ -137,7 +137,7 @@ public class EdidUtil {
 
     /**
      * Test if this EDID is a digital monitor based on byte 20
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return True if the EDID represents a digital monitor, false otherwise
@@ -149,7 +149,7 @@ public class EdidUtil {
 
     /**
      * Get monitor width in cm
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return Monitor width in cm
@@ -161,7 +161,7 @@ public class EdidUtil {
 
     /**
      * Get monitor height in cm
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return Monitor height in cm
@@ -173,7 +173,7 @@ public class EdidUtil {
 
     /**
      * Get the VESA descriptors
-     * 
+     *
      * @param edid
      *            The EDID byte array
      * @return A 2D array with four 18-byte elements representing VESA
@@ -189,7 +189,7 @@ public class EdidUtil {
 
     /**
      * Get the VESA descriptor type
-     * 
+     *
      * @param desc
      *            An 18-byte VESA descriptor
      * @return An integer representing the first four bytes of the VESA
@@ -201,7 +201,7 @@ public class EdidUtil {
 
     /**
      * Parse a detailed timing descriptor
-     * 
+     *
      * @param desc
      *            An 18-byte VESA descriptor
      * @return A string describing part of the detailed timing descriptor
@@ -215,7 +215,7 @@ public class EdidUtil {
 
     /**
      * Parse descriptor range limits
-     * 
+     *
      * @param desc
      *            An 18-byte VESA descriptor
      * @return A string describing some of the range limits
@@ -227,7 +227,7 @@ public class EdidUtil {
 
     /**
      * Parse descriptor text
-     * 
+     *
      * @param desc
      *            An 18-byte VESA descriptor
      * @return Plain text starting at the 4th byte
@@ -238,7 +238,7 @@ public class EdidUtil {
 
     /**
      * Parse descriptor hex
-     * 
+     *
      * @param desc
      *            An 18-byte VESA descriptor
      * @return A string showing the 18 bytes as hexadecimals
@@ -249,7 +249,7 @@ public class EdidUtil {
 
     /**
      * Parse an EDID byte array into user-readable information
-     * 
+     *
      * @param edid
      *            An EDID byte array
      * @return User-readable text represented by the EDID
@@ -260,37 +260,37 @@ public class EdidUtil {
                 .append(EdidUtil.getProductID(edid)).append(", ")
                 .append(EdidUtil.isDigital(edid) ? "Digital" : "Analog").append(", Serial=")
                 .append(EdidUtil.getSerialNo(edid)).append(", ManufDate=")
-                .append((EdidUtil.getWeek(edid) * 12 / 52 + 1) + "/").append(EdidUtil.getYear(edid)).append(", EDID v")
+                .append(EdidUtil.getWeek(edid) * 12 / 52 + 1 + "/").append(EdidUtil.getYear(edid)).append(", EDID v")
                 .append(EdidUtil.getVersion(edid));
         int hSize = EdidUtil.getHcm(edid);
         int vSize = EdidUtil.getVcm(edid);
         sb.append(String.format("%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
         byte[][] desc = EdidUtil.getDescriptors(edid);
-        for (int d = 0; d < desc.length; d++) {
-            switch (EdidUtil.getDescriptorType(desc[d])) {
+        for (byte[] b : desc) {
+            switch (EdidUtil.getDescriptorType(b)) {
             case 0xff:
-                sb.append("\n  Serial Number: ").append(EdidUtil.getDescriptorText(desc[d]));
+                sb.append("\n  Serial Number: ").append(EdidUtil.getDescriptorText(b));
                 break;
             case 0xfe:
-                sb.append("\n  Unspecified Text: ").append(EdidUtil.getDescriptorText(desc[d]));
+                sb.append("\n  Unspecified Text: ").append(EdidUtil.getDescriptorText(b));
                 break;
             case 0xfd:
-                sb.append("\n  Range Limits: ").append(EdidUtil.getDescriptorRangeLimits(desc[d]));
+                sb.append("\n  Range Limits: ").append(EdidUtil.getDescriptorRangeLimits(b));
                 break;
             case 0xfc:
-                sb.append("\n  Monitor Name: ").append(EdidUtil.getDescriptorText(desc[d]));
+                sb.append("\n  Monitor Name: ").append(EdidUtil.getDescriptorText(b));
                 break;
             case 0xfb:
-                sb.append("\n  White Point Data: ").append(EdidUtil.getDescriptorHex(desc[d]));
+                sb.append("\n  White Point Data: ").append(EdidUtil.getDescriptorHex(b));
                 break;
             case 0xfa:
-                sb.append("\n  Standard Timing ID: ").append(EdidUtil.getDescriptorHex(desc[d]));
+                sb.append("\n  Standard Timing ID: ").append(EdidUtil.getDescriptorHex(b));
                 break;
             default:
-                if (EdidUtil.getDescriptorType(desc[d]) <= 0x0f && EdidUtil.getDescriptorType(desc[d]) >= 0x00) {
-                    sb.append("\n  Manufacturer Data: ").append(EdidUtil.getDescriptorHex(desc[d]));
+                if (EdidUtil.getDescriptorType(b) <= 0x0f && EdidUtil.getDescriptorType(b) >= 0x00) {
+                    sb.append("\n  Manufacturer Data: ").append(EdidUtil.getDescriptorHex(b));
                 } else {
-                    sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(desc[d]));
+                    sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(b));
                 }
                 break;
             }

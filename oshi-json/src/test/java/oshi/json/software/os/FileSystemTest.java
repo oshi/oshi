@@ -46,33 +46,33 @@ public class FileSystemTest {
         assertTrue(filesystem.getOpenFileDescriptors() >= 0L);
         assertTrue(filesystem.getMaxFileDescriptors() >= 0L);
         OSFileStore[] fs = filesystem.getFileStores();
-        for (int f = 0; f < fs.length; f++) {
-            assertNotNull(fs[f].getName());
-            assertNotNull(fs[f].getVolume());
-            assertNotNull(fs[f].getDescription());
-            assertNotNull(fs[f].getType());
-            assertNotNull(fs[f].getMount());
-            assertNotNull(fs[f].getUUID());
-            assertTrue(fs[f].getTotalSpace() >= 0);
-            assertTrue(fs[f].getUsableSpace() <= fs[f].getTotalSpace());
+        for (OSFileStore store : fs) {
+            assertNotNull(store.getName());
+            assertNotNull(store.getVolume());
+            assertNotNull(store.getDescription());
+            assertNotNull(store.getType());
+            assertNotNull(store.getMount());
+            assertNotNull(store.getUUID());
+            assertTrue(store.getTotalSpace() >= 0);
+            assertTrue(store.getUsableSpace() <= store.getTotalSpace());
 
-            fs[f].setName("name");
-            fs[f].setVolume("volume");
-            fs[f].setDescription("desc");
-            fs[f].setType("type");
-            fs[f].setMount("mount");
-            fs[f].setUUID("uuid");
-            fs[f].setTotalSpace(12345L);
-            fs[f].setUsableSpace(1234L);
+            store.setName("name");
+            store.setVolume("volume");
+            store.setDescription("desc");
+            store.setType("type");
+            store.setMount("mount");
+            store.setUUID("uuid");
+            store.setTotalSpace(12345L);
+            store.setUsableSpace(1234L);
 
-            assertEquals("name", fs[f].getName());
-            assertEquals("volume", fs[f].getVolume());
-            assertEquals("desc", fs[f].getDescription());
-            assertEquals("type", fs[f].getType());
-            assertEquals("mount", fs[f].getMount());
-            assertEquals("uuid", fs[f].getUUID());
-            assertEquals(12345L, fs[f].getTotalSpace());
-            assertEquals(1234L, fs[f].getUsableSpace());
+            assertEquals("name", store.getName());
+            assertEquals("volume", store.getVolume());
+            assertEquals("desc", store.getDescription());
+            assertEquals("type", store.getType());
+            assertEquals("mount", store.getMount());
+            assertEquals("uuid", store.getUUID());
+            assertEquals(12345L, store.getTotalSpace());
+            assertEquals(1234L, store.getUsableSpace());
         }
     }
 }

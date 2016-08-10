@@ -52,13 +52,13 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
     /**
      * Creates a new platform-specific OperatingSystem object wrapping the
      * provided argument
-     * 
+     *
      * @param operatingSystem
      *            a platform-specific OperatingSystem object
      */
     public OperatingSystemImpl(oshi.software.os.OperatingSystem operatingSystem) {
         this.os = operatingSystem;
-        this.version = new OperatingSystemVersionImpl(os.getVersion());
+        this.version = new OperatingSystemVersionImpl(this.os.getVersion());
     }
 
     /**
@@ -143,7 +143,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.manufacturer")) {
             json.add("manufacturer", getManufacturer());
         }
@@ -166,7 +166,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
             json.add("threadCount", getThreadCount());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes")) {
-            JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (OSProcess proc : getProcesses(
                     PropertiesUtil.getIntOrDefault(properties, "operatingSystem.processes.limit", 0),
                     PropertiesUtil.getEnum(properties, "operatingSystem.processes.sort", ProcessSort.class))) {

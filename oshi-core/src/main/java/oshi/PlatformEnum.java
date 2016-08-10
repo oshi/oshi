@@ -20,7 +20,7 @@ package oshi;
 
 /**
  * Enum of supported operating systems.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  */
 public enum PlatformEnum {

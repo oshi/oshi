@@ -26,7 +26,7 @@ import oshi.software.os.OSProcess;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisProcess extends AbstractProcess {
@@ -69,6 +69,6 @@ public class SolarisProcess extends AbstractProcess {
         this.userTime = processTime;
         // Avoid divide by zero for processes up less than a second
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.startTime = now - upTime;
+        this.startTime = now - this.upTime;
     }
 }

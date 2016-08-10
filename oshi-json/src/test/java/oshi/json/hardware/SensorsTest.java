@@ -37,8 +37,8 @@ public class SensorsTest {
         Sensors s = si.getHardware().getSensors();
         assertTrue(s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
         int[] speeds = s.getFanSpeeds();
-        for (int fan = 0; fan < speeds.length; fan++) {
-            assertTrue(speeds[fan] >= 0);
+        for (int speed : speeds) {
+            assertTrue(speed >= 0);
         }
         assertTrue(s.getCpuVoltage() >= 0);
     }

@@ -30,7 +30,7 @@ import com.sun.jna.ptr.IntByReference;
 /**
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface LibC extends Library {
@@ -175,7 +175,7 @@ public interface LibC extends Library {
      * retrieved and assigned to successive elements of loadavg[]. The system
      * imposes a maximum of 3 samples, representing averages over the last 1, 5,
      * and 15 minutes, respectively.
-     * 
+     *
      * @param loadavg
      *            An array of doubles which will be filled with the results
      * @param nelem

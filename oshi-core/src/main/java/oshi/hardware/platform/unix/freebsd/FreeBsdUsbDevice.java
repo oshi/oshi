@@ -155,7 +155,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates SolarisUsbDevices by fetching information from maps
      * to populate fields
-     * 
+     *
      * @param devPath
      *            The device node path.
      * @param vid

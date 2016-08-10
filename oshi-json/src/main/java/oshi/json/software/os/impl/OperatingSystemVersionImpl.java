@@ -45,7 +45,7 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
     /**
      * Creates a new platform-specific OperatingSystemVersion object wrapping
      * the provided argument
-     * 
+     *
      * @param version
      *            a platform-specific OperatingSystemVersion object
      */
@@ -106,7 +106,7 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.version.version")) {
             json.add("version", getVersion());
         }

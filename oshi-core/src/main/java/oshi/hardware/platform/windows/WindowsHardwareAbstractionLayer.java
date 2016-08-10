@@ -49,7 +49,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
-            processor = new WindowsCentralProcessor();
+            this.processor = new WindowsCentralProcessor();
         }
         return this.processor;
     }

@@ -72,10 +72,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
             switch (splitLine[0]) {
             case "vendor_id":
-                this.setVendor(splitLine[1]);
+                setVendor(splitLine[1]);
                 break;
             case "model name":
-                this.setName(splitLine[1]);
+                setName(splitLine[1]);
                 break;
             case "flags":
                 String[] flags = splitLine[1].toUpperCase().split(" ");
@@ -86,16 +86,16 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                         break;
                     }
                 }
-                this.setCpu64(found);
+                setCpu64(found);
                 break;
             case "stepping":
-                this.setStepping(splitLine[1]);
+                setStepping(splitLine[1]);
                 break;
             case "model":
-                this.setModel(splitLine[1]);
+                setModel(splitLine[1]);
                 break;
             case "cpu family":
-                this.setFamily(splitLine[1]);
+                setFamily(splitLine[1]);
                 break;
             default:
                 // Do nothing
@@ -106,6 +106,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
+    @Override
     protected void calculateProcessorCounts() {
         List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
         // Get number of logical processors
@@ -227,7 +228,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
+        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
@@ -256,7 +257,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                     // Ignore guest or guest_nice, they are included in
                     // user/nice
                 }
-                if (++cpu >= logicalProcessorCount) {
+                if (++cpu >= this.logicalProcessorCount) {
                     break;
                 }
             }

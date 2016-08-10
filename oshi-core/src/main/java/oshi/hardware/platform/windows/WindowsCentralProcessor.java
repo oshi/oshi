@@ -24,14 +24,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinBase; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinReg; // NOSONAR squid:S1191
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
+import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
@@ -41,7 +41,7 @@ import oshi.util.platform.windows.WmiUtil;
 
 /**
  * A CPU as defined in Windows registry.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
@@ -73,26 +73,27 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
         if (processorIds.length > 0) {
             String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
-            this.setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+            setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                     "VendorIdentifier"));
-            this.setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+            setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                     "ProcessorNameString"));
-            this.setIdentifier(
+            setIdentifier(
                     Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
         }
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
         if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
                 || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
-            this.setCpu64(true);
+            setCpu64(true);
         } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
-            this.setCpu64(false);
+            setCpu64(false);
         }
     }
 
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
+    @Override
     protected void calculateProcessorCounts() {
         // Get number of logical processors
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();

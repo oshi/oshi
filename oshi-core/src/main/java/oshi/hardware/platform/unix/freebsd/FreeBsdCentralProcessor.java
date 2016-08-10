@@ -26,10 +26,10 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.LibC;
@@ -69,28 +69,28 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     private void initVars() {
-        this.setName(BsdSysctlUtil.sysctl("hw.model", ""));
+        setName(BsdSysctlUtil.sysctl("hw.model", ""));
         // This is apparently the only reliable source for this stuff on
         // FreeBSD...
         List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot");
         for (String line : cpuInfo) {
             line = line.trim();
             // Prefer hw.model to this one
-            if (line.startsWith("CPU:") && this.getName().isEmpty()) {
-                this.setName(line.replace("CPU:", "").trim());
+            if (line.startsWith("CPU:") && getName().isEmpty()) {
+                setName(line.replace("CPU:", "").trim());
             } else if (line.startsWith("Origin=")) {
                 Matcher m = CPUINFO.matcher(line);
                 if (m.matches()) {
-                    this.setVendor(m.group(1));
-                    this.setFamily(Integer.decode(m.group(2)).toString());
-                    this.setModel(Integer.decode(m.group(3)).toString());
-                    this.setStepping(Integer.decode(m.group(4)).toString());
+                    setVendor(m.group(1));
+                    setFamily(Integer.decode(m.group(2)).toString());
+                    setModel(Integer.decode(m.group(3)).toString());
+                    setStepping(Integer.decode(m.group(4)).toString());
                 }
                 // No further interest in this file
                 break;
             }
         }
-        this.setCpu64(ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64"));
+        setCpu64(ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64"));
     }
 
     /**
@@ -171,7 +171,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
+        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         // Allocate memory for array of CPTime
         int offset = new CpTime().size();

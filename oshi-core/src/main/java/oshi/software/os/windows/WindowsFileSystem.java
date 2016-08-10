@@ -88,7 +88,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     /**
      * Private method for getting all mounted local drives.
-     * 
+     *
      * @return A list of {@link OSFileStore} objects representing all local
      *         mounted volumes
      */

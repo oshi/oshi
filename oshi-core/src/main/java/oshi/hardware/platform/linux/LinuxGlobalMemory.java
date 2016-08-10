@@ -52,10 +52,11 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      * calculation changes: see
      * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
      * id=34e431b0ae398fc54ea69ff85ec700722c9da773
-     * 
+     *
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
+    @Override
     protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
@@ -119,7 +120,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     /**
      * Parses lines from the display of /proc/meminfo
-     * 
+     *
      * @param memorySplit
      *            Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified

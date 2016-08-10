@@ -124,7 +124,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Attempts to read /etc/os-release
-     * 
+     *
      * @return true if file successfully read and NAME= found
      */
     private boolean readOsRelease() {
@@ -162,7 +162,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Attempts to execute `lsb_release -a`
-     * 
+     *
      * @return true if the command successfully executed and Release: or
      *         Description: found
      */
@@ -191,7 +191,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Attempts to read /etc/lsb-release
-     * 
+     *
      * @return true if file successfully read and DISTRIB_RELEASE or
      *         DISTRIB_DESCRIPTION found
      */
@@ -220,7 +220,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
-     * 
+     *
      * @return true if file successfully read and " release " or " VERSION "
      *         found
      */
@@ -246,7 +246,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Helper method to parse version description line style
-     * 
+     *
      * @param line
      *            a String of the form "Distributor release x.x (Codename)"
      * @param splitLine

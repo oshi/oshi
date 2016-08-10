@@ -29,9 +29,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
-import com.sun.jna.ptr.PointerByReference; //NOSONAR squid:S1191
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;

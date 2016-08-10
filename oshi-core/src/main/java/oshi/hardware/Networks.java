@@ -30,7 +30,7 @@ public interface Networks extends Serializable {
 
     /**
      * Get network interfaces on this machine
-     * 
+     *
      * @return Array of {@link NetworkIF} objects
      */
     NetworkIF[] getNetworks();

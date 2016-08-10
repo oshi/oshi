@@ -26,10 +26,10 @@ public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private static final long serialVersionUID = 1L;
 
     public FreeBsdOSVersionInfoEx() {
-        this.setVersion(BsdSysctlUtil.sysctl("kern.osrelease", ""));
+        setVersion(BsdSysctlUtil.sysctl("kern.osrelease", ""));
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
         String osType = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
-        this.setBuildNumber(versionInfo.split(":")[0].replace(osType, "").replace(this.getVersion(), "").trim());
-        this.setCodeName("");
+        setBuildNumber(versionInfo.split(":")[0].replace(osType, "").replace(getVersion(), "").trim());
+        setCodeName("");
     }
 }

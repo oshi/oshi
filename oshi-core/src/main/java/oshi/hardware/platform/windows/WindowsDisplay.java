@@ -24,22 +24,22 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.Guid; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.SetupApi; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinError; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinReg.HKEY; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Guid;
+import com.sun.jna.platform.win32.SetupApi;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinReg.HKEY;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 
 /**
  * A Display
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsDisplay extends AbstractDisplay {
@@ -55,7 +55,7 @@ public class WindowsDisplay extends AbstractDisplay {
 
     /**
      * Gets Display Information
-     * 
+     *
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {

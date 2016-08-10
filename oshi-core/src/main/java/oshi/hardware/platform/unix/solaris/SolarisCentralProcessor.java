@@ -64,13 +64,13 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         Kstat ksp = KstatUtil.kstatLookup("cpu_info", -1, null);
         // Set values
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            this.setVendor(KstatUtil.kstatDataLookupString(ksp, "vendor_id"));
-            this.setName(KstatUtil.kstatDataLookupString(ksp, "brand"));
-            this.setStepping(KstatUtil.kstatDataLookupString(ksp, "stepping"));
-            this.setModel(KstatUtil.kstatDataLookupString(ksp, "model"));
-            this.setFamily(KstatUtil.kstatDataLookupString(ksp, "family"));
+            setVendor(KstatUtil.kstatDataLookupString(ksp, "vendor_id"));
+            setName(KstatUtil.kstatDataLookupString(ksp, "brand"));
+            setStepping(KstatUtil.kstatDataLookupString(ksp, "stepping"));
+            setModel(KstatUtil.kstatDataLookupString(ksp, "model"));
+            setFamily(KstatUtil.kstatDataLookupString(ksp, "family"));
         }
-        this.setCpu64("64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim()));
+        setCpu64("64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim()));
     }
 
     /**
@@ -108,8 +108,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         // Average processor ticks
         long[][] procTicks = getProcessorCpuLoadTicks();
         for (int i = 0; i < ticks.length; i++) {
-            for (int cpu = 0; cpu < procTicks.length; cpu++) {
-                ticks[i] += procTicks[cpu][i];
+            for (long[] procTick : procTicks) {
+                ticks[i] += procTick[i];
             }
             ticks[i] /= procTicks.length;
         }
@@ -139,7 +139,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
+        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         int cpu = -1;
         for (Kstat ksp : KstatUtil.kstatLookupAll("cpu", -1, "sys")) {
             // This is a new CPU

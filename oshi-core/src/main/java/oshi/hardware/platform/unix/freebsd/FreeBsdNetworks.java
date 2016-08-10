@@ -33,7 +33,7 @@ public class FreeBsdNetworks extends AbstractNetworks {
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */

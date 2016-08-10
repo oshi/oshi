@@ -22,7 +22,7 @@ import oshi.hardware.PowerSource;
 
 /**
  * A Power Source
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractPowerSource implements PowerSource {
@@ -38,7 +38,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     /**
      * Super constructor used by platform-specific implementations of
      * PowerSource
-     * 
+     *
      * @param newName
      *            The name to assign
      * @param newRemainingCapacity

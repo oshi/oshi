@@ -33,7 +33,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 
 /**
  * Provides utilities for Core Foundations
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class CfUtil {
@@ -46,7 +46,7 @@ public class CfUtil {
 
     /**
      * Return a CFStringRef representing a string, caching the result
-     * 
+     *
      * @param key
      *            The string, usually a registry key
      * @return the corresponding CFString
@@ -65,7 +65,7 @@ public class CfUtil {
 
     /**
      * Convert a pointer representing a Core Foundations LongLong into its long
-     * 
+     *
      * @param p
      *            The pointer to a 64-bit integer
      * @return The corresponding long
@@ -78,7 +78,7 @@ public class CfUtil {
 
     /**
      * Convert a pointer representing a Core Foundations LongLong into its long
-     * 
+     *
      * @param p
      *            The pointer to an integer
      * @return The corresponding int
@@ -92,7 +92,7 @@ public class CfUtil {
     /**
      * Convert a pointer representing a Core Foundations Boolean into its
      * boolean
-     * 
+     *
      * @param p
      *            The pointer to a boolean
      * @return The corresponding boolean
@@ -103,7 +103,7 @@ public class CfUtil {
 
     /**
      * Convert a pointer representing a Core Foundations String into its string
-     * 
+     *
      * @param p
      *            The pointer to a CFString
      * @return The corresponding string
@@ -122,7 +122,7 @@ public class CfUtil {
     /**
      * Releases a CF reference. Mandatory when an object is owned (using
      * 'create' or 'copy' methods).
-     * 
+     *
      * @param ref
      *            The reference to release
      */

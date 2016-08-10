@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for executing on the command line and returning the result of
  * execution.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  */
 public class ExecutingCommand {
@@ -39,7 +39,7 @@ public class ExecutingCommand {
 
     /**
      * Executes a command on the native command line and returns the result.
-     * 
+     *
      * @param cmdToRun
      *            Command to run
      * @return A list of Strings representing the result of the command, or
@@ -52,7 +52,7 @@ public class ExecutingCommand {
 
     /**
      * Executes a command on the native command line and returns the result.
-     * 
+     *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
      * @return A list of Strings representing the result of the command, or
@@ -83,7 +83,7 @@ public class ExecutingCommand {
 
     /**
      * Return first line of response for selected command.
-     * 
+     *
      * @param cmd2launch
      *            String command to be launched
      * @return String or empty string if command failed
@@ -95,7 +95,7 @@ public class ExecutingCommand {
     /**
      * Return response on selected line index (0-based) after running selected
      * command.
-     * 
+     *
      * @param cmd2launch
      *            String command to be launched
      * @param answerIdx

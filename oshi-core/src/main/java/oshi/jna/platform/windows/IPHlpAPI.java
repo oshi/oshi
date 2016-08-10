@@ -31,7 +31,7 @@ import com.sun.jna.platform.win32.WinDef.ULONG;
 /**
  * Windows IP Helper API. This class should be considered non-API as it may be
  * removed if/when its code is incorporated public into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface IPHlpAPI extends Library {
@@ -141,14 +141,14 @@ public interface IPHlpAPI extends Library {
     /**
      * The GetIfEntry function retrieves information for the specified interface
      * on the local computer.
-     * 
+     *
      * The dwIndex member in the MIB_IFROW structure pointed to by the pIfRow
      * parameter must be initialized to a valid network interface index
      * retrieved by a previous call to the GetIfTable, GetIfTable2, or
      * GetIfTable2Ex function. The GetIfEntry function will fail if the dwIndex
      * member of the MIB_IFROW pointed to by the pIfRow parameter does not match
      * an existing interface index on the local computer.
-     * 
+     *
      * @param pIfRow
      *            A pointer to a MIB_IFROW structure that, on successful return,
      *            receives information for an interface on the local computer.
@@ -161,7 +161,7 @@ public interface IPHlpAPI extends Library {
     /**
      * The GetIfEntry2 function retrieves information for the specified
      * interface on the local computer.
-     * 
+     *
      * On input, at least one of the following members in the MIB_IF_ROW2
      * structure passed in the Row parameter must be initialized: InterfaceLuid
      * or InterfaceIndex. The fields are used in the order listed above. So if
@@ -170,7 +170,7 @@ public interface IPHlpAPI extends Library {
      * this member was set to zero), then the InterfaceIndex member is next used
      * to determine the interface. On output, the remaining fields of the
      * MIB_IF_ROW2 structure pointed to by the Row parameter are filled in.
-     * 
+     *
      * @param pIfRow2
      *            A pointer to a MIB_IF_ROW2 structure that, on successful
      *            return, receives information for an interface on the local

@@ -23,7 +23,7 @@ import oshi.json.json.OshiJsonObject;
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
  * processors, memory, battery, and disks.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public interface HardwareAbstractionLayer extends OshiJsonObject {
@@ -31,14 +31,14 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or
      * more Logical CPUs.
-     * 
+     *
      * @return A {@link CentralProcessor} object.
      */
     CentralProcessor getProcessor();
 
     /**
      * Instantiates a {@link GlobalMemory} object.
-     * 
+     *
      * @return A memory object.
      */
     GlobalMemory getMemory();
@@ -46,7 +46,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates an array of {@link PowerSource} objects, representing
      * batteries, etc.
-     * 
+     *
      * @return An array of PowerSource objects or an empty array if none are
      *         present.
      */
@@ -55,7 +55,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates an array of {@link HWDiskStore} objects, representing a
      * physical hard disk or other similar storage device
-     * 
+     *
      * @return An array of HWDiskStore objects or an empty array if none are
      *         present.
      */
@@ -64,7 +64,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates an array of {@link NetworkIF} objects, representing a
      * network interface
-     * 
+     *
      * @return An array of HWNetworkStore objects or an empty array if none are
      *         present.
      */
@@ -73,7 +73,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates an array of {@link Display} objects, representing monitors
      * or other video output devices.
-     * 
+     *
      * @return An array of Display objects or an empty array if none are
      *         present.
      */
@@ -82,7 +82,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates a {@link Sensors} object, representing CPU temperature and
      * fan speed
-     * 
+     *
      * @return A Sensors object
      */
     Sensors getSensors();
@@ -90,15 +90,15 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
     /**
      * Instantiates an array of {@link UsbDevice} objects, representing devices
      * connected via a usb port (including internal devices).
-     * 
+     *
      * If the value of tree is true, the top level devices returned from this
      * method are the USB Controllers; connected hubs and devices in its device
      * tree share that controller's bandwidth. If the value of tree is false,
      * USB devices (not controllers) are listed in a single flat array.
-     * 
+     *
      * In the JSON output, this parameter may be specified by the
      * "hardware.usbDevices.tree" property value.
-     * 
+     *
      * @param tree
      *            WHether to display devices in a nested tree format from their
      *            controllers

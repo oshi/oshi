@@ -24,7 +24,7 @@ import oshi.hardware.UsbDevice;
 
 /**
  * A USB device
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
@@ -107,7 +107,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
-        return this.getName().compareTo(usb.getName());
+        return getName().compareTo(usb.getName());
     }
 
     /**
@@ -120,7 +120,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     /**
      * Helper method for indenting chained USB devices
-     * 
+     *
      * @param usbDevice
      *            A USB device to print
      * @param indent

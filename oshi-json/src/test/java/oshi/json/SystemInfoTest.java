@@ -164,8 +164,8 @@ public class SystemInfoTest {
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
         double[] load = processor.getProcessorCpuLoadBetweenTicks();
-        for (int cpu = 0; cpu < load.length; cpu++) {
-            procCpu.append(String.format(" %.1f%%", load[cpu] * 100));
+        for (double avg : load) {
+            procCpu.append(String.format(" %.1f%%", avg * 100));
         }
         System.out.println(procCpu.toString());
     }

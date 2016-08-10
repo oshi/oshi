@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * General utility methods
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class Util {
@@ -34,7 +34,7 @@ public class Util {
 
     /**
      * Sleeps for the specified number of milliseconds.
-     * 
+     *
      * @param ms
      *            How long to sleep
      */
@@ -52,7 +52,7 @@ public class Util {
      * Sleeps for the specified number of milliseconds after the given system
      * time in milliseconds. If that number of milliseconds has already elapsed,
      * does nothing.
-     * 
+     *
      * @param startTime
      *            System time in milliseconds to sleep after
      * @param ms

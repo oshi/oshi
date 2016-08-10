@@ -33,7 +33,7 @@ import oshi.jna.platform.mac.IOKit.MachPort;
 
 /**
  * Provides utilities for IOKit
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class IOKitUtil {
@@ -43,7 +43,7 @@ public class IOKitUtil {
 
     /**
      * Sets the masterPort value
-     * 
+     *
      * @return 0 if the value was successfully set, error value otherwise
      */
     private static int setMasterPort() {
@@ -59,7 +59,7 @@ public class IOKitUtil {
 
     /**
      * Gets the IO Registry root
-     * 
+     *
      * @return an int handle to the IORoot
      */
     public static int getRoot() {
@@ -75,7 +75,7 @@ public class IOKitUtil {
 
     /**
      * Opens an IOService matching the given name
-     * 
+     *
      * @param serviceName
      *            The service name to match
      * @return an int handle to an IOService if successful, 0 if failed
@@ -94,7 +94,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get matching IOService objects
-     * 
+     *
      * @param serviceName
      *            The service name to match
      * @param serviceIterator
@@ -112,7 +112,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get matching IOService objects
-     * 
+     *
      * @param matchingDictionary
      *            The dictionary to match
      * @param serviceIterator
@@ -130,7 +130,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get a String value from an IO Registry
-     * 
+     *
      * @param entry
      *            A handle to the registry entry
      * @param key
@@ -151,7 +151,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get a Long value from an IO Registry
-     * 
+     *
      * @param entry
      *            A handle to the registry entry
      * @param key
@@ -172,7 +172,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get an Int value from an IO Registry
-     * 
+     *
      * @param entry
      *            A handle to the registry entry
      * @param key
@@ -193,7 +193,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get a Boolean value from an IO Registry
-     * 
+     *
      * @param entry
      *            A handle to the registry entry
      * @param key
@@ -214,7 +214,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get a byte array value from an IO Registry
-     * 
+     *
      * @param entry
      *            A handle to the registry entry
      * @param key
@@ -237,7 +237,7 @@ public class IOKitUtil {
 
     /**
      * Convenience method to get the IO dictionary matching a bsd name
-     * 
+     *
      * @param bsdName
      *            The bsd name of the registry entry
      * @return The dictionary ref

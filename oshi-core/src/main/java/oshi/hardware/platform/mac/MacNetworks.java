@@ -24,9 +24,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory; //NOSONAR squid:S1191
-import com.sun.jna.Pointer; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
@@ -50,7 +50,7 @@ public class MacNetworks extends AbstractNetworks {
 
     /**
      * Update map no more frequently than 200ms.
-     * 
+     *
      * Key is the index of the IF.
      */
     private static Map<Integer, IFdata> ifMap = new HashMap<>();
@@ -79,7 +79,7 @@ public class MacNetworks extends AbstractNetworks {
      * Map all network interfaces. Ported from source code of "netstat -ir". See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
-     * 
+     *
      * @return timestamp when the data was read
      */
     private static synchronized long mapIFs() {
@@ -135,7 +135,7 @@ public class MacNetworks extends AbstractNetworks {
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */

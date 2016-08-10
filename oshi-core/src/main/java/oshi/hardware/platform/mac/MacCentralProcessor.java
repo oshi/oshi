@@ -21,10 +21,10 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo; // NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
-import com.sun.jna.ptr.PointerByReference; // NOSONAR squid:S1191
+import com.sun.jna.Native;
+import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.IOKit;
@@ -36,7 +36,7 @@ import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * A CPU.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
@@ -75,6 +75,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     /**
      * Updates logical and physical processor counts from sysctl calls
      */
+    @Override
     protected void calculateProcessorCounts() {
         this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
@@ -125,7 +126,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
+        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
 

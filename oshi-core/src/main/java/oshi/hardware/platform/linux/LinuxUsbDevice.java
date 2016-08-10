@@ -156,7 +156,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates LinuxUsbDevices by fetching information from maps to
      * populate fields
-     * 
+     *
      * @param devPath
      *            The device node path.
      * @param vid

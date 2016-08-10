@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * File reading methods
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
@@ -43,10 +43,10 @@ public class FileUtil {
     /**
      * Read an entire file at one time. Intended primarily for Linux /proc
      * filesystem to avoid recalculating file contents on iterative reads.
-     * 
+     *
      * @param filename
      *            The file to read
-     * 
+     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
@@ -57,12 +57,12 @@ public class FileUtil {
     /**
      * Read an entire file at one time. Intended primarily for Linux /proc
      * filesystem to avoid recalculating file contents on iterative reads.
-     * 
+     *
      * @param filename
      *            The file to read
      * @param reportError
      *            Whether to log errors reading the file
-     * 
+     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
@@ -85,7 +85,7 @@ public class FileUtil {
     /**
      * Read a file and return the long value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
@@ -103,7 +103,7 @@ public class FileUtil {
     /**
      * Read a file and return the int value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
@@ -125,7 +125,7 @@ public class FileUtil {
     /**
      * Read a file and return the String value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise empty string
@@ -143,7 +143,7 @@ public class FileUtil {
     /**
      * Read a file and return an array of whitespace-delimited string values
      * contained therein. Intended primarily for Linux /proc
-     * 
+     *
      * @param filename
      *            The file to read
      * @return An array of strings containing delimited values

@@ -24,7 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Kernel32;
 
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.windows.Psapi;
@@ -53,14 +53,14 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     protected void updateMeminfo() {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
-            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 return;
             }
-            this.memAvailable = perfInfo.PageSize.longValue() * perfInfo.PhysicalAvailable.longValue();
-            this.memTotal = perfInfo.PageSize.longValue() * perfInfo.PhysicalTotal.longValue();
-            this.swapTotal = perfInfo.PageSize.longValue()
-                    * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
+            this.memAvailable = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalAvailable.longValue();
+            this.memTotal = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalTotal.longValue();
+            this.swapTotal = this.perfInfo.PageSize.longValue()
+                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
             this.lastUpdate = now;
         }
     }

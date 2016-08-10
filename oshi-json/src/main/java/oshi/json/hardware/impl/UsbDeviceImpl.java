@@ -45,7 +45,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
     /**
      * Creates a new platform-specific USBDevice object wrapping the provided
      * argument
-     * 
+     *
      * @param usbDevice
      *            a platform-specific USBDevice object
      */
@@ -111,7 +111,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.name")) {
             json.add("name", getName());
         }
@@ -129,7 +129,7 @@ public class UsbDeviceImpl extends AbstractOshiJsonObject implements UsbDevice {
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.usbDevices.connectedDevices")
                 && PropertiesUtil.getBoolean(properties, "hardware.usbDevices.tree")) {
-            JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder usbDeviceArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (UsbDevice usbDevice : getConnectedDevices()) {
                 usbDeviceArrayBuilder.add(usbDevice.toJSON());
             }

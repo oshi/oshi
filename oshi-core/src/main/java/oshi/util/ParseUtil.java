@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * String parsing utility.
- * 
+ *
  * @author alessio.fachechi[at]gmail[dot]com
  */
 public class ParseUtil {
@@ -97,7 +97,7 @@ public class ParseUtil {
 
     /**
      * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
-     * 
+     *
      * @param hertz
      *            Hertz size.
      * @return {@link Long} Hertz value or -1 if not parsable.
@@ -115,7 +115,7 @@ public class ParseUtil {
     /**
      * Parse the last element of a space-delimited string to a value if there
      * are at least two elements
-     * 
+     *
      * @param s
      *            The string to parse
      * @param i
@@ -138,7 +138,7 @@ public class ParseUtil {
 
     /**
      * Parse a string of hexadecimal digits into a byte array
-     * 
+     *
      * @param digits
      *            The string to be parsed
      * @return a byte array with each pair of characters converted to a byte, or
@@ -153,7 +153,7 @@ public class ParseUtil {
         }
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(digits.charAt(i), 16) << 4)
+            data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) << 4
                     | Character.digit(digits.charAt(i + 1), 16));
         }
         return data;
@@ -162,7 +162,7 @@ public class ParseUtil {
     /**
      * Parse a human readable string into a byte array, truncating or padding
      * with zeros (if necessary) so the array has the specified length.
-     * 
+     *
      * @param text
      *            The string to be parsed
      * @param length
@@ -178,7 +178,7 @@ public class ParseUtil {
     /**
      * Convert a long value to a byte array using Big Endian, truncating or
      * padding with zeros (if necessary) so the array has the specified length.
-     * 
+     *
      * @param value
      *            The value to be converted
      * @param valueSize
@@ -203,7 +203,7 @@ public class ParseUtil {
 
     /**
      * Convert a string to an integer representation.
-     * 
+     *
      * @param str
      *            A human readable string
      * @param size
@@ -217,7 +217,7 @@ public class ParseUtil {
 
     /**
      * Convert a byte array to its integer representation.
-     * 
+     *
      * @param bytes
      *            An array of bytes no smaller than the size to be converted
      * @param size
@@ -233,14 +233,14 @@ public class ParseUtil {
         }
         long total = 0L;
         for (int i = 0; i < size; i++) {
-            total = (total << 8) | (bytes[i] & 0xff);
+            total = total << 8 | bytes[i] & 0xff;
         }
         return total;
     }
 
     /**
      * Convert a byte array to its floating point representation.
-     * 
+     *
      * @param bytes
      *            An array of bytes no smaller than the size to be converted
      * @param size
@@ -258,7 +258,7 @@ public class ParseUtil {
     /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
      * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
-     * 
+     *
      * @param cimDate
      *            A string containing the CIM_DateTime
      * @return The corresponding DateTime as a number of milliseconds since the
@@ -284,7 +284,7 @@ public class ParseUtil {
     /**
      * Parses a string of hex digits to a string where each pair of hex digits
      * represents an ASCII character
-     * 
+     *
      * @param hexString
      *            A sequence of hex digits
      * @return The corresponding string if valid hex; otherwise the original
@@ -315,7 +315,7 @@ public class ParseUtil {
 
     /**
      * Attempts to parse a string to an int. If it fails, returns the default
-     * 
+     *
      * @param s
      *            The string to parse
      * @param defaultInt
@@ -333,7 +333,7 @@ public class ParseUtil {
 
     /**
      * Attempts to parse a string to a long. If it fails, returns the default
-     * 
+     *
      * @param s
      *            The string to parse
      * @param defaultLong
@@ -351,7 +351,7 @@ public class ParseUtil {
 
     /**
      * Attempts to parse a string to a double. If it fails, returns the default
-     * 
+     *
      * @param s
      *            The string to parse
      * @param defaultDouble
@@ -370,7 +370,7 @@ public class ParseUtil {
     /**
      * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number
      * of milliseconds. If it fails, returns the default.
-     * 
+     *
      * @param s
      *            The string to parse
      * @param defaultLong
@@ -397,7 +397,7 @@ public class ParseUtil {
 
     /**
      * Attempts to parse a UUID. If it fails, returns the default.
-     * 
+     *
      * @param s
      *            The string to parse
      * @param defaultStr
@@ -414,7 +414,7 @@ public class ParseUtil {
 
     /**
      * Parses a string key = 'value' (string)
-     * 
+     *
      * @param line
      *            The entire string
      * @return the value contained between single tick marks
@@ -429,7 +429,7 @@ public class ParseUtil {
 
     /**
      * Parses a string such as key = 1 (0x1) (int)
-     * 
+     *
      * @param line
      *            The entire string
      * @return the value of first int past equals sign

@@ -74,7 +74,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Gets the operating system version
-     * 
+     *
      * @return Version
      */
     private String parseVersion() {
@@ -161,7 +161,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * The operating system platform. This member can be VER_PLATFORM_WIN32_NT.
-     * 
+     *
      * @return Platform ID.
      */
     private int getPlatformId() {
@@ -174,7 +174,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Any additional information about the system.
-     * 
+     *
      * @return Product type.
      */
     private byte getProductType() {
@@ -187,7 +187,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * The major version number of the operating system.
-     * 
+     *
      * @return The major version within the following supported operating
      *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
      *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
@@ -205,7 +205,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * The minor version number of the operating system.
-     * 
+     *
      * @return The minor version within the following supported operating
      *         systems. Windows 8: 6.2 Windows Server 2012: 6.2 Windows 7: 6.1
      *         Windows Server 2008 R2: 6.1 Windows Server 2008: 6.0 Windows
@@ -225,7 +225,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * String, such as "Service Pack 3", that indicates the latest Service Pack
      * installed on the system. If no Service Pack has been installed, the
      * string is empty.
-     * 
+     *
      * @return Service pack.
      */
     private String getServicePack() {
@@ -238,7 +238,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Gets suites available on the system and return as a codename
-     * 
+     *
      * @return Suites
      */
     private String parseCodeName() {
@@ -276,7 +276,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * A bit mask that identifies the product suites available on the system.
-     * 
+     *
      * @return Suite mask.
      */
     private int getSuiteMask() {

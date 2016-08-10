@@ -24,7 +24,7 @@ import java.io.Serializable;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements Serializable {
@@ -49,7 +49,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Creates an OSFileStore with the specified parameters.
-     * 
+     *
      * @param newName
      *            Name of the filestore
      * @param newVolume
@@ -69,19 +69,19 @@ public class OSFileStore implements Serializable {
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
             String newUuid, long newUsableSpace, long newTotalSpace) {
-        this.setName(newName);
-        this.setVolume(newVolume);
-        this.setMount(newMount);
-        this.setDescription(newDescription);
-        this.setType(newType);
-        this.setUUID(newUuid);
-        this.setUsableSpace(newUsableSpace);
-        this.setTotalSpace(newTotalSpace);
+        setName(newName);
+        setVolume(newVolume);
+        setMount(newMount);
+        setDescription(newDescription);
+        setType(newType);
+        setUUID(newUuid);
+        setUsableSpace(newUsableSpace);
+        setTotalSpace(newTotalSpace);
     }
 
     /**
      * Name of the File System
-     * 
+     *
      * @return The file system name
      */
     public String getName() {
@@ -90,7 +90,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the File System name
-     * 
+     *
      * @param value
      *            The name
      */
@@ -119,7 +119,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Mountpoint of the File System
-     * 
+     *
      * @return The mountpoint of the file system
      */
     public String getMount() {
@@ -128,7 +128,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the mountpoint of the File System
-     * 
+     *
      * @param value
      *            The mountpoint
      */
@@ -138,7 +138,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Description of the File System
-     * 
+     *
      * @return The file system description
      */
     public String getDescription() {
@@ -147,7 +147,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the File System description
-     * 
+     *
      * @param value
      *            The description
      */
@@ -157,7 +157,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
-     * 
+     *
      * @return The file system type
      */
     public String getType() {
@@ -166,7 +166,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the File System type
-     * 
+     *
      * @param value
      *            The type
      */
@@ -176,7 +176,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * UUID/GUID of the File System
-     * 
+     *
      * @return The file system UUID/GUID
      */
     public String getUUID() {
@@ -185,7 +185,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the File System UUID/GUID
-     * 
+     *
      * @param value
      *            The UUID/GUID
      */
@@ -195,7 +195,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Usable space on the drive.
-     * 
+     *
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
@@ -204,7 +204,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets usable space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of writable space.
      */
@@ -214,7 +214,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Total space/capacity of the drive.
-     * 
+     *
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
@@ -223,7 +223,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Sets the total space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of total space.
      */

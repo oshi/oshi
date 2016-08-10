@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.Memory; //NOSONAR squid:S1191
-import com.sun.jna.Pointer; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
-import com.sun.jna.ptr.LongByReference; //NOSONAR squid:S1191
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -188,7 +188,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /**
      * Looks up vendor and product id information for a USB Host Controller by
      * cross-referencing the location
-     * 
+     *
      * @param id
      *            The global unique ID for the host controller used as a key for
      *            maps
@@ -240,7 +240,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates MacUsbDevices by fetching information from maps to
      * populate fields
-     * 
+     *
      * @param registryEntryId
      *            The device unique registry id.
      * @param vid

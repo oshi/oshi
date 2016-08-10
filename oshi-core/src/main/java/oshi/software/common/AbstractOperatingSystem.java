@@ -81,54 +81,26 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     /*
      * Comparators for use in processSort()
      */
-    private static final Comparator<OSProcess> CPU_DESC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Double.compare((p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
-                    (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
-        }
-    };
-    private static final Comparator<OSProcess> RSS_DESC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p2.getResidentSetSize(), p1.getResidentSetSize());
-        }
-    };
-    private static final Comparator<OSProcess> UPTIME_DESC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p2.getUpTime(), p1.getUpTime());
-        }
-    };
-    private static final Comparator<OSProcess> UPTIME_ASC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p1.getUpTime(), p2.getUpTime());
-        }
-    };
-    private static final Comparator<OSProcess> PID_ASC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Integer.compare(p1.getProcessID(), p2.getProcessID());
-        }
-    };
-    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return Integer.compare(p1.getParentProcessID(), p2.getParentProcessID());
-        }
-    };
-    private static final Comparator<OSProcess> NAME_ASC_SORT = new Comparator<OSProcess>() {
-        @Override
-        public int compare(OSProcess p1, OSProcess p2) {
-            return p1.getName().toLowerCase().compareTo(p2.getName().toLowerCase());
-        }
-    };
+    private static final Comparator<OSProcess> CPU_DESC_SORT = (p1, p2) -> Double.compare(
+            (p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
+            (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
+    private static final Comparator<OSProcess> RSS_DESC_SORT = (p1, p2) -> Long.compare(p2.getResidentSetSize(),
+            p1.getResidentSetSize());
+    private static final Comparator<OSProcess> UPTIME_DESC_SORT = (p1, p2) -> Long.compare(p2.getUpTime(),
+            p1.getUpTime());
+    private static final Comparator<OSProcess> UPTIME_ASC_SORT = (p1, p2) -> Long.compare(p1.getUpTime(),
+            p2.getUpTime());
+    private static final Comparator<OSProcess> PID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getProcessID(),
+            p2.getProcessID());
+    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = (p1, p2) -> Integer.compare(p1.getParentProcessID(),
+            p2.getParentProcessID());
+    private static final Comparator<OSProcess> NAME_ASC_SORT = (p1, p2) -> p1.getName().toLowerCase()
+            .compareTo(p2.getName().toLowerCase());
 
     /**
      * Sorts an array of processes using the specified sorting, returning an
      * array with the top limit results if positive.
-     * 
+     *
      * @param processes
      *            The array to sort
      * @param limit

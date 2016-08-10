@@ -30,13 +30,13 @@ import javax.json.stream.JsonGenerator;
 
 /**
  * Formatting utility for json strings
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class JsonUtil {
     /**
      * Pretty print a JSON string.
-     * 
+     *
      * @param json
      *            A JSON object
      * @return String representing the object with added whitespace, new lines,

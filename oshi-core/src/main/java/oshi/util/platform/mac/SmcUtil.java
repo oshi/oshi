@@ -38,7 +38,7 @@ import oshi.util.Util;
 
 /**
  * Provides access to SMC calls on OS X
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SmcUtil {
@@ -58,7 +58,7 @@ public class SmcUtil {
 
     /**
      * Open a connection to SMC
-     * 
+     *
      * @return 0 if successful, nonzero if failure
      */
     public static int smcOpen() {
@@ -81,7 +81,7 @@ public class SmcUtil {
 
     /**
      * Close connection to SMC
-     * 
+     *
      * @return 0 if successful, nonzero if failure
      */
     public static int smcClose() {
@@ -92,7 +92,7 @@ public class SmcUtil {
      * Get a value from SMC which is in SP78 datatype (used for Temperature)
      * First bit is sign, next 7 bits are integer portion, last 8 bits are
      * fractional portion
-     * 
+     *
      * @param key
      *            The key to retrieve
      * @param retries
@@ -111,7 +111,7 @@ public class SmcUtil {
 
     /**
      * Get a 64-bit integer value from SMC
-     * 
+     *
      * @param key
      *            The key to retrieve
      * @param retries
@@ -131,7 +131,7 @@ public class SmcUtil {
     /**
      * Get a value from SMC which is in FPE2 datatype. First E (14) bits are
      * unsigned integer portion, Last 2 bits are fractional portion
-     * 
+     *
      * @param key
      *            The key to retrieve
      * @param retries
@@ -150,7 +150,7 @@ public class SmcUtil {
 
     /**
      * Get cached keyInfo if it exists, or generate new keyInfo
-     * 
+     *
      * @param inputStructure
      *            Key data input
      * @param outputStructure
@@ -182,7 +182,7 @@ public class SmcUtil {
 
     /**
      * Read a key from SMC
-     * 
+     *
      * @param key
      *            Key to read
      * @param val
@@ -229,7 +229,7 @@ public class SmcUtil {
 
     /**
      * Call SMC
-     * 
+     *
      * @param index
      *            Kernel index
      * @param inputStructure

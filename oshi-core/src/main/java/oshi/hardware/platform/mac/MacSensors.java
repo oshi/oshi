@@ -68,7 +68,7 @@ public class MacSensors implements Sensors {
             double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);
             if (temp > 0d) {
                 this.lastTemp = temp;
-                lastTempTime = System.currentTimeMillis();
+                this.lastTempTime = System.currentTimeMillis();
             }
         }
         return this.lastTemp;
@@ -90,12 +90,12 @@ public class MacSensors implements Sensors {
                 int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
                 if (speed > 0) {
                     this.lastFanSpeeds[i] = speed;
-                    lastFanSpeedsTime = System.currentTimeMillis();
+                    this.lastFanSpeedsTime = System.currentTimeMillis();
                 }
             }
         }
         // Make a copy to return
-        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);
+        return Arrays.copyOf(this.lastFanSpeeds, this.lastFanSpeeds.length);
     }
 
     /**
@@ -108,7 +108,7 @@ public class MacSensors implements Sensors {
             double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);
             if (kiloVolts > 0d) {
                 this.lastVolts = kiloVolts / 1000d;
-                lastVoltsTime = System.currentTimeMillis();
+                this.lastVoltsTime = System.currentTimeMillis();
             }
         }
         return this.lastVolts;

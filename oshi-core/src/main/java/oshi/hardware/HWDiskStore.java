@@ -56,7 +56,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * Create an object with all values
-     * 
+     *
      * @param name
      *            Name of the disk (e.g., /dev/disk1)
      * @param model
@@ -99,77 +99,77 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * @return the name
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
      * @return the model
      */
     public String getModel() {
-        return model;
+        return this.model;
     }
 
     /**
      * @return the serial
      */
     public String getSerial() {
-        return serial;
+        return this.serial;
     }
 
     /**
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-        return size;
+        return this.size;
     }
 
     /**
      * @return the reads
      */
     public long getReads() {
-        return reads;
+        return this.reads;
     }
 
     /**
      * @return the bytes read
      */
     public long getReadBytes() {
-        return readBytes;
+        return this.readBytes;
     }
 
     /**
      * @return the writes
      */
     public long getWrites() {
-        return writes;
+        return this.writes;
     }
 
     /**
      * @return the bytes written
      */
     public long getWriteBytes() {
-        return writeBytes;
+        return this.writeBytes;
     }
 
     /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-        return transferTime;
+        return this.transferTime;
     }
 
     /**
      * @return Returns the partitions on this drive.
      */
     public HWPartition[] getPartitions() {
-        return partitions;
+        return this.partitions;
     }
 
     /**
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-        return timeStamp;
+        return this.timeStamp;
     }
 
     /**
@@ -266,7 +266,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     @Override
     public int compareTo(HWDiskStore store) {
         // Naturally sort by device name
-        return this.getName().compareTo(store.getName());
+        return getName().compareTo(store.getName());
     }
 
     /**
@@ -276,11 +276,11 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((model == null) ? 0 : model.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + Arrays.hashCode(partitions);
-        result = prime * result + ((serial == null) ? 0 : serial.hashCode());
-        result = prime * result + (int) (size ^ (size >>> 32));
+        result = prime * result + (this.model == null ? 0 : this.model.hashCode());
+        result = prime * result + (this.name == null ? 0 : this.name.hashCode());
+        result = prime * result + Arrays.hashCode(this.partitions);
+        result = prime * result + (this.serial == null ? 0 : this.serial.hashCode());
+        result = prime * result + (int) (this.size ^ this.size >>> 32);
         return result;
     }
 
@@ -299,31 +299,31 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
             return false;
         }
         HWDiskStore other = (HWDiskStore) obj;
-        if (model == null) {
+        if (this.model == null) {
             if (other.model != null) {
                 return false;
             }
-        } else if (!model.equals(other.model)) {
+        } else if (!this.model.equals(other.model)) {
             return false;
         }
-        if (name == null) {
+        if (this.name == null) {
             if (other.name != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!this.name.equals(other.name)) {
             return false;
         }
-        if (!Arrays.equals(partitions, other.partitions)) {
+        if (!Arrays.equals(this.partitions, other.partitions)) {
             return false;
         }
-        if (serial == null) {
+        if (this.serial == null) {
             if (other.serial != null) {
                 return false;
             }
-        } else if (!serial.equals(other.serial)) {
+        } else if (!this.serial.equals(other.serial)) {
             return false;
         }
-        return size == other.size;
+        return this.size == other.size;
     }
 
 }

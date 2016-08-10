@@ -18,9 +18,9 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.Memory; //NOSONAR squid:S1191
-import com.sun.jna.Pointer; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Sensors;
 import oshi.jna.platform.unix.LibC;

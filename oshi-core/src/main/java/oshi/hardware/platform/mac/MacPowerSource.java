@@ -24,8 +24,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; //NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference; //NOSONAR squid:S1191
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
@@ -38,7 +38,7 @@ import oshi.util.platform.mac.CfUtil;
 
 /**
  * A Power Source
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacPowerSource extends AbstractPowerSource {
@@ -54,7 +54,7 @@ public class MacPowerSource extends AbstractPowerSource {
 
     /**
      * Gets Battery Information
-     * 
+     *
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {

@@ -45,7 +45,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
     /**
      * Creates a new platform-specific Display object wrapping the provided
      * argument
-     * 
+     *
      * @param display
      *            a platform-specific Display object
      */
@@ -66,7 +66,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.displays.edid")) {
             json.add("edid", EdidUtil.toHexString(getEdid()));
         }

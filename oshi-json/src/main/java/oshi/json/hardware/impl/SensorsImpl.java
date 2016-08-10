@@ -45,7 +45,7 @@ public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
     /**
      * Creates a new platform-specific Sensors object wrapping the provided
      * argument
-     * 
+     *
      * @param sensors
      *            a platform-specific Sensors object
      */
@@ -82,12 +82,12 @@ public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.sensors.cpuTemperature")) {
             json.add("cpuTemperature", getCpuTemperature());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.sensors.fanSpeeds")) {
-            JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();
+            JsonArrayBuilder fanSpeedsArrayBuilder = this.jsonFactory.createArrayBuilder();
             for (int speed : getFanSpeeds()) {
                 fanSpeedsArrayBuilder.add(speed);
             }

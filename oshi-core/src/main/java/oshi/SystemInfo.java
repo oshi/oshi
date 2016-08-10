@@ -20,7 +20,7 @@ package oshi;
 
 import java.io.Serializable;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
@@ -40,7 +40,7 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * provides getters which instantiate the appropriate platform-specific
  * implementations of {@link OperatingSystem} (software) and
  * {@link HardwareAbstractionLayer} (hardware).
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo implements Serializable {
@@ -81,7 +81,7 @@ public class SystemInfo implements Serializable {
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link OperatingSystem}.
-     * 
+     *
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
@@ -113,7 +113,7 @@ public class SystemInfo implements Serializable {
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link HardwareAbstractionLayer}.
-     * 
+     *
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {

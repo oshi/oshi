@@ -24,7 +24,7 @@ import java.io.Serializable;
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public interface OperatingSystem extends Serializable {
@@ -38,21 +38,21 @@ public interface OperatingSystem extends Serializable {
 
     /**
      * Operating system family.
-     * 
+     *
      * @return String.
      */
     String getFamily();
 
     /**
      * Manufacturer.
-     * 
+     *
      * @return String.
      */
     String getManufacturer();
 
     /**
      * Operating system version.
-     * 
+     *
      * @return Version.
      */
     OperatingSystemVersion getVersion();
@@ -70,7 +70,7 @@ public interface OperatingSystem extends Serializable {
      * The order may be specified by the sort parameter, for example, to return
      * the top cpu or memory consuming processes; if null, no order is
      * guaranteed.
-     * 
+     *
      * @param limit
      *            Max number of results to return, or 0 to return all results
      * @param sort
@@ -83,7 +83,7 @@ public interface OperatingSystem extends Serializable {
 
     /**
      * Gets information on a currently running process
-     * 
+     *
      * @param pid
      *            A process ID
      * @return An {@link oshi.software.os.OSProcess} object for the specified
@@ -94,21 +94,21 @@ public interface OperatingSystem extends Serializable {
 
     /**
      * Gets the current process ID
-     * 
+     *
      * @return the Process ID of the current process
      */
     int getProcessId();
 
     /**
      * Get the number of processes currently running
-     * 
+     *
      * @return The number of processes running
      */
     int getProcessCount();
 
     /**
      * Get the number of threads currently running
-     * 
+     *
      * @return The number of threads running
      */
     int getThreadCount();

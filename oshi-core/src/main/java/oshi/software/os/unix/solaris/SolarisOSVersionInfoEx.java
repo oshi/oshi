@@ -29,10 +29,10 @@ public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
         // TODO use sysinfo() instead of commandline
         String versionInfo = ExecutingCommand.getFirstAnswer("uname -rv");
         String[] split = versionInfo.split("\\s+");
-        this.setVersion(split[0]);
+        setVersion(split[0]);
         if (split.length > 1) {
-            this.setBuildNumber(split[1]);
+            setBuildNumber(split[1]);
         }
-        this.setCodeName("Solaris");
+        setCodeName("Solaris");
     }
 }

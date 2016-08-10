@@ -43,7 +43,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
 
     /**
      * Wraps a {@link javax.json.JsonObjectBuilder}
-     * 
+     *
      * @param builder
      *            The builder to wrap
      * @return A new instance of this class, wrapping the specified builder
@@ -61,9 +61,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, JsonValue arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -74,9 +74,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, String arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -87,9 +87,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, BigInteger arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -100,9 +100,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, BigDecimal arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -112,7 +112,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, int arg1) {
-        builder.add(arg0, arg1);
+        this.builder.add(arg0, arg1);
         return this;
     }
 
@@ -121,7 +121,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, long arg1) {
-        builder.add(arg0, arg1);
+        this.builder.add(arg0, arg1);
         return this;
     }
 
@@ -130,7 +130,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, double arg1) {
-        builder.add(arg0, arg1);
+        this.builder.add(arg0, arg1);
         return this;
     }
 
@@ -139,7 +139,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, boolean arg1) {
-        builder.add(arg0, arg1);
+        this.builder.add(arg0, arg1);
         return this;
     }
 
@@ -149,9 +149,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, JsonObjectBuilder arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -162,9 +162,9 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     @Override
     public JsonObjectBuilder add(String arg0, JsonArrayBuilder arg1) {
         if (arg1 == null) {
-            builder.addNull(arg0);
+            this.builder.addNull(arg0);
         } else {
-            builder.add(arg0, arg1);
+            this.builder.add(arg0, arg1);
         }
         return this;
     }
@@ -174,7 +174,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder addNull(String arg0) {
-        builder.addNull(arg0);
+        this.builder.addNull(arg0);
         return this;
     }
 
@@ -183,6 +183,6 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObject build() {
-        return builder.build();
+        return this.builder.build();
     }
 }

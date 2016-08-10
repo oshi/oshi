@@ -31,7 +31,7 @@ import oshi.util.ParseUtil;
 
 /**
  * A Display
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisDisplay extends AbstractDisplay {
@@ -47,7 +47,7 @@ public class SolarisDisplay extends AbstractDisplay {
 
     /**
      * Gets Display Information
-     * 
+     *
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {

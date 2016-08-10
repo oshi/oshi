@@ -24,8 +24,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference; // NOSONAR squid:S1191
-import com.sun.jna.ptr.PointerByReference; // NOSONAR squid:S1191
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
@@ -38,7 +38,7 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
@@ -56,7 +56,7 @@ public class MacDisplay extends AbstractDisplay {
 
     /**
      * Gets Display Information
-     * 
+     *
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Formatting utility for appending units or converting between number types.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
@@ -31,7 +31,7 @@ public class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
-     * 
+     *
      * Should be used for most representations of bytes
      */
     final private static long KIBI = 1L << 10;
@@ -58,7 +58,7 @@ public class FormatUtil {
      * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and
      * GB, in JEDEC units, edit the returned string to remove the 'i' to display
      * the (incorrect) JEDEC units.
-     * 
+     *
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
@@ -86,7 +86,7 @@ public class FormatUtil {
     /**
      * Format units as exact integer or fractional decimal based on the prefix,
      * appending the appropriate units
-     * 
+     *
      * @param value
      *            The value to format
      * @param prefix
@@ -106,7 +106,7 @@ public class FormatUtil {
      * Format bytes into a rounded string representation using decimal SI units.
      * These are used by hard drive manufacturers for capacity. Most other
      * storage should use {@link #formatBytes(long)}.
-     * 
+     *
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
@@ -123,7 +123,7 @@ public class FormatUtil {
 
     /**
      * Format hertz into a string to a rounded string representation.
-     * 
+     *
      * @param hertz
      *            Hertz.
      * @return Rounded string representation of the hertz size.
@@ -134,7 +134,7 @@ public class FormatUtil {
 
     /**
      * Format arbitrary units into a string to a rounded string representation.
-     * 
+     *
      * @param value
      *            The value
      * @param unit
@@ -162,7 +162,7 @@ public class FormatUtil {
 
     /**
      * Formats an elapsed time in seconds as days, hh:mm:ss.
-     * 
+     *
      * @param secs
      *            Elapsed seconds
      * @return A string representation of elapsed time
@@ -195,7 +195,7 @@ public class FormatUtil {
 
     /**
      * Convert unsigned int to signed long.
-     * 
+     *
      * @param x
      *            Signed int representing an unsigned integer
      * @return long value of x unsigned

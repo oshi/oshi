@@ -29,7 +29,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Convenience methods for manipulating properties files for JSON use
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class PropertiesUtil {
@@ -37,7 +37,7 @@ public class PropertiesUtil {
 
     /**
      * Loads Java Properties from a file on the class path
-     * 
+     *
      * @param propertiesFile
      *            File name
      * @return A Properties object from the loaded file
@@ -63,7 +63,7 @@ public class PropertiesUtil {
 
     /**
      * Parses the (string) value of a property and determines whether it is true
-     * 
+     *
      * @param properties
      *            The properties to search
      * @param property
@@ -76,7 +76,7 @@ public class PropertiesUtil {
 
     /**
      * Parses the (string) value of a property and determines its integer value
-     * 
+     *
      * @param properties
      *            The properties to search
      * @param property
@@ -91,7 +91,7 @@ public class PropertiesUtil {
 
     /**
      * Parses the (string) value of a property and determines its string value
-     * 
+     *
      * @param properties
      *            The properties to search
      * @param property
@@ -105,7 +105,7 @@ public class PropertiesUtil {
 
     /**
      * Parses the (string) value of a property and determines its enum value
-     * 
+     *
      * @param properties
      *            The properties to search
      * @param property

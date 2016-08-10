@@ -33,7 +33,7 @@ import oshi.json.util.PropertiesUtil;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore extends AbstractOshiJsonObject {
@@ -46,7 +46,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Creates an OSFileStore with the specified parameters.
-     * 
+     *
      * @param newName
      *            Name of the filestore
      * @param newVolume
@@ -72,7 +72,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Name of the File System
-     * 
+     *
      * @return The file system name
      */
     public String getName() {
@@ -81,7 +81,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the File System name
-     * 
+     *
      * @param value
      *            The name
      */
@@ -110,7 +110,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Mountpoint of the File System
-     * 
+     *
      * @return The mountpoint of the file system
      */
     public String getMount() {
@@ -119,7 +119,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the mountpoint of the File System
-     * 
+     *
      * @param value
      *            The mountpoint
      */
@@ -129,7 +129,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Description of the File System
-     * 
+     *
      * @return The file system description
      */
     public String getDescription() {
@@ -138,7 +138,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the File System description
-     * 
+     *
      * @param value
      *            The description
      */
@@ -148,7 +148,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
-     * 
+     *
      * @return The file system type
      */
     public String getType() {
@@ -157,7 +157,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the File System type
-     * 
+     *
      * @param value
      *            The type
      */
@@ -167,7 +167,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * UUID/GUID of the File System
-     * 
+     *
      * @return The file system UUID/GUID
      */
     public String getUUID() {
@@ -176,7 +176,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the File System UUID/GUID
-     * 
+     *
      * @param value
      *            The UUID/GUID
      */
@@ -186,7 +186,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Usable space on the drive.
-     * 
+     *
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
@@ -195,7 +195,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets usable space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of writable space.
      */
@@ -205,7 +205,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Total space/capacity of the drive.
-     * 
+     *
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
@@ -214,7 +214,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
 
     /**
      * Sets the total space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of total space.
      */
@@ -227,7 +227,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.name")) {
             json.add("name", getName());
         }

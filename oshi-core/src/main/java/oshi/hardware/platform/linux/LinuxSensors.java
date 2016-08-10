@@ -59,7 +59,7 @@ public class LinuxSensors implements Sensors {
                 File[] matchingFiles = dir
                         .listFiles(f -> f.getName().startsWith(prefix) && f.getName().endsWith("_input"));
                 if (matchingFiles != null && matchingFiles.length > 0) {
-                    hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
+                    this.hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
                 }
             }
             i++;
@@ -71,10 +71,10 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (!hwmonMap.containsKey(TEMP)) {
+        if (!this.hwmonMap.containsKey(TEMP)) {
             return 0d;
         }
-        String hwmon = hwmonMap.get(TEMP);
+        String hwmon = this.hwmonMap.get(TEMP);
         // First attempt should be CPU temperature at index 1, if available
         long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
         // Should return a single line of millidegrees Celsius
@@ -103,8 +103,8 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (hwmonMap.containsKey(FAN)) {
-            String hwmon = hwmonMap.get(FAN);
+        if (this.hwmonMap.containsKey(FAN)) {
+            String hwmon = this.hwmonMap.get(FAN);
             List<Integer> speeds = new ArrayList<>();
             int fan = 1;
             for (;;) {
@@ -132,8 +132,8 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (hwmonMap.containsKey(VOLTAGE)) {
-            String hwmon = hwmonMap.get(VOLTAGE);
+        if (this.hwmonMap.containsKey(VOLTAGE)) {
+            String hwmon = this.hwmonMap.get(VOLTAGE);
             // Should return a single line of millidegrees Celsius
             return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
         }

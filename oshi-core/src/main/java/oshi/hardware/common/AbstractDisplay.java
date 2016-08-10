@@ -41,11 +41,11 @@ public abstract class AbstractDisplay implements Display {
      */
     @Override
     public byte[] getEdid() {
-        return Arrays.copyOf(edid, edid.length);
+        return Arrays.copyOf(this.edid, this.edid.length);
     }
 
     @Override
     public String toString() {
-        return EdidUtil.toString(edid);
+        return EdidUtil.toString(this.edid);
     }
 }

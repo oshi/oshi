@@ -82,7 +82,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     /**
      * Checks if file path equals or starts with an element in the given list
-     * 
+     *
      * @param aList
      *            A list of path prefixes
      * @param charSeq

@@ -47,7 +47,7 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable<HW
 
     /**
      * Creates a new HWPartition
-     * 
+     *
      * @param identification
      *            The unique partition id
      * @param name
@@ -82,56 +82,56 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable<HW
      * @return Returns the identification.
      */
     public String getIdentification() {
-        return hwPartition.getIdentification();
+        return this.hwPartition.getIdentification();
     }
 
     /**
      * @return Returns the name.
      */
     public String getName() {
-        return hwPartition.getName();
+        return this.hwPartition.getName();
     }
 
     /**
      * @return Returns the type.
      */
     public String getType() {
-        return hwPartition.getType();
+        return this.hwPartition.getType();
     }
 
     /**
      * @return Returns the uuid.
      */
     public String getUuid() {
-        return hwPartition.getUuid();
+        return this.hwPartition.getUuid();
     }
 
     /**
      * @return Returns the size in bytes.
      */
     public long getSize() {
-        return hwPartition.getSize();
+        return this.hwPartition.getSize();
     }
 
     /**
      * @return Returns the major device ID.
      */
     public int getMajor() {
-        return hwPartition.getMajor();
+        return this.hwPartition.getMajor();
     }
 
     /**
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-        return hwPartition.getMinor();
+        return this.hwPartition.getMinor();
     }
 
     /**
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-        return hwPartition.getMountPoint();
+        return this.hwPartition.getMountPoint();
     }
 
     /**
@@ -203,7 +203,7 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable<HW
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions.identification")) {
             json.add("identification", this.hwPartition.getIdentification());
         }
@@ -246,7 +246,7 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable<HW
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((hwPartition == null) ? 0 : hwPartition.hashCode());
+        result = prime * result + (this.hwPartition == null ? 0 : this.hwPartition.hashCode());
         return result;
     }
 
@@ -265,11 +265,11 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable<HW
             return false;
         }
         HWPartition other = (HWPartition) obj;
-        if (hwPartition == null) {
+        if (this.hwPartition == null) {
             if (other.hwPartition != null) {
                 return false;
             }
-        } else if (!hwPartition.equals(other.hwPartition)) {
+        } else if (!this.hwPartition.equals(other.hwPartition)) {
             return false;
         }
         return true;

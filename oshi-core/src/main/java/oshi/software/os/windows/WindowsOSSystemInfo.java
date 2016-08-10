@@ -28,7 +28,7 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows OS native system information.
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsOSSystemInfo {
@@ -62,7 +62,7 @@ public class WindowsOSSystemInfo {
 
     /**
      * Number of processors.
-     * 
+     *
      * @return Integer.
      */
     public int getNumberOfProcessors() {

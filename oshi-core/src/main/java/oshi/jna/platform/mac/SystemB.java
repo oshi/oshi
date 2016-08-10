@@ -28,7 +28,7 @@ import com.sun.jna.Structure;
 /**
  * Power Supply stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface SystemB extends com.sun.jna.platform.mac.SystemB {
@@ -337,7 +337,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
     /**
      * Search through the current processes
-     * 
+     *
      * @param type
      *            types of processes to be searched
      * @param typeinfo
@@ -357,7 +357,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Return in buffer a proc_*info structure corresponding to the flavor for
      * the specified process
-     * 
+     *
      * @param pid
      *            the process identifier
      * @param flavor
@@ -375,7 +375,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
     /**
      * Return in buffer the name of the specified process
-     * 
+     *
      * @param pid
      *            the process identifier
      * @param buffer
@@ -390,11 +390,11 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * The getfsstat() function returns information about all mounted file
      * systems. The buf argument is a pointer to an array of statfs structures.
-     * 
+     *
      * Fields that are undefined for a particular file system are set to -1. The
      * buffer is filled with an array of statfs structures, one for each mounted
      * file system up to the size specified by bufsize.
-     * 
+     *
      * @param buf
      *            Array of statfs structures that will be filled with results.
      *            If buf is given as NULL, getfsstat() returns just the number
@@ -419,7 +419,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Returns the process ID of the calling process. The ID is guaranteed to be
      * unique and is useful for constructing temporary file names.
-     * 
+     *
      * @return the process ID of the calling process.
      */
     int getpid();

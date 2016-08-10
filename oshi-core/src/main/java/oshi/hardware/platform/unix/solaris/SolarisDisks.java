@@ -186,7 +186,7 @@ public class SolarisDisks implements Disks {
     /**
      * Updates the HWDiskStore. If model name is nonempty it is used, otherwise
      * vendor+product are used for model
-     * 
+     *
      * @param store
      *            A HWDiskStore
      * @param model

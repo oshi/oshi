@@ -31,7 +31,7 @@ import oshi.jna.platform.unix.LibC;
 
 /**
  * Provides access to sysctl calls on FreeBSD
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class BsdSysctlUtil {
@@ -39,7 +39,7 @@ public class BsdSysctlUtil {
 
     /**
      * Executes a sysctl call with an int result
-     * 
+     *
      * @param name
      *            name of the sysctl
      * @param def
@@ -58,7 +58,7 @@ public class BsdSysctlUtil {
 
     /**
      * Executes a sysctl call with a long result
-     * 
+     *
      * @param name
      *            name of the sysctl
      * @param def
@@ -77,7 +77,7 @@ public class BsdSysctlUtil {
 
     /**
      * Executes a sysctl call with a String result
-     * 
+     *
      * @param name
      *            name of the sysctl
      * @param def
@@ -103,7 +103,7 @@ public class BsdSysctlUtil {
 
     /**
      * Executes a sysctl call with a Structure result
-     * 
+     *
      * @param name
      *            name of the sysctl
      * @param struct

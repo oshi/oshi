@@ -61,7 +61,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         setFamilyFromReleaseFiles();
         // The above call may also populate versionId and codeName
         // to pass to version constructor
-        this.version = new LinuxOSVersionInfoEx(versionId, codeName);
+        this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);
     }
 
     /**
@@ -215,7 +215,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Attempts to read /etc/os-release
-     * 
+     *
      * @return true if file successfully read and NAME= found
      */
     private boolean readOsRelease() {
@@ -258,7 +258,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Attempts to execute `lsb_release -a`
-     * 
+     *
      * @return true if the command successfully executed and Distributor ID: or
      *         Description: found
      */
@@ -290,7 +290,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Attempts to read /etc/lsb-release
-     * 
+     *
      * @return true if file successfully read and DISTRIB_ID or
      *         DISTRIB_DESCRIPTION found
      */
@@ -322,7 +322,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
-     * 
+     *
      * @return true if file successfully read and " release " or " VERSION "
      *         found
      */
@@ -348,7 +348,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Helper method to parse version description line style
-     * 
+     *
      * @param line
      *            a String of the form "Distributor release x.x (Codename)"
      * @param splitLine
@@ -372,7 +372,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Looks for a collection of possible distrib-release filenames
-     * 
+     *
      * @return The first valid matching filename
      */
     protected static String getReleaseFilename() {
@@ -396,7 +396,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Converts a portion of a filename (e.g. the 'redhat' in
      * /etc/redhat-release) to a mixed case string representing the family
      * (e.g., Red Hat)
-     * 
+     *
      * @param name
      *            Stripped version of filename after removing /etc and -release
      * @return Mixed case family

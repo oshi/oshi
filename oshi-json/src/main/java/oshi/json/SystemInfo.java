@@ -40,7 +40,7 @@ import oshi.json.util.PropertiesUtil;
  * provides getters which instantiate the appropriate platform-specific
  * implementations of {@link OperatingSystem} (software) and
  * {@link HardwareAbstractionLayer} (hardware).
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject {
@@ -72,12 +72,12 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link OperatingSystem}.
-     * 
+     *
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
         if (this.os == null) {
-            this.os = new OperatingSystemImpl(si.getOperatingSystem());
+            this.os = new OperatingSystemImpl(this.si.getOperatingSystem());
         }
         return this.os;
     }
@@ -85,12 +85,12 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link HardwareAbstractionLayer}.
-     * 
+     *
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
         if (this.hardware == null) {
-            this.hardware = new HardwareAbstractionLayerImpl(si.getHardware());
+            this.hardware = new HardwareAbstractionLayerImpl(this.si.getHardware());
         }
         return this.hardware;
     }
@@ -100,7 +100,7 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "platform")) {
             json.add("platform", getCurrentPlatformEnum().toString());
         }
