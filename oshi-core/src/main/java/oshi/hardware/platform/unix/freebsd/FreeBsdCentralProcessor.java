@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -215,9 +214,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
             // If root privileges this will work
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
             String marker = "Serial Number:";
-            for (String checkLine : hwInfo) {
+            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
                 if (checkLine.contains(marker)) {
                     this.cpuSerialNumber = checkLine.split(marker)[1].trim();
                     break;
@@ -226,8 +224,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             // if lshal command available (hald must be manually installed)
             if (this.cpuSerialNumber == null) {
                 marker = "system.hardware.serial =";
-                hwInfo = ExecutingCommand.runNative("lshal");
-                for (String checkLine : hwInfo) {
+                for (String checkLine : ExecutingCommand.runNative("lshal")) {
                     if (checkLine.contains(marker)) {
                         String[] temp = checkLine.split(marker)[1].split("'");
                         // Format: '12345' (string)

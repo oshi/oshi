@@ -92,9 +92,8 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
         // Find any partition UUIDs and map them
         Map<String, String> uuidMap = new HashMap<>();
         // Now grab dmssg output
-        List<String> geom = ExecutingCommand.runNative("geom part list");
         String device = "";
-        for (String line : geom) {
+        for (String line : ExecutingCommand.runNative("geom part list")) {
             if (line.contains("Name: ")) {
                 device = line.substring(line.lastIndexOf(' ') + 1);
             }
@@ -112,8 +111,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get mount table
-        ArrayList<String> mntTab = ExecutingCommand.runNative("mount -p");
-        for (String fs : mntTab) {
+        for (String fs : ExecutingCommand.runNative("mount -p")) {
             String[] split = fs.split("\\s+");
             if (split.length < 5) {
                 continue;

@@ -263,11 +263,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         Description: found
      */
     private boolean execLsbRelease() {
-        List<String> osRelease = ExecutingCommand.runNative("lsb_release -a");
         // If description is of the format Distrib release x.x (Codename)
         // that is primary, otherwise use Distributor ID: which returns the
         // distribution concatenated, e.g., RedHat instead of Red Hat
-        for (String line : osRelease) {
+        for (String line : ExecutingCommand.runNative("lsb_release -a")) {
             if (line.startsWith("Description:")) {
                 LOG.debug("lsb_release -a: {}", line);
                 line = line.replace("Description:", "").trim();

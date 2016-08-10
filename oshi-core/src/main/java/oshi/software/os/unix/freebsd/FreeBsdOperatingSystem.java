@@ -58,7 +58,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        ArrayList<String> procList = ExecutingCommand
+        List<String> procList = ExecutingCommand
                 .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command");
         if (procList.isEmpty() || procList.size() < 2) {
             return new OSProcess[0];
@@ -100,7 +100,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        ArrayList<String> procList = ExecutingCommand
+        List<String> procList = ExecutingCommand
                 .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command -p " + pid);
         if (procList.isEmpty() || procList.size() < 2) {
             return null;
@@ -141,7 +141,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-        ArrayList<String> procList = ExecutingCommand.runNative("ps -axo pid");
+        List<String> procList = ExecutingCommand.runNative("ps -axo pid");
         if (!procList.isEmpty()) {
             // Subtract 1 for header
             return procList.size() - 1;
@@ -154,9 +154,8 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-        ArrayList<String> threadList = ExecutingCommand.runNative("ps -axo nlwp");
         int threads = 0;
-        for (String proc : threadList) {
+        for (String proc : ExecutingCommand.runNative("ps -axo nlwp")) {
             threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
         }
         return threads;

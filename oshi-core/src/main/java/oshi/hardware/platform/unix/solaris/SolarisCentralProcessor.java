@@ -18,8 +18,6 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,8 +79,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         this.logicalProcessorCount = 0;
         this.physicalProcessorCount = 0;
         // Get number of logical processors
-        List<String> procInfo = ExecutingCommand.runNative("psrinfo -pv");
-        for (String cpu : procInfo) {
+        for (String cpu : ExecutingCommand.runNative("psrinfo -pv")) {
             Matcher m = PSRINFO.matcher(cpu.trim());
             if (m.matches()) {
                 this.physicalProcessorCount++;
@@ -175,9 +172,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("smbios -t SMB_TYPE_SYSTEM");
             String marker = "Serial Number:";
-            for (String checkLine : hwInfo) {
+            for (String checkLine : ExecutingCommand.runNative("smbios -t SMB_TYPE_SYSTEM")) {
                 if (checkLine.contains(marker)) {
                     this.cpuSerialNumber = checkLine.split(marker)[1].trim();
                     break;
@@ -191,15 +187,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             // if that didn't work, try...
             if (this.cpuSerialNumber.isEmpty()) {
                 marker = "chassis-sn:";
-                hwInfo = ExecutingCommand.runNative("prtconf -pv");
-                if (hwInfo != null) {
-                    for (String checkLine : hwInfo) {
-                        if (checkLine.contains(marker)) {
-                            String[] temp = checkLine.split(marker)[1].split("'");
-                            // Format: '12345' (string)
-                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : "";
-                            break;
-                        }
+                for (String checkLine : ExecutingCommand.runNative("prtconf -pv")) {
+                    if (checkLine.contains(marker)) {
+                        String[] temp = checkLine.split(marker)[1].split("'");
+                        // Format: '12345' (string)
+                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : "";
+                        break;
                     }
                 }
             }

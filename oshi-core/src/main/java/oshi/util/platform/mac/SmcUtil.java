@@ -49,12 +49,15 @@ public class SmcUtil {
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.
      */
-    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<Integer, SMCKeyDataKeyInfo>();
+    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
 
     /**
      * Byte array used for matching return type
      */
-    private final static byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
+    private static final byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
+
+    private SmcUtil() {
+    }
 
     /**
      * Open a connection to SMC
@@ -164,10 +167,9 @@ public class SmcUtil {
             outputStructure.keyInfo.dataType = keyInfo.dataType;
             outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;
         } else {
-            int result = 0;
             inputStructure.data8 = IOKit.SMC_CMD_READ_KEYINFO;
             Util.sleep(4);
-            result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
+            int result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
             if (result != 0) {
                 return result;
             }

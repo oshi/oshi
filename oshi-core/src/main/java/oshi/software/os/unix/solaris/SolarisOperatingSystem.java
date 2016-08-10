@@ -58,7 +58,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        ArrayList<String> procList = ExecutingCommand.runNative("ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm");
+        List<String> procList = ExecutingCommand.runNative("ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm");
         if (procList.isEmpty() || procList.size() < 2) {
             return new OSProcess[0];
         }
@@ -97,7 +97,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        ArrayList<String> procList = ExecutingCommand
+        List<String> procList = ExecutingCommand
                 .runNative("ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p " + pid);
         if (procList.isEmpty() || procList.size() < 2) {
             return null;
@@ -145,7 +145,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-        ArrayList<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
+        List<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
         if (!threadList.isEmpty()) {
             // Subtract 1 for header
             return threadList.size() - 1;

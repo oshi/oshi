@@ -54,8 +54,7 @@ public class FreeBsdDisks implements Disks {
     public HWDiskStore[] getDisks() {
         // Parse 'mount' to map partitions to mount point
         mountMap.clear();
-        ArrayList<String> mount = ExecutingCommand.runNative("mount");
-        for (String mnt : mount) {
+        for (String mnt : ExecutingCommand.runNative("mount")) {
             Matcher m = MOUNT_PATTERN.matcher(mnt);
             if (m.matches()) {
                 mountMap.put(m.group(1), m.group(2));
@@ -70,7 +69,7 @@ public class FreeBsdDisks implements Disks {
         List<HWPartition> partList = new ArrayList<>();
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
-        ArrayList<String> disks = ExecutingCommand.runNative("iostat -Ix");
+        List<String> disks = ExecutingCommand.runNative("iostat -Ix");
         long timeStamp = System.currentTimeMillis();
         for (String line : disks) {
             String[] split = line.split("\\s+");

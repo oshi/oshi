@@ -90,8 +90,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get mount table
-        ArrayList<String> mntTab = ExecutingCommand.runNative("cat /etc/mnttab");
-        for (String fs : mntTab) {
+        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) {
             String[] split = fs.split("\\s+");
             if (split.length < 5) {
                 continue;

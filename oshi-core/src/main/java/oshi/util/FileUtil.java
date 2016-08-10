@@ -79,7 +79,7 @@ public class FileUtil {
         } else if (reportError) {
             LOG.warn("File not found: {}", filename);
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     /**

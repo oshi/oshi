@@ -52,7 +52,7 @@ public class CfUtil {
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-        return cfStringMap.computeIfAbsent(key, k -> CFStringRef.toCFString(k));
+        return cfStringMap.computeIfAbsent(key, CFStringRef::toCFString);
     }
 
     /**
@@ -61,7 +61,7 @@ public class CfUtil {
      */
     public enum CFNumberType {
         unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType
-    };
+    }
 
     /**
      * Convert a pointer representing a Core Foundations LongLong into its long

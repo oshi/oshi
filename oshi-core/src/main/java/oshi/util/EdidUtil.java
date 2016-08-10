@@ -36,6 +36,9 @@ public class EdidUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);
 
+    private EdidUtil() {
+    }
+
     /**
      * Converts a byte array to a hexadecimal string
      *

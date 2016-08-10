@@ -53,6 +53,9 @@ public class KstatUtil {
         });
     }
 
+    private KstatUtil() {
+    }
+
     /**
      * Convenience method for kstat_data_lookup() with String return values.
      * Searches the kstat's data section for the record with the specified name.
@@ -184,8 +187,7 @@ public class KstatUtil {
             LOG.error("Failed to update kstat chain");
             return null;
         }
-        Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);
-        return ksp;
+        return LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);
     }
 
     /**

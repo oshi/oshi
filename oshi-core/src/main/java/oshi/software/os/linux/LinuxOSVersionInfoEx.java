@@ -52,7 +52,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
         if (!procVersion.isEmpty()) {
             String[] split = procVersion.get(0).split("\\s+");
             for (String s : split) {
-                if (!s.equals("Linux") && !s.equals("version")) {
+                if (!"Linux".equals(s) && !"version".equals(s)) {
                     setBuildNumber(s);
                     return;
                 }
@@ -167,11 +167,10 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      *         Description: found
      */
     private boolean execLsbRelease() {
-        List<String> osRelease = ExecutingCommand.runNative("lsb_release -a");
         // If description is of the format Distrib release x.x (Codename)
         // that is primary, otherwise use Distributor ID: which returns the
         // distribution concatenated, e.g., RedHat instead of Red Hat
-        for (String line : osRelease) {
+        for (String line : ExecutingCommand.runNative("lsb_release -a")) {
             if (line.startsWith("Description:")) {
                 LOG.debug("lsb_release -a: {}", line);
                 line = line.replace("Description:", "").trim();

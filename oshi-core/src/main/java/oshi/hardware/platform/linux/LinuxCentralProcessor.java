@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -280,9 +279,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         if (this.cpuSerialNumber == null) {
             // If root privileges this will work
-            ArrayList<String> hwInfo = ExecutingCommand.runNative("dmidecode -t system");
             String marker = "Serial Number:";
-            for (String checkLine : hwInfo) {
+            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
                 if (checkLine.contains(marker)) {
                     this.cpuSerialNumber = checkLine.split(marker)[1].trim();
                     break;
@@ -291,15 +289,12 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             // if lshal command available (HAL deprecated in newer linuxes)
             if (this.cpuSerialNumber == null) {
                 marker = "system.hardware.serial =";
-                hwInfo = ExecutingCommand.runNative("lshal");
-                if (hwInfo != null) {
-                    for (String checkLine : hwInfo) {
-                        if (checkLine.contains(marker)) {
-                            String[] temp = checkLine.split(marker)[1].split("'");
-                            // Format: '12345' (string)
-                            this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
-                            break;
-                        }
+                for (String checkLine : ExecutingCommand.runNative("lshal")) {
+                    if (checkLine.contains(marker)) {
+                        String[] temp = checkLine.split(marker)[1].split("'");
+                        // Format: '12345' (string)
+                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
+                        break;
                     }
                 }
             }

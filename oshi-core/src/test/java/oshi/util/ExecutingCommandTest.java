@@ -21,7 +21,7 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class ExecutingCommandTest {
 
     @Test
     public void testRunNative() {
-        ArrayList<String> test = ExecutingCommand.runNative(ECHO);
+        List<String> test = ExecutingCommand.runNative(ECHO);
         assertEquals(1, test.size());
         assertEquals("Test", test.get(0));
         assertEquals("Test", ExecutingCommand.getFirstAnswer(ECHO));

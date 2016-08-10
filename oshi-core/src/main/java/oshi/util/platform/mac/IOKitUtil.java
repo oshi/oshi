@@ -41,6 +41,9 @@ public class IOKitUtil {
 
     private static MachPort masterPort = new MachPort();
 
+    private IOKitUtil() {
+    }
+
     /**
      * Sets the masterPort value
      *

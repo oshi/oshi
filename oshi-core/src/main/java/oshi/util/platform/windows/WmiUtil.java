@@ -66,9 +66,9 @@ public class WmiUtil {
     /**
      * For WMI queries requiring array input
      */
-    private static ValueType[] STRING_TYPE = { ValueType.STRING };
-    private static ValueType[] UINT32_TYPE = { ValueType.UINT32 };
-    private static ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
+    private static final ValueType[] STRING_TYPE = { ValueType.STRING };
+    private static final ValueType[] UINT32_TYPE = { ValueType.UINT32 };
+    private static final ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
 
     /**
      * Get a single Unsigned Integer value from WMI (as Long)
@@ -249,9 +249,8 @@ public class WmiUtil {
      */
     public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String properties,
             String whereClause, ValueType[] propertyTypes) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, propertyTypes);
-        return result;
+        return queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties, wmiClass, whereClause,
+                propertyTypes);
     }
 
     /**

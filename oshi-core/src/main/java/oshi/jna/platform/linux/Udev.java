@@ -41,7 +41,7 @@ public interface Udev extends Library {
         public UdevHandle() {
             super();
         }
-    };
+    }
 
     final class UdevDevice extends PointerType {
 
@@ -52,7 +52,7 @@ public interface Udev extends Library {
         public UdevDevice() {
             super();
         }
-    };
+    }
 
     class UdevEnumerate extends PointerType {
 
@@ -63,7 +63,7 @@ public interface Udev extends Library {
         public UdevEnumerate() {
             super();
         }
-    };
+    }
 
     class UdevListEntry extends PointerType {
 
@@ -74,7 +74,7 @@ public interface Udev extends Library {
         public UdevListEntry() {
             super();
         }
-    };
+    }
 
     Udev.UdevHandle udev_new();
 

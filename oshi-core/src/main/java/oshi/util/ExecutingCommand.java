@@ -37,6 +37,9 @@ public class ExecutingCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
 
+    private ExecutingCommand() {
+    }
+
     /**
      * Executes a command on the native command line and returns the result.
      *
@@ -45,7 +48,7 @@ public class ExecutingCommand {
      * @return A list of Strings representing the result of the command, or
      *         empty string if the command failed
      */
-    public static ArrayList<String> runNative(String cmdToRun) {
+    public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
         return runNative(cmd);
     }
@@ -58,13 +61,13 @@ public class ExecutingCommand {
      * @return A list of Strings representing the result of the command, or
      *         empty string if the command failed
      */
-    public static ArrayList<String> runNative(String[] cmdToRunWithArgs) {
+    public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("", e);
-            return new ArrayList<String>(0);
+            return new ArrayList<>(0);
         }
 
         ArrayList<String> sa = new ArrayList<>();
@@ -76,7 +79,7 @@ public class ExecutingCommand {
             p.waitFor();
         } catch (InterruptedException | IOException e) {
             LOG.trace("", e);
-            return new ArrayList<String>(0);
+            return new ArrayList<>(0);
         }
         return sa;
     }

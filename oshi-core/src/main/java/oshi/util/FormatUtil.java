@@ -34,23 +34,26 @@ public class FormatUtil {
      *
      * Should be used for most representations of bytes
      */
-    final private static long KIBI = 1L << 10;
-    final private static long MEBI = 1L << 20;
-    final private static long GIBI = 1L << 30;
-    final private static long TEBI = 1L << 40;
-    final private static long PEBI = 1L << 50;
-    final private static long EXBI = 1L << 60;
+    private static final long KIBI = 1L << 10;
+    private static final long MEBI = 1L << 20;
+    private static final long GIBI = 1L << 30;
+    private static final long TEBI = 1L << 40;
+    private static final long PEBI = 1L << 50;
+    private static final long EXBI = 1L << 60;
 
     /**
      * Decimal prefixes, used for Hz and other metric units and for bytes by
      * hard drive manufacturers
      */
-    final private static long KILO = 1000L;
-    final private static long MEGA = 1000000L;
-    final private static long GIGA = 1000000000L;
-    final private static long TERA = 1000000000000L;
-    final private static long PETA = 1000000000000000L;
-    final private static long EXA = 1000000000000000000L;
+    private static final long KILO = 1000L;
+    private static final long MEGA = 1000000L;
+    private static final long GIGA = 1000000000L;
+    private static final long TERA = 1000000000000L;
+    private static final long PETA = 1000000000000000L;
+    private static final long EXA = 1000000000000000000L;
+
+    private FormatUtil() {
+    }
 
     /**
      * Format bytes into a rounded string representation using IEC standard

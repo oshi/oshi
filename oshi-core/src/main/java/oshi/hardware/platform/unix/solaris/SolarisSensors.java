@@ -35,9 +35,8 @@ public class SolarisSensors implements Sensors {
     @Override
     public double getCpuTemperature() {
         double maxTemp = 0d;
-        ArrayList<String> temps = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor");
         // Return max found temp
-        for (String line : temps) {
+        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor")) {
             if (line.trim().startsWith("Temperature:")) {
                 int temp = ParseUtil.parseLastInt(line, 0);
                 if (temp > maxTemp) {
@@ -58,9 +57,8 @@ public class SolarisSensors implements Sensors {
     @Override
     public int[] getFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
-        ArrayList<String> speeds = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan");
         // Return max found temp
-        for (String line : speeds) {
+        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
             if (line.trim().startsWith("Speed:")) {
                 speedList.add(ParseUtil.parseLastInt(line, 0));
             }
@@ -78,9 +76,8 @@ public class SolarisSensors implements Sensors {
     @Override
     public double getCpuVoltage() {
         double voltage = 0d;
-        ArrayList<String> volts = ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor");
         // TODO This is entirely a guess!
-        for (String line : volts) {
+        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor")) {
             if (line.trim().startsWith("Voltage:")) {
                 voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
                 break;

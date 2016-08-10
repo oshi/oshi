@@ -51,7 +51,7 @@ public class SolarisDisks implements Disks {
         // device,s/w,h/w,trn,tot
         // cmdk0,0,0,0,0
         // sd0,0,0,0
-        ArrayList<String> disks = ExecutingCommand.runNative("iostat -er");
+        List<String> disks = ExecutingCommand.runNative("iostat -er");
 
         // Create map to correlate disk name with block device mount point for
         // later use in partition info
@@ -62,7 +62,7 @@ public class SolarisDisks implements Disks {
         // s/w,h/w,trn,tot,device
         // 0,0,0,0,c1d0
         // 0,0,0,0,c1t1d0
-        ArrayList<String> mountpoints = ExecutingCommand.runNative("iostat -ern");
+        List<String> mountpoints = ExecutingCommand.runNative("iostat -ern");
         String disk;
         for (int i = 0; i < disks.size() && i < mountpoints.size(); i++) {
             // Map disk
@@ -88,7 +88,7 @@ public class SolarisDisks implements Disks {
         Map<String, Integer> majorMap = new HashMap<>();
         // Run lshal, if available, to get block device major (we'll use
         // partition # for minor)
-        ArrayList<String> lshal = ExecutingCommand.runNative("lshal");
+        List<String> lshal = ExecutingCommand.runNative("lshal");
         disk = "";
         for (String line : lshal) {
             if (line.startsWith("udi ")) {
