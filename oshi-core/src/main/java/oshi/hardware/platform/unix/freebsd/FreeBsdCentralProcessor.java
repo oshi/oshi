@@ -36,6 +36,7 @@ import oshi.jna.platform.unix.LibC.CpTime;
 import oshi.jna.platform.unix.LibC.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -53,6 +54,23 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Pattern CPUINFO = Pattern
             .compile("Origin=\"([^\"]*)\".*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
+
+    private static final long BOOTTIME;
+    static {
+        Timeval tv = new Timeval();
+        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+            BOOTTIME = ParseUtil.parseLongOrDefault(
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    System.currentTimeMillis() / 1000);
+        } else {
+            // tv now points to a 128-bit timeval structure for boot time.
+            // First 8 bytes are seconds, second 8 bytes are microseconds
+            // (we ignore)
+            BOOTTIME = tv.tv_sec;
+        }
+    }
 
     /**
      * Create a Processor
@@ -198,13 +216,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        Timeval tv = new Timeval();
-        if (!BsdSysctlUtil.sysctl("kern.boottime", tv)) {
-            return 0L;
-        }
-        // tv now points to a 16-bit timeval structure for boot time.
-        // First 8 bytes are seconds, second 8 bytes are microseconds (ignore)
-        return System.currentTimeMillis() / 1000 - tv.tv_sec;
+        return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
     /**
