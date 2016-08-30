@@ -9,11 +9,11 @@
 
 	<name>Operating System and Hardware Information</name>
 	<description>A JNA-based (native) operating system information library for Java that aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
-	<url>https://github.com/dblock/oshi</url>
+	<url>https://github.com/oshi/oshi</url>
 	<inceptionYear>2010</inceptionYear>
 	<organization>
-		<name>com.github.dblock</name>
-		<url>https://github.com/dblock/</url>
+		<name>oshi</name>
+		<url>https://github.com/oshi/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -49,24 +49,24 @@
 	</modules>
 
 	<scm>
-		<connection>scm:git:git@github.com:dblock/oshi.git</connection>
-		<developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
-		<url>https://github.com/dblock/oshi.git</url>
+		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
+		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
+		<url>https://github.com/oshi/oshi.git</url>
 		<tag>HEAD</tag>
 	</scm>
 	<issueManagement>
 		<system>Github</system>
-		<url>https://github.com/dblock/oshi/issues</url>
+		<url>https://github.com/oshi/oshi/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>travis</system>
-		<url>https://travis-ci.org/dblock/oshi/</url>
+		<url>https://travis-ci.org/oshi/oshi/</url>
 	</ciManagement>
 	<distributionManagement>
 		<site>
 			<id>gh-pages</id>
 			<name>OSHI GitHub Pages</name>
-			<url>github:http://dblock.github.io/oshi/</url>
+			<url>github:http://oshi.github.io/oshi/</url>
 		</site>
 		<snapshotRepository>
 			<id>sonatype-nexus-snapshots</id>
@@ -230,7 +230,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>2.6</version>
+					<version>3.0</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -371,7 +371,7 @@
 				<plugin>
 					<groupId>com.mycila</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>2.11</version>
+					<version>3.0</version>
 					<configuration>
 						<header>LICENSE_HEADER</header>
 						<excludes>
