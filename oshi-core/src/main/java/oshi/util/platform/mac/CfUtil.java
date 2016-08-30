@@ -109,6 +109,9 @@ public class CfUtil {
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
+        if (p == null) {
+            return "null";
+        }
         long length = CoreFoundation.INSTANCE.CFStringGetLength(p);
         long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);
         if (maxSize == 0) {
