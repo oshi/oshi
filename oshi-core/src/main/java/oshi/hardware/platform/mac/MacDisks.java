@@ -21,10 +21,8 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +73,11 @@ public class MacDisks implements Disks {
         Statfs[] fs = new Statfs[numfs];
         // Fill array with results
         SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        // Iterate all mounted file systems
+        for (Statfs f : fs) {
+            String mntFrom = new String(f.f_mntfromname).trim();
+            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+        }
 
         // Open a DiskArbitration session
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
@@ -83,19 +86,20 @@ public class MacDisks implements Disks {
             return new HWDiskStore[0];
         }
 
-        // Create a set in case we have multiple partitions mounted
-        Set<String> bsdNames = new HashSet<>();
-        // Iterate all mounted file systems
-        for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname).trim();
-            // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
-            // Strip off the partition # to get base disk name
-            String[] split = mntFrom.split("/dev/|s\\d+");
-            if (split.length > 1) {
-                bsdNames.add(split[1]);
+        // Get IOMedia objects representing whole drives
+        List<String> bsdNames = new ArrayList<>();
+        IntByReference iter = new IntByReference();
+        IOKitUtil.getMatchingServices("IOMedia", iter);
+        int media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
+        while (media != 0) {
+            if (IOKitUtil.getIORegistryBooleanProperty(media, "Whole")) {
+                DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromIOMedia(CfUtil.ALLOCATOR, session, media);
+                bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));
             }
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+            IOKit.INSTANCE.IOObjectRelease(media);
+            media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
         }
+
         // Now iterate the bsdNames
         for (String bsdName : bsdNames) {
             String model = "";
