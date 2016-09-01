@@ -46,7 +46,7 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
     /**
      * Creates a new platform-specific CentralProcessor object wrapping the
      * provided argument
-     * 
+     *
      * @param processor
      *            a platform-specific CentralProcessor object
      */
@@ -275,7 +275,7 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L278">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L278">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L279" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor.name&quot;)) {</span>
 <span class="nc" id="L280">            json.add(&quot;name&quot;, getName());</span>
         }
@@ -310,7 +310,7 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
 <span class="nc" id="L310">            json.add(&quot;systemCpuLoadBetweenTicks&quot;, getSystemCpuLoadBetweenTicks());</span>
         }
 <span class="nc bnc" id="L312" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor.systemCpuLoadTicks&quot;)) {</span>
-<span class="nc" id="L313">            JsonArrayBuilder systemCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L313">            JsonArrayBuilder systemCpuLoadTicksArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L314" title="All 2 branches missed.">            for (long ticks : getSystemCpuLoadTicks()) {</span>
 <span class="nc" id="L315">                systemCpuLoadTicksArrayBuilder.add(ticks);</span>
             }
@@ -323,23 +323,23 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
 <span class="nc" id="L323">            json.add(&quot;systemLoadAverage&quot;, getSystemLoadAverage());</span>
         }
 <span class="nc bnc" id="L325" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor.systemLoadAverages&quot;)) {</span>
-<span class="nc" id="L326">            JsonArrayBuilder systemLoadAverageArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L326">            JsonArrayBuilder systemLoadAverageArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L327" title="All 2 branches missed.">            for (double avg : getSystemLoadAverage(3)) {</span>
 <span class="nc" id="L328">                systemLoadAverageArrayBuilder.add(avg);</span>
             }
 <span class="nc" id="L330">            json.add(&quot;systemLoadAverages&quot;, systemLoadAverageArrayBuilder.build());</span>
         }
 <span class="nc bnc" id="L332" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor.processorCpuLoadBetweenTicks&quot;)) {</span>
-<span class="nc" id="L333">            JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L333">            JsonArrayBuilder processorCpuLoadBetweenTicksArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L334" title="All 2 branches missed.">            for (double load : getProcessorCpuLoadBetweenTicks()) {</span>
 <span class="nc" id="L335">                processorCpuLoadBetweenTicksArrayBuilder.add(load);</span>
             }
 <span class="nc" id="L337">            json.add(&quot;processorCpuLoadBetweenTicks&quot;, processorCpuLoadBetweenTicksArrayBuilder.build());</span>
         }
 <span class="nc bnc" id="L339" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.processor.processorCpuLoadTicks&quot;)) {</span>
-<span class="nc" id="L340">            JsonArrayBuilder processorCpuLoadTicksArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L340">            JsonArrayBuilder processorCpuLoadTicksArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L341" title="All 2 branches missed.">            for (long[] procTicks : getProcessorCpuLoadTicks()) {</span>
-<span class="nc" id="L342">                JsonArrayBuilder processorTicksArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L342">                JsonArrayBuilder processorTicksArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L343" title="All 2 branches missed.">                for (long ticks : procTicks) {</span>
 <span class="nc" id="L344">                    processorTicksArrayBuilder.add(ticks);</span>
                 }

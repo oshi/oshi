@@ -45,7 +45,7 @@ public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
     /**
      * Creates a new platform-specific Sensors object wrapping the provided
      * argument
-     * 
+     *
      * @param sensors
      *            a platform-specific Sensors object
      */
@@ -82,12 +82,12 @@ public class SensorsImpl extends AbstractOshiJsonObject implements Sensors {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L85">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L85">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L86" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.sensors.cpuTemperature&quot;)) {</span>
 <span class="nc" id="L87">            json.add(&quot;cpuTemperature&quot;, getCpuTemperature());</span>
         }
 <span class="nc bnc" id="L89" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.sensors.fanSpeeds&quot;)) {</span>
-<span class="nc" id="L90">            JsonArrayBuilder fanSpeedsArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L90">            JsonArrayBuilder fanSpeedsArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">            for (int speed : getFanSpeeds()) {</span>
 <span class="nc" id="L92">                fanSpeedsArrayBuilder.add(speed);</span>
             }

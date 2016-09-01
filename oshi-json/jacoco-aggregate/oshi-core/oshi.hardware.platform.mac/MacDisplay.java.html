@@ -38,7 +38,7 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
@@ -56,11 +56,11 @@ public class MacDisplay extends AbstractDisplay {
 
     /**
      * Gets Display Information
-     * 
+     *
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L63">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
+<span class="nc" id="L63">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
         // Iterate IO Registry IODisplayConnect
 <span class="nc" id="L65">        IntByReference serviceIterator = new IntByReference();</span>
 <span class="nc" id="L66">        IOKitUtil.getMatchingServices(&quot;IODisplayConnect&quot;, serviceIterator);</span>

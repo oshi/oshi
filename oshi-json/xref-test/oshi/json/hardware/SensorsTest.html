@@ -45,14 +45,14 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>          Sensors s = si.getHardware().getSensors();
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertTrue(s.getCpuTemperature() &gt;= 0d &amp;&amp; s.getCpuTemperature() &lt;= 100d);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">int</strong>[] speeds = s.getFanSpeeds();
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> fan = 0; fan &lt; speeds.length; fan++) {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>              assertTrue(speeds[fan] &gt;= 0);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> speed : speeds) {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              assertTrue(speed &gt;= 0);
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertTrue(s.getCpuVoltage() &gt;= 0);
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

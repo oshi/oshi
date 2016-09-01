@@ -29,7 +29,7 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 /**
  * Windows PSAPI. This class should be considered non-API as it may be removed
  * if/when its code is incorporated public into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface Psapi extends com.sun.jna.platform.win32.Psapi {
@@ -63,7 +63,7 @@ public interface Psapi extends com.sun.jna.platform.win32.Psapi {
     /**
      * Retrieves the performance values contained in the
      * {@link PERFORMANCE_INFORMATION} structure.
-     * 
+     *
      * @param pPerformanceInformation
      *            A pointer to a {@link PERFORMANCE_INFORMATION} structure that
      *            receives the performance information.

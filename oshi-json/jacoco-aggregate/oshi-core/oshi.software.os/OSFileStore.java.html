@@ -24,7 +24,7 @@ import java.io.Serializable;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements Serializable {
@@ -49,7 +49,7 @@ public class OSFileStore implements Serializable {
 
     /**
      * Creates an OSFileStore with the specified parameters.
-     * 
+     *
      * @param newName
      *            Name of the filestore
      * @param newVolume
@@ -68,35 +68,35 @@ public class OSFileStore implements Serializable {
      *            Total bytes
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-<span class="nc" id="L71">            String newUuid, long newUsableSpace, long newTotalSpace) {</span>
-<span class="nc" id="L72">        this.setName(newName);</span>
-<span class="nc" id="L73">        this.setVolume(newVolume);</span>
-<span class="nc" id="L74">        this.setMount(newMount);</span>
-<span class="nc" id="L75">        this.setDescription(newDescription);</span>
-<span class="nc" id="L76">        this.setType(newType);</span>
-<span class="nc" id="L77">        this.setUUID(newUuid);</span>
-<span class="nc" id="L78">        this.setUsableSpace(newUsableSpace);</span>
-<span class="nc" id="L79">        this.setTotalSpace(newTotalSpace);</span>
-<span class="nc" id="L80">    }</span>
+<span class="fc" id="L71">            String newUuid, long newUsableSpace, long newTotalSpace) {</span>
+<span class="fc" id="L72">        setName(newName);</span>
+<span class="fc" id="L73">        setVolume(newVolume);</span>
+<span class="fc" id="L74">        setMount(newMount);</span>
+<span class="fc" id="L75">        setDescription(newDescription);</span>
+<span class="fc" id="L76">        setType(newType);</span>
+<span class="fc" id="L77">        setUUID(newUuid);</span>
+<span class="fc" id="L78">        setUsableSpace(newUsableSpace);</span>
+<span class="fc" id="L79">        setTotalSpace(newTotalSpace);</span>
+<span class="fc" id="L80">    }</span>
 
     /**
      * Name of the File System
-     * 
+     *
      * @return The file system name
      */
     public String getName() {
-<span class="nc" id="L88">        return this.name;</span>
+<span class="fc" id="L88">        return this.name;</span>
     }
 
     /**
      * Sets the File System name
-     * 
+     *
      * @param value
      *            The name
      */
     public void setName(String value) {
-<span class="nc" id="L98">        this.name = value;</span>
-<span class="nc" id="L99">    }</span>
+<span class="fc" id="L98">        this.name = value;</span>
+<span class="fc" id="L99">    }</span>
 
     /**
      * Volume of the File System
@@ -104,7 +104,7 @@ public class OSFileStore implements Serializable {
      * @return The volume of the file system
      */
     public String getVolume() {
-<span class="nc" id="L107">        return this.volume;</span>
+<span class="fc" id="L107">        return this.volume;</span>
     }
 
     /**
@@ -114,121 +114,121 @@ public class OSFileStore implements Serializable {
      *            The volume
      */
     public void setVolume(String value) {
-<span class="nc" id="L117">        this.volume = value;</span>
-<span class="nc" id="L118">    }</span>
+<span class="fc" id="L117">        this.volume = value;</span>
+<span class="fc" id="L118">    }</span>
 
     /**
      * Mountpoint of the File System
-     * 
+     *
      * @return The mountpoint of the file system
      */
     public String getMount() {
-<span class="nc" id="L126">        return this.mount;</span>
+<span class="fc" id="L126">        return this.mount;</span>
     }
 
     /**
      * Sets the mountpoint of the File System
-     * 
+     *
      * @param value
      *            The mountpoint
      */
     public void setMount(String value) {
-<span class="nc" id="L136">        this.mount = value;</span>
-<span class="nc" id="L137">    }</span>
+<span class="fc" id="L136">        this.mount = value;</span>
+<span class="fc" id="L137">    }</span>
 
     /**
      * Description of the File System
-     * 
+     *
      * @return The file system description
      */
     public String getDescription() {
-<span class="nc" id="L145">        return this.description;</span>
+<span class="fc" id="L145">        return this.description;</span>
     }
 
     /**
      * Sets the File System description
-     * 
+     *
      * @param value
      *            The description
      */
     public void setDescription(String value) {
-<span class="nc" id="L155">        this.description = value;</span>
-<span class="nc" id="L156">    }</span>
+<span class="fc" id="L155">        this.description = value;</span>
+<span class="fc" id="L156">    }</span>
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
-     * 
+     *
      * @return The file system type
      */
     public String getType() {
-<span class="nc" id="L164">        return this.fsType;</span>
+<span class="fc" id="L164">        return this.fsType;</span>
     }
 
     /**
      * Sets the File System type
-     * 
+     *
      * @param value
      *            The type
      */
     public void setType(String value) {
-<span class="nc" id="L174">        this.fsType = value;</span>
-<span class="nc" id="L175">    }</span>
+<span class="fc" id="L174">        this.fsType = value;</span>
+<span class="fc" id="L175">    }</span>
 
     /**
      * UUID/GUID of the File System
-     * 
+     *
      * @return The file system UUID/GUID
      */
     public String getUUID() {
-<span class="nc" id="L183">        return this.uuid;</span>
+<span class="fc" id="L183">        return this.uuid;</span>
     }
 
     /**
      * Sets the File System UUID/GUID
-     * 
+     *
      * @param value
      *            The UUID/GUID
      */
     public void setUUID(String value) {
-<span class="nc" id="L193">        this.uuid = value;</span>
-<span class="nc" id="L194">    }</span>
+<span class="fc" id="L193">        this.uuid = value;</span>
+<span class="fc" id="L194">    }</span>
 
     /**
      * Usable space on the drive.
-     * 
+     *
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="nc" id="L202">        return this.usableSpace;</span>
+<span class="fc" id="L202">        return this.usableSpace;</span>
     }
 
     /**
      * Sets usable space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="nc" id="L212">        this.usableSpace = value;</span>
-<span class="nc" id="L213">    }</span>
+<span class="fc" id="L212">        this.usableSpace = value;</span>
+<span class="fc" id="L213">    }</span>
 
     /**
      * Total space/capacity of the drive.
-     * 
+     *
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="nc" id="L221">        return this.totalSpace;</span>
+<span class="fc" id="L221">        return this.totalSpace;</span>
     }
 
     /**
      * Sets the total space on the drive.
-     * 
+     *
      * @param value
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="nc" id="L231">        this.totalSpace = value;</span>
-<span class="nc" id="L232">    }</span>
+<span class="fc" id="L231">        this.totalSpace = value;</span>
+<span class="fc" id="L232">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

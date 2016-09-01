@@ -25,6 +25,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +42,11 @@ import oshi.hardware.platform.windows.WindowsNetworks;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L44">public class NetworkIF implements Serializable {</span>
+<span class="fc" id="L45">public class NetworkIF implements Serializable {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+<span class="fc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
 
     private transient NetworkInterface networkInterface;
     private int mtu;
@@ -57,64 +58,63 @@ import oshi.hardware.platform.windows.WindowsNetworks;
     private long packetsRecv;
     private long packetsSent;
     private long speed;
+    private long timeStamp;
 
     /**
      * @return the network interface
      */
     public NetworkInterface getNetworkInterface() {
-<span class="nc" id="L65">        return this.networkInterface;</span>
+<span class="fc" id="L67">        return this.networkInterface;</span>
     }
 
     /**
      * Sets the network interface and calculates other information derived from
      * it
-     * 
+     *
      * @param networkInterface
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="nc" id="L76">        this.networkInterface = networkInterface;</span>
+<span class="fc" id="L78">        this.networkInterface = networkInterface;</span>
         try {
             // Set MTU
-<span class="nc" id="L79">            this.mtu = networkInterface.getMTU();</span>
+<span class="fc" id="L81">            this.mtu = networkInterface.getMTU();</span>
             // Set MAC
-<span class="nc" id="L81">            StringBuilder sb = new StringBuilder(18);</span>
-<span class="nc" id="L82">            byte[] mac = networkInterface.getHardwareAddress();</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (mac != null) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                for (byte b : mac) {</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                    if (sb.length() &gt; 0)</span>
-<span class="nc" id="L86">                        sb.append(':');</span>
-<span class="nc" id="L87">                    sb.append(String.format(&quot;%02x&quot;, b));</span>
+<span class="fc" id="L83">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
+<span class="fc" id="L85">                StringJoiner sj = new StringJoiner(&quot;:&quot;);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
+<span class="fc" id="L87">                    sj.add(String.format(&quot;%02x&quot;, b));</span>
                 }
-            } else {
-<span class="nc" id="L90">                this.mac = &quot;Unknown&quot;;</span>
+<span class="fc" id="L89">                this.mac = sj.toString();</span>
+<span class="fc" id="L90">            } else {</span>
+<span class="nc" id="L91">                this.mac = &quot;Unknown&quot;;</span>
             }
-<span class="nc" id="L92">            this.mac = sb.toString();</span>
             // Set IP arrays
-<span class="nc" id="L94">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L95">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                if (address.getHostAddress().length() == 0) {</span>
+<span class="fc" id="L94">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L95">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                if (address.getHostAddress().length() == 0) {</span>
 <span class="nc" id="L98">                    continue;</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                } else if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="nc" id="L100">                    ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                } else if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L100">                    ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
                 } else {
-<span class="nc" id="L102">                    ipv4list.add(address.getHostAddress());</span>
+<span class="fc" id="L102">                    ipv4list.add(address.getHostAddress());</span>
                 }
-<span class="nc" id="L104">            }</span>
-<span class="nc" id="L105">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
-<span class="nc" id="L106">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
+<span class="fc" id="L104">            }</span>
+<span class="fc" id="L105">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
+<span class="fc" id="L106">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
 <span class="nc" id="L107">        } catch (SocketException e) {</span>
 <span class="nc" id="L108">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
 <span class="nc" id="L109">            return;</span>
-<span class="nc" id="L110">        }</span>
-<span class="nc" id="L111">    }</span>
+<span class="fc" id="L110">        }</span>
+<span class="fc" id="L111">    }</span>
 
     /**
      * @return The interface name.
      */
     public String getName() {
-<span class="nc" id="L117">        return networkInterface.getName();</span>
+<span class="fc" id="L117">        return this.networkInterface.getName();</span>
     }
 
     /**
@@ -122,7 +122,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         is identical to the name.
      */
     public String getDisplayName() {
-<span class="nc" id="L125">        return networkInterface.getDisplayName();</span>
+<span class="fc" id="L125">        return this.networkInterface.getDisplayName();</span>
     }
 
     /**
@@ -132,7 +132,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="nc" id="L135">        return mtu;</span>
+<span class="fc" id="L135">        return this.mtu;</span>
     }
 
     /**
@@ -141,7 +141,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="nc" id="L144">        return mac;</span>
+<span class="fc" id="L144">        return this.mac;</span>
     }
 
     /**
@@ -150,7 +150,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="nc" id="L153">        return Arrays.copyOf(this.ipv4, ipv4.length);</span>
+<span class="fc" id="L153">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     /**
@@ -159,7 +159,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="nc" id="L162">        return Arrays.copyOf(this.ipv6, ipv6.length);</span>
+<span class="fc" id="L162">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     /**
@@ -168,7 +168,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
-<span class="nc" id="L171">        return bytesRecv;</span>
+<span class="fc" id="L171">        return this.bytesRecv;</span>
     }
 
     /**
@@ -176,8 +176,8 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="nc" id="L179">        this.bytesRecv = bytesRecv;</span>
-<span class="nc" id="L180">    }</span>
+<span class="fc" id="L179">        this.bytesRecv = bytesRecv;</span>
+<span class="fc" id="L180">    }</span>
 
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
@@ -185,7 +185,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
-<span class="nc" id="L188">        return bytesSent;</span>
+<span class="fc" id="L188">        return this.bytesSent;</span>
     }
 
     /**
@@ -193,8 +193,8 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="nc" id="L196">        this.bytesSent = bytesSent;</span>
-<span class="nc" id="L197">    }</span>
+<span class="fc" id="L196">        this.bytesSent = bytesSent;</span>
+<span class="fc" id="L197">    }</span>
 
     /**
      * @return The Packets Received. This value is set when the
@@ -203,7 +203,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         method
      */
     public long getPacketsRecv() {
-<span class="nc" id="L206">        return packetsRecv;</span>
+<span class="fc" id="L206">        return this.packetsRecv;</span>
     }
 
     /**
@@ -211,8 +211,8 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="nc" id="L214">        this.packetsRecv = packetsRecv;</span>
-<span class="nc" id="L215">    }</span>
+<span class="fc" id="L214">        this.packetsRecv = packetsRecv;</span>
+<span class="fc" id="L215">    }</span>
 
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
@@ -220,7 +220,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
-<span class="nc" id="L223">        return packetsSent;</span>
+<span class="fc" id="L223">        return this.packetsSent;</span>
     }
 
     /**
@@ -228,8 +228,8 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="nc" id="L231">        this.packetsSent = packetsSent;</span>
-<span class="nc" id="L232">    }</span>
+<span class="fc" id="L231">        this.packetsSent = packetsSent;</span>
+<span class="fc" id="L232">    }</span>
 
     /**
      * @return The speed of the network interface in bits per second. This value
@@ -238,7 +238,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
-<span class="nc" id="L241">        return speed;</span>
+<span class="fc" id="L241">        return this.speed;</span>
     }
 
     /**
@@ -246,34 +246,49 @@ import oshi.hardware.platform.windows.WindowsNetworks;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="nc" id="L249">        this.speed = speed;</span>
-<span class="nc" id="L250">    }</span>
+<span class="fc" id="L249">        this.speed = speed;</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+<span class="fc" id="L256">        return this.timeStamp;</span>
+    }
+
+    /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+<span class="fc" id="L264">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L265">    }</span>
 
     /**
      * Updates interface network statistics on this interface. Statistics
      * include packets and bytes sent and received, and interface speed.
      */
     public void updateNetworkStats() {
-<span class="nc bnc" id="L257" title="All 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L272" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L259">            WindowsNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L260">            break;</span>
+<span class="nc" id="L274">            WindowsNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L275">            break;</span>
         case LINUX:
-<span class="nc" id="L262">            LinuxNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L263">            break;</span>
+<span class="nc" id="L277">            LinuxNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L278">            break;</span>
         case MACOSX:
-<span class="nc" id="L265">            MacNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L266">            break;</span>
+<span class="fc" id="L280">            MacNetworks.updateNetworkStats(this);</span>
+<span class="fc" id="L281">            break;</span>
         case SOLARIS:
-<span class="nc" id="L268">            SolarisNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L269">            break;</span>
+<span class="nc" id="L283">            SolarisNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L284">            break;</span>
         case FREEBSD:
-<span class="nc" id="L271">            FreeBsdNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L272">            break;</span>
+<span class="nc" id="L286">            FreeBsdNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L287">            break;</span>
         default:
-<span class="nc" id="L274">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L289">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
             break;
         }
-<span class="nc" id="L277">    }</span>
+<span class="fc" id="L292">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

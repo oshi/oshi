@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
 
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
@@ -53,7 +52,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     /**
      * Create a Processor
      */
-<span class="nc" id="L56">    public LinuxCentralProcessor() {</span>
+    public LinuxCentralProcessor() {
+<span class="nc" id="L56">        super();</span>
         // Initialize class variables
 <span class="nc" id="L58">        initVars();</span>
         // Initialize tick arrays
@@ -63,49 +63,49 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L63">    }</span>
 
     private void initVars() {
-<span class="nc" id="L66">        List&lt;String&gt; cpuInfo = null;</span>
-<span class="nc" id="L67">        cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
-<span class="nc" id="L69">            String[] splitLine = line.split(&quot;\\s+:\\s&quot;);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
-<span class="nc" id="L71">                break;</span>
+<span class="nc" id="L66">        List&lt;String&gt; cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
+<span class="nc" id="L68">            String[] splitLine = line.split(&quot;\\s+:\\s&quot;);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
+<span class="nc" id="L70">                break;</span>
             }
-<span class="nc bnc" id="L73" title="All 26 branches missed.">            switch (splitLine[0]) {</span>
+<span class="nc bnc" id="L72" title="All 26 branches missed.">            switch (splitLine[0]) {</span>
             case &quot;vendor_id&quot;:
-<span class="nc" id="L75">                this.setVendor(splitLine[1]);</span>
-<span class="nc" id="L76">                break;</span>
+<span class="nc" id="L74">                setVendor(splitLine[1]);</span>
+<span class="nc" id="L75">                break;</span>
             case &quot;model name&quot;:
-<span class="nc" id="L78">                this.setName(splitLine[1]);</span>
-<span class="nc" id="L79">                break;</span>
+<span class="nc" id="L77">                setName(splitLine[1]);</span>
+<span class="nc" id="L78">                break;</span>
             case &quot;flags&quot;:
-<span class="nc" id="L81">                String[] flags = splitLine[1].toUpperCase().split(&quot; &quot;);</span>
-<span class="nc" id="L82">                boolean found = false;</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">                for (String flag : flags) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                    if (flag.equals(&quot;LM&quot;)) {</span>
-<span class="nc" id="L85">                        found = true;</span>
-<span class="nc" id="L86">                        break;</span>
+<span class="nc" id="L80">                String[] flags = splitLine[1].toUpperCase().split(&quot; &quot;);</span>
+<span class="nc" id="L81">                boolean found = false;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                for (String flag : flags) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                    if (&quot;LM&quot;.equals(flag)) {</span>
+<span class="nc" id="L84">                        found = true;</span>
+<span class="nc" id="L85">                        break;</span>
                     }
                 }
-<span class="nc" id="L89">                this.setCpu64(found);</span>
-<span class="nc" id="L90">                break;</span>
+<span class="nc" id="L88">                setCpu64(found);</span>
+<span class="nc" id="L89">                break;</span>
             case &quot;stepping&quot;:
-<span class="nc" id="L92">                this.setStepping(splitLine[1]);</span>
-<span class="nc" id="L93">                break;</span>
+<span class="nc" id="L91">                setStepping(splitLine[1]);</span>
+<span class="nc" id="L92">                break;</span>
             case &quot;model&quot;:
-<span class="nc" id="L95">                this.setModel(splitLine[1]);</span>
-<span class="nc" id="L96">                break;</span>
+<span class="nc" id="L94">                setModel(splitLine[1]);</span>
+<span class="nc" id="L95">                break;</span>
             case &quot;cpu family&quot;:
-<span class="nc" id="L98">                this.setFamily(splitLine[1]);</span>
-<span class="nc" id="L99">                break;</span>
+<span class="nc" id="L97">                setFamily(splitLine[1]);</span>
+<span class="nc" id="L98">                break;</span>
             default:
                 // Do nothing
             }
-<span class="nc" id="L103">        }</span>
-<span class="nc" id="L104">    }</span>
+<span class="nc" id="L102">        }</span>
+<span class="nc" id="L103">    }</span>
 
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
+    @Override
     protected void calculateProcessorCounts() {
 <span class="nc" id="L110">        List&lt;String&gt; procCpu = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
         // Get number of logical processors
@@ -116,12 +116,12 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L116">        }</span>
         // Get number of physical processors
 <span class="nc" id="L118">        int siblings = 0;</span>
-<span class="nc" id="L119">        int cpucores = 0;</span>
+        int cpucores;
 <span class="nc" id="L120">        int[] uniqueID = new int[2];</span>
 <span class="nc" id="L121">        uniqueID[0] = -1;</span>
 <span class="nc" id="L122">        uniqueID[1] = -1;</span>
 
-<span class="nc" id="L124">        Set&lt;String&gt; ids = new HashSet&lt;String&gt;();</span>
+<span class="nc" id="L124">        Set&lt;String&gt; ids = new HashSet&lt;&gt;();</span>
 
 <span class="nc bnc" id="L126" title="All 2 branches missed.">        for (String cpu : procCpu) {</span>
 <span class="nc bnc" id="L127" title="All 2 branches missed.">            if (cpu.startsWith(&quot;siblings&quot;)) {</span>
@@ -176,7 +176,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-<span class="nc" id="L179">        String tickStr = &quot;&quot;;</span>
+        String tickStr;
 <span class="nc" id="L180">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
 <span class="nc bnc" id="L181" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
 <span class="nc" id="L182">            tickStr = procStat.get(0);</span>
@@ -227,10 +227,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L230">        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L230">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
-        // cpu 3357 0 4313 1362393 ... + for (String stat : procStat) {
+        // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
 <span class="nc" id="L235">        int cpu = 0;</span>
 <span class="nc" id="L236">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
@@ -256,7 +256,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                     // Ignore guest or guest_nice, they are included in
                     // user/nice
                 }
-<span class="nc bnc" id="L259" title="All 2 branches missed.">                if (++cpu &gt;= logicalProcessorCount) {</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                if (++cpu &gt;= this.logicalProcessorCount) {</span>
 <span class="nc" id="L260">                    break;</span>
                 }
             }
@@ -279,42 +279,38 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
 <span class="nc bnc" id="L280" title="All 2 branches missed.">        if (this.cpuSerialNumber == null) {</span>
             // If root privileges this will work
-<span class="nc" id="L282">            ArrayList&lt;String&gt; hwInfo = ExecutingCommand.runNative(&quot;dmidecode -t system&quot;);</span>
-<span class="nc" id="L283">            String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L284" title="All 2 branches missed.">            for (String checkLine : hwInfo) {</span>
-<span class="nc bnc" id="L285" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L286">                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L287">                    break;</span>
+<span class="nc" id="L282">            String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L285">                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L286">                    break;</span>
                 }
-<span class="nc" id="L289">            }</span>
+<span class="nc" id="L288">            }</span>
             // if lshal command available (HAL deprecated in newer linuxes)
-<span class="nc bnc" id="L291" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
-<span class="nc" id="L292">                marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc" id="L293">                hwInfo = ExecutingCommand.runNative(&quot;lshal&quot;);</span>
-<span class="nc bnc" id="L294" title="All 2 branches missed.">                if (hwInfo != null) {</span>
-<span class="nc bnc" id="L295" title="All 2 branches missed.">                    for (String checkLine : hwInfo) {</span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">                        if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L297">                            String[] temp = checkLine.split(marker)[1].split(&quot;'&quot;);</span>
-                            // Format: '12345' (string)
-<span class="nc bnc" id="L299" title="All 2 branches missed.">                            this.cpuSerialNumber = temp.length &gt; 0 ? temp[1] : null;</span>
-<span class="nc" id="L300">                            break;</span>
-                        }
-<span class="nc" id="L302">                    }</span>
-                }
+<span class="nc bnc" id="L290" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
+<span class="nc" id="L291">                marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                    if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L294">                        String[] temp = checkLine.split(marker)[1].split(&quot;'&quot;);</span>
+                        // Format: '12345' (string)
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                        this.cpuSerialNumber = temp.length &gt; 0 ? temp[1] : null;</span>
+<span class="nc" id="L297">                        break;</span>
+                    }
+<span class="nc" id="L299">                }</span>
             }
             // These sysfs files can be chmod'd at boot time to enable access
             // without root
-<span class="nc bnc" id="L307" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
-<span class="nc" id="L308">                this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
-<span class="nc bnc" id="L309" title="All 4 branches missed.">                if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals(&quot;None&quot;)) {</span>
-<span class="nc" id="L310">                    this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
-<span class="nc bnc" id="L311" title="All 4 branches missed.">                    if (this.cpuSerialNumber.isEmpty() || this.cpuSerialNumber.equals(&quot;None&quot;)) {</span>
-<span class="nc" id="L312">                        this.cpuSerialNumber = &quot;unknown&quot;;</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">            if (this.cpuSerialNumber == null) {</span>
+<span class="nc" id="L304">                this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
+<span class="nc bnc" id="L305" title="All 4 branches missed.">                if (this.cpuSerialNumber.isEmpty() || &quot;None&quot;.equals(this.cpuSerialNumber)) {</span>
+<span class="nc" id="L306">                    this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">                    if (this.cpuSerialNumber.isEmpty() || &quot;None&quot;.equals(this.cpuSerialNumber)) {</span>
+<span class="nc" id="L308">                        this.cpuSerialNumber = &quot;unknown&quot;;</span>
                     }
                 }
             }
         }
-<span class="nc" id="L317">        return this.cpuSerialNumber;</span>
+<span class="nc" id="L313">        return this.cpuSerialNumber;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

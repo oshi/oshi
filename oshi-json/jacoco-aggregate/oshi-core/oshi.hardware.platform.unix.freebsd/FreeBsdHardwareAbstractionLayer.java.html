@@ -27,16 +27,8 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisplay;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory;
-import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSensors;
-import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
-<span class="nc" id="L39">public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L31">public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -45,10 +37,10 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L49">            this.memory = new FreeBsdGlobalMemory();</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L41">            this.memory = new FreeBsdGlobalMemory();</span>
         }
-<span class="nc" id="L51">        return this.memory;</span>
+<span class="nc" id="L43">        return this.memory;</span>
     }
 
     /**
@@ -56,10 +48,10 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L60">            this.processor = new FreeBsdCentralProcessor();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L52">            this.processor = new FreeBsdCentralProcessor();</span>
         }
-<span class="nc" id="L62">        return this.processor;</span>
+<span class="nc" id="L54">        return this.processor;</span>
     }
 
     /**
@@ -67,7 +59,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L70">        return FreeBsdPowerSource.getPowerSources();</span>
+<span class="nc" id="L62">        return FreeBsdPowerSource.getPowerSources();</span>
     }
 
     /**
@@ -75,7 +67,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L78">        return new FreeBsdDisks().getDisks();</span>
+<span class="nc" id="L70">        return new FreeBsdDisks().getDisks();</span>
     }
 
     /**
@@ -83,7 +75,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L86">        return FreeBsdDisplay.getDisplays();</span>
+<span class="nc" id="L78">        return FreeBsdDisplay.getDisplays();</span>
     }
 
     /**
@@ -91,10 +83,10 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L95">            this.sensors = new FreeBsdSensors();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L87">            this.sensors = new FreeBsdSensors();</span>
         }
-<span class="nc" id="L97">        return this.sensors;</span>
+<span class="nc" id="L89">        return this.sensors;</span>
     }
 
     /**
@@ -102,7 +94,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L105">        return new FreeBsdNetworks().getNetworks();</span>
+<span class="nc" id="L97">        return new FreeBsdNetworks().getNetworks();</span>
     }
 
     /**
@@ -110,7 +102,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L113">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L105">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

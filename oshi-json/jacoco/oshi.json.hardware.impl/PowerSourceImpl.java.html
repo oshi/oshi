@@ -45,7 +45,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
     /**
      * Creates a new platform-specific PowerSource object wrapping the provided
      * argument
-     * 
+     *
      * @param powerSource
      *            a platform-specific PowerSource object
      */
@@ -58,7 +58,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public String getName() {
-<span class="nc" id="L61">        return powerSource.getName();</span>
+<span class="nc" id="L61">        return this.powerSource.getName();</span>
     }
 
     /**
@@ -66,7 +66,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getRemainingCapacity() {
-<span class="nc" id="L69">        return powerSource.getRemainingCapacity();</span>
+<span class="nc" id="L69">        return this.powerSource.getRemainingCapacity();</span>
     }
 
     /**
@@ -74,7 +74,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public double getTimeRemaining() {
-<span class="nc" id="L77">        return powerSource.getTimeRemaining();</span>
+<span class="nc" id="L77">        return this.powerSource.getTimeRemaining();</span>
     }
 
     /**
@@ -82,7 +82,7 @@ public class PowerSourceImpl extends AbstractOshiJsonObject implements PowerSour
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L85">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L85">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L86" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.powerSources.name&quot;)) {</span>
 <span class="nc" id="L87">            json.add(&quot;name&quot;, getName());</span>
         }

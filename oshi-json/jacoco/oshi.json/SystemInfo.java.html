@@ -40,7 +40,7 @@ import oshi.json.util.PropertiesUtil;
  * provides getters which instantiate the appropriate platform-specific
  * implementations of {@link OperatingSystem} (software) and
  * {@link HardwareAbstractionLayer} (hardware).
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject {
@@ -72,12 +72,12 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link OperatingSystem}.
-     * 
+     *
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
 <span class="fc bfc" id="L79" title="All 2 branches covered.">        if (this.os == null) {</span>
-<span class="fc" id="L80">            this.os = new OperatingSystemImpl(si.getOperatingSystem());</span>
+<span class="fc" id="L80">            this.os = new OperatingSystemImpl(this.si.getOperatingSystem());</span>
         }
 <span class="fc" id="L82">        return this.os;</span>
     }
@@ -85,12 +85,12 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link HardwareAbstractionLayer}.
-     * 
+     *
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
 <span class="fc bfc" id="L92" title="All 2 branches covered.">        if (this.hardware == null) {</span>
-<span class="fc" id="L93">            this.hardware = new HardwareAbstractionLayerImpl(si.getHardware());</span>
+<span class="fc" id="L93">            this.hardware = new HardwareAbstractionLayerImpl(this.si.getHardware());</span>
         }
 <span class="fc" id="L95">        return this.hardware;</span>
     }
@@ -100,7 +100,7 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="fc" id="L103">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="fc" id="L103">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;platform&quot;)) {</span>
 <span class="fc" id="L105">            json.add(&quot;platform&quot;, getCurrentPlatformEnum().toString());</span>
         }

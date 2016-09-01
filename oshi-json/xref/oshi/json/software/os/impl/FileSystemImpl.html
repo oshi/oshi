@@ -55,7 +55,7 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * Creates a new platform-specific FileSystem object wrapping the provided</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * argument</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * @param fileSystem</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     *            a platform-specific FileSystem object</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     */</em>
@@ -99,9 +99,9 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>      @Override
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.fileSystem.fileStores"</span>)) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              JsonArrayBuilder fileStoreArrayBuilder = <strong class="jxr_keyword">this</strong>.jsonFactory.createArrayBuilder();
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">for</strong> (OSFileStore fileStore : getFileStores()) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                  fileStoreArrayBuilder.add(fileStore.toJSON(properties));
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>              }
@@ -118,6 +118,6 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

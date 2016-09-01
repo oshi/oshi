@@ -61,10 +61,8 @@ public class WbemLocator extends Unknown {
     public HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
             NativeLong lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
         // ConnectServier is 4th method of vtable for WbemLocator in WbemCli.h
-<span class="nc" id="L64">        HRESULT result = (HRESULT) this._invokeNativeObject(3, new Object[] { this.getPointer(), strNetworkResource,</span>
-                strUser, strPassword, strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.class);
-
-<span class="nc" id="L67">        return result;</span>
+<span class="nc" id="L64">        return (HRESULT) _invokeNativeObject(3, new Object[] { getPointer(), strNetworkResource, strUser, strPassword,</span>
+                strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.class);
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

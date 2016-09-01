@@ -60,13 +60,13 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Creates a new platform-specific OperatingSystem object wrapping the</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * provided argument</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param operatingSystem</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     *            a platform-specific OperatingSystem object</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/json/software/os/impl/OperatingSystemImpl.html">OperatingSystemImpl</a>(oshi.software.os.OperatingSystem operatingSystem) {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.os = operatingSystem;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/impl/OperatingSystemVersionImpl.html">OperatingSystemVersionImpl</a>(os.getVersion());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/impl/OperatingSystemVersionImpl.html">OperatingSystemVersionImpl</a>(<strong class="jxr_keyword">this</strong>.os.getVersion());
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
@@ -151,7 +151,7 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     @Override
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.manufacturer"</span>)) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>             json.add(<span class="jxr_string">"manufacturer"</span>, getManufacturer());
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         }
@@ -174,7 +174,7 @@
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>             json.add(<span class="jxr_string">"threadCount"</span>, getThreadCount());
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes"</span>)) {
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             JsonArrayBuilder processArrayBuilder = <strong class="jxr_keyword">this</strong>.jsonFactory.createArrayBuilder();
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">for</strong> (OSProcess proc : getProcesses(
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>                     PropertiesUtil.getIntOrDefault(properties, <span class="jxr_string">"operatingSystem.processes.limit"</span>, 0),
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>                     PropertiesUtil.getEnum(properties, <span class="jxr_string">"operatingSystem.processes.sort"</span>, ProcessSort.<strong class="jxr_keyword">class</strong>))) {
@@ -192,6 +192,6 @@
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

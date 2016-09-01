@@ -30,13 +30,16 @@ import javax.json.stream.JsonGenerator;
 
 /**
  * Formatting utility for json strings
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L36">public class JsonUtil {</span>
+public class JsonUtil {
+<span class="nc" id="L37">    private JsonUtil() {</span>
+<span class="nc" id="L38">    }</span>
+
     /**
      * Pretty print a JSON string.
-     * 
+     *
      * @param json
      *            A JSON object
      * @return String representing the object with added whitespace, new lines,
@@ -45,17 +48,17 @@ import javax.json.stream.JsonGenerator;
     public static String jsonPrettyPrint(JsonObject json) {
         // Pretty printing using JsonWriterFactory
         // Output stream
-<span class="fc" id="L48">        StringWriter stringWriter = new StringWriter();</span>
+<span class="fc" id="L51">        StringWriter stringWriter = new StringWriter();</span>
         // Config
-<span class="fc" id="L50">        Map&lt;String, Boolean&gt; config = new HashMap&lt;String, Boolean&gt;();</span>
-<span class="fc" id="L51">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
-<span class="fc" id="L52">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
+<span class="fc" id="L53">        Map&lt;String, Boolean&gt; config = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L54">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
+<span class="fc" id="L55">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
         // Writer
-<span class="fc" id="L54">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
-<span class="fc" id="L55">        jsonWriter.write(json);</span>
-<span class="fc" id="L56">        jsonWriter.close();</span>
+<span class="fc" id="L57">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
+<span class="fc" id="L58">        jsonWriter.write(json);</span>
+<span class="fc" id="L59">        jsonWriter.close();</span>
         // Return
-<span class="fc" id="L58">        return stringWriter.toString();</span>
+<span class="fc" id="L61">        return stringWriter.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

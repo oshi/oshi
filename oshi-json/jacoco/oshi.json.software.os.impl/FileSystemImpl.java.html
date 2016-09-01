@@ -47,7 +47,7 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
     /**
      * Creates a new platform-specific FileSystem object wrapping the provided
      * argument
-     * 
+     *
      * @param fileSystem
      *            a platform-specific FileSystem object
      */
@@ -91,9 +91,9 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L94">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L94">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L95" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores&quot;)) {</span>
-<span class="nc" id="L96">            JsonArrayBuilder fileStoreArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L96">            JsonArrayBuilder fileStoreArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L97" title="All 2 branches missed.">            for (OSFileStore fileStore : getFileStores()) {</span>
 <span class="nc" id="L98">                fileStoreArrayBuilder.add(fileStore.toJSON(properties));</span>
             }

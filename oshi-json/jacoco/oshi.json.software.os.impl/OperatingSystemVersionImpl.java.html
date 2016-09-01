@@ -45,7 +45,7 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
     /**
      * Creates a new platform-specific OperatingSystemVersion object wrapping
      * the provided argument
-     * 
+     *
      * @param version
      *            a platform-specific OperatingSystemVersion object
      */
@@ -106,7 +106,7 @@ public class OperatingSystemVersionImpl extends AbstractOshiJsonObject implement
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L109">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L109">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L110" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version.version&quot;)) {</span>
 <span class="nc" id="L111">            json.add(&quot;version&quot;, getVersion());</span>
         }

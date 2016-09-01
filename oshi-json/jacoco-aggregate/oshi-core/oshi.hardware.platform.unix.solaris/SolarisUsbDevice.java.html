@@ -92,7 +92,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // For each item enumerated, store information in the maps
 <span class="nc" id="L93">        String key = &quot;&quot;;</span>
 <span class="nc" id="L94">        int indent = 0;</span>
-<span class="nc" id="L95">        List&lt;String&gt; usbControllers = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L95">        List&lt;String&gt; usbControllers = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L96" title="All 2 branches missed.">        for (String line : devices) {</span>
             // Node 0x... identifies start of a new tree
 <span class="nc bnc" id="L98" title="All 2 branches missed.">            if (line.contains(&quot;Node 0x&quot;)) {</span>
@@ -146,10 +146,10 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L146">        }</span>
 
         // Build tree and return
-<span class="nc" id="L149">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc" id="L149">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L150" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
             // Only do controllers that are USB device type
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (deviceTypeMap.getOrDefault(controller, &quot;&quot;).equals(&quot;usb&quot;)) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (&quot;usb&quot;.equals(deviceTypeMap.getOrDefault(controller, &quot;&quot;))) {</span>
 <span class="nc" id="L153">                controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
             }
 <span class="nc" id="L155">        }</span>
@@ -159,7 +159,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates SolarisUsbDevices by fetching information from maps
      * to populate fields
-     * 
+     *
      * @param devPath
      *            The device node path.
      * @param vid
