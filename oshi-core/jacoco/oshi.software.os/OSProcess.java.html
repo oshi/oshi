@@ -25,7 +25,7 @@ import java.io.Serializable;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface OSProcess extends Serializable {
@@ -95,14 +95,14 @@ public interface OSProcess extends Serializable {
 
     /**
      * @return Returns the priority of this process.
-     * 
+     *
      *         For Linux, priority is a value in the range -20 to 19 (20 on some
      *         systems). The default priority is 0; lower priorities cause more
      *         favorable scheduling.
-     * 
+     *
      *         For Windows, priority values can range from 0 (lowest priority)
      *         to 31 (highest priority).
-     * 
+     *
      *         Mac OS X has 128 priority levels, ranging from 0 (lowest
      *         priority) to 127 (highest priority). They are divided into
      *         several major bands: 0 through 51 are the normal levels; the

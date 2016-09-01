@@ -21,11 +21,11 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-<span class="nc" id="L28">public class SolarisSensors extends AbstractSensors {</span>
+<span class="nc" id="L28">public class SolarisSensors implements Sensors {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -35,21 +35,20 @@ import oshi.util.ParseUtil;
     @Override
     public double getCpuTemperature() {
 <span class="nc" id="L37">        double maxTemp = 0d;</span>
-<span class="nc" id="L38">        ArrayList&lt;String&gt; temps = ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;);</span>
         // Return max found temp
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        for (String line : temps) {</span>
-<span class="nc bnc" id="L41" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
-<span class="nc" id="L42">                int temp = ParseUtil.parseLastInt(line, 0);</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
-<span class="nc" id="L44">                    maxTemp = temp;</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
+<span class="nc" id="L41">                int temp = ParseUtil.parseLastInt(line, 0);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
+<span class="nc" id="L43">                    maxTemp = temp;</span>
                 }
             }
-<span class="nc" id="L47">        }</span>
+<span class="nc" id="L46">        }</span>
         // If it's in millidegrees:
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
-<span class="nc" id="L50">            maxTemp /= 1000;</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
+<span class="nc" id="L49">            maxTemp /= 1000;</span>
         }
-<span class="nc" id="L52">        return maxTemp;</span>
+<span class="nc" id="L51">        return maxTemp;</span>
     }
 
     /**
@@ -57,19 +56,18 @@ import oshi.util.ParseUtil;
      */
     @Override
     public int[] getFanSpeeds() {
-<span class="nc" id="L60">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L61">        ArrayList&lt;String&gt; speeds = ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;);</span>
+<span class="nc" id="L59">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
         // Return max found temp
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : speeds) {</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
-<span class="nc" id="L65">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
+<span class="nc" id="L63">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
             }
-<span class="nc" id="L67">        }</span>
-<span class="nc" id="L68">        int[] fans = new int[speedList.size()];</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
-<span class="nc" id="L70">            fans[i] = speedList.get(i);</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        int[] fans = new int[speedList.size()];</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
+<span class="nc" id="L68">            fans[i] = speedList.get(i);</span>
         }
-<span class="nc" id="L72">        return fans;</span>
+<span class="nc" id="L70">        return fans;</span>
     }
 
     /**
@@ -77,16 +75,15 @@ import oshi.util.ParseUtil;
      */
     @Override
     public double getCpuVoltage() {
-<span class="nc" id="L80">        double voltage = 0d;</span>
-<span class="nc" id="L81">        ArrayList&lt;String&gt; volts = ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;);</span>
+<span class="nc" id="L78">        double voltage = 0d;</span>
         // TODO This is entirely a guess!
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String line : volts) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
-<span class="nc" id="L85">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
-<span class="nc" id="L86">                break;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
+<span class="nc" id="L82">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
+<span class="nc" id="L83">                break;</span>
             }
-<span class="nc" id="L88">        }</span>
-<span class="nc" id="L89">        return voltage;</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return voltage;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

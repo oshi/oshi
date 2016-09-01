@@ -106,7 +106,7 @@
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          }
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <em class="jxr_comment">// For each item enumerated, store information in the maps</em>
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         String key = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         List&lt;String&gt; usBuses = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         List&lt;String&gt; usBuses = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">for</strong> (String line : devices) {
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             <em class="jxr_comment">// udi = ... identifies start of a new tree</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"udi ="</span>)) {
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">if</strong> (line.isEmpty()) {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"freebsd.driver ="</span>)
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                     &amp;&amp; ParseUtil.getSingleQuoteStringValue(line).equals(<span class="jxr_string">"usbus"</span>)) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                     &amp;&amp; <span class="jxr_string">"usbus"</span>.equals(ParseUtil.getSingleQuoteStringValue(line))) {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 usBuses.add(key);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">".parent ="</span>)) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 String parent = ParseUtil.getSingleQuoteStringValue(line);
@@ -143,52 +143,50 @@
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                 String serial = ParseUtil.getSingleQuoteStringValue(line);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                 serialMap.put(key,
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                         serial.startsWith(<span class="jxr_string">"0x"</span>) ? ParseUtil.hexStringToString(serial.replace(<span class="jxr_string">"0x"</span>, <span class="jxr_string">""</span>)) : serial);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">".vendor_id ="</span>)) {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">".vendor_id ="</span>) || line.contains(<span class="jxr_string">".product_id ="</span>)) {
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                 vendorIdMap.put(key, String.format(<span class="jxr_string">"%04x"</span>, ParseUtil.getFirstIntValue(line)));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">".product_id ="</span>)) {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 vendorIdMap.put(key, String.format(<span class="jxr_string">"%04x"</span>, ParseUtil.getFirstIntValue(line)));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         }
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <em class="jxr_comment">// Build tree and return</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;UsbDevice&gt;();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">for</strong> (String usbus : usBuses) {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             <em class="jxr_comment">// Skip the usbuses: make their parents the controllers and replace</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>             <em class="jxr_comment">// parents' children with the buses' children</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             String parent = parentMap.get(usbus);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             hubMap.put(parent, hubMap.get(usbus));
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             controllerDevices.add(getDeviceAndChildren(parent, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>));
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">return</strong> controllerDevices.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[controllerDevices.size()]);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * Recursively creates SolarisUsbDevices by fetching information from maps</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * to populate fields</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @param devPath</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     *            The device node path.</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * @param vid</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     *            The default (parent) vendor ID</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * @param pid</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     *            The default (parent) product ID</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * @return A SolarisUsbDevice corresponding to this device</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html">FreeBsdUsbDevice</a> getDeviceAndChildren(String devPath, String vid, String pid) {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         String productId = productIdMap.getOrDefault(devPath, pid);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         List&lt;FreeBsdUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">for</strong> (String path : childPaths) {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         Collections.sort(usbDevices);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html">FreeBsdUsbDevice</a>(nameMap.getOrDefault(devPath, vendorId + <span class="jxr_string">":"</span> + productId), <span class="jxr_string">""</span>, vendorId, productId,
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 <span class="jxr_string">""</span>, usbDevices.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[usbDevices.size()]));
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// Build tree and return</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">for</strong> (String usbus : usBuses) {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <em class="jxr_comment">// Skip the usbuses: make their parents the controllers and replace</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <em class="jxr_comment">// parents' children with the buses' children</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             String parent = parentMap.get(usbus);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             hubMap.put(parent, hubMap.get(usbus));
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             controllerDevices.add(getDeviceAndChildren(parent, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>));
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">return</strong> controllerDevices.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[controllerDevices.size()]);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     * Recursively creates SolarisUsbDevices by fetching information from maps</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * to populate fields</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * @param devPath</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     *            The device node path.</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @param vid</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     *            The default (parent) vendor ID</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * @param pid</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     *            The default (parent) product ID</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * @return A SolarisUsbDevice corresponding to this device</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html">FreeBsdUsbDevice</a> getDeviceAndChildren(String devPath, String vid, String pid) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         String productId = productIdMap.getOrDefault(devPath, pid);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         List&lt;FreeBsdUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">for</strong> (String path : childPaths) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         Collections.sort(usbDevices);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html">FreeBsdUsbDevice</a>(nameMap.getOrDefault(devPath, vendorId + <span class="jxr_string">":"</span> + productId), <span class="jxr_string">""</span>, vendorId, productId,
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 <span class="jxr_string">""</span>, usbDevices.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/UsbDevice.html">UsbDevice</a>[usbDevices.size()]));
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

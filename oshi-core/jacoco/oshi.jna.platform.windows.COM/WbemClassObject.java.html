@@ -35,11 +35,8 @@ public class WbemClassObject extends Unknown {
     public HRESULT Get(BSTR wszName, NativeLong lFlags, VARIANT.ByReference pVal, Pointer pvtType,
             LongByReference plFlavor) {
         // Get is 5th method of vtable for WbemClassObject in WbemCli.h
-<span class="nc" id="L38">        HRESULT result = (HRESULT) this._invokeNativeObject(4,</span>
-<span class="nc" id="L39">                new Object[] { this.getPointer(), wszName, lFlags, pVal, pvtType, plFlavor }, HRESULT.class);</span>
-
-<span class="nc" id="L41">        return result;</span>
-
+<span class="nc" id="L38">        return (HRESULT) _invokeNativeObject(4, new Object[] { getPointer(), wszName, lFlags, pVal, pvtType, plFlavor },</span>
+                HRESULT.class);
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

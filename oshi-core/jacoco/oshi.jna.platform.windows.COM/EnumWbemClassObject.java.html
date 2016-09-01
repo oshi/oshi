@@ -37,10 +37,8 @@ public class EnumWbemClassObject extends Unknown {
     public HRESULT Next(NativeLong lTimeOut, NativeLong uCount, PointerByReference ppObjects,
             LongByReference puReturned) {
         // Next is 5th method of vtable for EnumWbemClassObject in WbemCli.h
-<span class="nc" id="L40">        HRESULT result = (HRESULT) this._invokeNativeObject(4,</span>
-<span class="nc" id="L41">                new Object[] { this.getPointer(), lTimeOut, uCount, ppObjects, puReturned }, HRESULT.class);</span>
-
-<span class="nc" id="L43">        return result;</span>
+<span class="nc" id="L40">        return (HRESULT) _invokeNativeObject(4, new Object[] { getPointer(), lTimeOut, uCount, ppObjects, puReturned },</span>
+                HRESULT.class);
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

@@ -28,7 +28,7 @@ import com.sun.jna.Structure;
 /**
  * Power Supply stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface SystemB extends com.sun.jna.platform.mac.SystemB {
@@ -125,7 +125,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     &quot;pti_pageins&quot;, &quot;pti_cow_faults&quot;, &quot;pti_messages_sent&quot;, &quot;pti_messages_received&quot;, &quot;pti_syscalls_mach&quot;,
                     &quot;pti_syscalls_unix&quot;, &quot;pti_csw&quot;, &quot;pti_threadnum&quot;, &quot;pti_numrunning&quot;, &quot;pti_priority&quot; });
         }
-    };
+    }
 
     /**
      * The statfs() routine returns information about a mounted file system. The
@@ -159,7 +159,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     &quot;f_ffree&quot;, &quot;f_fsid&quot;, &quot;f_owner&quot;, &quot;f_type&quot;, &quot;f_flags&quot;, &quot;f_fssubtype&quot;, &quot;f_fstypename&quot;, &quot;f_mntonname&quot;,
                     &quot;f_mntfromname&quot;, &quot;f_reserved&quot; });
         }
-    };
+    }
 
     /**
      * Return type for sysctl vm.swapusage
@@ -176,7 +176,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 <span class="nc" id="L176">            return Arrays</span>
 <span class="nc" id="L177">                    .asList(new String[] { &quot;xsu_total&quot;, &quot;xsu_avail&quot;, &quot;xsu_used&quot;, &quot;xsu_pagesize&quot;, &quot;xsu_encrypted&quot; });</span>
         }
-    };
+    }
 
     /**
      * Return type for sysctl kern.boottime
@@ -189,7 +189,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         protected List&lt;String&gt; getFieldOrder() {
 <span class="nc" id="L190">            return Arrays.asList(new String[] { &quot;tv_sec&quot;, &quot;tv_usec&quot; });</span>
         }
-    };
+    }
 
     /**
      * Data type as part of IFmsgHdr
@@ -337,7 +337,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
     /**
      * Search through the current processes
-     * 
+     *
      * @param type
      *            types of processes to be searched
      * @param typeinfo
@@ -357,7 +357,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Return in buffer a proc_*info structure corresponding to the flavor for
      * the specified process
-     * 
+     *
      * @param pid
      *            the process identifier
      * @param flavor
@@ -375,7 +375,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
     /**
      * Return in buffer the name of the specified process
-     * 
+     *
      * @param pid
      *            the process identifier
      * @param buffer
@@ -390,11 +390,11 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * The getfsstat() function returns information about all mounted file
      * systems. The buf argument is a pointer to an array of statfs structures.
-     * 
+     *
      * Fields that are undefined for a particular file system are set to -1. The
      * buffer is filled with an array of statfs structures, one for each mounted
      * file system up to the size specified by bufsize.
-     * 
+     *
      * @param buf
      *            Array of statfs structures that will be filled with results.
      *            If buf is given as NULL, getfsstat() returns just the number
@@ -419,7 +419,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Returns the process ID of the calling process. The ID is guaranteed to be
      * unique and is useful for constructing temporary file names.
-     * 
+     *
      * @return the process ID of the calling process.
      */
     int getpid();

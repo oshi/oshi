@@ -60,15 +60,15 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * calculation changes: see</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * id=34e431b0ae398fc54ea69ff85ec700722c9da773</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Internally, reading /proc/meminfo is faster than sysinfo because it only</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * spends time populating the memory components of the sysinfo structure.</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateMeminfo() {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">if</strong> (now - <strong class="jxr_keyword">this</strong>.lastUpdate &gt; 100) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              List&lt;String&gt; memInfo = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateMeminfo() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">if</strong> (now - <strong class="jxr_keyword">this</strong>.lastUpdate &gt; 100) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              List&lt;String&gt; memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (memInfo.isEmpty()) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> 
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * Parses lines from the display of /proc/meminfo</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @param memorySplit</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *            Array of Strings representing the 3 columns of /proc/meminfo</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return value, multiplied by 1024 if kB is specified</em>
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">return</strong> 0l;
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">long</strong> memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; memorySplit[2].equals(<span class="jxr_string">"kB"</span>)) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; <span class="jxr_string">"kB"</span>.equals(memorySplit[2])) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             memory *= 1024;
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> memory;
@@ -146,6 +146,6 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

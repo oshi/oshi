@@ -30,7 +30,7 @@ import com.sun.jna.Structure;
 /**
  * Linux C Library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface Libc extends Library {
@@ -80,7 +80,7 @@ public interface Libc extends Library {
      * retrieved and assigned to successive elements of loadavg[]. The system
      * imposes a maximum of 3 samples, representing averages over the last 1, 5,
      * and 15 minutes, respectively.
-     * 
+     *
      * @param loadavg
      *            array to be filled
      * @param nelem
@@ -93,7 +93,7 @@ public interface Libc extends Library {
     /**
      * Returns the process ID of the calling process. The ID is guaranteed to be
      * unique and is useful for constructing temporary file names.
-     * 
+     *
      * @return the process ID of the calling process.
      */
     int getpid();
@@ -101,7 +101,7 @@ public interface Libc extends Library {
     /**
      * Places the contents of the symbolic link path in the buffer buf, which
      * has size bufsiz.
-     * 
+     *
      * @param path
      *            A symbolic link
      * @param buf

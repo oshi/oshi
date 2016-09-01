@@ -46,7 +46,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Provides access to WMI queries
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 <span class="nc" id="L52">public class WmiUtil {</span>
@@ -66,13 +66,13 @@ import oshi.util.ParseUtil;
     /**
      * For WMI queries requiring array input
      */
-<span class="nc" id="L69">    private static ValueType[] STRING_TYPE = { ValueType.STRING };</span>
-<span class="nc" id="L70">    private static ValueType[] UINT32_TYPE = { ValueType.UINT32 };</span>
-<span class="nc" id="L71">    private static ValueType[] FLOAT_TYPE = { ValueType.FLOAT };</span>
+<span class="nc" id="L69">    private static final ValueType[] STRING_TYPE = { ValueType.STRING };</span>
+<span class="nc" id="L70">    private static final ValueType[] UINT32_TYPE = { ValueType.UINT32 };</span>
+<span class="nc" id="L71">    private static final ValueType[] FLOAT_TYPE = { ValueType.FLOAT };</span>
 
     /**
      * Get a single Unsigned Integer value from WMI (as Long)
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -94,7 +94,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get multiple Unsigned Integer values from WMI (as Longs)
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -124,7 +124,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get a single Float value from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -146,7 +146,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get multiple Float values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -176,7 +176,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get a single String value from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -198,7 +198,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get multiple String values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -228,7 +228,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Get multiple individually typed values from WMI
-     * 
+     *
      * @param namespace
      *            The namespace or null to use the default
      * @param wmiClass
@@ -249,14 +249,13 @@ import oshi.util.ParseUtil;
      */
     public static Map&lt;String, List&lt;Object&gt;&gt; selectObjectsFrom(String namespace, String wmiClass, String properties,
             String whereClause, ValueType[] propertyTypes) {
-<span class="nc bnc" id="L252" title="All 2 branches missed.">        Map&lt;String, List&lt;Object&gt;&gt; result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,</span>
-                wmiClass, whereClause, propertyTypes);
-<span class="nc" id="L254">        return result;</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        return queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties, wmiClass, whereClause,</span>
+                propertyTypes);
     }
 
     /**
      * Query WMI for values
-     * 
+     *
      * @param namespace
      *            The namespace to query
      * @param properties
@@ -275,82 +274,82 @@ import oshi.util.ParseUtil;
     private static Map&lt;String, List&lt;Object&gt;&gt; queryWMI(String namespace, String properties, String wmiClass,
             String whereClause, ValueType[] propertyTypes) {
         // Set up empty map
-<span class="nc" id="L278">        Map&lt;String, List&lt;Object&gt;&gt; values = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L279">        String[] props = properties.split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L280" title="All 2 branches missed.">        for (int i = 0; i &lt; props.length; i++) {</span>
-<span class="nc" id="L281">            values.put(props[i], new ArrayList&lt;Object&gt;());</span>
+<span class="nc" id="L277">        Map&lt;String, List&lt;Object&gt;&gt; values = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L278">        String[] props = properties.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (String prop : props) {</span>
+<span class="nc" id="L280">            values.put(prop, new ArrayList&lt;Object&gt;());</span>
         }
 
         // Initialize COM
-<span class="nc bnc" id="L285" title="All 2 branches missed.">        if (!initCOM()) {</span>
-<span class="nc" id="L286">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L287">            return values;</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (!initCOM()) {</span>
+<span class="nc" id="L285">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L286">            return values;</span>
         }
 
-<span class="nc" id="L290">        PointerByReference pSvc = new PointerByReference();</span>
-<span class="nc bnc" id="L291" title="All 2 branches missed.">        if (!connectServer(namespace, pSvc)) {</span>
-<span class="nc" id="L292">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L293">            return values;</span>
+<span class="nc" id="L289">        PointerByReference pSvc = new PointerByReference();</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (!connectServer(namespace, pSvc)) {</span>
+<span class="nc" id="L291">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L292">            return values;</span>
         }
-<span class="nc" id="L295">        WbemServices svc = new WbemServices(pSvc.getValue());</span>
+<span class="nc" id="L294">        WbemServices svc = new WbemServices(pSvc.getValue());</span>
 
-<span class="nc" id="L297">        PointerByReference pEnumerator = new PointerByReference();</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {</span>
-<span class="nc" id="L299">            svc.Release();</span>
-<span class="nc" id="L300">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L301">            return values;</span>
+<span class="nc" id="L296">        PointerByReference pEnumerator = new PointerByReference();</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {</span>
+<span class="nc" id="L298">            svc.Release();</span>
+<span class="nc" id="L299">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L300">            return values;</span>
         }
-<span class="nc" id="L303">        EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());</span>
+<span class="nc" id="L302">        EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());</span>
 
-<span class="nc" id="L305">        enumerateProperties(values, enumerator, props, propertyTypes);</span>
+<span class="nc" id="L304">        enumerateProperties(values, enumerator, props, propertyTypes);</span>
 
         // Cleanup
-<span class="nc" id="L308">        enumerator.Release();</span>
-<span class="nc" id="L309">        svc.Release();</span>
-<span class="nc" id="L310">        Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L311">        return values;</span>
+<span class="nc" id="L307">        enumerator.Release();</span>
+<span class="nc" id="L308">        svc.Release();</span>
+<span class="nc" id="L309">        Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L310">        return values;</span>
     }
 
     /*
      * Below methods ported from: Getting WMI Data from Local Computer
      * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
-     * 
+     *
      * Steps 1 - 7 correspond to the above link.
      */
     /**
      * Initializes COM library and sets security to impersonate the local user
-     * 
+     *
      * @return true if COM successfull initialized
      */
     private static boolean initCOM() {
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-<span class="nc" id="L328">        HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L330">            LOG.error(String.format(&quot;Failed to initialize COM library. Error code = 0x%08x&quot;, hres.intValue()));</span>
-<span class="nc" id="L331">            return false;</span>
+<span class="nc" id="L327">        HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L329">            LOG.error(String.format(&quot;Failed to initialize COM library. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L330">            return false;</span>
         }
-<span class="nc bnc" id="L333" title="All 2 branches missed.">        if (securityInitialized) {</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        if (securityInitialized) {</span>
             // Only run CoInitializeSecuirty once
-<span class="nc" id="L335">            return true;</span>
+<span class="nc" id="L334">            return true;</span>
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
-<span class="nc" id="L339">        hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,</span>
+<span class="nc" id="L338">        hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,</span>
                 Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-<span class="nc bnc" id="L341" title="All 4 branches missed.">        if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != Ole32.RPC_E_TOO_LATE) {</span>
-<span class="nc" id="L342">            LOG.error(String.format(&quot;Failed to initialize security. Error code = 0x%08x&quot;, hres.intValue()));</span>
-<span class="nc" id="L343">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L344">            return false;</span>
+<span class="nc bnc" id="L340" title="All 4 branches missed.">        if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != Ole32.RPC_E_TOO_LATE) {</span>
+<span class="nc" id="L341">            LOG.error(String.format(&quot;Failed to initialize security. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L342">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L343">            return false;</span>
         }
-<span class="nc" id="L346">        securityInitialized = true;</span>
-<span class="nc" id="L347">        return true;</span>
+<span class="nc" id="L345">        securityInitialized = true;</span>
+<span class="nc" id="L346">        return true;</span>
     }
 
     /**
      * Obtains a locator to the WMI server and connects to the specified
      * namespace
-     * 
+     *
      * @param namespace
      *            The namespace to connect to
      * @param pSvc
@@ -361,43 +360,43 @@ import oshi.util.ParseUtil;
     private static boolean connectServer(String namespace, PointerByReference pSvc) {
         // Step 3: ---------------------------------------------------
         // Obtain the initial locator to WMI -------------------------
-<span class="nc" id="L364">        WbemLocator loc = WbemLocator.create();</span>
-<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (loc == null) {</span>
-<span class="nc" id="L366">            return false;</span>
+<span class="nc" id="L363">        WbemLocator loc = WbemLocator.create();</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        if (loc == null) {</span>
+<span class="nc" id="L365">            return false;</span>
         }
         // Step 4: -----------------------------------------------------
         // Connect to WMI through the IWbemLocator::ConnectServer method
         // Connect to the namespace with the current user and obtain pointer
         // pSvc to make IWbemServices calls.
-<span class="nc" id="L372">        HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L374">            LOG.error(String.format(&quot;Could not connect to namespace %s. Error code = 0x%08x&quot;, namespace,</span>
-<span class="nc" id="L375">                    hres.intValue()));</span>
-<span class="nc" id="L376">            loc.Release();</span>
-<span class="nc" id="L377">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L378">            return false;</span>
+<span class="nc" id="L371">        HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L373">            LOG.error(String.format(&quot;Could not connect to namespace %s. Error code = 0x%08x&quot;, namespace,</span>
+<span class="nc" id="L374">                    hres.intValue()));</span>
+<span class="nc" id="L375">            loc.Release();</span>
+<span class="nc" id="L376">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L377">            return false;</span>
         }
-<span class="nc" id="L380">        LOG.debug(&quot;Connected to {} WMI namespace&quot;, namespace);</span>
-<span class="nc" id="L381">        loc.Release();</span>
+<span class="nc" id="L379">        LOG.debug(&quot;Connected to {} WMI namespace&quot;, namespace);</span>
+<span class="nc" id="L380">        loc.Release();</span>
 
         // Step 5: --------------------------------------------------
         // Set security levels on the proxy -------------------------
-<span class="nc" id="L385">        hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, null,</span>
+<span class="nc" id="L384">        hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, null,</span>
                 Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE);
-<span class="nc bnc" id="L387" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L388">            LOG.error(String.format(&quot;Could not set proxy blanket. Error code = 0x%08x&quot;, hres.intValue()));</span>
-<span class="nc" id="L389">            new WbemServices(pSvc.getValue()).Release();</span>
-<span class="nc" id="L390">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L391">            return false;</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L387">            LOG.error(String.format(&quot;Could not set proxy blanket. Error code = 0x%08x&quot;, hres.intValue()));</span>
+<span class="nc" id="L388">            new WbemServices(pSvc.getValue()).Release();</span>
+<span class="nc" id="L389">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L390">            return false;</span>
         }
-<span class="nc" id="L393">        return true;</span>
+<span class="nc" id="L392">        return true;</span>
     }
 
     /**
      * Selects properties from WMI. Returns immediately, even while results are
      * being retrieved; results may begun to be enumerated in the forward
      * direction only.
-     * 
+     *
      * @param svc
      *            A WbemServices object to make the calls
      * @param pEnumerator
@@ -415,26 +414,26 @@ import oshi.util.ParseUtil;
             String wmiClass, String whereClause) {
         // Step 6: --------------------------------------------------
         // Use the IWbemServices pointer to make requests of WMI ----
-<span class="nc bnc" id="L418" title="All 2 branches missed.">        String query = String.format(&quot;SELECT %s FROM %s %s&quot;, properties, wmiClass,</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        String query = String.format(&quot;SELECT %s FROM %s %s&quot;, properties, wmiClass,</span>
                 whereClause != null ? whereClause : &quot;&quot;);
-<span class="nc" id="L420">        LOG.debug(&quot;Query: {}&quot;, query);</span>
-<span class="nc" id="L421">        HRESULT hres = svc.ExecQuery(new BSTR(&quot;WQL&quot;), new BSTR(query),</span>
+<span class="nc" id="L419">        LOG.debug(&quot;Query: {}&quot;, query);</span>
+<span class="nc" id="L420">        HRESULT hres = svc.ExecQuery(new BSTR(&quot;WQL&quot;), new BSTR(query),</span>
                 new NativeLong(
                         EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
                 null, pEnumerator);
-<span class="nc bnc" id="L425" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L426">            LOG.error(String.format(&quot;Query '%s' failed. Error code = 0x%08x&quot;, query, hres.intValue()));</span>
-<span class="nc" id="L427">            svc.Release();</span>
-<span class="nc" id="L428">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L429">            return false;</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L425">            LOG.error(String.format(&quot;Query '%s' failed. Error code = 0x%08x&quot;, query, hres.intValue()));</span>
+<span class="nc" id="L426">            svc.Release();</span>
+<span class="nc" id="L427">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L428">            return false;</span>
         }
-<span class="nc" id="L431">        return true;</span>
+<span class="nc" id="L430">        return true;</span>
     }
 
     /**
      * Enumerate the results of a WMI query. This method is called while results
      * are still being retrieved and may iterate in the forward direction only.
-     * 
+     *
      * @param values
      *            A map to hold the results of the query using the property as
      *            the key, and placing each enumerated result in a
@@ -449,63 +448,63 @@ import oshi.util.ParseUtil;
      */
     private static void enumerateProperties(Map&lt;String, List&lt;Object&gt;&gt; values, EnumWbemClassObject enumerator,
             String[] properties, ValueType[] propertyTypes) {
-<span class="nc bnc" id="L452" title="All 4 branches missed.">        if (propertyTypes.length &gt; 1 &amp;&amp; properties.length != propertyTypes.length) {</span>
-<span class="nc" id="L453">            throw new IllegalArgumentException(&quot;Property type array size must be 1 or equal to properties array size.&quot;);</span>
+<span class="nc bnc" id="L451" title="All 4 branches missed.">        if (propertyTypes.length &gt; 1 &amp;&amp; properties.length != propertyTypes.length) {</span>
+<span class="nc" id="L452">            throw new IllegalArgumentException(&quot;Property type array size must be 1 or equal to properties array size.&quot;);</span>
         }
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
-<span class="nc" id="L457">        PointerByReference pclsObj = new PointerByReference();</span>
-<span class="nc" id="L458">        LongByReference uReturn = new LongByReference(0L);</span>
-<span class="nc bnc" id="L459" title="All 2 branches missed.">        while (enumerator.getPointer() != Pointer.NULL) {</span>
-<span class="nc" id="L460">            HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),</span>
+<span class="nc" id="L456">        PointerByReference pclsObj = new PointerByReference();</span>
+<span class="nc" id="L457">        LongByReference uReturn = new LongByReference(0L);</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        while (enumerator.getPointer() != Pointer.NULL) {</span>
+<span class="nc" id="L459">            HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),</span>
                     pclsObj, uReturn);
             // Requested 1; if 0 objects returned, we're done
-<span class="nc bnc" id="L463" title="All 4 branches missed.">            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {</span>
+<span class="nc bnc" id="L462" title="All 4 branches missed.">            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {</span>
                 // Enumerator will be released by calling method so no need to
                 // release it here.
-<span class="nc" id="L466">                return;</span>
+<span class="nc" id="L465">                return;</span>
             }
-<span class="nc" id="L468">            VARIANT.ByReference vtProp = new VARIANT.ByReference();</span>
+<span class="nc" id="L467">            VARIANT.ByReference vtProp = new VARIANT.ByReference();</span>
 
             // Get the value of the properties
-<span class="nc" id="L471">            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());</span>
-<span class="nc bnc" id="L472" title="All 2 branches missed.">            for (int p = 0; p &lt; properties.length; p++) {</span>
-<span class="nc" id="L473">                String property = properties[p];</span>
-<span class="nc" id="L474">                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);</span>
+<span class="nc" id="L470">            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">            for (int p = 0; p &lt; properties.length; p++) {</span>
+<span class="nc" id="L472">                String property = properties[p];</span>
+<span class="nc" id="L473">                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);</span>
 
-<span class="nc bnc" id="L476" title="All 2 branches missed.">                ValueType propertyType = propertyTypes.length &gt; 1 ? propertyTypes[p] : propertyTypes[0];</span>
-<span class="nc bnc" id="L477" title="All 6 branches missed.">                switch (propertyType) {</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">                ValueType propertyType = propertyTypes.length &gt; 1 ? propertyTypes[p] : propertyTypes[0];</span>
+<span class="nc bnc" id="L476" title="All 6 branches missed.">                switch (propertyType) {</span>
                 // WMI Longs will return as strings
                 case STRING:
-<span class="nc bnc" id="L480" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? &quot;unknown&quot; : vtProp.stringValue());</span>
-<span class="nc" id="L481">                    break;</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? &quot;unknown&quot; : vtProp.stringValue());</span>
+<span class="nc" id="L480">                    break;</span>
                 // WMI Uint32s will return as longs
                 case UINT32: // WinDef.LONG TODO improve in JNA 4.3
-<span class="nc" id="L484">                    values.get(property)</span>
-<span class="nc bnc" id="L485" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
-<span class="nc" id="L486">                    break;</span>
+<span class="nc" id="L483">                    values.get(property)</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
+<span class="nc" id="L485">                    break;</span>
                 case FLOAT:
-<span class="nc bnc" id="L488" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
-<span class="nc" id="L489">                    break;</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
+<span class="nc" id="L488">                    break;</span>
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
                     // parse to a long representing ms since eopch
-<span class="nc" id="L493">                    values.get(property)</span>
-<span class="nc bnc" id="L494" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
-<span class="nc" id="L495">                    break;</span>
+<span class="nc" id="L492">                    values.get(property)</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
+<span class="nc" id="L494">                    break;</span>
                 case BOOLEAN: // WinDef.BOOL TODO improve in JNA 4.3
-<span class="nc" id="L497">                    values.get(property)</span>
-<span class="nc bnc" id="L498" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());</span>
-<span class="nc" id="L499">                    break;</span>
+<span class="nc" id="L496">                    values.get(property)</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());</span>
+<span class="nc" id="L498">                    break;</span>
                 default:
                     // Should never get here! If you get this exception you've
                     // added something to the enum without adding it here. Tsk.
-<span class="nc" id="L503">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
+<span class="nc" id="L502">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
                 }
-<span class="nc" id="L505">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
+<span class="nc" id="L504">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
             }
-<span class="nc" id="L507">            clsObj.Release();</span>
-<span class="nc" id="L508">        }</span>
-<span class="nc" id="L509">    }</span>
+<span class="nc" id="L506">            clsObj.Release();</span>
+<span class="nc" id="L507">        }</span>
+<span class="nc" id="L508">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

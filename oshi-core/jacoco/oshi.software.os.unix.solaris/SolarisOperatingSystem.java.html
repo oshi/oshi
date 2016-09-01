@@ -58,7 +58,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L61">        ArrayList&lt;String&gt; procList = ExecutingCommand.runNative(&quot;ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm&quot;);</span>
+<span class="nc" id="L61">        List&lt;String&gt; procList = ExecutingCommand.runNative(&quot;ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm&quot;);</span>
 <span class="nc bnc" id="L62" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
 <span class="nc" id="L63">            return new OSProcess[0];</span>
         }
@@ -97,7 +97,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L100">        ArrayList&lt;String&gt; procList = ExecutingCommand</span>
+<span class="nc" id="L100">        List&lt;String&gt; procList = ExecutingCommand</span>
 <span class="nc" id="L101">                .runNative(&quot;ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p &quot; + pid);</span>
 <span class="nc bnc" id="L102" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
 <span class="nc" id="L103">            return null;</span>
@@ -145,7 +145,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L148">        ArrayList&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
+<span class="nc" id="L148">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
 <span class="nc bnc" id="L149" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
 <span class="nc" id="L151">            return threadList.size() - 1;</span>

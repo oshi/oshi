@@ -21,44 +21,45 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.WinDef.ULONG;
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
 
 /**
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L32">public class WindowsNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L34">public class WindowsNetworks extends AbstractNetworks {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
 
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        // Create new MIB_IFROW and set index to this interface index
-<span class="nc" id="L47">        MIB_IFROW ifRow = new MIB_IFROW();</span>
-<span class="nc" id="L48">        ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+        // Create new MIB_IFROW2 and set index to this interface index
+<span class="nc" id="L49">        MIB_IFROW2 ifRow = new MIB_IFROW2();</span>
+<span class="nc" id="L50">        ifRow.InterfaceIndex = new ULONG(netIF.getNetworkInterface().getIndex());</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
             // Error, abort
-<span class="nc" id="L51">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
-<span class="nc" id="L52">                    netIF.getName());</span>
-<span class="nc" id="L53">            return;</span>
+<span class="nc" id="L53">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L54">                    netIF.getName());</span>
+<span class="nc" id="L55">            return;</span>
         }
-
-<span class="nc" id="L56">        netIF.setBytesSent(ifRow.dwOutOctets);</span>
-<span class="nc" id="L57">        netIF.setBytesRecv(ifRow.dwInOctets);</span>
-<span class="nc" id="L58">        netIF.setPacketsSent(ifRow.dwOutUcastPkts);</span>
-<span class="nc" id="L59">        netIF.setPacketsRecv(ifRow.dwInUcastPkts);</span>
-<span class="nc" id="L60">        netIF.setSpeed(ifRow.dwSpeed);</span>
-<span class="nc" id="L61">    }</span>
-
+<span class="nc" id="L57">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L58">        netIF.setBytesSent(ifRow.OutOctets);</span>
+<span class="nc" id="L59">        netIF.setBytesRecv(ifRow.InOctets);</span>
+<span class="nc" id="L60">        netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
+<span class="nc" id="L61">        netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
+<span class="nc" id="L62">        netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
+<span class="nc" id="L63">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

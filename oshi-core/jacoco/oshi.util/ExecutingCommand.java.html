@@ -30,72 +30,75 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for executing on the command line and returning the result of
  * execution.
- * 
+ *
  * @author alessandro[at]perucchi[dot]org
  */
-<span class="nc" id="L36">public class ExecutingCommand {</span>
+public class ExecutingCommand {
 
 <span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
+<span class="nc" id="L40">    private ExecutingCommand() {</span>
+<span class="nc" id="L41">    }</span>
+
     /**
      * Executes a command on the native command line and returns the result.
-     * 
+     *
      * @param cmdToRun
      *            Command to run
      * @return A list of Strings representing the result of the command, or
      *         empty string if the command failed
      */
-    public static ArrayList&lt;String&gt; runNative(String cmdToRun) {
-<span class="fc" id="L49">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
-<span class="fc" id="L50">        return runNative(cmd);</span>
+    public static List&lt;String&gt; runNative(String cmdToRun) {
+<span class="fc" id="L52">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="fc" id="L53">        return runNative(cmd);</span>
     }
 
     /**
      * Executes a command on the native command line and returns the result.
-     * 
+     *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
      * @return A list of Strings representing the result of the command, or
      *         empty string if the command failed
      */
-    public static ArrayList&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L62">        Process p = null;</span>
+    public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
+<span class="fc" id="L65">        Process p = null;</span>
         try {
-<span class="fc" id="L64">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
-<span class="fc" id="L65">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L66">            LOG.trace(&quot;&quot;, e);</span>
-<span class="fc" id="L67">            return new ArrayList&lt;String&gt;(0);</span>
-<span class="fc" id="L68">        }</span>
+<span class="fc" id="L67">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
+<span class="fc" id="L68">        } catch (SecurityException | IOException e) {</span>
+<span class="fc" id="L69">            LOG.trace(&quot;&quot;, e);</span>
+<span class="fc" id="L70">            return new ArrayList&lt;&gt;(0);</span>
+<span class="fc" id="L71">        }</span>
 
-<span class="fc" id="L70">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L71">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
+<span class="fc" id="L73">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L74">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
             String line;
-<span class="fc bfc" id="L73" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L74">                sa.add(line);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L77">                sa.add(line);</span>
             }
-<span class="fc" id="L76">            p.waitFor();</span>
-<span class="pc bpc" id="L77" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
-<span class="nc" id="L78">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L79">            return new ArrayList&lt;String&gt;(0);</span>
-<span class="fc" id="L80">        }</span>
-<span class="fc" id="L81">        return sa;</span>
+<span class="fc" id="L79">            p.waitFor();</span>
+<span class="pc bpc" id="L80" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
+<span class="nc" id="L81">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L82">            return new ArrayList&lt;&gt;(0);</span>
+<span class="fc" id="L83">        }</span>
+<span class="fc" id="L84">        return sa;</span>
     }
 
     /**
      * Return first line of response for selected command.
-     * 
+     *
      * @param cmd2launch
      *            String command to be launched
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L92">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="fc" id="L95">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
      * Return response on selected line index (0-based) after running selected
      * command.
-     * 
+     *
      * @param cmd2launch
      *            String command to be launched
      * @param answerIdx
@@ -104,12 +107,12 @@ import org.slf4j.LoggerFactory;
      *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L107">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="fc" id="L110">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L109" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L110">            return sa.get(answerIdx);</span>
+<span class="pc bpc" id="L112" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="fc" id="L113">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L112">        return &quot;&quot;;</span>
+<span class="fc" id="L115">        return &quot;&quot;;</span>
     }
 
 }

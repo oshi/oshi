@@ -82,7 +82,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L82">        Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(null, &quot;Win32_Process&quot;, processProperties,</span>
 <span class="nc" id="L83">                String.format(&quot;WHERE ProcessId=%d&quot;, pid), processPropertyTypes);</span>
 <span class="nc" id="L84">        List&lt;OSProcess&gt; procList = processMapToList(procs);</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        return procList.size() &gt; 0 ? procList.get(0) : null;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        return procList.isEmpty() ? null : procList.get(0);</span>
     }
 
     private List&lt;OSProcess&gt; processMapToList(Map&lt;String, List&lt;Object&gt;&gt; procs) {

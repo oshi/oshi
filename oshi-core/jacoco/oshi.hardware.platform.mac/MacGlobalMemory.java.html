@@ -33,7 +33,7 @@ import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class MacGlobalMemory extends AbstractGlobalMemory {
@@ -67,32 +67,34 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     /**
      * Updates available memory no more often than every 100ms
      */
+    @Override
     protected void updateMeminfo() {
-<span class="nc" id="L71">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (now - lastUpdateAvail &gt; 100) {</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L74">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L75">                LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L76">                return;</span>
+<span class="nc" id="L72">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (now - this.lastUpdateAvail &gt; 100) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,</span>
+<span class="nc" id="L75">                    this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L76">                LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L77">                return;</span>
             }
-<span class="nc" id="L78">            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * pageSize;</span>
-<span class="nc" id="L79">            lastUpdateAvail = now;</span>
+<span class="nc" id="L79">            this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;</span>
+<span class="nc" id="L80">            this.lastUpdateAvail = now;</span>
         }
-<span class="nc" id="L81">    }</span>
+<span class="nc" id="L82">    }</span>
 
     /**
      * Updates swap file stats no more often than every 100ms
      */
+    @Override
     protected void updateSwap() {
-<span class="nc" id="L87">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (now - lastUpdateSwap &gt; 100) {</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
-<span class="nc" id="L90">                return;</span>
+<span class="nc" id="L89">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (now - this.lastUpdateSwap &gt; 100) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, this.xswUsage)) {</span>
+<span class="nc" id="L92">                return;</span>
             }
-<span class="nc" id="L92">            this.swapUsed = xswUsage.xsu_used;</span>
-<span class="nc" id="L93">            this.swapTotal = xswUsage.xsu_total;</span>
-<span class="nc" id="L94">            lastUpdateSwap = now;</span>
+<span class="nc" id="L94">            this.swapUsed = this.xswUsage.xsu_used;</span>
+<span class="nc" id="L95">            this.swapTotal = this.xswUsage.xsu_total;</span>
+<span class="nc" id="L96">            this.lastUpdateSwap = now;</span>
         }
-<span class="nc" id="L96">    }</span>
+<span class="nc" id="L98">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

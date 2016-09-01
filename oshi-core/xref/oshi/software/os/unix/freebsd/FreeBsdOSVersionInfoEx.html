@@ -34,15 +34,15 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSVersionInfoEx.html">FreeBsdOSVersionInfoEx</a>() {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">this</strong>.setVersion(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          setVersion(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          String versionInfo = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.version"</span>, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>          String osType = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.ostype"</span>, <span class="jxr_string">"FreeBSD"</span>);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">this</strong>.setBuildNumber(versionInfo.split(<span class="jxr_string">":"</span>)[0].replace(osType, <span class="jxr_string">""</span>).replace(<strong class="jxr_keyword">this</strong>.getVersion(), <span class="jxr_string">""</span>).trim());
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">this</strong>.setCodeName(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          setBuildNumber(versionInfo.split(<span class="jxr_string">":"</span>)[0].replace(osType, <span class="jxr_string">""</span>).replace(getVersion(), <span class="jxr_string">""</span>).trim());
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          setCodeName(<span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

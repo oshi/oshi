@@ -49,7 +49,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
     @Override
     public CentralProcessor getProcessor() {
 <span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L52">            processor = new WindowsCentralProcessor();</span>
+<span class="nc" id="L52">            this.processor = new WindowsCentralProcessor();</span>
         }
 <span class="nc" id="L54">        return this.processor;</span>
     }

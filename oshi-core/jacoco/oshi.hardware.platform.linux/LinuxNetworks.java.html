@@ -32,7 +32,7 @@ import oshi.util.FileUtil;
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */
@@ -43,11 +43,12 @@ import oshi.util.FileUtil;
 <span class="nc" id="L43">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, netIF.getName());</span>
 <span class="nc" id="L44">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
 
-<span class="nc" id="L46">        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));</span>
-<span class="nc" id="L47">        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));</span>
-<span class="nc" id="L48">        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));</span>
-<span class="nc" id="L49">        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));</span>
-<span class="nc" id="L50">        netIF.setSpeed(FileUtil.getLongFromFile(speed));</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L46">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L47">        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));</span>
+<span class="nc" id="L48">        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));</span>
+<span class="nc" id="L49">        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));</span>
+<span class="nc" id="L50">        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));</span>
+<span class="nc" id="L51">        netIF.setSpeed(FileUtil.getLongFromFile(speed));</span>
+<span class="nc" id="L52">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

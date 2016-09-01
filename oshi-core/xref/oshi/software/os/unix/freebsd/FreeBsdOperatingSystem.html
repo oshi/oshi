@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          ArrayList&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                  .runNative(<span class="jxr_string">"ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command"</span>);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">if</strong> (procList.isEmpty() || procList.size() &lt; 2) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a>[0];
@@ -108,7 +108,7 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     @Override
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         ArrayList&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         List&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>                 .runNative(<span class="jxr_string">"ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command -p "</span> + pid);
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">if</strong> (procList.isEmpty() || procList.size() &lt; 2) {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -149,7 +149,7 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>     @Override
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessCount() {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         ArrayList&lt;String&gt; procList = ExecutingCommand.runNative(<span class="jxr_string">"ps -axo pid"</span>);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         List&lt;String&gt; procList = ExecutingCommand.runNative(<span class="jxr_string">"ps -axo pid"</span>);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">if</strong> (!procList.isEmpty()) {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             <em class="jxr_comment">// Subtract 1 for header</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">return</strong> procList.size() - 1;
@@ -162,16 +162,15 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Override
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         ArrayList&lt;String&gt; threadList = ExecutingCommand.runNative(<span class="jxr_string">"ps -axo nlwp"</span>);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">int</strong> threads = 0;
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">for</strong> (String proc : threadList) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> threads;
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">int</strong> threads = 0;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">for</strong> (String proc : ExecutingCommand.runNative(<span class="jxr_string">"ps -axo nlwp"</span>)) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">return</strong> threads;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

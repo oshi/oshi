@@ -36,10 +36,10 @@ import oshi.util.Util;
 
 /**
  * Provides access to kstat information on Solaris
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L42">public class KstatUtil {</span>
+public class KstatUtil {
 <span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);</span>
 
 <span class="nc" id="L45">    private static KstatCtl kc = LibKstat.INSTANCE.kstat_open();</span>
@@ -53,13 +53,16 @@ import oshi.util.Util;
         });
 <span class="nc" id="L54">    }</span>
 
+<span class="nc" id="L56">    private KstatUtil() {</span>
+<span class="nc" id="L57">    }</span>
+
     /**
      * Convenience method for kstat_data_lookup() with String return values.
      * Searches the kstat's data section for the record with the specified name.
      * This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
-     * 
+     *
      * @param ksp
      *            The kstat to search
      * @param name
@@ -68,31 +71,31 @@ import oshi.util.Util;
      * @return The value as a String.
      */
     public static String kstatDataLookupString(Kstat ksp, String name) {
-<span class="nc bnc" id="L71" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L72">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+<span class="nc bnc" id="L74" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L75">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L74">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L76">            LOG.error(&quot;Failed lo lookup kstat value for key {}&quot;, name);</span>
-<span class="nc" id="L77">            return &quot;&quot;;</span>
+<span class="nc" id="L77">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L79">            LOG.error(&quot;Failed lo lookup kstat value for key {}&quot;, name);</span>
+<span class="nc" id="L80">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L79">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L80" title="All 7 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L82">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L83" title="All 7 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_CHAR:
-<span class="nc" id="L82">            return new String(data.value.charc).trim();</span>
+<span class="nc" id="L85">            return new String(data.value.charc).trim();</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L84">            return Integer.toString(data.value.i32);</span>
+<span class="nc" id="L87">            return Integer.toString(data.value.i32);</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L86">            return Integer.toUnsignedString(data.value.ui32);</span>
+<span class="nc" id="L89">            return Integer.toUnsignedString(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L88">            return Long.toString(data.value.i64);</span>
+<span class="nc" id="L91">            return Long.toString(data.value.i64);</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L90">            return Long.toUnsignedString(data.value.ui64);</span>
+<span class="nc" id="L93">            return Long.toUnsignedString(data.value.ui64);</span>
         case LibKstat.KSTAT_DATA_STRING:
-<span class="nc" id="L92">            return data.value.str.addr.getString(0);</span>
+<span class="nc" id="L95">            return data.value.str.addr.getString(0);</span>
         default:
-<span class="nc" id="L94">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L95">            return &quot;&quot;;</span>
+<span class="nc" id="L97">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L98">            return &quot;&quot;;</span>
         }
     }
 
@@ -102,7 +105,7 @@ import oshi.util.Util;
      * This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
-     * 
+     *
      * @param ksp
      *            The kstat to search
      * @param name
@@ -112,28 +115,28 @@ import oshi.util.Util;
      *         type, returns 0 and logs an error.
      */
     public static long kstatDataLookupLong(Kstat ksp, String name) {
-<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L116">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L119">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L118">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L120">            LOG.error(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;, new String(ksp.ks_module).trim(),</span>
-<span class="nc" id="L121">                    ksp.ks_instance, new String(ksp.ks_name).trim(), name);</span>
-<span class="nc" id="L122">            return 0L;</span>
+<span class="nc" id="L121">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L123">            LOG.error(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;, new String(ksp.ks_module).trim(),</span>
+<span class="nc" id="L124">                    ksp.ks_instance, new String(ksp.ks_name).trim(), name);</span>
+<span class="nc" id="L125">            return 0L;</span>
         }
-<span class="nc" id="L124">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L125" title="All 5 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L127">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L128" title="All 5 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L127">            return data.value.i32;</span>
+<span class="nc" id="L130">            return data.value.i32;</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L129">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
+<span class="nc" id="L132">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L131">            return data.value.i64;</span>
+<span class="nc" id="L134">            return data.value.i64;</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L133">            return data.value.ui64;</span>
+<span class="nc" id="L136">            return data.value.ui64;</span>
         default:
-<span class="nc" id="L135">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L136">            return 0L;</span>
+<span class="nc" id="L138">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L139">            return 0L;</span>
         }
     }
 
@@ -144,22 +147,22 @@ import oshi.util.Util;
      * set to the number of data fields, ksp.ks_data_size is set to the total
      * size of the data, and ksp.ks_snaptime is set to the high-resolution time
      * at which the data snapshot was taken.
-     * 
+     *
      * @param ksp
      *            The kstat from which to retrieve data
      * @return True if successful; false otherwise
      */
     public static boolean kstatRead(Kstat ksp) {
-<span class="nc" id="L153">        int retry = 0;</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        while (0 &gt; LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {</span>
-<span class="nc bnc" id="L155" title="All 4 branches missed.">            if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
-<span class="nc" id="L156">                LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;, new String(ksp.ks_module).trim(), ksp.ks_instance,</span>
-<span class="nc" id="L157">                        new String(ksp.ks_name).trim());</span>
-<span class="nc" id="L158">                return false;</span>
+<span class="nc" id="L156">        int retry = 0;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        while (0 &gt; LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">            if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
+<span class="nc" id="L159">                LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;, new String(ksp.ks_module).trim(), ksp.ks_instance,</span>
+<span class="nc" id="L160">                        new String(ksp.ks_name).trim());</span>
+<span class="nc" id="L161">                return false;</span>
             }
-<span class="nc" id="L160">            Util.sleep(8 &lt;&lt; retry);</span>
+<span class="nc" id="L163">            Util.sleep(8 &lt;&lt; retry);</span>
         }
-<span class="nc" id="L162">        return true;</span>
+<span class="nc" id="L165">        return true;</span>
     }
 
     /**
@@ -168,7 +171,7 @@ import oshi.util.Util;
      * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
      * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
      * in the search.
-     * 
+     *
      * @param module
      *            The module, or null to ignore
      * @param instance
@@ -179,13 +182,12 @@ import oshi.util.Util;
      *         null
      */
     public static Kstat kstatLookup(String module, int instance, String name) {
-<span class="nc" id="L182">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
-<span class="nc" id="L184">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
-<span class="nc" id="L185">            return null;</span>
+<span class="nc" id="L185">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
+<span class="nc" id="L187">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
+<span class="nc" id="L188">            return null;</span>
         }
-<span class="nc" id="L187">        Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);</span>
-<span class="nc" id="L188">        return ksp;</span>
+<span class="nc" id="L190">        return LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);</span>
     }
 
     /**
@@ -194,7 +196,7 @@ import oshi.util.Util;
      * ks_name fields; this triplet uniquely identifies a kstat. If ks_module is
      * NULL, ks_instance is -1, or ks_name is NULL, then those fields will be
      * ignored in the search.
-     * 
+     *
      * @param module
      *            The module, or null to ignore
      * @param instance
@@ -205,20 +207,20 @@ import oshi.util.Util;
      *         empty list otherwise
      */
     public static List&lt;Kstat&gt; kstatLookupAll(String module, int instance, String name) {
-<span class="nc" id="L208">        List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L209">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
-<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
-<span class="nc" id="L211">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
-<span class="nc" id="L212">            return kstats;</span>
+<span class="nc" id="L210">        List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L211">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
+<span class="nc" id="L213">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
+<span class="nc" id="L214">            return kstats;</span>
         }
-<span class="nc bnc" id="L214" title="All 2 branches missed.">        for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
-<span class="nc bnc" id="L215" title="All 10 branches missed.">            if ((module == null || module.equals(new String(ksp.ks_module).trim()))</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
+<span class="nc bnc" id="L217" title="All 10 branches missed.">            if ((module == null || module.equals(new String(ksp.ks_module).trim()))</span>
                     &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<span class="nc bnc" id="L217" title="All 2 branches missed.">                    &amp;&amp; (name == null || name.equals(new String(ksp.ks_name).trim()))) {</span>
-<span class="nc" id="L218">                kstats.add(ksp);</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                    &amp;&amp; (name == null || name.equals(new String(ksp.ks_name).trim()))) {</span>
+<span class="nc" id="L220">                kstats.add(ksp);</span>
             }
         }
-<span class="nc" id="L221">        return kstats;</span>
+<span class="nc" id="L223">        return kstats;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
