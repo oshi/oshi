@@ -62,7 +62,7 @@ public class WindowsDisks implements Disks {
             ValueType.UINT32, ValueType.STRING, ValueType.STRING, ValueType.STRING };
 
     private static final ValueType[] PARTITION_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.UINT32, ValueType.UINT32, ValueType.BOOLEAN };
+            ValueType.STRING, ValueType.STRING, ValueType.UINT32, ValueType.UINT32 };
 
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
@@ -168,10 +168,10 @@ public class WindowsDisks implements Disks {
 
         // Next, get all partitions and create objects
         final Map<String, List<Object>> hwPartitionQueryMap = WmiUtil.selectObjectsFrom(null, "Win32_DiskPartition",
-                "Name,Type,Description,PNPDeviceID,Size,DiskIndex,Index,BootPartition", null, PARTITION_TYPES);
+                "Name,Type,Description,DeviceID,Size,DiskIndex,Index", null, PARTITION_TYPES);
         for (int i = 0; i < hwPartitionQueryMap.get("Name").size(); i++) {
-            String name = (String) hwPartitionQueryMap.get("Name").get(i);
-            String logicalDrive = partitionToLogicalDriveMap.getOrDefault(name, "");
+            String deviceID = (String) hwPartitionQueryMap.get("DeviceID").get(i);
+            String logicalDrive = partitionToLogicalDriveMap.getOrDefault(deviceID, "");
             String uuid = "";
             if (!logicalDrive.isEmpty()) {
                 // Get matching volume for UUID
@@ -179,7 +179,7 @@ public class WindowsDisks implements Disks {
                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);
                 uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
             }
-            partitionMap.put(name,
+            partitionMap.put(deviceID,
                     new HWPartition((String) hwPartitionQueryMap.get("Name").get(i),
                             (String) hwPartitionQueryMap.get("Type").get(i),
                             (String) hwPartitionQueryMap.get("Description").get(i), uuid,

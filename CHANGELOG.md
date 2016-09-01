@@ -3,6 +3,7 @@
 * [#243](https://github.com/dblock/oshi/pull/243): Make Windows network statistics 64-bit - [@dbwiddis](https://github.com/dbwiddis).
 * [#244](https://github.com/dblock/oshi/pull/244): Add timestamps to Disk and Network IO Stats - [@dbwiddis](https://github.com/dbwiddis).
 * [#253](https://github.com/dblock/oshi/pull/253): Properly handle CoreStorage Volumes on OSX - [@dbwiddis](https://github.com/dbwiddis).
+* [#256](https://github.com/dblock/oshi/pull/256): Use DeviceID to link Windows Disks and Partitions - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.1.1 (8/5/2016)
