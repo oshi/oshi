@@ -48,6 +48,8 @@ import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -63,18 +65,58 @@ public class MacDisks implements Disks {
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
     private static final Map<String, String> mountPointMap = new HashMap<>();
+    private static final Map<String, String> logicalVolumeMap = new HashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
         mountPointMap.clear();
+        logicalVolumeMap.clear();
         List<HWDiskStore> result = new ArrayList<>();
 
-        // Use statfs to find all drives
+        // Use statfs to populate mount point map
         int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
         // Create array to hold results
         Statfs[] fs = new Statfs[numfs];
         // Fill array with results
         SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        // Iterate all mounted file systems
+        for (Statfs f : fs) {
+            String mntFrom = new String(f.f_mntfromname).trim();
+            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+        }
+
+        // Parse `diskutil cs list` to populate logical volume map
+        Set<String> physicalVolumes = new HashSet<>();
+        boolean logicalVolume = false;
+        for (String line : ExecutingCommand.runNative("diskutil cs list")) {
+            if (line.contains("Logical Volume Group")) {
+                // Logical Volume Group defines beginning of grouping which will
+                // list multiple physical volumes followed by the logical volume
+                // they are associated with. Each physical volume will be a key
+                // with the logical volume as its value, but since the value
+                // doesn't appear until the end we collect the keys in a list
+                physicalVolumes.clear();
+                logicalVolume = false;
+                continue;
+            } else if (line.contains("Logical Volume Family")) {
+                // Done collecting physical volumes, prepare to store logical
+                // volume
+                logicalVolume = true;
+                continue;
+            } else if (line.contains("Disk:")) {
+                String volume = ParseUtil.parseLastString(line);
+                if (logicalVolume) {
+                    // Store this disk as the logical volume value for all the
+                    // physical volume keys
+                    for (String pv : physicalVolumes) {
+                        logicalVolumeMap.put(pv, volume);
+                    }
+                    physicalVolumes.clear();
+                } else {
+                    physicalVolumes.add(ParseUtil.parseLastString(line));
+                }
+            }
+        }
 
         // Open a DiskArbitration session
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
@@ -83,19 +125,20 @@ public class MacDisks implements Disks {
             return new HWDiskStore[0];
         }
 
-        // Create a set in case we have multiple partitions mounted
-        Set<String> bsdNames = new HashSet<>();
-        // Iterate all mounted file systems
-        for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname).trim();
-            // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
-            // Strip off the partition # to get base disk name
-            String[] split = mntFrom.split("/dev/|s\\d+");
-            if (split.length > 1) {
-                bsdNames.add(split[1]);
+        // Get IOMedia objects representing whole drives
+        List<String> bsdNames = new ArrayList<>();
+        IntByReference iter = new IntByReference();
+        IOKitUtil.getMatchingServices("IOMedia", iter);
+        int media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
+        while (media != 0) {
+            if (IOKitUtil.getIORegistryBooleanProperty(media, "Whole")) {
+                DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromIOMedia(CfUtil.ALLOCATOR, session, media);
+                bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));
             }
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+            IOKit.INSTANCE.IOObjectRelease(media);
+            media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
         }
+
         // Now iterate the bsdNames
         for (String bsdName : bsdNames) {
             String model = "";
@@ -236,26 +279,27 @@ public class MacDisks implements Disks {
                                         CfUtil.getCFString("BSD Unit"));
                                 CFNumberRef bsdUnit = new CFNumberRef();
                                 bsdUnit.setPointer(p);
+                                // We need a CFBoolean that's false.
                                 // Whole disk has 'true' for Whole and 'false'
-                                // for leaf; store the boolean true
+                                // for leaf; store the boolean false
                                 p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                        CfUtil.getCFString("Whole"));
-                                CFBooleanRef leaf = new CFBooleanRef();
-                                leaf.setPointer(p);
+                                        CfUtil.getCFString("Leaf"));
+                                CFBooleanRef cfFalse = new CFBooleanRef();
+                                cfFalse.setPointer(p);
                                 // create a matching dict for BSD Unit
                                 CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
                                         .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
                                 CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,
                                         CfUtil.getCFString("BSD Unit"), bsdUnit);
-                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Leaf"),
-                                        leaf);
+                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Whole"),
+                                        cfFalse);
                                 matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                                         null, null);
                                 CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
                                         CfUtil.getCFString("IOPropertyMatch"), propertyDict);
 
-                                // search for all IOservices that match the
-                                // BSD Unit with leaf=true; these are partitions
+                                // search for IOservices that match the BSD Unit
+                                // with whole=false; these are partitions
                                 IntByReference serviceIterator = new IntByReference();
                                 IOKitUtil.getMatchingServices(matchingDict, serviceIterator);
                                 // getMatchingServices releases matchingDict
@@ -280,18 +324,26 @@ public class MacDisks implements Disks {
                                             type = CfUtil.cfPointerToString(volumePtr);
                                             volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
                                                     CfUtil.getCFString("DAVolumeName"));
-                                            name = CfUtil.cfPointerToString(volumePtr);
-
+                                            if (volumePtr == null) {
+                                                name = type;
+                                            } else {
+                                                name = CfUtil.cfPointerToString(volumePtr);
+                                            }
                                             CfUtil.release(diskInfo);
                                         }
                                         CfUtil.release(disk);
+                                    }
+                                    String mountPoint;
+                                    if (logicalVolumeMap.containsKey(partBsdName)) {
+                                        mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
+                                    } else {
+                                        mountPoint = mountPointMap.getOrDefault(partBsdName, "");
                                     }
                                     partitions.add(new HWPartition(partBsdName, name, type,
                                             IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
                                             IOKitUtil.getIORegistryLongProperty(sdService, "Size"),
                                             IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major"),
-                                            IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"),
-                                            mountPointMap.getOrDefault(partBsdName, "")));
+                                            IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"), mountPoint));
                                     IOKit.INSTANCE.IOObjectRelease(sdService);
                                     // iterate
                                     sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());

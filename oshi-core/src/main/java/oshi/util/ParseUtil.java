@@ -113,26 +113,36 @@ public class ParseUtil {
     }
 
     /**
-     * Parse the last element of a space-delimited string to a value if there
-     * are at least two elements
+     * Parse the last element of a space-delimited string to a value
      *
      * @param s
      *            The string to parse
      * @param i
-     *            Default integer if not parsable or less than two elements
+     *            Default integer if not parsable
      * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
-        String[] ss = s.split("\\s+");
-        if (ss.length < 2) {
+        try {
+            return Integer.parseInt(parseLastString(s));
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
             return i;
+        }
+    }
+
+    /**
+     * Parse the last element of a space-delimited string to a string
+     *
+     * @param s
+     *            The string to parse
+     * @return last space-delimited element
+     */
+    public static String parseLastString(String s) {
+        String[] ss = s.split("\\s+");
+        if (ss.length < 1) {
+            return s;
         } else {
-            try {
-                return Integer.parseInt(ss[ss.length - 1]);
-            } catch (NumberFormatException e) {
-                LOG.trace(DEFAULT_LOG_MSG, s, e);
-                return i;
-            }
+            return ss[ss.length - 1];
         }
     }
 

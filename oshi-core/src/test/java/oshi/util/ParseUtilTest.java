@@ -58,6 +58,16 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test parse string.
+     */
+    @Test
+    public void testParseLastString() {
+        assertEquals("bar", ParseUtil.parseLastString("foo : bar"));
+        assertEquals("foo", ParseUtil.parseLastString("foo"));
+        assertEquals("", ParseUtil.parseLastString(""));
+    }
+
+    /**
      * Test hex string to byte array.
      */
     @Test
