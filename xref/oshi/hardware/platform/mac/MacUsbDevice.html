@@ -186,7 +186,7 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>         IOKit.INSTANCE.IOObjectRelease(iter.getValue());
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> 
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// Build tree and return</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;UsbDevice&gt;();
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">for</strong> (Long controller : usbControllers) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>             controllerDevices.add(getDeviceAndChildren(controller, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>));
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>         }
@@ -196,7 +196,7 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * Looks up vendor and product id information for a USB Host Controller by</em>
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * cross-referencing the location</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * @param id</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     *            The global unique ID for the host controller used as a key for</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     *            maps</em>
@@ -248,7 +248,7 @@
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * Recursively creates MacUsbDevices by fetching information from maps to</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * populate fields</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     * @param registryEntryId</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     *            The device unique registry id.</em>
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     * @param vid</em>
@@ -273,6 +273,6 @@
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

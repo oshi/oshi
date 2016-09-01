@@ -37,7 +37,7 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractFileSystem;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/linux/LinuxFileSystem.html">LinuxFileSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/software/common/AbstractFileSystem.html">AbstractFileSystem</a> {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/linux/LinuxFileSystem.html">LinuxFileSystem</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../oshi/software/os/FileSystem.html">FileSystem</a> {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
@@ -90,7 +90,7 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * Checks if file path equals or starts with an element in the given list</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * @param aList</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     *            A list of path prefixes</em>
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * @param charSeq</em>
@@ -125,7 +125,7 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>                     <em class="jxr_comment">// Store UUID as value with path (e.g., /dev/sda1) as key</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                     LOG.error(<span class="jxr_string">"Couldn't get canonical path for {}"</span>, uuid.getName());
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                     LOG.error(<span class="jxr_string">"Couldn't get canonical path for {}. {}"</span>, uuid.getName(), e);
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 }
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>             }
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
@@ -218,6 +218,6 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

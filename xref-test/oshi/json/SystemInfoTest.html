@@ -172,8 +172,8 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         <em class="jxr_comment">// per core CPU</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">double</strong>[] load = processor.getProcessorCpuLoadBetweenTicks();
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; load.length; cpu++) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, load[cpu] * 100));
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> avg : load) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, avg * 100));
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>         }
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         System.out.println(procCpu.toString());
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
@@ -312,6 +312,6 @@
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

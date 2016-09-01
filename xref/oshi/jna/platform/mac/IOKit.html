@@ -47,7 +47,7 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * Power Supply stats. This class should be considered non-API as it may be</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * removed if/when its code is incorporated into the JNA project.</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOKit</a> <strong class="jxr_keyword">extends</strong> Library {
@@ -151,73 +151,74 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">public</strong> byte[] dataType = <strong class="jxr_keyword">new</strong> byte[5];
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">public</strong> byte[] bytes = <strong class="jxr_keyword">new</strong> byte[32];
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">protected</strong> List&lt;String&gt; getFieldOrder() {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">return</strong> Arrays.asList(<strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"key"</span>, <span class="jxr_string">"dataSize"</span>, <span class="jxr_string">"dataType"</span>, <span class="jxr_string">"bytes"</span> });
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOConnect</a> <strong class="jxr_keyword">extends</strong> IntByReference {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">MachPort</a> <strong class="jxr_keyword">extends</strong> IntByReference {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IOPSCopyPowerSourcesInfo();
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFArrayRef</a> IOPSCopyPowerSourcesList(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> blob);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a> IOPSGetPowerSourceDescription(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> blob, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> ps);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">double</strong> IOPSGetTimeRemainingEstimate();
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">int</strong> IOMasterPort(<strong class="jxr_keyword">int</strong> unused, IntByReference masterPort);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> IOServiceMatching(String name);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> IOBSDNameMatching(<strong class="jxr_keyword">int</strong> masterPort, <strong class="jxr_keyword">int</strong> options, String bsdName);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">int</strong> IOServiceGetMatchingService(<strong class="jxr_keyword">int</strong> port, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDictionary);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">int</strong> IOServiceGetMatchingServices(<strong class="jxr_keyword">int</strong> port, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDictionary, IntByReference iterator);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <strong class="jxr_keyword">int</strong> IOServiceOpen(<strong class="jxr_keyword">int</strong> service, <strong class="jxr_keyword">int</strong> owningTask, <strong class="jxr_keyword">int</strong> type, IntByReference connect);
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">int</strong> IOServiceClose(<strong class="jxr_keyword">int</strong> connect);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">void</strong> IOObjectRelease(<strong class="jxr_keyword">int</strong> object);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">int</strong> IOIteratorNext(<strong class="jxr_keyword">int</strong> iterator);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">boolean</strong> IOObjectConformsTo(<strong class="jxr_keyword">int</strong> object, String className);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <em class="jxr_comment">// Requires OS X 10.5+</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">int</strong> IOConnectCallStructMethod(<strong class="jxr_keyword">int</strong> connection, <strong class="jxr_keyword">int</strong> selector, Structure inputStructure, <strong class="jxr_keyword">int</strong> structureInputSize,
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             Structure outputStructure, IntByReference structureOutputSize);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IORegistryEntryCreateCFProperty(<strong class="jxr_keyword">int</strong> entry, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> key, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator, <strong class="jxr_keyword">int</strong> options);
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IORegistryEntrySearchCFProperty(<strong class="jxr_keyword">int</strong> entry, String plane, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> key, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator,
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             <strong class="jxr_keyword">int</strong> options);
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryCreateCFProperties(<strong class="jxr_keyword">int</strong> entry, PointerByReference propsPtr, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator,
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>             <strong class="jxr_keyword">int</strong> options);
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> CFCopyDescription(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> type);
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetName(<strong class="jxr_keyword">int</strong> entry, Pointer name);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetRegistryEntryID(<strong class="jxr_keyword">int</strong> entry, LongByReference id);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetParentEntry(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference parent);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetChildEntry(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference child);
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetChildIterator(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference iter);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">int</strong> IORegistryGetRootEntry(<strong class="jxr_keyword">int</strong> masterPort);
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         @Override
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">protected</strong> List&lt;String&gt; getFieldOrder() {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             <strong class="jxr_keyword">return</strong> Arrays.asList(<strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"key"</span>, <span class="jxr_string">"dataSize"</span>, <span class="jxr_string">"dataType"</span>, <span class="jxr_string">"bytes"</span> });
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOConnect</a> <strong class="jxr_keyword">extends</strong> IntByReference {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">MachPort</a> <strong class="jxr_keyword">extends</strong> IntByReference {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IOPSCopyPowerSourcesInfo();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFArrayRef</a> IOPSCopyPowerSourcesList(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> blob);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a> IOPSGetPowerSourceDescription(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> blob, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> ps);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">double</strong> IOPSGetTimeRemainingEstimate();
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">int</strong> IOMasterPort(<strong class="jxr_keyword">int</strong> unused, IntByReference masterPort);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> IOServiceMatching(String name);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> IOBSDNameMatching(<strong class="jxr_keyword">int</strong> masterPort, <strong class="jxr_keyword">int</strong> options, String bsdName);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">int</strong> IOServiceGetMatchingService(<strong class="jxr_keyword">int</strong> port, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDictionary);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">int</strong> IOServiceGetMatchingServices(<strong class="jxr_keyword">int</strong> port, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDictionary, IntByReference iterator);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">int</strong> IOServiceOpen(<strong class="jxr_keyword">int</strong> service, <strong class="jxr_keyword">int</strong> owningTask, <strong class="jxr_keyword">int</strong> type, IntByReference connect);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">int</strong> IOServiceClose(<strong class="jxr_keyword">int</strong> connect);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">void</strong> IOObjectRelease(<strong class="jxr_keyword">int</strong> object);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">int</strong> IOIteratorNext(<strong class="jxr_keyword">int</strong> iterator);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">boolean</strong> IOObjectConformsTo(<strong class="jxr_keyword">int</strong> object, String className);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_comment">// Requires OS X 10.5+</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">int</strong> IOConnectCallStructMethod(<strong class="jxr_keyword">int</strong> connection, <strong class="jxr_keyword">int</strong> selector, Structure inputStructure, <strong class="jxr_keyword">int</strong> structureInputSize,
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             Structure outputStructure, IntByReference structureOutputSize);
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IORegistryEntryCreateCFProperty(<strong class="jxr_keyword">int</strong> entry, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> key, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator, <strong class="jxr_keyword">int</strong> options);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> IORegistryEntrySearchCFProperty(<strong class="jxr_keyword">int</strong> entry, String plane, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> key, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator,
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <strong class="jxr_keyword">int</strong> options);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryCreateCFProperties(<strong class="jxr_keyword">int</strong> entry, PointerByReference propsPtr, <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFAllocatorRef</a> allocator,
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             <strong class="jxr_keyword">int</strong> options);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> CFCopyDescription(<a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFTypeRef</a> type);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetName(<strong class="jxr_keyword">int</strong> entry, Pointer name);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetRegistryEntryID(<strong class="jxr_keyword">int</strong> entry, LongByReference id);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetParentEntry(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference parent);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetChildEntry(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference child);
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">int</strong> IORegistryEntryGetChildIterator(<strong class="jxr_keyword">int</strong> entry, String plane, IntByReference iter);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">int</strong> IORegistryGetRootEntry(<strong class="jxr_keyword">int</strong> masterPort);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

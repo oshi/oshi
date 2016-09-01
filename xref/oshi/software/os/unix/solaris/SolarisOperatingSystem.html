@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          ArrayList&lt;String&gt; procList = ExecutingCommand.runNative(<span class="jxr_string">"ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;String&gt; procList = ExecutingCommand.runNative(<span class="jxr_string">"ps -eo s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm"</span>);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">if</strong> (procList.isEmpty() || procList.size() &lt; 2) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a>[0];
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
@@ -105,7 +105,7 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      @Override
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         ArrayList&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         List&lt;String&gt; procList = <a href="../../../../../oshi/util/ExecutingCommand.html">ExecutingCommand</a>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>                 .runNative(<span class="jxr_string">"ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p "</span> + pid);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">if</strong> (procList.isEmpty() || procList.size() &lt; 2) {
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -153,7 +153,7 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     @Override
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         ArrayList&lt;String&gt; threadList = ExecutingCommand.runNative(<span class="jxr_string">"ps -eLo pid"</span>);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         List&lt;String&gt; threadList = ExecutingCommand.runNative(<span class="jxr_string">"ps -eLo pid"</span>);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">if</strong> (!threadList.isEmpty()) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>             <em class="jxr_comment">// Subtract 1 for header</em>
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>             <strong class="jxr_keyword">return</strong> threadList.size() - 1;
@@ -163,6 +163,6 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

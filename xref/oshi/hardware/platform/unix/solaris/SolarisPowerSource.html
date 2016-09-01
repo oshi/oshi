@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html">SolarisPowerSource</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../oshi/hardware/common/AbstractPowerSource.html">AbstractPowerSource</a> {
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * Gets Battery Information</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @return An array of PowerSource objects representing batteries, etc.</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../oshi/hardware/PowerSource.html">PowerSource</a>[] getPowerSources() {
@@ -119,12 +119,12 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// Set up single battery in array</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <a href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html">SolarisPowerSource</a>[] ps = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html">SolarisPowerSource</a>[1];
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         ps[0] = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html">SolarisPowerSource</a>(<span class="jxr_string">"BAT0"</span>, (<strong class="jxr_keyword">double</strong>) energyNow / energyFull,
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 isCharging ? -2d : (powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 isCharging ? -2d : powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d);
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">return</strong> ps;
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

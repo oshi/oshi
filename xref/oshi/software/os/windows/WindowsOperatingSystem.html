@@ -90,7 +90,7 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Process"</span>, processProperties,
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                  String.format(<span class="jxr_string">"WHERE ProcessId=%d"</span>, pid), processPropertyTypes);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          List&lt;OSProcess&gt; procList = processMapToList(procs);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> procList.size() &gt; 0 ? procList.get(0) : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> procList.isEmpty() ? <strong class="jxr_keyword">null</strong> : procList.get(0);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; processMapToList(Map&lt;String, List&lt;Object&gt;&gt; procs) {
@@ -151,6 +151,6 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

@@ -38,7 +38,7 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * C library. This class should be considered non-API as it may be removed</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * if/when its code is incorporated into the JNA project.</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/unix/LibC.html">LibC</a> <strong class="jxr_keyword">extends</strong> Library {
@@ -71,10 +71,10 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">protected</strong> List&lt;String&gt; getFieldOrder() {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">return</strong> Arrays.asList(<strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"tv_sec"</span>, <span class="jxr_string">"tv_usec"</span> });
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      };
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/unix/LibC.html">CpTime</a> <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> cpu_ticks[] = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[CPUSTATES];
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] cpu_ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[CPUSTATES];
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          @Override
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">protected</strong> List&lt;String&gt; getFieldOrder() {
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * retrieved and assigned to successive elements of loadavg[]. The system</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * imposes a maximum of 3 samples, representing averages over the last 1, 5,</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * and 15 minutes, respectively.</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @param loadavg</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     *            An array of doubles which will be filled with the results</em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * @param nelem</em>
@@ -198,6 +198,6 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

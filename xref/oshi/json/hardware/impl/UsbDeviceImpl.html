@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * Creates a new platform-specific USBDevice object wrapping the provided</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * argument</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * @param usbDevice</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     *            a platform-specific USBDevice object</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     */</em>
@@ -119,7 +119,7 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>     @Override
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"hardware.usbDevices.name"</span>)) {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             json.add(<span class="jxr_string">"name"</span>, getName());
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
@@ -137,7 +137,7 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"hardware.usbDevices.connectedDevices"</span>)
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 &amp;&amp; PropertiesUtil.getBoolean(properties, <span class="jxr_string">"hardware.usbDevices.tree"</span>)) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             JsonArrayBuilder usbDeviceArrayBuilder = jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             JsonArrayBuilder usbDeviceArrayBuilder = <strong class="jxr_keyword">this</strong>.jsonFactory.createArrayBuilder();
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : getConnectedDevices()) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                 usbDeviceArrayBuilder.add(usbDevice.toJSON());
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
@@ -153,6 +153,6 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

@@ -69,14 +69,12 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>              NativeLong lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// ConnectServier is 4th method of vtable for WbemLocator in WbemCli.h</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          HRESULT result = (HRESULT) <strong class="jxr_keyword">this</strong>._invokeNativeObject(3, <strong class="jxr_keyword">new</strong> Object[] { <strong class="jxr_keyword">this</strong>.getPointer(), strNetworkResource,
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  strUser, strPassword, strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">return</strong> (HRESULT) _invokeNativeObject(3, <strong class="jxr_keyword">new</strong> Object[] { getPointer(), strNetworkResource, strUser, strPassword,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

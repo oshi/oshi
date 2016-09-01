@@ -100,7 +100,7 @@
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          <em class="jxr_comment">// For each item enumerated, store information in the maps</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          String key = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">int</strong> indent = 0;
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          List&lt;String&gt; usbControllers = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          List&lt;String&gt; usbControllers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">for</strong> (String line : devices) {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <em class="jxr_comment">// Node 0x... identifies start of a new tree</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Node 0x"</span>)) {
@@ -154,10 +154,10 @@
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// Build tree and return</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;UsbDevice&gt;();
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">for</strong> (String controller : usbControllers) {
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>             <em class="jxr_comment">// Only do controllers that are USB device type</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <strong class="jxr_keyword">if</strong> (deviceTypeMap.getOrDefault(controller, <span class="jxr_string">""</span>).equals(<span class="jxr_string">"usb"</span>)) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"usb"</span>.equals(deviceTypeMap.getOrDefault(controller, <span class="jxr_string">""</span>))) {
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                 controllerDevices.add(getDeviceAndChildren(controller, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>));
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
@@ -167,7 +167,7 @@
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * Recursively creates SolarisUsbDevices by fetching information from maps</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * to populate fields</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * @param devPath</em>
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     *            The device node path.</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * @param vid</em>
@@ -191,6 +191,6 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/dblock/">com.github.dblock</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
