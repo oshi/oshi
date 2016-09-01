@@ -17,7 +17,7 @@
  * https://github.com/dblock/oshi/graphs/contributors
  */
 /**
- * [oshi-json API] Provides cross-platform implementation to retrieve OS,
+ * [oshi-core API] Provides cross-platform implementation to retrieve OS,
  * FileSystem, and Process information
  */
 package oshi.software.os;

@@ -1,15 +1,16 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
 
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|oshi-)
-[![Build Status](https://travis-ci.org/dblock/oshi.svg)](https://travis-ci.org/dblock/oshi)
-[![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
-[![Coverage Status](https://coveralls.io/repos/github/dblock/oshi/badge.svg?branch=master)](https://coveralls.io/github/dblock/oshi?branch=master)
-[![codecov.io](https://codecov.io/github/dblock/oshi/coverage.svg?branch=master)](https://codecov.io/github/dblock/oshi?branch=master)
+[![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
+[![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=com.github.dblock:oshi-parent)](https://sonarqube.com/overview?id=com.github.dblock%3Aoshi-parent)
+[![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
+[![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
-[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dblock/oshi&amp;utm_campaign=Badge_Grade)
+[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
+[![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
 [![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
-[![Join the chat at https://gitter.im/dblock/oshi](https://badges.gitter.im/dblock/oshi.svg)](https://gitter.im/dblock/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
+[![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
 [![Project Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
@@ -43,27 +44,27 @@ Supported features
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|oshi-)
-* [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md) • [API](http://dblock.github.io/oshi/apidocs/) • [Site](http://dblock.github.io/oshi/) 
-* [Upgrading from an earlier version?](https://github.com/dblock/oshi/blob/master/UPGRADING.md) 
+* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
+* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
 Downloads
 ----------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.1.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.1.1&amp;e=jar)  | [oshi-core-3.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.2-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.1.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.1.1&amp;e=jar)   | [oshi-json-3.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.2-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.2&amp;e=jar)  | [oshi-core-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.3-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.2&amp;e=jar)   | [oshi-json-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.3-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
 OSHI provides output directly via java methods or, for the `oshi-json` project, in JSON format for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
-The `main()` method of [SystemInfoTest](https://github.com/dblock/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
+The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
 provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics such as the below examples.
 
-For `oshi-json`, [SystemInfoTest](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/java/oshi/SystemInfoTest.java) 
+For `oshi-json`, [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/java/oshi/SystemInfoTest.java) 
 enables the same capabilities via decorator classes. 
-See [oshi.json.properties](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
+See [oshi.json.properties](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
 for a sample properties configuration file to customize JSON results.
 
 General information about the operating system and processor.
@@ -130,7 +131,7 @@ Disks:
  |-- disk1s2: Dropbox (disk image) Maj:Min=1:5, size: 959.7 GB @ /Volumes/Dropbox
 
 ```
-Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/dblock/oshi/blob/master/FAQ.md)).
+Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)).
 ```
 Sensors:
  CPU Temperature: 69.8°C
