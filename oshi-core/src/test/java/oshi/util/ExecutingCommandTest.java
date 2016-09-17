@@ -30,7 +30,7 @@ import org.junit.Test;
  */
 public class ExecutingCommandTest {
 
-    private static final String ECHO = "echo Test";
+    private static final String ECHO = System.getProperty("os.name").startsWith("Windows") ? "cmd.exe /C echo Test" : "echo Test";
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";
 
     @Test
