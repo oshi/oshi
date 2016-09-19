@@ -27,6 +27,7 @@ import com.sun.jna.Pointer;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
+import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
@@ -107,12 +108,28 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
+        long bytesRead = 0, bytesWritten = 0;
+        if (getVersion().getOsxVersionNumber() >= 9) {
+            RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
+            if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
+                bytesRead = rUsageInfoV2.ri_diskio_bytesread;
+                bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
+            }
+        }
         return new MacProcess(name, path, taskAllInfo.pbsd.pbi_status, pid, taskAllInfo.pbsd.pbi_ppid,
                 taskAllInfo.ptinfo.pti_threadnum, taskAllInfo.ptinfo.pti_priority, taskAllInfo.ptinfo.pti_virtual_size,
                 taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system / 1000000L,
                 taskAllInfo.ptinfo.pti_total_user / 1000000L,
                 taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L,
-                System.currentTimeMillis());
+                System.currentTimeMillis(), bytesRead, bytesWritten);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MacOSVersionInfoEx getVersion() {
+        return (MacOSVersionInfoEx) this.version;
     }
 
     /**

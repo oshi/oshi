@@ -31,7 +31,7 @@ import oshi.software.os.OSProcess;
  */
 public class MacProcess extends AbstractProcess {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     /*
      * OS X States:
      */
@@ -45,7 +45,7 @@ public class MacProcess extends AbstractProcess {
 
     public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long now) {
+            long now, long bytesRead, long bytesWritten) {
         this.name = name;
         this.path = path;
         switch (osXState) {
@@ -81,6 +81,8 @@ public class MacProcess extends AbstractProcess {
         this.userTime = userTime;
         this.startTime = startTime;
         this.upTime = now - startTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
     }
 
 }

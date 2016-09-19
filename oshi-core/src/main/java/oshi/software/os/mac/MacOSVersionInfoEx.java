@@ -31,16 +31,23 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 
+    private int osxVersionNumber = -1;
+
     public MacOSVersionInfoEx() {
         setVersion(System.getProperty("os.version"));
         setCodeName(parseCodeName());
         setBuildNumber(SysctlUtil.sysctl("kern.osversion", ""));
     }
 
+    public int getOsxVersionNumber() {
+        return osxVersionNumber;
+    }
+
     private String parseCodeName() {
         String[] versionSplit = getVersion().split("\\.");
         if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
-            switch (ParseUtil.parseIntOrDefault(versionSplit[1], -1)) {
+            osxVersionNumber = ParseUtil.parseIntOrDefault(versionSplit[1], -1);
+            switch (osxVersionNumber) {
             // MacOS
             case 12:
                 return "Sierra";

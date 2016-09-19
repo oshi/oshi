@@ -55,6 +55,9 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     int MNT_NOWAIT = 0x0010;
     int MNT_DWAIT = 0x0100;
 
+    // resource.h
+    int RUSAGE_INFO_V2 = 2;
+
     class ProcTaskAllInfo extends Structure {
         public ProcBsdInfo pbsd;
         public ProcTaskInfo ptinfo;
@@ -124,6 +127,37 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
                     "pti_total_system", "pti_threads_user", "pti_threads_system", "pti_policy", "pti_faults",
                     "pti_pageins", "pti_cow_faults", "pti_messages_sent", "pti_messages_received", "pti_syscalls_mach",
                     "pti_syscalls_unix", "pti_csw", "pti_threadnum", "pti_numrunning", "pti_priority" });
+        }
+    }
+
+    class RUsageInfoV2 extends Structure {
+        public byte[] ri_uuid = new byte[16];
+        public long ri_user_time;
+        public long ri_system_time;
+        public long ri_pkg_idle_wkups;
+        public long ri_interrupt_wkups;
+        public long ri_pageins;
+        public long ri_wired_size;
+        public long ri_resident_size;
+        public long ri_phys_footprint;
+        public long ri_proc_start_abstime;
+        public long ri_proc_exit_abstime;
+        public long ri_child_user_time;
+        public long ri_child_system_time;
+        public long ri_child_pkg_idle_wkups;
+        public long ri_child_interrupt_wkups;
+        public long ri_child_pageins;
+        public long ri_child_elapsed_abstime;
+        public long ri_diskio_bytesread;
+        public long ri_diskio_byteswritten;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList(new String[] { "ri_uuid", "ri_user_time", "ri_system_time", "ri_pkg_idle_wkups",
+                    "ri_interrupt_wkups", "ri_pageins", "ri_wired_size", "ri_resident_size", "ri_phys_footprint",
+                    "ri_proc_start_abstime", "ri_proc_exit_abstime", "ri_child_user_time", "ri_child_system_time",
+                    "ri_child_pkg_idle_wkups", "ri_child_interrupt_wkups", "ri_child_pageins",
+                    "ri_child_elapsed_abstime", "ri_diskio_bytesread", "ri_diskio_byteswritten" });
         }
     }
 
@@ -386,6 +420,19 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *         otherwise
      */
     int proc_pidpath(int pid, Pointer buffer, int buffersize);
+
+    /**
+     * Return resource usage information for the given pid, which can be a live process or a zombie.
+     *
+     * @param pid
+     *            the process identifier
+     * @param flavor
+     *            the type of information requested
+     * @param buffer
+     *            holds results
+     * @returns 0 on success; or -1 on failure, with errno set to indicate the specific error.
+     */
+    int proc_pid_rusage(int pid, int flavor, RUsageInfoV2 buffer);
 
     /**
      * The getfsstat() function returns information about all mounted file
