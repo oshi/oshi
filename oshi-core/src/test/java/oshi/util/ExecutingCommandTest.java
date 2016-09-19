@@ -24,13 +24,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Test;
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
 
 /**
  * Test command line and returning the result of execution.
  */
 public class ExecutingCommandTest {
 
-    private static final String ECHO = "echo Test";
+    private static final String ECHO = SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS) ? "cmd.exe /C echo Test" : "echo Test";
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";
 
     @Test
