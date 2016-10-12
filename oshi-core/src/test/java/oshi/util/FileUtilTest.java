@@ -20,7 +20,9 @@ package oshi.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -35,6 +37,7 @@ public class FileUtilTest {
     private static String THISCLASS = "src/test/java/oshi/util/FileUtilTest.java";
     private static String INT_FILE = "src/test/resources/test.integer.txt";
     private static String STRING_FILE = "src/test/resources/test.string.txt";
+    private static String PROCIO_FILE = "src/test/resources/test.procio.txt";
     private static String NO_FILE = "does/not/exist";
 
     /**
@@ -84,5 +87,22 @@ public class FileUtilTest {
 
         assertEquals(5, FileUtil.getSplitFromFile(STRING_FILE).length);
         assertEquals(0, FileUtil.getSplitFromFile(NO_FILE).length);
+    }
+
+    @Test
+    public void testReadProcIo() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("rchar", "124788352");
+        expected.put("wchar", "124802481");
+        expected.put("syscr", "135");
+        expected.put("syscw", "1547");
+        expected.put("read_bytes", "40304640");
+        expected.put("write_bytes", "124780544");
+        expected.put("cancelled_write_bytes", "42");
+        Map<String, String> actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, ":");
+        assertEquals(expected.size(), actual.size());
+        for (String key : expected.keySet()) {
+            assertEquals(expected.get(key), actual.get(key));
+        }
     }
 }
