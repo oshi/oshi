@@ -24,7 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,5 +158,27 @@ public class FileUtil {
             return read.get(0).split("\\s+");
         }
         return new String[0];
+    }
+
+    /**
+     * Read a file and return a map of string keys to string values contained
+     * therein. Intended primarily for Linux /proc/[pid]/io
+     * @param filename
+     *            The file to read
+     * @return The map contained in the file, if any; otherwise empty map
+     */
+    public static Map<String, String> getKeyValueMapFromFile(
+            String filename,
+            String separator) {
+        Map<String, String> map = new HashMap<>();
+        LOG.debug("Reading file {}", filename);
+        List<String> lines = FileUtil.readFile(filename, false);
+        for (String line : lines) {
+            String[] parts = line.split(separator);
+            if (parts.length == 2) {
+                map.put(parts[0], parts[1].trim());
+            }
+        }
+        return map;
     }
 }

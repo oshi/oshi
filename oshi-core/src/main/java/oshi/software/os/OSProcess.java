@@ -151,4 +151,14 @@ public interface OSProcess extends Serializable {
      *         since January 1, 1970.
      */
     long getStartTime();
+
+    /**
+     * @return Returns the number of bytes the process has read from disk.
+     */
+    long getBytesRead();
+
+    /**
+     * @return Returns the number of bytes the process has written to disk.
+     */
+    long getBytesWritten();
 }

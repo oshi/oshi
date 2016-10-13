@@ -61,7 +61,7 @@ public class LinuxProcess extends AbstractProcess {
 
     public LinuxProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long now) {
+            long bytesRead, long bytesWritten, long now) {
         this.name = name;
         this.path = path;
         switch (state) {
@@ -94,6 +94,8 @@ public class LinuxProcess extends AbstractProcess {
         this.userTime = userTime * 1000L / hz;
         this.startTime = bootTime + startTime * 1000L / hz;
         this.upTime = now - this.startTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
     }
 
     /**

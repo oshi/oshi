@@ -36,7 +36,7 @@ import oshi.software.os.OSProcess.State;
  */
 public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
@@ -161,6 +161,22 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
      * {@inheritDoc}
      */
     @Override
+    public long getBytesRead() {
+        return this.osProcess.getBytesRead();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesWritten() {
+        return this.osProcess.getBytesWritten();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.name")) {
@@ -201,6 +217,12 @@ public class OSProcessImpl extends AbstractOshiJsonObject implements OSProcess {
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.startTime")) {
             json.add("startTime", getStartTime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.bytesRead")) {
+            json.add("bytesRead", getBytesRead());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.bytesWritten")) {
+            json.add("bytesWritten", getBytesWritten());
         }
         return json.build();
     }

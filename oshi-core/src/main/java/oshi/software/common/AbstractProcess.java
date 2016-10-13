@@ -30,7 +30,7 @@ import oshi.software.os.OSProcess;
  */
 public class AbstractProcess implements OSProcess {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected String name;
     protected String path;
@@ -45,6 +45,8 @@ public class AbstractProcess implements OSProcess {
     protected long userTime;
     protected long startTime;
     protected long upTime;
+    protected long bytesRead;
+    protected long bytesWritten;
 
     /**
      * {@inheritDoc}
@@ -151,5 +153,21 @@ public class AbstractProcess implements OSProcess {
     @Override
     public long getStartTime() {
         return this.startTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesRead() {
+        return bytesRead;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesWritten() {
+        return bytesWritten;
     }
 }
