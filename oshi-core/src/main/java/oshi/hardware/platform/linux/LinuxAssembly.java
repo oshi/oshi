@@ -1,6 +1,7 @@
 package oshi.hardware.platform.linux;
 
 import oshi.hardware.common.AbstractAssembly;
+import oshi.util.FileUtil;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,13 +13,16 @@ import oshi.hardware.common.AbstractAssembly;
  */
 final class LinuxAssembly extends AbstractAssembly {
 
+    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
+    // official/approved path for sysfs information
+    private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
+
     LinuxAssembly() {
 
         init();
     }
 
     private void init() {
-        // TODO
 
 //        $ sudo dmidecode -t system
 //        # dmidecode 2.12
@@ -26,10 +30,10 @@ final class LinuxAssembly extends AbstractAssembly {
 //
 //        Handle 0x0001, DMI type 1, 27 bytes
 //        System Information
-//            Manufacturer: Parallels Software International Inc.                                 <-- TODO - put it in "manufacturer"
-//            Product Name: Parallels Virtual Platform                                            <-- TODO - put it in "model"
+//            Manufacturer: Parallels Software International Inc.                                 <-- "manufacturer"
+//            Product Name: Parallels Virtual Platform                                            <-- "model"
 //            Version: None
-//            Serial Number: Parallels-8E A6 8E 66 FF 9F 41 A1 91 26 6B E3 D3 C7 B2 A9            <-- TODO - put it in serialNumber
+//            Serial Number: Parallels-8E A6 8E 66 FF 9F 41 A1 91 26 6B E3 D3 C7 B2 A9            <-- "serialNumber"
 //            UUID: 668EA68E-9FFF-A141-9126-6BE3D3C7B2A9
 //            Wake-up Type: Power Switch
 //            SKU Number: Undefined
@@ -50,11 +54,39 @@ final class LinuxAssembly extends AbstractAssembly {
 //        board_name       chassis_type       product_serial
 //        board_serial     chassis_vendor     product_uuid
 
-        // TODO - or
+        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "sys_vendor");
+        if (sysVendor != null && !sysVendor.trim().isEmpty()) {
+            setManufacturer(sysVendor.trim());
+        }
 
-        // TODO - sys_vendor                      --> "manufacturer"
-        // TODO - product_name + product_version  --> "model"
-        // TODO - product_serial                  --> "serialNumber" (if empty/null use: board_serial ?)
+        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_name");
+        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_version");
 
+        if (productName != null && !productName.trim().isEmpty()) {
+
+            if (productVersion != null
+                && !productVersion.trim().isEmpty()
+                && !productVersion.trim().equals("None")) {
+
+                setModel(productName.trim() + " (version: " + productVersion.trim() + ")");
+            } else {
+                setModel(productName.trim());
+            }
+        } else {
+            if (productVersion != null && !productVersion.trim().isEmpty()) {
+
+                setModel(productVersion.trim());
+            }
+        }
+
+        final String productSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
+        if (productSerial != null && !productSerial.trim().isEmpty()) {
+            setSerialNumber(productSerial.trim());
+        } else {
+            final String boardSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
+            if (boardSerial != null && !boardSerial.trim().isEmpty()) {
+                setSerialNumber(boardSerial.trim());
+            }
+        }
     }
 }
