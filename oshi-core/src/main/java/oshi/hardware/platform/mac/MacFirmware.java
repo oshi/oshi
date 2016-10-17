@@ -1,6 +1,7 @@
 package oshi.hardware.platform.mac;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.ExecutingCommand;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,13 +13,14 @@ import oshi.hardware.common.AbstractFirmware;
  */
 final class MacFirmware extends AbstractFirmware {
 
+    private static final String CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE = "system_profiler SPHardwareDataType";
+
     MacFirmware() {
 
         init();
     }
 
     private void init() {
-        // TODO
 
 //        $ system_profiler SPHardwareDataType
 //        Hardware:
@@ -41,10 +43,23 @@ final class MacFirmware extends AbstractFirmware {
 //              Sudden Motion Sensor:
 //                  State: Enabled
 
-        // TODO : <"Apple Inc."> (hard coded) --> manufacturer
-        // TODO : <empty/unknown/...>   --> name
-        // TODO : <empty/unknown/...>   --> description
-        // TODO : "Boot ROM Version"    --> version
-        // TODO : <empty/unknown/...>   --> releaseDate
+        setManufacturer("Apple Inc.");
+
+        final String bootRomVersion = parseCommandOutput(CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE, "Boot ROM Version:");
+        if (bootRomVersion != null && !bootRomVersion.isEmpty()) {
+            setVersion(bootRomVersion);
+        }
+
+        // name, description and releaseDate --> not set
+    }
+
+    private String parseCommandOutput(final String nativeCall, final String marker) {
+        for (final String checkLine : ExecutingCommand.runNative(nativeCall)) {
+            if (checkLine.contains(marker)) {
+                return checkLine.split(marker)[1].trim();
+            }
+        }
+
+        return null;
     }
 }

@@ -127,6 +127,8 @@ final class LinuxFirmware extends AbstractFirmware {
                 LOG.warn("could not parse date string: " + biosDate, e);
             }
         }
+
+        // name --> not set
     }
 
     private String parseCommandOutput(final String nativeCall, final String marker) {

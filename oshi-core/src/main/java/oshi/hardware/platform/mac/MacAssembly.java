@@ -1,6 +1,7 @@
 package oshi.hardware.platform.mac;
 
 import oshi.hardware.common.AbstractAssembly;
+import oshi.util.ExecutingCommand;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,16 +13,14 @@ import oshi.hardware.common.AbstractAssembly;
  */
 final class MacAssembly extends AbstractAssembly {
 
+    private static final String CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE = "system_profiler SPHardwareDataType";
+
     MacAssembly() {
 
         init();
     }
 
     private void init() {
-
-        setManufacturer("Apple Inc.");
-
-        // TODO
 
 //        $ system_profiler SPHardwareDataType
 //        Hardware:
@@ -44,7 +43,38 @@ final class MacAssembly extends AbstractAssembly {
 //              Sudden Motion Sensor:
 //                  State: Enabled
 
-        // TODO - "Model Name" + "Model Identifier"  --> "model"
-        // TODO - "Serial Number (system)"  --> "serialNumber"
+
+        setManufacturer("Apple Inc.");
+
+        final String modelName = parseCommandOutput(CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE, "Model Name:");
+        final String modelIdentifier = parseCommandOutput(CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE, "Model Identifier:");
+        if (modelName != null && !modelName.isEmpty()) {
+
+            if (modelIdentifier != null && ! modelIdentifier.isEmpty()) {
+                setModel(modelName + " (" + modelIdentifier+")");
+            } else {
+                setModel(modelName);
+            }
+        }
+        else {
+            if (modelIdentifier != null && ! modelIdentifier.isEmpty()) {
+                setModel(modelIdentifier);
+            }
+        }
+
+        final String serialNumberSystem = parseCommandOutput(CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE, "Serial Number (system):");
+        if (serialNumberSystem != null && !serialNumberSystem.isEmpty()) {
+            setSerialNumber(serialNumberSystem);
+        }
+    }
+
+    private String parseCommandOutput(final String nativeCall, final String marker) {
+        for (final String checkLine : ExecutingCommand.runNative(nativeCall)) {
+            if (checkLine.contains(marker)) {
+                return checkLine.split(marker)[1].trim();
+            }
+        }
+
+        return null;
     }
 }
