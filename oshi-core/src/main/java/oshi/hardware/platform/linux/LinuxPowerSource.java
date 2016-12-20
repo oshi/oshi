@@ -63,8 +63,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
         List<LinuxPowerSource> psList = new ArrayList<>(psNames.length);
         // For each power source, output various info
         for (String psName : psNames) {
-            // Skip if name is ADP* (AC power supply)
-            if (psName.startsWith("ADP")) {
+            // Skip if name is ADP* or AC* (AC power supply)
+            if (psName.startsWith("ADP") || psName.startsWith("AC")) {
                 continue;
             }
             // Skip if can't read uevent file
