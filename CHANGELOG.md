@@ -1,5 +1,8 @@
 3.3 (in progress)
 ================
+* [#262](https://github.com/dblock/oshi/pull/262): Per-process disk I/O stats - [@plamenko](https://github.com/plamenko).
+* [#264](https://github.com/dblock/oshi/pull/264): BIOS and manufacturer information - [@lundefugl](https://github.com/lundefugl).
+* [#281](https://github.com/dblock/oshi/pull/281): Improve Linux battery AC device exclusion - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.2 (9/1/2016)
