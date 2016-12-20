@@ -18,10 +18,7 @@
  */
 package oshi.hardware.common;
 
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Sensors;
+import oshi.hardware.*;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -30,6 +27,10 @@ import oshi.hardware.Sensors;
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
+
+    protected Assembly assembly;
+
+    protected Firmware firmware;
 
     protected CentralProcessor processor;
 

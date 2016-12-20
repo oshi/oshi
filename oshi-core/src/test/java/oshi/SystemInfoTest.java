@@ -18,23 +18,10 @@
  */
 package oshi;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import oshi.hardware.CentralProcessor;
+import oshi.hardware.*;
 import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.Display;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWPartition;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
@@ -42,6 +29,9 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The Class SystemInfoTest.
@@ -67,6 +57,12 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
+
+        LOG.info("Checking assembly...");
+        printAssembly(hal.getAssembly());
+
+        LOG.info("Checking firmware...");
+        printFirmware(hal.getFirmware());
 
         printProcessor(hal.getProcessor());
 
@@ -101,6 +97,21 @@ public class SystemInfoTest {
         // hardware: USB devices
         LOG.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
+    }
+
+    private static void printAssembly(final Assembly assembly) {
+
+        System.out.println("manufacturer: " + assembly.getManufacturer());
+        System.out.println("model: " + assembly.getModel());
+        System.out.println("serialnumber: " + assembly.getSerialNumber());
+    }
+
+    private static void printFirmware(final Firmware firmware) {
+        System.out.println("manufacturer: " + firmware.getManufacturer());
+        System.out.println("name: " + firmware.getName());
+        System.out.println("description: " + firmware.getDescription());
+        System.out.println("version: " + firmware.getVersion());
+        System.out.println("release date: " + firmware.getReleaseDate());
     }
 
     private static void printProcessor(CentralProcessor processor) {
