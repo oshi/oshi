@@ -18,19 +18,28 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.Display;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
+import oshi.hardware.*;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Assembly getAssembly() {
+        if (this.assembly == null) {
+            this.assembly = new SolarisAssembly();
+        }
+        return this.assembly;
+    }
+
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            this.firmware = new SolarisFirmware();
+        }
+        return this.firmware;
+    }
 
     /**
      * {@inheritDoc}

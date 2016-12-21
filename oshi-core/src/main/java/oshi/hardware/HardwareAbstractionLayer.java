@@ -28,6 +28,10 @@ import java.io.Serializable;
  */
 public interface HardwareAbstractionLayer extends Serializable {
 
+    Assembly getAssembly();
+
+    Firmware getFirmware();
+
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or
      * more Logical CPUs.
