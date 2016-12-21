@@ -4,7 +4,8 @@
 * [#264](https://github.com/dblock/oshi/pull/264): BIOS and manufacturer information - [@lundefugl](https://github.com/lundefugl).
 * [#281](https://github.com/dblock/oshi/pull/281): Improve Linux battery AC device exclusion - [@dbwiddis](https://github.com/dbwiddis).
 * [#282](https://github.com/dblock/oshi/pull/282): Get Windows version from WMI - [@dbwiddis](https://github.com/dbwiddis).
-* [#283](https://github.com/dblock/oshi/pull/283): Bugfix for Linux block device stats - [@lu-ko](https://github.com/lu-ko).
+* [#283](https://github.com/dblock/oshi/pull/283): Fix Linux block device stats on some distributions - [@lu-ko](https://github.com/lu-ko).
+* [#284](https://github.com/dblock/oshi/pull/284): Remove incorrect IOWait counter from WindowsCentralProcessor - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.2 (9/1/2016)

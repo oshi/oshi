@@ -35,7 +35,6 @@ import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -123,13 +122,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             return ticks;
         }
         // IOwait:
-        // Avg. Disk sec/Transfer raw value is cumulative ticks spent
-        // Raw value is cumulative 100NS-ticks
-        // Divide by 10000 to get milliseconds
-        // transferring. Divide result by ticks per ms to get ms
-        ticks[TickType.IOWAIT.getIndex()] = FormatUtil.getUnsignedInt(WmiUtil.selectUint32From(null,
-                "Win32_PerfRawData_PerfDisk_LogicalDisk", "AvgDisksecPerTransfer", "WHERE Name=\"_Total\"").intValue())
-                / 10000L;
+        // Windows does not measure IOWait.
 
         // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
@@ -151,7 +144,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 - ticks[TickType.IDLE.getIndex()];
         ticks[TickType.USER.getIndex()] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
         // Additional decrement to avoid double counting in the total array
-        ticks[TickType.IDLE.getIndex()] -= ticks[TickType.IOWAIT.getIndex()];
         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
     }

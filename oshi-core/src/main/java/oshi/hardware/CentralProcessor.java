@@ -217,8 +217,8 @@ public interface CentralProcessor extends Serializable {
      * index. By measuring the difference between ticks across a time interval,
      * CPU load over that interval may be calculated.
      *
-     * Nice information is not available on Windows, and IOwait and IRQ
-     * information is not available on macOS, so these ticks will always be
+     * Nice and IOWait information is not available on Windows, and IOwait and
+     * IRQ information is not available on macOS, so these ticks will always be
      * zero.
      *
      * To calculate overall Idle time using this method, include both Idle and
@@ -318,11 +318,6 @@ public interface CentralProcessor extends Serializable {
      * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
      * System value to get the total. System ticks also include time executing
      * other virtual hosts (steal).
-     *
-     * Note that the System IOwait reported by {@link #getSystemCpuLoadTicks()}
-     * will be included in the per-processor Idle time rather than attributed to
-     * any logical processor's IOwait counter (i.e., the sum of per-processor
-     * Idle time will equal the System Idle + IOwait time.)
      *
      * @return A 2D array of logicalProcessorCount x 7 long values representing
      *         time spent in User, Nice, System, Idle, IOwait, IRQ, and SoftIRQ
