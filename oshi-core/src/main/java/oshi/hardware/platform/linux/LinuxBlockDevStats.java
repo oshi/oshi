@@ -64,18 +64,25 @@ public class LinuxBlockDevStats implements Serializable {
         devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
         splitstats = devstat.split("\\s+");
 
+        if (splitstats.length < 11) {
+            throw new IllegalStateException("Unexpected length of array: " + splitstats.length);
+        }
+
+        // read last 11 elements
+        int startIndex = splitstats.length - 11;
+
         this.device = device;
-        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);
-        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);
-        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);
-        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);
-        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);
-        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);
-        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);
-        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);
-        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);
-        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);
-        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);
+        this.read_ops = ParseUtil.parseLongOrDefault(splitstats[startIndex + 0], 0L);
+        this.read_merged = ParseUtil.parseLongOrDefault(splitstats[startIndex + 1], 0L);
+        this.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[startIndex + 2], 0L);
+        this.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 3], 0L);
+        this.write_ops = ParseUtil.parseLongOrDefault(splitstats[startIndex + 4], 0L);
+        this.write_merged = ParseUtil.parseLongOrDefault(splitstats[startIndex + 5], 0L);
+        this.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[startIndex + 6], 0L);
+        this.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 7], 0L);
+        this.in_flight = ParseUtil.parseLongOrDefault(splitstats[startIndex + 8], 0L);
+        this.active_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 9], 0L);
+        this.waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 10], 0L);
     }
 
 }
