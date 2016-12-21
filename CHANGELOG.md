@@ -1,6 +1,7 @@
 3.3 (in progress)
 ================
 * Your contribution here.
+* [#283](https://github.com/dblock/oshi/pull/283): Bugfix for Linux block device stats - [@lu-ko](https://github.com/lu-ko).
 * [#262](https://github.com/dblock/oshi/pull/262): Add bytesRead and bytesWritten to OSProcess - [@plamenko](https://github.com/plamenko).
 
 3.2 (9/1/2016)
