@@ -68,8 +68,8 @@ public class LinuxBlockDevStats implements Serializable {
             throw new IllegalStateException("Unexpected length of array: " + splitstats.length);
         }
 
-        // read first 11 elements, for longer stats ignore the first one
-        int startIndex = (splitstats.length == 11) ? 0 : 1;
+        // read last 11 elements
+        int startIndex = splitstats.length - 11;
 
         this.device = device;
         this.read_ops = ParseUtil.parseLongOrDefault(splitstats[startIndex + 0], 0L);
