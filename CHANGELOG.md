@@ -6,6 +6,7 @@
 * [#282](https://github.com/dblock/oshi/pull/282): Get Windows version from WMI - [@dbwiddis](https://github.com/dbwiddis).
 * [#283](https://github.com/dblock/oshi/pull/283): Fix Linux block device stats on some distributions - [@lu-ko](https://github.com/lu-ko).
 * [#284](https://github.com/dblock/oshi/pull/284): Remove incorrect IOWait counter from WindowsCentralProcessor - [@dbwiddis](https://github.com/dbwiddis).
+* [#285](https://github.com/dblock/oshi/pull/285): Rebrand Mac OS 10.12+ as macOS - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.2 (9/1/2016)
