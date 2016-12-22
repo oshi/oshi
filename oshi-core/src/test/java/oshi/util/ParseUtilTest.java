@@ -226,7 +226,17 @@ public class ParseUtilTest {
     public void testGetFirstIntValue() {
         assertEquals(42, ParseUtil.getFirstIntValue("foo = 42 (0x2a) (int)"));
         assertEquals(0, ParseUtil.getFirstIntValue("foo = 0x2a (int)"));
-        assertEquals(0, ParseUtil.getFirstIntValue("42"));
+        assertEquals(42, ParseUtil.getFirstIntValue("42"));
+        assertEquals(10, ParseUtil.getFirstIntValue("10.12.2"));
     }
 
+    /**
+     * Test parse NthIntValue
+     */
+    @Test
+    public void testGetNthIntValue() {
+        assertEquals(2, ParseUtil.getNthIntValue("foo = 42 (0x2a) (int)", 3));
+        assertEquals(0, ParseUtil.getNthIntValue("foo = 0x2a (int)", 3));
+        assertEquals(12, ParseUtil.getNthIntValue("10.12.2", 2));
+    }
 }

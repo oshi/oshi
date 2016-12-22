@@ -438,17 +438,31 @@ public class ParseUtil {
     }
 
     /**
-     * Parses a string such as key = 1 (0x1) (int)
+     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the
+     * integer value of the first set of one or more consecutive digits
      *
      * @param line
      *            The entire string
-     * @return the value of first int past equals sign
+     * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-        String[] split = line.split("=");
-        if (split.length < 2) {
-            return 0;
+        return getNthIntValue(line, 1);
+    }
+
+    /**
+     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the
+     * integer value of the nth set of one or more consecutive digits
+     *
+     * @param line
+     *            The entire string
+     * @return the value of nth integer if any; 0 otherwise
+     */
+    public static int getNthIntValue(String line, int n) {
+        // Split the string by non-digits,
+        String[] split = line.replaceFirst("^[^0-9]*", "").split("[^0-9]+");
+        if (split.length >= n) {
+            return parseIntOrDefault(split[n - 1], 0);
         }
-        return parseIntOrDefault(split[1].trim().split("\\s+")[0], 0);
+        return 0;
     }
 }

@@ -44,9 +44,8 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
     }
 
     private String parseCodeName() {
-        String[] versionSplit = getVersion().split("\\.");
-        if (versionSplit.length > 1 && versionSplit[0].equals("10")) {
-            osxVersionNumber = ParseUtil.parseIntOrDefault(versionSplit[1], -1);
+        if (ParseUtil.getFirstIntValue(getVersion()) == 10) {
+            osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);
             switch (osxVersionNumber) {
             // MacOS
             case 12:

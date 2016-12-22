@@ -31,6 +31,7 @@ import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
@@ -41,8 +42,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
-        this.family = System.getProperty("os.name");
         this.version = new MacOSVersionInfoEx();
+        this.family = ParseUtil.getFirstIntValue(version.getVersion()) == 10
+                && ParseUtil.getNthIntValue(version.getVersion(), 2) >= 12 ? "macOS" : System.getProperty("os.name");
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
     }

@@ -266,7 +266,9 @@ public class MacDisks implements Disks {
 
                                 CfUtil.release(properties);
                             } else {
-                                LOG.error("Unable to find block storage driver properties for {}", bsdName);
+                                // This is normal for FileVault drives, Fusion
+                                // drives, and other virtual bsd names
+                                LOG.debug("Unable to find block storage driver properties for {}", bsdName);
                             }
                             // Now get partitions for this disk.
                             List<HWPartition> partitions = new ArrayList<>();
