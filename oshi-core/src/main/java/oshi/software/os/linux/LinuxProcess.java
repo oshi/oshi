@@ -19,6 +19,7 @@
 package oshi.software.os.linux;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -103,25 +104,36 @@ public class LinuxProcess extends AbstractProcess {
      * jiffies
      */
     private static void init() {
-        // Search through all processes to find the youngest one, with the
-        // latest start time since boot.
+        // To correlate a process start time in seconds with the same process
+        // start time in jiffies. We prefer the youngest (or close to it) which
+        // minimizes its up time (etime)
+        // Timeline:
+        // BOOT|<----jiffies---->|<----etime---->|NOW
+        // BOOT|<------------uptime------------->|NOW
+
+        // To avoid having to check all processes we can just pick the highest
+        // PID. This will either be the youngest one or at least big enough.
+
+        // Get all the pid files (guaranteed to be digit-only filenames)
+        File[] pids = ProcUtil.getPidFiles();
+        // Sort descending "numerically"
+        Arrays.sort(pids, (f1, f2) -> Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName())));
 
         // Iterate /proc/[pid]/stat checking the creation time (field 22,
-        // jiffies since boot) for the largest value
-        File[] pids = ProcUtil.getPidFiles();
+        // jiffies since boot). Since we're working on descending PIDs, we
+        // expect the first (higher PIDs) to be younger, but may have processes
+        // that ended since we collected the files. The first time we get a
+        // value we'll save it as the youngest and quit.
         long youngestJiffies = 0L;
         String youngestPid = "";
         for (File pid : pids) {
             List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()));
             if (!stat.isEmpty()) {
                 String[] split = stat.get(0).split("\\s+");
-                if (split.length < 22) {
-                    continue;
-                }
-                long jiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
-                if (jiffies > youngestJiffies) {
-                    youngestJiffies = jiffies;
+                if (split.length >= 22) {
+                    youngestJiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
                     youngestPid = pid.getName();
+                    break;
                 }
             }
         }
@@ -135,10 +147,6 @@ public class LinuxProcess extends AbstractProcess {
 
         float startTimeSecsSinceBoot = ProcUtil.getSystemUptimeFromProc();
         bootTime = System.currentTimeMillis() - (long) (1000 * startTimeSecsSinceBoot);
-        // Now execute `ps -p <pid> -o etimes=` to get the elapsed time of this
-        // process in seconds.Timeline:
-        // BOOT|<----jiffies---->|<----etime---->|NOW
-        // BOOT|<------------uptime------------->|NOW
 
         // This takes advantage of the fact that ps does all the heavy lifting
         // of sorting out HZ internally.
