@@ -28,8 +28,20 @@ import java.io.Serializable;
  */
 public interface HardwareAbstractionLayer extends Serializable {
 
-    Assembly getAssembly();
+    /**
+     * Instantiates a {@link ComputerSystem} object. This represents the
+     * physical hardware, such as a motherboard, logic board, etc.
+     * 
+     * @return a {@link ComputerSystem} object.
+     */
+    ComputerSystem getComputerSystem();
 
+    /**
+     * Instantiates a {@link Firmware} object. This represents the Basic
+     * Input/Output System (BIOS) or equivalent system.
+     * 
+     * @return a {@link Firmware} object.
+     */
     Firmware getFirmware();
 
     /**

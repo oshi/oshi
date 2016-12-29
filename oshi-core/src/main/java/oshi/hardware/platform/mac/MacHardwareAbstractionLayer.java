@@ -26,11 +26,11 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Assembly getAssembly() {
-        if (this.assembly == null) {
-            this.assembly = new MacAssembly();
+    public ComputerSystem getComputerSystem() {
+        if (this.computerSystem == null) {
+            this.computerSystem = new MacComputerSystem();
         }
-        return this.assembly;
+        return this.computerSystem;
     }
 
     @Override

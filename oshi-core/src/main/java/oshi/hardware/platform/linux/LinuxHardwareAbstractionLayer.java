@@ -26,11 +26,11 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Assembly getAssembly() {
-        if (this.assembly == null) {
-            this.assembly = new LinuxAssembly();
+    public ComputerSystem getComputerSystem() {
+        if (this.computerSystem == null) {
+            this.computerSystem = new LinuxComputerSystem();
         }
-        return this.assembly;
+        return this.computerSystem;
     }
 
     @Override

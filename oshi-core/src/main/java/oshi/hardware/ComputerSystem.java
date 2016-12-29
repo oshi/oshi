@@ -19,17 +19,33 @@
 package oshi.hardware;
 
 /**
- * Created by IntelliJ IDEA.
- * User: SchiTho1
- * Date: 14.10.2016
- * Time: 07:53
- * <p>
- * Copyright 2008-2013 - Securiton AG all rights reserved
+ * ComputerSystem Object.
+ * 
+ * <P>
+ * This represents the physical hardware, such as a motherboard, logic board,
+ * etc.
+ * 
+ * @author SchiTho1 @ Securiton AG
  */
-public interface Assembly {
+public interface ComputerSystem {
+    /**
+     * Get the computer system manufacturer.
+     * 
+     * @return The manufacturer.
+     */
     String getManufacturer();
 
+    /**
+     * Get the computer system model.
+     * 
+     * @return The model.
+     */
     String getModel();
 
+    /**
+     * Get the computer system serial number
+     * 
+     * @return The serial number.
+     */
     String getSerialNumber();
 }

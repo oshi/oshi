@@ -26,11 +26,11 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Assembly getAssembly() {
-        if (this.assembly == null) {
-            this.assembly = new WindowsAssembly();
+    public ComputerSystem getComputerSystem() {
+        if (this.computerSystem == null) {
+            this.computerSystem = new WindowsComputerSystem();
         }
-        return this.assembly;
+        return this.computerSystem;
     }
 
     @Override

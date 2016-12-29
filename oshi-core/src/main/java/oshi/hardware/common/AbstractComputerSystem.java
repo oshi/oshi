@@ -18,38 +18,44 @@
  */
 package oshi.hardware.common;
 
-import oshi.hardware.Assembly;
+import oshi.hardware.ComputerSystem;
 
 /**
- * Created by IntelliJ IDEA.
- * User: SchiTho1
- * Date: 14.10.2016
- * Time: 07:58
- * <p>
- * Copyright 2008-2013 - Securiton AG all rights reserved
+ * Hardware data
+ * 
+ * @author SchiTho1 @ Securiton AG
  */
-public abstract class AbstractAssembly implements Assembly {
+public abstract class AbstractComputerSystem implements ComputerSystem {
 
     private String manufacturer;
     private String model;
     private String serialNumber;
 
-    protected AbstractAssembly() {
+    protected AbstractComputerSystem() {
         this.manufacturer = "unknown";
         this.model = "unknown";
         this.serialNumber = "unknown";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final String getManufacturer() {
         return manufacturer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final String getModel() {
         return model;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final String getSerialNumber() {
         return serialNumber;

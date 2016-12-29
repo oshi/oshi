@@ -28,7 +28,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     private static final long serialVersionUID = 1L;
 
-    protected Assembly assembly;
+    protected ComputerSystem computerSystem;
 
     protected Firmware firmware;
 

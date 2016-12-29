@@ -59,7 +59,7 @@ public class SystemInfoTest {
         System.out.println(os);
 
         LOG.info("Checking assembly...");
-        printAssembly(hal.getAssembly());
+        printAssembly(hal.getComputerSystem());
 
         LOG.info("Checking firmware...");
         printFirmware(hal.getFirmware());
@@ -99,11 +99,11 @@ public class SystemInfoTest {
         printUsbDevices(hal.getUsbDevices(true));
     }
 
-    private static void printAssembly(final Assembly assembly) {
+    private static void printAssembly(final ComputerSystem computerSystem) {
 
-        System.out.println("manufacturer: " + assembly.getManufacturer());
-        System.out.println("model: " + assembly.getModel());
-        System.out.println("serialnumber: " + assembly.getSerialNumber());
+        System.out.println("manufacturer: " + computerSystem.getManufacturer());
+        System.out.println("model: " + computerSystem.getModel());
+        System.out.println("serialnumber: " + computerSystem.getSerialNumber());
     }
 
     private static void printFirmware(final Firmware firmware) {
