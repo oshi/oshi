@@ -430,7 +430,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *            the type of information requested
      * @param buffer
      *            holds results
-     * @returns 0 on success; or -1 on failure, with errno set to indicate the specific error.
+     * @return 0 on success; or -1 on failure, with errno set to indicate the specific error.
      */
     int proc_pid_rusage(int pid, int flavor, RUsageInfoV2 buffer);
 
