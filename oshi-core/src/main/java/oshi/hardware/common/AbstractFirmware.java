@@ -18,17 +18,15 @@
  */
 package oshi.hardware.common;
 
-import oshi.hardware.Firmware;
-
 import java.util.Date;
 
+import oshi.hardware.Firmware;
+
 /**
- * Created by IntelliJ IDEA.
- * User: SchiTho1
- * Date: 14.10.2016
- * Time: 07:59
- * <p>
- * Copyright 2008-2013 - Securiton AG all rights reserved
+ * Firmware data
+ * 
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
  */
 public abstract class AbstractFirmware implements Firmware {
 
@@ -38,8 +36,7 @@ public abstract class AbstractFirmware implements Firmware {
     private String version;
     private Date releaseDate;
 
-    protected AbstractFirmware() {
-
+    public AbstractFirmware() {
         this.manufacturer = "unknown";
         this.name = "unknown";
         this.description = "unknown";
@@ -47,48 +44,84 @@ public abstract class AbstractFirmware implements Firmware {
         this.releaseDate = null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final String getManufacturer() {
+    public String getManufacturer() {
         return manufacturer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final String getName() {
+    public String getName() {
         return name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final String getDescription() {
+    public String getDescription() {
         return description;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final String getVersion() {
+    public String getVersion() {
         return version;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final Date getReleaseDate() {
+    public Date getReleaseDate() {
         return releaseDate;
     }
 
-    protected final void setManufacturer(final String manufacturer) {
+    /**
+     * @param manufacturer
+     *            The manufacturer to set.
+     */
+    public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
 
-    protected final void setName(final String name) {
+    /**
+     * @param name
+     *            The name to set.
+     */
+    public void setName(String name) {
         this.name = name;
     }
 
-    protected final void setDescription(final String description) {
+    /**
+     * @param description
+     *            The description to set.
+     */
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    protected final void setVersion(final String version) {
+    /**
+     * @param version
+     *            The version to set.
+     */
+    public void setVersion(String version) {
         this.version = version;
     }
 
-    protected final void setReleaseDate(final Date releaseDate) {
+    /**
+     * @param releaseDate
+     *            The releaseDate to set.
+     */
+    public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
     }
+
 }

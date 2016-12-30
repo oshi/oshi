@@ -18,17 +18,12 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.ExecutingCommand;
 
-/**
- * Hardware data obtained from dmidecode
- * 
- * @author widdis [at] gmail [dot] com
- */
-final class FreeBsdComputerSystem extends AbstractComputerSystem {
+final class FreeBsdBaseboard extends AbstractBaseboard {
 
-    FreeBsdComputerSystem() {
+    FreeBsdBaseboard() {
         init();
     }
 
@@ -57,18 +52,23 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
         String manufacturer = "";
         final String manufacturerMarker = "Manufacturer:";
-        String productName = "";
+        String model = "";
         final String productNameMarker = "Product Name:";
+        String version = "";
+        final String versionMarker = "Version:";
         String serialNumber = "";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
-        for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+        for (final String checkLine : ExecutingCommand.runNative("dmidecode -t baseboard")) {
             if (checkLine.contains(manufacturerMarker)) {
                 manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             }
             if (checkLine.contains(productNameMarker)) {
-                productName = checkLine.split(productNameMarker)[1].trim();
+                model = checkLine.split(productNameMarker)[1].trim();
+            }
+            if (checkLine.contains(versionMarker)) {
+                version = checkLine.split(versionMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
                 serialNumber = checkLine.split(serialNumMarker)[1].trim();
@@ -77,15 +77,14 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (!manufacturer.isEmpty()) {
             setManufacturer(manufacturer);
         }
-        if (!productName.isEmpty()) {
-            setModel(productName);
+        if (!model.isEmpty()) {
+            setModel(model);
+        }
+        if (!version.isEmpty()) {
+            setVersion(version);
         }
         if (!serialNumber.isEmpty()) {
             setSerialNumber(serialNumber);
         }
-
-        setFirmware(new FreeBsdFirmware());
-
-        setBaseboard(new FreeBsdBaseboard());
     }
 }

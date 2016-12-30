@@ -24,14 +24,12 @@ import oshi.util.ExecutingCommand;
 /**
  * Hardware data obtained by system_profiler
  * 
- * @author SchiTho1 @ Securiton AG
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private static final String CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE = "system_profiler SPHardwareDataType";
-
     MacComputerSystem() {
-
         init();
     }
 
@@ -66,14 +64,32 @@ final class MacComputerSystem extends AbstractComputerSystem {
         final String modelIdMarker = "Model Identifier:";
         String serialNumberSystem = "";
         final String serialNumMarker = "Serial Number (system):";
+        String smcVersion = "";
+        final String smcMarker = "SMC Version (system):";
+        String bootRomVersion = "";
+        final String bootRomMarker = "Boot Rom Version:";
+
+        final MacFirmware firmware = new MacFirmware();
+        firmware.setManufacturer("Apple Inc.");
+        firmware.setName("EFI");
+
+        final MacBaseboard baseboard = new MacBaseboard();
+        baseboard.setManufacturer("Apple Inc.");
+        baseboard.setModel("SMC");
 
         // Populate name and ID
-        for (final String checkLine : ExecutingCommand.runNative(CMD_SYSTEM_PROFILER_SPHARDWARE_DATA_TYPE)) {
+        for (final String checkLine : ExecutingCommand.runNative("system_profiler SPHardwareDataType")) {
             if (checkLine.contains(modelNameMarker)) {
                 modelName = checkLine.split(modelNameMarker)[1].trim();
             }
             if (checkLine.contains(modelIdMarker)) {
                 modelIdentifier = checkLine.split(modelIdMarker)[1].trim();
+            }
+            if (checkLine.contains(bootRomMarker)) {
+                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
+            }
+            if (checkLine.contains(smcMarker)) {
+                smcVersion = checkLine.split(smcMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
                 serialNumberSystem = checkLine.split(serialNumMarker)[1].trim();
@@ -91,9 +107,13 @@ final class MacComputerSystem extends AbstractComputerSystem {
                 setModel(modelIdentifier);
             }
         }
-        // Populate serial #
+
         if (!serialNumberSystem.isEmpty()) {
             setSerialNumber(serialNumberSystem);
+            baseboard.setSerialNumber(serialNumberSystem);
+        }
+        if (bootRomVersion != null && !bootRomVersion.isEmpty()) {
+            firmware.setVersion(bootRomVersion);
         }
     }
 }

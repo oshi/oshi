@@ -27,19 +27,19 @@ import oshi.util.platform.windows.WmiUtil;
 /**
  * Hardware data obtained from WMI
  * 
- * @author SchiTho1 @ Securiton AG
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
     WindowsComputerSystem() {
-
         init();
     }
 
     private void init() {
 
-        final Map<String, List<String>> win32ComputerSystem = WmiUtil.selectStringsFrom("root\\cimv2",
-                "Win32_ComputerSystem", "Manufacturer,Model", null);
+        final Map<String, List<String>> win32ComputerSystem = WmiUtil.selectStringsFrom(null, "Win32_ComputerSystem",
+                "Manufacturer,Model", null);
 
         final List<String> manufacturers = win32ComputerSystem.get("Manufacturer");
         if (manufacturers != null && !manufacturers.isEmpty()) {
@@ -51,11 +51,16 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             setModel(models.get(0));
         }
 
-        final Map<String, List<String>> win32BIOS = WmiUtil.selectStringsFrom("root\\cimv2", "Win32_BIOS",
-                "SerialNumber", "where PrimaryBIOS=true");
+        final Map<String, List<String>> win32BIOS = WmiUtil.selectStringsFrom(null, "Win32_BIOS", "SerialNumber",
+                "where PrimaryBIOS=true");
+
         final List<String> serialNumbers = win32BIOS.get("SerialNumber");
         if (serialNumbers != null && !serialNumbers.isEmpty()) {
             setSerialNumber(serialNumbers.get(0));
         }
+
+        setFirmware(new WindowsFirmware());
+
+        setBaseboard(new WindowsBaseboard());
     }
 }

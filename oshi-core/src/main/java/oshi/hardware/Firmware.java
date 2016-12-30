@@ -21,12 +21,9 @@ package oshi.hardware;
 import java.util.Date;
 
 /**
- * Created by IntelliJ IDEA.
- * User: SchiTho1
- * Date: 14.10.2016
- * Time: 07:53
- * <p>
- * Copyright 2008-2013 - Securiton AG all rights reserved
+ * The Firmware represents the low level BIOS or equivalent
+ * 
+ * @author SchiTho1 [at] Securiton AG
  */
 public interface Firmware {
 

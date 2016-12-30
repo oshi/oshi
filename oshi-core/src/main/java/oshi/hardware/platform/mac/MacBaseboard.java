@@ -18,8 +18,8 @@
  */
 package oshi.hardware.platform.mac;
 
-import oshi.hardware.common.AbstractFirmware;
+import oshi.hardware.common.AbstractBaseboard;
 
-final class MacFirmware extends AbstractFirmware {
+final class MacBaseboard extends AbstractBaseboard {
 
 }

@@ -16,10 +16,10 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.platform.unix.solaris;
 
-import oshi.hardware.common.AbstractFirmware;
+import oshi.hardware.common.AbstractBaseboard;
 
-final class MacFirmware extends AbstractFirmware {
+final class SolarisBaseboard extends AbstractBaseboard {
 
 }

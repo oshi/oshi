@@ -19,29 +19,24 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Baseboard;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Firmware;
 
 /**
- * Hardware data
+ * Baseboard data
  * 
- * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
-public abstract class AbstractComputerSystem implements ComputerSystem {
+public abstract class AbstractBaseboard implements Baseboard {
 
     private String manufacturer;
     private String model;
+    private String version;
     private String serialNumber;
-    private Firmware firmware;
-    private Baseboard baseboard;
 
-    protected AbstractComputerSystem() {
+    public AbstractBaseboard() {
         this.manufacturer = "unknown";
         this.model = "unknown";
-        this.serialNumber = "unknown";
-        this.firmware = null;
-        this.baseboard = null;
+        this.version = "unknown";
+        this.serialNumber = "";
     }
 
     /**
@@ -64,31 +59,23 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * {@inheritDoc}
      */
     @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getSerialNumber() {
         return serialNumber;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Firmware getFirmware() {
-        return firmware;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Baseboard getBaseboard() {
-        return baseboard;
     }
 
     /**
      * @param manufacturer
      *            The manufacturer to set.
      */
-    protected void setManufacturer(String manufacturer) {
+    public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
 
@@ -96,32 +83,24 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param model
      *            The model to set.
      */
-    protected void setModel(String model) {
+    public void setModel(String model) {
         this.model = model;
+    }
+
+    /**
+     * @param version
+     *            The version to set.
+     */
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     /**
      * @param serialNumber
      *            The serialNumber to set.
      */
-    protected void setSerialNumber(String serialNumber) {
+    public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    /**
-     * @param firmware
-     *            The firmware to set.
-     */
-    protected void setFirmware(Firmware firmware) {
-        this.firmware = firmware;
-    }
-
-    /**
-     * @param baseboard
-     *            The baseboard to set.
-     */
-    protected void setBaseboard(Baseboard baseboard) {
-        this.baseboard = baseboard;
     }
 
 }

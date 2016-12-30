@@ -24,7 +24,8 @@ import oshi.util.FileUtil;
 /**
  * Hardware data obtained from sysfs
  * 
- * @author SchiTho1 @ Securiton AG
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
@@ -33,7 +34,6 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
     LinuxComputerSystem() {
-
         init();
     }
 
@@ -79,5 +79,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
                 setSerialNumber(boardSerial.trim());
             }
         }
+
+        setFirmware(new LinuxFirmware());
+
+        setBaseboard(new LinuxBaseboard());
     }
 }
