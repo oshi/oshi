@@ -56,7 +56,7 @@ public class NetworksTest {
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
-            assertTrue(net.getTimeStamp() >= timeStamp);
+            assertTrue(net.getTimeStamp() > 0);
 
             net.setBytesRecv(10L);
             net.setBytesSent(20L);
@@ -78,7 +78,7 @@ public class NetworksTest {
             assertTrue(net.getPacketsRecv() >= 0);
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getSpeed() >= 0);
-            assertTrue(net.getTimeStamp() >= timeStamp);
+            assertTrue(net.getTimeStamp() > 0);
         }
     }
 }

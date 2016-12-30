@@ -200,5 +200,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (!boardSerialNumber.isEmpty()) {
             baseboard.setSerialNumber(boardSerialNumber);
         }
+
+        setFirmware(firmware);
+        setBaseboard(baseboard);
     }
 }

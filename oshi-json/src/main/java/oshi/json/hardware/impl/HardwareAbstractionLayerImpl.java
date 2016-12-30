@@ -27,6 +27,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
 import oshi.json.hardware.CentralProcessor;
+import oshi.json.hardware.ComputerSystem;
 import oshi.json.hardware.Display;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
@@ -52,6 +53,7 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
 
     private oshi.hardware.HardwareAbstractionLayer hal;
 
+    private ComputerSystem computerSystem;
     private CentralProcessor processor;
     private GlobalMemory memory;
     private Sensors sensors;
@@ -65,6 +67,17 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
      */
     public HardwareAbstractionLayerImpl(oshi.hardware.HardwareAbstractionLayer hardware) {
         this.hal = hardware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ComputerSystem getComputerSystem() {
+        if (this.computerSystem == null) {
+            this.computerSystem = new ComputerSystemImpl(this.hal.getComputerSystem());
+        }
+        return this.computerSystem;
     }
 
     /**
@@ -188,6 +201,9 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
     @Override
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
+        if (PropertiesUtil.getBoolean(properties, "hardware.computerSystem")) {
+            json.add("computerSystem", getComputerSystem().toJSON(properties));
+        }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor")) {
             json.add("processor", getProcessor().toJSON(properties));
         }

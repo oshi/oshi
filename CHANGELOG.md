@@ -1,7 +1,7 @@
 3.3 (in progress)
 ================
 * [#262](https://github.com/dblock/oshi/pull/262): Add bytesRead and bytesWritten to OSProcess - [@plamenko](https://github.com/plamenko).
-* [#264](https://github.com/dblock/oshi/pull/264): BIOS and manufacturer information - [@lundefugl](https://github.com/lundefugl).
+* [#264](https://github.com/dblock/oshi/pull/264), [#289](https://github.com/dblock/oshi/pull/289): BIOS, manufacturer, and baseboard information - [@lundefugl](https://github.com/lundefugl), [@dbwiddis](https://github.com/dbwiddis).
 * [#281](https://github.com/dblock/oshi/pull/281): Improve Linux battery AC device exclusion - [@dbwiddis](https://github.com/dbwiddis).
 * [#282](https://github.com/dblock/oshi/pull/282): Get Windows version from WMI - [@dbwiddis](https://github.com/dbwiddis).
 * [#283](https://github.com/dblock/oshi/pull/283): Fix Linux block device stats on some distributions - [@lu-ko](https://github.com/lu-ko).

@@ -27,6 +27,7 @@ Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD)
 
 Supported features 
 --------------------------
+* Computer System and firmware, baseboard 
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs 
 * System and per-processor load % and tick counters

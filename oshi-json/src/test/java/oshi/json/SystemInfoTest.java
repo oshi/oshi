@@ -30,8 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.json.hardware.Baseboard;
 import oshi.json.hardware.CentralProcessor;
+import oshi.json.hardware.ComputerSystem;
 import oshi.json.hardware.Display;
+import oshi.json.hardware.Firmware;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
 import oshi.json.hardware.HWPartition;
@@ -74,6 +77,10 @@ public class SystemInfoTest {
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
 
+        LOG.info("Checking computer system...");
+        printComputerSystem(hal.getComputerSystem());
+
+        LOG.info("Checking Processor...");
         printProcessor(hal.getProcessor());
 
         LOG.info("Checking Memory...");
@@ -115,6 +122,27 @@ public class SystemInfoTest {
         System.out.println(si.toPrettyJSON(props));
         // Compact JSON
         // System.out.println(si.toCompactJSON(props));
+    }
+
+    private static void printComputerSystem(final ComputerSystem computerSystem) {
+
+        System.out.println("manufacturer: " + computerSystem.getManufacturer());
+        System.out.println("model: " + computerSystem.getModel());
+        System.out.println("serialnumber: " + computerSystem.getSerialNumber());
+        final Firmware firmware = computerSystem.getFirmware();
+        System.out.println("firmware:");
+        System.out.println("  manufacturer: " + firmware.getManufacturer());
+        System.out.println("  name: " + firmware.getName());
+        System.out.println("  description: " + firmware.getDescription());
+        System.out.println("  version: " + firmware.getVersion());
+        System.out.println("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
+                : firmware.getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(firmware.getReleaseDate())));
+        final Baseboard baseboard = computerSystem.getBaseboard();
+        System.out.println("baseboard:");
+        System.out.println("  manufacturer: " + baseboard.getManufacturer());
+        System.out.println("  model: " + baseboard.getModel());
+        System.out.println("  version: " + baseboard.getVersion());
+        System.out.println("  serialnumber: " + baseboard.getSerialNumber());
     }
 
     private static void printProcessor(CentralProcessor processor) {

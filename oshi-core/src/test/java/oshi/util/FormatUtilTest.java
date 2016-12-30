@@ -21,6 +21,8 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,6 +34,8 @@ public class FormatUtilTest {
 
     /** The decimal separator. */
     private static char DECIMAL_SEPARATOR;
+    /** The date format. */
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy");
 
     /**
      * Sets the up class.
@@ -150,4 +154,18 @@ public class FormatUtilTest {
     public void testGetUnsignedInt() {
         assertEquals(4294967295L, FormatUtil.getUnsignedInt(-1));
     }
+
+    /**
+     * Test format date.
+     */
+    @Test
+    public void testFormatDate() {
+        assertEquals("null", FormatUtil.formatDate(null));
+        try {
+            assertEquals("01-01-2017", FormatUtil.formatDate(DATE_FORMAT.parse("01-01-2017")));
+        } catch (ParseException e) {
+            assertEquals("01-01-2017", e.getMessage());
+        }
+    }
+
 }

@@ -18,7 +18,6 @@
  */
 package oshi;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,7 +122,7 @@ public class SystemInfoTest {
         System.out.println("  description: " + firmware.getDescription());
         System.out.println("  version: " + firmware.getVersion());
         System.out.println("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
-                : new SimpleDateFormat("MM-dd-yyyy").format(firmware.getReleaseDate())));
+                : firmware.getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(firmware.getReleaseDate())));
         final Baseboard baseboard = computerSystem.getBaseboard();
         System.out.println("baseboard:");
         System.out.println("  manufacturer: " + baseboard.getManufacturer());

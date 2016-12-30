@@ -19,6 +19,8 @@
 package oshi.util;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,6 +53,8 @@ public class FormatUtil {
     private static final long TERA = 1000000000000L;
     private static final long PETA = 1000000000000000L;
     private static final long EXA = 1000000000000000000L;
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy");
 
     private FormatUtil() {
     }
@@ -207,4 +211,14 @@ public class FormatUtil {
         return x & 0x00000000ffffffffL;
     }
 
+    /**
+     * Convert a java date to a MM-dd-yyyy string representation
+     * 
+     * @param date
+     *            the date to convert
+     * @return a string in the form MM-dd-yyyy
+     */
+    public static String formatDate(Date date) {
+        return date == null ? "null" : DATE_FORMAT.format(date);
+    }
 }
