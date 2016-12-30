@@ -444,12 +444,12 @@
 						<dependency>
 							<groupId>com.jcraft</groupId>
 							<artifactId>jsch</artifactId>
-							<version>0.1.53</version>
+							<version>0.1.54</version>
 						</dependency>
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.4.1.201607150455-r</version>
+							<version>4.5.0.201609210915-r</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
@@ -462,7 +462,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.2</version>
 				</plugin>
 				<!-- Wagon -->
 				<plugin>
