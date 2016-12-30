@@ -30,6 +30,8 @@ import oshi.hardware.Firmware;
  */
 public abstract class AbstractFirmware implements Firmware {
 
+    private static final long serialVersionUID = 1L;
+
     private String manufacturer;
     private String name;
     private String description;

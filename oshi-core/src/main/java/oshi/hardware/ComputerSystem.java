@@ -18,6 +18,8 @@
  */
 package oshi.hardware;
 
+import java.io.Serializable;
+
 /**
  * The ComputerSystem represents the physical hardware, of a computer
  * system/product and includes BIOS/firmware and a motherboard, logic board,
@@ -26,7 +28,7 @@ package oshi.hardware;
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
-public interface ComputerSystem {
+public interface ComputerSystem extends Serializable {
     /**
      * Get the computer system manufacturer.
      * 

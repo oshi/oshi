@@ -27,6 +27,8 @@ import oshi.hardware.Baseboard;
  */
 public abstract class AbstractBaseboard implements Baseboard {
 
+    private static final long serialVersionUID = 1L;
+
     private String manufacturer;
     private String model;
     private String version;

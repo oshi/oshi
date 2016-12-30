@@ -22,4 +22,6 @@ import oshi.hardware.common.AbstractFirmware;
 
 final class SolarisFirmware extends AbstractFirmware {
 
+    private static final long serialVersionUID = 1L;
+
 }

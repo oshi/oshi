@@ -152,7 +152,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         public long ri_diskio_byteswritten;
 
         @Override
-        protected List getFieldOrder() {
+        protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "ri_uuid", "ri_user_time", "ri_system_time", "ri_pkg_idle_wkups",
                     "ri_interrupt_wkups", "ri_pageins", "ri_wired_size", "ri_resident_size", "ri_phys_footprint",
                     "ri_proc_start_abstime", "ri_proc_exit_abstime", "ri_child_user_time", "ri_child_system_time",
@@ -422,7 +422,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     int proc_pidpath(int pid, Pointer buffer, int buffersize);
 
     /**
-     * Return resource usage information for the given pid, which can be a live process or a zombie.
+     * Return resource usage information for the given pid, which can be a live
+     * process or a zombie.
      *
      * @param pid
      *            the process identifier
@@ -430,7 +431,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      *            the type of information requested
      * @param buffer
      *            holds results
-     * @return 0 on success; or -1 on failure, with errno set to indicate the specific error.
+     * @return 0 on success; or -1 on failure, with errno set to indicate the
+     *         specific error.
      */
     int proc_pid_rusage(int pid, int flavor, RUsageInfoV2 buffer);
 

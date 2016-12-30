@@ -28,6 +28,8 @@ import oshi.util.ExecutingCommand;
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
+    private static final long serialVersionUID = 1L;
+
     FreeBsdComputerSystem() {
         init();
     }

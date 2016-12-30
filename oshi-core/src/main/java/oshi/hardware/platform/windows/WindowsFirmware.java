@@ -32,6 +32,9 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
  * @author SchiTho1 [at] Securiton AG
  */
 final class WindowsFirmware extends AbstractFirmware {
+
+    private static final long serialVersionUID = 1L;
+
     private static final ValueType[] BIOS_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.DATETIME };
 

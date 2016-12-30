@@ -32,6 +32,8 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
+    private static final long serialVersionUID = 1L;
+
     WindowsComputerSystem() {
         init();
     }

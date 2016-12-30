@@ -29,6 +29,8 @@ import oshi.util.FileUtil;
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
+    private static final long serialVersionUID = 1L;
+
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";

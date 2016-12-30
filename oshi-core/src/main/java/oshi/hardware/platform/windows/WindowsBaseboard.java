@@ -31,6 +31,8 @@ import oshi.util.platform.windows.WmiUtil;
  */
 public class WindowsBaseboard extends AbstractBaseboard {
 
+    private static final long serialVersionUID = 1L;
+
     WindowsBaseboard() {
         init();
     }

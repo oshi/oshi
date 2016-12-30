@@ -30,6 +30,8 @@ import oshi.hardware.Firmware;
  */
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
+    private static final long serialVersionUID = 1L;
+
     private String manufacturer;
     private String model;
     private String serialNumber;

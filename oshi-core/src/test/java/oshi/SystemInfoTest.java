@@ -18,10 +18,27 @@
  */
 package oshi;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.hardware.*;
+
+import oshi.hardware.Baseboard;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
+import oshi.hardware.Firmware;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
@@ -29,9 +46,6 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * The Class SystemInfoTest.
@@ -58,12 +72,10 @@ public class SystemInfoTest {
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
 
-        LOG.info("Checking assembly...");
-        printAssembly(hal.getComputerSystem());
+        LOG.info("Checking computer system...");
+        printComputerSystem(hal.getComputerSystem());
 
-        LOG.info("Checking firmware...");
-        printFirmware(hal.getFirmware());
-
+        LOG.info("Checking Processor...");
         printProcessor(hal.getProcessor());
 
         LOG.info("Checking Memory...");
@@ -99,19 +111,25 @@ public class SystemInfoTest {
         printUsbDevices(hal.getUsbDevices(true));
     }
 
-    private static void printAssembly(final ComputerSystem computerSystem) {
+    private static void printComputerSystem(final ComputerSystem computerSystem) {
 
         System.out.println("manufacturer: " + computerSystem.getManufacturer());
         System.out.println("model: " + computerSystem.getModel());
         System.out.println("serialnumber: " + computerSystem.getSerialNumber());
-    }
-
-    private static void printFirmware(final Firmware firmware) {
-        System.out.println("manufacturer: " + firmware.getManufacturer());
-        System.out.println("name: " + firmware.getName());
-        System.out.println("description: " + firmware.getDescription());
-        System.out.println("version: " + firmware.getVersion());
-        System.out.println("release date: " + firmware.getReleaseDate());
+        final Firmware firmware = computerSystem.getFirmware();
+        System.out.println("firmware:");
+        System.out.println("  manufacturer: " + firmware.getManufacturer());
+        System.out.println("  name: " + firmware.getName());
+        System.out.println("  description: " + firmware.getDescription());
+        System.out.println("  version: " + firmware.getVersion());
+        System.out.println("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
+                : new SimpleDateFormat("MM-dd-yyyy").format(firmware.getReleaseDate())));
+        final Baseboard baseboard = computerSystem.getBaseboard();
+        System.out.println("baseboard:");
+        System.out.println("  manufacturer: " + baseboard.getManufacturer());
+        System.out.println("  model: " + baseboard.getModel());
+        System.out.println("  version: " + baseboard.getVersion());
+        System.out.println("  serialnumber: " + baseboard.getSerialNumber());
     }
 
     private static void printProcessor(CentralProcessor processor) {

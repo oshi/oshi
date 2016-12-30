@@ -30,19 +30,12 @@ public interface HardwareAbstractionLayer extends Serializable {
 
     /**
      * Instantiates a {@link ComputerSystem} object. This represents the
-     * physical hardware, such as a motherboard, logic board, etc.
+     * physical hardware, including components such as BIOS/Firmware and a
+     * motherboard, logic board, etc.
      * 
      * @return a {@link ComputerSystem} object.
      */
     ComputerSystem getComputerSystem();
-
-    /**
-     * Instantiates a {@link Firmware} object. This represents the Basic
-     * Input/Output System (BIOS) or equivalent system.
-     * 
-     * @return a {@link Firmware} object.
-     */
-    Firmware getFirmware();
 
     /**
      * Instantiates a {@link CentralProcessor} object. This represents one or

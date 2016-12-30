@@ -36,6 +36,9 @@ import oshi.util.ExecutingCommand;
  * @author widdis [at] gmail [dot] com
  */
 final class SolarisComputerSystem extends AbstractComputerSystem {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(SolarisComputerSystem.class);
 
     // TODO: Is release really not language-dependent?

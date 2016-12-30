@@ -31,6 +31,9 @@ import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
 
 final class FreeBsdFirmware extends AbstractFirmware {
+
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdFirmware.class);
 
     // TODO: Is release really not language-dependent?

@@ -22,4 +22,6 @@ import oshi.hardware.common.AbstractBaseboard;
 
 final class MacBaseboard extends AbstractBaseboard {
 
+    private static final long serialVersionUID = 1L;
+
 }

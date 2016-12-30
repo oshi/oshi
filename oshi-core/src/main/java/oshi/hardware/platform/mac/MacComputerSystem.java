@@ -18,6 +18,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.regex.Pattern;
+
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 
@@ -29,13 +31,17 @@ import oshi.util.ExecutingCommand;
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
+    private static final long serialVersionUID = 1L;
+
+    private static final String APPLE = "Apple Inc.";
+
     MacComputerSystem() {
         init();
     }
 
     private void init() {
 
-        setManufacturer("Apple Inc.");
+        setManufacturer(APPLE);
 
         // $ system_profiler SPHardwareDataType
         // Hardware:
@@ -67,14 +73,14 @@ final class MacComputerSystem extends AbstractComputerSystem {
         String smcVersion = "";
         final String smcMarker = "SMC Version (system):";
         String bootRomVersion = "";
-        final String bootRomMarker = "Boot Rom Version:";
+        final String bootRomMarker = "Boot ROM Version:";
 
         final MacFirmware firmware = new MacFirmware();
-        firmware.setManufacturer("Apple Inc.");
+        firmware.setManufacturer(APPLE);
         firmware.setName("EFI");
 
         final MacBaseboard baseboard = new MacBaseboard();
-        baseboard.setManufacturer("Apple Inc.");
+        baseboard.setManufacturer(APPLE);
         baseboard.setModel("SMC");
 
         // Populate name and ID
@@ -89,10 +95,10 @@ final class MacComputerSystem extends AbstractComputerSystem {
                 bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
             }
             if (checkLine.contains(smcMarker)) {
-                smcVersion = checkLine.split(smcMarker)[1].trim();
+                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
-                serialNumberSystem = checkLine.split(serialNumMarker)[1].trim();
+                serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
             }
         }
         // Use name (id) if both available; else either one
@@ -112,8 +118,14 @@ final class MacComputerSystem extends AbstractComputerSystem {
             setSerialNumber(serialNumberSystem);
             baseboard.setSerialNumber(serialNumberSystem);
         }
+        if (!smcVersion.isEmpty()) {
+            baseboard.setVersion(smcVersion);
+        }
         if (bootRomVersion != null && !bootRomVersion.isEmpty()) {
             firmware.setVersion(bootRomVersion);
         }
+
+        setFirmware(firmware);
+        setBaseboard(baseboard);
     }
 }

@@ -18,6 +18,7 @@
  */
 package oshi.hardware;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -25,7 +26,7 @@ import java.util.Date;
  * 
  * @author SchiTho1 [at] Securiton AG
  */
-public interface Firmware {
+public interface Firmware extends Serializable {
 
     String getManufacturer();
 

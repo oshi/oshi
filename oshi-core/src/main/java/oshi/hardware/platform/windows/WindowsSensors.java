@@ -105,7 +105,7 @@ public class WindowsSensors implements Sensors {
         if (tempK > 2732) {
             tempC = tempK / 10d - 273.15;
         } else if (tempK > 274) {
-            tempC = tempK - 273;
+            tempC = tempK - 273d;
         }
         if (tempC <= 0d) {
             // Unable to get temperature via WMI. Future attempts will be

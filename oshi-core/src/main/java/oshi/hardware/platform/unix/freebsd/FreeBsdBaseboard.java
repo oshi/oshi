@@ -23,6 +23,8 @@ import oshi.util.ExecutingCommand;
 
 final class FreeBsdBaseboard extends AbstractBaseboard {
 
+    private static final long serialVersionUID = 1L;
+
     FreeBsdBaseboard() {
         init();
     }
