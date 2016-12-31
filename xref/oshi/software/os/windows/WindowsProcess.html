@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/windows/WindowsProcess.html">WindowsProcess</a>(String name, String path, <strong class="jxr_keyword">int</strong> winState, <strong class="jxr_keyword">int</strong> processID, <strong class="jxr_keyword">int</strong> parentProcessID, <strong class="jxr_keyword">int</strong> threadCount,
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">int</strong> priority, <strong class="jxr_keyword">long</strong> virtualSize, <strong class="jxr_keyword">long</strong> residentSetSize, <strong class="jxr_keyword">long</strong> kernelTime, <strong class="jxr_keyword">long</strong> userTime, <strong class="jxr_keyword">long</strong> startTime,
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">long</strong> now) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">long</strong> bytesRead, <strong class="jxr_keyword">long</strong> bytesWritten, <strong class="jxr_keyword">long</strong> now) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">this</strong>.name = name;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.path = path;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">switch</strong> (winState) {
@@ -97,9 +97,11 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">this</strong>.userTime = userTime;
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">this</strong>.startTime = startTime;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">this</strong>.upTime = now - startTime;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">this</strong>.bytesRead = bytesRead;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">this</strong>.bytesWritten = bytesWritten;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

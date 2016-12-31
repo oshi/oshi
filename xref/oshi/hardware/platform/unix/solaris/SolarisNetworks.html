@@ -52,12 +52,14 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"rbytes64"</span>));
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"opackets64"</span>));
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"ipackets64"</span>));
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"ifspeed"</span>));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <em class="jxr_comment">// Snap time in ns; convert to ms</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"oerrors"</span>));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"ierrors"</span>));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, <span class="jxr_string">"ifspeed"</span>));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <em class="jxr_comment">// Snap time in ns; convert to ms</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

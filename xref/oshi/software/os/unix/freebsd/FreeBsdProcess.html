@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/software/os/unix/freebsd/FreeBsdProcess.html">FreeBsdProcess</a>(String name, String path, <strong class="jxr_keyword">char</strong> state, <strong class="jxr_keyword">int</strong> processID, <strong class="jxr_keyword">int</strong> parentProcessID, <strong class="jxr_keyword">int</strong> threadCount,
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">int</strong> priority, <strong class="jxr_keyword">long</strong> virtualSize, <strong class="jxr_keyword">long</strong> residentSetSize, <strong class="jxr_keyword">long</strong> elapsedTime, <strong class="jxr_keyword">long</strong> systemTime, <strong class="jxr_keyword">long</strong> processTime,
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">long</strong> now) {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">long</strong> bytesRead, <strong class="jxr_keyword">long</strong> bytesWritten, <strong class="jxr_keyword">long</strong> now) {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">this</strong>.name = name;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">this</strong>.path = path;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">switch</strong> (state) {
@@ -81,8 +81,10 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// Avoid divide by zero for processes up less than a second</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.upTime = elapsedTime &lt; 1L ? 1000L : elapsedTime * 1000;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">this</strong>.startTime = now - <strong class="jxr_keyword">this</strong>.upTime;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">this</strong>.bytesRead = bytesRead;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.bytesWritten = bytesWritten;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

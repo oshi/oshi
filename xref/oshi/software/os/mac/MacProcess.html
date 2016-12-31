@@ -39,7 +39,7 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/mac/MacProcess.html">MacProcess</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/software/common/AbstractProcess.html">AbstractProcess</a> {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 2L;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_comment">     * OS X States:</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_comment">     */</em>
@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/mac/MacProcess.html">MacProcess</a>(String name, String path, <strong class="jxr_keyword">int</strong> osXState, <strong class="jxr_keyword">int</strong> processID, <strong class="jxr_keyword">int</strong> parentProcessID, <strong class="jxr_keyword">int</strong> threadCount,
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">int</strong> priority, <strong class="jxr_keyword">long</strong> virtualSize, <strong class="jxr_keyword">long</strong> residentSetSize, <strong class="jxr_keyword">long</strong> kernelTime, <strong class="jxr_keyword">long</strong> userTime, <strong class="jxr_keyword">long</strong> startTime,
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">long</strong> now) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">long</strong> bytesRead, <strong class="jxr_keyword">long</strong> bytesWritten, <strong class="jxr_keyword">long</strong> now) {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">this</strong>.name = name;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">this</strong>.path = path;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">switch</strong> (osXState) {
@@ -89,9 +89,11 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">this</strong>.userTime = userTime;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">this</strong>.startTime = startTime;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">this</strong>.upTime = now - startTime;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">this</strong>.bytesRead = bytesRead;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">this</strong>.bytesWritten = bytesWritten;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

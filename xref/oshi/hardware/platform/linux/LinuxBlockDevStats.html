@@ -72,21 +72,28 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, <span class="jxr_string">"stat"</span>);
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          splitstats = devstat.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.device = device;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.read_ops = ParseUtil.parseLongOrDefault(splitstats[1], 0L);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>.read_merged = ParseUtil.parseLongOrDefault(splitstats[2], 0L);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[3], 0L);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">this</strong>.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[4], 0L);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.write_ops = ParseUtil.parseLongOrDefault(splitstats[5], 0L);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">this</strong>.write_merged = ParseUtil.parseLongOrDefault(splitstats[6], 0L);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[7], 0L);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">this</strong>.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[8], 0L);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">this</strong>.in_flight = ParseUtil.parseLongOrDefault(splitstats[9], 0L);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.active_ms = ParseUtil.parseLongOrDefault(splitstats[10], 0L);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">this</strong>.waits_ms = ParseUtil.parseLongOrDefault(splitstats[11], 0L);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">if</strong> (splitstats.length &lt; 11) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Unexpected length of array: "</span> + splitstats.length);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// read last 11 elements</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">int</strong> startIndex = splitstats.length - 11;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.device = device;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">this</strong>.read_ops = ParseUtil.parseLongOrDefault(splitstats[startIndex + 0], 0L);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">this</strong>.read_merged = ParseUtil.parseLongOrDefault(splitstats[startIndex + 1], 0L);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.read_512bytes = ParseUtil.parseLongOrDefault(splitstats[startIndex + 2], 0L);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">this</strong>.read_waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 3], 0L);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">this</strong>.write_ops = ParseUtil.parseLongOrDefault(splitstats[startIndex + 4], 0L);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">this</strong>.write_merged = ParseUtil.parseLongOrDefault(splitstats[startIndex + 5], 0L);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">this</strong>.write_512bytes = ParseUtil.parseLongOrDefault(splitstats[startIndex + 6], 0L);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">this</strong>.write_waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 7], 0L);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">this</strong>.in_flight = ParseUtil.parseLongOrDefault(splitstats[startIndex + 8], 0L);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">this</strong>.active_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 9], 0L);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">this</strong>.waits_ms = ParseUtil.parseLongOrDefault(splitstats[startIndex + 10], 0L);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

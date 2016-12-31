@@ -113,7 +113,7 @@
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">if</strong> (tempK &gt; 2732) {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>             tempC = tempK / 10d - 273.15;
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (tempK &gt; 274) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             tempC = tempK - 273;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             tempC = tempK - 273d;
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">if</strong> (tempC &lt;= 0d) {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>             <em class="jxr_comment">// Unable to get temperature via WMI. Future attempts will be</em>
