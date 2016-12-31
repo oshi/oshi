@@ -64,13 +64,17 @@ public class MacNetworks extends AbstractNetworks {
         private long iPackets;
         private long oBytes;
         private long iBytes;
+        private long oErrors;
+        private long iErrors;
         private long speed;
 
-        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {
+        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long speed) {
             this.oPackets = oPackets;
             this.iPackets = iPackets;
             this.oBytes = oBytes;
             this.iBytes = iBytes;
+            this.oErrors = oErrors;
+            this.iErrors = iErrors;
             this.speed = speed;
         }
     }
@@ -127,7 +131,8 @@ public class MacNetworks extends AbstractNetworks {
             // Grab data to place in map using index as the key
             ifMap.put(Integer.valueOf(if2m.ifm_index),
                     new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
-                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                            if2m.ifm_data.ifi_baudrate));
         }
         return lastIFmapTime;
     }
@@ -151,6 +156,8 @@ public class MacNetworks extends AbstractNetworks {
             netIF.setBytesRecv(ifData.iBytes);
             netIF.setPacketsSent(ifData.oPackets);
             netIF.setPacketsRecv(ifData.iPackets);
+            netIF.setOutErrors(ifData.oErrors);
+            netIF.setInErrors(ifData.iErrors);
             netIF.setSpeed(ifData.speed);
             netIF.setTimeStamp(timeStamp);
         }

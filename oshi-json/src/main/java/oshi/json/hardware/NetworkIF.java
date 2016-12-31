@@ -42,7 +42,7 @@ import oshi.json.util.PropertiesUtil;
  */
 public class NetworkIF extends AbstractOshiJsonObject {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
@@ -197,6 +197,40 @@ public class NetworkIF extends AbstractOshiJsonObject {
     }
 
     /**
+     * @return Input Errors. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
+     */
+    public long getInErrors() {
+        return this.networkIf.getInErrors();
+    }
+
+    /**
+     * @param inErrors
+     *            The Input Errors to set.
+     */
+    public void setInErrors(long inErrors) {
+        this.networkIf.setInErrors(inErrors);
+    }
+
+    /**
+     * @return The Output Errors. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
+     */
+    public long getOutErrors() {
+        return this.networkIf.getOutErrors();
+    }
+
+    /**
+     * @param outErrors
+     *            The Output Errors to set.
+     */
+    public void setOutErrors(long outErrors) {
+        this.networkIf.setOutErrors(outErrors);
+    }
+
+    /**
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
@@ -299,6 +333,12 @@ public class NetworkIF extends AbstractOshiJsonObject {
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.packetsSent")) {
             json.add("packetsSent", getPacketsSent());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.inErrors")) {
+            json.add("inErrors", getInErrors());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.networks.outErrors")) {
+            json.add("outErrors", getOutErrors());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.networks.speed")) {
             json.add("speed", getSpeed());

@@ -59,6 +59,8 @@ public class WindowsNetworks extends AbstractNetworks {
         netIF.setBytesRecv(ifRow.InOctets);
         netIF.setPacketsSent(ifRow.OutUcastPkts);
         netIF.setPacketsRecv(ifRow.InUcastPkts);
+        netIF.setOutErrors(ifRow.OutErrors);
+        netIF.setInErrors(ifRow.InErrors);
         netIF.setSpeed(ifRow.ReceiveLinkSpeed);
     }
 }
