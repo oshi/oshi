@@ -44,6 +44,8 @@ public class SolarisNetworks extends AbstractNetworks {
             netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, "rbytes64"));
             netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, "opackets64"));
             netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, "ipackets64"));
+            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, "oerrors"));
+            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, "ierrors"));
             netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, "ifspeed"));
             // Snap time in ns; convert to ms
             netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);

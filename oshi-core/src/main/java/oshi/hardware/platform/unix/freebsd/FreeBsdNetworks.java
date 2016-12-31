@@ -49,5 +49,7 @@ public class FreeBsdNetworks extends AbstractNetworks {
         netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));
         netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));
         netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));
+        netIF.setOutErrors(ParseUtil.parseLongOrDefault(split[9], 0L));
+        netIF.setInErrors(ParseUtil.parseLongOrDefault(split[5], 0L));
     }
 }

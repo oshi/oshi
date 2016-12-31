@@ -44,7 +44,7 @@ import oshi.hardware.platform.windows.WindowsNetworks;
  */
 public class NetworkIF implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
@@ -57,6 +57,8 @@ public class NetworkIF implements Serializable {
     private long bytesSent;
     private long packetsRecv;
     private long packetsSent;
+    private long inErrors;
+    private long outErrors;
     private long speed;
     private long timeStamp;
 
@@ -232,6 +234,40 @@ public class NetworkIF implements Serializable {
     }
 
     /**
+     * @return Input Errors. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
+     */
+    public long getInErrors() {
+        return inErrors;
+    }
+
+    /**
+     * @param inErrors
+     *            The Input Errors to set.
+     */
+    public void setInErrors(long inErrors) {
+        this.inErrors = inErrors;
+    }
+
+    /**
+     * @return The Output Errors. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
+     */
+    public long getOutErrors() {
+        return outErrors;
+    }
+
+    /**
+     * @param outErrors
+     *            The Output Errors to set.
+     */
+    public void setOutErrors(long outErrors) {
+        this.outErrors = outErrors;
+    }
+
+    /**
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
@@ -290,4 +326,5 @@ public class NetworkIF implements Serializable {
             break;
         }
     }
+
 }
