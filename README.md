@@ -52,8 +52,8 @@ Downloads
 ----------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=3.2&e=jar)  | [oshi-core-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.3-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-json&v=3.2&e=jar)   | [oshi-json-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.3-SNAPSHOT&e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-core&v=3.3&e=jar)  | [oshi-core-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-core&v=3.4-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.dblock&a=oshi-json&v=3.3&e=jar)   | [oshi-json-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.dblock&a=oshi-json&v=3.4-SNAPSHOT&e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -190,7 +190,7 @@ How is this different from ...
 * [Sigar](http://sigar.hyperic.com): 
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. OSHI uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
-	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2016. 
+	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2017. 
 * [jHardware](https://github.com/profesorfalken/jHardware):
 	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing and has a limited set of features.  OSHI integrates more native code through JNA and supports more platforms and more features.
 	* jHardware presently only supports Windows and *Nix systems.

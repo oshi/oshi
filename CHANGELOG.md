@@ -1,5 +1,9 @@
 3.3 (in progress)
 ================
+* Your contribution here.
+
+3.3 (in progress)
+================
 * [#262](https://github.com/dblock/oshi/pull/262): Add bytesRead and bytesWritten to OSProcess - [@plamenko](https://github.com/plamenko).
 * [#264](https://github.com/dblock/oshi/pull/264), [#289](https://github.com/dblock/oshi/pull/289): BIOS, manufacturer, and baseboard information - [@lundefugl](https://github.com/lundefugl), [@dbwiddis](https://github.com/dbwiddis).
 * [#281](https://github.com/dblock/oshi/pull/281): Improve Linux battery AC device exclusion - [@dbwiddis](https://github.com/dbwiddis).
@@ -8,8 +12,7 @@
 * [#284](https://github.com/dblock/oshi/pull/284): Remove incorrect IOWait counter from WindowsCentralProcessor - [@dbwiddis](https://github.com/dbwiddis).
 * [#285](https://github.com/dblock/oshi/pull/285): Rebrand Mac OS 10.12+ as macOS - [@dbwiddis](https://github.com/dbwiddis).
 * [#286](https://github.com/dblock/oshi/pull/286): Reduce required calculations for LinuxProcess initialization - [@dbwiddis](https://github.com/dbwiddis).
-* [#290](https://github.com/dblock/oshi/pull/286): Add input/output errors to Network IF - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#290](https://github.com/dblock/oshi/pull/290): Add input/output errors to Network IF - [@dbwiddis](https://github.com/dbwiddis).
 
 3.2 (9/1/2016)
 ================

@@ -7,7 +7,7 @@
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
 [![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
-[![Dependency Status](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e/badge.svg)](https://www.versioneye.com/user/projects/55fed58c601dd9001500005e)
+[![Dependency Status](https://www.versioneye.com/user/projects/57c6138e972425000e28d818/badge.svg)](https://www.versioneye.com/user/projects/57c6138e972425000e28d818)
 [![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
@@ -27,6 +27,7 @@ Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD)
 
 Supported features 
 --------------------------
+* Computer System and firmware, baseboard 
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs 
 * System and per-processor load % and tick counters
@@ -51,8 +52,8 @@ Downloads
 ----------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.2&amp;e=jar)  | [oshi-core-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.3-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.2&amp;e=jar)   | [oshi-json-3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.3-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.3&amp;e=jar)  | [oshi-core-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.4-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.3&amp;e=jar)   | [oshi-json-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.4-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -189,7 +190,7 @@ How is this different from ...
 * [Sigar](http://sigar.hyperic.com): 
 	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. OSHI uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
 	* Sigar is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
-	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2016. 
+	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2017. 
 * [jHardware](https://github.com/profesorfalken/jHardware):
 	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing and has a limited set of features.  OSHI integrates more native code through JNA and supports more platforms and more features.
 	* jHardware presently only supports Windows and *Nix systems.
