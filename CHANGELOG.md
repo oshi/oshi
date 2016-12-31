@@ -1,8 +1,8 @@
-3.3 (in progress)
+3.4 (in progress)
 ================
 * Your contribution here.
 
-3.3 (in progress)
+3.3 (12/31/2016)
 ================
 * [#262](https://github.com/dblock/oshi/pull/262): Add bytesRead and bytesWritten to OSProcess - [@plamenko](https://github.com/plamenko).
 * [#264](https://github.com/dblock/oshi/pull/264), [#289](https://github.com/dblock/oshi/pull/289): BIOS, manufacturer, and baseboard information - [@lundefugl](https://github.com/lundefugl), [@dbwiddis](https://github.com/dbwiddis).
