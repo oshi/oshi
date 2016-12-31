@@ -52,13 +52,13 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
     /**
      * Creates a new platform-specific OperatingSystem object wrapping the
      * provided argument
-     * 
+     *
      * @param operatingSystem
      *            a platform-specific OperatingSystem object
      */
 <span class="nc" id="L59">    public OperatingSystemImpl(oshi.software.os.OperatingSystem operatingSystem) {</span>
 <span class="nc" id="L60">        this.os = operatingSystem;</span>
-<span class="nc" id="L61">        this.version = new OperatingSystemVersionImpl(os.getVersion());</span>
+<span class="nc" id="L61">        this.version = new OperatingSystemVersionImpl(this.os.getVersion());</span>
 <span class="nc" id="L62">    }</span>
 
     /**
@@ -143,7 +143,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L146">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L146">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L147" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.manufacturer&quot;)) {</span>
 <span class="nc" id="L148">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
         }
@@ -166,7 +166,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
 <span class="nc" id="L166">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
 <span class="nc bnc" id="L168" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes&quot;)) {</span>
-<span class="nc" id="L169">            JsonArrayBuilder processArrayBuilder = jsonFactory.createArrayBuilder();</span>
+<span class="nc" id="L169">            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
 <span class="nc bnc" id="L170" title="All 2 branches missed.">            for (OSProcess proc : getProcesses(</span>
 <span class="nc" id="L171">                    PropertiesUtil.getIntOrDefault(properties, &quot;operatingSystem.processes.limit&quot;, 0),</span>
 <span class="nc" id="L172">                    PropertiesUtil.getEnum(properties, &quot;operatingSystem.processes.sort&quot;, ProcessSort.class))) {</span>
@@ -182,4 +182,4 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
 <span class="nc" id="L182">        return this.os.toString();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

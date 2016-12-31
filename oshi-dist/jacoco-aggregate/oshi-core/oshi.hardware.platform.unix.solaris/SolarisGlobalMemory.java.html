@@ -65,8 +65,8 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 <span class="nc" id="L65">        Matcher m = SWAPINFO.matcher(swapInfo);</span>
 <span class="nc bnc" id="L66" title="All 2 branches missed.">        if (m.matches()) {</span>
 <span class="nc" id="L67">            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) &lt;&lt; 10;</span>
-<span class="nc" id="L68">            this.swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
+<span class="nc" id="L68">            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
         }
 <span class="nc" id="L70">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

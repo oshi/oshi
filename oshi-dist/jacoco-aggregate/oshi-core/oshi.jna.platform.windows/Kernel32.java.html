@@ -25,7 +25,7 @@ import com.sun.jna.win32.W32APIOptions;
 /**
  * Windows Kernel32. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
@@ -38,7 +38,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      * Retrieves system timing information. On a multiprocessor system, the
      * values returned are the sum of the designated times across all
      * processors.
-     * 
+     *
      * @param lpIdleTime
      *            A pointer to a FILETIME structure that receives the amount of
      *            time that the system has been idle.
@@ -60,7 +60,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
     /**
      * Retrieves the number of milliseconds that have elapsed since the system
      * was started.
-     * 
+     *
      * @return The number of milliseconds.
      */
     long GetTickCount64();
@@ -68,7 +68,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
     /**
      * Controls whether the system will handle the specified types of serious
      * errors or whether the process will handle them.
-     * 
+     *
      * @param umode
      *            The process error mode.
      * @return The return value is the previous state of the error-mode bit
@@ -76,4 +76,4 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      */
     int SetErrorMode(int umode);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

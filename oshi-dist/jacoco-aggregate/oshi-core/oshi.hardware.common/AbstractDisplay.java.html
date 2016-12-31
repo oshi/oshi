@@ -41,12 +41,12 @@ public abstract class AbstractDisplay implements Display {
      */
     @Override
     public byte[] getEdid() {
-<span class="nc" id="L44">        return Arrays.copyOf(edid, edid.length);</span>
+<span class="nc" id="L44">        return Arrays.copyOf(this.edid, this.edid.length);</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L49">        return EdidUtil.toString(edid);</span>
+<span class="nc" id="L49">        return EdidUtil.toString(this.edid);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

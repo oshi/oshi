@@ -64,16 +64,68 @@
                     xml += $("#modal-text").text().replace(/\n/g,'\n   ');
                     xml += '\n</suppressions>';
                     $('#modal-text').text(xml).focus().select();
+                    $('#modal-add-header').toggleClass('active');
                 });
             });
-            function copyText(name, sha1, type, val) {
+            function suppressSwitchTo(switchTo) {
+                $('#modal-suppress-change-to-sha1').toggleClass('active');
+                $('#modal-suppress-change-to-gav').toggleClass('active');
+                setCopyText($('#suppress-name').val(),
+                            switchTo,
+                            $('#suppress-'+switchTo).val(), 
+                            $('#suppress-type').val(), 
+                            $('#suppress-val').val());
+            }
+            function copyText(name, sha1, gav, type, val) {
+                $('#suppress-name').val(name);
+                $('#suppress-type').val(type);
+                $('#suppress-val').val(val);
+                $('#suppress-sha1').val(sha1);
+                $('#suppress-gav').val(gav);
+                if (gav=='') {
+                    if ($('#modal-suppress-change-to-gav').hasClass('active')) {
+                        $('#modal-suppress-change-to-gav').toggleClass('active');
+                    }
+                    if ($('#modal-suppress-change-to-sha1').hasClass('active')) {
+                        $('#modal-suppress-change-to-sha1').toggleClass('active');
+                    }
+                    setCopyText(name, 'sha1', sha1, type, val);
+                } else {
+                    if ($('#modal-suppress-change-to-gav').hasClass('active')) {
+                        $('#modal-suppress-change-to-gav').toggleClass('active');
+                    }
+                    if (!$('#modal-suppress-change-to-sha1').hasClass('active')) {
+                        $('#modal-suppress-change-to-sha1').toggleClass('active');
+                    }
+                    setCopyText(name, 'gav', gav, type, val);
+                }
+            }
+            function setCopyText(name, matchType, matchValue, suppressType, suppressVal) {
                 xml =  '<suppress>\n';
                 xml += '   <notes><!'+'[CDATA[\n   file name: ' + name + '\n   ]]'+'></notes>\n';
-                xml += '   <sha1>' + sha1 + '</sha1>\n';
-                xml += '   <'+type+'>' + val + '</'+type+'>\n';
+                if (matchType=='gav') {
+                    v = matchValue.match(/^[^:]+:[^:]+:/);
+                    if (v && v[0]) {
+                        xml += '   <'+matchType+' regex="true">^' + v[0].replace(/\./g,'\\.') + '.*$</'+matchType+'>\n';
+                    } else {
+                        xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                    }
+                } else {
+                    xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                }
+                if (suppressType=='cpe') {
+                    v = suppressVal.match(/^cpe:\/a:[^:]+:[^:]+/);
+                    if (v && v[0]) {
+                        xml += '   <'+suppressType+'>' + v[0] + '</'+suppressType+'>\n';
+                    } else {
+                        xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                    }
+                } else {
+                    xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                }
                 xml += '</suppress>';
                 $('#modal-text').text(xml);
-                $('#modal-content,#modal-background').toggleClass('active');
+                $('#modal-content,#modal-background').addClass('active');
                 $('#modal-text').focus();
                 $('#modal-text').select();
             }
@@ -131,6 +183,12 @@
             #modal-text:focus {
                 outline: none;
             }
+            .suppresstype {
+                display: none;
+            }
+            .suppresstype.active {
+                display: block;
+            }  
             .suppressedLabel {
                 cursor: default;
                 padding:1px;
@@ -485,6 +543,11 @@
         <div id="modal-background"></div>
         <div id="modal-content">
             <div>Press CTR-C to copy XML&nbsp;<a href="http://jeremylong.github.io/DependencyCheck/general/suppression.html" class="infolink" target="_blank" title="Help with suppressing false positives">[help]</a></div>
+                <button onclick="suppressSwitchTo('gav')" id="modal-suppress-change-to-gav" class="modal-button suppresstype" title="Supress by Maven Group Artifact Version">Suppress By GAV</button>
+                <button onclick="suppressSwitchTo('sha1')" id="modal-suppress-change-to-sha1" class="modal-button suppresstype" title="Supress by SHA1 hash">Suppress By SHA1</button><br/>
+                <input type="hidden" id="suppress-name"/>
+                <input type="hidden" id="suppress-type"/><input type="hidden" id="suppress-val"/>
+                <input type="hidden" id="suppress-sha1"/><input type="hidden" id="suppress-gav"/>
                 <textarea id="modal-text" cols="50" rows="10" readonly></textarea><br/>
                 <button id="modal-add-header" title="Add the parent XML nodes to create the complete XML file that can be used to suppress this finding" class="modal-button">Complete XML Doc</button><button id="modal-close" class="modal-button-right">Close</button>
         </div>
@@ -496,37 +559,41 @@ the reporting provided constitutes acceptance for use in an AS IS condition, and
 implied or otherwise, with regard to the analysis or its use. Any use of the tool and the reporting provided
 is at the user’s risk. In no event shall the copyright holder or OWASP be held liable for any damages whatsoever
 arising out of or in connection with the use of this tool, the analysis performed, or the resulting report.</p>
+<h3><a href="http://jeremylong.github.io/DependencyCheck/general/thereport.html" target="_bank">How&nbsp;to&nbsp;read&nbsp;the&nbsp;report</a> | 
+<a href="http://jeremylong.github.io/DependencyCheck/general/suppression.html" target="_bank">Suppressing false positives</a> |
+Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check" target="_blank">google group</a> | 
+<a href="https://github.com/jeremylong/DependencyCheck/issues" target="_blank">github issues</a></h3>
 
             <h2 class="">Project:&nbsp;oshi-dist</h2>
             <div class="">
                 
-                                                                                                                                                                                                                                                                                                                                                                    Scan Information (<a href="#" title="Click to toggle display" onclick="return toggleDisplay(this, '.scaninfo', 'show all', 'show less');  return false;">show all</a>):<br/>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Scan Information (<a href="#" title="Click to toggle display" onclick="return toggleDisplay(this, '.scaninfo', 'show all', 'show less');  return false;">show all</a>):<br/>
                     <ul class="indent">
-                        <li><i>dependency-check version</i>: 1.4.1</li>
-                        <li><i>Report Generated On</i>: Aug 7, 2016 at 14:57:56 EDT</li>
-                        <li><i>Dependencies Scanned</i>:&nbsp;4 (4 unique)</li>
-                        <li><i>Vulnerable Dependencies</i>:&nbsp;1</li>
-                        <li><i>Vulnerabilities Found</i>:&nbsp;1</li>
+                        <li><i>dependency-check version</i>: 1.4.4</li>
+                        <li><i>Report Generated On</i>: Dec 31, 2016 at 11:22:16 PST</li>
+                        <li><i>Dependencies Scanned</i>:&nbsp;9 (9 unique)</li>
+                        <li><i>Vulnerable Dependencies</i>:&nbsp;0</li>
+                        <li><i>Vulnerabilities Found</i>:&nbsp;0</li>
                         <li><i>Vulnerabilities Suppressed</i>:&nbsp;0</li>
                         <li class="scaninfo">...</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2002</i>: 06/08/2016 03:53:57</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2003</i>: 17/06/2016 05:32:42</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2004</i>: 17/06/2016 05:29:04</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2005</i>: 08/06/2016 13:30:22</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2006</i>: 21/07/2016 04:20:42</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2007</i>: 21/07/2016 04:08:48</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2008</i>: 16/06/2016 05:06:06</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2009</i>: 25/06/2016 04:48:45</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2010</i>: 01/07/2016 04:49:32</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2011</i>: 03/08/2016 03:52:18</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2012</i>: 22/07/2016 04:09:49</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2013</i>: 05/08/2016 03:56:07</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2014</i>: 07/08/2016 03:43:57</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2015</i>: 07/08/2016 03:27:50</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE 2016</i>: 07/08/2016 03:10:22</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE Checked</i>: 07/08/2016 12:39:27</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE Modified</i>: 07/08/2016 12:01:04</li>
-                                                <li class="scaninfo hidden"><i>VersionCheckOn</i>: 1470588114133</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2002</i>: 28/12/2016 00:17:22</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2003</i>: 20/12/2016 00:20:36</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2004</i>: 20/12/2016 00:20:02</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2005</i>: 28/12/2016 00:15:11</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2006</i>: 20/12/2016 00:17:07</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2007</i>: 16/12/2016 00:23:42</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2008</i>: 31/12/2016 00:20:42</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2009</i>: 28/12/2016 00:13:19</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2010</i>: 24/12/2016 00:17:06</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2011</i>: 31/12/2016 00:17:22</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2012</i>: 31/12/2016 00:13:56</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2013</i>: 31/12/2016 00:11:13</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2014</i>: 31/12/2016 00:08:19</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2015</i>: 31/12/2016 00:05:17</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE 2016</i>: 31/12/2016 00:02:32</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE Checked</i>: 31/12/2016 11:18:52</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE Modified</i>: 31/12/2016 09:02:08</li>
+                                                <li class="scaninfo hidden"><i>VersionCheckOn</i>: 1483211933005</li>
                                             </ul><br/>
                 Display:&nbsp;<a href="#" title="Click to toggle display" onclick="return toggleDisplay(this, '.notvulnerable', 'Showing Vulnerable Dependencies (click to show all)', 'Showing All Dependencies (click to show less)'); return false;">Showing Vulnerable Dependencies (click to show all)</a><br/><br/>
                                 <table id="summaryTable" class="lined">
@@ -552,24 +619,60 @@ arising out of or in connection with the use of this tool, the analysis performe
                         <td data-sort-value="0"></td>
                         <td>22</td>
                     </tr>
-                                        <tr class=" vulnerable">
+                                        <tr class="notvulnerable">
                         <td data-sort-value="jna-4.2.2.jar"><a href="#l2_5012450aee579c3118ff09461d5ce210e0cdc2a9">jna-4.2.2.jar</a></td>
-                                                                                                                                                                                                                                                                                            <td data-sort-value="cpe:/a:sun:linux:4.2.2cpe:/a:sun:sunos:4.2.2">
-                                                                                                                                                                                cpe:/a:sun:linux:4.2.2
-                                                                                                                                                                                                                                                    <br/>
-                                                                                                    cpe:/a:sun:sunos:4.2.2
-                                                                                                                                                                                                                                                                                            </td>
+                                                                                                                            <td data-sort-value="">
+                                                                                                                                                                                                                        </td>
                                                 <td data-sort-value="net.java.dev.jna:jna:4.2.2">                                                        <a href="http://search.maven.org/#search|ga|1|1%3A%225012450aee579c3118ff09461d5ce210e0cdc2a9%22" target="_blank">net.java.dev.jna:jna:4.2.2</a>
                                                 </td>
-                                                                                                                                                        <td data-sort-value="72.0">
-                                                    High
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
                                                 </td>
-                        <td>1</td>
-                        <td data-sort-value="0">LOW</td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
                         <td>22</td>
                     </tr>
                                         <tr class="notvulnerable">
-                        <td data-sort-value="javax.json-1.0.4.jar"><a href="#l3_3178f73569fd7a1e5ffc464e680f7a8cc784b85a">javax.json-1.0.4.jar</a></td>
+                        <td data-sort-value="jna-4.2.2.jar: jnidispatch.dll"><a href="#l3_67167f2b2fce8db5f9f64a372b0da54730d3ee51">jna-4.2.2.jar: jnidispatch.dll</a></td>
+                                                                        <td data-sort-value="">
+                                                                        </td>
+                                                <td data-sort-value="">
+                        </td>
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
+                                                </td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
+                        <td>1</td>
+                    </tr>
+                                        <tr class="notvulnerable">
+                        <td data-sort-value="jna-4.2.2.jar: jnidispatch.dll"><a href="#l4_cb612a48eff7c60c40a6bb64b78fb47d5709f5e7">jna-4.2.2.jar: jnidispatch.dll</a></td>
+                                                                        <td data-sort-value="">
+                                                                        </td>
+                                                <td data-sort-value="">
+                        </td>
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
+                                                </td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
+                        <td>1</td>
+                    </tr>
+                                        <tr class="notvulnerable">
+                        <td data-sort-value="jna-4.2.2.jar: jnidispatch.dll"><a href="#l5_c6870c1b8be2dbf1d737c918963d2f183aa778e1">jna-4.2.2.jar: jnidispatch.dll</a></td>
+                                                                        <td data-sort-value="">
+                                                                        </td>
+                                                <td data-sort-value="">
+                        </td>
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
+                                                </td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
+                        <td>1</td>
+                    </tr>
+                                        <tr class="notvulnerable">
+                        <td data-sort-value="javax.json-1.0.4.jar"><a href="#l6_3178f73569fd7a1e5ffc464e680f7a8cc784b85a">javax.json-1.0.4.jar</a></td>
                                                                                                                             <td data-sort-value="">
                                                                                                                                                                                                                         </td>
                                                 <td data-sort-value="org.glassfish:javax.json:1.0.4">                                                        <a href="http://search.maven.org/#search|ga|1|1%3A%223178f73569fd7a1e5ffc464e680f7a8cc784b85a%22" target="_blank">org.glassfish:javax.json:1.0.4</a>
@@ -582,10 +685,10 @@ arising out of or in connection with the use of this tool, the analysis performe
                         <td>21</td>
                     </tr>
                                         <tr class="notvulnerable">
-                        <td data-sort-value="slf4j-api-1.7.21.jar"><a href="#l4_139535a69a4239db087de9bab0bee568bf8e0b70">slf4j-api-1.7.21.jar</a></td>
+                        <td data-sort-value="slf4j-api-1.7.22.jar"><a href="#l7_a1c83373863cec7ae8d89dc1c5722d8cb6ec0309">slf4j-api-1.7.22.jar</a></td>
                                                                                                                             <td data-sort-value="">
                                                                                                                                                                                                                         </td>
-                                                <td data-sort-value="org.slf4j:slf4j-api:1.7.21">                                                        <a href="http://search.maven.org/#search|ga|1|1%3A%22139535a69a4239db087de9bab0bee568bf8e0b70%22" target="_blank">org.slf4j:slf4j-api:1.7.21</a>
+                                                <td data-sort-value="org.slf4j:slf4j-api:1.7.22">                                                        <a href="http://search.maven.org/#search|ga|1|1%3A%22a1c83373863cec7ae8d89dc1c5722d8cb6ec0309%22" target="_blank">org.slf4j:slf4j-api:1.7.22</a>
                                                 </td>
                                                                         <td data-sort-value="-10">
                                                     &nbsp;
@@ -593,6 +696,32 @@ arising out of or in connection with the use of this tool, the analysis performe
                         <td>0</td>
                         <td data-sort-value="0"></td>
                         <td>21</td>
+                    </tr>
+                                        <tr class="notvulnerable">
+                        <td data-sort-value="oshi-core-3.3.jar"><a href="#l8_c1f29c78d41f5ceda661487aa1b135ee19ecbe2d">oshi-core-3.3.jar</a></td>
+                                                                                                                            <td data-sort-value="">
+                                                                                                                                                                                                                        </td>
+                                                <td data-sort-value="com.github.dblock:oshi-core:3.3">                            com.github.dblock:oshi-core:3.3
+                                                </td>
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
+                                                </td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
+                        <td>20</td>
+                    </tr>
+                                        <tr class="notvulnerable">
+                        <td data-sort-value="oshi-json-3.3.jar"><a href="#l9_7aa48a650ff09fecfcba9807bd9e7fa20c09e36c">oshi-json-3.3.jar</a></td>
+                                                                                                                            <td data-sort-value="">
+                                                                                                                                                                                                                        </td>
+                                                <td data-sort-value="com.github.dblock:oshi-json:3.3">                            com.github.dblock:oshi-json:3.3
+                                                </td>
+                                                                        <td data-sort-value="-10">
+                                                    &nbsp;
+                                                </td>
+                        <td>0</td>
+                        <td data-sort-value="0"></td>
+                        <td>20</td>
                     </tr>
                                     </table>
                 <h2>Dependencies</h2>
@@ -602,11 +731,11 @@ arising out of or in connection with the use of this tool, the analysis performe
                                                 <p>
                                                                                 <b>License:</b><pre class="indent">LGPL, version 2.1: http://www.gnu.org/licenses/licenses.html
 ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
-                                                                                <b>File&nbsp;Path:</b>&nbsp;C:\Users\Jeremy\.m2\repository\net\java\dev\jna\jna-platform\4.2.2\jna-platform-4.2.2.jar<br/>
+                                                                                <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna-platform/4.2.2/jna-platform-4.2.2.jar<br/>
                             <b>MD5:</b>&nbsp;4cc712d436e8f612f33fe0c933999914<br/>
                             <b>SHA1:</b>&nbsp;030fa67b23cf2c0327a02cfaecbef76a20160e7b
                                                             <br/><b>Referenced In Project/Scope:</b>
-                                                                    oshi-dist
+                                                                    oshi-dist:compile
                                                                                                                 </p>
                                                 <h4 id="header1" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content1" class="subsectioncontent standardsubsection hidden">
@@ -615,7 +744,7 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                     <tr><td>central</td><td>artifactid</td><td>jna-platform</td></tr>
                                                                     <tr><td>central</td><td>groupid</td><td>net.java.dev.jna</td></tr>
                                                                     <tr><td>central</td><td>version</td><td>4.2.2</td></tr>
-                                                                    <tr><td>file</td><td>name</td><td>jna-platform-4.2.2</td></tr>
+                                                                    <tr><td>file</td><td>name</td><td>jna-platform</td></tr>
                                                                     <tr><td>file</td><td>version</td><td>4.2.2</td></tr>
                                                                     <tr><td>manifest</td><td>Bundle-Description</td><td>JNA Platform Library</td></tr>
                                                                     <tr><td>Manifest</td><td>Bundle-Name</td><td>jna-platform</td></tr>
@@ -639,23 +768,23 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                                                                             <h4 id="header2" class="subsectionheader white">Identifiers</h4>
                                                 <div id="content2" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                                                    <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%22030fa67b23cf2c0327a02cfaecbef76a20160e7b%22" target="_blank">net.java.dev.jna:jna-platform:4.2.2</a>
+                                                                                                                                                                                                                                                                                        <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%22030fa67b23cf2c0327a02cfaecbef76a20160e7b%22" target="_blank">net.java.dev.jna:jna-platform:4.2.2</a>
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGHEST
                                                                                                                                 </li>
                                                         </ul>
                                                 </div>
                                     </div>
-                                    <h3 class="subsectionheader standardsubsection"><a name="l2_5012450aee579c3118ff09461d5ce210e0cdc2a9"></a>jna-4.2.2.jar</h3>
-                    <div class="subsectioncontent">
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l2_5012450aee579c3118ff09461d5ce210e0cdc2a9"></a>jna-4.2.2.jar</h3>
+                    <div class="subsectioncontent notvulnerable">
                                                     <p><b>Description:</b>&nbsp;Java Native Access<br/></p>
                                                 <p>
                                                                                 <b>License:</b><pre class="indent">LGPL, version 2.1: http://www.gnu.org/licenses/licenses.html
 ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
-                                                                                <b>File&nbsp;Path:</b>&nbsp;C:\Users\Jeremy\.m2\repository\net\java\dev\jna\jna\4.2.2\jna-4.2.2.jar<br/>
+                                                                                <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna/4.2.2/jna-4.2.2.jar<br/>
                             <b>MD5:</b>&nbsp;78eb97e642452eb30aea5f76e52a7603<br/>
                             <b>SHA1:</b>&nbsp;5012450aee579c3118ff09461d5ce210e0cdc2a9
                                                             <br/><b>Referenced In Project/Scope:</b>
-                                                                    oshi-dist
+                                                                    oshi-dist:compile
                                                                                                                 </p>
                                                 <h4 id="header3" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content3" class="subsectioncontent standardsubsection hidden">
@@ -664,7 +793,7 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                     <tr><td>central</td><td>artifactid</td><td>jna</td></tr>
                                                                     <tr><td>central</td><td>groupid</td><td>net.java.dev.jna</td></tr>
                                                                     <tr><td>central</td><td>version</td><td>4.2.2</td></tr>
-                                                                    <tr><td>file</td><td>name</td><td>jna-4.2.2</td></tr>
+                                                                    <tr><td>file</td><td>name</td><td>jna</td></tr>
                                                                     <tr><td>file</td><td>version</td><td>4.2.2</td></tr>
                                                                     <tr><td>manifest</td><td>Bundle-Description</td><td>JNA Library</td></tr>
                                                                     <tr><td>Manifest</td><td>Bundle-Name</td><td>jna</td></tr>
@@ -685,87 +814,97 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                     <tr><td>pom</td><td>version</td><td>4.2.2</td></tr>
                                                             </table>
                         </div>
-                                                                                                                                                                                                                                                                                            <h4 id="header4" class="subsectionheader white">Identifiers</h4>
+                                                                                                                            <h4 id="header4" class="subsectionheader white">Identifiers</h4>
                                                 <div id="content4" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                <li><b>cpe:</b>&nbsp;cpe:/a:sun:linux:4.2.2
-                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:LOW
-                                                                                                                                        &nbsp;&nbsp;<button class="copybutton" title="Generate Suppression XML for this CPE for this file" onclick="copyText('jna-4.2.2.jar', '5012450aee579c3118ff09461d5ce210e0cdc2a9', 'cpe', 'cpe:/a:sun:linux:4.2.2')">suppress</button>
-                                                                                                </li>
-                                                                                                <li><b>cpe:</b>&nbsp;cpe:/a:sun:sunos:4.2.2
-                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:LOW
-                                                                                                                                        &nbsp;&nbsp;<button class="copybutton" title="Generate Suppression XML for this CPE for this file" onclick="copyText('jna-4.2.2.jar', '5012450aee579c3118ff09461d5ce210e0cdc2a9', 'cpe', 'cpe:/a:sun:sunos:4.2.2')">suppress</button>
-                                                                                                </li>
-                                                                                                                                    <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%225012450aee579c3118ff09461d5ce210e0cdc2a9%22" target="_blank">net.java.dev.jna:jna:4.2.2</a>
+                                                                                                                                                                                                                                                                                        <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%225012450aee579c3118ff09461d5ce210e0cdc2a9%22" target="_blank">net.java.dev.jna:jna:4.2.2</a>
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGHEST
                                                                                                                                 </li>
                                                         </ul>
                                                 </div>
-                                        <h4 id="header5" class="subsectionheader expandable collaspablesubsection white">Published Vulnerabilities</h4>
-                    <div id="content5" class="subsectioncontent standardsubsection">
-                                                    <p><b><a target="_blank" href="http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2012-0217">CVE-2012-0217</a></b>&nbsp;&nbsp;<button class="copybutton" title="Generate Suppression XML for this CCE for this file" onclick="copyText('jna-4.2.2.jar', '5012450aee579c3118ff09461d5ce210e0cdc2a9', 'cve', 'CVE-2012-0217')">suppress</button></p>
-                            <p>Severity:
-                                                            High
-                                                        <br/>CVSS Score: 7.2 (AV:L/AC:L/Au:N/C:C/I:C/A:C)
-                                                            <br/>CWE: CWE-119 Improper Restriction of Operations within the Bounds of a Memory Buffer
-                            </p>
-                            <p>The x86-64 kernel system-call functionality in Xen 4.1.2 and earlier, as used in Citrix XenServer 6.0.2 and earlier and other products; Oracle Solaris 11 and earlier; illumos before r13724; Joyent SmartOS before 20120614T184600Z; FreeBSD before 9.0-RELEASE-p3; NetBSD 6.0 Beta and earlier; Microsoft Windows Server 2008 R2 and R2 SP1 and Windows 7 Gold and SP1; and possibly other operating systems, when running on an Intel processor, incorrectly uses the sysret path in cases where a certain address is not a canonical address, which allows local users to gain privileges via a crafted application.  NOTE: because this issue is due to incorrect use of the Intel specification, it should have been split into separate identifiers; however, there was some value in preserving the original mapping of the multi-codebase coordinated-disclosure effort to a single identifier.
-                                                                    <ul>
-                                                                            <li>CERT - <a target="_blank" href="http://www.us-cert.gov/cas/techalerts/TA12-164A.html">TA12-164A</a></li>
-                                                                            <li>CERT-VN - <a target="_blank" href="http://www.kb.cert.org/vuls/id/649219">VU#649219</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://blog.illumos.org/2012/06/14/illumos-vulnerability-patched/">http://blog.illumos.org/2012/06/14/illumos-vulnerability-patched/</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://blog.xen.org/index.php/2012/06/13/the-intel-sysret-privilege-escalation/">http://blog.xen.org/index.php/2012/06/13/the-intel-sysret-privilege-escalation/</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://smartos.org/2012/06/15/smartos-news-3/">http://smartos.org/2012/06/15/smartos-news-3/</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://support.citrix.com/article/CTX133161">http://support.citrix.com/article/CTX133161</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://wiki.smartos.org/display/DOC/SmartOS+Change+Log#SmartOSChangeLog-June14%2C2012">http://wiki.smartos.org/display/DOC/SmartOS+Change+Log#SmartOSChangeLog-June14%2C2012</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="http://www.oracle.com/technetwork/topics/security/cpuoct2012-1515893.html">http://www.oracle.com/technetwork/topics/security/cpuoct2012-1515893.html</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="https://bugzilla.redhat.com/show_bug.cgi?id=813428">https://bugzilla.redhat.com/show_bug.cgi?id=813428</a></li>
-                                                                            <li>CONFIRM - <a target="_blank" href="https://www.illumos.org/issues/2873">https://www.illumos.org/issues/2873</a></li>
-                                                                            <li>DEBIAN - <a target="_blank" href="http://www.debian.org/security/2012/dsa-2501">DSA-2501</a></li>
-                                                                            <li>DEBIAN - <a target="_blank" href="http://www.debian.org/security/2012/dsa-2508">DSA-2508</a></li>
-                                                                            <li>FREEBSD - <a target="_blank" href="http://security.freebsd.org/advisories/FreeBSD-SA-12:04.sysret.asc">FreeBSD-SA-12:04</a></li>
-                                                                            <li>GENTOO - <a target="_blank" href="http://security.gentoo.org/glsa/glsa-201309-24.xml">GLSA-201309-24</a></li>
-                                                                            <li>MANDRIVA - <a target="_blank" href="http://www.mandriva.com/security/advisories?name=MDVSA-2013:150">MDVSA-2013:150</a></li>
-                                                                            <li>MLIST - <a target="_blank" href="http://lists.xen.org/archives/html/xen-announce/2012-06/msg00001.html">[xen-announce] 20120612 Xen Security Advisory 7 (CVE-2012-0217) - PV privilege escalation</a></li>
-                                                                            <li>MLIST - <a target="_blank" href="http://lists.xen.org/archives/html/xen-devel/2012-06/msg01072.html">[xen-devel] 20120619 Security vulnerability process, and CVE-2012-0217</a></li>
-                                                                            <li>MS - <a target="_blank" href="http://technet.microsoft.com/security/bulletin/MS12-042">MS12-042</a></li>
-                                                                            <li>NETBSD - <a target="_blank" href="http://ftp.netbsd.org/pub/NetBSD/security/advisories/NetBSD-SA2012-003.txt.asc">NetBSD-SA2012-003</a></li>
-                                                                        </ul>
-                                                            </p>
-
-                                                            <p>Vulnerable Software &amp; Versions:&nbsp;(<a href="#" onclick="return toggleDisplay(this,'.vs1', 'show all', 'show less');">show all</a>)<ul>
-                                    <li class="vs1"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Asun%3Asunos%3A5.11">cpe:/a:sun:sunos:5.11</a>  and all previous versions</li>
-                                    <li class="vs1">...</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Acitrix%3Axenserver%3A6.0">cpe:/a:citrix:xenserver:6.0</a> </li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Acitrix%3Axenserver%3A6.0.2">cpe:/a:citrix:xenserver:6.0.2</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Afreebsd%3Afreebsd%3A9.0">cpe:/a:freebsd:freebsd:9.0</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Aillumos%3Aillumos%3Ar13723">cpe:/a:illumos:illumos:r13723</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Ajoyent%3Asmartos%3A20120614">cpe:/a:joyent:smartos:20120614</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Anetbsd%3Anetbsd%3A6.0%3Abeta">cpe:/a:netbsd:netbsd:6.0:beta</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Asun%3Asunos%3A5.11">cpe:/a:sun:sunos:5.11</a>  and all previous versions</li>
-                                                                    <li class="vs1 hidden"><a target="_blank" href="https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cves=on&cpe_version=cpe%3A%2Fa%3Axen%3Axen%3A4.1.2">cpe:/a:xen:xen:4.1.2</a>  and all previous versions</li>
-                                                                </ul></p>
-                                                                        </div>
                                     </div>
-                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l3_3178f73569fd7a1e5ffc464e680f7a8cc784b85a"></a>javax.json-1.0.4.jar</h3>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l3_67167f2b2fce8db5f9f64a372b0da54730d3ee51"></a>jna-4.2.2.jar: jnidispatch.dll</h3>
+                    <div class="subsectioncontent notvulnerable">
+                                                <p>
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna/4.2.2/jna-4.2.2.jar/com/sun/jna/w32ce-arm/jnidispatch.dll<br/>
+                            <b>MD5:</b>&nbsp;57697cbdd321ae7d06f5da04e821f908<br/>
+                            <b>SHA1:</b>&nbsp;67167f2b2fce8db5f9f64a372b0da54730d3ee51
+                                                            <br/><b>Referenced In Project/Scope:</b>
+                                                                    oshi-dist:compile
+                                                                                                                </p>
+                                                <h4 id="header5" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content5" class="subsectioncontent standardsubsection hidden">
+                            <table class="lined fullwidth" border="0">
+                                <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
+                                                                    <tr><td>file</td><td>name</td><td>jnidispatch</td></tr>
+                                                            </table>
+                        </div>
+                                                                        <h4 id="header6" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content6" class="subsectioncontent standardsubsection">
+                                                    <ul><li><b>None</b></li></ul>
+                                                </div>
+                                    </div>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l4_cb612a48eff7c60c40a6bb64b78fb47d5709f5e7"></a>jna-4.2.2.jar: jnidispatch.dll</h3>
+                    <div class="subsectioncontent notvulnerable">
+                                                <p>
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna/4.2.2/jna-4.2.2.jar/com/sun/jna/win32-x86-64/jnidispatch.dll<br/>
+                            <b>MD5:</b>&nbsp;b04c620540a971e93390ba9ec7cc8641<br/>
+                            <b>SHA1:</b>&nbsp;cb612a48eff7c60c40a6bb64b78fb47d5709f5e7
+                                                            <br/><b>Referenced In Project/Scope:</b>
+                                                                    oshi-dist:compile
+                                                                                                                </p>
+                                                <h4 id="header7" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content7" class="subsectioncontent standardsubsection hidden">
+                            <table class="lined fullwidth" border="0">
+                                <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
+                                                                    <tr><td>file</td><td>name</td><td>jnidispatch</td></tr>
+                                                            </table>
+                        </div>
+                                                                        <h4 id="header8" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content8" class="subsectioncontent standardsubsection">
+                                                    <ul><li><b>None</b></li></ul>
+                                                </div>
+                                    </div>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l5_c6870c1b8be2dbf1d737c918963d2f183aa778e1"></a>jna-4.2.2.jar: jnidispatch.dll</h3>
+                    <div class="subsectioncontent notvulnerable">
+                                                <p>
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/net/java/dev/jna/jna/4.2.2/jna-4.2.2.jar/com/sun/jna/win32-x86/jnidispatch.dll<br/>
+                            <b>MD5:</b>&nbsp;d2f0da769204b8c45c207d8f3d8fc37e<br/>
+                            <b>SHA1:</b>&nbsp;c6870c1b8be2dbf1d737c918963d2f183aa778e1
+                                                            <br/><b>Referenced In Project/Scope:</b>
+                                                                    oshi-dist:compile
+                                                                                                                </p>
+                                                <h4 id="header9" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content9" class="subsectioncontent standardsubsection hidden">
+                            <table class="lined fullwidth" border="0">
+                                <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
+                                                                    <tr><td>file</td><td>name</td><td>jnidispatch</td></tr>
+                                                            </table>
+                        </div>
+                                                                        <h4 id="header10" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content10" class="subsectioncontent standardsubsection">
+                                                    <ul><li><b>None</b></li></ul>
+                                                </div>
+                                    </div>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l6_3178f73569fd7a1e5ffc464e680f7a8cc784b85a"></a>javax.json-1.0.4.jar</h3>
                     <div class="subsectioncontent notvulnerable">
                                                     <p><b>Description:</b>&nbsp;Default provider for JSR 353:Java API for Processing JSON<br/></p>
                                                 <p>
                                                                                 <b>License:</b><pre class="indent">https://glassfish.java.net/public/CDDL+GPL_1_1.html</pre>
-                                                                                <b>File&nbsp;Path:</b>&nbsp;C:\Users\Jeremy\.m2\repository\org\glassfish\javax.json\1.0.4\javax.json-1.0.4.jar<br/>
+                                                                                <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/org/glassfish/javax.json/1.0.4/javax.json-1.0.4.jar<br/>
                             <b>MD5:</b>&nbsp;569870f975deeeb6691fcb9bc02a9555<br/>
                             <b>SHA1:</b>&nbsp;3178f73569fd7a1e5ffc464e680f7a8cc784b85a
                                                             <br/><b>Referenced In Project/Scope:</b>
-                                                                    oshi-dist
+                                                                    oshi-dist:compile
                                                                                                                 </p>
-                                                <h4 id="header6" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content6" class="subsectioncontent standardsubsection hidden">
+                                                <h4 id="header11" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content11" class="subsectioncontent standardsubsection hidden">
                             <table class="lined fullwidth" border="0">
                                 <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
                                                                     <tr><td>central</td><td>artifactid</td><td>javax.json</td></tr>
                                                                     <tr><td>central</td><td>groupid</td><td>org.glassfish</td></tr>
                                                                     <tr><td>central</td><td>version</td><td>1.0.4</td></tr>
-                                                                    <tr><td>file</td><td>name</td><td>javax.json-1.0.4</td></tr>
+                                                                    <tr><td>file</td><td>name</td><td>javax.json</td></tr>
                                                                     <tr><td>file</td><td>version</td><td>1.0.4</td></tr>
                                                                     <tr><td>manifest</td><td>Bundle-Description</td><td>Default provider for JSR 353:Java API for Processing JSON</td></tr>
                                                                     <tr><td>Manifest</td><td>bundle-docurl</td><td>http://www.oracle.com</td></tr>
@@ -785,41 +924,41 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                     <tr><td>pom</td><td>version</td><td>1.0.4</td></tr>
                                                             </table>
                         </div>
-                                                                                                                            <h4 id="header7" class="subsectionheader white">Identifiers</h4>
-                                                <div id="content7" class="subsectioncontent standardsubsection">
+                                                                                                                            <h4 id="header12" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content12" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                                                    <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%223178f73569fd7a1e5ffc464e680f7a8cc784b85a%22" target="_blank">org.glassfish:javax.json:1.0.4</a>
+                                                                                                                                                                                                                                                                                        <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%223178f73569fd7a1e5ffc464e680f7a8cc784b85a%22" target="_blank">org.glassfish:javax.json:1.0.4</a>
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGHEST
                                                                                                                                 </li>
                                                         </ul>
                                                 </div>
                                     </div>
-                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l4_139535a69a4239db087de9bab0bee568bf8e0b70"></a>slf4j-api-1.7.21.jar</h3>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l7_a1c83373863cec7ae8d89dc1c5722d8cb6ec0309"></a>slf4j-api-1.7.22.jar</h3>
                     <div class="subsectioncontent notvulnerable">
                                                     <p><b>Description:</b>&nbsp;The slf4j API<br/></p>
                                                 <p>
-                                                    <b>File&nbsp;Path:</b>&nbsp;C:\Users\Jeremy\.m2\repository\org\slf4j\slf4j-api\1.7.21\slf4j-api-1.7.21.jar<br/>
-                            <b>MD5:</b>&nbsp;c9be56284a92dcb2576679282eff80bf<br/>
-                            <b>SHA1:</b>&nbsp;139535a69a4239db087de9bab0bee568bf8e0b70
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/.m2/repository/org/slf4j/slf4j-api/1.7.22/slf4j-api-1.7.22.jar<br/>
+                            <b>MD5:</b>&nbsp;897d990eb5463fd5288092524c105769<br/>
+                            <b>SHA1:</b>&nbsp;a1c83373863cec7ae8d89dc1c5722d8cb6ec0309
                                                             <br/><b>Referenced In Project/Scope:</b>
-                                                                    oshi-dist
+                                                                    oshi-dist:compile
                                                                                                                 </p>
-                                                <h4 id="header8" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content8" class="subsectioncontent standardsubsection hidden">
+                                                <h4 id="header13" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content13" class="subsectioncontent standardsubsection hidden">
                             <table class="lined fullwidth" border="0">
                                 <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
                                                                     <tr><td>central</td><td>artifactid</td><td>slf4j-api</td></tr>
                                                                     <tr><td>central</td><td>groupid</td><td>org.slf4j</td></tr>
-                                                                    <tr><td>central</td><td>version</td><td>1.7.21</td></tr>
-                                                                    <tr><td>file</td><td>name</td><td>slf4j-api-1.7.21</td></tr>
-                                                                    <tr><td>file</td><td>version</td><td>1.7.21</td></tr>
+                                                                    <tr><td>central</td><td>version</td><td>1.7.22</td></tr>
+                                                                    <tr><td>file</td><td>name</td><td>slf4j-api</td></tr>
+                                                                    <tr><td>file</td><td>version</td><td>1.7.22</td></tr>
                                                                     <tr><td>manifest</td><td>Bundle-Description</td><td>The slf4j API</td></tr>
                                                                     <tr><td>Manifest</td><td>Bundle-Name</td><td>slf4j-api</td></tr>
                                                                     <tr><td>Manifest</td><td>bundle-requiredexecutionenvironment</td><td>J2SE-1.5</td></tr>
                                                                     <tr><td>Manifest</td><td>bundle-symbolicname</td><td>slf4j.api</td></tr>
-                                                                    <tr><td>Manifest</td><td>Bundle-Version</td><td>1.7.21</td></tr>
+                                                                    <tr><td>Manifest</td><td>Bundle-Version</td><td>1.7.22</td></tr>
                                                                     <tr><td>Manifest</td><td>Implementation-Title</td><td>slf4j-api</td></tr>
-                                                                    <tr><td>Manifest</td><td>Implementation-Version</td><td>1.7.21</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Version</td><td>1.7.22</td></tr>
                                                                     <tr><td>pom</td><td>artifactid</td><td>slf4j-api</td></tr>
                                                                     <tr><td>pom</td><td>description</td><td>The slf4j API</td></tr>
                                                                     <tr><td>pom</td><td>groupid</td><td>org.slf4j</td></tr>
@@ -828,14 +967,102 @@ ASL, version 2: http://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                                                     <tr><td>pom</td><td>parent-artifactid</td><td>slf4j-parent</td></tr>
                                                                     <tr><td>pom</td><td>parent-groupid</td><td>org.slf4j</td></tr>
                                                                     <tr><td>pom</td><td>url</td><td>http://www.slf4j.org</td></tr>
-                                                                    <tr><td>pom</td><td>version</td><td>1.7.21</td></tr>
+                                                                    <tr><td>pom</td><td>version</td><td>1.7.22</td></tr>
                                                             </table>
                         </div>
-                                                                                                                            <h4 id="header9" class="subsectionheader white">Identifiers</h4>
-                                                <div id="content9" class="subsectioncontent standardsubsection">
+                                                                                                                            <h4 id="header14" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content14" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                                                    <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%22139535a69a4239db087de9bab0bee568bf8e0b70%22" target="_blank">org.slf4j:slf4j-api:1.7.21</a>
+                                                                                                                                                                                                                                                                                        <li><b>maven:</b>&nbsp;<a href="http://search.maven.org/#search|ga|1|1%3A%22a1c83373863cec7ae8d89dc1c5722d8cb6ec0309%22" target="_blank">org.slf4j:slf4j-api:1.7.22</a>
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGHEST
+                                                                                                                                </li>
+                                                        </ul>
+                                                </div>
+                                    </div>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l8_c1f29c78d41f5ceda661487aa1b135ee19ecbe2d"></a>oshi-core-3.3.jar</h3>
+                    <div class="subsectioncontent notvulnerable">
+                                                <p>
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/git/oshi/target/checkout/oshi-core/target/oshi-core-3.3.jar<br/>
+                            <b>MD5:</b>&nbsp;98e61cebab8c6e8137caa2e510cf70ef<br/>
+                            <b>SHA1:</b>&nbsp;c1f29c78d41f5ceda661487aa1b135ee19ecbe2d
+                                                            <br/><b>Referenced In Project/Scope:</b>
+                                                                    oshi-dist:compile
+                                                                                                                </p>
+                                                <h4 id="header15" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content15" class="subsectioncontent standardsubsection hidden">
+                            <table class="lined fullwidth" border="0">
+                                <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
+                                                                    <tr><td>file</td><td>name</td><td>oshi-core</td></tr>
+                                                                    <tr><td>file</td><td>version</td><td>3.3</td></tr>
+                                                                    <tr><td>Manifest</td><td>build-time</td><td>2016-12-31 19:13:29</td></tr>
+                                                                    <tr><td>Manifest</td><td>copyright</td><td>2016</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Title</td><td>oshi-core</td></tr>
+                                                                    <tr><td>Manifest</td><td>implementation-url</td><td>https://github.com/oshi/oshi/oshi-core</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Vendor</td><td>oshi</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Vendor-Id</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Version</td><td>3.3</td></tr>
+                                                                    <tr><td>Manifest</td><td>os-name</td><td>Mac OS X</td></tr>
+                                                                    <tr><td>Manifest</td><td>os-version</td><td>10.12.2</td></tr>
+                                                                    <tr><td>Manifest</td><td>specification-title</td><td>oshi-core</td></tr>
+                                                                    <tr><td>Manifest</td><td>specification-vendor</td><td>oshi</td></tr>
+                                                                    <tr><td>pom</td><td>artifactid</td><td>oshi-core</td></tr>
+                                                                    <tr><td>pom</td><td>groupid</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>groupid</td><td>github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>name</td><td>oshi-core</td></tr>
+                                                                    <tr><td>pom</td><td>parent-artifactid</td><td>oshi-parent</td></tr>
+                                                                    <tr><td>pom</td><td>parent-groupid</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>version</td><td>3.3</td></tr>
+                                                            </table>
+                        </div>
+                                                                                                                            <h4 id="header16" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content16" class="subsectioncontent standardsubsection">
+                                                     <ul>
+                                                                                                                                                                                                                                                    <li><b>maven:</b>&nbsp;com.github.dblock:oshi-core:3.3
+                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:HIGH
+                                                                                                                                </li>
+                                                        </ul>
+                                                </div>
+                                    </div>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l9_7aa48a650ff09fecfcba9807bd9e7fa20c09e36c"></a>oshi-json-3.3.jar</h3>
+                    <div class="subsectioncontent notvulnerable">
+                                                <p>
+                                                    <b>File&nbsp;Path:</b>&nbsp;/Users/danielwiddis/git/oshi/target/checkout/oshi-json/target/oshi-json-3.3.jar<br/>
+                            <b>MD5:</b>&nbsp;447648476bbb58c3a7ea0fdfe331d85a<br/>
+                            <b>SHA1:</b>&nbsp;7aa48a650ff09fecfcba9807bd9e7fa20c09e36c
+                                                            <br/><b>Referenced In Project/Scope:</b>
+                                                                    oshi-dist:compile
+                                                                                                                </p>
+                                                <h4 id="header17" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content17" class="subsectioncontent standardsubsection hidden">
+                            <table class="lined fullwidth" border="0">
+                                <tr><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:70%;">Value</th></tr>
+                                                                    <tr><td>file</td><td>name</td><td>oshi-json</td></tr>
+                                                                    <tr><td>file</td><td>version</td><td>3.3</td></tr>
+                                                                    <tr><td>Manifest</td><td>build-time</td><td>2016-12-31 19:13:29</td></tr>
+                                                                    <tr><td>Manifest</td><td>copyright</td><td>2016</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Title</td><td>oshi-json</td></tr>
+                                                                    <tr><td>Manifest</td><td>implementation-url</td><td>https://github.com/oshi/oshi/oshi-json</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Vendor</td><td>oshi</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Vendor-Id</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>Manifest</td><td>Implementation-Version</td><td>3.3</td></tr>
+                                                                    <tr><td>Manifest</td><td>os-name</td><td>Mac OS X</td></tr>
+                                                                    <tr><td>Manifest</td><td>os-version</td><td>10.12.2</td></tr>
+                                                                    <tr><td>Manifest</td><td>specification-title</td><td>oshi-json</td></tr>
+                                                                    <tr><td>Manifest</td><td>specification-vendor</td><td>oshi</td></tr>
+                                                                    <tr><td>pom</td><td>artifactid</td><td>oshi-json</td></tr>
+                                                                    <tr><td>pom</td><td>groupid</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>groupid</td><td>github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>name</td><td>oshi-json</td></tr>
+                                                                    <tr><td>pom</td><td>parent-artifactid</td><td>oshi-parent</td></tr>
+                                                                    <tr><td>pom</td><td>parent-groupid</td><td>com.github.dblock</td></tr>
+                                                                    <tr><td>pom</td><td>version</td><td>3.3</td></tr>
+                                                            </table>
+                        </div>
+                                                                                                                            <h4 id="header18" class="subsectionheader white">Identifiers</h4>
+                                                <div id="content18" class="subsectioncontent standardsubsection">
+                                                     <ul>
+                                                                                                                                                                                                                                                    <li><b>maven:</b>&nbsp;com.github.dblock:oshi-json:3.3
+                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:HIGH
                                                                                                                                 </li>
                                                         </ul>
                                                 </div>

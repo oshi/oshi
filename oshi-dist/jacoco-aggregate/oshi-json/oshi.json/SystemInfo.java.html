@@ -40,7 +40,7 @@ import oshi.json.util.PropertiesUtil;
  * provides getters which instantiate the appropriate platform-specific
  * implementations of {@link OperatingSystem} (software) and
  * {@link HardwareAbstractionLayer} (hardware).
- * 
+ *
  * @author dblock[at]dblock[dot]org
  */
 public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject {
@@ -49,50 +49,50 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
 
     private oshi.SystemInfo si;
 
-<span class="nc" id="L52">    private OperatingSystem os = null;</span>
+<span class="fc" id="L52">    private OperatingSystem os = null;</span>
 
-<span class="nc" id="L54">    private HardwareAbstractionLayer hardware = null;</span>
+<span class="fc" id="L54">    private HardwareAbstractionLayer hardware = null;</span>
 
-<span class="nc" id="L56">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L56">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     /**
      * Primary entry point for OSHI API.
      */
-<span class="nc" id="L61">    public SystemInfo() {</span>
-<span class="nc" id="L62">        this.si = new oshi.SystemInfo();</span>
-<span class="nc" id="L63">    }</span>
+<span class="fc" id="L61">    public SystemInfo() {</span>
+<span class="fc" id="L62">        this.si = new oshi.SystemInfo();</span>
+<span class="fc" id="L63">    }</span>
 
     /**
      * @return Returns the currentPlatformEnum.
      */
     public static PlatformEnum getCurrentPlatformEnum() {
-<span class="nc" id="L69">        return oshi.SystemInfo.getCurrentPlatformEnum();</span>
+<span class="fc" id="L69">        return oshi.SystemInfo.getCurrentPlatformEnum();</span>
     }
 
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link OperatingSystem}.
-     * 
+     *
      * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.os == null) {</span>
-<span class="nc" id="L80">            this.os = new OperatingSystemImpl(si.getOperatingSystem());</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (this.os == null) {</span>
+<span class="fc" id="L80">            this.os = new OperatingSystemImpl(this.si.getOperatingSystem());</span>
         }
-<span class="nc" id="L82">        return this.os;</span>
+<span class="fc" id="L82">        return this.os;</span>
     }
 
     /**
      * Creates a new instance of the appropriate platform-specific
      * {@link HardwareAbstractionLayer}.
-     * 
+     *
      * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (this.hardware == null) {</span>
-<span class="nc" id="L93">            this.hardware = new HardwareAbstractionLayerImpl(si.getHardware());</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (this.hardware == null) {</span>
+<span class="fc" id="L93">            this.hardware = new HardwareAbstractionLayerImpl(this.si.getHardware());</span>
         }
-<span class="nc" id="L95">        return this.hardware;</span>
+<span class="fc" id="L95">        return this.hardware;</span>
     }
 
     /**
@@ -100,17 +100,17 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L103">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;platform&quot;)) {</span>
-<span class="nc" id="L105">            json.add(&quot;platform&quot;, getCurrentPlatformEnum().toString());</span>
+<span class="fc" id="L103">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;platform&quot;)) {</span>
+<span class="fc" id="L105">            json.add(&quot;platform&quot;, getCurrentPlatformEnum().toString());</span>
         }
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem&quot;)) {</span>
-<span class="nc" id="L108">            json.add(&quot;operatingSystem&quot;, getOperatingSystem().toJSON(properties));</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem&quot;)) {</span>
+<span class="fc" id="L108">            json.add(&quot;operatingSystem&quot;, getOperatingSystem().toJSON(properties));</span>
         }
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware&quot;)) {</span>
-<span class="nc" id="L111">            json.add(&quot;hardware&quot;, getHardware().toJSON(properties));</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware&quot;)) {</span>
+<span class="fc" id="L111">            json.add(&quot;hardware&quot;, getHardware().toJSON(properties));</span>
         }
-<span class="nc" id="L113">        return json.build();</span>
+<span class="fc" id="L113">        return json.build();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

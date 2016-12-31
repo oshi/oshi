@@ -20,11 +20,11 @@ package oshi.hardware.platform.mac;
 
 import java.util.Arrays;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
-public class MacSensors extends AbstractSensors {
+public class MacSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -68,7 +68,7 @@ public class MacSensors extends AbstractSensors {
 <span class="nc" id="L68">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
 <span class="nc bnc" id="L69" title="All 2 branches missed.">            if (temp &gt; 0d) {</span>
 <span class="nc" id="L70">                this.lastTemp = temp;</span>
-<span class="nc" id="L71">                lastTempTime = System.currentTimeMillis();</span>
+<span class="nc" id="L71">                this.lastTempTime = System.currentTimeMillis();</span>
             }
         }
 <span class="nc" id="L74">        return this.lastTemp;</span>
@@ -90,12 +90,12 @@ public class MacSensors extends AbstractSensors {
 <span class="nc" id="L90">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">                if (speed &gt; 0) {</span>
 <span class="nc" id="L92">                    this.lastFanSpeeds[i] = speed;</span>
-<span class="nc" id="L93">                    lastFanSpeedsTime = System.currentTimeMillis();</span>
+<span class="nc" id="L93">                    this.lastFanSpeedsTime = System.currentTimeMillis();</span>
                 }
             }
         }
         // Make a copy to return
-<span class="nc" id="L98">        return Arrays.copyOf(lastFanSpeeds, lastFanSpeeds.length);</span>
+<span class="nc" id="L98">        return Arrays.copyOf(this.lastFanSpeeds, this.lastFanSpeeds.length);</span>
     }
 
     /**
@@ -108,10 +108,10 @@ public class MacSensors extends AbstractSensors {
 <span class="nc" id="L108">            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
 <span class="nc bnc" id="L109" title="All 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
 <span class="nc" id="L110">                this.lastVolts = kiloVolts / 1000d;</span>
-<span class="nc" id="L111">                lastVoltsTime = System.currentTimeMillis();</span>
+<span class="nc" id="L111">                this.lastVoltsTime = System.currentTimeMillis();</span>
             }
         }
 <span class="nc" id="L114">        return this.lastVolts;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

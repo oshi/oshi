@@ -33,21 +33,24 @@ import oshi.util.ParseUtil;
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
-     * 
+     *
      * @param netIF
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
 <span class="nc" id="L41">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + netIF.getName(), 1);</span>
-<span class="nc" id="L42">        String[] split = stats.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
+<span class="nc" id="L42">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L43">        String[] split = stats.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
             // No update
-<span class="nc" id="L45">            return;</span>
+<span class="nc" id="L46">            return;</span>
         }
-<span class="nc" id="L47">        netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[10], 0L));</span>
-<span class="nc" id="L48">        netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));</span>
-<span class="nc" id="L49">        netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));</span>
-<span class="nc" id="L50">        netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L48">        netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[10], 0L));</span>
+<span class="nc" id="L49">        netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));</span>
+<span class="nc" id="L50">        netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));</span>
+<span class="nc" id="L51">        netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));</span>
+<span class="nc" id="L52">        netIF.setOutErrors(ParseUtil.parseLongOrDefault(split[9], 0L));</span>
+<span class="nc" id="L53">        netIF.setInErrors(ParseUtil.parseLongOrDefault(split[5], 0L));</span>
+<span class="nc" id="L54">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

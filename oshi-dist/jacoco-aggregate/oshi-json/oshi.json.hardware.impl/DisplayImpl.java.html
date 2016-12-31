@@ -45,7 +45,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
     /**
      * Creates a new platform-specific Display object wrapping the provided
      * argument
-     * 
+     *
      * @param display
      *            a platform-specific Display object
      */
@@ -66,7 +66,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L69">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
+<span class="nc" id="L69">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L70" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.displays.edid&quot;)) {</span>
 <span class="nc" id="L71">            json.add(&quot;edid&quot;, EdidUtil.toHexString(getEdid()));</span>
         }
@@ -78,4 +78,4 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
 <span class="nc" id="L78">        return this.display.toString();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

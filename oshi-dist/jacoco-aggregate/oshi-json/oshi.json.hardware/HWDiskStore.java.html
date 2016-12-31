@@ -40,17 +40,17 @@ import oshi.json.util.PropertiesUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-public class HWDiskStore extends AbstractOshiJsonObject {
+public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt;HWDiskStore&gt; {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L47">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L47">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.HWDiskStore hwDiskStore;
 
     /**
      * Create an object with all values
-     * 
+     *
      * @param name
      *            Name of the disk (e.g., /dev/disk1)
      * @param model
@@ -71,95 +71,111 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            milliseconds spent reading or writing to the disk
      * @param partitions
      *            Partitions on this disk
+     * @param timeStamp
+     *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-<span class="nc" id="L76">            long writeBytes, long transferTime, HWPartition[] partitions) {</span>
-<span class="nc" id="L77">        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
-<span class="nc" id="L79">            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),</span>
-<span class="nc" id="L80">                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),</span>
-<span class="nc" id="L81">                    partitions[i].getMinor(), partitions[i].getMountPoint());</span>
+<span class="fc" id="L78">            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {</span>
+<span class="fc" id="L79">        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
+<span class="fc" id="L81">            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),</span>
+<span class="fc" id="L82">                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),</span>
+<span class="fc" id="L83">                    partitions[i].getMinor(), partitions[i].getMountPoint());</span>
         }
-<span class="nc" id="L83">        this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,</span>
-                writeBytes, transferTime, parts);
-<span class="nc" id="L85">    }</span>
+<span class="fc" id="L85">        this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,</span>
+                writeBytes, transferTime, parts, timeStamp);
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Create a new HWDiskStore with default/empty values
+     */
+    public HWDiskStore() {
+<span class="fc" id="L93">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);</span>
+<span class="fc" id="L94">    }</span>
 
     /**
      * @return the name
      */
     public String getName() {
-<span class="nc" id="L91">        return this.hwDiskStore.getName();</span>
+<span class="fc" id="L100">        return this.hwDiskStore.getName();</span>
     }
 
     /**
      * @return the model
      */
     public String getModel() {
-<span class="nc" id="L98">        return this.hwDiskStore.getModel();</span>
+<span class="fc" id="L107">        return this.hwDiskStore.getModel();</span>
     }
 
     /**
      * @return the serial
      */
     public String getSerial() {
-<span class="nc" id="L105">        return this.hwDiskStore.getSerial();</span>
+<span class="fc" id="L114">        return this.hwDiskStore.getSerial();</span>
     }
 
     /**
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-<span class="nc" id="L112">        return this.hwDiskStore.getSize();</span>
+<span class="fc" id="L121">        return this.hwDiskStore.getSize();</span>
     }
 
     /**
      * @return the reads
      */
     public long getReads() {
-<span class="nc" id="L119">        return this.hwDiskStore.getReads();</span>
+<span class="fc" id="L128">        return this.hwDiskStore.getReads();</span>
     }
 
     /**
      * @return the bytes read
      */
     public long getReadBytes() {
-<span class="nc" id="L126">        return this.hwDiskStore.getReadBytes();</span>
+<span class="fc" id="L135">        return this.hwDiskStore.getReadBytes();</span>
     }
 
     /**
      * @return the writes
      */
     public long getWrites() {
-<span class="nc" id="L133">        return this.hwDiskStore.getWrites();</span>
+<span class="fc" id="L142">        return this.hwDiskStore.getWrites();</span>
     }
 
     /**
      * @return the bytes written
      */
     public long getWriteBytes() {
-<span class="nc" id="L140">        return this.hwDiskStore.getWriteBytes();</span>
+<span class="fc" id="L149">        return this.hwDiskStore.getWriteBytes();</span>
     }
 
     /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-<span class="nc" id="L147">        return this.hwDiskStore.getTransferTime();</span>
+<span class="fc" id="L156">        return this.hwDiskStore.getTransferTime();</span>
     }
 
     /**
      * @return the partitions of this disk
      */
     public HWPartition[] getPartitions() {
-<span class="nc" id="L154">        HWPartition[] partitions = new HWPartition[this.hwDiskStore.getPartitions().length];</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
-<span class="nc" id="L156">            partitions[i] = new HWPartition(this.hwDiskStore.getPartitions()[i].getIdentification(),</span>
-<span class="nc" id="L157">                    this.hwDiskStore.getPartitions()[i].getName(), this.hwDiskStore.getPartitions()[i].getType(),</span>
-<span class="nc" id="L158">                    this.hwDiskStore.getPartitions()[i].getUuid(), this.hwDiskStore.getPartitions()[i].getSize(),</span>
-<span class="nc" id="L159">                    this.hwDiskStore.getPartitions()[i].getMajor(), this.hwDiskStore.getPartitions()[i].getMinor(),</span>
-<span class="nc" id="L160">                    this.hwDiskStore.getPartitions()[i].getMountPoint());</span>
+<span class="fc" id="L163">        HWPartition[] partitions = new HWPartition[this.hwDiskStore.getPartitions().length];</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
+<span class="fc" id="L165">            partitions[i] = new HWPartition(this.hwDiskStore.getPartitions()[i].getIdentification(),</span>
+<span class="fc" id="L166">                    this.hwDiskStore.getPartitions()[i].getName(), this.hwDiskStore.getPartitions()[i].getType(),</span>
+<span class="fc" id="L167">                    this.hwDiskStore.getPartitions()[i].getUuid(), this.hwDiskStore.getPartitions()[i].getSize(),</span>
+<span class="fc" id="L168">                    this.hwDiskStore.getPartitions()[i].getMajor(), this.hwDiskStore.getPartitions()[i].getMinor(),</span>
+<span class="fc" id="L169">                    this.hwDiskStore.getPartitions()[i].getMountPoint());</span>
         }
-<span class="nc" id="L162">        return partitions;</span>
+<span class="fc" id="L171">        return partitions;</span>
+    }
+
+    /**
+     * @return Returns the timeStamp.
+     */
+    public long getTimeStamp() {
+<span class="fc" id="L178">        return this.hwDiskStore.getTimeStamp();</span>
     }
 
     /**
@@ -167,129 +183,184 @@ public class HWDiskStore extends AbstractOshiJsonObject {
      *            the name to set
      */
     public void setName(String name) {
-<span class="nc" id="L170">        this.hwDiskStore.setName(name);</span>
-<span class="nc" id="L171">    }</span>
+<span class="fc" id="L186">        this.hwDiskStore.setName(name);</span>
+<span class="fc" id="L187">    }</span>
 
     /**
      * @param model
      *            the model to set
      */
     public void setModel(String model) {
-<span class="nc" id="L178">        this.hwDiskStore.setModel(model);</span>
-<span class="nc" id="L179">    }</span>
+<span class="fc" id="L194">        this.hwDiskStore.setModel(model);</span>
+<span class="fc" id="L195">    }</span>
 
     /**
      * @param serial
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="nc" id="L186">        this.hwDiskStore.setSerial(serial);</span>
-<span class="nc" id="L187">    }</span>
+<span class="fc" id="L202">        this.hwDiskStore.setSerial(serial);</span>
+<span class="fc" id="L203">    }</span>
 
     /**
      * @param size
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-<span class="nc" id="L194">        this.hwDiskStore.setSize(size);</span>
-<span class="nc" id="L195">    }</span>
+<span class="fc" id="L210">        this.hwDiskStore.setSize(size);</span>
+<span class="fc" id="L211">    }</span>
 
     /**
      * @param reads
      *            the reads to set
      */
     public void setReads(long reads) {
-<span class="nc" id="L202">        this.hwDiskStore.setReads(reads);</span>
-<span class="nc" id="L203">    }</span>
+<span class="fc" id="L218">        this.hwDiskStore.setReads(reads);</span>
+<span class="fc" id="L219">    }</span>
 
     /**
      * @param readBytes
      *            the bytes read to set
      */
     public void setReadBytes(long readBytes) {
-<span class="nc" id="L210">        this.hwDiskStore.setReadBytes(readBytes);</span>
-<span class="nc" id="L211">    }</span>
+<span class="fc" id="L226">        this.hwDiskStore.setReadBytes(readBytes);</span>
+<span class="fc" id="L227">    }</span>
 
     /**
      * @param writes
      *            the writes to set
      */
     public void setWrites(long writes) {
-<span class="nc" id="L218">        this.hwDiskStore.setWrites(writes);</span>
-<span class="nc" id="L219">    }</span>
+<span class="fc" id="L234">        this.hwDiskStore.setWrites(writes);</span>
+<span class="fc" id="L235">    }</span>
 
     /**
      * @param writeBytes
      *            the bytes written to set
      */
     public void setWriteBytes(long writeBytes) {
-<span class="nc" id="L226">        this.hwDiskStore.setWriteBytes(writeBytes);</span>
-<span class="nc" id="L227">    }</span>
+<span class="fc" id="L242">        this.hwDiskStore.setWriteBytes(writeBytes);</span>
+<span class="fc" id="L243">    }</span>
 
     /**
      * @param transferTime
      *            milliseconds spent reading or writing to set
      */
     public void setTransferTime(long transferTime) {
-<span class="nc" id="L234">        this.hwDiskStore.setTransferTime(transferTime);</span>
-<span class="nc" id="L235">    }</span>
+<span class="fc" id="L250">        this.hwDiskStore.setTransferTime(transferTime);</span>
+<span class="fc" id="L251">    }</span>
 
     /**
      * @param partitions
      *            Partitions of this disk
      */
     public void setPartitions(HWPartition[] partitions) {
-<span class="nc" id="L242">        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];</span>
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
-<span class="nc" id="L244">            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),</span>
-<span class="nc" id="L245">                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),</span>
-<span class="nc" id="L246">                    partitions[i].getMinor(), partitions[i].getMountPoint());</span>
+<span class="fc" id="L258">        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
+<span class="fc" id="L260">            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),</span>
+<span class="fc" id="L261">                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),</span>
+<span class="fc" id="L262">                    partitions[i].getMinor(), partitions[i].getMountPoint());</span>
         }
-<span class="nc" id="L248">        this.hwDiskStore.setPartitions(parts);</span>
-<span class="nc" id="L249">    }</span>
+<span class="fc" id="L264">        this.hwDiskStore.setPartitions(parts);</span>
+<span class="fc" id="L265">    }</span>
+
+    /**
+     * @param timeStamp
+     *            The timeStamp to set.
+     */
+    public void setTimeStamp(long timeStamp) {
+<span class="fc" id="L272">        this.hwDiskStore.setTimeStamp(timeStamp);</span>
+<span class="fc" id="L273">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L256">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.name&quot;)) {</span>
-<span class="nc" id="L258">            json.add(&quot;name&quot;, this.hwDiskStore.getName());</span>
+<span class="fc" id="L280">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.name&quot;)) {</span>
+<span class="fc" id="L282">            json.add(&quot;name&quot;, this.hwDiskStore.getName());</span>
         }
-<span class="nc bnc" id="L260" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.model&quot;)) {</span>
-<span class="nc" id="L261">            json.add(&quot;model&quot;, this.hwDiskStore.getModel());</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.model&quot;)) {</span>
+<span class="fc" id="L285">            json.add(&quot;model&quot;, this.hwDiskStore.getModel());</span>
         }
-<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.serial&quot;)) {</span>
-<span class="nc" id="L264">            json.add(&quot;serial&quot;, this.hwDiskStore.getSerial());</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.serial&quot;)) {</span>
+<span class="fc" id="L288">            json.add(&quot;serial&quot;, this.hwDiskStore.getSerial());</span>
         }
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.size&quot;)) {</span>
-<span class="nc" id="L267">            json.add(&quot;size&quot;, this.hwDiskStore.getSize());</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.size&quot;)) {</span>
+<span class="fc" id="L291">            json.add(&quot;size&quot;, this.hwDiskStore.getSize());</span>
         }
-<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.reads&quot;)) {</span>
-<span class="nc" id="L270">            json.add(&quot;reads&quot;, this.hwDiskStore.getReads());</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.reads&quot;)) {</span>
+<span class="fc" id="L294">            json.add(&quot;reads&quot;, this.hwDiskStore.getReads());</span>
         }
-<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.readBytes&quot;)) {</span>
-<span class="nc" id="L273">            json.add(&quot;readBytes&quot;, this.hwDiskStore.getReadBytes());</span>
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.readBytes&quot;)) {</span>
+<span class="fc" id="L297">            json.add(&quot;readBytes&quot;, this.hwDiskStore.getReadBytes());</span>
         }
-<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writes&quot;)) {</span>
-<span class="nc" id="L276">            json.add(&quot;writes&quot;, this.hwDiskStore.getWrites());</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writes&quot;)) {</span>
+<span class="fc" id="L300">            json.add(&quot;writes&quot;, this.hwDiskStore.getWrites());</span>
         }
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writeBytes&quot;)) {</span>
-<span class="nc" id="L279">            json.add(&quot;writeBytes&quot;, this.hwDiskStore.getWriteBytes());</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writeBytes&quot;)) {</span>
+<span class="fc" id="L303">            json.add(&quot;writeBytes&quot;, this.hwDiskStore.getWriteBytes());</span>
         }
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writeBytes&quot;)) {</span>
-<span class="nc" id="L282">            json.add(&quot;transferTime&quot;, this.hwDiskStore.getTransferTime());</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writeBytes&quot;)) {</span>
+<span class="fc" id="L306">            json.add(&quot;transferTime&quot;, this.hwDiskStore.getTransferTime());</span>
         }
-<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions&quot;)) {</span>
-<span class="nc" id="L285">            JsonArrayBuilder partitionArrayBuilder = jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L286" title="All 2 branches missed.">            for (HWPartition partition : getPartitions()) {</span>
-<span class="nc" id="L287">                partitionArrayBuilder.add(partition.toJSON(properties));</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions&quot;)) {</span>
+<span class="fc" id="L309">            JsonArrayBuilder partitionArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">            for (HWPartition partition : getPartitions()) {</span>
+<span class="fc" id="L311">                partitionArrayBuilder.add(partition.toJSON(properties));</span>
             }
-<span class="nc" id="L289">            json.add(&quot;partitions&quot;, partitionArrayBuilder.build());</span>
+<span class="fc" id="L313">            json.add(&quot;partitions&quot;, partitionArrayBuilder.build());</span>
         }
-<span class="nc" id="L291">        return json.build();</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.timeStamp&quot;)) {</span>
+<span class="fc" id="L316">            json.add(&quot;timeStamp&quot;, this.hwDiskStore.getTimeStamp());</span>
+        }
+<span class="fc" id="L318">        return json.build();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(HWDiskStore store) {
+<span class="fc" id="L326">        return this.hwDiskStore.compareTo(store.hwDiskStore);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L334">        final int prime = 31;</span>
+<span class="fc" id="L335">        int result = 1;</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">        result = prime * result + (this.hwDiskStore == null ? 0 : this.hwDiskStore.hashCode());</span>
+<span class="fc" id="L337">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L345" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L346">            return true;</span>
+        }
+<span class="fc bfc" id="L348" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc" id="L349">            return false;</span>
+        }
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        if (!(obj instanceof HWDiskStore)) {</span>
+<span class="fc" id="L352">            return false;</span>
+        }
+<span class="fc" id="L354">        HWDiskStore other = (HWDiskStore) obj;</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">        if (this.hwDiskStore == null) {</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">            if (other.hwDiskStore != null) {</span>
+<span class="nc" id="L357">                return false;</span>
+            }
+<span class="fc bfc" id="L359" title="All 2 branches covered.">        } else if (!this.hwDiskStore.equals(other.hwDiskStore)) {</span>
+<span class="fc" id="L360">            return false;</span>
+        }
+<span class="fc" id="L362">        return true;</span>
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

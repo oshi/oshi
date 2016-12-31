@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -38,7 +38,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L41">public class FreeBsdFileSystem extends AbstractFileSystem {</span>
+<span class="nc" id="L41">public class FreeBsdFileSystem implements FileSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -63,7 +63,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
     /**
      * Checks if file path equals or starts with an element in the given list
-     * 
+     *
      * @param aList
      *            A list of path prefixes
      * @param charSeq
@@ -92,80 +92,78 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
         // Find any partition UUIDs and map them
 <span class="nc" id="L93">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
         // Now grab dmssg output
-<span class="nc" id="L95">        List&lt;String&gt; geom = ExecutingCommand.runNative(&quot;geom part list&quot;);</span>
-<span class="nc" id="L96">        String device = &quot;&quot;;</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String line : geom) {</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (line.contains(&quot;Name: &quot;)) {</span>
-<span class="nc" id="L99">                device = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc" id="L95">        String device = &quot;&quot;;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;geom part list&quot;)) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (line.contains(&quot;Name: &quot;)) {</span>
+<span class="nc" id="L98">                device = line.substring(line.lastIndexOf(' ') + 1);</span>
             }
             // If we aren't working with a current partition, continue
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (device.isEmpty()) {</span>
-<span class="nc" id="L103">                continue;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (device.isEmpty()) {</span>
+<span class="nc" id="L102">                continue;</span>
             }
-<span class="nc" id="L105">            line = line.trim();</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
-<span class="nc" id="L107">                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));</span>
-<span class="nc" id="L108">                device = &quot;&quot;;</span>
+<span class="nc" id="L104">            line = line.trim();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
+<span class="nc" id="L106">                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));</span>
+<span class="nc" id="L107">                device = &quot;&quot;;</span>
             }
-<span class="nc" id="L110">        }</span>
+<span class="nc" id="L109">        }</span>
 
-<span class="nc" id="L112">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L111">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 
         // Get mount table
-<span class="nc" id="L115">        ArrayList&lt;String&gt; mntTab = ExecutingCommand.runNative(&quot;mount -p&quot;);</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (String fs : mntTab) {</span>
-<span class="nc" id="L117">            String[] split = fs.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
-<span class="nc" id="L119">                continue;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        for (String fs : ExecutingCommand.runNative(&quot;mount -p&quot;)) {</span>
+<span class="nc" id="L115">            String[] split = fs.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
+<span class="nc" id="L117">                continue;</span>
             }
             // 1st field is volume name
             // 2nd field is mount point
             // 3rd field is fs type
             // other fields ignored
-<span class="nc" id="L125">            String volume = split[0];</span>
-<span class="nc" id="L126">            String path = split[1];</span>
-<span class="nc" id="L127">            String type = split[2];</span>
+<span class="nc" id="L123">            String volume = split[0];</span>
+<span class="nc" id="L124">            String path = split[1];</span>
+<span class="nc" id="L125">            String type = split[2];</span>
 
             // Exclude pseudo file systems
-<span class="nc bnc" id="L130" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
-<span class="nc bnc" id="L131" title="All 4 branches missed.">                    || (volume.startsWith(&quot;rpool&quot;) &amp;&amp; (!path.equals(&quot;/&quot;)))) {</span>
-<span class="nc" id="L132">                continue;</span>
+<span class="nc bnc" id="L128" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">                    || volume.startsWith(&quot;rpool&quot;) &amp;&amp; !path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L130">                continue;</span>
             }
 
-<span class="nc" id="L135">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L133">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
             // Special case for /, pull last element of volume instead
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
-<span class="nc" id="L138">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
+<span class="nc" id="L136">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
             }
-<span class="nc" id="L140">            long totalSpace = new File(path).getTotalSpace();</span>
-<span class="nc" id="L141">            long usableSpace = new File(path).getUsableSpace();</span>
+<span class="nc" id="L138">            long totalSpace = new File(path).getTotalSpace();</span>
+<span class="nc" id="L139">            long usableSpace = new File(path).getUsableSpace();</span>
 
             String description;
-<span class="nc bnc" id="L144" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L145">                description = &quot;Local Disk&quot;;</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
-<span class="nc" id="L147">                description = &quot;Ram Disk&quot;;</span>
-<span class="nc bnc" id="L148" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
-<span class="nc" id="L149">                description = &quot;Network Disk&quot;;</span>
+<span class="nc bnc" id="L142" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L143">                description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
+<span class="nc" id="L145">                description = &quot;Ram Disk&quot;;</span>
+<span class="nc bnc" id="L146" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
+<span class="nc" id="L147">                description = &quot;Network Disk&quot;;</span>
             } else {
-<span class="nc" id="L151">                description = &quot;Mount Point&quot;;</span>
+<span class="nc" id="L149">                description = &quot;Mount Point&quot;;</span>
             }
             // Match UUID
-<span class="nc" id="L154">            String uuid = uuidMap.getOrDefault(name, &quot;&quot;);</span>
-<span class="nc" id="L155">            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);</span>
-<span class="nc" id="L156">            fsList.add(osStore);</span>
-<span class="nc" id="L157">        }</span>
-<span class="nc" id="L158">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L152">            String uuid = uuidMap.getOrDefault(name, &quot;&quot;);</span>
+<span class="nc" id="L153">            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);</span>
+<span class="nc" id="L154">            fsList.add(osStore);</span>
+<span class="nc" id="L155">        }</span>
+<span class="nc" id="L156">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L163">        return BsdSysctlUtil.sysctl(&quot;kern.openfiles&quot;, 0);</span>
+<span class="nc" id="L161">        return BsdSysctlUtil.sysctl(&quot;kern.openfiles&quot;, 0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L168">        return BsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L166">        return BsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

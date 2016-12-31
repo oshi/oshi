@@ -20,19 +20,19 @@ under the License.
 <rss version="0.91">
   <channel>
     <title>oshi-dist - Checkstyle report</title>
-    <link>https://github.com/dblock/oshi/oshi-dist</link>
+    <link>https://github.com/oshi/oshi/oshi-dist</link>
     <description>oshi-dist - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2016 com.github.dblock</copyright>
+    <copyright>&#169;2010 - 2016 oshi</copyright>
     <item>
       <title>File: 0,
              Errors: 0,
              Warnings: 0,
              Infos: 0
       </title>
-            <link>https://github.com/dblock/oshi/oshi-dist/checkstyle.html</link>
+            <link>https://github.com/oshi/oshi/oshi-dist/checkstyle.html</link>
       <description>
-        <p>Click <a href="https://github.com/dblock/oshi/oshi-dist/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://github.com/oshi/oshi/oshi-dist/checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>

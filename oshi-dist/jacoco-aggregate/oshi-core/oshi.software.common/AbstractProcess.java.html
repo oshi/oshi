@@ -25,12 +25,12 @@ import oshi.software.os.OSProcess;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 <span class="nc" id="L31">public class AbstractProcess implements OSProcess {</span>
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected String name;
     protected String path;
@@ -45,99 +45,130 @@ import oshi.software.os.OSProcess;
     protected long userTime;
     protected long startTime;
     protected long upTime;
+    protected long bytesRead;
+    protected long bytesWritten;
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
-<span class="nc" id="L53">        return this.name;</span>
+<span class="nc" id="L56">        return this.name;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getPath() {
-<span class="nc" id="L60">        return this.path;</span>
+<span class="nc" id="L64">        return this.path;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public State getState() {
-<span class="nc" id="L67">        return this.state;</span>
+<span class="nc" id="L72">        return this.state;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getProcessID() {
-<span class="nc" id="L74">        return this.processID;</span>
+<span class="nc" id="L80">        return this.processID;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getParentProcessID() {
-<span class="nc" id="L81">        return this.parentProcessID;</span>
+<span class="nc" id="L88">        return this.parentProcessID;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getThreadCount() {
-<span class="nc" id="L88">        return this.threadCount;</span>
+<span class="nc" id="L96">        return this.threadCount;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPriority() {
-<span class="nc" id="L95">        return this.priority;</span>
+<span class="nc" id="L104">        return this.priority;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getVirtualSize() {
-<span class="nc" id="L102">        return this.virtualSize;</span>
+<span class="nc" id="L112">        return this.virtualSize;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getResidentSetSize() {
-<span class="nc" id="L109">        return this.residentSetSize;</span>
+<span class="nc" id="L120">        return this.residentSetSize;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getKernelTime() {
-<span class="nc" id="L116">        return this.kernelTime;</span>
+<span class="nc" id="L128">        return this.kernelTime;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getUserTime() {
-<span class="nc" id="L123">        return this.userTime;</span>
+<span class="nc" id="L136">        return this.userTime;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getUpTime() {
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
-<span class="nc" id="L131">            return this.kernelTime + this.userTime;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
+<span class="nc" id="L145">            return this.kernelTime + this.userTime;</span>
         }
-<span class="nc" id="L133">        return this.upTime;</span>
+<span class="nc" id="L147">        return this.upTime;</span>
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getStartTime() {
-<span class="nc" id="L140">        return this.startTime;</span>
+<span class="nc" id="L155">        return this.startTime;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesRead() {
+<span class="nc" id="L163">        return bytesRead;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesWritten() {
+<span class="nc" id="L171">        return bytesWritten;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

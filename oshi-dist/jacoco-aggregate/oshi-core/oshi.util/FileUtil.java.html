@@ -24,135 +24,162 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * File reading methods
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L37">public class FileUtil {</span>
-<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+public class FileUtil {
+<span class="fc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+
+<span class="nc" id="L42">    private FileUtil() {</span>
+<span class="nc" id="L43">    }</span>
 
     /**
      * Read an entire file at one time. Intended primarily for Linux /proc
      * filesystem to avoid recalculating file contents on iterative reads.
-     * 
+     *
      * @param filename
      *            The file to read
-     * 
+     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename) {
-<span class="nc" id="L51">        return readFile(filename, true);</span>
+<span class="fc" id="L56">        return readFile(filename, true);</span>
     }
 
     /**
      * Read an entire file at one time. Intended primarily for Linux /proc
      * filesystem to avoid recalculating file contents on iterative reads.
-     * 
+     *
      * @param filename
      *            The file to read
      * @param reportError
      *            Whether to log errors reading the file
-     * 
+     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename, boolean reportError) {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
-<span class="nc" id="L68">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (new File(filename).exists()) {</span>
+<span class="fc" id="L73">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
             try {
-<span class="nc" id="L70">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
-<span class="nc" id="L71">            } catch (IOException e) {</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (reportError) {</span>
-<span class="nc" id="L73">                    LOG.error(&quot;Error reading file {}&quot;, filename);</span>
+<span class="fc" id="L75">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L76">            } catch (IOException e) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                if (reportError) {</span>
+<span class="nc" id="L78">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e);</span>
                 }
-<span class="nc" id="L75">            }</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        } else if (reportError) {</span>
-<span class="nc" id="L77">            LOG.warn(&quot;File not found: {}&quot;, filename);</span>
+<span class="nc" id="L80">            }</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        } else if (reportError) {</span>
+<span class="fc" id="L82">            LOG.warn(&quot;File not found: {}&quot;, filename);</span>
         }
-<span class="nc" id="L79">        return new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L84">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
      * Read a file and return the long value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-<span class="nc" id="L91">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L92">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L94">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L95">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+<span class="fc" id="L96">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L97">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L99">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L100">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="nc" id="L97">        return 0L;</span>
+<span class="fc" id="L102">        return 0L;</span>
     }
 
     /**
      * Read a file and return the int value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-<span class="nc" id="L109">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L114">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         try {
-<span class="nc" id="L111">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
-<span class="nc" id="L113">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L114">                return Integer.parseInt(read.get(0));</span>
+<span class="fc" id="L116">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            if (!read.isEmpty()) {</span>
+<span class="fc" id="L118">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L119">                return Integer.parseInt(read.get(0));</span>
             }
-<span class="nc" id="L116">        } catch (NumberFormatException ex) {</span>
-<span class="nc" id="L117">            LOG.debug(&quot;Unable to read value from {}&quot;, filename);</span>
-<span class="nc" id="L118">        }</span>
-<span class="nc" id="L119">        return 0;</span>
+<span class="fc" id="L121">        } catch (NumberFormatException ex) {</span>
+<span class="fc" id="L122">            LOG.debug(&quot;Unable to read value from {}. {}&quot;, filename, ex);</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">        return 0;</span>
     }
 
     /**
      * Read a file and return the String value contained therein. Intended
      * primarily for Linux /sys filesystem
-     * 
+     *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
-<span class="nc" id="L131">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L132">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L134">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L135">            return read.get(0);</span>
+<span class="fc" id="L136">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L137">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L139">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L140">            return read.get(0);</span>
         }
-<span class="nc" id="L137">        return &quot;&quot;;</span>
+<span class="fc" id="L142">        return &quot;&quot;;</span>
     }
 
     /**
      * Read a file and return an array of whitespace-delimited string values
      * contained therein. Intended primarily for Linux /proc
-     * 
+     *
      * @param filename
      *            The file to read
      * @return An array of strings containing delimited values
      */
     public static String[] getSplitFromFile(String filename) {
-<span class="nc" id="L149">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="nc" id="L150">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc" id="L152">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="nc" id="L153">            return read.get(0).split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L154">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L155">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="fc" id="L157">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L158">            return read.get(0).split(&quot;\\s+&quot;);</span>
         }
-<span class="nc" id="L155">        return new String[0];</span>
+<span class="fc" id="L160">        return new String[0];</span>
+    }
+
+    /**
+     * Read a file and return a map of string keys to string values contained
+     * therein. Intended primarily for Linux /proc/[pid]/io
+     * @param filename
+     *            The file to read
+     * @return The map contained in the file, if any; otherwise empty map
+     */
+    public static Map&lt;String, String&gt; getKeyValueMapFromFile(
+            String filename,
+            String separator) {
+<span class="fc" id="L173">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L174">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L175">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L177">            String[] parts = line.split(separator);</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="fc" id="L179">                map.put(parts[0], parts[1].trim());</span>
+            }
+<span class="fc" id="L181">        }</span>
+<span class="fc" id="L182">        return map;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

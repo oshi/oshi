@@ -26,7 +26,7 @@ import oshi.software.os.OSProcess;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisProcess extends AbstractProcess {
@@ -34,42 +34,45 @@ public class SolarisProcess extends AbstractProcess {
     private static final long serialVersionUID = 1L;
 
     public SolarisProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
-<span class="nc" id="L37">            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long now) {</span>
-<span class="nc" id="L38">        this.name = name;</span>
-<span class="nc" id="L39">        this.path = path;</span>
-<span class="nc bnc" id="L40" title="All 6 branches missed.">        switch (state) {</span>
+            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long bytesRead,
+<span class="nc" id="L38">            long bytesWritten, long now) {</span>
+<span class="nc" id="L39">        this.name = name;</span>
+<span class="nc" id="L40">        this.path = path;</span>
+<span class="nc bnc" id="L41" title="All 6 branches missed.">        switch (state) {</span>
         case 'O':
-<span class="nc" id="L42">            this.state = OSProcess.State.RUNNING;</span>
-<span class="nc" id="L43">            break;</span>
+<span class="nc" id="L43">            this.state = OSProcess.State.RUNNING;</span>
+<span class="nc" id="L44">            break;</span>
         case 'S':
-<span class="nc" id="L45">            this.state = OSProcess.State.SLEEPING;</span>
-<span class="nc" id="L46">            break;</span>
+<span class="nc" id="L46">            this.state = OSProcess.State.SLEEPING;</span>
+<span class="nc" id="L47">            break;</span>
         case 'R':
         case 'W':
-<span class="nc" id="L49">            this.state = OSProcess.State.WAITING;</span>
-<span class="nc" id="L50">            break;</span>
+<span class="nc" id="L50">            this.state = OSProcess.State.WAITING;</span>
+<span class="nc" id="L51">            break;</span>
         case 'Z':
-<span class="nc" id="L52">            this.state = OSProcess.State.ZOMBIE;</span>
-<span class="nc" id="L53">            break;</span>
+<span class="nc" id="L53">            this.state = OSProcess.State.ZOMBIE;</span>
+<span class="nc" id="L54">            break;</span>
         case 'T':
-<span class="nc" id="L55">            this.state = OSProcess.State.STOPPED;</span>
-<span class="nc" id="L56">            break;</span>
+<span class="nc" id="L56">            this.state = OSProcess.State.STOPPED;</span>
+<span class="nc" id="L57">            break;</span>
         default:
-<span class="nc" id="L58">            this.state = OSProcess.State.OTHER;</span>
+<span class="nc" id="L59">            this.state = OSProcess.State.OTHER;</span>
             break;
         }
-<span class="nc" id="L61">        this.processID = processID;</span>
-<span class="nc" id="L62">        this.parentProcessID = parentProcessID;</span>
-<span class="nc" id="L63">        this.threadCount = threadCount;</span>
-<span class="nc" id="L64">        this.priority = priority;</span>
+<span class="nc" id="L62">        this.processID = processID;</span>
+<span class="nc" id="L63">        this.parentProcessID = parentProcessID;</span>
+<span class="nc" id="L64">        this.threadCount = threadCount;</span>
+<span class="nc" id="L65">        this.priority = priority;</span>
         // These are in KB, multiply
-<span class="nc" id="L66">        this.virtualSize = virtualSize * 1024L;</span>
-<span class="nc" id="L67">        this.residentSetSize = residentSetSize * 1024L;</span>
-<span class="nc" id="L68">        this.kernelTime = 0L; // No distinction in user/kernel</span>
-<span class="nc" id="L69">        this.userTime = processTime;</span>
+<span class="nc" id="L67">        this.virtualSize = virtualSize * 1024L;</span>
+<span class="nc" id="L68">        this.residentSetSize = residentSetSize * 1024L;</span>
+<span class="nc" id="L69">        this.kernelTime = 0L; // No distinction in user/kernel</span>
+<span class="nc" id="L70">        this.userTime = processTime;</span>
         // Avoid divide by zero for processes up less than a second
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
-<span class="nc" id="L72">        this.startTime = now - upTime;</span>
-<span class="nc" id="L73">    }</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
+<span class="nc" id="L73">        this.startTime = now - this.upTime;</span>
+<span class="nc" id="L74">        this.bytesRead = bytesRead;</span>
+<span class="nc" id="L75">        this.bytesWritten = bytesWritten;</span>
+<span class="nc" id="L76">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

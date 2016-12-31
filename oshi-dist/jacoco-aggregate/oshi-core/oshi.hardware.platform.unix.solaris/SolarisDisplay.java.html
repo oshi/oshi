@@ -31,7 +31,7 @@ import oshi.util.ParseUtil;
 
 /**
  * A Display
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisDisplay extends AbstractDisplay {
@@ -47,39 +47,37 @@ public class SolarisDisplay extends AbstractDisplay {
 
     /**
      * Gets Display Information
-     * 
+     *
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L54">        List&lt;Display&gt; displays = new ArrayList&lt;Display&gt;();</span>
-<span class="nc" id="L55">        ArrayList&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
+<span class="nc" id="L54">        List&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);</span>
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (!xrandr.isEmpty()) {</span>
-<span class="nc" id="L59">            boolean foundEdid = false;</span>
-<span class="nc" id="L60">            StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">            for (String s : xrandr) {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (s.contains(&quot;EDID&quot;)) {</span>
-<span class="nc" id="L63">                    foundEdid = true;</span>
-<span class="nc" id="L64">                    sb = new StringBuilder();</span>
-<span class="nc" id="L65">                    continue;</span>
-                }
-<span class="nc bnc" id="L67" title="All 2 branches missed.">                if (foundEdid) {</span>
-<span class="nc" id="L68">                    sb.append(s.trim());</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">                    if (sb.length() &gt;= 256) {</span>
-<span class="nc" id="L70">                        String edidStr = sb.toString();</span>
-<span class="nc" id="L71">                        LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
-<span class="nc" id="L72">                        byte[] edid = ParseUtil.hexStringToByteArray(edidStr);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                        if (edid != null) {</span>
-<span class="nc" id="L74">                            displays.add(new SolarisDisplay(edid));</span>
-                        }
-<span class="nc" id="L76">                        foundEdid = false;</span>
-                    }
-                }
-<span class="nc" id="L79">            }</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (xrandr.isEmpty()) {</span>
+<span class="nc" id="L58">            return new Display[0];</span>
         }
+<span class="nc" id="L60">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L61">        StringBuilder sb = null;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (String s : xrandr) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (s.contains(&quot;EDID&quot;)) {</span>
+<span class="nc" id="L64">                sb = new StringBuilder();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            } else if (sb != null) {</span>
+<span class="nc" id="L66">                sb.append(s.trim());</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                if (sb.length() &lt; 256) {</span>
+<span class="nc" id="L68">                    continue;</span>
+                }
+<span class="nc" id="L70">                String edidStr = sb.toString();</span>
+<span class="nc" id="L71">                LOG.debug(&quot;Parsed EDID: {}&quot;, edidStr);</span>
+<span class="nc" id="L72">                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                if (edid.length &gt;= 128) {</span>
+<span class="nc" id="L74">                    displays.add(new SolarisDisplay(edid));</span>
+                }
+<span class="nc" id="L76">                sb = null;</span>
+            }
+<span class="nc" id="L78">        }</span>
 
-<span class="nc" id="L82">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L80">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

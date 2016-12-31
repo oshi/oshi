@@ -105,7 +105,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L105">            String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);</span>
 <span class="nc" id="L106">            UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);</span>
             // Ignore interfaces
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!Udev.INSTANCE.udev_device_get_devtype(dev).equals(&quot;usb_device&quot;)) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!&quot;usb_device&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(dev))) {</span>
 <span class="nc" id="L109">                continue;</span>
             }
 
@@ -146,7 +146,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L146">        Udev.INSTANCE.udev_unref(udev);</span>
 
         // Build tree and return
-<span class="nc" id="L149">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc" id="L149">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L150" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
 <span class="nc" id="L151">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
 <span class="nc" id="L152">        }</span>
@@ -156,7 +156,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates LinuxUsbDevices by fetching information from maps to
      * populate fields
-     * 
+     *
      * @param devPath
      *            The device node path.
      * @param vid
@@ -179,4 +179,4 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L179">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

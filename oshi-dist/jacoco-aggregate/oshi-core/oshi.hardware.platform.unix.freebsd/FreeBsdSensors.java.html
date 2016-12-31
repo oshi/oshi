@@ -22,10 +22,10 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.Sensors;
 import oshi.jna.platform.unix.LibC;
 
-<span class="nc" id="L28">public class FreeBsdSensors extends AbstractSensors {</span>
+<span class="nc" id="L28">public class FreeBsdSensors implements Sensors {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -60,8 +60,7 @@ import oshi.jna.platform.unix.LibC;
     @Override
     public int[] getFanSpeeds() {
         // TODO try common software
-<span class="nc" id="L63">        int[] fans = new int[0];</span>
-<span class="nc" id="L64">        return fans;</span>
+<span class="nc" id="L63">        return new int[0];</span>
     }
 
     /**
@@ -70,8 +69,7 @@ import oshi.jna.platform.unix.LibC;
     @Override
     public double getCpuVoltage() {
         // TODO try common software
-<span class="nc" id="L73">        double voltage = 0d;</span>
-<span class="nc" id="L74">        return voltage;</span>
+<span class="nc" id="L72">        return 0d;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

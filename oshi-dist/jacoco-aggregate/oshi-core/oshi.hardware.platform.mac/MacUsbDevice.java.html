@@ -178,7 +178,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L178">        IOKit.INSTANCE.IOObjectRelease(iter.getValue());</span>
 
         // Build tree and return
-<span class="nc" id="L181">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc" id="L181">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L182" title="All 2 branches missed.">        for (Long controller : usbControllers) {</span>
 <span class="nc" id="L183">            controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
 <span class="nc" id="L184">        }</span>
@@ -188,7 +188,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /**
      * Looks up vendor and product id information for a USB Host Controller by
      * cross-referencing the location
-     * 
+     *
      * @param id
      *            The global unique ID for the host controller used as a key for
      *            maps
@@ -240,7 +240,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates MacUsbDevices by fetching information from maps to
      * populate fields
-     * 
+     *
      * @param registryEntryId
      *            The device unique registry id.
      * @param vid
@@ -263,4 +263,4 @@ public class MacUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L263">                serialMap.getOrDefault(registryEntryId, &quot;&quot;), usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

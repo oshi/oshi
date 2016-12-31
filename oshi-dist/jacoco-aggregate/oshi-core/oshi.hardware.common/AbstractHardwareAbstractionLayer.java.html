@@ -19,21 +19,20 @@
 package oshi.hardware.common;
 
 import oshi.hardware.CentralProcessor;
-import oshi.hardware.Display;
+import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
 
 /**
  * Common fields or methods used by platform-specific implementations of
  * HardwareAbstractionLayer
  */
-<span class="nc" id="L34">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="nc" id="L31">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
+
+    protected ComputerSystem computerSystem;
 
     protected CentralProcessor processor;
 
@@ -41,46 +40,5 @@ import oshi.hardware.UsbDevice;
 
     protected Sensors sensors;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract GlobalMemory getMemory();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract CentralProcessor getProcessor();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract PowerSource[] getPowerSources();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract HWDiskStore[] getDiskStores();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract Display[] getDisplays();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract Sensors getSensors();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract UsbDevice[] getUsbDevices(boolean tree);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

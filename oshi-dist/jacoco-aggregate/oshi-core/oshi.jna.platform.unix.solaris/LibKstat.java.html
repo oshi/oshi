@@ -30,10 +30,10 @@ import com.sun.jna.Union;
 /**
  * Kstat library. The kstat facility is a general-purpose mechanism for
  * providing kernel statistics to users.
- * 
+ *
  * This class should be considered non-API as it may be removed if/when its code
  * is incorporated into the JNA project.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public interface LibKstat extends Library {
@@ -153,7 +153,7 @@ public interface LibKstat extends Library {
 
         public KstatNamed(Pointer p) {
 <span class="nc" id="L155">            super(p);</span>
-<span class="nc" id="L156">            this.read();</span>
+<span class="nc" id="L156">            read();</span>
 <span class="nc" id="L157">        }</span>
 
         @Override
@@ -188,7 +188,7 @@ public interface LibKstat extends Library {
 
     /**
      * Interrupt statistics.
-     * 
+     *
      * An interrupt is a hard interrupt (sourced from the hardware device
      * itself), a soft interrupt (induced by the system via the use of some
      * system interrupt source), a watchdog interrupt (induced by a periodic
@@ -207,7 +207,7 @@ public interface LibKstat extends Library {
 
     /**
      * Event timer statistics.
-     * 
+     *
      * These provide basic counting and timing information for any type of
      * event.
      */
@@ -294,7 +294,7 @@ public interface LibKstat extends Library {
 
         public KstatIO(Pointer p) {
 <span class="nc" id="L296">            super(p);</span>
-<span class="nc" id="L297">            this.read();</span>
+<span class="nc" id="L297">            read();</span>
 <span class="nc" id="L298">        }</span>
 
         @Override
@@ -318,7 +318,7 @@ public interface LibKstat extends Library {
     /**
      * The kstat_open() function initializes a kstat control structure, which
      * provides access to the kernel statistics library.
-     * 
+     *
      * @return A pointer to this structure, which must be supplied as the kc
      *         argument in subsequent libkstat function calls.
      */
@@ -327,7 +327,7 @@ public interface LibKstat extends Library {
     /**
      * The kstat_close() function frees all resources that were associated with
      * kc.
-     * 
+     *
      * @param kc
      *            a kstat control structure
      * @return 0 on success and -1 on failure.
@@ -340,18 +340,18 @@ public interface LibKstat extends Library {
      * headers (kstat_t's) pointed to by kc.kc_chain, which is initialized by
      * kstat_open(3KSTAT). This chain constitutes a list of all kstats currently
      * in the system.
-     * 
+     *
      * During normal operation, the kernel creates new kstats and delete old
      * ones as various device instances are added and removed, thereby causing
      * the user's copy of the kstat chain to become out of date. The
      * kstat_chain_update() function detects this condition by comparing the
      * kernel's current kstat chain ID(KCID), which is incremented every time
-     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the
-     * KCIDs match, kstat_chain_update() does nothing. Otherwise, it deletes any
+     * the kstat chain changes, to the user's KCID, kc.kc_chain_id. If the KCIDs
+     * match, kstat_chain_update() does nothing. Otherwise, it deletes any
      * invalid kstat headers from the user's kstat chain, adds any new ones, and
      * sets kc.kc_chain_id to the new KCID. All other kstat headers in the
      * user's kstat chain are unmodified.
-     * 
+     *
      * @param kc
      *            a kstat control structure
      * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or
@@ -362,11 +362,11 @@ public interface LibKstat extends Library {
     /**
      * kstat_read() gets data from the kernel for the kstat pointed to by ksp.
      * ksp.ks_data is automatically allocated (or reallocated) to be large
-     * enough to hold all of the data. ksp.ks_ndata is set to the number of
-     * data fields, ksp.ks_data_size is set to the total size of the data, and
+     * enough to hold all of the data. ksp.ks_ndata is set to the number of data
+     * fields, ksp.ks_data_size is set to the total size of the data, and
      * ksp.ks_snaptime is set to the high-resolution time at which the data
      * snapshot was taken.
-     * 
+     *
      * @param kc
      *            The kstat control structure
      * @param ksp
@@ -383,7 +383,7 @@ public interface LibKstat extends Library {
      * kstat_write() writes data from buf, or from ksp.ks_data if buf is NULL,
      * to the corresponding kstat in the kernel. Only the superuser can use
      * kstat_write() .
-     * 
+     *
      * @param kc
      *            The kstat control structure
      * @param ksp
@@ -403,7 +403,7 @@ public interface LibKstat extends Library {
      * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
      * in the search. For example, kstat_lookup(kc, NULL, -1, &quot;foo&quot;) will simply
      * find the first kstat with name &quot;foo&quot;.
-     * 
+     *
      * @param kc
      *            The kstat control structure
      * @param ks_module
@@ -422,7 +422,7 @@ public interface LibKstat extends Library {
      * the record with the specified name . This operation is valid only for
      * kstat types which have named data records. Currently, only the
      * KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
-     * 
+     *
      * @param ksp
      *            The kstat to search
      * @param name
@@ -434,4 +434,4 @@ public interface LibKstat extends Library {
      */
     Pointer kstat_data_lookup(Kstat ksp, String name);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -33,9 +33,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractDisks;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -48,6 +48,8 @@ import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -56,268 +58,321 @@ import oshi.util.platform.mac.IOKitUtil;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L59">public class MacDisks extends AbstractDisks {</span>
+<span class="nc" id="L61">public class MacDisks implements Disks {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L63">    private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);</span>
+<span class="nc" id="L65">    private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);</span>
 
-<span class="nc" id="L65">    private static final Map&lt;String, String&gt; mountPointMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L67">    private static final Map&lt;String, String&gt; mountPointMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">    private static final Map&lt;String, String&gt; logicalVolumeMap = new HashMap&lt;&gt;();</span>
 
     @Override
     public HWDiskStore[] getDisks() {
-<span class="nc" id="L69">        mountPointMap.clear();</span>
-<span class="nc" id="L70">        List&lt;HWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L72">        mountPointMap.clear();</span>
+<span class="nc" id="L73">        logicalVolumeMap.clear();</span>
+<span class="nc" id="L74">        List&lt;HWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
 
-        // Use statfs to find all drives
-<span class="nc" id="L73">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+        // Use statfs to populate mount point map
+<span class="nc" id="L77">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
         // Create array to hold results
-<span class="nc" id="L75">        Statfs[] fs = new Statfs[numfs];</span>
+<span class="nc" id="L79">        Statfs[] fs = new Statfs[numfs];</span>
         // Fill array with results
-<span class="nc" id="L77">        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
+<span class="nc" id="L81">        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
+        // Iterate all mounted file systems
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
+<span class="nc" id="L84">            String mntFrom = new String(f.f_mntfromname).trim();</span>
+<span class="nc" id="L85">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), new String(f.f_mntonname).trim());</span>
+        }
+
+        // Parse `diskutil cs list` to populate logical volume map
+<span class="nc" id="L89">        Set&lt;String&gt; physicalVolumes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L90">        boolean logicalVolume = false;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;diskutil cs list&quot;)) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (line.contains(&quot;Logical Volume Group&quot;)) {</span>
+                // Logical Volume Group defines beginning of grouping which will
+                // list multiple physical volumes followed by the logical volume
+                // they are associated with. Each physical volume will be a key
+                // with the logical volume as its value, but since the value
+                // doesn't appear until the end we collect the keys in a list
+<span class="nc" id="L98">                physicalVolumes.clear();</span>
+<span class="nc" id="L99">                logicalVolume = false;</span>
+<span class="nc" id="L100">                continue;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            } else if (line.contains(&quot;Logical Volume Family&quot;)) {</span>
+                // Done collecting physical volumes, prepare to store logical
+                // volume
+<span class="nc" id="L104">                logicalVolume = true;</span>
+<span class="nc" id="L105">                continue;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            } else if (line.contains(&quot;Disk:&quot;)) {</span>
+<span class="nc" id="L107">                String volume = ParseUtil.parseLastString(line);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (logicalVolume) {</span>
+                    // Store this disk as the logical volume value for all the
+                    // physical volume keys
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    for (String pv : physicalVolumes) {</span>
+<span class="nc" id="L112">                        logicalVolumeMap.put(pv, volume);</span>
+<span class="nc" id="L113">                    }</span>
+<span class="nc" id="L114">                    physicalVolumes.clear();</span>
+                } else {
+<span class="nc" id="L116">                    physicalVolumes.add(ParseUtil.parseLastString(line));</span>
+                }
+            }
+<span class="nc" id="L119">        }</span>
 
         // Open a DiskArbitration session
-<span class="nc" id="L80">        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (session == null) {</span>
-<span class="nc" id="L82">            LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
-<span class="nc" id="L83">            return new HWDiskStore[0];</span>
+<span class="nc" id="L122">        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (session == null) {</span>
+<span class="nc" id="L124">            LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
+<span class="nc" id="L125">            return new HWDiskStore[0];</span>
         }
 
-        // Create a set in case we have multiple partitions mounted
-<span class="nc" id="L87">        Set&lt;String&gt; bsdNames = new HashSet&lt;String&gt;();</span>
-        // Iterate all mounted file systems
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
-<span class="nc" id="L90">            String mntFrom = new String(f.f_mntfromname).trim();</span>
-            // OS X registry uses the BSD Name, e.g. disk0, disk1, etc.
-            // Strip off the partition # to get base disk name
-<span class="nc" id="L93">            String[] split = mntFrom.split(&quot;/dev/|s\\d+&quot;);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
-<span class="nc" id="L95">                bsdNames.add(split[1]);</span>
+        // Get IOMedia objects representing whole drives
+<span class="nc" id="L129">        List&lt;String&gt; bsdNames = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L130">        IntByReference iter = new IntByReference();</span>
+<span class="nc" id="L131">        IOKitUtil.getMatchingServices(&quot;IOMedia&quot;, iter);</span>
+<span class="nc" id="L132">        int media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        while (media != 0) {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (IOKitUtil.getIORegistryBooleanProperty(media, &quot;Whole&quot;)) {</span>
+<span class="nc" id="L135">                DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromIOMedia(CfUtil.ALLOCATOR, session, media);</span>
+<span class="nc" id="L136">                bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));</span>
             }
-<span class="nc" id="L97">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), new String(f.f_mntonname).trim());</span>
+<span class="nc" id="L138">            IOKit.INSTANCE.IOObjectRelease(media);</span>
+<span class="nc" id="L139">            media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());</span>
         }
+
         // Now iterate the bsdNames
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (String bsdName : bsdNames) {</span>
-<span class="nc" id="L101">            String model = &quot;&quot;;</span>
-<span class="nc" id="L102">            String serial = &quot;&quot;;</span>
-<span class="nc" id="L103">            long size = 0L;</span>
-<span class="nc" id="L104">            long xferTime = 0L;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (String bsdName : bsdNames) {</span>
+<span class="nc" id="L144">            String model = &quot;&quot;;</span>
+<span class="nc" id="L145">            String serial = &quot;&quot;;</span>
+<span class="nc" id="L146">            long size = 0L;</span>
+            long xferTime;
 
             // Get a reference to the disk - only matching /dev/disk*
-<span class="nc" id="L107">            String path = &quot;/dev/&quot; + bsdName;</span>
+<span class="nc" id="L150">            String path = &quot;/dev/&quot; + bsdName;</span>
 
             // Get the DiskArbitration dictionary for this disk, which has model
             // and size (capacity)
-<span class="nc" id="L111">            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (disk != null) {</span>
-<span class="nc" id="L113">                CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (diskInfo != null) {</span>
+<span class="nc" id="L154">            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (disk != null) {</span>
+<span class="nc" id="L156">                CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                if (diskInfo != null) {</span>
                     // Parse out model and size from their respective keys
-<span class="nc" id="L116">                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
-<span class="nc" id="L117">                            CfUtil.getCFString(&quot;DADeviceModel&quot;));</span>
-<span class="nc" id="L118">                    model = CfUtil.cfPointerToString(modelPtr);</span>
-<span class="nc" id="L119">                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
-<span class="nc" id="L120">                            CfUtil.getCFString(&quot;DAMediaSize&quot;));</span>
-<span class="nc" id="L121">                    size = CfUtil.cfPointerToLong(sizePtr);</span>
-<span class="nc" id="L122">                    CfUtil.release(diskInfo);</span>
+<span class="nc" id="L159">                    Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="nc" id="L160">                            CfUtil.getCFString(&quot;DADeviceModel&quot;));</span>
+<span class="nc" id="L161">                    model = CfUtil.cfPointerToString(modelPtr);</span>
+<span class="nc" id="L162">                    Pointer sizePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="nc" id="L163">                            CfUtil.getCFString(&quot;DAMediaSize&quot;));</span>
+<span class="nc" id="L164">                    size = CfUtil.cfPointerToLong(sizePtr);</span>
+<span class="nc" id="L165">                    CfUtil.release(diskInfo);</span>
 
                     // Use the model as a key to get serial from IOKit
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                    if (!model.equals(&quot;Disk Image&quot;)) {</span>
-<span class="nc" id="L126">                        CFStringRef modelNameRef = CFStringRef.toCFString(model);</span>
-<span class="nc" id="L127">                        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
-<span class="nc" id="L128">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
-<span class="nc" id="L129">                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;Model&quot;),</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                    if (!&quot;Disk Image&quot;.equals(model)) {</span>
+<span class="nc" id="L169">                        CFStringRef modelNameRef = CFStringRef.toCFString(model);</span>
+<span class="nc" id="L170">                        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L171">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="nc" id="L172">                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;Model&quot;),</span>
                                 modelNameRef);
-<span class="nc" id="L131">                        CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE</span>
-<span class="nc" id="L132">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
-<span class="nc" id="L133">                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,</span>
-<span class="nc" id="L134">                                CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
+<span class="nc" id="L174">                        CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L175">                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="nc" id="L176">                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,</span>
+<span class="nc" id="L177">                                CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
 
                         // search for all IOservices that match the model
-<span class="nc" id="L137">                        IntByReference serviceIterator = new IntByReference();</span>
-<span class="nc" id="L138">                        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
+<span class="nc" id="L180">                        IntByReference serviceIterator = new IntByReference();</span>
+<span class="nc" id="L181">                        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
                         // getMatchingServices releases matchingDict
-<span class="nc" id="L140">                        CfUtil.release(modelNameRef);</span>
-<span class="nc" id="L141">                        CfUtil.release(propertyDict);</span>
-<span class="nc" id="L142">                        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                        while (sdService != 0) {</span>
+<span class="nc" id="L183">                        CfUtil.release(modelNameRef);</span>
+<span class="nc" id="L184">                        CfUtil.release(propertyDict);</span>
+<span class="nc" id="L185">                        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                        while (sdService != 0) {</span>
                             // look up the serial number
-<span class="nc" id="L145">                            serial = IOKitUtil.getIORegistryStringProperty(sdService, &quot;Serial Number&quot;);</span>
-<span class="nc" id="L146">                            IOKit.INSTANCE.IOObjectRelease(sdService);</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">                            if (serial != null) {</span>
-<span class="nc" id="L148">                                break;</span>
+<span class="nc" id="L188">                            serial = IOKitUtil.getIORegistryStringProperty(sdService, &quot;Serial Number&quot;);</span>
+<span class="nc" id="L189">                            IOKit.INSTANCE.IOObjectRelease(sdService);</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                            if (serial != null) {</span>
+<span class="nc" id="L191">                                break;</span>
                             }
                             // iterate
-<span class="nc" id="L151">                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc" id="L194">                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
                         }
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                        if (serial == null) {</span>
-<span class="nc" id="L154">                            serial = &quot;&quot;;</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                        if (serial == null) {</span>
+<span class="nc" id="L197">                            serial = &quot;&quot;;</span>
                         }
-<span class="nc" id="L156">                        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
+<span class="nc" id="L199">                        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
                     }
                 }
-<span class="nc" id="L159">                CfUtil.release(disk);</span>
+<span class="nc" id="L202">                CfUtil.release(disk);</span>
 
                 // If empty, ignore
-<span class="nc bnc" id="L162" title="All 2 branches missed.">                if (size &lt;= 0) {</span>
-<span class="nc" id="L163">                    continue;</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                if (size &lt;= 0) {</span>
+<span class="nc" id="L206">                    continue;</span>
                 }
-<span class="nc" id="L165">                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,</span>
-                        new HWPartition[0]);
+<span class="nc" id="L208">                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,</span>
+                        new HWPartition[0], 0L);
 
                 // Now look up the device using the BSD Name to get its
                 // statistics
-<span class="nc" id="L170">                CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
-<span class="nc bnc" id="L171" title="All 2 branches missed.">                if (matchingDict != null) {</span>
+<span class="nc" id="L213">                CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                if (matchingDict != null) {</span>
                     // search for all IOservices that match the bsd name
-<span class="nc" id="L173">                    IntByReference driveList = new IntByReference();</span>
-<span class="nc" id="L174">                    IOKitUtil.getMatchingServices(matchingDict, driveList);</span>
+<span class="nc" id="L216">                    IntByReference driveList = new IntByReference();</span>
+<span class="nc" id="L217">                    IOKitUtil.getMatchingServices(matchingDict, driveList);</span>
                     // getMatchingServices releases matchingDict
-<span class="nc" id="L176">                    int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());</span>
+<span class="nc" id="L219">                    int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());</span>
                     // Should only match one drive
-<span class="nc bnc" id="L178" title="All 2 branches missed.">                    if (drive != 0) {</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                    if (drive != 0) {</span>
                         // Should be an IOMedia object with a parent
                         // IOBlockStorageDriver object
                         // Get the properties from the parent
-<span class="nc" id="L182">                        IntByReference parent = new IntByReference();</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">                        if (IOKit.INSTANCE.IOObjectConformsTo(drive, &quot;IOMedia&quot;)</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">                                &amp;&amp; IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, &quot;IOService&quot;, parent) == 0) {</span>
-<span class="nc" id="L185">                            PointerByReference propsPtr = new PointerByReference();</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">                            if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), &quot;IOBlockStorageDriver&quot;)</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">                                    &amp;&amp; IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,</span>
+<span class="nc" id="L225">                        IntByReference parent = new IntByReference();</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                        if (IOKit.INSTANCE.IOObjectConformsTo(drive, &quot;IOMedia&quot;)</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                                &amp;&amp; IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, &quot;IOService&quot;, parent) == 0) {</span>
+<span class="nc" id="L228">                            PointerByReference propsPtr = new PointerByReference();</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                            if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), &quot;IOBlockStorageDriver&quot;)</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                                    &amp;&amp; IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,</span>
                                             CfUtil.ALLOCATOR, 0) == 0) {
-<span class="nc" id="L189">                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();</span>
-<span class="nc" id="L190">                                properties.setPointer(propsPtr.getValue());</span>
+<span class="nc" id="L232">                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();</span>
+<span class="nc" id="L233">                                properties.setPointer(propsPtr.getValue());</span>
                                 // We now have a properties object with the
                                 // statistics we need on it. Fetch them
-<span class="nc" id="L193">                                Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
-<span class="nc" id="L194">                                        CfUtil.getCFString(&quot;Statistics&quot;));</span>
-<span class="nc" id="L195">                                CFDictionaryRef statistics = new CFDictionaryRef();</span>
-<span class="nc" id="L196">                                statistics.setPointer(statsPtr);</span>
+<span class="nc" id="L236">                                Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
+<span class="nc" id="L237">                                        CfUtil.getCFString(&quot;Statistics&quot;));</span>
+<span class="nc" id="L238">                                diskStore.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L239">                                CFDictionaryRef statistics = new CFDictionaryRef();</span>
+<span class="nc" id="L240">                                statistics.setPointer(statsPtr);</span>
 
                                 // Now get the stats we want
-<span class="nc" id="L199">                                Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L200">                                        CfUtil.getCFString(&quot;Operations (Read)&quot;));</span>
-<span class="nc" id="L201">                                diskStore.setReads(CfUtil.cfPointerToLong(stat));</span>
-<span class="nc" id="L202">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L203">                                        CfUtil.getCFString(&quot;Bytes (Read)&quot;));</span>
-<span class="nc" id="L204">                                diskStore.setReadBytes(CfUtil.cfPointerToLong(stat));</span>
+<span class="nc" id="L243">                                Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L244">                                        CfUtil.getCFString(&quot;Operations (Read)&quot;));</span>
+<span class="nc" id="L245">                                diskStore.setReads(CfUtil.cfPointerToLong(stat));</span>
+<span class="nc" id="L246">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L247">                                        CfUtil.getCFString(&quot;Bytes (Read)&quot;));</span>
+<span class="nc" id="L248">                                diskStore.setReadBytes(CfUtil.cfPointerToLong(stat));</span>
 
-<span class="nc" id="L206">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L207">                                        CfUtil.getCFString(&quot;Operations (Write)&quot;));</span>
-<span class="nc" id="L208">                                diskStore.setWrites(CfUtil.cfPointerToLong(stat));</span>
-<span class="nc" id="L209">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L210">                                        CfUtil.getCFString(&quot;Bytes (Write)&quot;));</span>
-<span class="nc" id="L211">                                diskStore.setWriteBytes(CfUtil.cfPointerToLong(stat));</span>
+<span class="nc" id="L250">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L251">                                        CfUtil.getCFString(&quot;Operations (Write)&quot;));</span>
+<span class="nc" id="L252">                                diskStore.setWrites(CfUtil.cfPointerToLong(stat));</span>
+<span class="nc" id="L253">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L254">                                        CfUtil.getCFString(&quot;Bytes (Write)&quot;));</span>
+<span class="nc" id="L255">                                diskStore.setWriteBytes(CfUtil.cfPointerToLong(stat));</span>
 
                                 // Total time is in nanoseconds. Add read+write
                                 // and convert total to ms
-<span class="nc" id="L215">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L216">                                        CfUtil.getCFString(&quot;Total Time (Read)&quot;));</span>
-<span class="nc" id="L217">                                xferTime = CfUtil.cfPointerToLong(stat);</span>
-<span class="nc" id="L218">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
-<span class="nc" id="L219">                                        CfUtil.getCFString(&quot;Total Time (Write)&quot;));</span>
-<span class="nc" id="L220">                                xferTime += CfUtil.cfPointerToLong(stat);</span>
-<span class="nc" id="L221">                                diskStore.setTransferTime(xferTime / 10000L);</span>
+<span class="nc" id="L259">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L260">                                        CfUtil.getCFString(&quot;Total Time (Read)&quot;));</span>
+<span class="nc" id="L261">                                xferTime = CfUtil.cfPointerToLong(stat);</span>
+<span class="nc" id="L262">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
+<span class="nc" id="L263">                                        CfUtil.getCFString(&quot;Total Time (Write)&quot;));</span>
+<span class="nc" id="L264">                                xferTime += CfUtil.cfPointerToLong(stat);</span>
+<span class="nc" id="L265">                                diskStore.setTransferTime(xferTime / 10000L);</span>
 
-<span class="nc" id="L223">                                CfUtil.release(properties);</span>
-<span class="nc" id="L224">                            } else {</span>
-<span class="nc" id="L225">                                LOG.error(&quot;Unable to find block storage driver properties for {}&quot;, bsdName);</span>
+<span class="nc" id="L267">                                CfUtil.release(properties);</span>
+<span class="nc" id="L268">                            } else {</span>
+                                // This is normal for FileVault drives, Fusion
+                                // drives, and other virtual bsd names
+<span class="nc" id="L271">                                LOG.debug(&quot;Unable to find block storage driver properties for {}&quot;, bsdName);</span>
                             }
                             // Now get partitions for this disk.
-<span class="nc" id="L228">                            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L229" title="All 2 branches missed.">                            if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR,</span>
+<span class="nc" id="L274">                            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                            if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR,</span>
                                     0) == 0) {
-<span class="nc" id="L231">                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();</span>
-<span class="nc" id="L232">                                properties.setPointer(propsPtr.getValue());</span>
+<span class="nc" id="L277">                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();</span>
+<span class="nc" id="L278">                                properties.setPointer(propsPtr.getValue());</span>
                                 // Partitions will match BSD Unit property
-<span class="nc" id="L234">                                Pointer p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
-<span class="nc" id="L235">                                        CfUtil.getCFString(&quot;BSD Unit&quot;));</span>
-<span class="nc" id="L236">                                CFNumberRef bsdUnit = new CFNumberRef();</span>
-<span class="nc" id="L237">                                bsdUnit.setPointer(p);</span>
+<span class="nc" id="L280">                                Pointer p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
+<span class="nc" id="L281">                                        CfUtil.getCFString(&quot;BSD Unit&quot;));</span>
+<span class="nc" id="L282">                                CFNumberRef bsdUnit = new CFNumberRef();</span>
+<span class="nc" id="L283">                                bsdUnit.setPointer(p);</span>
+                                // We need a CFBoolean that's false.
                                 // Whole disk has 'true' for Whole and 'false'
-                                // for leaf; store the boolean true
-<span class="nc" id="L240">                                p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
-<span class="nc" id="L241">                                        CfUtil.getCFString(&quot;Whole&quot;));</span>
-<span class="nc" id="L242">                                CFBooleanRef leaf = new CFBooleanRef();</span>
-<span class="nc" id="L243">                                leaf.setPointer(p);</span>
+                                // for leaf; store the boolean false
+<span class="nc" id="L287">                                p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,</span>
+<span class="nc" id="L288">                                        CfUtil.getCFString(&quot;Leaf&quot;));</span>
+<span class="nc" id="L289">                                CFBooleanRef cfFalse = new CFBooleanRef();</span>
+<span class="nc" id="L290">                                cfFalse.setPointer(p);</span>
                                 // create a matching dict for BSD Unit
-<span class="nc" id="L245">                                CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
-<span class="nc" id="L246">                                        .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
-<span class="nc" id="L247">                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,</span>
-<span class="nc" id="L248">                                        CfUtil.getCFString(&quot;BSD Unit&quot;), bsdUnit);</span>
-<span class="nc" id="L249">                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;Leaf&quot;),</span>
-                                        leaf);
-<span class="nc" id="L251">                                matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,</span>
+<span class="nc" id="L292">                                CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE</span>
+<span class="nc" id="L293">                                        .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);</span>
+<span class="nc" id="L294">                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,</span>
+<span class="nc" id="L295">                                        CfUtil.getCFString(&quot;BSD Unit&quot;), bsdUnit);</span>
+<span class="nc" id="L296">                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(&quot;Whole&quot;),</span>
+                                        cfFalse);
+<span class="nc" id="L298">                                matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,</span>
                                         null, null);
-<span class="nc" id="L253">                                CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,</span>
-<span class="nc" id="L254">                                        CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
+<span class="nc" id="L300">                                CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,</span>
+<span class="nc" id="L301">                                        CfUtil.getCFString(&quot;IOPropertyMatch&quot;), propertyDict);</span>
 
-                                // search for all IOservices that match the
-                                // BSD Unit with leaf=true; these are partitions
-<span class="nc" id="L258">                                IntByReference serviceIterator = new IntByReference();</span>
-<span class="nc" id="L259">                                IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
+                                // search for IOservices that match the BSD Unit
+                                // with whole=false; these are partitions
+<span class="nc" id="L305">                                IntByReference serviceIterator = new IntByReference();</span>
+<span class="nc" id="L306">                                IOKitUtil.getMatchingServices(matchingDict, serviceIterator);</span>
                                 // getMatchingServices releases matchingDict
-<span class="nc" id="L261">                                CfUtil.release(properties);</span>
-<span class="nc" id="L262">                                CfUtil.release(propertyDict);</span>
-<span class="nc" id="L263">                                int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">                                while (sdService != 0) {</span>
+<span class="nc" id="L308">                                CfUtil.release(properties);</span>
+<span class="nc" id="L309">                                CfUtil.release(propertyDict);</span>
+<span class="nc" id="L310">                                int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">                                while (sdService != 0) {</span>
                                     // look up the BSD Name
-<span class="nc" id="L266">                                    String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, &quot;BSD Name&quot;);</span>
-<span class="nc" id="L267">                                    String name = partBsdName;</span>
-<span class="nc" id="L268">                                    String type = &quot;&quot;;</span>
+<span class="nc" id="L313">                                    String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, &quot;BSD Name&quot;);</span>
+<span class="nc" id="L314">                                    String name = partBsdName;</span>
+<span class="nc" id="L315">                                    String type = &quot;&quot;;</span>
                                     // Get the DiskArbitration dictionary for
                                     // this partition
-<span class="nc" id="L271">                                    disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,</span>
+<span class="nc" id="L318">                                    disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,</span>
                                             partBsdName);
-<span class="nc bnc" id="L273" title="All 2 branches missed.">                                    if (disk != null) {</span>
-<span class="nc" id="L274">                                        diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
-<span class="nc bnc" id="L275" title="All 2 branches missed.">                                        if (diskInfo != null) {</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">                                    if (disk != null) {</span>
+<span class="nc" id="L321">                                        diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                                        if (diskInfo != null) {</span>
                                             // get volume name from its key
-<span class="nc" id="L277">                                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
-<span class="nc" id="L278">                                                    CfUtil.getCFString(&quot;DAMediaName&quot;));</span>
-<span class="nc" id="L279">                                            type = CfUtil.cfPointerToString(volumePtr);</span>
-<span class="nc" id="L280">                                            volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
-<span class="nc" id="L281">                                                    CfUtil.getCFString(&quot;DAVolumeName&quot;));</span>
-<span class="nc" id="L282">                                            name = CfUtil.cfPointerToString(volumePtr);</span>
-
-<span class="nc" id="L284">                                            CfUtil.release(diskInfo);</span>
+<span class="nc" id="L324">                                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="nc" id="L325">                                                    CfUtil.getCFString(&quot;DAMediaName&quot;));</span>
+<span class="nc" id="L326">                                            type = CfUtil.cfPointerToString(volumePtr);</span>
+<span class="nc" id="L327">                                            volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
+<span class="nc" id="L328">                                                    CfUtil.getCFString(&quot;DAVolumeName&quot;));</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">                                            if (volumePtr == null) {</span>
+<span class="nc" id="L330">                                                name = type;</span>
+                                            } else {
+<span class="nc" id="L332">                                                name = CfUtil.cfPointerToString(volumePtr);</span>
+                                            }
+<span class="nc" id="L334">                                            CfUtil.release(diskInfo);</span>
                                         }
-<span class="nc" id="L286">                                        CfUtil.release(disk);</span>
+<span class="nc" id="L336">                                        CfUtil.release(disk);</span>
                                     }
-<span class="nc" id="L288">                                    partitions.add(new HWPartition(partBsdName, name, type,</span>
-<span class="nc" id="L289">                                            IOKitUtil.getIORegistryStringProperty(sdService, &quot;UUID&quot;),</span>
-<span class="nc" id="L290">                                            IOKitUtil.getIORegistryLongProperty(sdService, &quot;Size&quot;),</span>
-<span class="nc" id="L291">                                            IOKitUtil.getIORegistryIntProperty(sdService, &quot;BSD Major&quot;),</span>
-<span class="nc" id="L292">                                            IOKitUtil.getIORegistryIntProperty(sdService, &quot;BSD Minor&quot;),</span>
-<span class="nc" id="L293">                                            mountPointMap.getOrDefault(partBsdName, &quot;&quot;)));</span>
-<span class="nc" id="L294">                                    IOKit.INSTANCE.IOObjectRelease(sdService);</span>
+                                    String mountPoint;
+<span class="nc bnc" id="L339" title="All 2 branches missed.">                                    if (logicalVolumeMap.containsKey(partBsdName)) {</span>
+<span class="nc" id="L340">                                        mountPoint = &quot;Logical Volume: &quot; + logicalVolumeMap.get(partBsdName);</span>
+                                    } else {
+<span class="nc" id="L342">                                        mountPoint = mountPointMap.getOrDefault(partBsdName, &quot;&quot;);</span>
+                                    }
+<span class="nc" id="L344">                                    partitions.add(new HWPartition(partBsdName, name, type,</span>
+<span class="nc" id="L345">                                            IOKitUtil.getIORegistryStringProperty(sdService, &quot;UUID&quot;),</span>
+<span class="nc" id="L346">                                            IOKitUtil.getIORegistryLongProperty(sdService, &quot;Size&quot;),</span>
+<span class="nc" id="L347">                                            IOKitUtil.getIORegistryIntProperty(sdService, &quot;BSD Major&quot;),</span>
+<span class="nc" id="L348">                                            IOKitUtil.getIORegistryIntProperty(sdService, &quot;BSD Minor&quot;), mountPoint));</span>
+<span class="nc" id="L349">                                    IOKit.INSTANCE.IOObjectRelease(sdService);</span>
                                     // iterate
-<span class="nc" id="L296">                                    sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
-<span class="nc" id="L297">                                }</span>
-<span class="nc" id="L298">                                IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
+<span class="nc" id="L351">                                    sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc" id="L352">                                }</span>
+<span class="nc" id="L353">                                IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
 
-<span class="nc" id="L300">                            } else {</span>
-<span class="nc" id="L301">                                LOG.error(&quot;Unable to find properties for {}&quot;, bsdName);</span>
+<span class="nc" id="L355">                            } else {</span>
+<span class="nc" id="L356">                                LOG.error(&quot;Unable to find properties for {}&quot;, bsdName);</span>
                             }
-<span class="nc" id="L303">                            Collections.sort(partitions);</span>
-<span class="nc" id="L304">                            diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));</span>
-<span class="nc" id="L305">                            IOKit.INSTANCE.IOObjectRelease(parent.getValue());</span>
-<span class="nc" id="L306">                        } else {</span>
-<span class="nc" id="L307">                            LOG.error(&quot;Unable to find IOMedia device or parent for &quot;, bsdName);</span>
+<span class="nc" id="L358">                            Collections.sort(partitions);</span>
+<span class="nc" id="L359">                            diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));</span>
+<span class="nc" id="L360">                            IOKit.INSTANCE.IOObjectRelease(parent.getValue());</span>
+<span class="nc" id="L361">                        } else {</span>
+<span class="nc" id="L362">                            LOG.error(&quot;Unable to find IOMedia device or parent for &quot;, bsdName);</span>
                         }
-<span class="nc" id="L309">                        IOKit.INSTANCE.IOObjectRelease(drive);</span>
+<span class="nc" id="L364">                        IOKit.INSTANCE.IOObjectRelease(drive);</span>
                     }
-<span class="nc" id="L311">                    IOKit.INSTANCE.IOObjectRelease(driveList.getValue());</span>
+<span class="nc" id="L366">                    IOKit.INSTANCE.IOObjectRelease(driveList.getValue());</span>
                 }
-<span class="nc" id="L313">                result.add(diskStore);</span>
+<span class="nc" id="L368">                result.add(diskStore);</span>
             }
-<span class="nc" id="L315">        }</span>
+<span class="nc" id="L370">        }</span>
         // Close DA session
-<span class="nc" id="L317">        CfUtil.release(session);</span>
-<span class="nc" id="L318">        Collections.sort(result);</span>
-<span class="nc" id="L319">        return result.toArray(new HWDiskStore[result.size()]);</span>
+<span class="nc" id="L372">        CfUtil.release(session);</span>
+<span class="nc" id="L373">        Collections.sort(result);</span>
+<span class="nc" id="L374">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

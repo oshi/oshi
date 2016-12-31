@@ -129,7 +129,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         // Build the device tree. Start with the USB Controllers
         // and recurse downward to devices as needed
 <span class="nc" id="L131">        usbMap = WmiUtil.selectStringsFrom(null, &quot;Win32_USBController&quot;, &quot;PNPDeviceID&quot;, null);</span>
-<span class="nc" id="L132">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
+<span class="nc" id="L132">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L133" title="All 2 branches missed.">        for (String controllerDeviceId : usbMap.get(&quot;PNPDeviceID&quot;)) {</span>
 <span class="nc" id="L134">            putChildrenInDeviceTree(controllerDeviceId, 0);</span>
 <span class="nc" id="L135">            controllerDevices.add(getDeviceAndChildren(controllerDeviceId, &quot;0000&quot;, &quot;0000&quot;));</span>
@@ -140,7 +140,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Navigates the Device Tree to place all children PNPDeviceIDs into the map
      * for the specified deviceID. Recursively adds children's children, etc.
-     * 
+     *
      * @param deviceId
      *            The device to add respective children to the map
      * @param deviceInstance
@@ -197,7 +197,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
     /**
      * Gets the device id for a devnode
-     * 
+     *
      * @param devInst
      *            the handle to the devnode
      * @return The PNPDeviceID
@@ -221,7 +221,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively creates WindowsUsbDevices by fetching information from maps
      * to populate fields
-     * 
+     *
      * @param hubDeviceId
      *            The PNPdeviceID of this device.
      * @param vid
@@ -249,4 +249,4 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L249">                usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

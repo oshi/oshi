@@ -19,6 +19,7 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
@@ -28,7 +29,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
-<span class="nc" id="L31">public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L32">public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -36,11 +37,22 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      * {@inheritDoc}
      */
     @Override
-    public GlobalMemory getMemory() {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L41">            this.memory = new WindowsGlobalMemory();</span>
+    public ComputerSystem getComputerSystem() {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
+<span class="nc" id="L42">            this.computerSystem = new WindowsComputerSystem();</span>
         }
-<span class="nc" id="L43">        return this.memory;</span>
+<span class="nc" id="L44">        return this.computerSystem;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GlobalMemory getMemory() {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L53">            this.memory = new WindowsGlobalMemory();</span>
+        }
+<span class="nc" id="L55">        return this.memory;</span>
     }
 
     /**
@@ -48,10 +60,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L52">            processor = new WindowsCentralProcessor();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L64">            this.processor = new WindowsCentralProcessor();</span>
         }
-<span class="nc" id="L54">        return this.processor;</span>
+<span class="nc" id="L66">        return this.processor;</span>
     }
 
     /**
@@ -59,7 +71,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L62">        return WindowsPowerSource.getPowerSources();</span>
+<span class="nc" id="L74">        return WindowsPowerSource.getPowerSources();</span>
     }
 
     /**
@@ -67,7 +79,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L70">        return new WindowsDisks().getDisks();</span>
+<span class="nc" id="L82">        return new WindowsDisks().getDisks();</span>
     }
 
     /**
@@ -75,7 +87,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L78">        return WindowsDisplay.getDisplays();</span>
+<span class="nc" id="L90">        return WindowsDisplay.getDisplays();</span>
     }
 
     /**
@@ -83,10 +95,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L87">            this.sensors = new WindowsSensors();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L99">            this.sensors = new WindowsSensors();</span>
         }
-<span class="nc" id="L89">        return this.sensors;</span>
+<span class="nc" id="L101">        return this.sensors;</span>
     }
 
     /**
@@ -94,7 +106,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L97">        return new WindowsNetworks().getNetworks();</span>
+<span class="nc" id="L109">        return new WindowsNetworks().getNetworks();</span>
     }
 
     /**
@@ -102,7 +114,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L105">        return WindowsUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L117">        return WindowsUsbDevice.getUsbDevices(tree);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

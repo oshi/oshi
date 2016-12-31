@@ -98,7 +98,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         }
         // For each item enumerated, store information in the maps
 <span class="nc" id="L100">        String key = &quot;&quot;;</span>
-<span class="nc" id="L101">        List&lt;String&gt; usBuses = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L101">        List&lt;String&gt; usBuses = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L102" title="All 2 branches missed.">        for (String line : devices) {</span>
             // udi = ... identifies start of a new tree
 <span class="nc bnc" id="L104" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
@@ -115,7 +115,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 <span class="nc bnc" id="L115" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
 <span class="nc" id="L116">                continue;</span>
 <span class="nc bnc" id="L117" title="All 2 branches missed.">            } else if (line.startsWith(&quot;freebsd.driver =&quot;)</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    &amp;&amp; ParseUtil.getSingleQuoteStringValue(line).equals(&quot;usbus&quot;)) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                    &amp;&amp; &quot;usbus&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
 <span class="nc" id="L119">                usBuses.add(key);</span>
 <span class="nc bnc" id="L120" title="All 2 branches missed.">            } else if (line.contains(&quot;.parent =&quot;)) {</span>
 <span class="nc" id="L121">                String parent = ParseUtil.getSingleQuoteStringValue(line);</span>
@@ -135,29 +135,27 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L135">                String serial = ParseUtil.getSingleQuoteStringValue(line);</span>
 <span class="nc" id="L136">                serialMap.put(key,</span>
 <span class="nc bnc" id="L137" title="All 2 branches missed.">                        serial.startsWith(&quot;0x&quot;) ? ParseUtil.hexStringToString(serial.replace(&quot;0x&quot;, &quot;&quot;)) : serial);</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            } else if (line.contains(&quot;.vendor_id =&quot;)) {</span>
+<span class="nc bnc" id="L138" title="All 4 branches missed.">            } else if (line.contains(&quot;.vendor_id =&quot;) || line.contains(&quot;.product_id =&quot;)) {</span>
 <span class="nc" id="L139">                vendorIdMap.put(key, String.format(&quot;%04x&quot;, ParseUtil.getFirstIntValue(line)));</span>
-<span class="nc bnc" id="L140" title="All 2 branches missed.">            } else if (line.contains(&quot;.product_id =&quot;)) {</span>
-<span class="nc" id="L141">                vendorIdMap.put(key, String.format(&quot;%04x&quot;, ParseUtil.getFirstIntValue(line)));</span>
             }
-<span class="nc" id="L143">        }</span>
+<span class="nc" id="L141">        }</span>
 
         // Build tree and return
-<span class="nc" id="L146">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;UsbDevice&gt;();</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (String usbus : usBuses) {</span>
+<span class="nc" id="L144">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (String usbus : usBuses) {</span>
             // Skip the usbuses: make their parents the controllers and replace
             // parents' children with the buses' children
-<span class="nc" id="L150">            String parent = parentMap.get(usbus);</span>
-<span class="nc" id="L151">            hubMap.put(parent, hubMap.get(usbus));</span>
-<span class="nc" id="L152">            controllerDevices.add(getDeviceAndChildren(parent, &quot;0000&quot;, &quot;0000&quot;));</span>
-<span class="nc" id="L153">        }</span>
-<span class="nc" id="L154">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+<span class="nc" id="L148">            String parent = parentMap.get(usbus);</span>
+<span class="nc" id="L149">            hubMap.put(parent, hubMap.get(usbus));</span>
+<span class="nc" id="L150">            controllerDevices.add(getDeviceAndChildren(parent, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc" id="L151">        }</span>
+<span class="nc" id="L152">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
     }
 
     /**
      * Recursively creates SolarisUsbDevices by fetching information from maps
      * to populate fields
-     * 
+     *
      * @param devPath
      *            The device node path.
      * @param vid
@@ -167,16 +165,16 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-<span class="nc" id="L170">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
-<span class="nc" id="L171">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
-<span class="nc" id="L172">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
-<span class="nc" id="L173">        List&lt;FreeBsdUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        for (String path : childPaths) {</span>
-<span class="nc" id="L175">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
-<span class="nc" id="L176">        }</span>
-<span class="nc" id="L177">        Collections.sort(usbDevices);</span>
-<span class="nc" id="L178">        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId, productId,</span>
-<span class="nc" id="L179">                &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+<span class="nc" id="L168">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
+<span class="nc" id="L169">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
+<span class="nc" id="L170">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L171">        List&lt;FreeBsdUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (String path : childPaths) {</span>
+<span class="nc" id="L173">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
+<span class="nc" id="L174">        }</span>
+<span class="nc" id="L175">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L176">        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId, productId,</span>
+<span class="nc" id="L177">                &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

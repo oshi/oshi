@@ -37,22 +37,22 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
     private final JsonObjectBuilder builder;
 
     // Private constructor that wraps the builder
-<span class="nc" id="L40">    private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {</span>
-<span class="nc" id="L41">        this.builder = builder;</span>
-<span class="nc" id="L42">    }</span>
+<span class="fc" id="L40">    private NullAwareJsonObjectBuilder(JsonObjectBuilder builder) {</span>
+<span class="fc" id="L41">        this.builder = builder;</span>
+<span class="fc" id="L42">    }</span>
 
     /**
      * Wraps a {@link javax.json.JsonObjectBuilder}
-     * 
+     *
      * @param builder
      *            The builder to wrap
      * @return A new instance of this class, wrapping the specified builder
      */
     public static JsonObjectBuilder wrap(JsonObjectBuilder builder) {
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (builder == null) {</span>
-<span class="nc" id="L53">            throw new IllegalArgumentException(&quot;Can't wrap nothing.&quot;);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (builder == null) {</span>
+<span class="fc" id="L53">            throw new IllegalArgumentException(&quot;Can't wrap nothing.&quot;);</span>
         }
-<span class="nc" id="L55">        return new NullAwareJsonObjectBuilder(builder);</span>
+<span class="fc" id="L55">        return new NullAwareJsonObjectBuilder(builder);</span>
     }
 
     /**
@@ -60,12 +60,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, JsonValue arg1) {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L64">            builder.addNull(arg0);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L64">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L66">            builder.add(arg0, arg1);</span>
+<span class="fc" id="L66">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L68">        return this;</span>
+<span class="fc" id="L68">        return this;</span>
     }
 
     /**
@@ -73,12 +73,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, String arg1) {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L77">            builder.addNull(arg0);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L77">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L79">            builder.add(arg0, arg1);</span>
+<span class="fc" id="L79">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L81">        return this;</span>
+<span class="fc" id="L81">        return this;</span>
     }
 
     /**
@@ -86,12 +86,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, BigInteger arg1) {
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L90">            builder.addNull(arg0);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L90">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L92">            builder.add(arg0, arg1);</span>
+<span class="fc" id="L92">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L94">        return this;</span>
+<span class="fc" id="L94">        return this;</span>
     }
 
     /**
@@ -99,12 +99,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, BigDecimal arg1) {
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L103">            builder.addNull(arg0);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L103">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L105">            builder.add(arg0, arg1);</span>
+<span class="fc" id="L105">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L107">        return this;</span>
+<span class="fc" id="L107">        return this;</span>
     }
 
     /**
@@ -112,8 +112,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, int arg1) {
-<span class="nc" id="L115">        builder.add(arg0, arg1);</span>
-<span class="nc" id="L116">        return this;</span>
+<span class="fc" id="L115">        this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L116">        return this;</span>
     }
 
     /**
@@ -121,8 +121,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, long arg1) {
-<span class="nc" id="L124">        builder.add(arg0, arg1);</span>
-<span class="nc" id="L125">        return this;</span>
+<span class="fc" id="L124">        this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L125">        return this;</span>
     }
 
     /**
@@ -130,8 +130,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, double arg1) {
-<span class="nc" id="L133">        builder.add(arg0, arg1);</span>
-<span class="nc" id="L134">        return this;</span>
+<span class="fc" id="L133">        this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L134">        return this;</span>
     }
 
     /**
@@ -139,8 +139,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, boolean arg1) {
-<span class="nc" id="L142">        builder.add(arg0, arg1);</span>
-<span class="nc" id="L143">        return this;</span>
+<span class="fc" id="L142">        this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L143">        return this;</span>
     }
 
     /**
@@ -148,12 +148,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, JsonObjectBuilder arg1) {
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L152">            builder.addNull(arg0);</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (arg1 == null) {</span>
+<span class="fc" id="L152">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L154">            builder.add(arg0, arg1);</span>
+<span class="nc" id="L154">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L156">        return this;</span>
+<span class="fc" id="L156">        return this;</span>
     }
 
     /**
@@ -161,12 +161,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, JsonArrayBuilder arg1) {
-<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (arg1 == null) {</span>
-<span class="nc" id="L165">            builder.addNull(arg0);</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L165">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L167">            builder.add(arg0, arg1);</span>
+<span class="fc" id="L167">            this.builder.add(arg0, arg1);</span>
         }
-<span class="nc" id="L169">        return this;</span>
+<span class="fc" id="L169">        return this;</span>
     }
 
     /**
@@ -174,8 +174,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder addNull(String arg0) {
-<span class="nc" id="L177">        builder.addNull(arg0);</span>
-<span class="nc" id="L178">        return this;</span>
+<span class="fc" id="L177">        this.builder.addNull(arg0);</span>
+<span class="fc" id="L178">        return this;</span>
     }
 
     /**
@@ -183,7 +183,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObject build() {
-<span class="nc" id="L186">        return builder.build();</span>
+<span class="fc" id="L186">        return this.builder.build();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

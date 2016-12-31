@@ -29,7 +29,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -42,7 +42,7 @@ import oshi.util.ParseUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L45">public class LinuxFileSystem extends AbstractFileSystem {</span>
+<span class="nc" id="L45">public class LinuxFileSystem implements FileSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -82,7 +82,7 @@ import oshi.util.ParseUtil;
 
     /**
      * Checks if file path equals or starts with an element in the given list
-     * 
+     *
      * @param aList
      *            A list of path prefixes
      * @param charSeq
@@ -117,7 +117,7 @@ import oshi.util.ParseUtil;
                     // Store UUID as value with path (e.g., /dev/sda1) as key
 <span class="nc" id="L118">                    uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());</span>
 <span class="nc" id="L119">                } catch (IOException e) {</span>
-<span class="nc" id="L120">                    LOG.error(&quot;Couldn't get canonical path for {}&quot;, uuid.getName());</span>
+<span class="nc" id="L120">                    LOG.error(&quot;Couldn't get canonical path for {}. {}&quot;, uuid.getName(), e);</span>
 <span class="nc" id="L121">                }</span>
             }
         }
@@ -208,4 +208,4 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L208">        return 0L;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

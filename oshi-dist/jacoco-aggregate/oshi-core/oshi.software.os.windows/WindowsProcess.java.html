@@ -26,7 +26,7 @@ import oshi.software.os.OSProcess;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class WindowsProcess extends AbstractProcess {
@@ -49,7 +49,7 @@ public class WindowsProcess extends AbstractProcess {
 
     public WindowsProcess(String name, String path, int winState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-<span class="nc" id="L52">            long now) {</span>
+<span class="nc" id="L52">            long bytesRead, long bytesWritten, long now) {</span>
 <span class="nc" id="L53">        this.name = name;</span>
 <span class="nc" id="L54">        this.path = path;</span>
 <span class="nc bnc" id="L55" title="All 7 branches missed.">        switch (winState) {</span>
@@ -89,7 +89,9 @@ public class WindowsProcess extends AbstractProcess {
 <span class="nc" id="L89">        this.userTime = userTime;</span>
 <span class="nc" id="L90">        this.startTime = startTime;</span>
 <span class="nc" id="L91">        this.upTime = now - startTime;</span>
-<span class="nc" id="L92">    }</span>
+<span class="nc" id="L92">        this.bytesRead = bytesRead;</span>
+<span class="nc" id="L93">        this.bytesWritten = bytesWritten;</span>
+<span class="nc" id="L94">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

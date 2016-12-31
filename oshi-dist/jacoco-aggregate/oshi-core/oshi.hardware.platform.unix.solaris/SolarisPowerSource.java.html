@@ -28,7 +28,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A Power Source
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisPowerSource extends AbstractPowerSource {
@@ -61,7 +61,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
     /**
      * Gets Battery Information
-     * 
+     *
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
@@ -111,8 +111,8 @@ public class SolarisPowerSource extends AbstractPowerSource {
         // Set up single battery in array
 <span class="nc" id="L112">        SolarisPowerSource[] ps = new SolarisPowerSource[1];</span>
 <span class="nc bnc" id="L113" title="All 4 branches missed.">        ps[0] = new SolarisPowerSource(&quot;BAT0&quot;, (double) energyNow / energyFull,</span>
-                isCharging ? -2d : (powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d));
+                isCharging ? -2d : powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d);
 <span class="nc" id="L115">        return ps;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
