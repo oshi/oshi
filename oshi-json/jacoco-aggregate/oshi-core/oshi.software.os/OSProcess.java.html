@@ -151,5 +151,15 @@ public interface OSProcess extends Serializable {
      *         since January 1, 1970.
      */
     long getStartTime();
+
+    /**
+     * @return Returns the number of bytes the process has read from disk.
+     */
+    long getBytesRead();
+
+    /**
+     * @return Returns the number of bytes the process has written to disk.
+     */
+    long getBytesWritten();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -64,15 +64,19 @@ import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
         private long iPackets;
         private long oBytes;
         private long iBytes;
+        private long oErrors;
+        private long iErrors;
         private long speed;
 
-<span class="nc" id="L69">        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long speed) {</span>
-<span class="nc" id="L70">            this.oPackets = oPackets;</span>
-<span class="nc" id="L71">            this.iPackets = iPackets;</span>
-<span class="nc" id="L72">            this.oBytes = oBytes;</span>
-<span class="nc" id="L73">            this.iBytes = iBytes;</span>
-<span class="nc" id="L74">            this.speed = speed;</span>
-<span class="nc" id="L75">        }</span>
+<span class="nc" id="L71">        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long speed) {</span>
+<span class="nc" id="L72">            this.oPackets = oPackets;</span>
+<span class="nc" id="L73">            this.iPackets = iPackets;</span>
+<span class="nc" id="L74">            this.oBytes = oBytes;</span>
+<span class="nc" id="L75">            this.iBytes = iBytes;</span>
+<span class="nc" id="L76">            this.oErrors = oErrors;</span>
+<span class="nc" id="L77">            this.iErrors = iErrors;</span>
+<span class="nc" id="L78">            this.speed = speed;</span>
+<span class="nc" id="L79">        }</span>
     }
 
     /**
@@ -83,53 +87,54 @@ import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
      * @return timestamp when the data was read
      */
     private static synchronized long mapIFs() {
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (System.currentTimeMillis() - lastIFmapTime &lt; 200L) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (System.currentTimeMillis() - lastIFmapTime &lt; 200L) {</span>
             // Polled too recently; do nothing
-<span class="nc" id="L88">            return lastIFmapTime;</span>
+<span class="nc" id="L92">            return lastIFmapTime;</span>
         }
 
         // Get buffer of all interface information
-<span class="nc" id="L92">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L93">        IntByReference len = new IntByReference();</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
-<span class="nc" id="L95">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
-<span class="nc" id="L96">            return lastIFmapTime;</span>
+<span class="nc" id="L96">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="nc" id="L97">        IntByReference len = new IntByReference();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L99">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L100">            return lastIFmapTime;</span>
         }
-<span class="nc" id="L98">        Pointer buf = new Memory(len.getValue());</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
-<span class="nc" id="L100">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
-<span class="nc" id="L101">            return lastIFmapTime;</span>
+<span class="nc" id="L102">        Pointer buf = new Memory(len.getValue());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L104">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L105">            return lastIFmapTime;</span>
         }
-<span class="nc" id="L103">        lastIFmapTime = System.currentTimeMillis();</span>
+<span class="nc" id="L107">        lastIFmapTime = System.currentTimeMillis();</span>
 
         // CLear out old hashmap
-<span class="nc" id="L106">        ifMap.clear();</span>
+<span class="nc" id="L110">        ifMap.clear();</span>
 
         // Iterate offset from buf's pointer up to limit of buf
-<span class="nc" id="L109">        int lim = len.getValue();</span>
-<span class="nc" id="L110">        int next = 0;</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        while (next &lt; lim) {</span>
+<span class="nc" id="L113">        int lim = len.getValue();</span>
+<span class="nc" id="L114">        int next = 0;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        while (next &lt; lim) {</span>
             // Get pointer to current native part of buf
-<span class="nc" id="L113">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
+<span class="nc" id="L117">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
             // Cast pointer to if_msghdr
-<span class="nc" id="L115">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
-<span class="nc" id="L116">            ifm.read();</span>
+<span class="nc" id="L119">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="nc" id="L120">            ifm.read();</span>
             // Advance next
-<span class="nc" id="L118">            next += ifm.ifm_msglen;</span>
+<span class="nc" id="L122">            next += ifm.ifm_msglen;</span>
             // Skip messages which are not the right format
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
-<span class="nc" id="L121">                continue;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
+<span class="nc" id="L125">                continue;</span>
             }
             // Cast pointer to if_msghdr2
-<span class="nc" id="L124">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
-<span class="nc" id="L125">            if2m.read();</span>
+<span class="nc" id="L128">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="nc" id="L129">            if2m.read();</span>
 
             // Grab data to place in map using index as the key
-<span class="nc" id="L128">            ifMap.put(Integer.valueOf(if2m.ifm_index),</span>
+<span class="nc" id="L132">            ifMap.put(Integer.valueOf(if2m.ifm_index),</span>
                     new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
-                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_baudrate));
-<span class="nc" id="L131">        }</span>
-<span class="nc" id="L132">        return lastIFmapTime;</span>
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                            if2m.ifm_data.ifi_baudrate));
+<span class="nc" id="L136">        }</span>
+<span class="nc" id="L137">        return lastIFmapTime;</span>
     }
 
     /**
@@ -141,19 +146,21 @@ import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
      */
     public static synchronized void updateNetworkStats(NetworkIF netIF) {
         // Update data
-<span class="nc" id="L144">        long timeStamp = mapIFs();</span>
+<span class="nc" id="L149">        long timeStamp = mapIFs();</span>
 
-<span class="nc" id="L146">        Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());</span>
-<span class="nc" id="L147">        IFdata ifData = ifMap.get(index);</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (ifData != null) {</span>
+<span class="nc" id="L151">        Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());</span>
+<span class="nc" id="L152">        IFdata ifData = ifMap.get(index);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (ifData != null) {</span>
             // Retrieve values from map and store
-<span class="nc" id="L150">            netIF.setBytesSent(ifData.oBytes);</span>
-<span class="nc" id="L151">            netIF.setBytesRecv(ifData.iBytes);</span>
-<span class="nc" id="L152">            netIF.setPacketsSent(ifData.oPackets);</span>
-<span class="nc" id="L153">            netIF.setPacketsRecv(ifData.iPackets);</span>
-<span class="nc" id="L154">            netIF.setSpeed(ifData.speed);</span>
-<span class="nc" id="L155">            netIF.setTimeStamp(timeStamp);</span>
+<span class="nc" id="L155">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="nc" id="L156">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="nc" id="L157">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="nc" id="L158">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="nc" id="L159">            netIF.setOutErrors(ifData.oErrors);</span>
+<span class="nc" id="L160">            netIF.setInErrors(ifData.iErrors);</span>
+<span class="nc" id="L161">            netIF.setSpeed(ifData.speed);</span>
+<span class="nc" id="L162">            netIF.setTimeStamp(timeStamp);</span>
         }
-<span class="nc" id="L157">    }</span>
+<span class="nc" id="L164">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

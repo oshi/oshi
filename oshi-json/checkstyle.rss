@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2016 oshi</copyright>
     <item>
-      <title>File: 39,
-             Errors: 703,
+      <title>File: 45,
+             Errors: 808,
              Warnings: 0,
              Infos: 0
       </title>
@@ -102,6 +102,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.Firmware.java">oshi/json/hardware/Firmware.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.HardwareAbstractionLayerImpl.java">oshi/json/hardware/impl/HardwareAbstractionLayerImpl.java</a>
                 </td>
                 <td>
@@ -111,7 +125,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  40
                 </td>
               </tr>
                           <tr>
@@ -125,7 +139,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -270,6 +284,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.Baseboard.java">oshi/json/hardware/Baseboard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.OSFileStore.java">oshi/json/software/os/OSFileStore.java</a>
                 </td>
                 <td>
@@ -280,6 +308,20 @@ under the License.
                 </td>
                 <td>
                   62
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.ComputerSystemImpl.java">oshi/json/hardware/impl/ComputerSystemImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  23
                 </td>
               </tr>
                           <tr>
@@ -340,6 +382,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.ComputerSystem.java">oshi/json/hardware/ComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.impl.OSProcessImpl.java">oshi/json/software/os/impl/OSProcessImpl.java</a>
                 </td>
                 <td>
@@ -349,7 +405,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  41
                 </td>
               </tr>
                           <tr>
@@ -406,6 +462,20 @@ under the License.
                 </td>
                 <td>
                   13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.FirmwareImpl.java">oshi/json/hardware/impl/FirmwareImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  24
                 </td>
               </tr>
                           <tr>
@@ -545,7 +615,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  59
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.BaseboardImpl.java">oshi/json/hardware/impl/BaseboardImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
                 </td>
               </tr>
                           <tr>

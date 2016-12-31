@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxComputerSystem.java</span></div><h1>LinuxComputerSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.FileUtil;
+
+/**
+ * Hardware data obtained from sysfs
+ * 
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
+ */
+final class LinuxComputerSystem extends AbstractComputerSystem {
+
+    private static final long serialVersionUID = 1L;
+
+    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
+    // official/approved path for sysfs information
+    private static final String SYSFS_SERIAL_PATH = &quot;/sys/devices/virtual/dmi/id/&quot;;
+
+<span class="nc" id="L38">    LinuxComputerSystem() {</span>
+<span class="nc" id="L39">        init();</span>
+<span class="nc" id="L40">    }</span>
+
+    private void init() {
+
+        // $ ls /sys/devices/virtual/dmi/id/
+        // bios_date board_vendor chassis_version product_version
+        // bios_vendor board_version modalias subsystem
+        // bios_version chassis_asset_tag power sys_vendor
+        // board_asset_tag chassis_serial product_name uevent
+        // board_name chassis_type product_serial
+        // board_serial chassis_vendor product_uuid
+
+<span class="nc" id="L52">        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;);</span>
+<span class="nc bnc" id="L53" title="All 4 branches missed.">        if (sysVendor != null &amp;&amp; !sysVendor.trim().isEmpty()) {</span>
+<span class="nc" id="L54">            setManufacturer(sysVendor.trim());</span>
+        }
+
+<span class="nc" id="L57">        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_name&quot;);</span>
+<span class="nc" id="L58">        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_version&quot;);</span>
+
+<span class="nc bnc" id="L60" title="All 4 branches missed.">        if (productName != null &amp;&amp; !productName.trim().isEmpty()) {</span>
+
+<span class="nc bnc" id="L62" title="All 6 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion.trim())) {</span>
+
+<span class="nc" id="L64">                setModel(productName.trim() + &quot; (version: &quot; + productVersion.trim() + &quot;)&quot;);</span>
+            } else {
+<span class="nc" id="L66">                setModel(productName.trim());</span>
+            }
+        } else {
+<span class="nc bnc" id="L69" title="All 4 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty()) {</span>
+
+<span class="nc" id="L71">                setModel(productVersion.trim());</span>
+            }
+        }
+
+<span class="nc" id="L75">        final String productSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
+<span class="nc bnc" id="L76" title="All 4 branches missed.">        if (productSerial != null &amp;&amp; !productSerial.trim().isEmpty()) {</span>
+<span class="nc" id="L77">            setSerialNumber(productSerial.trim());</span>
+        } else {
+<span class="nc" id="L79">            final String boardSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">            if (boardSerial != null &amp;&amp; !boardSerial.trim().isEmpty()) {</span>
+<span class="nc" id="L81">                setSerialNumber(boardSerial.trim());</span>
+            }
+        }
+
+<span class="nc" id="L85">        setFirmware(new LinuxFirmware());</span>
+
+<span class="nc" id="L87">        setBaseboard(new LinuxBaseboard());</span>
+<span class="nc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

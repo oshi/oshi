@@ -63,8 +63,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
 <span class="nc" id="L63">        List&lt;LinuxPowerSource&gt; psList = new ArrayList&lt;&gt;(psNames.length);</span>
         // For each power source, output various info
 <span class="nc bnc" id="L65" title="All 2 branches missed.">        for (String psName : psNames) {</span>
-            // Skip if name is ADP* (AC power supply)
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (psName.startsWith(&quot;ADP&quot;)) {</span>
+            // Skip if name is ADP* or AC* (AC power supply)
+<span class="nc bnc" id="L67" title="All 4 branches missed.">            if (psName.startsWith(&quot;ADP&quot;) || psName.startsWith(&quot;AC&quot;)) {</span>
 <span class="nc" id="L68">                continue;</span>
             }
             // Skip if can't read uevent file
@@ -134,4 +134,4 @@ public class LinuxPowerSource extends AbstractPowerSource {
 <span class="nc" id="L134">        return psList.toArray(new LinuxPowerSource[psList.size()]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

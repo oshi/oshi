@@ -60,7 +60,7 @@ import oshi.util.ParseUtil;
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
 <span class="nc" id="L62">    public enum ValueType {</span>
-<span class="nc" id="L63">        STRING, UINT32, FLOAT, DATETIME, BOOLEAN</span>
+<span class="nc" id="L63">        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64</span>
     }
 
     /**
@@ -480,31 +480,32 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L480">                    break;</span>
                 // WMI Uint32s will return as longs
                 case UINT32: // WinDef.LONG TODO improve in JNA 4.3
-<span class="nc" id="L483">                    values.get(property)</span>
-<span class="nc bnc" id="L484" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
-<span class="nc" id="L485">                    break;</span>
+                case UINT64:
+<span class="nc" id="L484">                    values.get(property)</span>
+<span class="nc bnc" id="L485" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());</span>
+<span class="nc" id="L486">                    break;</span>
                 case FLOAT:
-<span class="nc bnc" id="L487" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
-<span class="nc" id="L488">                    break;</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());</span>
+<span class="nc" id="L489">                    break;</span>
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
                     // parse to a long representing ms since eopch
-<span class="nc" id="L492">                    values.get(property)</span>
-<span class="nc bnc" id="L493" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
-<span class="nc" id="L494">                    break;</span>
+<span class="nc" id="L493">                    values.get(property)</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));</span>
+<span class="nc" id="L495">                    break;</span>
                 case BOOLEAN: // WinDef.BOOL TODO improve in JNA 4.3
-<span class="nc" id="L496">                    values.get(property)</span>
-<span class="nc bnc" id="L497" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());</span>
-<span class="nc" id="L498">                    break;</span>
+<span class="nc" id="L497">                    values.get(property)</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());</span>
+<span class="nc" id="L499">                    break;</span>
                 default:
                     // Should never get here! If you get this exception you've
                     // added something to the enum without adding it here. Tsk.
-<span class="nc" id="L502">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
+<span class="nc" id="L503">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + propertyType.toString());</span>
                 }
-<span class="nc" id="L504">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
+<span class="nc" id="L505">                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());</span>
             }
-<span class="nc" id="L506">            clsObj.Release();</span>
-<span class="nc" id="L507">        }</span>
-<span class="nc" id="L508">    }</span>
+<span class="nc" id="L507">            clsObj.Release();</span>
+<span class="nc" id="L508">        }</span>
+<span class="nc" id="L509">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

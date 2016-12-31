@@ -85,11 +85,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L85">                    ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb</span>
 <span class="nc" id="L86">                    ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms</span>
 <span class="nc" id="L87">                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms</span>
+                    0L, 0L, // bytes read/written not easily available
                     now //
             ));
-<span class="nc" id="L90">        }</span>
-<span class="nc" id="L91">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L92">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L93">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     /**
@@ -97,30 +98,31 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L100">        List&lt;String&gt; procList = ExecutingCommand</span>
-<span class="nc" id="L101">                .runNative(&quot;ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p &quot; + pid);</span>
-<span class="nc bnc" id="L102" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
-<span class="nc" id="L103">            return null;</span>
+<span class="nc" id="L101">        List&lt;String&gt; procList = ExecutingCommand</span>
+<span class="nc" id="L102">                .runNative(&quot;ps -o s,pid,ppid,nlwp,pri,vsz,rss,etime,time,comm -p &quot; + pid);</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
+<span class="nc" id="L104">            return null;</span>
         }
         // remove header row
-<span class="nc" id="L106">        String[] split = procList.get(1).trim().split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L107">        String[] split = procList.get(1).trim().split(&quot;\\s+&quot;);</span>
         // Elements should match ps command order
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (split.length &lt; 10) {</span>
-<span class="nc" id="L109">            return null;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (split.length &lt; 10) {</span>
+<span class="nc" id="L110">            return null;</span>
         }
-<span class="nc" id="L111">        String path = split[9];</span>
-<span class="nc" id="L112">        return new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name</span>
+<span class="nc" id="L112">        String path = split[9];</span>
+<span class="nc" id="L113">        return new SolarisProcess(path.substring(path.lastIndexOf('/') + 1), // name</span>
                 path, // path
-<span class="nc" id="L114">                split[0].charAt(0), // state, one of OSRTWZ</span>
+<span class="nc" id="L115">                split[0].charAt(0), // state, one of OSRTWZ</span>
                 pid, // also split[1] but we already have
-<span class="nc" id="L116">                ParseUtil.parseIntOrDefault(split[2], 0), // ppid</span>
-<span class="nc" id="L117">                ParseUtil.parseIntOrDefault(split[3], 0), // thread count</span>
-<span class="nc" id="L118">                ParseUtil.parseIntOrDefault(split[4], 0), // priority</span>
-<span class="nc" id="L119">                ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb</span>
-<span class="nc" id="L120">                ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb</span>
-<span class="nc" id="L121">                ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms</span>
-<span class="nc" id="L122">                ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms</span>
-<span class="nc" id="L123">                System.currentTimeMillis() //</span>
+<span class="nc" id="L117">                ParseUtil.parseIntOrDefault(split[2], 0), // ppid</span>
+<span class="nc" id="L118">                ParseUtil.parseIntOrDefault(split[3], 0), // thread count</span>
+<span class="nc" id="L119">                ParseUtil.parseIntOrDefault(split[4], 0), // priority</span>
+<span class="nc" id="L120">                ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb</span>
+<span class="nc" id="L121">                ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb</span>
+<span class="nc" id="L122">                ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms</span>
+<span class="nc" id="L123">                ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms</span>
+                0L, 0L, // bytes read/written not easily available
+<span class="nc" id="L125">                System.currentTimeMillis() //</span>
         );
     }
 
@@ -129,7 +131,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L132">        return Libc.INSTANCE.getpid();</span>
+<span class="nc" id="L134">        return Libc.INSTANCE.getpid();</span>
     }
 
     /**
@@ -137,7 +139,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L140">        return ProcUtil.getPidFiles().length;</span>
+<span class="nc" id="L142">        return ProcUtil.getPidFiles().length;</span>
     }
 
     /**
@@ -145,12 +147,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L148">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
+<span class="nc" id="L150">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L151">            return threadList.size() - 1;</span>
+<span class="nc" id="L153">            return threadList.size() - 1;</span>
         }
-<span class="nc" id="L153">        return getProcessCount();</span>
+<span class="nc" id="L155">        return getProcessCount();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
