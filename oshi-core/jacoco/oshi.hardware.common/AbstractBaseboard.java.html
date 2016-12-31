@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractBaseboard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractBaseboard.java</span></div><h1>AbstractBaseboard.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2016 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+package oshi.hardware.common;
+
+import oshi.hardware.Baseboard;
+
+/**
+ * Baseboard data
+ * 
+ * @author widdis [at] gmail [dot] com
+ */
+public abstract class AbstractBaseboard implements Baseboard {
+
+    private static final long serialVersionUID = 1L;
+
+    private String manufacturer;
+    private String model;
+    private String version;
+    private String serialNumber;
+
+<span class="nc" id="L37">    public AbstractBaseboard() {</span>
+<span class="nc" id="L38">        this.manufacturer = &quot;unknown&quot;;</span>
+<span class="nc" id="L39">        this.model = &quot;unknown&quot;;</span>
+<span class="nc" id="L40">        this.version = &quot;unknown&quot;;</span>
+<span class="nc" id="L41">        this.serialNumber = &quot;&quot;;</span>
+<span class="nc" id="L42">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L49">        return manufacturer;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+<span class="nc" id="L57">        return model;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+<span class="nc" id="L65">        return version;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+<span class="nc" id="L73">        return serialNumber;</span>
+    }
+
+    /**
+     * @param manufacturer
+     *            The manufacturer to set.
+     */
+    public void setManufacturer(String manufacturer) {
+<span class="nc" id="L81">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L82">    }</span>
+
+    /**
+     * @param model
+     *            The model to set.
+     */
+    public void setModel(String model) {
+<span class="nc" id="L89">        this.model = model;</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * @param version
+     *            The version to set.
+     */
+    public void setVersion(String version) {
+<span class="nc" id="L97">        this.version = version;</span>
+<span class="nc" id="L98">    }</span>
+
+    /**
+     * @param serialNumber
+     *            The serialNumber to set.
+     */
+    public void setSerialNumber(String serialNumber) {
+<span class="nc" id="L105">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L106">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

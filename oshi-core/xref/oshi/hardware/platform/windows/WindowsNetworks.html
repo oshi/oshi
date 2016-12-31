@@ -67,9 +67,11 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          netIF.setBytesRecv(ifRow.InOctets);
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          netIF.setPacketsSent(ifRow.OutUcastPkts);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          netIF.setPacketsRecv(ifRow.InUcastPkts);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          netIF.setSpeed(ifRow.ReceiveLinkSpeed);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          netIF.setOutErrors(ifRow.OutErrors);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          netIF.setInErrors(ifRow.InErrors);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          netIF.setSpeed(ifRow.ReceiveLinkSpeed);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

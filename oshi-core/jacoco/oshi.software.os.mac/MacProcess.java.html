@@ -31,7 +31,7 @@ import oshi.software.os.OSProcess;
  */
 public class MacProcess extends AbstractProcess {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     /*
      * OS X States:
      */
@@ -45,7 +45,7 @@ public class MacProcess extends AbstractProcess {
 
     public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-<span class="nc" id="L48">            long now) {</span>
+<span class="nc" id="L48">            long bytesRead, long bytesWritten, long now) {</span>
 <span class="nc" id="L49">        this.name = name;</span>
 <span class="nc" id="L50">        this.path = path;</span>
 <span class="nc bnc" id="L51" title="All 7 branches missed.">        switch (osXState) {</span>
@@ -81,7 +81,9 @@ public class MacProcess extends AbstractProcess {
 <span class="nc" id="L81">        this.userTime = userTime;</span>
 <span class="nc" id="L82">        this.startTime = startTime;</span>
 <span class="nc" id="L83">        this.upTime = now - startTime;</span>
-<span class="nc" id="L84">    }</span>
+<span class="nc" id="L84">        this.bytesRead = bytesRead;</span>
+<span class="nc" id="L85">        this.bytesWritten = bytesWritten;</span>
+<span class="nc" id="L86">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

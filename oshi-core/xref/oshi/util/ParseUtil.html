@@ -446,20 +446,34 @@
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>     }
 <a class="jxr_linenumber" name="L439" href="#L439">439</a> 
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * Parses a string such as key = 1 (0x1) (int)</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">     * @param line</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     *            The entire string</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     * @return the value of first int past equals sign</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getFirstIntValue(String line) {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         String[] split = line.split(<span class="jxr_string">"="</span>);
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         }
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">return</strong> parseIntOrDefault(split[1].trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0);
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> }
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     * integer value of the first set of one or more consecutive digits</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     * @param line</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     *            The entire string</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     * @return the value of first integer if any; 0 otherwise</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getFirstIntValue(String line) {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">return</strong> getNthIntValue(line, 1);
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     * integer value of the nth set of one or more consecutive digits</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">     * @param line</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">     *            The entire string</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">     * @return the value of nth integer if any; 0 otherwise</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getNthIntValue(String line, <strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <em class="jxr_comment">// Split the string by non-digits,</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         String[] split = line.replaceFirst(<span class="jxr_string">"^[^0-9]*"</span>, <span class="jxr_string">""</span>).split(<span class="jxr_string">"[^0-9]+"</span>);
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">if</strong> (split.length &gt;= n) {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> parseIntOrDefault(split[n - 1], 0);
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

@@ -55,17 +55,20 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     int MNT_NOWAIT = 0x0010;
     int MNT_DWAIT = 0x0100;
 
-<span class="nc" id="L58">    class ProcTaskAllInfo extends Structure {</span>
+    // resource.h
+    int RUSAGE_INFO_V2 = 2;
+
+<span class="nc" id="L61">    class ProcTaskAllInfo extends Structure {</span>
         public ProcBsdInfo pbsd;
         public ProcTaskInfo ptinfo;
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L64">            return Arrays.asList(new String[] { &quot;pbsd&quot;, &quot;ptinfo&quot; });</span>
+<span class="nc" id="L67">            return Arrays.asList(new String[] { &quot;pbsd&quot;, &quot;ptinfo&quot; });</span>
         }
     }
 
-<span class="nc" id="L68">    class ProcBsdInfo extends Structure {</span>
+<span class="nc" id="L71">    class ProcBsdInfo extends Structure {</span>
         public int pbi_flags;
         public int pbi_status;
         public int pbi_xstatus;
@@ -78,8 +81,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         public int pbi_svuid;
         public int pbi_svgid;
         public int rfu_1;
-<span class="nc" id="L81">        public byte[] pbi_comm = new byte[MAXCOMLEN];</span>
-<span class="nc" id="L82">        public byte[] pbi_name = new byte[2 * MAXCOMLEN];</span>
+<span class="nc" id="L84">        public byte[] pbi_comm = new byte[MAXCOMLEN];</span>
+<span class="nc" id="L85">        public byte[] pbi_name = new byte[2 * MAXCOMLEN];</span>
         public int pbi_nfiles;
         public int pbi_pgid;
         public int pbi_pjobc;
@@ -91,14 +94,14 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L94">            return Arrays.asList(new String[] { &quot;pbi_flags&quot;, &quot;pbi_status&quot;, &quot;pbi_xstatus&quot;, &quot;pbi_pid&quot;, &quot;pbi_ppid&quot;,</span>
+<span class="nc" id="L97">            return Arrays.asList(new String[] { &quot;pbi_flags&quot;, &quot;pbi_status&quot;, &quot;pbi_xstatus&quot;, &quot;pbi_pid&quot;, &quot;pbi_ppid&quot;,</span>
                     &quot;pbi_uid&quot;, &quot;pbi_gid&quot;, &quot;pbi_ruid&quot;, &quot;pbi_rgid&quot;, &quot;pbi_svuid&quot;, &quot;pbi_svgid&quot;, &quot;rfu_1&quot;, &quot;pbi_comm&quot;,
                     &quot;pbi_name&quot;, &quot;pbi_nfiles&quot;, &quot;pbi_pgid&quot;, &quot;pbi_pjobc&quot;, &quot;e_tdev&quot;, &quot;e_tpgid&quot;, &quot;pbi_nice&quot;,
                     &quot;pbi_start_tvsec&quot;, &quot;pbi_start_tvusec&quot; });
         }
     }
 
-<span class="nc" id="L101">    class ProcTaskInfo extends Structure {</span>
+<span class="nc" id="L104">    class ProcTaskInfo extends Structure {</span>
         public long pti_virtual_size; /* virtual memory size (bytes) */
         public long pti_resident_size; /* resident memory size (bytes) */
         public long pti_total_user; /* total time (nanoseconds) */
@@ -120,10 +123,41 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L123">            return Arrays.asList(new String[] { &quot;pti_virtual_size&quot;, &quot;pti_resident_size&quot;, &quot;pti_total_user&quot;,</span>
+<span class="nc" id="L126">            return Arrays.asList(new String[] { &quot;pti_virtual_size&quot;, &quot;pti_resident_size&quot;, &quot;pti_total_user&quot;,</span>
                     &quot;pti_total_system&quot;, &quot;pti_threads_user&quot;, &quot;pti_threads_system&quot;, &quot;pti_policy&quot;, &quot;pti_faults&quot;,
                     &quot;pti_pageins&quot;, &quot;pti_cow_faults&quot;, &quot;pti_messages_sent&quot;, &quot;pti_messages_received&quot;, &quot;pti_syscalls_mach&quot;,
                     &quot;pti_syscalls_unix&quot;, &quot;pti_csw&quot;, &quot;pti_threadnum&quot;, &quot;pti_numrunning&quot;, &quot;pti_priority&quot; });
+        }
+    }
+
+<span class="nc" id="L133">    class RUsageInfoV2 extends Structure {</span>
+<span class="nc" id="L134">        public byte[] ri_uuid = new byte[16];</span>
+        public long ri_user_time;
+        public long ri_system_time;
+        public long ri_pkg_idle_wkups;
+        public long ri_interrupt_wkups;
+        public long ri_pageins;
+        public long ri_wired_size;
+        public long ri_resident_size;
+        public long ri_phys_footprint;
+        public long ri_proc_start_abstime;
+        public long ri_proc_exit_abstime;
+        public long ri_child_user_time;
+        public long ri_child_system_time;
+        public long ri_child_pkg_idle_wkups;
+        public long ri_child_interrupt_wkups;
+        public long ri_child_pageins;
+        public long ri_child_elapsed_abstime;
+        public long ri_diskio_bytesread;
+        public long ri_diskio_byteswritten;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L156">            return Arrays.asList(new String[] { &quot;ri_uuid&quot;, &quot;ri_user_time&quot;, &quot;ri_system_time&quot;, &quot;ri_pkg_idle_wkups&quot;,</span>
+                    &quot;ri_interrupt_wkups&quot;, &quot;ri_pageins&quot;, &quot;ri_wired_size&quot;, &quot;ri_resident_size&quot;, &quot;ri_phys_footprint&quot;,
+                    &quot;ri_proc_start_abstime&quot;, &quot;ri_proc_exit_abstime&quot;, &quot;ri_child_user_time&quot;, &quot;ri_child_system_time&quot;,
+                    &quot;ri_child_pkg_idle_wkups&quot;, &quot;ri_child_interrupt_wkups&quot;, &quot;ri_child_pageins&quot;,
+                    &quot;ri_child_elapsed_abstime&quot;, &quot;ri_diskio_bytesread&quot;, &quot;ri_diskio_byteswritten&quot; });
         }
     }
 
@@ -132,7 +166,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      * path argument is the path name of any file or directory within the
      * mounted file system. The buf argument is a pointer to a statfs structure.
      */
-<span class="nc" id="L135">    class Statfs extends Structure {</span>
+<span class="nc" id="L169">    class Statfs extends Structure {</span>
         public int f_bsize; /* fundamental file system block size */
         public int f_iosize; /* optimal transfer block size */
         public long f_blocks; /* total data blocks in file system */
@@ -140,22 +174,22 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         public long f_bavail; /* free blocks avail to non-superuser */
         public long f_files; /* total file nodes in file system */
         public long f_ffree; /* free file nodes in fs */
-<span class="nc" id="L143">        public int[] f_fsid = new int[2]; /* file system id */</span>
+<span class="nc" id="L177">        public int[] f_fsid = new int[2]; /* file system id */</span>
         public int f_owner; /* user that mounted the filesystem */
         public int f_type; /* type of filesystem */
         public int f_flags; /* copy of mount exported flags */
         public int f_fssubtype; /* fs sub-type (flavor) */
         /* fs type name */
-<span class="nc" id="L149">        public byte[] f_fstypename = new byte[MFSTYPENAMELEN];</span>
+<span class="nc" id="L183">        public byte[] f_fstypename = new byte[MFSTYPENAMELEN];</span>
         /* directory on which mounted */
-<span class="nc" id="L151">        public byte[] f_mntonname = new byte[MAXPATHLEN];</span>
+<span class="nc" id="L185">        public byte[] f_mntonname = new byte[MAXPATHLEN];</span>
         /* mounted filesystem */
-<span class="nc" id="L153">        public byte[] f_mntfromname = new byte[MAXPATHLEN];</span>
-<span class="nc" id="L154">        public int[] f_reserved = new int[8]; /* For future use */</span>
+<span class="nc" id="L187">        public byte[] f_mntfromname = new byte[MAXPATHLEN];</span>
+<span class="nc" id="L188">        public int[] f_reserved = new int[8]; /* For future use */</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L158">            return Arrays.asList(new String[] { &quot;f_bsize&quot;, &quot;f_iosize&quot;, &quot;f_blocks&quot;, &quot;f_bfree&quot;, &quot;f_bavail&quot;, &quot;f_files&quot;,</span>
+<span class="nc" id="L192">            return Arrays.asList(new String[] { &quot;f_bsize&quot;, &quot;f_iosize&quot;, &quot;f_blocks&quot;, &quot;f_bfree&quot;, &quot;f_bavail&quot;, &quot;f_files&quot;,</span>
                     &quot;f_ffree&quot;, &quot;f_fsid&quot;, &quot;f_owner&quot;, &quot;f_type&quot;, &quot;f_flags&quot;, &quot;f_fssubtype&quot;, &quot;f_fstypename&quot;, &quot;f_mntonname&quot;,
                     &quot;f_mntfromname&quot;, &quot;f_reserved&quot; });
         }
@@ -164,7 +198,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Return type for sysctl vm.swapusage
      */
-<span class="nc" id="L167">    class XswUsage extends Structure {</span>
+<span class="nc" id="L201">    class XswUsage extends Structure {</span>
         public long xsu_total;
         public long xsu_avail;
         public long xsu_used;
@@ -173,28 +207,28 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L176">            return Arrays</span>
-<span class="nc" id="L177">                    .asList(new String[] { &quot;xsu_total&quot;, &quot;xsu_avail&quot;, &quot;xsu_used&quot;, &quot;xsu_pagesize&quot;, &quot;xsu_encrypted&quot; });</span>
+<span class="nc" id="L210">            return Arrays</span>
+<span class="nc" id="L211">                    .asList(new String[] { &quot;xsu_total&quot;, &quot;xsu_avail&quot;, &quot;xsu_used&quot;, &quot;xsu_pagesize&quot;, &quot;xsu_encrypted&quot; });</span>
         }
     }
 
     /**
      * Return type for sysctl kern.boottime
      */
-<span class="nc" id="L184">    class Timeval extends Structure {</span>
+<span class="nc" id="L218">    class Timeval extends Structure {</span>
         public int tv_sec; // seconds
         public int tv_usec; // microseconds
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L190">            return Arrays.asList(new String[] { &quot;tv_sec&quot;, &quot;tv_usec&quot; });</span>
+<span class="nc" id="L224">            return Arrays.asList(new String[] { &quot;tv_sec&quot;, &quot;tv_usec&quot; });</span>
         }
     }
 
     /**
      * Data type as part of IFmsgHdr
      */
-<span class="nc" id="L197">    class IFdata extends Structure {</span>
+<span class="nc" id="L231">    class IFdata extends Structure {</span>
         public byte ifi_type; // ethernet, tokenring, etc
         public byte ifi_typelen; // Length of frame type id
         public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
@@ -227,7 +261,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L230">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
+<span class="nc" id="L264">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
                     &quot;ifi_recvquota&quot;, &quot;ifi_xmitquota&quot;, &quot;ifi_unused1&quot;, &quot;ifi_mtu&quot;, &quot;ifi_metric&quot;, &quot;ifi_baudrate&quot;,
                     &quot;ifi_ipackets&quot;, &quot;ifi_ierrors&quot;, &quot;ifi_opackets&quot;, &quot;ifi_oerrors&quot;, &quot;ifi_collisions&quot;, &quot;ifi_ibytes&quot;,
                     &quot;ifi_obytes&quot;, &quot;ifi_imcasts&quot;, &quot;ifi_omcasts&quot;, &quot;ifi_iqdrops&quot;, &quot;ifi_noproto&quot;, &quot;ifi_recvtiming&quot;,
@@ -249,16 +283,16 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         public IFdata ifm_data; // statistics and other data about if
 
         public IFmsgHdr() {
-<span class="nc" id="L252">            super();</span>
-<span class="nc" id="L253">        }</span>
+<span class="nc" id="L286">            super();</span>
+<span class="nc" id="L287">        }</span>
 
         public IFmsgHdr(Pointer p) {
-<span class="nc" id="L256">            super(p);</span>
-<span class="nc" id="L257">        }</span>
+<span class="nc" id="L290">            super(p);</span>
+<span class="nc" id="L291">        }</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L261">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
+<span class="nc" id="L295">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
                     &quot;ifm_index&quot;, &quot;ifm_data&quot; });
         }
     }
@@ -266,7 +300,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     /**
      * Data type as part of IFmsgHdr
      */
-<span class="nc" id="L269">    class IFdata64 extends Structure {</span>
+<span class="nc" id="L303">    class IFdata64 extends Structure {</span>
         public byte ifi_type; // ethernet, tokenring, etc
         public byte ifi_typelen; // Length of frame type id
         public byte ifi_physical; // e.g., AUI, Thinnet, 10base-T, etc
@@ -295,7 +329,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L298">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
+<span class="nc" id="L332">            return Arrays.asList(new String[] { &quot;ifi_type&quot;, &quot;ifi_typelen&quot;, &quot;ifi_physical&quot;, &quot;ifi_addrlen&quot;, &quot;ifi_hdrlen&quot;,</span>
                     &quot;ifi_recvquota&quot;, &quot;ifi_xmitquota&quot;, &quot;ifi_unused1&quot;, &quot;ifi_mtu&quot;, &quot;ifi_metric&quot;, &quot;ifi_baudrate&quot;,
                     &quot;ifi_ipackets&quot;, &quot;ifi_ierrors&quot;, &quot;ifi_opackets&quot;, &quot;ifi_oerrors&quot;, &quot;ifi_collisions&quot;, &quot;ifi_ibytes&quot;,
                     &quot;ifi_obytes&quot;, &quot;ifi_imcasts&quot;, &quot;ifi_omcasts&quot;, &quot;ifi_iqdrops&quot;, &quot;ifi_noproto&quot;, &quot;ifi_recvtiming&quot;,
@@ -320,12 +354,12 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
         public IFdata64 ifm_data; // statistics and other data about if
 
         public IFmsgHdr2(Pointer p) {
-<span class="nc" id="L323">            super(p);</span>
-<span class="nc" id="L324">        }</span>
+<span class="nc" id="L357">            super(p);</span>
+<span class="nc" id="L358">        }</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L328">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
+<span class="nc" id="L362">            return Arrays.asList(new String[] { &quot;ifm_msglen&quot;, &quot;ifm_version&quot;, &quot;ifm_type&quot;, &quot;ifm_addrs&quot;, &quot;ifm_flags&quot;,</span>
                     &quot;ifm_index&quot;, &quot;ifm_snd_len&quot;, &quot;ifm_snd_maxlen&quot;, &quot;ifm_snd_drops&quot;, &quot;ifm_timer&quot;, &quot;ifm_data&quot; });
         }
     }
@@ -388,6 +422,21 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
     int proc_pidpath(int pid, Pointer buffer, int buffersize);
 
     /**
+     * Return resource usage information for the given pid, which can be a live
+     * process or a zombie.
+     *
+     * @param pid
+     *            the process identifier
+     * @param flavor
+     *            the type of information requested
+     * @param buffer
+     *            holds results
+     * @return 0 on success; or -1 on failure, with errno set to indicate the
+     *         specific error.
+     */
+    int proc_pid_rusage(int pid, int flavor, RUsageInfoV2 buffer);
+
+    /**
      * The getfsstat() function returns information about all mounted file
      * systems. The buf argument is a pointer to an array of statfs structures.
      *
@@ -424,4 +473,4 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB {
      */
     int getpid();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

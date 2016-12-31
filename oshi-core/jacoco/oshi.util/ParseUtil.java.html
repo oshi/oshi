@@ -438,18 +438,32 @@ public class ParseUtil {
     }
 
     /**
-     * Parses a string such as key = 1 (0x1) (int)
+     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the
+     * integer value of the first set of one or more consecutive digits
      *
      * @param line
      *            The entire string
-     * @return the value of first int past equals sign
+     * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-<span class="fc" id="L448">        String[] split = line.split(&quot;=&quot;);</span>
-<span class="fc bfc" id="L449" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
-<span class="fc" id="L450">            return 0;</span>
+<span class="fc" id="L449">        return getNthIntValue(line, 1);</span>
+    }
+
+    /**
+     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the
+     * integer value of the nth set of one or more consecutive digits
+     *
+     * @param line
+     *            The entire string
+     * @return the value of nth integer if any; 0 otherwise
+     */
+    public static int getNthIntValue(String line, int n) {
+        // Split the string by non-digits,
+<span class="fc" id="L462">        String[] split = line.replaceFirst(&quot;^[^0-9]*&quot;, &quot;&quot;).split(&quot;[^0-9]+&quot;);</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
+<span class="fc" id="L464">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="fc" id="L452">        return parseIntOrDefault(split[1].trim().split(&quot;\\s+&quot;)[0], 0);</span>
+<span class="fc" id="L466">        return 0;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

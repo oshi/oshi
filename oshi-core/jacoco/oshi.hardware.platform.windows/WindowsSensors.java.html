@@ -105,7 +105,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc bnc" id="L105" title="All 2 branches missed.">        if (tempK &gt; 2732) {</span>
 <span class="nc" id="L106">            tempC = tempK / 10d - 273.15;</span>
 <span class="nc bnc" id="L107" title="All 2 branches missed.">        } else if (tempK &gt; 274) {</span>
-<span class="nc" id="L108">            tempC = tempK - 273;</span>
+<span class="nc" id="L108">            tempC = tempK - 273d;</span>
         }
 <span class="nc bnc" id="L110" title="All 2 branches missed.">        if (tempC &lt;= 0d) {</span>
             // Unable to get temperature via WMI. Future attempts will be
@@ -236,4 +236,4 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L236">        return volts;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

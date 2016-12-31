@@ -30,7 +30,7 @@ import oshi.software.os.OSProcess;
  */
 <span class="nc" id="L31">public class AbstractProcess implements OSProcess {</span>
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected String name;
     protected String path;
@@ -45,13 +45,15 @@ import oshi.software.os.OSProcess;
     protected long userTime;
     protected long startTime;
     protected long upTime;
+    protected long bytesRead;
+    protected long bytesWritten;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L54">        return this.name;</span>
+<span class="nc" id="L56">        return this.name;</span>
     }
 
     /**
@@ -59,7 +61,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public String getPath() {
-<span class="nc" id="L62">        return this.path;</span>
+<span class="nc" id="L64">        return this.path;</span>
     }
 
     /**
@@ -67,7 +69,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public State getState() {
-<span class="nc" id="L70">        return this.state;</span>
+<span class="nc" id="L72">        return this.state;</span>
     }
 
     /**
@@ -75,7 +77,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public int getProcessID() {
-<span class="nc" id="L78">        return this.processID;</span>
+<span class="nc" id="L80">        return this.processID;</span>
     }
 
     /**
@@ -83,7 +85,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L86">        return this.parentProcessID;</span>
+<span class="nc" id="L88">        return this.parentProcessID;</span>
     }
 
     /**
@@ -91,7 +93,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L94">        return this.threadCount;</span>
+<span class="nc" id="L96">        return this.threadCount;</span>
     }
 
     /**
@@ -99,7 +101,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public int getPriority() {
-<span class="nc" id="L102">        return this.priority;</span>
+<span class="nc" id="L104">        return this.priority;</span>
     }
 
     /**
@@ -107,7 +109,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L110">        return this.virtualSize;</span>
+<span class="nc" id="L112">        return this.virtualSize;</span>
     }
 
     /**
@@ -115,7 +117,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L118">        return this.residentSetSize;</span>
+<span class="nc" id="L120">        return this.residentSetSize;</span>
     }
 
     /**
@@ -123,7 +125,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getKernelTime() {
-<span class="nc" id="L126">        return this.kernelTime;</span>
+<span class="nc" id="L128">        return this.kernelTime;</span>
     }
 
     /**
@@ -131,7 +133,7 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getUserTime() {
-<span class="nc" id="L134">        return this.userTime;</span>
+<span class="nc" id="L136">        return this.userTime;</span>
     }
 
     /**
@@ -139,10 +141,10 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getUpTime() {
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
-<span class="nc" id="L143">            return this.kernelTime + this.userTime;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
+<span class="nc" id="L145">            return this.kernelTime + this.userTime;</span>
         }
-<span class="nc" id="L145">        return this.upTime;</span>
+<span class="nc" id="L147">        return this.upTime;</span>
     }
 
     /**
@@ -150,7 +152,23 @@ import oshi.software.os.OSProcess;
      */
     @Override
     public long getStartTime() {
-<span class="nc" id="L153">        return this.startTime;</span>
+<span class="nc" id="L155">        return this.startTime;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesRead() {
+<span class="nc" id="L163">        return bytesRead;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBytesWritten() {
+<span class="nc" id="L171">        return bytesWritten;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

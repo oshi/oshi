@@ -19,6 +19,7 @@
 package oshi.software.os.linux;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -43,123 +44,132 @@ public class LinuxProcess extends AbstractProcess {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(LinuxProcess.class);</span>
+<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(LinuxProcess.class);</span>
 
     /**
      * Jiffies per second, used for process time counters.
      */
-<span class="nc" id="L51">    private static long hz = 1000L;</span>
+<span class="nc" id="L52">    private static long hz = 1000L;</span>
 
     /**
      * Boot time in MS.
      */
-<span class="nc" id="L56">    private static long bootTime = 0L;</span>
+<span class="nc" id="L57">    private static long bootTime = 0L;</span>
 
     static {
-<span class="nc" id="L59">        init();</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L60">        init();</span>
+<span class="nc" id="L61">    }</span>
 
     public LinuxProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-<span class="nc" id="L64">            long now) {</span>
-<span class="nc" id="L65">        this.name = name;</span>
-<span class="nc" id="L66">        this.path = path;</span>
-<span class="nc bnc" id="L67" title="All 6 branches missed.">        switch (state) {</span>
+<span class="nc" id="L65">            long bytesRead, long bytesWritten, long now) {</span>
+<span class="nc" id="L66">        this.name = name;</span>
+<span class="nc" id="L67">        this.path = path;</span>
+<span class="nc bnc" id="L68" title="All 6 branches missed.">        switch (state) {</span>
         case 'R':
-<span class="nc" id="L69">            this.state = OSProcess.State.RUNNING;</span>
-<span class="nc" id="L70">            break;</span>
+<span class="nc" id="L70">            this.state = OSProcess.State.RUNNING;</span>
+<span class="nc" id="L71">            break;</span>
         case 'S':
-<span class="nc" id="L72">            this.state = OSProcess.State.SLEEPING;</span>
-<span class="nc" id="L73">            break;</span>
+<span class="nc" id="L73">            this.state = OSProcess.State.SLEEPING;</span>
+<span class="nc" id="L74">            break;</span>
         case 'D':
-<span class="nc" id="L75">            this.state = OSProcess.State.WAITING;</span>
-<span class="nc" id="L76">            break;</span>
+<span class="nc" id="L76">            this.state = OSProcess.State.WAITING;</span>
+<span class="nc" id="L77">            break;</span>
         case 'Z':
-<span class="nc" id="L78">            this.state = OSProcess.State.ZOMBIE;</span>
-<span class="nc" id="L79">            break;</span>
+<span class="nc" id="L79">            this.state = OSProcess.State.ZOMBIE;</span>
+<span class="nc" id="L80">            break;</span>
         case 'T':
-<span class="nc" id="L81">            this.state = OSProcess.State.STOPPED;</span>
-<span class="nc" id="L82">            break;</span>
+<span class="nc" id="L82">            this.state = OSProcess.State.STOPPED;</span>
+<span class="nc" id="L83">            break;</span>
         default:
-<span class="nc" id="L84">            this.state = OSProcess.State.OTHER;</span>
+<span class="nc" id="L85">            this.state = OSProcess.State.OTHER;</span>
             break;
         }
-<span class="nc" id="L87">        this.processID = processID;</span>
-<span class="nc" id="L88">        this.parentProcessID = parentProcessID;</span>
-<span class="nc" id="L89">        this.threadCount = threadCount;</span>
-<span class="nc" id="L90">        this.priority = priority;</span>
-<span class="nc" id="L91">        this.virtualSize = virtualSize;</span>
-<span class="nc" id="L92">        this.residentSetSize = residentSetSize;</span>
-<span class="nc" id="L93">        this.kernelTime = kernelTime * 1000L / hz;</span>
-<span class="nc" id="L94">        this.userTime = userTime * 1000L / hz;</span>
-<span class="nc" id="L95">        this.startTime = bootTime + startTime * 1000L / hz;</span>
-<span class="nc" id="L96">        this.upTime = now - this.startTime;</span>
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L88">        this.processID = processID;</span>
+<span class="nc" id="L89">        this.parentProcessID = parentProcessID;</span>
+<span class="nc" id="L90">        this.threadCount = threadCount;</span>
+<span class="nc" id="L91">        this.priority = priority;</span>
+<span class="nc" id="L92">        this.virtualSize = virtualSize;</span>
+<span class="nc" id="L93">        this.residentSetSize = residentSetSize;</span>
+<span class="nc" id="L94">        this.kernelTime = kernelTime * 1000L / hz;</span>
+<span class="nc" id="L95">        this.userTime = userTime * 1000L / hz;</span>
+<span class="nc" id="L96">        this.startTime = bootTime + startTime * 1000L / hz;</span>
+<span class="nc" id="L97">        this.upTime = now - this.startTime;</span>
+<span class="nc" id="L98">        this.bytesRead = bytesRead;</span>
+<span class="nc" id="L99">        this.bytesWritten = bytesWritten;</span>
+<span class="nc" id="L100">    }</span>
 
     /**
      * Correlate the youngest process start time in seconds with start time in
      * jiffies
      */
     private static void init() {
-        // Search through all processes to find the youngest one, with the
-        // latest start time since boot.
-
-        // Iterate /proc/[pid]/stat checking the creation time (field 22,
-        // jiffies since boot) for the largest value
-<span class="nc" id="L109">        File[] pids = ProcUtil.getPidFiles();</span>
-<span class="nc" id="L110">        long youngestJiffies = 0L;</span>
-<span class="nc" id="L111">        String youngestPid = &quot;&quot;;</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (File pid : pids) {</span>
-<span class="nc" id="L113">            List&lt;String&gt; stat = FileUtil.readFile(String.format(&quot;/proc/%s/stat&quot;, pid.getName()));</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (!stat.isEmpty()) {</span>
-<span class="nc" id="L115">                String[] split = stat.get(0).split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (split.length &lt; 22) {</span>
-<span class="nc" id="L117">                    continue;</span>
-                }
-<span class="nc" id="L119">                long jiffies = ParseUtil.parseLongOrDefault(split[21], 0L);</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                if (jiffies &gt; youngestJiffies) {</span>
-<span class="nc" id="L121">                    youngestJiffies = jiffies;</span>
-<span class="nc" id="L122">                    youngestPid = pid.getName();</span>
-                }
-            }
-        }
-<span class="nc" id="L126">        LOG.debug(&quot;Youngest PID is {} with {} jiffies&quot;, youngestPid, youngestJiffies);</span>
-        // Shouldn't happen but avoiding Division by zero
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (youngestJiffies == 0) {</span>
-<span class="nc" id="L129">            LOG.error(&quot;Couldn't find any running processes, which is odd since we are in a running process. &quot;</span>
-                    + &quot;Process time values are in jiffies, not milliseconds.&quot;);
-<span class="nc" id="L131">            return;</span>
-        }
-
-<span class="nc" id="L134">        float startTimeSecsSinceBoot = ProcUtil.getSystemUptimeFromProc();</span>
-<span class="nc" id="L135">        bootTime = System.currentTimeMillis() - (long) (1000 * startTimeSecsSinceBoot);</span>
-        // Now execute `ps -p &lt;pid&gt; -o etimes=` to get the elapsed time of this
-        // process in seconds.Timeline:
+        // To correlate a process start time in seconds with the same process
+        // start time in jiffies. We prefer the youngest (or close to it) which
+        // minimizes its up time (etime)
+        // Timeline:
         // BOOT|&lt;----jiffies----&gt;|&lt;----etime----&gt;|NOW
         // BOOT|&lt;------------uptime-------------&gt;|NOW
 
+        // To avoid having to check all processes we can just pick the highest
+        // PID. This will either be the youngest one or at least big enough.
+
+        // Get all the pid files (guaranteed to be digit-only filenames)
+<span class="nc" id="L118">        File[] pids = ProcUtil.getPidFiles();</span>
+        // Sort descending &quot;numerically&quot;
+<span class="nc" id="L120">        Arrays.sort(pids, (f1, f2) -&gt; Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName())));</span>
+
+        // Iterate /proc/[pid]/stat checking the creation time (field 22,
+        // jiffies since boot). Since we're working on descending PIDs, we
+        // expect the first (higher PIDs) to be younger, but may have processes
+        // that ended since we collected the files. The first time we get a
+        // value we'll save it as the youngest and quit.
+<span class="nc" id="L127">        long youngestJiffies = 0L;</span>
+<span class="nc" id="L128">        String youngestPid = &quot;&quot;;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (File pid : pids) {</span>
+<span class="nc" id="L130">            List&lt;String&gt; stat = FileUtil.readFile(String.format(&quot;/proc/%s/stat&quot;, pid.getName()));</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (!stat.isEmpty()) {</span>
+<span class="nc" id="L132">                String[] split = stat.get(0).split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                if (split.length &gt;= 22) {</span>
+<span class="nc" id="L134">                    youngestJiffies = ParseUtil.parseLongOrDefault(split[21], 0L);</span>
+<span class="nc" id="L135">                    youngestPid = pid.getName();</span>
+<span class="nc" id="L136">                    break;</span>
+                }
+            }
+        }
+<span class="nc" id="L140">        LOG.debug(&quot;Youngest PID is {} with {} jiffies&quot;, youngestPid, youngestJiffies);</span>
+        // Shouldn't happen but avoiding Division by zero
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (youngestJiffies == 0) {</span>
+<span class="nc" id="L143">            LOG.error(&quot;Couldn't find any running processes, which is odd since we are in a running process. &quot;</span>
+                    + &quot;Process time values are in jiffies, not milliseconds.&quot;);
+<span class="nc" id="L145">            return;</span>
+        }
+
+<span class="nc" id="L148">        float startTimeSecsSinceBoot = ProcUtil.getSystemUptimeFromProc();</span>
+<span class="nc" id="L149">        bootTime = System.currentTimeMillis() - (long) (1000 * startTimeSecsSinceBoot);</span>
+
         // This takes advantage of the fact that ps does all the heavy lifting
         // of sorting out HZ internally.
-<span class="nc" id="L143">        String etime = ExecutingCommand.getFirstAnswer(String.format(&quot;ps -p %s -o etimes=&quot;, youngestPid));</span>
+<span class="nc" id="L153">        String etime = ExecutingCommand.getFirstAnswer(String.format(&quot;ps -p %s -o etimes=&quot;, youngestPid));</span>
         // Since we picked the youngest process, it's safe to assume an
         // etime close to 0 in case this command fails; the longer the system
         // has been up, the less impact this assumption will have
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (!etime.isEmpty()) {</span>
-<span class="nc" id="L148">            LOG.debug(&quot;Etime is {} seconds&quot;, etime.trim());</span>
-<span class="nc" id="L149">            startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (!etime.isEmpty()) {</span>
+<span class="nc" id="L158">            LOG.debug(&quot;Etime is {} seconds&quot;, etime.trim());</span>
+<span class="nc" id="L159">            startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());</span>
         }
         // By subtracting etime (secs) from uptime (secs) we get uptime (in
         // secs) when the process was started. This correlates with startTime in
         // jiffies for this process
-<span class="nc" id="L154">        LOG.debug(&quot;Start time in secs: {}&quot;, startTimeSecsSinceBoot);</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (startTimeSecsSinceBoot &lt;= 0) {</span>
-<span class="nc" id="L156">            LOG.warn(&quot;Couldn't calculate jiffies per second. &quot;</span>
+<span class="nc" id="L164">        LOG.debug(&quot;Start time in secs: {}&quot;, startTimeSecsSinceBoot);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (startTimeSecsSinceBoot &lt;= 0) {</span>
+<span class="nc" id="L166">            LOG.warn(&quot;Couldn't calculate jiffies per second. &quot;</span>
                     + &quot;Process time values are in jiffies, not milliseconds.&quot;);
-<span class="nc" id="L158">            return;</span>
+<span class="nc" id="L168">            return;</span>
         }
 
         // divide jiffies (since boot) by seconds (since boot)
-<span class="nc" id="L162">        hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);</span>
-<span class="nc" id="L163">    }</span>
+<span class="nc" id="L172">        hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);</span>
+<span class="nc" id="L173">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
