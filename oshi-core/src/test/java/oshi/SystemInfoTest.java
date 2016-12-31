@@ -278,11 +278,13 @@ public class SystemInfoTest {
             System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
             boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
                     || net.getPacketsSent() > 0;
-            System.out.format("   Traffic: received %s/%s; transmitted %s/%s %n",
+            System.out.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",
                     hasData ? net.getPacketsRecv() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
+                    hasData ? " (" + net.getInErrors() + " err)" : "",
                     hasData ? net.getPacketsSent() + " packets" : "?",
-                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?");
+                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
+                    hasData ? " (" + net.getOutErrors() + " err)" : "");
         }
     }
 

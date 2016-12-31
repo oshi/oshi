@@ -8,6 +8,7 @@
 * [#284](https://github.com/dblock/oshi/pull/284): Remove incorrect IOWait counter from WindowsCentralProcessor - [@dbwiddis](https://github.com/dbwiddis).
 * [#285](https://github.com/dblock/oshi/pull/285): Rebrand Mac OS 10.12+ as macOS - [@dbwiddis](https://github.com/dbwiddis).
 * [#286](https://github.com/dblock/oshi/pull/286): Reduce required calculations for LinuxProcess initialization - [@dbwiddis](https://github.com/dbwiddis).
+* [#290](https://github.com/dblock/oshi/pull/286): Add input/output errors to Network IF - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.2 (9/1/2016)
