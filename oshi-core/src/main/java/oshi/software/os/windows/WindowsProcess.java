@@ -49,7 +49,7 @@ public class WindowsProcess extends AbstractProcess {
 
     public WindowsProcess(String name, String path, int winState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long now) {
+            long bytesRead, long bytesWritten, long now) {
         this.name = name;
         this.path = path;
         switch (winState) {
@@ -89,6 +89,8 @@ public class WindowsProcess extends AbstractProcess {
         this.userTime = userTime;
         this.startTime = startTime;
         this.upTime = now - startTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
     }
 
 }

@@ -65,5 +65,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getUserTime() >= 0);
         assertTrue(proc.getUpTime() >= 0);
         assertTrue(proc.getStartTime() >= 0);
+        assertTrue(proc.getBytesRead() >= 0);
+        assertTrue(proc.getBytesWritten() >= 0);
     }
 }

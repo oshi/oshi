@@ -88,6 +88,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                     ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
                     ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
                     ParseUtil.parseDHMSOrDefault(split[9], 0L), // usr+sys ms
+                    0L, 0L, // 'top -bm io' gives read/write counts, not bytes
                     now //
             ));
         }
@@ -124,6 +125,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
                 ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
                 ParseUtil.parseDHMSOrDefault(split[9], 0L), // process ms
+                0L, 0L, // 'top -bm io' gives read/write counts, not bytes
                 System.currentTimeMillis() //
         );
     }

@@ -43,10 +43,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     // For WMI Process queries
     private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
-            + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate";
+            + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
+            + ",ReadTransferCount,WriteTransferCount";
     private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.DATETIME };
+            ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64, ValueType.UINT64 };
 
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
@@ -101,7 +102,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     // Kernel and User time units are 100ns
                     ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
                     ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
-                    (Long) procs.get("CreationDate").get(p), now));
+                    (Long) procs.get("CreationDate").get(p), (Long) procs.get("ReadTransferCount").get(p),
+                    (Long) procs.get("WriteTransferCount").get(p), now));
         }
 
         return procList;

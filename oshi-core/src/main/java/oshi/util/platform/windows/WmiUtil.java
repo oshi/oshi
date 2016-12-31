@@ -60,7 +60,7 @@ public class WmiUtil {
      * Enum for WMI queries for proper parsing from the returned VARIANT
      */
     public enum ValueType {
-        STRING, UINT32, FLOAT, DATETIME, BOOLEAN
+        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64
     }
 
     /**
@@ -480,6 +480,7 @@ public class WmiUtil {
                     break;
                 // WMI Uint32s will return as longs
                 case UINT32: // WinDef.LONG TODO improve in JNA 4.3
+                case UINT64:
                     values.get(property)
                             .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());
                     break;

@@ -85,6 +85,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                     ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
                     ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
                     ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
+                    0L, 0L, // bytes read/written not easily available
                     now //
             ));
         }
@@ -120,6 +121,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
                 ParseUtil.parseDHMSOrDefault(split[7], 0L), // elapsed ms
                 ParseUtil.parseDHMSOrDefault(split[8], 0L), // process ms
+                0L, 0L, // bytes read/written not easily available
                 System.currentTimeMillis() //
         );
     }

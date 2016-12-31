@@ -122,8 +122,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 taskAllInfo.ptinfo.pti_threadnum, taskAllInfo.ptinfo.pti_priority, taskAllInfo.ptinfo.pti_virtual_size,
                 taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system / 1000000L,
                 taskAllInfo.ptinfo.pti_total_user / 1000000L,
-                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L,
-                System.currentTimeMillis(), bytesRead, bytesWritten);
+                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L, bytesRead,
+                bytesWritten, System.currentTimeMillis());
     }
 
     /**

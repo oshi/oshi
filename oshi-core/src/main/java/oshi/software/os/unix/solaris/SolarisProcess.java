@@ -34,7 +34,8 @@ public class SolarisProcess extends AbstractProcess {
     private static final long serialVersionUID = 1L;
 
     public SolarisProcess(String name, String path, char state, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long now) {
+            int priority, long virtualSize, long residentSetSize, long elapsedTime, long processTime, long bytesRead,
+            long bytesWritten, long now) {
         this.name = name;
         this.path = path;
         switch (state) {
@@ -70,5 +71,7 @@ public class SolarisProcess extends AbstractProcess {
         // Avoid divide by zero for processes up less than a second
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
     }
 }

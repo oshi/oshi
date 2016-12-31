@@ -45,7 +45,7 @@ public class MacProcess extends AbstractProcess {
 
     public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
             int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long now, long bytesRead, long bytesWritten) {
+            long bytesRead, long bytesWritten, long now) {
         this.name = name;
         this.path = path;
         switch (osXState) {
