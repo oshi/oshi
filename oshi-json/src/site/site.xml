@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Oshi (https://github.com/dblock/oshi)
+
+    Copyright (c) 2010 - 2016 The Oshi Project Team
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Maintainers:
+    dblock[at]dblock[dot]org
+    widdis[at]gmail[dot]com
+    enrico.bianchi[at]gmail[dot]com
+
+    Contributors:
+    https://github.com/dblock/oshi/graphs/contributors
+
+-->
+<project xmlns="http://maven.apache.org/DECORATION/1.7.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="${project.name}"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.7.0 http://maven.apache.org/xsd/decoration-1.7.0.xsd">
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.5</version>
+	</skin>
+	<custom>
+		<fluidoSkin>
+			<topBarEnabled>true</topBarEnabled>
+			<sideBarEnabled>true</sideBarEnabled>
+		</fluidoSkin>
+	</custom>
+	<body>
+		<links>
+			<item name="oshi" href="http://github.com/dblock/oshi" />
+		</links>
+		<menu name="User guide">
+			<item href="README.html" name="README" />
+		</menu>
+		<menu ref="reports" />
+		<menu ref="parent" inherit="top" />
+		<menu ref="modules" inherit="top" />
+	</body>
+</project>
