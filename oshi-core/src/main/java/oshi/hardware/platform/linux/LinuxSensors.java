@@ -19,7 +19,6 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class LinuxSensors implements Sensors {
         // Iterate over all hwmon* directories and look for sensor files
         // e.g. /sys/class/hwmon/hwmon0/temp1_input
         int i = 0;
-        while (Files.isDirectory(Paths.get(HWMON + i))) {
+        while (Paths.get(HWMON + i).toFile().isDirectory()) {
             for (String sensor : SENSORS) {
                 String path = HWMON + i;
                 // Final to pass to anonymous class

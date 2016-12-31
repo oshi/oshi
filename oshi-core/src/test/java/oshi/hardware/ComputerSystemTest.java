@@ -21,6 +21,8 @@ package oshi.hardware;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
+
 import org.junit.Test;
 
 import oshi.SystemInfo;
@@ -47,7 +49,7 @@ public class ComputerSystemTest {
         assertNotNull(fw.getName());
         assertNotNull(fw.getDescription());
         assertNotNull(fw.getVersion());
-        assertTrue(fw.getReleaseDate() == null || fw.getReleaseDate().getTime() < System.currentTimeMillis());
+        assertTrue(fw.getReleaseDate() == null || !fw.getReleaseDate().isAfter(LocalDate.now()));
 
         Baseboard bb = cs.getBaseboard();
         assertNotNull(bb);

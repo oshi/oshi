@@ -18,26 +18,13 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
+import oshi.util.FormatUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdFirmware.class);
-
-    // TODO: Is release really not language-dependent?
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
     FreeBsdFirmware() {
         init();
@@ -83,14 +70,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
             setVersion(version);
         }
         if (!releaseDate.isEmpty()) {
-            try {
-                final Date result = DATE_FORMAT.parse(releaseDate.trim());
-                if (result != null) {
-                    setReleaseDate(result);
-                }
-            } catch (final ParseException e) {
-                LOG.warn("could not parse date string: " + releaseDate, e);
-            }
+            setReleaseDate(FormatUtil.formatStringDate(releaseDate));
         }
     }
 }

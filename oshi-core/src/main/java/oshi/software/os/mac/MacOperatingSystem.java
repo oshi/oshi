@@ -110,7 +110,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        long bytesRead = 0, bytesWritten = 0;
+        long bytesRead = 0;
+        long bytesWritten = 0;
         if (getVersion().getOsxVersionNumber() >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
             if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {

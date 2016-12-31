@@ -18,18 +18,10 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.FormatUtil;
 
 /**
  * Firmware data obtained by sysfs
@@ -40,11 +32,6 @@ import oshi.util.FileUtil;
 final class LinuxFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxFirmware.class);
-
-    // TODO: Is that really not language-dependent?
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
@@ -131,15 +118,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
         final String biosDate = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "bios_date");
         if (biosDate != null && !biosDate.trim().isEmpty()) {
-
-            try {
-                final Date result = DATE_FORMAT.parse(biosDate.trim());
-                if (result != null) {
-                    setReleaseDate(result);
-                }
-            } catch (final ParseException e) {
-                LOG.warn("could not parse date string: " + biosDate, e);
-            }
+            setReleaseDate(FormatUtil.formatStringDate(biosDate.trim()));
         }
 
         // name --> not set

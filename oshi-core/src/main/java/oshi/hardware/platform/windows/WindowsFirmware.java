@@ -18,7 +18,8 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ final class WindowsFirmware extends AbstractFirmware {
 
         final List<Object> releaseDate = win32BIOS.get("ReleaseDate");
         if (releaseDate != null && releaseDate.size() == 1) {
-            setReleaseDate(new Date((Long) releaseDate.get(0)));
+            setReleaseDate(Instant.ofEpochMilli((Long) releaseDate.get(0)).atZone(ZoneOffset.UTC).toLocalDate());
         }
     }
 }

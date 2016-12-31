@@ -18,17 +18,9 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
+import oshi.util.FormatUtil;
 
 /**
  * Hardware data obtained from smbios
@@ -38,11 +30,6 @@ import oshi.util.ExecutingCommand;
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisComputerSystem.class);
-
-    // TODO: Is release really not language-dependent?
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
     SolarisComputerSystem() {
         init();
@@ -168,14 +155,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             firmware.setVersion(biosVersion);
         }
         if (!biosDate.isEmpty()) {
-            try {
-                final Date result = DATE_FORMAT.parse(biosDate.trim());
-                if (result != null) {
-                    firmware.setReleaseDate(result);
-                }
-            } catch (final ParseException e) {
-                LOG.warn("could not parse date string: " + biosDate, e);
-            }
+            firmware.setReleaseDate(FormatUtil.formatStringDate(biosDate));
         }
 
         if (!manufacturer.isEmpty()) {

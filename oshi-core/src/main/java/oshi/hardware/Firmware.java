@@ -19,7 +19,7 @@
 package oshi.hardware;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * The Firmware represents the low level BIOS or equivalent
@@ -36,5 +36,5 @@ public interface Firmware extends Serializable {
 
     String getVersion();
 
-    Date getReleaseDate();
+    LocalDate getReleaseDate();
 }

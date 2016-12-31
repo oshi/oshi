@@ -19,9 +19,13 @@
 package oshi.util;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -29,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
+    private static Logger LOG = LoggerFactory.getLogger(FormatUtil.class);
 
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
@@ -54,7 +59,7 @@ public class FormatUtil {
     private static final long PETA = 1000000000000000L;
     private static final long EXA = 1000000000000000000L;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private FormatUtil() {
     }
@@ -216,9 +221,25 @@ public class FormatUtil {
      * 
      * @param date
      *            the date to convert
-     * @return a string in the form MM-dd-yyyy
+     * @return a string in the form MM/dd/yyyy
      */
-    public static String formatDate(Date date) {
-        return date == null ? "null" : DATE_FORMAT.format(date);
+    public static String formatDate(LocalDate date) {
+        return date == null ? "null" : date.format(DATE_FORMATTER);
+    }
+
+    /**
+     * Convert a MM-dd-yyyy string representation to a java LocalDate
+     * 
+     * @param date
+     *            a string in the form MM/dd/yyyy
+     * @return the corresponding LocalDate
+     */
+    public static LocalDate formatStringDate(String date) {
+        try {
+            return date == null ? null : LocalDate.parse(date, DATE_FORMATTER);
+        } catch (DateTimeParseException dtpe) {
+            LOG.warn("Date parse error: " + dtpe);
+            return null;
+        }
     }
 }

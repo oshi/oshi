@@ -18,7 +18,7 @@
  */
 package oshi.json.hardware.impl;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Properties;
 
 import javax.json.Json;
@@ -90,7 +90,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public Date getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return this.firmware.getReleaseDate();
     }
 
