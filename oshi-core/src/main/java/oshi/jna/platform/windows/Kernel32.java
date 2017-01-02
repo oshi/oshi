@@ -33,6 +33,9 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 
     int SEM_FAILCRITICALERRORS = 0x0001;
 
+    int ComputerNameDnsHostname = 1;
+    int ComputerNameDnsDomain = 2;
+
     // TODO: Submit this change to JNA Kernel32 class
     /**
      * Retrieves system timing information. On a multiprocessor system, the

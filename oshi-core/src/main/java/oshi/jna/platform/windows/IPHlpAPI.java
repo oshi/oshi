@@ -23,10 +23,13 @@ import java.util.List;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.WinDef.UCHAR;
+import com.sun.jna.platform.win32.WinDef.UINT;
 import com.sun.jna.platform.win32.WinDef.ULONG;
+import com.sun.jna.platform.win32.WinDef.ULONGByReference;
 
 /**
  * Windows IP Helper API. This class should be considered non-API as it may be
@@ -42,6 +45,11 @@ public interface IPHlpAPI extends Library {
     int MAX_INTERFACE_NAME_LEN = 256;
     int MAXLEN_IFDESCR = 256;
     int MAXLEN_PHYSADDR = 8;
+    int MAX_HOSTNAME_LEN = 128;
+    int MAX_DOMAIN_NAME_LEN = 128;
+    int MAX_SCOPE_ID_LEN = 256;
+
+    int ERROR_BUFFER_OVERFLOW = 0x6f;
 
     class MIB_IFROW extends Structure {
         public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];
@@ -138,6 +146,51 @@ public interface IPHlpAPI extends Library {
         }
     }
 
+    class IP_ADDRESS_STRING extends Structure {
+        public byte[] String = new byte[16];
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[]{"String"});
+        }
+    }
+
+    class IP_ADDR_STRING extends Structure {
+        public static class ByReference extends IP_ADDR_STRING implements Structure.ByReference{}
+
+        public ByReference Next;
+        public IP_ADDRESS_STRING IpAddress;
+        public IP_ADDRESS_STRING IpMask;
+        public int Context;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[]{"Next", "IpAddress", "IpMask", "Context"});
+        }
+    }
+
+    class FIXED_INFO extends Structure {
+        public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];
+        public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];
+        public IP_ADDR_STRING.ByReference CurrentDnsServer; // IP_ADDR_STRING
+        public IP_ADDR_STRING DnsServerList;
+        public UINT NodeType;
+        public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];
+        public UINT EnableRouting;
+        public UINT EnableProxy;
+        public UINT EnableDns;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[]{"HostName", "DomainName", "CurrentDnsServer", "DnsServerList",
+                "NodeType", "ScopeId", "EnableRouting", "EnableProxy", "EnableDns"});
+        }
+
+        public FIXED_INFO(Pointer p) {
+            super(p);
+        }
+    }
+
     /**
      * The GetIfEntry function retrieves information for the specified interface
      * on the local computer.
@@ -180,4 +233,22 @@ public interface IPHlpAPI extends Library {
      * @return If the function succeeds, the return value is NO_ERROR.
      */
     int GetIfEntry2(MIB_IFROW2 pIfRow2);
+
+    /**
+     * The GetNetworkParams function retrieves network parameters for the local
+     * computer.
+     *
+     * @param pFixedInfo
+     *            A pointer to a buffer that contains a FIXED_INFO structure that
+     *            receives the network parameters for the local computer, if the
+     *            function was successful. This buffer must be allocated by the caller
+     *            prior to calling the GetNetworkParams function.
+     * @param pOutBufLen
+     *            A pointer to a ULONG variable that specifies the size of the FIXED_INFO
+     *            structure. If this size is insufficient to hold the information,
+     *            GetNetworkParams fills in this variable with the required size, and
+     *            returns an error code of ERROR_BUFFER_OVERFLOW.
+     * @return If the function succeeds, the return value is ERROR_SUCCESS.
+     */
+    int GetNetworkParams(FIXED_INFO pFixedInfo, ULONGByReference pOutBufLen);
 }
