@@ -48,7 +48,7 @@ public class LinuxNetworkParams implements NetworkParams{
                 .replaceFirst("^[ \t]+", "");
             if(value.length() == 0 ||
                 value.charAt(0) == '#' || value.charAt(0) == ';') continue;
-            String val = value.split("[ \t]", 2)[0];
+            String val = value.split("[ \t#;]", 2)[0];
             servers.add(val);
             if(servers.size() >= maxNameServer) break;
         }
@@ -69,7 +69,7 @@ public class LinuxNetworkParams implements NetworkParams{
         int minMetric = Integer.MAX_VALUE;
 
         for(int i = 2; i < routes.size(); i++){
-            String[] fields = routes.get(i).split("\\s");
+            String[] fields = routes.get(i).split("\\s+");
             if(fields.length > 4 && fields[0].equals("0.0.0.0")) {
                 try{
                     boolean isGateway = fields[3].indexOf('G') != -1;
@@ -98,7 +98,7 @@ public class LinuxNetworkParams implements NetworkParams{
         int minMetric = Integer.MAX_VALUE;
 
         for(int i = 2; i < routes.size(); i++){
-            String[] fields = routes.get(i).split("\\s");
+            String[] fields = routes.get(i).split("\\s+");
             if(fields.length > 3 && fields[0].equals("::/0")) {
                 try{
                     boolean isGateway = fields[2].indexOf('G') != -1;
