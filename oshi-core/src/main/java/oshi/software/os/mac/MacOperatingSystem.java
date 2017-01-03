@@ -30,6 +30,7 @@ import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -168,5 +169,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             numberOfThreads += taskInfo.pti_threadnum;
         }
         return numberOfThreads;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new MacNetworkParams();
     }
 }

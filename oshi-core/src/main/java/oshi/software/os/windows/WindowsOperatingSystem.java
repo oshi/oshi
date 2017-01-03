@@ -30,6 +30,7 @@ import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -141,5 +142,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return 0;
         }
         return perfInfo.ThreadCount.intValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new WindowsNetworkParams();
     }
 }

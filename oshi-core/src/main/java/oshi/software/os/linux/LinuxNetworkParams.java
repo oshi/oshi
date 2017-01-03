@@ -21,7 +21,13 @@ public class LinuxNetworkParams implements NetworkParams{
      */
     @Override
     public String getHostName() {
-        return FileUtil.getStringFromFile("/proc/sys/kernel/hostname");
+        String hn = FileUtil.getStringFromFile("/proc/sys/kernel/hostname");
+        int dot = hn.indexOf('.');
+        if(dot == -1) {
+            return hn;
+        } else {
+            return hn.substring(0, dot);
+        }
     }
 
     /**
@@ -59,7 +65,7 @@ public class LinuxNetworkParams implements NetworkParams{
      * {@inheritDoc}
      */
     @Override
-    public String getV4DefaultGateway() {
+    public String getIpv4DefaultGateway() {
         List<String> routes = ExecutingCommand.runNative("route -A inet -n");
         if(routes.size() <= 2){
             return "";
@@ -88,7 +94,7 @@ public class LinuxNetworkParams implements NetworkParams{
      * {@inheritDoc}
      */
     @Override
-    public String getV6DefaultGateway() {
+    public String getIpv6DefaultGateway() {
         List<String> routes = ExecutingCommand.runNative("route -A inet6 -n");
         if(routes.size() <= 2){
             return "";

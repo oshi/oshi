@@ -26,11 +26,11 @@ public interface NetworkParams extends Serializable {
      * @return Gets default gateway(routing destination for 0.0.0.0/0) for IPv4, empty string if not
      * defined.
      */
-    String getV4DefaultGateway();
+    String getIpv4DefaultGateway();
 
     /**
      * @return Gets default gateway(routing destination for ::/0) for IPv6, empty string if not
      * defined.
      */
-    String getV6DefaultGateway();
+    String getIpv6DefaultGateway();
 }

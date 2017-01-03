@@ -94,7 +94,7 @@ public class WindowsNetworkParams implements NetworkParams {
      * {@inheritDoc}
      */
     @Override
-    public String getV4DefaultGateway() {
+    public String getIpv4DefaultGateway() {
         String dest = "0.0.0.0/0";
         return getNextHop(dest);
     }
@@ -123,7 +123,7 @@ public class WindowsNetworkParams implements NetworkParams {
      * {@inheritDoc}
      */
     @Override
-    public String getV6DefaultGateway() {
+    public String getIpv6DefaultGateway() {
         String dest = "::/0";
         return getNextHop(dest);
     }
