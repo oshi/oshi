@@ -16,14 +16,14 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.software.os;
+package oshi.json.software.os;
 
-import java.io.Serializable;
+import oshi.json.json.OshiJsonObject;
 
 /**
  * NetworkParams presents network parameters of running OS, such as DNS, host name etc.
  */
-public interface NetworkParams extends Serializable {
+public interface NetworkParams extends OshiJsonObject {
 
     /**
      * @return Gets host name
