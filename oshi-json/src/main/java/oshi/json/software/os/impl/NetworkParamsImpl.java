@@ -29,10 +29,9 @@ import javax.json.JsonObjectBuilder;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.NetworkParams;
-import oshi.json.software.os.OSFileStore;
 import oshi.json.util.PropertiesUtil;
 
-public class NetworkPramsImpl extends AbstractOshiJsonObject implements NetworkParams{
+public class NetworkParamsImpl extends AbstractOshiJsonObject implements NetworkParams{
 
     private static final long serialVersionUID = 1L;
 
@@ -47,7 +46,7 @@ public class NetworkPramsImpl extends AbstractOshiJsonObject implements NetworkP
      * @param networkParams
      *            a platform-specific NetworkParams object
      */
-    public NetworkPramsImpl(oshi.software.os.NetworkParams networkParams){
+    public NetworkParamsImpl(oshi.software.os.NetworkParams networkParams){
         this.networkParams = networkParams;
     }
 
