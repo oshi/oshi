@@ -32,32 +32,18 @@ import java.util.Map;
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.jna.platform.windows.Kernel32;
-import oshi.software.os.NetworkParams;
+import oshi.software.common.AbstractNetworkParams;
 import oshi.util.platform.windows.WmiUtil;
 
-public class WindowsNetworkParams implements NetworkParams {
+public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
-    private static final WmiUtil.ValueType[] GATEWAY_TYPES = { WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16 };
+    private static final WmiUtil.ValueType[] GATEWAY_TYPES = {WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16};
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0/0";
     private static final String IPV6_DEFAULT_DEST = "::/0";
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getHostName() {
-        char[] buffer = new char[256];
-        IntByReference bufferSize = new IntByReference(buffer.length);
-        if (!Kernel32.INSTANCE.GetComputerNameEx(Kernel32.ComputerNameDnsHostname, buffer, bufferSize)) {
-            LOG.error("Failed to get host name. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return "";
-        }
-        return new String(buffer);
-    }
 
     /**
      * {@inheritDoc}
@@ -117,13 +103,12 @@ public class WindowsNetworkParams implements NetworkParams {
      */
     @Override
     public String getIpv4DefaultGateway() {
-        String dest = IPV4_DEFAULT_DEST;
-        return getNextHop(dest);
+        return getNextHop(IPV4_DEFAULT_DEST);
     }
 
     private String getNextHop(String dest) {
         Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
-                "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
+            "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
         List<Object> metrics = vals.get("RouteMetric");
         if (vals.get("RouteMetric").size() == 0) {
             return "";
@@ -146,7 +131,6 @@ public class WindowsNetworkParams implements NetworkParams {
      */
     @Override
     public String getIpv6DefaultGateway() {
-        String dest = IPV6_DEFAULT_DEST;
-        return getNextHop(dest);
+        return getNextHop(IPV6_DEFAULT_DEST);
     }
 }

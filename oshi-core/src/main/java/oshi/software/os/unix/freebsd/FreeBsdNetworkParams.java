@@ -18,16 +18,9 @@
  */
 package oshi.software.os.unix.freebsd;
 
-import oshi.software.os.NetworkParams;
+import oshi.software.common.AbstractNetworkParams;
 
-public class FreeBsdNetworkParams implements NetworkParams{
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getHostName() {
-        return "";
-    }
+public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     /**
      * {@inheritDoc}
@@ -35,14 +28,6 @@ public class FreeBsdNetworkParams implements NetworkParams{
     @Override
     public String getDomainName() {
         return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String[] getDnsServers() {
-        return new String[0];
     }
 
     /**

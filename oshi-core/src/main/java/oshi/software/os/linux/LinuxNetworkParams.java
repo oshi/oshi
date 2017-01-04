@@ -18,15 +18,13 @@
  */
 package oshi.software.os.linux;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import oshi.software.os.NetworkParams;
+import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
-public class LinuxNetworkParams implements NetworkParams {
+public class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,44 +35,8 @@ public class LinuxNetworkParams implements NetworkParams {
      * {@inheritDoc}
      */
     @Override
-    public String getHostName() {
-        String hn = FileUtil.getStringFromFile("/proc/sys/kernel/hostname");
-        int dot = hn.indexOf('.');
-        if (dot == -1) {
-            return hn;
-        } else {
-            return hn.substring(0, dot);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getDomainName() {
         return ExecutingCommand.getFirstAnswer("dnsdomainname");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String[] getDnsServers() {
-        List<String> resolv = FileUtil.readFile("/etc/resolv.conf");
-        String key = "nameserver";
-        int maxNameServer = 3;
-        List<String> servers = new ArrayList<>();
-        for (int i = 0; i < resolv.size() && servers.size() < maxNameServer; i++) {
-            String line = resolv.get(i);
-            if (line.startsWith(key)) {
-                String value = line.substring(key.length()).replaceFirst("^[ \t]+", "");
-                if (value.length() != 0 && value.charAt(0) != '#' && value.charAt(0) != ';') {
-                    String val = value.split("[ \t#;]", 2)[0];
-                    servers.add(val);
-                }
-            }
-        }
-        return servers.toArray(new String[servers.size()]);
     }
 
     /**

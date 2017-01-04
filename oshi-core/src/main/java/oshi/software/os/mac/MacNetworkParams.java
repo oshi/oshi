@@ -18,17 +18,9 @@
  */
 package oshi.software.os.mac;
 
-import oshi.software.os.NetworkParams;
+import oshi.software.common.AbstractNetworkParams;
 
-public class MacNetworkParams implements NetworkParams{
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getHostName() {
-        return "";
-    }
-
+public class MacNetworkParams extends AbstractNetworkParams{
     /**
      * {@inheritDoc}
      */
