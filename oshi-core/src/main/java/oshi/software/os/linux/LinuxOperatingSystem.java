@@ -34,6 +34,7 @@ import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -177,6 +178,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Failed to get procs from sysinfo. {}", e);
         }
         return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new LinuxNetworkParams();
     }
 
     private void setFamilyFromReleaseFiles() {
