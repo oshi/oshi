@@ -41,7 +41,9 @@ public class WindowsNetworkParams implements NetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
-    private static final WmiUtil.ValueType[] GATEWAY_TYPES = {WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16};
+    private static final WmiUtil.ValueType[] GATEWAY_TYPES = { WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16 };
+    private static final String IPV4_DEFAULT_DEST = "0.0.0.0/0";
+    private static final String IPV6_DEFAULT_DEST = "::/0";
 
     /**
      * {@inheritDoc}
@@ -76,8 +78,10 @@ public class WindowsNetworkParams implements NetworkParams {
      */
     @Override
     public String[] getDnsServers() {
-        // this may be done by iterating WMI instances ROOT\CIMV2\Win32_NetworkAdapterConfiguration
-        // then sort by IPConnectionMetric, but current JNA release does not have string array support
+        // this may be done by iterating WMI instances
+        // ROOT\CIMV2\Win32_NetworkAdapterConfiguration
+        // then sort by IPConnectionMetric, but current JNA release does not
+        // have string array support
         // for Variant (it's merged but not release yet).
         WinDef.ULONGByReference bufferSize = new WinDef.ULONGByReference();
         int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);
@@ -95,17 +99,17 @@ public class WindowsNetworkParams implements NetworkParams {
 
         List<String> list = new ArrayList<>();
         IPHlpAPI.IP_ADDR_STRING dns = buffer.DnsServerList;
-        while(dns != null) {
+        while (dns != null) {
             String addr = new String(dns.IpAddress.String);
             int nullPos = addr.indexOf(0);
-            if(nullPos != -1) {
+            if (nullPos != -1) {
                 addr = addr.substring(0, nullPos);
             }
             list.add(addr);
             dns = dns.Next;
         }
 
-        return list.toArray(new String[0]);
+        return list.toArray(new String[list.size()]);
     }
 
     /**
@@ -113,13 +117,13 @@ public class WindowsNetworkParams implements NetworkParams {
      */
     @Override
     public String getIpv4DefaultGateway() {
-        String dest = "0.0.0.0/0";
+        String dest = IPV4_DEFAULT_DEST;
         return getNextHop(dest);
     }
 
     private String getNextHop(String dest) {
         Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
-            "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
+                "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
         List<Object> metrics = vals.get("RouteMetric");
         if (vals.get("RouteMetric").size() == 0) {
             return "";
@@ -142,7 +146,7 @@ public class WindowsNetworkParams implements NetworkParams {
      */
     @Override
     public String getIpv6DefaultGateway() {
-        String dest = "::/0";
+        String dest = IPV6_DEFAULT_DEST;
         return getNextHop(dest);
     }
 }

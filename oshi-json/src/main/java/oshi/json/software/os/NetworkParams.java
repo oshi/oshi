@@ -21,7 +21,8 @@ package oshi.json.software.os;
 import oshi.json.json.OshiJsonObject;
 
 /**
- * NetworkParams presents network parameters of running OS, such as DNS, host name etc.
+ * NetworkParams presents network parameters of running OS, such as DNS, host
+ * name etc.
  */
 public interface NetworkParams extends OshiJsonObject {
 
@@ -41,14 +42,14 @@ public interface NetworkParams extends OshiJsonObject {
     String[] getDnsServers();
 
     /**
-     * @return Gets default gateway(routing destination for 0.0.0.0/0) for IPv4, empty string if not
-     * defined.
+     * @return Gets default gateway(routing destination for 0.0.0.0/0) for IPv4,
+     *         empty string if not defined.
      */
     String getIpv4DefaultGateway();
 
     /**
-     * @return Gets default gateway(routing destination for ::/0) for IPv6, empty string if not
-     * defined.
+     * @return Gets default gateway(routing destination for ::/0) for IPv6,
+     *         empty string if not defined.
      */
     String getIpv6DefaultGateway();
 }

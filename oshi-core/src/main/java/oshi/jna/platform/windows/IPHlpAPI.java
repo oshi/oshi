@@ -151,21 +151,22 @@ public interface IPHlpAPI extends Library {
 
         @Override
         protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[]{"String"});
+            return Arrays.asList(new String[] { "String" });
         }
     }
 
     class IP_ADDR_STRING extends Structure {
-        public static class ByReference extends IP_ADDR_STRING implements Structure.ByReference{}
-
         public ByReference Next;
         public IP_ADDRESS_STRING IpAddress;
         public IP_ADDRESS_STRING IpMask;
         public int Context;
 
+        public static class ByReference extends IP_ADDR_STRING implements Structure.ByReference {
+        }
+
         @Override
         protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[]{"Next", "IpAddress", "IpMask", "Context"});
+            return Arrays.asList(new String[] { "Next", "IpAddress", "IpMask", "Context" });
         }
     }
 
@@ -182,8 +183,8 @@ public interface IPHlpAPI extends Library {
 
         @Override
         protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[]{"HostName", "DomainName", "CurrentDnsServer", "DnsServerList",
-                "NodeType", "ScopeId", "EnableRouting", "EnableProxy", "EnableDns"});
+            return Arrays.asList(new String[] { "HostName", "DomainName", "CurrentDnsServer", "DnsServerList",
+                    "NodeType", "ScopeId", "EnableRouting", "EnableProxy", "EnableDns" });
         }
 
         public FIXED_INFO(Pointer p) {
@@ -239,15 +240,16 @@ public interface IPHlpAPI extends Library {
      * computer.
      *
      * @param pFixedInfo
-     *            A pointer to a buffer that contains a FIXED_INFO structure that
-     *            receives the network parameters for the local computer, if the
-     *            function was successful. This buffer must be allocated by the caller
-     *            prior to calling the GetNetworkParams function.
+     *            A pointer to a buffer that contains a FIXED_INFO structure
+     *            that receives the network parameters for the local computer,
+     *            if the function was successful. This buffer must be allocated
+     *            by the caller prior to calling the GetNetworkParams function.
      * @param pOutBufLen
-     *            A pointer to a ULONG variable that specifies the size of the FIXED_INFO
-     *            structure. If this size is insufficient to hold the information,
-     *            GetNetworkParams fills in this variable with the required size, and
-     *            returns an error code of ERROR_BUFFER_OVERFLOW.
+     *            A pointer to a ULONG variable that specifies the size of the
+     *            FIXED_INFO structure. If this size is insufficient to hold the
+     *            information, GetNetworkParams fills in this variable with the
+     *            required size, and returns an error code of
+     *            ERROR_BUFFER_OVERFLOW.
      * @return If the function succeeds, the return value is ERROR_SUCCESS.
      */
     int GetNetworkParams(FIXED_INFO pFixedInfo, ULONGByReference pOutBufLen);
