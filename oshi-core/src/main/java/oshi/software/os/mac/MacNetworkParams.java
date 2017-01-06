@@ -18,9 +18,16 @@
  */
 package oshi.software.os.mac;
 
+import java.util.List;
+
 import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
 
 public class MacNetworkParams extends AbstractNetworkParams{
+    private final String IPV6_ROUTE_HEADER = "Internet6:";
+
+    private final String DEFAULT_GATEWAY = "default";
+
     /**
      * {@inheritDoc}
      */
@@ -41,8 +48,8 @@ public class MacNetworkParams extends AbstractNetworkParams{
      * {@inheritDoc}
      */
     @Override
-    public String getIpv4DefaultGateway() {
-        return "";
+    public String getIpv4DefaultGateway(){
+        return searchGateway(ExecutingCommand.runNative("route -n get default"));
     }
 
     /**
@@ -50,6 +57,18 @@ public class MacNetworkParams extends AbstractNetworkParams{
      */
     @Override
     public String getIpv6DefaultGateway() {
+        List<String> lines = ExecutingCommand.runNative("netstat -nr");
+        boolean v6Table = false;
+        for(String line: lines){
+            if(v6Table && line.startsWith(DEFAULT_GATEWAY)){
+                String[] fields = line.split("[ \t#;]");
+                if(fields[2].contains("G")) {
+                    return fields[1].split("%")[0];
+                }
+            } else if(line.startsWith(IPV6_ROUTE_HEADER)){
+                v6Table = true;
+            }
+        }
         return "";
     }
 }

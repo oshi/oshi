@@ -19,6 +19,7 @@
 package oshi.software.os.unix.freebsd;
 
 import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
 
 public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
@@ -35,7 +36,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String getIpv4DefaultGateway() {
-        return "";
+        return searchGateway(ExecutingCommand.runNative("route -4 get default"));
     }
 
     /**
@@ -43,6 +44,6 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String getIpv6DefaultGateway() {
-        return "";
+        return searchGateway(ExecutingCommand.runNative("route -6 get default"));
     }
 }

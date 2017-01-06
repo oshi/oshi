@@ -61,4 +61,14 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         }
         return servers.toArray(new String[servers.size()]);
     }
+
+    static protected String searchGateway(List<String> lines){
+        for(String line: lines){
+            String leftTrimmed = line.replaceFirst("^[ \t]+", "");
+            if(leftTrimmed.startsWith("gateway:")){
+                return leftTrimmed.split("[ \t]", 2)[1];
+            }
+        }
+        return "";
+    }
 }
