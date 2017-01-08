@@ -1,6 +1,6 @@
 3.4 (in progress)
 ================
-* Your contribution here.
+* [#294](https://github.com/oshi/oshi/pull/294): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei).
 
 3.3 (12/31/2016)
 ================

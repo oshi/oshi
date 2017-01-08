@@ -20,6 +20,11 @@ package oshi.software.os.linux;
 
 import java.util.List;
 
+import com.sun.jna.ptr.PointerByReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.unix.LibC.Addrinfo;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -28,15 +33,19 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);
+
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0";
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String getDomainName() {
-        return ExecutingCommand.getFirstAnswer("dnsdomainname");
+    protected void doFreeaddrinfo(PointerByReference ptr) {
+        Libc.INSTANCE.freeaddrinfo(ptr.getValue());
+    }
+
+    @Override
+    protected void doGetaddrinfo(Addrinfo hint, String hostname, PointerByReference ptr) {
+        Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
     }
 
     /**
