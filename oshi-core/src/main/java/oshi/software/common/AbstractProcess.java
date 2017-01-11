@@ -170,4 +170,126 @@ public class AbstractProcess implements OSProcess {
     public long getBytesWritten() {
         return bytesWritten;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProcessID(int processID) {
+        this.processID = processID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setParentProcessID(int parentProcessID) {
+        this.parentProcessID = parentProcessID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setVirtualSize(long virtualSize) {
+        this.virtualSize = virtualSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setResidentSetSize(long residentSetSize) {
+        this.residentSetSize = residentSetSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setKernelTime(long kernelTime) {
+        this.kernelTime = kernelTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUserTime(long userTime) {
+        this.userTime = userTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUpTime(long upTime) {
+        this.upTime = upTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBytesRead(long bytesRead) {
+        this.bytesRead = bytesRead;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBytesWritten(long bytesWritten) {
+        this.bytesWritten = bytesWritten;
+    }
+
+
 }
