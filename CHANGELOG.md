@@ -1,6 +1,6 @@
 3.4 (in progress)
 ================
-* Your contribution here.
+* [#95](https://github.com/oshi/oshi/pull/297): Extend OSProcess (AbstractProcess.java) class is not easy - [@michaeldesigaud](https://github.com/michaeldesigaud).
 
 3.3 (12/31/2016)
 ================

@@ -48,6 +48,28 @@ public class AbstractProcess implements OSProcess {
     protected long bytesRead;
     protected long bytesWritten;
 
+    public AbstractProcess() {}
+
+    public AbstractProcess(String name, String path, State state, int processID, int parentProcessID, int threadCount,
+                           int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime,
+                           long startTime, long upTime, long bytesRead, long bytesWritten) {
+        this.name = name;
+        this.path = path;
+        this.state = state;
+        this.processID = processID;
+        this.parentProcessID = parentProcessID;
+        this.threadCount = threadCount;
+        this.priority = priority;
+        this.virtualSize = virtualSize;
+        this.residentSetSize = residentSetSize;
+        this.kernelTime = kernelTime;
+        this.userTime = userTime;
+        this.startTime = startTime;
+        this.upTime = upTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
+    }
+
     /**
      * {@inheritDoc}
      */
