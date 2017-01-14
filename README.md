@@ -165,6 +165,17 @@ USB Devices:
              |-- Fitbit Base Station (Fitbit Inc.)
 ```
 
+You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html).
+
+```
+git clone https://github.com/oshi/oshi.git && cd oshi
+
+mvn test-compile -pl oshi-core -q exec:java \
+  -Dexec.mainClass="oshi.SystemInfoTest" \
+  -Dexec.classpathScope="test"
+```
+
 
 Where are we?
 -------------
