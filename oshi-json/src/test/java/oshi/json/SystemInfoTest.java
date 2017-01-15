@@ -44,6 +44,7 @@ import oshi.json.hardware.PowerSource;
 import oshi.json.hardware.Sensors;
 import oshi.json.hardware.UsbDevice;
 import oshi.json.software.os.FileSystem;
+import oshi.json.software.os.NetworkParams;
 import oshi.json.software.os.OSFileStore;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
@@ -106,6 +107,9 @@ public class SystemInfoTest {
 
         LOG.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
+
+        LOG.info("Checking Network parameterss...");
+        printNetworkParameters(os.getNetworkParams());
 
         // hardware: displays
         LOG.info("Checking Displays...");
@@ -300,6 +304,15 @@ public class SystemInfoTest {
                     hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
                     hasData ? " (" + net.getOutErrors() + " err)" : "");
         }
+    }
+
+    private static void printNetworkParameters(NetworkParams networkParams) {
+        System.out.println("Network parameters:");
+        System.out.format(" Host name: %s%n", networkParams.getHostName());
+        System.out.format(" Domain name: %s%n", networkParams.getDomainName());
+        System.out.format(" DNS servers: %s%n", Arrays.toString(networkParams.getDnsServers()));
+        System.out.format(" IPv4 Gateway: %s%n", networkParams.getIpv4DefaultGateway());
+        System.out.format(" IPv6 Gateway: %s%n", networkParams.getIpv6DefaultGateway());
     }
 
     private static void printDisplays(Display[] displays) {
