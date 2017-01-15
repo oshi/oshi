@@ -48,6 +48,28 @@ public class AbstractProcess implements OSProcess {
     protected long bytesRead;
     protected long bytesWritten;
 
+    public AbstractProcess() {}
+
+    public AbstractProcess(String name, String path, State state, int processID, int parentProcessID, int threadCount,
+                           int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime,
+                           long startTime, long upTime, long bytesRead, long bytesWritten) {
+        this.name = name;
+        this.path = path;
+        this.state = state;
+        this.processID = processID;
+        this.parentProcessID = parentProcessID;
+        this.threadCount = threadCount;
+        this.priority = priority;
+        this.virtualSize = virtualSize;
+        this.residentSetSize = residentSetSize;
+        this.kernelTime = kernelTime;
+        this.userTime = userTime;
+        this.startTime = startTime;
+        this.upTime = upTime;
+        this.bytesRead = bytesRead;
+        this.bytesWritten = bytesWritten;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -170,4 +192,126 @@ public class AbstractProcess implements OSProcess {
     public long getBytesWritten() {
         return bytesWritten;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProcessID(int processID) {
+        this.processID = processID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setParentProcessID(int parentProcessID) {
+        this.parentProcessID = parentProcessID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setVirtualSize(long virtualSize) {
+        this.virtualSize = virtualSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setResidentSetSize(long residentSetSize) {
+        this.residentSetSize = residentSetSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setKernelTime(long kernelTime) {
+        this.kernelTime = kernelTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUserTime(long userTime) {
+        this.userTime = userTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUpTime(long upTime) {
+        this.upTime = upTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBytesRead(long bytesRead) {
+        this.bytesRead = bytesRead;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBytesWritten(long bytesWritten) {
+        this.bytesWritten = bytesWritten;
+    }
+
+
 }
