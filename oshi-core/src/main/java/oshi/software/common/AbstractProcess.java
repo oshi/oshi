@@ -55,6 +55,8 @@ public abstract class AbstractProcess implements OSProcess {
                            long startTime, long upTime, long bytesRead, long bytesWritten) {
         this.name = name;
         this.path = path;
+        this.state = state;
+
         this.processID = processID;
         this.parentProcessID = parentProcessID;
         this.threadCount = threadCount;
