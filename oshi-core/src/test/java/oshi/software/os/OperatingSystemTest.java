@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import oshi.SystemInfo;
 import oshi.software.common.AbstractProcess;
+import oshi.software.os.windows.WindowsProcess;
 
 /**
  * Test OS
@@ -79,23 +80,13 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        AbstractProcess newProcess = new AbstractProcess();
-        newProcess.setPath(oldProcess.getPath());
-        newProcess.setBytesRead(oldProcess.getBytesRead());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
-        newProcess.setKernelTime(oldProcess.getKernelTime());
-        newProcess.setName(oldProcess.getName());
-        newProcess.setParentProcessID(oldProcess.getParentProcessID());
-        newProcess.setThreadCount(oldProcess.getThreadCount());
-        newProcess.setPriority(oldProcess.getPriority());
-        newProcess.setProcessID(oldProcess.getProcessID());
-        newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
-        newProcess.setStartTime(oldProcess.getStartTime());
+        WindowsProcess newProcess = new WindowsProcess(oldProcess.getName(),oldProcess.getPath(),
+                7,oldProcess.getProcessID(),oldProcess.getParentProcessID(),oldProcess.getThreadCount(),
+                oldProcess.getPriority(),oldProcess.getVirtualSize(),oldProcess.getResidentSetSize(),
+                oldProcess.getKernelTime(),oldProcess.getUserTime(),oldProcess.getStartTime(),
+                oldProcess.getBytesRead(),oldProcess.getBytesWritten(),oldProcess.getUpTime());
+
         newProcess.setState(oldProcess.getState());
-        newProcess.setUpTime(oldProcess.getUpTime());
-        newProcess.setUserTime(oldProcess.getUserTime());
-        newProcess.setVirtualSize(oldProcess.getVirtualSize());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
 
         assertEquals(oldProcess.getBytesRead(),newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(),newProcess.getBytesWritten());

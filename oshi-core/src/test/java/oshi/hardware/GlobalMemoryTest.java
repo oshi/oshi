@@ -18,12 +18,13 @@
  */
 package oshi.hardware;
 
+import org.junit.Test;
+import oshi.SystemInfo;
+import oshi.hardware.platform.windows.WindowsGlobalMemory;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
-import oshi.SystemInfo;
 
 /**
  * Test GlobalMemory
@@ -40,13 +41,37 @@ public class GlobalMemoryTest {
         assertNotNull(memory);
 
         // RAM tests
-        assertTrue(memory.getTotal() > 0);
-        assertTrue(memory.getAvailable() >= 0);
-        assertTrue(memory.getAvailable() <= memory.getTotal());
+        assertTrue(memory.getMemTotal() > 0);
+        assertTrue(memory.getMemAvailable() >= 0);
+        assertTrue(memory.getMemAvailable() <= memory.getMemTotal());
 
         // Swap tests
         assertTrue(memory.getSwapTotal() >= 0);
         assertTrue(memory.getSwapUsed() >= 0);
         assertTrue(memory.getSwapUsed() <= memory.getSwapTotal());
+    }
+
+    /**
+     * Test OSProcess setters and getters
+     */
+    @Test
+    public void testGlobalMemoryCopy() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        GlobalMemory oldMemory = hal.getMemory();
+        assertNotNull(oldMemory);
+
+        WindowsGlobalMemory newMemory = new WindowsGlobalMemory();
+
+        long availableMemory = oldMemory.getMemAvailable();
+        newMemory.setMemAvailable(availableMemory);
+        newMemory.setMemTotal(oldMemory.getMemTotal());
+        newMemory.setSwapTotal(oldMemory.getSwapTotal());
+        newMemory.setSwapUsed(oldMemory.getSwapUsed());
+
+        assertEquals(oldMemory.getMemAvailable(), availableMemory);
+        assertEquals(oldMemory.getMemTotal(),newMemory.getMemTotal());
+        assertEquals(oldMemory.getSwapTotal(),newMemory.getSwapTotal());
+        assertEquals(oldMemory.getSwapUsed(),newMemory.getSwapUsed());
     }
 }
