@@ -58,7 +58,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getTotal() {
-        return this.memory.getTotal();
+        return this.memory.getMemTotal();
     }
 
     /**
@@ -66,7 +66,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getAvailable() {
-        return this.memory.getAvailable();
+        return this.memory.getMemAvailable();
     }
 
     /**
