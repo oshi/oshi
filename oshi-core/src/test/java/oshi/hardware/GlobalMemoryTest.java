@@ -20,11 +20,8 @@ package oshi.hardware;
 
 import org.junit.Test;
 import oshi.SystemInfo;
-import oshi.hardware.platform.windows.WindowsGlobalMemory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test GlobalMemory
@@ -61,15 +58,14 @@ public class GlobalMemoryTest {
         GlobalMemory oldMemory = hal.getMemory();
         assertNotNull(oldMemory);
 
-        WindowsGlobalMemory newMemory = new WindowsGlobalMemory();
+        DefaultAbstractGlobalMemory newMemory = new DefaultAbstractGlobalMemory();
 
-        long availableMemory = oldMemory.getAvailable();
-        newMemory.setAvailable(availableMemory);
+        newMemory.setAvailable(oldMemory.getAvailable());
         newMemory.setTotal(oldMemory.getTotal());
         newMemory.setSwapTotal(oldMemory.getSwapTotal());
         newMemory.setSwapUsed(oldMemory.getSwapUsed());
 
-        assertEquals(oldMemory.getAvailable(), availableMemory);
+        assertEquals(oldMemory.getAvailable(), newMemory.getAvailable());
         assertEquals(oldMemory.getTotal(),newMemory.getTotal());
         assertEquals(oldMemory.getSwapTotal(),newMemory.getSwapTotal());
         assertEquals(oldMemory.getSwapUsed(),newMemory.getSwapUsed());

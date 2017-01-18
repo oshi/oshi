@@ -21,9 +21,9 @@ package oshi.software.os;
 
 import oshi.software.common.AbstractProcess;
 
-public class TestAbstractProcess extends AbstractProcess{
+public class DefaultAbstractProcess extends AbstractProcess{
 
-    public TestAbstractProcess(String name, String path, State state, int processID, int parentProcessID, int threadCount, int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime, long upTime, long bytesRead, long bytesWritten) {
+    public DefaultAbstractProcess(String name, String path, State state, int processID, int parentProcessID, int threadCount, int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime, long upTime, long bytesRead, long bytesWritten) {
         super(name, path, state, processID, parentProcessID, threadCount, priority, virtualSize, residentSetSize, kernelTime, userTime, startTime, upTime, bytesRead, bytesWritten);
     }
 }

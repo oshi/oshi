@@ -75,7 +75,7 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        TestAbstractProcess newProcess = new TestAbstractProcess(oldProcess.getName(),oldProcess.getPath(),
+        DefaultAbstractProcess newProcess = new DefaultAbstractProcess(oldProcess.getName(),oldProcess.getPath(),
                 oldProcess.getState(),oldProcess.getProcessID(),oldProcess.getParentProcessID(),oldProcess.getThreadCount(),
                 oldProcess.getPriority(),oldProcess.getVirtualSize(),oldProcess.getResidentSetSize(),
                 oldProcess.getKernelTime(),oldProcess.getUserTime(),oldProcess.getStartTime(),oldProcess.getUpTime(),
