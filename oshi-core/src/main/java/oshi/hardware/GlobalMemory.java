@@ -36,14 +36,14 @@ public interface GlobalMemory extends Serializable {
      *
      * @return Total number of bytes.
      */
-    long getMemTotal();
+    long getTotal();
 
     /**
      * The amount of physical memory currently available, in bytes.
      *
      * @return Available number of bytes.
      */
-    long getMemAvailable();
+    long getAvailable();
 
     /**
      * The current size of the paging/swap file(s), in bytes. If the paging/swap
@@ -65,14 +65,14 @@ public interface GlobalMemory extends Serializable {
      *
      * @param memTotal number of bytes.
      */
-    void setMemTotal(long memTotal);
+    void setTotal(long memTotal);
 
     /**
      * SEt the amount of physical memory currently available, in bytes.
      *
      * @param memAvailable number of bytes.
      */
-    void setMemAvailable(long memAvailable);
+    void setAvailable(long memAvailable);
 
     /**
      * Set the current size of the paging/swap file(s), in bytes. If the paging/swap

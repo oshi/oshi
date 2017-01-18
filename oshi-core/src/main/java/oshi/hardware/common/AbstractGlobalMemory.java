@@ -58,7 +58,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public long getMemAvailable() {
+    public long getAvailable() {
         updateMeminfo();
         return this.memAvailable;
     }
@@ -67,7 +67,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public long getMemTotal() {
+    public long getTotal() {
         if (this.memTotal == 0) {
             updateMeminfo();
         }
@@ -112,7 +112,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public void setMemTotal(long memTotal) {
+    public void setTotal(long memTotal) {
         this.memTotal = memTotal;
     }
 
@@ -120,7 +120,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public void setMemAvailable(long memAvailable) {
+    public void setAvailable(long memAvailable) {
         this.memAvailable = memAvailable;
     }
 }

@@ -41,9 +41,9 @@ public class GlobalMemoryTest {
         assertNotNull(memory);
 
         // RAM tests
-        assertTrue(memory.getMemTotal() > 0);
-        assertTrue(memory.getMemAvailable() >= 0);
-        assertTrue(memory.getMemAvailable() <= memory.getMemTotal());
+        assertTrue(memory.getTotal() > 0);
+        assertTrue(memory.getAvailable() >= 0);
+        assertTrue(memory.getAvailable() <= memory.getTotal());
 
         // Swap tests
         assertTrue(memory.getSwapTotal() >= 0);
@@ -63,14 +63,14 @@ public class GlobalMemoryTest {
 
         WindowsGlobalMemory newMemory = new WindowsGlobalMemory();
 
-        long availableMemory = oldMemory.getMemAvailable();
-        newMemory.setMemAvailable(availableMemory);
-        newMemory.setMemTotal(oldMemory.getMemTotal());
+        long availableMemory = oldMemory.getAvailable();
+        newMemory.setAvailable(availableMemory);
+        newMemory.setTotal(oldMemory.getTotal());
         newMemory.setSwapTotal(oldMemory.getSwapTotal());
         newMemory.setSwapUsed(oldMemory.getSwapUsed());
 
-        assertEquals(oldMemory.getMemAvailable(), availableMemory);
-        assertEquals(oldMemory.getMemTotal(),newMemory.getMemTotal());
+        assertEquals(oldMemory.getAvailable(), availableMemory);
+        assertEquals(oldMemory.getTotal(),newMemory.getTotal());
         assertEquals(oldMemory.getSwapTotal(),newMemory.getSwapTotal());
         assertEquals(oldMemory.getSwapUsed(),newMemory.getSwapUsed());
     }

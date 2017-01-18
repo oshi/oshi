@@ -50,7 +50,7 @@ public abstract class AbstractProcess implements OSProcess {
 
     public AbstractProcess() {}
 
-    public AbstractProcess(String name, String path, int processID, int parentProcessID, int threadCount,
+    public AbstractProcess(String name, String path,  State state, int processID, int parentProcessID, int threadCount,
                            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime,
                            long startTime, long upTime, long bytesRead, long bytesWritten) {
         this.name = name;
@@ -67,6 +67,7 @@ public abstract class AbstractProcess implements OSProcess {
         this.upTime = upTime;
         this.bytesRead = bytesRead;
         this.bytesWritten = bytesWritten;
+        this.state = state;
     }
 
     /**

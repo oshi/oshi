@@ -76,13 +76,11 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        WindowsProcess newProcess = new WindowsProcess(oldProcess.getName(),oldProcess.getPath(),
-                7,oldProcess.getProcessID(),oldProcess.getParentProcessID(),oldProcess.getThreadCount(),
+        TestAbstractProcess newProcess = new TestAbstractProcess(oldProcess.getName(),oldProcess.getPath(),
+                oldProcess.getState(),oldProcess.getProcessID(),oldProcess.getParentProcessID(),oldProcess.getThreadCount(),
                 oldProcess.getPriority(),oldProcess.getVirtualSize(),oldProcess.getResidentSetSize(),
-                oldProcess.getKernelTime(),oldProcess.getUserTime(),oldProcess.getStartTime(),
-                oldProcess.getBytesRead(),oldProcess.getBytesWritten(),oldProcess.getUpTime());
-
-        newProcess.setState(oldProcess.getState());
+                oldProcess.getKernelTime(),oldProcess.getUserTime(),oldProcess.getStartTime(),oldProcess.getUpTime(),
+                oldProcess.getBytesRead(),oldProcess.getBytesWritten());
 
         assertEquals(oldProcess.getBytesRead(),newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(),newProcess.getBytesWritten());

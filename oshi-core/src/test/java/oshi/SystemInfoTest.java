@@ -141,8 +141,8 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
-        System.out.println("Memory: " + FormatUtil.formatBytes(memory.getMemAvailable()) + "/"
-                + FormatUtil.formatBytes(memory.getMemTotal()));
+        System.out.println("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
+                + FormatUtil.formatBytes(memory.getTotal()));
         System.out.println("Swap used: " + FormatUtil.formatBytes(memory.getSwapUsed()) + "/"
                 + FormatUtil.formatBytes(memory.getSwapTotal()));
     }
@@ -194,7 +194,7 @@ public class SystemInfoTest {
             OSProcess p = procs.get(i);
             System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-                    100d * p.getResidentSetSize() / memory.getMemTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+                    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName());
         }
     }
