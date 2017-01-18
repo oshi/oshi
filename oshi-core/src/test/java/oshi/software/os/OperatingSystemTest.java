@@ -20,7 +20,6 @@ package oshi.software.os;
 
 import org.junit.Test;
 import oshi.SystemInfo;
-import oshi.software.os.windows.WindowsProcess;
 
 import static org.junit.Assert.*;
 
