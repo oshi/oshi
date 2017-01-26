@@ -24,6 +24,7 @@ import java.util.List;
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -161,5 +162,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
         }
         return threads;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new FreeBsdNetworkParams();
     }
 }

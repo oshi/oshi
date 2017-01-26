@@ -26,6 +26,9 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.unix.LibC;
 
 /**
  * Linux C Library. This class should be considered non-API as it may be removed
@@ -118,10 +121,32 @@ public interface Libc extends Library {
 
     /**
      * Returns the number of bytes in a memory page, where "page" is a
-     * fixed-length block, the unit for memory allocation and file
-     * mapping performed by mmap(2).
+     * fixed-length block, the unit for memory allocation and file mapping
+     * performed by mmap(2).
      *
      * @return the memory page size
      */
     int getpagesize();
+
+    /**
+     * Given node and service, which identify an Internet host and a service,
+     * getaddrinfo() returns one or more addrinfo structures, each of which
+     * contains an Internet address that can be specified in a call to bind(2)
+     * or connect(2).
+     *
+     * @param node
+     *            a numerical network address or a network hostname, whose
+     *            network addresses are looked up and resolved.
+     * @param service
+     *            sets the port in each returned address structure.
+     * @param hints
+     *            specifies criteria for selecting the socket address structures
+     *            returned in the list pointed to by res.
+     * @param res
+     *            returned address structure
+     * @return 0 on success; sets errno on failure
+     */
+    int getaddrinfo(String node, String service, LibC.Addrinfo hints, PointerByReference res);
+
+    void freeaddrinfo(Pointer res);
 }

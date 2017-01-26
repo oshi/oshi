@@ -29,6 +29,7 @@ import javax.json.JsonObjectBuilder;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
+import oshi.json.software.os.NetworkParams;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
@@ -142,6 +143,12 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      * {@inheritDoc}
      */
     @Override
+    public NetworkParams getNetworkParams() { return new NetworkParamsImpl(this.os.getNetworkParams()); }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.manufacturer")) {
@@ -173,6 +180,9 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
                 processArrayBuilder.add(proc.toJSON(properties));
             }
             json.add("processes", processArrayBuilder.build());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.networkParams")) {
+            json.add("networkParams", getNetworkParams().toJSON(properties));
         }
         return json.build();
     }

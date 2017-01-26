@@ -112,4 +112,11 @@ public interface OperatingSystem extends Serializable {
      * @return The number of threads running
      */
     int getThreadCount();
+
+    /**
+     * Instantiates a {@link NetworkParams} object.
+     *
+     * @return A {@link NetworkParams} object.
+     */
+    NetworkParams getNetworkParams();
 }

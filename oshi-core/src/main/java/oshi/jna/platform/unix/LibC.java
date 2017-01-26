@@ -26,6 +26,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -52,6 +53,8 @@ public interface LibC extends Library {
     int CP_INTR = 3;
     int CP_IDLE = 4;
 
+    int AI_CANONNAME = 2;
+
     /**
      * Return type for BSD sysctl kern.boottime
      */
@@ -71,6 +74,45 @@ public interface LibC extends Library {
         @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "cpu_ticks" });
+        }
+    }
+
+    class Sockaddr extends Structure {
+        public short sa_family;
+        public byte[] sa_data = new byte[14];
+
+        public static class ByReference extends Sockaddr implements Structure.ByReference {
+        }
+
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "sa_family", "sa_data" });
+        }
+    }
+
+    class Addrinfo extends Structure {
+        public int ai_flags;
+        public int ai_family;
+        public int ai_socktype;
+        public int ai_protocol;
+        public int ai_addrlen;
+        public Sockaddr.ByReference ai_addr;
+        public String ai_canonname;
+        public ByReference ai_next;
+
+        public static class ByReference extends Addrinfo implements Structure.ByReference {
+        }
+
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen",
+                    "ai_addr", "ai_canonname", "ai_next" });
+        }
+
+        public Addrinfo() {
+        }
+
+        public Addrinfo(Pointer p) {
+            super(p);
+            read();
         }
     }
 
@@ -187,4 +229,26 @@ public interface LibC extends Library {
      *      getloadavg(3)</A>
      */
     int getloadavg(double[] loadavg, int nelem);
+
+    /**
+     * Given node and service, which identify an Internet host and a service,
+     * getaddrinfo() returns one or more addrinfo structures, each of which
+     * contains an Internet address that can be specified in a call to bind(2)
+     * or connect(2).
+     *
+     * @param node
+     *            a numerical network address or a network hostname, whose
+     *            network addresses are looked up and resolved.
+     * @param service
+     *            sets the port in each returned address structure.
+     * @param hints
+     *            specifies criteria for selecting the socket address structures
+     *            returned in the list pointed to by res.
+     * @param res
+     *            returned address structure
+     * @return 0 on success; sets errno on failure
+     */
+    int getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
+
+    void freeaddrinfo(Pointer res);
 }
