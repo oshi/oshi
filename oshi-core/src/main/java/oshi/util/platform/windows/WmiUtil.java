@@ -71,6 +71,24 @@ public class WmiUtil {
     private static final ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
 
     /**
+     * Determine if WMI has the requested namespace. Some namespaces only exist
+     * on newer versions of Windows.
+     * 
+     * @param namespace
+     *            The namespace to test
+     * @return true if the namespace exists, false otherwise
+     */
+    public static boolean hasNamespace(String namespace) {
+        Map<String, List<String>> nsMap = WmiUtil.selectStringsFrom("ROOT", "__NAMESPACE", "Name", null);
+        for (String s : nsMap.get("Name")) {
+            if (s.equals(namespace)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get a single Unsigned Integer value from WMI (as Long)
      *
      * @param namespace
@@ -479,7 +497,7 @@ public class WmiUtil {
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
                 case UINT16: // uint16 == VT_I4
-                // WMI Uint32s will return as longs
+                    // WMI Uint32s will return as longs
                 case UINT32: // WinDef.LONG TODO improve in JNA 4.3
                 case UINT64:
                     values.get(property)

@@ -251,4 +251,6 @@ public interface LibC extends Library {
     int getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
 
     void freeaddrinfo(Pointer res);
+
+    String gai_strerror(int e);
 }

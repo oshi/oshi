@@ -28,8 +28,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.jna.platform.unix.LibC;
-
 /**
  * Linux C Library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
@@ -39,6 +37,8 @@ import oshi.jna.platform.unix.LibC;
 public interface Libc extends Library {
 
     Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
+
+    int AI_CANONNAME = 2;
 
     class Sysinfo extends Structure {
         public NativeLong uptime; // Seconds since boot
@@ -72,6 +72,45 @@ public interface Libc extends Library {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "uptime", "loads", "totalram", "freeram", "sharedram", "bufferram",
                     "totalswap", "freeswap", "procs", "totalhigh", "freehigh", "mem_unit", "_f" });
+        }
+    }
+
+    class Sockaddr extends Structure {
+        public short sa_family;
+        public byte[] sa_data = new byte[14];
+
+        public static class ByReference extends Sockaddr implements Structure.ByReference {
+        }
+
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "sa_family", "sa_data" });
+        }
+    }
+
+    class Addrinfo extends Structure {
+        public int ai_flags;
+        public int ai_family;
+        public int ai_socktype;
+        public int ai_protocol;
+        public int ai_addrlen;
+        public Sockaddr.ByReference ai_addr;
+        public String ai_canonname;
+        public ByReference ai_next;
+
+        public static class ByReference extends Addrinfo implements Structure.ByReference {
+        }
+
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen",
+                    "ai_addr", "ai_canonname", "ai_next" });
+        }
+
+        public Addrinfo() {
+        }
+
+        public Addrinfo(Pointer p) {
+            super(p);
+            read();
         }
     }
 
@@ -146,7 +185,9 @@ public interface Libc extends Library {
      *            returned address structure
      * @return 0 on success; sets errno on failure
      */
-    int getaddrinfo(String node, String service, LibC.Addrinfo hints, PointerByReference res);
+    int getaddrinfo(String node, String service, Libc.Addrinfo hints, PointerByReference res);
 
     void freeaddrinfo(Pointer res);
+
+    String gai_strerror(int e);
 }

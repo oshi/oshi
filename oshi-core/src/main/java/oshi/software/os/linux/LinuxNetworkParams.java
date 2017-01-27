@@ -18,13 +18,16 @@
  */
 package oshi.software.os.linux;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
-import com.sun.jna.ptr.PointerByReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.ptr.PointerByReference;
+
 import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.unix.LibC.Addrinfo;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -38,14 +41,30 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0";
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void doFreeaddrinfo(PointerByReference ptr) {
+    public String getDomainName() {
+        Libc.Addrinfo hint = new Libc.Addrinfo();
+        hint.ai_flags = Libc.AI_CANONNAME;
+        String hostname = "";
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            LOG.error("Unknown host exception when getting address of local host: " + e);
+            return "";
+        }
+        PointerByReference ptr = new PointerByReference();
+        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        if (res > 0) {
+            LOG.error("Failed getaddrinfo(): " + Libc.INSTANCE.gai_strerror(res));
+            return "";
+        }
+        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());
+        String canonname = new String(info.ai_canonname).trim();
         Libc.INSTANCE.freeaddrinfo(ptr.getValue());
-    }
-
-    @Override
-    protected void doGetaddrinfo(Addrinfo hint, String hostname, PointerByReference ptr) {
-        Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        return canonname;
     }
 
     /**

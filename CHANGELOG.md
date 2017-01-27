@@ -1,6 +1,6 @@
 3.4 (in progress)
 ================
-* [#294](https://github.com/oshi/oshi/pull/294): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei).
+* [#294](https://github.com/oshi/oshi/pull/294), [#305](https://github.com/oshi/oshi/pull/305): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei), [@dbwiddis](https://github.com/dbwiddis).
 * [#295](https://github.com/oshi/oshi/pull/295): Make OSProcess (AbstractProcess.java) more easily extendable - [@michaeldesigaud](https://github.com/michaeldesigaud).
 * Your contribution here.
 

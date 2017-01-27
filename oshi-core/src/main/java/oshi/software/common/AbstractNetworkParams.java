@@ -18,16 +18,14 @@
  */
 package oshi.software.common;
 
-import com.sun.jna.ptr.PointerByReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.jna.platform.unix.LibC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.software.os.NetworkParams;
 import oshi.util.FileUtil;
 
@@ -46,34 +44,12 @@ public abstract class AbstractNetworkParams implements NetworkParams {
      */
     @Override
     public String getDomainName() {
-        LibC.Addrinfo hint = new LibC.Addrinfo();
-        hint.ai_flags = LibC.AI_CANONNAME;
-        String hostname = null;
         try {
-            hostname = InetAddress.getLocalHost().getHostName();
+            return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             LOG.error("Unknown host exception when getting address of local host: " + e);
             return "";
         }
-        PointerByReference ptr = new PointerByReference();
-        doGetaddrinfo(hint, hostname, ptr);
-        LibC.Addrinfo info = new LibC.Addrinfo(ptr.getValue());
-        String canonname = info.ai_canonname;
-        doFreeaddrinfo(ptr);
-        int dot = canonname.indexOf('.');
-        if (dot == -1) {
-            return "";
-        } else {
-            return canonname.substring(dot + 1);
-        }
-    }
-
-    protected void doFreeaddrinfo(PointerByReference ptr) {
-        LibC.INSTANCE.freeaddrinfo(ptr.getValue());
-    }
-
-    protected void doGetaddrinfo(LibC.Addrinfo hint, String hostname, PointerByReference ptr) {
-        LibC.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
     }
 
     /**
@@ -117,11 +93,23 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         return servers.toArray(new String[servers.size()]);
     }
 
-    static protected String searchGateway(List<String> lines) {
+    /**
+     * Convenience method to parse the output of the `route` command. While the
+     * command arguments vary between OS's the output is consistently parsable.
+     * 
+     * @param lines
+     *            output of OS-specific route command
+     * @return default gateway
+     */
+    protected static String searchGateway(List<String> lines) {
         for (String line : lines) {
-            String leftTrimmed = line.replaceFirst("^[ \t]+", "");
+            String leftTrimmed = line.replaceFirst("^\\s+", "");
             if (leftTrimmed.startsWith("gateway:")) {
-                return leftTrimmed.split("[ \t]", 2)[1];
+                String[] split = leftTrimmed.split("\\s+");
+                if (split.length < 2) {
+                    return "";
+                }
+                return split[1].split("%")[0];
             }
         }
         return "";

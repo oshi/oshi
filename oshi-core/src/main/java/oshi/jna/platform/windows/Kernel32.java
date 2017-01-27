@@ -35,6 +35,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 
     int ComputerNameDnsHostname = 1;
     int ComputerNameDnsDomain = 2;
+    int ComputerNameDnsDomainFullyQualified = 3;
 
     // TODO: Submit this change to JNA Kernel32 class
     /**
