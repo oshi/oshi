@@ -18,21 +18,22 @@
  */
 package oshi.software.os.windows;
 
-import com.sun.jna.Memory;
-import com.sun.jna.platform.win32.WinDef;
-import com.sun.jna.ptr.IntByReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.sun.jna.Memory;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsNetworkParams extends AbstractNetworkParams {
@@ -41,7 +42,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
-    private static final WmiUtil.ValueType[] GATEWAY_TYPES = {WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16};
+    private static final WmiUtil.ValueType[] GATEWAY_TYPES = { WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16 };
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0/0";
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
@@ -52,11 +53,11 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     public String getDomainName() {
         char[] buffer = new char[256];
         IntByReference bufferSize = new IntByReference(buffer.length);
-        if (!Kernel32.INSTANCE.GetComputerNameEx(Kernel32.ComputerNameDnsDomain, buffer, bufferSize)) {
+        if (!Kernel32.INSTANCE.GetComputerNameEx(Kernel32.ComputerNameDnsDomainFullyQualified, buffer, bufferSize)) {
             LOG.error("Failed to get dns domain name. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return "";
         }
-        return new String(buffer);
+        return new String(buffer).trim();
     }
 
     /**
@@ -103,27 +104,12 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String getIpv4DefaultGateway() {
-        return getNextHop(IPV4_DEFAULT_DEST);
-    }
-
-    private String getNextHop(String dest) {
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
-            "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
-        List<Object> metrics = vals.get("RouteMetric");
-        if (vals.get("RouteMetric").size() == 0) {
-            return "";
-        } else {
-            int index = 0;
-            Long min = Long.MAX_VALUE;
-            for (int i = 0; i < metrics.size(); i++) {
-                Long metric = (Long) metrics.get(i);
-                if (metric < min) {
-                    min = metric;
-                    index = i;
-                }
-            }
-            return (String) vals.get("NextHop").get(index);
+        // IPv6 info not available in WMI pre Windows 8
+        if (WmiUtil.hasNamespace("StandardCimv2")) {
+            return getNextHop(IPV4_DEFAULT_DEST);
         }
+        // IPv4 info available in Win32_IP4RouteTable
+        return getNextHopWin7(IPV4_DEFAULT_DEST.split("/")[0]);
     }
 
     /**
@@ -131,6 +117,60 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String getIpv6DefaultGateway() {
-        return getNextHop(IPV6_DEFAULT_DEST);
+        // IPv6 info not available in WMI pre Windows 8
+        if (WmiUtil.hasNamespace("StandardCimv2")) {
+            return getNextHop(IPV6_DEFAULT_DEST);
+        }
+        return parseIpv6Route();
     }
+
+    private String getNextHop(String dest) {
+        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
+                "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
+        List<Object> metrics = vals.get("RouteMetric");
+        if (vals.get("RouteMetric").isEmpty()) {
+            return "";
+        }
+        int index = 0;
+        Long min = Long.MAX_VALUE;
+        for (int i = 0; i < metrics.size(); i++) {
+            Long metric = (Long) metrics.get(i);
+            if (metric < min) {
+                min = metric;
+                index = i;
+            }
+        }
+        return (String) vals.get("NextHop").get(index);
+    }
+
+    private String getNextHopWin7(String dest) {
+        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_IP4RouteTable", "NextHop,Metric1",
+                "WHERE Destination=\"" + dest + "\"", GATEWAY_TYPES);
+        List<Object> metrics = vals.get("Metric1");
+        if (vals.get("Metric1").isEmpty()) {
+            return "";
+        }
+        int index = 0;
+        Long min = Long.MAX_VALUE;
+        for (int i = 0; i < metrics.size(); i++) {
+            Long metric = (Long) metrics.get(i);
+            if (metric < min) {
+                min = metric;
+                index = i;
+            }
+        }
+        return (String) vals.get("NextHop").get(index);
+    }
+
+    private String parseIpv6Route() {
+        List<String> lines = ExecutingCommand.runNative("route print -6 ::/0");
+        for (String line : lines) {
+            String[] fields = line.trim().split("\\s+");
+            if (fields.length > 3 && "::/0".equals(fields[2])) {
+                return fields[3];
+            }
+        }
+        return "";
+    }
+
 }

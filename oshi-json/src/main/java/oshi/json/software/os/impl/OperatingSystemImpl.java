@@ -143,7 +143,9 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      * {@inheritDoc}
      */
     @Override
-    public NetworkParams getNetworkParams() { return new NetworkParamsImpl(this.os.getNetworkParams()); }
+    public NetworkParams getNetworkParams() {
+        return new NetworkParamsImpl(this.os.getNetworkParams());
+    }
 
     /**
      * {@inheritDoc}

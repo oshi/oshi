@@ -18,17 +18,48 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.unix.LibC;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
 public class FreeBsdNetworkParams extends AbstractNetworkParams {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getDomainName() {
-        return "";
+        LibC.Addrinfo hint = new LibC.Addrinfo();
+        hint.ai_flags = LibC.AI_CANONNAME;
+        String hostname = "";
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            LOG.error("Unknown host exception when getting address of local host: " + e);
+            return "";
+        }
+        PointerByReference ptr = new PointerByReference();
+        int res = LibC.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        if (res > 0) {
+            LOG.error("Failed getaddrinfo(): {}", LibC.INSTANCE.gai_strerror(res));
+            return "";
+        }
+        LibC.Addrinfo info = new LibC.Addrinfo(ptr.getValue());
+        String canonname = new String(info.ai_canonname).trim();
+        LibC.INSTANCE.freeaddrinfo(ptr.getValue());
+        return canonname;
     }
 
     /**

@@ -23,13 +23,7 @@ import oshi.util.ExecutingCommand;
 
 public class SolarisNetworkParams extends AbstractNetworkParams {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDomainName() {
-        return "";
-    }
+    private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritDoc}

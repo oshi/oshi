@@ -57,7 +57,7 @@ public class PropertiesUtil {
                 return props;
             }
             props.load(input);
-            LOG.debug("Loaded properties: {}", props.toString());
+            LOG.debug("Loaded properties: {}", props);
         } catch (IOException ex) {
             LOG.error("Error reading properties file {}. {}", propertiesFile, ex);
         }

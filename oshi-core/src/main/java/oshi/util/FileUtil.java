@@ -163,13 +163,12 @@ public class FileUtil {
     /**
      * Read a file and return a map of string keys to string values contained
      * therein. Intended primarily for Linux /proc/[pid]/io
+     * 
      * @param filename
      *            The file to read
      * @return The map contained in the file, if any; otherwise empty map
      */
-    public static Map<String, String> getKeyValueMapFromFile(
-            String filename,
-            String separator) {
+    public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<>();
         LOG.debug("Reading file {}", filename);
         List<String> lines = FileUtil.readFile(filename, false);
