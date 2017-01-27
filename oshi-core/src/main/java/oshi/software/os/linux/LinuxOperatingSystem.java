@@ -58,7 +58,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     protected String codeName;
 
-    // Resident Set Size is given as number of pages the process has in real memory.
+    // Resident Set Size is given as number of pages the process has in real
+    // memory.
     // To get the actual size in bytes we need to multiply that with page size.
     private final int memoryPageSize;
 
@@ -123,8 +124,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             path = buf.getString(0).substring(0, size);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
-        return new LinuxProcess(
-                split[1].replaceFirst("\\(", "").replace(")", ""), // name
+        return new LinuxProcess(split[1].replaceFirst("\\(", "").replace(")", ""), // name
                 // See man proc for how to parse /proc/[pid]/stat
                 path, // path
                 split[2].charAt(0), // state, one of RSDZTW
@@ -133,7 +133,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 ParseUtil.parseIntOrDefault(split[19], 0), // thread count
                 ParseUtil.parseIntOrDefault(split[17], 0), // priority
                 ParseUtil.parseLongOrDefault(split[22], 0L), // VSZ
-                ParseUtil.parseLongOrDefault(split[23], 0L) * memoryPageSize, // RSS pages * page_size
+                ParseUtil.parseLongOrDefault(split[23], 0L) * memoryPageSize, // RSS
+                                                                              // pages
+                                                                              // *
+                                                                              // page_size
                 // The below values are in jiffies
                 ParseUtil.parseLongOrDefault(split[14], 0L), // kernelTime
                 ParseUtil.parseLongOrDefault(split[13], 0L), // userTime
@@ -141,8 +144,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                                                              // uptime)
                 // See man proc for how to parse /proc/[pid]/io
                 ParseUtil.parseLongOrDefault(io.getOrDefault("read_bytes", ""), 0L),
-                ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L),
-                System.currentTimeMillis() //
+                ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L), System.currentTimeMillis() //
         );
     }
 

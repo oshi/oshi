@@ -31,7 +31,7 @@ import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.NetworkParams;
 import oshi.json.util.PropertiesUtil;
 
-public class NetworkParamsImpl extends AbstractOshiJsonObject implements NetworkParams{
+public class NetworkParamsImpl extends AbstractOshiJsonObject implements NetworkParams {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +46,7 @@ public class NetworkParamsImpl extends AbstractOshiJsonObject implements Network
      * @param networkParams
      *            a platform-specific NetworkParams object
      */
-    public NetworkParamsImpl(oshi.software.os.NetworkParams networkParams){
+    public NetworkParamsImpl(oshi.software.os.NetworkParams networkParams) {
         this.networkParams = networkParams;
     }
 
@@ -54,31 +54,41 @@ public class NetworkParamsImpl extends AbstractOshiJsonObject implements Network
      * {@inheritDoc}
      */
     @Override
-    public String getHostName() { return this.networkParams.getHostName(); }
+    public String getHostName() {
+        return this.networkParams.getHostName();
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDomainName() { return this.networkParams.getDomainName(); }
+    public String getDomainName() {
+        return this.networkParams.getDomainName();
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String[] getDnsServers() { return this.networkParams.getDnsServers(); }
+    public String[] getDnsServers() {
+        return this.networkParams.getDnsServers();
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getIpv4DefaultGateway() { return this.networkParams.getIpv4DefaultGateway(); }
+    public String getIpv4DefaultGateway() {
+        return this.networkParams.getIpv4DefaultGateway();
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getIpv6DefaultGateway() { return this.networkParams.getIpv6DefaultGateway(); }
+    public String getIpv6DefaultGateway() {
+        return this.networkParams.getIpv6DefaultGateway();
+    }
 
     /**
      * {@inheritDoc}
