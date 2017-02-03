@@ -53,16 +53,23 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             setModel(models.get(0));
         }
 
-        final Map<String, List<String>> win32BIOS = WmiUtil.selectStringsFrom(null, "Win32_BIOS", "SerialNumber",
-                "where PrimaryBIOS=true");
-
-        final List<String> serialNumbers = win32BIOS.get("SerialNumber");
-        if (serialNumbers != null && !serialNumbers.isEmpty()) {
-            setSerialNumber(serialNumbers.get(0));
-        }
+        setSerialNumber(getSystemSerialNumber());
 
         setFirmware(new WindowsFirmware());
 
         setBaseboard(new WindowsBaseboard());
+    }
+
+    private String getSystemSerialNumber() {
+        // This should always work
+        String serialNumber = WmiUtil.selectStringFrom(null, "Win32_BIOS", "SerialNumber", "where PrimaryBIOS=true");
+        // If the above doesn't work, this might
+        if ("".equals(serialNumber)) {
+            serialNumber = WmiUtil.selectStringFrom(null, "Win32_Csproduct", "IdentifyingNumber", null);
+        }
+        if ("".equals(serialNumber)) {
+            serialNumber = "unknown";
+        }
+        return serialNumber;
     }
 }

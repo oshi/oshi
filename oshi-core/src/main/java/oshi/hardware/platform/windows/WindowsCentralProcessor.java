@@ -219,18 +219,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
-        if (this.cpuSerialNumber == null) {
-            // This should always work
-            this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_BIOS", "SerialNumber", null);
-            // If the above doesn't work, this might
-            if ("".equals(this.cpuSerialNumber)) {
-                this.cpuSerialNumber = WmiUtil.selectStringFrom(null, "Win32_Csproduct", "IdentifyingNumber", null);
-            }
-            if ("".equals(this.cpuSerialNumber)) {
-                this.cpuSerialNumber = "unknown";
-            }
-        }
-        return this.cpuSerialNumber;
+        return new WindowsComputerSystem().getSerialNumber();
     }
 }

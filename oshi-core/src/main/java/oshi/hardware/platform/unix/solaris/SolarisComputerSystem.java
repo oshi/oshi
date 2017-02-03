@@ -21,6 +21,7 @@ package oshi.hardware.platform.unix.solaris;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Hardware data obtained from smbios
@@ -30,6 +31,8 @@ import oshi.util.FormatUtil;
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String UNKNOWN = "unknown";
 
     SolarisComputerSystem() {
         init();
@@ -164,9 +167,10 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (!product.isEmpty()) {
             setModel(product);
         }
-        if (!serialNumber.isEmpty()) {
-            setSerialNumber(serialNumber);
+        if (serialNumber.isEmpty()) {
+            serialNumber = getSystemSerialNumber();
         }
+        setSerialNumber(serialNumber);
 
         if (!boardManufacturer.isEmpty()) {
             baseboard.setManufacturer(boardManufacturer);
@@ -183,5 +187,24 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
         setFirmware(firmware);
         setBaseboard(baseboard);
+    }
+
+    private String getSystemSerialNumber() {
+        // If they've installed STB (Sun Explorer) this should work
+        String serialNumber = ExecutingCommand.getFirstAnswer("sneep");
+        // if that didn't work, try...
+        if (serialNumber.isEmpty()) {
+            String marker = "chassis-sn:";
+            for (String checkLine : ExecutingCommand.runNative("prtconf -pv")) {
+                if (checkLine.contains(marker)) {
+                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
+                    break;
+                }
+            }
+        }
+        if (serialNumber.isEmpty()) {
+            serialNumber = UNKNOWN;
+        }
+        return serialNumber;
     }
 }

@@ -250,6 +250,7 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
         return this.processor.getSystemSerialNumber();
     }
@@ -284,9 +285,6 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.logicalProcessorCount")) {
             json.add("logicalProcessorCount", getLogicalProcessorCount());
-        }
-        if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemSerialNumber")) {
-            json.add("systemSerialNumber", getSystemSerialNumber());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.vendor")) {
             json.add("vendor", getVendor());

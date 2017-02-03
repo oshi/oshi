@@ -2,6 +2,7 @@
 ================
 * [#294](https://github.com/oshi/oshi/pull/294), [#305](https://github.com/oshi/oshi/pull/305): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei), [@dbwiddis](https://github.com/dbwiddis).
 * [#295](https://github.com/oshi/oshi/pull/295): Make OSProcess (AbstractProcess.java) more easily extendable - [@michaeldesigaud](https://github.com/michaeldesigaud).
+* [#307](https://github.com/dblock/oshi/pull/307): Deprecate CentralProcessor's getSystemSerialNumber method that duplicated ComputerSystem's getSerialNumber method. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.3 (12/31/2016)

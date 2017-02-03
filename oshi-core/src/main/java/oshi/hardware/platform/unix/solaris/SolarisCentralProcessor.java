@@ -170,36 +170,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
-        if (this.cpuSerialNumber == null) {
-            String marker = "Serial Number:";
-            for (String checkLine : ExecutingCommand.runNative("smbios -t SMB_TYPE_SYSTEM")) {
-                if (checkLine.contains(marker)) {
-                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();
-                    break;
-                }
-            }
-            // if that didn't work, try...
-            if (this.cpuSerialNumber == null) {
-                // If they've installed STB (Sun Explorer) this should work
-                this.cpuSerialNumber = ExecutingCommand.getFirstAnswer("sneep");
-            }
-            // if that didn't work, try...
-            if (this.cpuSerialNumber.isEmpty()) {
-                marker = "chassis-sn:";
-                for (String checkLine : ExecutingCommand.runNative("prtconf -pv")) {
-                    if (checkLine.contains(marker)) {
-                        String[] temp = checkLine.split(marker)[1].split("'");
-                        // Format: '12345' (string)
-                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : "";
-                        break;
-                    }
-                }
-            }
-            if (this.cpuSerialNumber.isEmpty()) {
-                this.cpuSerialNumber = "unknown";
-            }
-        }
-        return this.cpuSerialNumber;
+        return new SolarisComputerSystem().getSerialNumber();
     }
 }
