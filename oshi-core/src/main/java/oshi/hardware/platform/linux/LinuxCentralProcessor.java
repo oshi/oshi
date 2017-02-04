@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
-import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
@@ -44,10 +43,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
-
-    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
-    // official/approved path for sysfs information
-    private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
     /**
      * Create a Processor
@@ -276,40 +271,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
-        if (this.cpuSerialNumber == null) {
-            // If root privileges this will work
-            String marker = "Serial Number:";
-            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
-                if (checkLine.contains(marker)) {
-                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();
-                    break;
-                }
-            }
-            // if lshal command available (HAL deprecated in newer linuxes)
-            if (this.cpuSerialNumber == null) {
-                marker = "system.hardware.serial =";
-                for (String checkLine : ExecutingCommand.runNative("lshal")) {
-                    if (checkLine.contains(marker)) {
-                        String[] temp = checkLine.split(marker)[1].split("'");
-                        // Format: '12345' (string)
-                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
-                        break;
-                    }
-                }
-            }
-            // These sysfs files can be chmod'd at boot time to enable access
-            // without root
-            if (this.cpuSerialNumber == null) {
-                this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
-                if (this.cpuSerialNumber.isEmpty() || "None".equals(this.cpuSerialNumber)) {
-                    this.cpuSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
-                    if (this.cpuSerialNumber.isEmpty() || "None".equals(this.cpuSerialNumber)) {
-                        this.cpuSerialNumber = "unknown";
-                    }
-                }
-            }
-        }
-        return this.cpuSerialNumber;
+        return new LinuxComputerSystem().getSerialNumber();
     }
+
 }

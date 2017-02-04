@@ -39,6 +39,7 @@ public class CentralProcessorTest {
     /**
      * Test central processor.
      */
+    @SuppressWarnings("deprecation") // Test serialNumber until removed
     @Test
     public void testCentralProcessor() {
         SystemInfo si = new SystemInfo();

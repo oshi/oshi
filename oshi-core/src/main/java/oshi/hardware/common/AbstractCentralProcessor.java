@@ -90,8 +90,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private String cpuName;
 
-    protected String cpuSerialNumber = null;
-
     private String cpuIdentifier;
 
     private String cpuStepping;

@@ -19,7 +19,9 @@
 package oshi.hardware.platform.linux;
 
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Hardware data obtained from sysfs
@@ -34,6 +36,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
+    private static final String UNKNOWN = "unknown";
 
     LinuxComputerSystem() {
         init();
@@ -72,18 +75,43 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
             }
         }
 
-        final String productSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
-        if (productSerial != null && !productSerial.trim().isEmpty()) {
-            setSerialNumber(productSerial.trim());
-        } else {
-            final String boardSerial = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
-            if (boardSerial != null && !boardSerial.trim().isEmpty()) {
-                setSerialNumber(boardSerial.trim());
-            }
-        }
+        setSerialNumber(getSystemSerialNumber());
 
         setFirmware(new LinuxFirmware());
 
         setBaseboard(new LinuxBaseboard());
+    }
+
+    private String getSystemSerialNumber() {
+        // These sysfs files accessible by root, or can be chmod'd at boot time
+        // to enable access without root
+        String serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
+        if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
+            serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
+            if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
+                serialNumber = UNKNOWN;
+            }
+        }
+        // If root privileges this will work
+        String marker = "Serial Number:";
+        if (UNKNOWN.equals(serialNumber)) {
+            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+                if (checkLine.contains(marker)) {
+                    serialNumber = checkLine.split(marker)[1].trim();
+                    break;
+                }
+            }
+        }
+        // if lshal command available (HAL deprecated in newer linuxes)
+        if (UNKNOWN.equals(serialNumber)) {
+            marker = "system.hardware.serial =";
+            for (String checkLine : ExecutingCommand.runNative("lshal")) {
+                if (checkLine.contains(marker)) {
+                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
+                    break;
+                }
+            }
+        }
+        return serialNumber;
     }
 }

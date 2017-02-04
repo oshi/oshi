@@ -21,7 +21,9 @@ package oshi.hardware.platform.mac;
 import java.util.regex.Pattern;
 
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.jna.platform.mac.IOKit;
 import oshi.util.ExecutingCommand;
+import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Hardware data obtained by system_profiler
@@ -113,11 +115,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
                 setModel(modelIdentifier);
             }
         }
-
-        if (!serialNumberSystem.isEmpty()) {
-            setSerialNumber(serialNumberSystem);
-            baseboard.setSerialNumber(serialNumberSystem);
+        if (serialNumberSystem.isEmpty()) {
+            serialNumberSystem = getSystemSerialNumber();
         }
+        setSerialNumber(serialNumberSystem);
+        baseboard.setSerialNumber(serialNumberSystem);
         if (!smcVersion.isEmpty()) {
             baseboard.setVersion(smcVersion);
         }
@@ -128,4 +130,19 @@ final class MacComputerSystem extends AbstractComputerSystem {
         setFirmware(firmware);
         setBaseboard(baseboard);
     }
+
+    private String getSystemSerialNumber() {
+        String serialNumber = null;
+        int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (service != 0) {
+            // Fetch the serial number
+            serialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");
+            IOKit.INSTANCE.IOObjectRelease(service);
+        }
+        if (serialNumber == null) {
+            serialNumber = "unknown";
+        }
+        return serialNumber;
+    }
+
 }

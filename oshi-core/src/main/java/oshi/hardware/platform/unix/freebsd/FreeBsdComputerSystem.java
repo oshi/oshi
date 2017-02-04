@@ -20,6 +20,7 @@ package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Hardware data obtained from dmidecode
@@ -82,12 +83,23 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (!productName.isEmpty()) {
             setModel(productName);
         }
-        if (!serialNumber.isEmpty()) {
-            setSerialNumber(serialNumber);
+        if (serialNumber.isEmpty()) {
+            serialNumber = getSystemSerialNumber();
         }
+        setSerialNumber(serialNumber);
 
         setFirmware(new FreeBsdFirmware());
 
         setBaseboard(new FreeBsdBaseboard());
+    }
+
+    private String getSystemSerialNumber() {
+        String marker = "system.hardware.serial =";
+        for (String checkLine : ExecutingCommand.runNative("lshal")) {
+            if (checkLine.contains(marker)) {
+                return ParseUtil.getSingleQuoteStringValue(checkLine);
+            }
+        }
+        return "unknown";
     }
 }

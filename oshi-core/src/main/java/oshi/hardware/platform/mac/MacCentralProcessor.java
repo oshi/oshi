@@ -27,13 +27,11 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -182,18 +180,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
-        if (this.cpuSerialNumber == null) {
-            int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
-            if (service != 0) {
-                // Fetch the serial number
-                this.cpuSerialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");
-                IOKit.INSTANCE.IOObjectRelease(service);
-            }
-            if (this.cpuSerialNumber == null) {
-                this.cpuSerialNumber = "unknown";
-            }
-        }
-        return this.cpuSerialNumber;
+        return new MacComputerSystem().getSerialNumber();
     }
 }

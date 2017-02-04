@@ -342,7 +342,10 @@ public interface CentralProcessor extends Serializable {
      *
      * @return the System/CPU Serial Number, if available, otherwise returns
      *         "unknown"
+     * 
+     * @deprecated use {@link ComputerSystem#getSerialNumber()} instead.
      */
+    @Deprecated
     String getSystemSerialNumber();
 
     /**

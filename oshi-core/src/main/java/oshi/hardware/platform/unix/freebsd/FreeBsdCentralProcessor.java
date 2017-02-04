@@ -223,32 +223,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String getSystemSerialNumber() {
-        if (this.cpuSerialNumber == null) {
-            // If root privileges this will work
-            String marker = "Serial Number:";
-            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
-                if (checkLine.contains(marker)) {
-                    this.cpuSerialNumber = checkLine.split(marker)[1].trim();
-                    break;
-                }
-            }
-            // if lshal command available (hald must be manually installed)
-            if (this.cpuSerialNumber == null) {
-                marker = "system.hardware.serial =";
-                for (String checkLine : ExecutingCommand.runNative("lshal")) {
-                    if (checkLine.contains(marker)) {
-                        String[] temp = checkLine.split(marker)[1].split("'");
-                        // Format: '12345' (string)
-                        this.cpuSerialNumber = temp.length > 0 ? temp[1] : null;
-                        break;
-                    }
-                }
-            }
-            if (this.cpuSerialNumber == null) {
-                this.cpuSerialNumber = "unknown";
-            }
-        }
-        return this.cpuSerialNumber;
+        return new FreeBsdComputerSystem().getSerialNumber();
     }
 }
