@@ -156,6 +156,7 @@ public class SystemInfoTest {
         System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
 
         System.out.println("Identifier: " + processor.getIdentifier());
+        System.out.println("ProcessorID: " + processor.getProcessorID());
     }
 
     private static void printMemory(GlobalMemory memory) {

@@ -68,14 +68,20 @@ enables the same capabilities via decorator classes.
 See [oshi.json.properties](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
 for a sample properties configuration file to customize JSON results.
 
-General information about the operating system and processor.
+General information about the operating system and computer system.
 ```
-Microsoft Windows 7 (Home)
+Apple macOS 10.12.3 (Sierra) build 16D32
+manufacturer: Apple Inc.
+model: MacBook Pro (MacBookPro8,2)
+serialnumber: C02FG6XYDF71
+```
+Processor identification.
+```
 Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  4 physical CPU(s)
  8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
-Serial Num: 09203-891-5001202-52183
+ProcessorID: BFEBFBFF000206A7
 ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.

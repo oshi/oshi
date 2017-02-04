@@ -87,6 +87,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
             setCpu64(false);
         }
+        setProcessorID(WmiUtil.selectStringFrom(null, "Win32_Processor", "ProcessorID", null));
     }
 
     /**

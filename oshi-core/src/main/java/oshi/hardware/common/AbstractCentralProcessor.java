@@ -90,6 +90,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private String cpuName;
 
+    private String processorID;
+
     private String cpuIdentifier;
 
     private String cpuStepping;
@@ -186,6 +188,25 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public void setName(String name) {
         this.cpuName = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProcessorID() {
+        if (this.processorID == null) {
+            setProcessorID("");
+        }
+        return this.processorID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProcessorID(String processorID) {
+        this.processorID = processorID;
     }
 
     /**
