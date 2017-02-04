@@ -47,7 +47,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
         try {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: " + e);
+            LOG.error("Unknown host exception when getting address of local host: {}", e);
             return "";
         }
         PointerByReference ptr = new PointerByReference();
@@ -57,7 +57,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
             return "";
         }
         Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());
-        String canonname = new String(info.ai_canonname).trim();
+        String canonname = info.ai_canonname.trim();
         Libc.INSTANCE.freeaddrinfo(ptr.getValue());
         return canonname;
     }

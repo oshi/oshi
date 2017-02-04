@@ -61,6 +61,7 @@ public interface CLibrary extends Library {
         public static class ByReference extends Sockaddr implements Structure.ByReference {
         }
 
+        @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "sa_family", "sa_data" });
         }
@@ -79,6 +80,7 @@ public interface CLibrary extends Library {
         public static class ByReference extends Addrinfo implements Structure.ByReference {
         }
 
+        @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen",
                     "ai_addr", "ai_canonname", "ai_next" });

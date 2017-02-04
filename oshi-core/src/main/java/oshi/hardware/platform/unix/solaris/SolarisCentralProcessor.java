@@ -189,16 +189,16 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     private String getProcessorID(String stepping, String model, String family) {
         List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
-        String flags = "";
+        StringBuilder flags = new StringBuilder();
         for (String line : isainfo) {
             if (line.startsWith("64-bit")) {
                 continue;
             } else if (line.startsWith("32-bit")) {
                 break;
             }
-            flags = flags + line;
+            flags.append(' ').append(line.trim());
         }
-        return createProcessorID(stepping, model, family, flags.toLowerCase().split("\\s+"));
+        return createProcessorID(stepping, model, family, flags.toString().toLowerCase().split("\\s+"));
     }
 
 }

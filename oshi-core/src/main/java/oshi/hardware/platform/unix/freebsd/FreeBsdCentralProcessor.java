@@ -101,7 +101,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 Matcher m = CPUINFO.matcher(line);
                 if (m.matches()) {
                     setVendor(m.group(1));
-                    processorID |= Long.decode(m.group(2).toString());
+                    processorID |= Long.decode(m.group(2));
                     setFamily(Integer.decode(m.group(3)).toString());
                     setModel(Integer.decode(m.group(4)).toString());
                     setStepping(Integer.decode(m.group(5)).toString());
@@ -109,7 +109,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             } else if (line.startsWith("Features=")) {
                 Matcher m = CPUINFO2.matcher(line);
                 if (m.matches()) {
-                    processorID |= Long.decode(m.group(1).toString()) << 32;
+                    processorID |= Long.decode(m.group(1)) << 32;
                 }
                 // No further interest in this file
                 break;
