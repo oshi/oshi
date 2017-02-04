@@ -4,6 +4,7 @@
 * [#295](https://github.com/oshi/oshi/pull/295): Make OSProcess (AbstractProcess.java) more easily extendable - [@michaeldesigaud](https://github.com/michaeldesigaud).
 * [#307](https://github.com/dblock/oshi/pull/307): Deprecate CentralProcessor's getSystemSerialNumber method that duplicated ComputerSystem's getSerialNumber method. - [@dbwiddis](https://github.com/dbwiddis).
 * [#308](https://github.com/dblock/oshi/pull/308): Add getProcessorID to CentralProcessor. - [@dbwiddis](https://github.com/dbwiddis).
+* [#309](https://github.com/dblock/oshi/pull/309): Reduce C library duplication. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.3 (12/31/2016)

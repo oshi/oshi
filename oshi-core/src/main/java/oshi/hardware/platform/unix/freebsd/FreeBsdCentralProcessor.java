@@ -31,9 +31,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.jna.platform.unix.freebsd.Libc.CpTime;
-import oshi.jna.platform.unix.freebsd.Libc.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
