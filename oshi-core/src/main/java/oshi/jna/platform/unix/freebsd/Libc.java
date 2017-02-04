@@ -16,7 +16,7 @@
  * Contributors:
  * https://github.com/dblock/oshi/graphs/contributors
  */
-package oshi.jna.platform.unix;
+package oshi.jna.platform.unix.freebsd;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,8 +34,8 @@ import com.sun.jna.ptr.PointerByReference;
  *
  * @author widdis[at]gmail[dot]com
  */
-public interface LibC extends Library {
-    LibC INSTANCE = (LibC) Native.loadLibrary("libc", LibC.class);
+public interface Libc extends Library {
+    Libc INSTANCE = (Libc) Native.loadLibrary("libc", Libc.class);
 
     /*
      * Data size
