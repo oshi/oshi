@@ -131,6 +131,29 @@ public interface CentralProcessor extends Serializable {
     void setVendorFreq(long freq);
 
     /**
+     * Gets the Processor ID. This is a hexidecimal string representing an
+     * 8-byte value, normally obtained using the CPUID opcode with the EAX
+     * register set to 1. The first four bytes are the resulting contents of the
+     * EAX register, which is the Processor signature, represented in
+     * human-readable form by {@link #getIdentifier()} . The remaining four
+     * bytes are the contents of the EDX register, containing feature flags.
+     * 
+     * NOTE: The order of returned bytes is platform and software dependent.
+     * Values may be in either Big Endian or Little Endian order.
+     * 
+     * @return A string representing the Processor ID
+     */
+    String getProcessorID();
+
+    /**
+     * Set processor ID
+     * 
+     * @param processorID
+     *            The processor ID
+     */
+    void setProcessorID(String processorID);
+
+    /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
      *
      * @return Processor identifier.

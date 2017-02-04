@@ -53,7 +53,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(?:0x)?(\\p{XDigit}+)\".*>.*</cpu>.*");
 
     private static final Pattern CPUINFO = Pattern
-            .compile("Origin=\"([^\"]*)\".*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
+            .compile("Origin=\"([^\"]*)\".*Id=(\\S+).*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
+    private static final Pattern CPUINFO2 = Pattern.compile("Features=(\\S+)<.*");
 
     private static final long BOOTTIME;
     static {
@@ -89,6 +90,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         setName(BsdSysctlUtil.sysctl("hw.model", ""));
         // This is apparently the only reliable source for this stuff on
         // FreeBSD...
+        long processorID = 0L;
         List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot");
         for (String line : cpuInfo) {
             line = line.trim();
@@ -99,15 +101,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 Matcher m = CPUINFO.matcher(line);
                 if (m.matches()) {
                     setVendor(m.group(1));
-                    setFamily(Integer.decode(m.group(2)).toString());
-                    setModel(Integer.decode(m.group(3)).toString());
-                    setStepping(Integer.decode(m.group(4)).toString());
+                    processorID |= Long.decode(m.group(2).toString());
+                    setFamily(Integer.decode(m.group(3)).toString());
+                    setModel(Integer.decode(m.group(4)).toString());
+                    setStepping(Integer.decode(m.group(5)).toString());
+                }
+            } else if (line.startsWith("Features=")) {
+                Matcher m = CPUINFO2.matcher(line);
+                if (m.matches()) {
+                    processorID |= (Long.decode(m.group(1).toString()) << 32);
                 }
                 // No further interest in this file
                 break;
             }
         }
         setCpu64(ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64"));
+        setProcessorID(getProcessorID(processorID));
     }
 
     /**
@@ -226,5 +235,27 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Deprecated
     public String getSystemSerialNumber() {
         return new FreeBsdComputerSystem().getSerialNumber();
+    }
+
+    /**
+     * Fetches the ProcessorID from dmidecode (if possible with root
+     * permissions), otherwise uses the values from /var/run/dmesg.boot
+     * 
+     * @param processorID
+     * @return The ProcessorID string
+     */
+    private String getProcessorID(long processorID) {
+        boolean procInfo = false;
+        String marker = "Processor Information";
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+            if (!procInfo && checkLine.contains(marker)) {
+                marker = "ID:";
+                procInfo = true;
+            } else if (procInfo && checkLine.contains(marker)) {
+                return checkLine.split(marker)[1].trim();
+            }
+        }
+        // If we've gotten this far, dmidecode failed. Used the passed-in values
+        return String.format("%016X", processorID);
     }
 }

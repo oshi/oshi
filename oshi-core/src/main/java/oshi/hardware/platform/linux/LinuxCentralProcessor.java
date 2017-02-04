@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
@@ -58,6 +59,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private void initVars() {
+        String[] flags = null;
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
             String[] splitLine = line.split("\\s+:\\s");
@@ -72,10 +74,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 setName(splitLine[1]);
                 break;
             case "flags":
-                String[] flags = splitLine[1].toUpperCase().split(" ");
+                flags = splitLine[1].toLowerCase().split(" ");
                 boolean found = false;
                 for (String flag : flags) {
-                    if ("LM".equals(flag)) {
+                    if ("lm".equals(flag)) {
                         found = true;
                         break;
                     }
@@ -95,6 +97,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // Do nothing
             }
         }
+        setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
     }
 
     /**
@@ -274,6 +277,160 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Deprecated
     public String getSystemSerialNumber() {
         return new LinuxComputerSystem().getSerialNumber();
+    }
+
+    /**
+     * Fetches the ProcessorID from dmidecode (if possible with root
+     * permissions), the cpuid command (if installed) or by encoding the
+     * stepping, model, family, and feature flags.
+     * 
+     * @param stepping
+     * @param model
+     * @param family
+     * @param flags
+     * @return The Processor ID string
+     */
+    private String getProcessorID(String stepping, String model, String family, String[] flags) {
+        boolean procInfo = false;
+        String marker = "Processor Information";
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+            if (!procInfo && checkLine.contains(marker)) {
+                marker = "ID:";
+                procInfo = true;
+            } else if (procInfo && checkLine.contains(marker)) {
+                return checkLine.split(marker)[1].trim();
+            }
+        }
+        // If we've gotten this far, dmidecode failed. Try cpuid.
+        marker = "eax=";
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+            if (checkLine.contains(marker) && checkLine.trim().startsWith("0x00000001")) {
+                String eax = "";
+                String edx = "";
+                for (String register : checkLine.split("\\s+")) {
+                    if (register.startsWith("eax=")) {
+                        eax = register.replace("eax=0x", "");
+                    } else if (register.startsWith("edx=")) {
+                        edx = register.replace("edx=0x", "");
+                    }
+                }
+                return edx + eax;
+            }
+        }
+        // If we've gotten this far, dmidecode failed. Encode arguments
+        long processorID = 0L;
+        long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
+        long modelL = ParseUtil.parseLongOrDefault(model, 0L);
+        long familyL = ParseUtil.parseLongOrDefault(family, 0L);
+        // 3:0 – Stepping
+        processorID |= (steppingL & 0xf);
+        // 19:16,7:4 – Model
+        processorID |= ((modelL & 0x0f) << 4);
+        processorID |= ((modelL & 0xf0) << 16);
+        // 27:20,11:8 – Family
+        processorID |= ((familyL & 0x0f) << 8);
+        processorID |= ((familyL & 0xf0) << 20);
+        // 13:12 – Processor Type, assume 0
+        for (String flag : flags) {
+            switch (flag) {
+            case "fpu":
+                processorID |= (1L << 32);
+                break;
+            case "vme":
+                processorID |= (1L << 33);
+                break;
+            case "de":
+                processorID |= (1L << 34);
+                break;
+            case "pse":
+                processorID |= (1L << 35);
+                break;
+            case "tsc":
+                processorID |= (1L << 36);
+                break;
+            case "msr":
+                processorID |= (1L << 37);
+                break;
+            case "pae":
+                processorID |= (1L << 38);
+                break;
+            case "mce":
+                processorID |= (1L << 39);
+                break;
+            case "cx8":
+                processorID |= (1L << 40);
+                break;
+            case "apic":
+                processorID |= (1L << 41);
+                break;
+            case "sep":
+                processorID |= (1L << 43);
+                break;
+            case "mtrr":
+                processorID |= (1L << 44);
+                break;
+            case "pge":
+                processorID |= (1L << 45);
+                break;
+            case "mca":
+                processorID |= (1L << 46);
+                break;
+            case "cmov":
+                processorID |= (1L << 47);
+                break;
+            case "pat":
+                processorID |= (1L << 48);
+                break;
+            case "pse36":
+            case "pse-36":
+                processorID |= (1L << 49);
+                break;
+            case "psn":
+                processorID |= (1L << 50);
+                break;
+            case "clfsh":
+                processorID |= (1L << 51);
+                break;
+            case "ds":
+                processorID |= (1L << 53);
+                break;
+            case "acpi":
+                processorID |= (1L << 54);
+                break;
+            case "mmx":
+                processorID |= (1L << 55);
+                break;
+            case "fxsr":
+                processorID |= (1L << 56);
+                break;
+            case "sse":
+                processorID |= (1L << 57);
+                break;
+            case "sse2":
+                processorID |= (1L << 58);
+                break;
+            case "ss":
+                processorID |= (1L << 59);
+                break;
+            case "ht":
+            case "htt":
+                processorID |= (1L << 60);
+                break;
+            case "tm":
+                processorID |= (1L << 61);
+                break;
+            case "ia64":
+                processorID |= (1L << 62);
+                break;
+            case "pbe":
+                processorID |= (1L << 63);
+                break;
+            default:
+                break;
+
+            }
+        }
+        return String.format("%016X", processorID);
     }
 
 }

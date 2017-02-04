@@ -58,6 +58,10 @@ public class CentralProcessorTest {
         p.setIdentifier("i");
         assertEquals(p.getIdentifier(), "i");
 
+        assertNotNull(p.getProcessorID());
+        p.setProcessorID("p");
+        assertEquals(p.getProcessorID(), "p");
+
         p.setCpu64(true);
         assertTrue(p.isCpu64bit());
 

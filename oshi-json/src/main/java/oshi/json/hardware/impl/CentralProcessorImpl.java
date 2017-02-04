@@ -90,6 +90,22 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      * {@inheritDoc}
      */
     @Override
+    public String getProcessorID() {
+        return this.processor.getProcessorID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProcessorID(String processorID) {
+        this.processor.setProcessorID(processorID);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long getVendorFreq() {
         return this.processor.getVendorFreq();
     }
@@ -291,6 +307,12 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.vendorFreq")) {
             json.add("vendorFreq", getVendorFreq());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.processorID")) {
+            json.add("processorID", getProcessorID());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.identifier")) {
+            json.add("identifier", getIdentifier());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.cpu64bit")) {
             json.add("cpu64bit", isCpu64bit());
