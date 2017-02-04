@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.jna.platform.unix.LibC;
+import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
@@ -41,8 +41,8 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String getDomainName() {
-        LibC.Addrinfo hint = new LibC.Addrinfo();
-        hint.ai_flags = LibC.AI_CANONNAME;
+        Libc.Addrinfo hint = new Libc.Addrinfo();
+        hint.ai_flags = Libc.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
@@ -51,14 +51,14 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
             return "";
         }
         PointerByReference ptr = new PointerByReference();
-        int res = LibC.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
-            LOG.error("Failed getaddrinfo(): {}", LibC.INSTANCE.gai_strerror(res));
+            LOG.error("Failed getaddrinfo(): {}", Libc.INSTANCE.gai_strerror(res));
             return "";
         }
-        LibC.Addrinfo info = new LibC.Addrinfo(ptr.getValue());
+        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());
         String canonname = new String(info.ai_canonname).trim();
-        LibC.INSTANCE.freeaddrinfo(ptr.getValue());
+        Libc.INSTANCE.freeaddrinfo(ptr.getValue());
         return canonname;
     }
 

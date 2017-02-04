@@ -23,7 +23,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.Sensors;
-import oshi.jna.platform.unix.LibC;
+import oshi.jna.platform.unix.freebsd.Libc;
 
 public class FreeBsdSensors implements Sensors {
 
@@ -39,9 +39,9 @@ public class FreeBsdSensors implements Sensors {
         int cpu = 0;
         String name = "dev.cpu.%d.temperature";
         while (true) {
-            IntByReference size = new IntByReference(LibC.INT_SIZE);
+            IntByReference size = new IntByReference(Libc.INT_SIZE);
             Pointer p = new Memory(size.getValue());
-            if (0 != LibC.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
+            if (0 != Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
                 break;
             }
             sumTemp += p.getInt(0) / 10d - 273.15;

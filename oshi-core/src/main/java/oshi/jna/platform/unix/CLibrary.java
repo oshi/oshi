@@ -22,37 +22,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Library;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library with code common to all *nix-based operating systems. This class
+ * should be considered non-API as it may be removed if/when its code is
+ * incorporated into the JNA project.
  *
  * @author widdis[at]gmail[dot]com
  */
-public interface LibC extends Library {
-    LibC INSTANCE = (LibC) Native.loadLibrary("libc", LibC.class);
+public interface CLibrary extends Library {
 
     /*
-     * Data size
+     * For getaddrinfo()
      */
-    int UINT64_SIZE = Native.getNativeSize(long.class);
-    int INT_SIZE = Native.getNativeSize(int.class);
-
-    /*
-     * CPU state indices
-     */
-    int CPUSTATES = 5;
-    int CP_USER = 0;
-    int CP_NICE = 1;
-    int CP_SYS = 2;
-    int CP_INTR = 3;
-    int CP_IDLE = 4;
-
     int AI_CANONNAME = 2;
 
     /**
@@ -65,15 +51,6 @@ public interface LibC extends Library {
         @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "tv_sec", "tv_usec" });
-        }
-    }
-
-    class CpTime extends Structure {
-        public long[] cpu_ticks = new long[CPUSTATES];
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "cpu_ticks" });
         }
     }
 
@@ -231,6 +208,14 @@ public interface LibC extends Library {
     int getloadavg(double[] loadavg, int nelem);
 
     /**
+     * Returns the process ID of the calling process. The ID is guaranteed to be
+     * unique and is useful for constructing temporary file names.
+     *
+     * @return the process ID of the calling process.
+     */
+    int getpid();
+
+    /**
      * Given node and service, which identify an Internet host and a service,
      * getaddrinfo() returns one or more addrinfo structures, each of which
      * contains an Internet address that can be specified in a call to bind(2)
@@ -250,7 +235,49 @@ public interface LibC extends Library {
      */
     int getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
 
+    /**
+     * Frees the memory that was allocated for the dynamically allocated linked
+     * list res.
+     * 
+     * @param res
+     *            Pointer to linked list returned by getaddrinfo
+     */
     void freeaddrinfo(Pointer res);
 
+    /**
+     * Translates getaddrinfo error codes to a human readable string, suitable
+     * for error reporting.
+     * 
+     * @param e
+     *            Error code from getaddrinfo
+     * @return
+     */
     String gai_strerror(int e);
+
+    /**
+     * Places the contents of the symbolic link path in the buffer buf, which
+     * has size bufsiz.
+     *
+     * @param path
+     *            A symbolic link
+     * @param buf
+     *            Holds actual path to location pointed to by symlink
+     * @param bufsize
+     *            size of data in buffer
+     * @return readlink() places the contents of the symbolic link path in the
+     *         buffer buf, which has size bufsiz. readlink() does not append a
+     *         null byte to buf. It will truncate the contents (to a length of
+     *         bufsiz characters), in case the buffer is too small to hold all
+     *         of the contents.
+     */
+    int readlink(String path, Pointer buf, int bufsize);
+
+    /**
+     * Returns the number of bytes in a memory page, where "page" is a
+     * fixed-length block, the unit for memory allocation and file mapping
+     * performed by mmap(2).
+     *
+     * @return the memory page size
+     */
+    int getpagesize();
 }

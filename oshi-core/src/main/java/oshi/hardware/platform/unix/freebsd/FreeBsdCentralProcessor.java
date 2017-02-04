@@ -31,9 +31,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.LibC;
-import oshi.jna.platform.unix.LibC.CpTime;
-import oshi.jna.platform.unix.LibC.Timeval;
+import oshi.jna.platform.unix.CLibrary.Timeval;
+import oshi.jna.platform.unix.freebsd.Libc;
+import oshi.jna.platform.unix.freebsd.Libc.CpTime;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -166,11 +166,11 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
-        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[LibC.CP_USER];
-        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[LibC.CP_NICE];
-        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[LibC.CP_SYS];
-        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[LibC.CP_INTR];
-        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[LibC.CP_IDLE];
+        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[Libc.CP_USER];
+        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[Libc.CP_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[Libc.CP_SYS];
+        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[Libc.CP_INTR];
+        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[Libc.CP_IDLE];
         return ticks;
     }
 
@@ -183,7 +183,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = LibC.INSTANCE.getloadavg(average, nelem);
+        int retval = Libc.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;
@@ -205,17 +205,17 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pointer p = new Memory(size);
         String name = "kern.cp_times";
         // Fetch
-        if (0 != LibC.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {
             LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
             return ticks;
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_USER * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_NICE * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_SYS * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_INTR * LibC.UINT64_SIZE);
-            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) offset * cpu + LibC.CP_IDLE * LibC.UINT64_SIZE);
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE);
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE);
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE);
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE);
         }
         return ticks;
     }

@@ -28,7 +28,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.Timeval;
+import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
