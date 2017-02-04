@@ -109,7 +109,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             } else if (line.startsWith("Features=")) {
                 Matcher m = CPUINFO2.matcher(line);
                 if (m.matches()) {
-                    processorID |= (Long.decode(m.group(1).toString()) << 32);
+                    processorID |= Long.decode(m.group(1).toString()) << 32;
                 }
                 // No further interest in this file
                 break;

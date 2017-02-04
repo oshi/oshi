@@ -89,7 +89,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         setFamily(i < 0 ? "" : Integer.toString(i));
         long processorID = 0L;
         processorID |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
-        processorID |= ((SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32);
+        processorID |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
         setProcessorID(String.format("%016X", processorID));
     }
 
