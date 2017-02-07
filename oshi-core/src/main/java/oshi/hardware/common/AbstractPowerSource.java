@@ -24,6 +24,7 @@ import oshi.hardware.PowerSource;
  * A Power Source
  *
  * @author widdis[at]gmail[dot]com
+ * @author ethanjaszewski[at]yahoo[dot]com
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
@@ -36,8 +37,8 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double timeRemaining;
 
     /**
-     * Super constructor used by platform-specific implementations of
-     * PowerSource
+     * Super constructor formerly used by platform-specific implementations
+     * of PowerSource
      *
      * @param newName
      *            The name to assign
@@ -46,10 +47,22 @@ public abstract class AbstractPowerSource implements PowerSource {
      * @param newTimeRemaining
      *            Seconds of time remaining
      */
+    @Deprecated
     public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
         this.remainingCapacity = newRemainingCapacity;
         this.timeRemaining = newTimeRemaining;
+    }
+    
+    /**
+     * Super constructor used by platform specific implementations of
+     * PowerSource. Initializes all values to defaults, which are then set
+     * using the setter methods.
+     */
+    public AbstractPowerSource() {
+        this.name = "unknown";
+        this.remainingCapacity = -1;
+        this.timeRemaining = -1;
     }
 
     /**
@@ -75,4 +88,30 @@ public abstract class AbstractPowerSource implements PowerSource {
     public double getTimeRemaining() {
         return this.timeRemaining;
     }
+
+    /**
+     * @param name 
+     *             the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param remainingCapacity 
+     *             the remainingCapacity to set
+     */
+    public void setRemainingCapacity(double remainingCapacity) {
+        this.remainingCapacity = remainingCapacity;
+    }
+
+    /**
+     * @param timeRemaining
+     *             the timeRemaining to set
+     */
+    public void setTimeRemaining(double timeRemaining) {
+        this.timeRemaining = timeRemaining;
+    }
+    
+    
 }

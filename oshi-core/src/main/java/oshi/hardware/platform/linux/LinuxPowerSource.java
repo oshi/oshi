@@ -41,7 +41,13 @@ public class LinuxPowerSource extends AbstractPowerSource {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
 
     private static final String PS_PATH = "/sys/class/power_supply/";
+    
+    public LinuxPowerSource() {
+        super();
+        LOG.debug("Initialized LinuxPowerSource");
+    }
 
+    @Deprecated
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized LinuxPowerSource");
@@ -73,10 +79,13 @@ public class LinuxPowerSource extends AbstractPowerSource {
             if (psInfo.isEmpty()) {
                 continue;
             }
+            
+            LinuxPowerSource pSource = new LinuxPowerSource();
+            
             // Initialize defaults
             boolean isPresent = false;
             boolean isCharging = false;
-            String name = "Unknown";
+            String name = "unknown";
             int energyNow = 0;
             int energyFull = 1;
             int powerNow = 1;
@@ -127,8 +136,10 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     }
                 }
             }
-            psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
-                    isCharging ? -2d : 3600d * energyNow / powerNow));
+            pSource.setName(name);
+            pSource.setRemainingCapacity((double) energyNow / energyFull);
+            pSource.setTimeRemaining(isCharging ? -2d : 3600d * energyNow / powerNow);
+            psList.add(pSource);
         }
 
         return psList.toArray(new LinuxPowerSource[psList.size()]);
