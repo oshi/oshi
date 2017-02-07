@@ -154,6 +154,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (this.physicalProcessorCount == 0) {
             this.physicalProcessorCount = ids.size();
         }
+        // if at least one logical processor is present, we can safely assume there is at least one physical cpu
+        if (this.physicalProcessorCount == 0 && this.logicalProcessorCount > 0) {
+            this.physicalProcessorCount = 1;
+        }
         // Force at least one processor
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
@@ -283,7 +287,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Fetches the ProcessorID from dmidecode (if possible with root
      * permissions), the cpuid command (if installed) or by encoding the
      * stepping, model, family, and feature flags.
-     * 
+     *
      * @param stepping
      * @param model
      * @param family
