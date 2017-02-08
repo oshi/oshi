@@ -63,14 +63,14 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
             String mountPoint) {
-        this.identification = identification;
-        this.name = name;
-        this.type = type;
-        this.uuid = uuid;
-        this.size = size;
-        this.major = major;
-        this.minor = minor;
-        this.mountPoint = mountPoint;
+        setIdentification(identification);
+        setName(name);
+        setType(type);
+        setUuid(uuid);
+        setSize(size);
+        setMajor(major);
+        setMinor(minor);
+        setMountPoint(mountPoint);
     }
 
     /**
@@ -105,7 +105,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      * @return Returns the uuid.
      */
     public String getUuid() {
-        return this.uuid == null ? "" : this.uuid;
+        return this.uuid;
     }
 
     /**
@@ -141,7 +141,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The identification to set.
      */
     public void setIdentification(String identification) {
-        this.identification = identification;
+        this.identification = identification == null ? "" : identification;
     }
 
     /**
@@ -149,7 +149,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The name to set.
      */
     public void setName(String name) {
-        this.name = name;
+        this.name = name == null ? "" : name;
     }
 
     /**
@@ -157,7 +157,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The type to set.
      */
     public void setType(String type) {
-        this.type = type;
+        this.type = type == null ? "" : type;
     }
 
     /**
@@ -165,7 +165,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            The uuid to set.
      */
     public void setUuid(String uuid) {
-        this.uuid = uuid;
+        this.uuid = uuid == null ? "" : uuid;
     }
 
     /**
@@ -197,7 +197,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
      *            Mount point of the partition
      */
     public void setMountPoint(String mountPoint) {
-        this.mountPoint = mountPoint;
+        this.mountPoint = mountPoint == null ? "" : mountPoint;
     }
 
     /**
