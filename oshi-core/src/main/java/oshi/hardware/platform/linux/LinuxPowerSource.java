@@ -88,6 +88,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
             String name = "unknown";
             int energyNow = 0;
             int energyFull = 1;
+            int energyDesigned = 1;
             int powerNow = 1;
             for (String checkLine : psInfo) {
                 if (checkLine.startsWith("POWER_SUPPLY_PRESENT")) {
@@ -111,6 +112,13 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
                         energyNow = Integer.parseInt(psSplit[1]);
+                    }
+                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_DESIGN")
+                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_DESIGN")) {
+                    // Health = energyNow / energyDesign
+                    String[] psSplit = checkLine.split("=");
+                    if (psSplit.length > 1) {
+                        energyDesigned = Integer.parseInt(psSplit[1]);
                     }
                 } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL")
                         || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL")) {
@@ -139,6 +147,10 @@ public class LinuxPowerSource extends AbstractPowerSource {
             pSource.setName(name);
             pSource.setRemainingCapacity((double) energyNow / energyFull);
             pSource.setTimeRemaining(isCharging ? -2d : 3600d * energyNow / powerNow);
+            pSource.setHealth((double) energyFull / energyDesigned);
+            pSource.setMaximumCharge(energyFull);
+            pSource.setRemainingCharge(energyNow);
+            pSource.setPower(powerNow);
             psList.add(pSource);
         }
 
