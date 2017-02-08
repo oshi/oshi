@@ -177,7 +177,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            the name to set
      */
     public void setName(String name) {
-        this.name = name;
+        this.name = name == null ? "" : name;
     }
 
     /**
@@ -185,7 +185,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            the model to set
      */
     public void setModel(String model) {
-        this.model = model;
+        this.model = model == null ? "" : model;
     }
 
     /**
@@ -193,7 +193,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            the serial to set
      */
     public void setSerial(String serial) {
-        this.serial = serial;
+        this.serial = serial == null ? "" : serial;
     }
 
     /**
