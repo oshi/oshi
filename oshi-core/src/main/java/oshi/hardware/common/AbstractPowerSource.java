@@ -35,7 +35,15 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double remainingCapacity;
 
     protected double timeRemaining;
+    
+    protected double health;
 
+    protected long maximumCharge;
+    
+    protected long remainingCharge;
+    
+    protected long power;
+    
     /**
      * Super constructor formerly used by platform-specific implementations
      * of PowerSource
@@ -87,6 +95,38 @@ public abstract class AbstractPowerSource implements PowerSource {
     @Override
     public double getTimeRemaining() {
         return this.timeRemaining;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getHealth() {
+        return health;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getMaximumCharge() {
+        return maximumCharge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRemainingCharge() {
+        return remainingCharge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPower() {
+        return power;
     }
 
     /**
