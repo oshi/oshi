@@ -152,6 +152,37 @@ public abstract class AbstractPowerSource implements PowerSource {
     public void setTimeRemaining(double timeRemaining) {
         this.timeRemaining = timeRemaining;
     }
-    
+
+    /**
+     * @param health 
+     *             the health to set
+     */
+    public void setHealth(double health) {
+        this.health = health;
+    }
+
+    /**
+     * @param maximumCharge 
+     *             the maximumCharge to set
+     */
+    public void setMaximumCharge(long maximumCharge) {
+        this.maximumCharge = maximumCharge;
+    }
+
+    /**
+     * @param remainingCharge
+     *             the remainingCharge to set
+     */
+    public void setRemainingCharge(long remainingCharge) {
+        this.remainingCharge = remainingCharge;
+    }
+
+    /**
+     * @param power
+     *             the power to set
+     */
+    public void setPower(long power) {
+        this.power = power;
+    }
     
 }
