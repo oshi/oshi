@@ -45,10 +45,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     // For WMI Process queries
     private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
-            + ",ReadTransferCount,WriteTransferCount";
+            + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH";
     private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64, ValueType.UINT64 };
+            ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64, ValueType.UINT64,
+            ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
 
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
@@ -104,7 +105,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
                     ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
                     (Long) procs.get("CreationDate").get(p), (Long) procs.get("ReadTransferCount").get(p),
-                    (Long) procs.get("WriteTransferCount").get(p), now));
+                    (Long) procs.get("WriteTransferCount").get(p), now)
+            // TODO User
+            // , procs.get("PROCESS_GETOWNER").get(p)
+            // TODO UID
+            // , procs.get("PROCESS_GETOWNERSID").get(p)
+            // TODO Group, GID
+            );
         }
 
         return procList;
