@@ -30,6 +30,7 @@ import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.OSVERSIONINFO;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 
@@ -50,6 +51,19 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
+
+    // Save Windows version info for 32 bit/64 bit branch later
+    private static final byte majorVersion;
+    static {
+        OSVERSIONINFO lpVersionInfo = new OSVERSIONINFO();
+        // GetVersionEx() isn't accurate for Win8+ but is sufficient for
+        // detecting versions 5.x and earlier
+        if (!Kernel32.INSTANCE.GetVersionEx(lpVersionInfo)) {
+            majorVersion = lpVersionInfo.dwMajorVersion.byteValue();
+        } else {
+            majorVersion = 0;
+        }
+    }
 
     /**
      * Create a Processor
@@ -213,7 +227,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-        return Kernel32.INSTANCE.GetTickCount64() / 1000L;
+        // GetTickCount64 requires Vista (6.0) or later
+        if (majorVersion >= 6) {
+            return Kernel32.INSTANCE.GetTickCount64() / 1000L;
+        } else {
+            // 32 bit rolls over at 47 days
+            return Kernel32.INSTANCE.GetTickCount() / 1000L;
+        }
     }
 
     /**

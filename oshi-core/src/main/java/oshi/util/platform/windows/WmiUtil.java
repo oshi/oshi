@@ -328,7 +328,7 @@ public class WmiUtil {
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
 
-        enumerateProperties(values, enumerator, props, propertyTypes, wmiClass, svc);
+        enumerateProperties(values, enumerator, props, propertyTypes, svc);
 
         // Cleanup
         enumerator.Release();
@@ -476,7 +476,7 @@ public class WmiUtil {
      *            The WbemServices object
      */
     private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
-            String[] properties, ValueType[] propertyTypes, String wmiClass, WbemServices svc) {
+            String[] properties, ValueType[] propertyTypes, WbemServices svc) {
         if (propertyTypes.length > 1 && properties.length != propertyTypes.length) {
             throw new IllegalArgumentException("Property type array size must be 1 or equal to properties array size.");
         }
