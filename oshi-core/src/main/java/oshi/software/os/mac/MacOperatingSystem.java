@@ -184,6 +184,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setUpTime(now - proc.getStartTime());
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
+        proc.setCommandLine(getCommandLine(pid));
+        return proc;
+    }
+
+    private String getCommandLine(int pid) {
         // Get command line via sysctl
         int[] mib = new int[3];
         mib[0] = 1; // CTL_KERN
@@ -197,47 +202,33 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
             LOG.error("Failed syctl call: kern.procargs2, Error code: {}", Native.getLastError());
         }
-        // Procargs contains an int # of args followed by a null-terminated
-        // execpath string and then the arguments, each null-terminated,
-        // followed by environment variables with '=' in the string.
+        // Procargs contains an int representing total # of args, followed by a
+        // null-terminated execpath string and then the arguments, each
+        // null-terminated (possible multiple consecutive nulls),
         // The execpath string is also the first arg.
         int nargs = procargs.getInt(0);
-        int argnum = -1; // to ignore the exec_path
+        List<String> args = new ArrayList<>(nargs);
+        // Skip first int (containing value of nargs)
         long offset = SystemB.INT_SIZE;
-        StringBuilder commandLine = new StringBuilder();
-        StringBuilder arg = new StringBuilder();
-        // Iterate including zero to include the exec_path with the args
-        while (argnum <= nargs && offset < size.getValue()) {
-            // Byte represents ascii character
-            byte b = procargs.getByte(offset++);
-            if (b == 0) {
-                // If null terminator, end of this argument (or exec path for
-                // arg0). Append arg and clear.
-                if (argnum > 0) {
-                    commandLine.append('\0');
+        // Skip exec_command
+        offset += procargs.getString(offset).length();
+        // Iterate character by character using offset
+        // Build each arg and add to list
+        while (nargs-- > 0 && offset < size.getValue()) {
+            // Advance through additional nulls
+            while (procargs.getByte(offset) == 0) {
+                if (++offset >= size.getValue()) {
+                    break;
                 }
-                // When argnum = 0 after incrementing, we've just finished
-                // execpath, so ignore
-                if (++argnum > 0) {
-                    commandLine.append(arg.toString());
-                }
-                arg.setLength(0);
-                // May be several consecutive nulls; advance to end
-                while (procargs.getByte(offset) == 0 && offset < size.getValue()) {
-                    offset++;
-                }
-            } else if (b == 61) {
-                // Some args are environment variables.
-                // No deterministic way to know when args end and environment
-                // variables begin so we use heuristic of '=' to exclude
-                break;
-            } else {
-                // Otherwise build arg by casting b to character
-                arg.append((char) b);
             }
+            // Grab a string. This should go until the null terminator
+            String arg = procargs.getString(offset);
+            args.add(arg);
+            // Advance offset to next null
+            offset += arg.length();
         }
-        proc.setCommandLine(commandLine.toString());
-        return proc;
+        // Return args null-delimited
+        return String.join("\0", args);
     }
 
     /**

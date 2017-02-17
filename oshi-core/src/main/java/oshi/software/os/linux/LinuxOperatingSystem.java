@@ -232,6 +232,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             proc.setState(OSProcess.State.OTHER);
             break;
         }
+        proc.setProcessID(pid);
         proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3], 0));
         proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19], 0));
         proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
