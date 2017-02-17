@@ -208,7 +208,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         long now = System.currentTimeMillis();
-        LinuxProcess proc = new LinuxProcess();
+        OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
         proc.setName(split[1].replaceFirst("\\(", "").replace(")", ""));
         proc.setPath(path);
@@ -251,9 +251,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (!stat.isEmpty()) {
             split = stat.get(0).split(",");
             if (split.length == 4) {
-                proc.setUserId(split[0]);
+                proc.setUserID(split[0]);
                 proc.setUser(split[1]);
-                proc.setGroupId(split[2]);
+                proc.setGroupID(split[2]);
                 proc.setGroup(split[3]);
             }
         }

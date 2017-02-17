@@ -28,11 +28,35 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-public interface OSProcess extends Serializable {
+public class OSProcess implements Serializable {
+
+    private static final long serialVersionUID = 3L;
+
+    private String name = "";
+    private String path = "";
+    private String commandLine = "";
+    private String user = "";
+    private String userID = "";
+    private String group = "";
+    private String groupID = "";
+    private State state = State.OTHER;
+    private int processID;
+    private int parentProcessID;
+    private int threadCount;
+    private int priority;
+    private long virtualSize;
+    private long residentSetSize;
+    private long kernelTime;
+    private long userTime;
+    private long startTime;
+    private long upTime;
+    private long bytesRead;
+    private long bytesWritten;
+
     /**
      * Process Execution States
      */
-    enum State {
+    public enum State {
         /**
          * Intermediate state in process creation
          */
@@ -66,57 +90,79 @@ public interface OSProcess extends Serializable {
     /**
      * @return Returns the name of the process.
      */
-    String getName();
+    public String getName() {
+        return this.name;
+    }
 
     /**
      * @return Returns the full path of the executing process.
      */
-    String getPath();
+    public String getPath() {
+        return this.path;
+    }
 
     /**
      * @return Returns the commandLine.
      */
-    String getCommandLine();
+    public String getCommandLine() {
+        return this.commandLine;
+    }
 
     /**
      * @return Returns the user.
      */
-    String getUser();
+    public String getUser() {
+        return this.user;
+    }
 
     /**
-     * @return Returns the userId.
+     * @return Returns the userID.
      */
-    String getUserId();
+    public String getUserID() {
+        return this.userID;
+    }
 
     /**
      * @return Returns the group.
      */
-    String getGroup();
+    public String getGroup() {
+        return this.group;
+    }
 
     /**
-     * @return Returns the groupId.
+     * @return Returns the groupID.
      */
-    String getGroupId();
+    public String getGroupID() {
+        return this.groupID;
+    }
 
     /**
      * @return Returns the execution state of the process.
      */
-    State getState();
+    public State getState() {
+        return this.state;
+    }
 
     /**
      * @return Returns the processID.
      */
-    int getProcessID();
+    public int getProcessID() {
+        return this.processID;
+    }
 
     /**
      * @return Returns the parentProcessID, if any; 0 otherwise.
      */
-    int getParentProcessID();
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
 
     /**
      * @return Returns the number of threads in this process.
      */
-    int getThreadCount();
+    public int getThreadCount() {
+        return this.threadCount;
+    }
 
     /**
      * @return Returns the priority of this process.
@@ -136,14 +182,18 @@ public interface OSProcess extends Serializable {
      *         96 through 127 correspond to real-time threads, which are treated
      *         differently than other threads by the scheduler.
      */
-    int getPriority();
+    public int getPriority() {
+        return this.priority;
+    }
 
     /**
      * @return Returns the Virtual Memory Size (VSZ). It includes all memory
      *         that the process can access, including memory that is swapped out
      *         and memory that is from shared libraries.
      */
-    long getVirtualSize();
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
 
     /**
      * @return Returns the Resident Set Size (RSS). It is used to show how much
@@ -152,40 +202,57 @@ public interface OSProcess extends Serializable {
      *         shared libraries as long as the pages from those libraries are
      *         actually in memory. It does include all stack and heap memory.
      */
-    long getResidentSetSize();
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
 
     /**
      * @return Returns the number of milliseconds the process has executed in
-     *         kernel mode.
+     *         kernel/system mode.
      */
-    long getKernelTime();
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
 
     /**
      * @return Returns the number of milliseconds the process has executed in
      *         user mode.
      */
-    long getUserTime();
+    public long getUserTime() {
+        return this.userTime;
+    }
 
     /**
      * @return Returns the number of milliseconds since the process started.
      */
-    long getUpTime();
+    public long getUpTime() {
+        if (this.upTime < this.kernelTime + this.userTime) {
+            return this.kernelTime + this.userTime;
+        }
+        return this.upTime;
+    }
 
     /**
      * @return Returns the start time of the process in number of milliseconds
      *         since January 1, 1970.
      */
-    long getStartTime();
+    public long getStartTime() {
+        return this.startTime;
+    }
 
     /**
      * @return Returns the number of bytes the process has read from disk.
      */
-    long getBytesRead();
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
 
     /**
      * @return Returns the number of bytes the process has written to disk.
      */
-    long getBytesWritten();
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
 
     /**
      * Set the name of the process.
@@ -193,7 +260,9 @@ public interface OSProcess extends Serializable {
      * @param name
      *            process name
      */
-    void setName(String name);
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * Set the full path of the executing process.
@@ -201,7 +270,9 @@ public interface OSProcess extends Serializable {
      * @param path
      *            process path
      */
-    void setPath(String path);
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     /**
      * Sets the process command line.
@@ -209,7 +280,9 @@ public interface OSProcess extends Serializable {
      * @param commandLine
      *            The commandLine to set.
      */
-    void setCommandLine(String commandLine);
+    public void setCommandLine(String commandLine) {
+        this.commandLine = commandLine;
+    }
 
     /**
      * Sets the user.
@@ -217,15 +290,19 @@ public interface OSProcess extends Serializable {
      * @param user
      *            The user to set.
      */
-    void setUser(String user);
+    public void setUser(String user) {
+        this.user = user;
+    }
 
     /**
      * Sets the User ID.
      * 
-     * @param userId
-     *            The userId to set.
+     * @param userID
+     *            The userID to set.
      */
-    void setUserId(String userId);
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
 
     /**
      * Sets the group.
@@ -233,15 +310,19 @@ public interface OSProcess extends Serializable {
      * @param group
      *            The group to set.
      */
-    void setGroup(String group);
+    public void setGroup(String group) {
+        this.group = group;
+    }
 
     /**
      * Sets the Group ID.
      * 
-     * @param groupId
-     *            The groupId to set.
+     * @param groupID
+     *            The groupID to set.
      */
-    void setGroupId(String groupId);
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
+    }
 
     /**
      * Set the execution state of the process.
@@ -249,7 +330,9 @@ public interface OSProcess extends Serializable {
      * @param state
      *            execution state
      */
-    void setState(State state);
+    public void setState(State state) {
+        this.state = state;
+    }
 
     /**
      * Set the processID.
@@ -257,15 +340,19 @@ public interface OSProcess extends Serializable {
      * @param processID
      *            process ID
      */
-    void setProcessID(int processID);
+    public void setProcessID(int processID) {
+        this.processID = processID;
+    }
 
     /**
-     * Set the parentProcessID, if any; 0 otherwise.
+     * Set the parentProcessID.
      * 
      * @param parentProcessID
      *            parent process ID
      */
-    void setParentProcessID(int parentProcessID);
+    public void setParentProcessID(int parentProcessID) {
+        this.parentProcessID = parentProcessID;
+    }
 
     /**
      * Set the number of threads in this process.
@@ -273,7 +360,9 @@ public interface OSProcess extends Serializable {
      * @param threadCount
      *            number of threads
      */
-    void setThreadCount(int threadCount);
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
 
     /**
      * Set the priority of this process.
@@ -295,7 +384,9 @@ public interface OSProcess extends Serializable {
      * @param priority
      *            priority
      */
-    void setPriority(int priority);
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
     /**
      * Set the Virtual Memory Size (VSZ). It includes all memory that the
@@ -305,7 +396,9 @@ public interface OSProcess extends Serializable {
      * @param virtualSize
      *            virtual size
      */
-    void setVirtualSize(long virtualSize);
+    public void setVirtualSize(long virtualSize) {
+        this.virtualSize = virtualSize;
+    }
 
     /**
      * Set the Resident Set Size (RSS). It is used to show how much memory is
@@ -317,7 +410,9 @@ public interface OSProcess extends Serializable {
      * @param residentSetSize
      *            resident set size
      */
-    void setResidentSetSize(long residentSetSize);
+    public void setResidentSetSize(long residentSetSize) {
+        this.residentSetSize = residentSetSize;
+    }
 
     /**
      * Set the number of milliseconds the process has executed in kernel mode.
@@ -325,7 +420,9 @@ public interface OSProcess extends Serializable {
      * @param kernelTime
      *            kernel time
      */
-    void setKernelTime(long kernelTime);
+    public void setKernelTime(long kernelTime) {
+        this.kernelTime = kernelTime;
+    }
 
     /**
      * Set the number of milliseconds the process has executed in user mode.
@@ -333,7 +430,9 @@ public interface OSProcess extends Serializable {
      * @param userTime
      *            user time
      */
-    void setUserTime(long userTime);
+    public void setUserTime(long userTime) {
+        this.userTime = userTime;
+    }
 
     /**
      * Set the start time of the process in number of milliseconds since January
@@ -342,7 +441,9 @@ public interface OSProcess extends Serializable {
      * @param startTime
      *            start time
      */
-    void setStartTime(long startTime);
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     /**
      * Set the number of milliseconds since the process started.
@@ -350,15 +451,19 @@ public interface OSProcess extends Serializable {
      * @param upTime
      *            up time
      */
-    void setUpTime(long upTime);
+    public void setUpTime(long upTime) {
+        this.upTime = upTime;
+    }
 
     /**
      * Set the number of bytes the process has read from disk.
      * 
      * @param bytesRead
-     *            umber of bytes read
+     *            number of bytes read
      */
-    void setBytesRead(long bytesRead);
+    public void setBytesRead(long bytesRead) {
+        this.bytesRead = bytesRead;
+    }
 
     /**
      * Set the number of bytes the process has written to disk.
@@ -366,5 +471,7 @@ public interface OSProcess extends Serializable {
      * @param bytesWritten
      *            number of bytes written
      */
-    void setBytesWritten(long bytesWritten);
+    public void setBytesWritten(long bytesWritten) {
+        this.bytesWritten = bytesWritten;
+    }
 }

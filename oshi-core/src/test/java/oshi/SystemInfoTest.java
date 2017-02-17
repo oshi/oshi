@@ -86,7 +86,7 @@ public class SystemInfoTest {
                         100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                         100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
                         FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
-                        p.getUserId(), p.getUser(), p.getGroupId(), p.getGroup(), p.getName(),
+                        p.getUserID(), p.getUser(), p.getGroupID(), p.getGroup(), p.getName(),
                         p.getCommandLine().replaceAll("\0", " "));
             }
         }

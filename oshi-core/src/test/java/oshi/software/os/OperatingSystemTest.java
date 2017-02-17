@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import oshi.SystemInfo;
-import oshi.software.common.AbstractProcess;
 
 /**
  * Test OS
@@ -55,6 +54,11 @@ public class OperatingSystemTest {
         OSProcess proc = os.getProcess(os.getProcessId());
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
+        assertTrue(proc.getCommandLine().length() > 0);
+        assertTrue(proc.getUser().length() > 0);
+        assertTrue(proc.getUserID().length() > 0);
+        assertNotNull(proc.getGroup());
+        assertNotNull(proc.getGroupID());
         assertNotNull(proc.getState());
         assertEquals(proc.getProcessID(), os.getProcessId());
         assertTrue(proc.getParentProcessID() > 0);
@@ -79,38 +83,47 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        AbstractProcess newProcess = new AbstractProcess();
-        newProcess.setPath(oldProcess.getPath());
-        newProcess.setBytesRead(oldProcess.getBytesRead());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
-        newProcess.setKernelTime(oldProcess.getKernelTime());
+        OSProcess newProcess = new OSProcess();
         newProcess.setName(oldProcess.getName());
+        newProcess.setPath(oldProcess.getPath());
+        newProcess.setCommandLine(oldProcess.getCommandLine());
+        newProcess.setUser(oldProcess.getUser());
+        newProcess.setUserID(oldProcess.getUserID());
+        newProcess.setGroup(oldProcess.getGroup());
+        newProcess.setGroupID(oldProcess.getGroupID());
+        newProcess.setState(oldProcess.getState());
+        newProcess.setProcessID(oldProcess.getProcessID());
         newProcess.setParentProcessID(oldProcess.getParentProcessID());
         newProcess.setThreadCount(oldProcess.getThreadCount());
         newProcess.setPriority(oldProcess.getPriority());
-        newProcess.setProcessID(oldProcess.getProcessID());
-        newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
-        newProcess.setStartTime(oldProcess.getStartTime());
-        newProcess.setState(oldProcess.getState());
-        newProcess.setUpTime(oldProcess.getUpTime());
-        newProcess.setUserTime(oldProcess.getUserTime());
         newProcess.setVirtualSize(oldProcess.getVirtualSize());
+        newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
+        newProcess.setKernelTime(oldProcess.getKernelTime());
+        newProcess.setUserTime(oldProcess.getUserTime());
+        newProcess.setUpTime(oldProcess.getUpTime());
+        newProcess.setStartTime(oldProcess.getStartTime());
+        newProcess.setBytesRead(oldProcess.getBytesRead());
         newProcess.setBytesWritten(oldProcess.getBytesWritten());
 
+        assertEquals(oldProcess.getName(), newProcess.getName());
+        assertEquals(oldProcess.getPath(), newProcess.getPath());
+        assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
+        assertEquals(oldProcess.getUser(), newProcess.getUser());
+        assertEquals(oldProcess.getUserID(), newProcess.getUserID());
+        assertEquals(oldProcess.getGroup(), newProcess.getGroup());
+        assertEquals(oldProcess.getGroupID(), newProcess.getGroupID());
+        assertEquals(oldProcess.getState(), newProcess.getState());
+        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+        assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
+        assertEquals(oldProcess.getThreadCount(), newProcess.getThreadCount());
+        assertEquals(oldProcess.getPriority(), newProcess.getPriority());
+        assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
+        assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
+        assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
+        assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
+        assertEquals(oldProcess.getUpTime(), newProcess.getUpTime());
+        assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
-        assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
-        assertEquals(oldProcess.getName(), newProcess.getName());
-        assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
-        assertEquals(oldProcess.getPath(), newProcess.getPath());
-        assertEquals(oldProcess.getPriority(), newProcess.getPriority());
-        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
-        assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
-        assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
-        assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
-        assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
-        assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
-        assertEquals(oldProcess.getState(), newProcess.getState());
-        assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
     }
 }

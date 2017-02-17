@@ -94,7 +94,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 continue;
             }
             long now = System.currentTimeMillis();
-            SolarisProcess sproc = new SolarisProcess();
+            OSProcess sproc = new OSProcess();
             switch (split[0].charAt(0)) {
             case 'O':
                 sproc.setState(OSProcess.State.RUNNING);
@@ -119,9 +119,9 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));
             sproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));
             sproc.setUser(split[3]);
-            sproc.setUserId(split[4]);
+            sproc.setUserID(split[4]);
             sproc.setGroup(split[5]);
-            sproc.setGroupId(split[6]);
+            sproc.setGroupID(split[6]);
             sproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));
             sproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));
             // These are in KB, multiply

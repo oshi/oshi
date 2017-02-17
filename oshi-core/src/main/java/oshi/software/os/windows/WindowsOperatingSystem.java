@@ -107,12 +107,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         for (int p = 0; p < procs.get("Name").size(); p++) {
-            WindowsProcess proc = new WindowsProcess();
+            OSProcess proc = new OSProcess();
             proc.setName((String) procs.get("Name").get(p));
             proc.setPath((String) procs.get("ExecutablePath").get(p));
             proc.setCommandLine((String) procs.get("CommandLine").get(p));
             proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
-            proc.setUserId((String) procs.get("PROCESS_GETOWNERSID").get(p));
+            proc.setUserID((String) procs.get("PROCESS_GETOWNERSID").get(p));
             switch (((Long) procs.get("ExecutionState").get(p)).intValue()) {
             case READY:
             case SUSPENDED_READY:

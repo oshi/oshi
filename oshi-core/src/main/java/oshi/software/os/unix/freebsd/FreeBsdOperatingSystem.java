@@ -94,7 +94,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 continue;
             }
             long now = System.currentTimeMillis();
-            FreeBsdProcess fproc = new FreeBsdProcess();
+            OSProcess fproc = new OSProcess();
             switch (split[0].charAt(0)) {
             case 'R':
                 fproc.setState(OSProcess.State.RUNNING);
@@ -121,9 +121,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));
             fproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));
             fproc.setUser(split[3]);
-            fproc.setUserId(split[4]);
+            fproc.setUserID(split[4]);
             fproc.setGroup(split[5]);
-            fproc.setGroupId(split[6]);
+            fproc.setGroupID(split[6]);
             fproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));
             fproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));
             // These are in KB, multiply

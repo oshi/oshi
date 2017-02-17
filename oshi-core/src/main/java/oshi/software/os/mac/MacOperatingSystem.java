@@ -140,7 +140,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         long now = System.currentTimeMillis();
-        MacProcess proc = new MacProcess();
+        OSProcess proc = new OSProcess();
         proc.setName(name);
         proc.setPath(path);
         switch (taskAllInfo.pbsd.pbi_status) {
@@ -168,12 +168,12 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         proc.setProcessID(pid);
         proc.setParentProcessID(taskAllInfo.pbsd.pbi_ppid);
-        proc.setUserId(Integer.toString(taskAllInfo.pbsd.pbi_uid));
+        proc.setUserID(Integer.toString(taskAllInfo.pbsd.pbi_uid));
         Passwd user = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
-        proc.setUser(user == null ? proc.getUserId() : user.pw_name);
-        proc.setGroupId(Integer.toString(taskAllInfo.pbsd.pbi_gid));
+        proc.setUser(user == null ? proc.getUserID() : user.pw_name);
+        proc.setGroupID(Integer.toString(taskAllInfo.pbsd.pbi_gid));
         Group group = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
-        proc.setGroup(group == null ? proc.getGroupId() : group.gr_name);
+        proc.setGroup(group == null ? proc.getGroupID() : group.gr_name);
         proc.setThreadCount(taskAllInfo.ptinfo.pti_threadnum);
         proc.setPriority(taskAllInfo.ptinfo.pti_priority);
         proc.setVirtualSize(taskAllInfo.ptinfo.pti_virtual_size);
