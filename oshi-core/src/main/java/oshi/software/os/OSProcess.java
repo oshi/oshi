@@ -74,6 +74,31 @@ public interface OSProcess extends Serializable {
     String getPath();
 
     /**
+     * @return Returns the commandLine.
+     */
+    String getCommandLine();
+
+    /**
+     * @return Returns the user.
+     */
+    String getUser();
+
+    /**
+     * @return Returns the userId.
+     */
+    String getUserId();
+
+    /**
+     * @return Returns the group.
+     */
+    String getGroup();
+
+    /**
+     * @return Returns the groupId.
+     */
+    String getGroupId();
+
+    /**
      * @return Returns the execution state of the process.
      */
     State getState();
@@ -177,6 +202,46 @@ public interface OSProcess extends Serializable {
      *            process path
      */
     void setPath(String path);
+
+    /**
+     * Sets the process command line.
+     * 
+     * @param commandLine
+     *            The commandLine to set.
+     */
+    void setCommandLine(String commandLine);
+
+    /**
+     * Sets the user.
+     * 
+     * @param user
+     *            The user to set.
+     */
+    void setUser(String user);
+
+    /**
+     * Sets the User ID.
+     * 
+     * @param userId
+     *            The userId to set.
+     */
+    void setUserId(String userId);
+
+    /**
+     * Sets the group.
+     * 
+     * @param group
+     *            The group to set.
+     */
+    void setGroup(String group);
+
+    /**
+     * Sets the Group ID.
+     * 
+     * @param groupId
+     *            The groupId to set.
+     */
+    void setGroupId(String groupId);
 
     /**
      * Set the execution state of the process.

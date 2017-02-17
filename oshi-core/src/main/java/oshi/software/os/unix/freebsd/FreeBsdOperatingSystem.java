@@ -59,40 +59,8 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        List<String> procList = ExecutingCommand
-                .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command");
-        if (procList.isEmpty() || procList.size() < 2) {
-            return new OSProcess[0];
-        }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        List<OSProcess> procs = new ArrayList<>();
-        for (String proc : procList) {
-            String[] split = proc.trim().split("\\s+");
-            // Elements should match ps command order. Args will make split
-            // bigger than 11 but we ignore thems
-            if (split.length < 11) {
-                continue;
-            }
-            String path = split[10];
-            long now = System.currentTimeMillis();
-            procs.add(new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
-                    path, // path
-                    split[0].charAt(0), // state, one of DILRSTWZ
-                    ParseUtil.parseIntOrDefault(split[1], 0), // pid
-                    ParseUtil.parseIntOrDefault(split[2], 0), // ppid
-                    ParseUtil.parseIntOrDefault(split[3], 0), // thread count
-                    ParseUtil.parseIntOrDefault(split[4], 0), // priority
-                    ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
-                    ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                    ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
-                    ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
-                    ParseUtil.parseDHMSOrDefault(split[9], 0L), // usr+sys ms
-                    0L, 0L, // 'top -bm io' gives read/write counts, not bytes
-                    now //
-            ));
-        }
+        List<OSProcess> procs = getProcessListFromPS(
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args");
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -102,33 +70,78 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        List<String> procList = ExecutingCommand
-                .runNative("ps -awwxo state,pid,ppid,nlwp,pri,vsz,rss,etimes,systime,time,command -p " + pid);
-        if (procList.isEmpty() || procList.size() < 2) {
+        List<OSProcess> procs = getProcessListFromPS(
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p " + pid);
+        if (procs.isEmpty()) {
             return null;
+        }
+        return procs.get(0);
+    }
+
+    private List<OSProcess> getProcessListFromPS(String psCommand) {
+        List<OSProcess> procs = new ArrayList<>();
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.isEmpty() || procList.size() < 2) {
+            return procs;
         }
         // remove header row
-        String[] split = procList.get(1).trim().split("\\s+");
-        // Elements should match ps command order
-        if (split.length < 11) {
-            return null;
+        procList.remove(0);
+        // Fill list
+        for (String proc : procList) {
+            String[] split = proc.trim().split("\\s+", 16);
+            // Elements should match ps command order
+            if (split.length < 16) {
+                continue;
+            }
+            long now = System.currentTimeMillis();
+            FreeBsdProcess fproc = new FreeBsdProcess();
+            switch (split[0].charAt(0)) {
+            case 'R':
+                fproc.setState(OSProcess.State.RUNNING);
+                break;
+            case 'I':
+            case 'S':
+                fproc.setState(OSProcess.State.SLEEPING);
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                fproc.setState(OSProcess.State.WAITING);
+                break;
+            case 'Z':
+                fproc.setState(OSProcess.State.ZOMBIE);
+                break;
+            case 'T':
+                fproc.setState(OSProcess.State.STOPPED);
+                break;
+            default:
+                fproc.setState(OSProcess.State.OTHER);
+                break;
+            }
+            fproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));
+            fproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));
+            fproc.setUser(split[3]);
+            fproc.setUserId(split[4]);
+            fproc.setGroup(split[5]);
+            fproc.setGroupId(split[6]);
+            fproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));
+            fproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));
+            // These are in KB, multiply
+            fproc.setVirtualSize(ParseUtil.parseLongOrDefault(split[9], 0) * 1024);
+            fproc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[10], 0) * 1024);
+            // Avoid divide by zero for processes up less than a second
+            long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+            fproc.setUpTime(elapsedTime < 1L ? 1L : elapsedTime);
+            fproc.setStartTime(now - fproc.getUpTime());
+            fproc.setKernelTime(ParseUtil.parseDHMSOrDefault(split[12], 0L));
+            fproc.setUserTime(ParseUtil.parseDHMSOrDefault(split[13], 0L) - fproc.getKernelTime());
+            fproc.setPath(split[14]);
+            fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
+            fproc.setCommandLine(split[15]);
+            // 'top -bm io' gives read/write counts, not bytes
+            procs.add(fproc);
         }
-        String path = split[10];
-        return new FreeBsdProcess(path.substring(path.lastIndexOf('/') + 1), // name
-                path, // path
-                split[0].charAt(0), // state, one of DILRSTWZ
-                pid, // also split[1] but we already have
-                ParseUtil.parseIntOrDefault(split[2], 0), // ppid
-                ParseUtil.parseIntOrDefault(split[3], 0), // thread count
-                ParseUtil.parseIntOrDefault(split[4], 0), // priority
-                ParseUtil.parseLongOrDefault(split[5], 0L), // VSZ in kb
-                ParseUtil.parseLongOrDefault(split[6], 0L), // RSS in kb
-                ParseUtil.parseLongOrDefault(split[7], 0L), // elapsed secs
-                ParseUtil.parseDHMSOrDefault(split[8], 0L), // system ms
-                ParseUtil.parseDHMSOrDefault(split[9], 0L), // process ms
-                0L, 0L, // 'top -bm io' gives read/write counts, not bytes
-                System.currentTimeMillis() //
-        );
+        return procs;
     }
 
     /**

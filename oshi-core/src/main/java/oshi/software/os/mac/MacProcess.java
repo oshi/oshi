@@ -19,7 +19,6 @@
 package oshi.software.os.mac;
 
 import oshi.software.common.AbstractProcess;
-import oshi.software.os.OSProcess;
 
 /**
  * A process is an instance of a computer program that is being executed. It
@@ -32,57 +31,5 @@ import oshi.software.os.OSProcess;
 public class MacProcess extends AbstractProcess {
 
     private static final long serialVersionUID = 2L;
-    /*
-     * OS X States:
-     */
-    private static final int SSLEEP = 1; // sleeping on high priority
-    private static final int SWAIT = 2; // sleeping on low priority
-    private static final int SRUN = 3; // running
-    private static final int SIDL = 4; // intermediate state in process creation
-    private static final int SZOMB = 5; // intermediate state in process
-                                        // termination
-    private static final int SSTOP = 6; // process being traced
-
-    public MacProcess(String name, String path, int osXState, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long bytesRead, long bytesWritten, long now) {
-        this.name = name;
-        this.path = path;
-        switch (osXState) {
-        case SSLEEP:
-            this.state = OSProcess.State.SLEEPING;
-            break;
-        case SWAIT:
-            this.state = OSProcess.State.WAITING;
-            break;
-        case SRUN:
-            this.state = OSProcess.State.RUNNING;
-            break;
-        case SIDL:
-            this.state = OSProcess.State.NEW;
-            break;
-        case SZOMB:
-            this.state = OSProcess.State.ZOMBIE;
-            break;
-        case SSTOP:
-            this.state = OSProcess.State.STOPPED;
-            break;
-        default:
-            this.state = OSProcess.State.OTHER;
-            break;
-        }
-        this.processID = processID;
-        this.parentProcessID = parentProcessID;
-        this.threadCount = threadCount;
-        this.priority = priority;
-        this.virtualSize = virtualSize;
-        this.residentSetSize = residentSetSize;
-        this.kernelTime = kernelTime;
-        this.userTime = userTime;
-        this.startTime = startTime;
-        this.upTime = now - startTime;
-        this.bytesRead = bytesRead;
-        this.bytesWritten = bytesWritten;
-    }
 
 }

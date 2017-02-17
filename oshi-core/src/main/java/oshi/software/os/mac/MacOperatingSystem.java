@@ -21,10 +21,17 @@ package oshi.software.os.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.Group;
+import oshi.jna.platform.mac.SystemB.Passwd;
 import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
@@ -39,7 +46,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
+
     private int maxProc = 1024;
+    /*
+     * OS X States:
+     */
+    private static final int SSLEEP = 1; // sleeping on high priority
+    private static final int SWAIT = 2; // sleeping on low priority
+    private static final int SRUN = 3; // running
+    private static final int SIDL = 4; // intermediate state in process creation
+    private static final int SZOMB = 5; // intermediate state in process
+                                        // termination
+    private static final int SSTOP = 6; // process being traced
 
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
@@ -120,12 +139,105 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
             }
         }
-        return new MacProcess(name, path, taskAllInfo.pbsd.pbi_status, pid, taskAllInfo.pbsd.pbi_ppid,
-                taskAllInfo.ptinfo.pti_threadnum, taskAllInfo.ptinfo.pti_priority, taskAllInfo.ptinfo.pti_virtual_size,
-                taskAllInfo.ptinfo.pti_resident_size, taskAllInfo.ptinfo.pti_total_system / 1000000L,
-                taskAllInfo.ptinfo.pti_total_user / 1000000L,
-                taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L, bytesRead,
-                bytesWritten, System.currentTimeMillis());
+        long now = System.currentTimeMillis();
+        MacProcess proc = new MacProcess();
+        proc.setName(name);
+        proc.setPath(path);
+        switch (taskAllInfo.pbsd.pbi_status) {
+        case SSLEEP:
+            proc.setState(OSProcess.State.SLEEPING);
+            break;
+        case SWAIT:
+            proc.setState(OSProcess.State.WAITING);
+            break;
+        case SRUN:
+            proc.setState(OSProcess.State.RUNNING);
+            break;
+        case SIDL:
+            proc.setState(OSProcess.State.NEW);
+            break;
+        case SZOMB:
+            proc.setState(OSProcess.State.ZOMBIE);
+            break;
+        case SSTOP:
+            proc.setState(OSProcess.State.STOPPED);
+            break;
+        default:
+            proc.setState(OSProcess.State.OTHER);
+            break;
+        }
+        proc.setProcessID(pid);
+        proc.setParentProcessID(taskAllInfo.pbsd.pbi_ppid);
+        proc.setUserId(Integer.toString(taskAllInfo.pbsd.pbi_uid));
+        Passwd user = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
+        proc.setUser(user == null ? proc.getUserId() : user.pw_name);
+        proc.setGroupId(Integer.toString(taskAllInfo.pbsd.pbi_gid));
+        Group group = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
+        proc.setGroup(group == null ? proc.getGroupId() : group.gr_name);
+        proc.setThreadCount(taskAllInfo.ptinfo.pti_threadnum);
+        proc.setPriority(taskAllInfo.ptinfo.pti_priority);
+        proc.setVirtualSize(taskAllInfo.ptinfo.pti_virtual_size);
+        proc.setResidentSetSize(taskAllInfo.ptinfo.pti_resident_size);
+        proc.setKernelTime(taskAllInfo.ptinfo.pti_total_system / 1000000L);
+        proc.setUserTime(taskAllInfo.ptinfo.pti_total_user / 1000000L);
+        proc.setStartTime(taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L);
+        proc.setUpTime(now - proc.getStartTime());
+        proc.setBytesRead(bytesRead);
+        proc.setBytesWritten(bytesWritten);
+        // Get command line via sysctl
+        int[] mib = new int[3];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 49; // KERN_PROCARGS2
+        mib[2] = pid;
+        // Allocate memory for arguments
+        int argmax = SysctlUtil.sysctl("kern.argmax", 0);
+        Pointer procargs = new Memory(argmax);
+        IntByReference size = new IntByReference(argmax);
+        // Fetch arguments
+        if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
+            LOG.error("Failed syctl call: kern.procargs2, Error code: {}", Native.getLastError());
+        }
+        // Procargs contains an int # of args followed by a null-terminated
+        // execpath string and then the arguments, each null-terminated,
+        // followed by environment variables with '=' in the string.
+        // The execpath string is also the first arg.
+        int nargs = procargs.getInt(0);
+        int argnum = -1; // to ignore the exec_path
+        long offset = SystemB.INT_SIZE;
+        StringBuilder commandLine = new StringBuilder();
+        StringBuilder arg = new StringBuilder();
+        // Iterate including zero to include the exec_path with the args
+        while (argnum <= nargs && offset < size.getValue()) {
+            // Byte represents ascii character
+            byte b = procargs.getByte(offset++);
+            if (b == 0) {
+                // If null terminator, end of this argument (or exec path for
+                // arg0). Append arg and clear.
+                if (argnum > 0) {
+                    commandLine.append('\0');
+                }
+                // When argnum = 0 after incrementing, we've just finished
+                // execpath, so ignore
+                if (++argnum > 0) {
+                    commandLine.append(arg.toString());
+                }
+                arg.setLength(0);
+                // May be several consecutive nulls; advance to end
+                while (procargs.getByte(offset) == 0 && offset < size.getValue()) {
+                    offset++;
+                }
+            } else if (b == 61) {
+                // Some args are environment variables.
+                // No deterministic way to know when args end and environment
+                // variables begin so we use heuristic of '=' to exclude
+                break;
+            } else {
+                // Otherwise build arg by casting b to character
+                arg.append((char) b);
+            }
+        }
+        proc.setCommandLine(commandLine.toString());
+        return proc;
     }
 
     /**

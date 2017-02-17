@@ -32,43 +32,28 @@ public class AbstractProcess implements OSProcess {
 
     private static final long serialVersionUID = 2L;
 
-    protected String name;
-    protected String path;
-    protected State state;
-    protected int processID;
-    protected int parentProcessID;
-    protected int threadCount;
-    protected int priority;
-    protected long virtualSize;
-    protected long residentSetSize;
-    protected long kernelTime;
-    protected long userTime;
-    protected long startTime;
-    protected long upTime;
-    protected long bytesRead;
-    protected long bytesWritten;
+    private String name = "";
+    private String path = "";
+    private String commandLine = "";
+    private String user = "";
+    private String userId = "";
+    private String group = "";
+    private String groupId = "";
+    private State state = State.OTHER;
+    private int processID;
+    private int parentProcessID;
+    private int threadCount;
+    private int priority;
+    private long virtualSize;
+    private long residentSetSize;
+    private long kernelTime;
+    private long userTime;
+    private long startTime;
+    private long upTime;
+    private long bytesRead;
+    private long bytesWritten;
 
     public AbstractProcess() {
-    }
-
-    public AbstractProcess(String name, String path, State state, int processID, int parentProcessID, int threadCount,
-            int priority, long virtualSize, long residentSetSize, long kernelTime, long userTime, long startTime,
-            long upTime, long bytesRead, long bytesWritten) {
-        this.name = name;
-        this.path = path;
-        this.state = state;
-        this.processID = processID;
-        this.parentProcessID = parentProcessID;
-        this.threadCount = threadCount;
-        this.priority = priority;
-        this.virtualSize = virtualSize;
-        this.residentSetSize = residentSetSize;
-        this.kernelTime = kernelTime;
-        this.userTime = userTime;
-        this.startTime = startTime;
-        this.upTime = upTime;
-        this.bytesRead = bytesRead;
-        this.bytesWritten = bytesWritten;
     }
 
     /**
@@ -85,6 +70,46 @@ public class AbstractProcess implements OSProcess {
     @Override
     public String getPath() {
         return this.path;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCommandLine() {
+        return commandLine;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getGroup() {
+        return group;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getGroupId() {
+        return groupId;
     }
 
     /**
@@ -214,6 +239,46 @@ public class AbstractProcess implements OSProcess {
      * {@inheritDoc}
      */
     @Override
+    public void setCommandLine(String commandLine) {
+        this.commandLine = commandLine;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setState(State state) {
         this.state = state;
     }
@@ -313,5 +378,4 @@ public class AbstractProcess implements OSProcess {
     public void setBytesWritten(long bytesWritten) {
         this.bytesWritten = bytesWritten;
     }
-
 }

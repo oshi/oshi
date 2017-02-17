@@ -43,13 +43,27 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
     // For WMI Process queries
-    private static String processProperties = "Name,CommandLine,ExecutionState,ProcessID,ParentProcessId"
+    private static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
             + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH";
-    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,
-            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64, ValueType.UINT64,
-            ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
+            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
+            ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
+            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+
+    /*
+     * Windows Execution States:
+     */
+    private static final int UNKNOWN = 0;
+    private static final int OTHER = 1;
+    private static final int READY = 2;
+    private static final int RUNNING = 3;
+    private static final int BLOCKED = 4;
+    private static final int SUSPENDED_BLOCKED = 5;
+    private static final int SUSPENDED_READY = 6;
+    private static final int TERMINATED = 7;
+    private static final int STOPPED = 8;
+    private static final int GROWING = 9;
 
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
@@ -93,27 +107,54 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         for (int p = 0; p < procs.get("Name").size(); p++) {
-            procList.add(new WindowsProcess((String) procs.get("Name").get(p), (String) procs.get("CommandLine").get(p),
-                    ((Long) procs.get("ExecutionState").get(p)).intValue(),
-                    ((Long) procs.get("ProcessID").get(p)).intValue(),
-                    ((Long) procs.get("ParentProcessId").get(p)).intValue(),
-                    ((Long) procs.get("ThreadCount").get(p)).intValue(),
-                    ((Long) procs.get("Priority").get(p)).intValue(),
-                    ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L),
-                    ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L),
-                    // Kernel and User time units are 100ns
-                    ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L,
-                    ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L,
-                    (Long) procs.get("CreationDate").get(p), (Long) procs.get("ReadTransferCount").get(p),
-                    (Long) procs.get("WriteTransferCount").get(p), now)
-            // TODO User
-            // , procs.get("PROCESS_GETOWNER").get(p)
-            // TODO UID
-            // , procs.get("PROCESS_GETOWNERSID").get(p)
-            // TODO Group, GID
-            );
+            WindowsProcess proc = new WindowsProcess();
+            proc.setName((String) procs.get("Name").get(p));
+            proc.setPath((String) procs.get("ExecutablePath").get(p));
+            proc.setCommandLine((String) procs.get("CommandLine").get(p));
+            proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
+            proc.setUserId((String) procs.get("PROCESS_GETOWNERSID").get(p));
+            switch (((Long) procs.get("ExecutionState").get(p)).intValue()) {
+            case READY:
+            case SUSPENDED_READY:
+                proc.setState(OSProcess.State.SLEEPING);
+                break;
+            case BLOCKED:
+            case SUSPENDED_BLOCKED:
+                proc.setState(OSProcess.State.WAITING);
+                break;
+            case RUNNING:
+                proc.setState(OSProcess.State.RUNNING);
+                break;
+            case GROWING:
+                proc.setState(OSProcess.State.NEW);
+                break;
+            case TERMINATED:
+                proc.setState(OSProcess.State.ZOMBIE);
+                break;
+            case STOPPED:
+                proc.setState(OSProcess.State.STOPPED);
+                break;
+            case UNKNOWN:
+            case OTHER:
+            default:
+                proc.setState(OSProcess.State.OTHER);
+                break;
+            }
+            proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
+            proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
+            proc.setThreadCount(((Long) procs.get("ThreadCount").get(p)).intValue());
+            proc.setPriority(((Long) procs.get("Priority").get(p)).intValue());
+            proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L));
+            proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L));
+            // Kernel and User time units are 100ns
+            proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L);
+            proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L);
+            proc.setStartTime((Long) procs.get("CreationDate").get(p));
+            proc.setUpTime(now - proc.getStartTime());
+            proc.setBytesRead((Long) procs.get("ReadTransferCount").get(p));
+            proc.setBytesWritten((Long) procs.get("WriteTransferCount").get(p));
+            procList.add(proc);
         }
-
         return procList;
     }
 

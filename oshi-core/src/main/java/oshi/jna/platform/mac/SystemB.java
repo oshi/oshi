@@ -22,8 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -352,6 +354,65 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
                     "ifm_index", "ifm_snd_len", "ifm_snd_maxlen", "ifm_snd_drops", "ifm_timer", "ifm_data" });
         }
     }
+
+    /**
+     * Return type for getpwuid
+     */
+    class Passwd extends Structure {
+        public String pw_name; // user name
+        public String pw_passwd; // encrypted password
+        public int pw_uid; // user uid
+        public int pw_gid; // user gid
+        public NativeLong pw_change; // password change time
+        public String pw_class; // user access class
+        public String pw_gecos; // Honeywell login info
+        public String pw_dir; // home directory
+        public String pw_shell; // default shell
+        public NativeLong pw_expire; // account expiration
+        public int pw_fields; // internal: fields filled in
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "pw_name", "pw_passwd", "pw_uid", "pw_gid", "pw_change", "pw_class",
+                    "pw_gecos", "pw_dir", "pw_shell", "pw_expire", "pw_fields" });
+        }
+    }
+
+    /**
+     * Return type for getgrgid
+     */
+    class Group extends Structure {
+        public String gr_name; /* group name */
+        public String gr_passwd; /* group password */
+        public int gr_gid; /* group id */
+        public PointerByReference gr_mem; /* group members */
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "gr_name", "gr_passwd", "gr_gid", "gr_mem" });
+        }
+    };
+
+    /**
+     * This function searches the password database for the given user uid,
+     * always returning the first one encountered.
+     * 
+     * @param uid
+     *            The user ID
+     * @return a Passwd structure matching that user
+     */
+    Passwd getpwuid(int uid);
+
+    /**
+     * This function searches the group database for the given group name
+     * pointed to by the group id given by gid, returning the first one
+     * encountered. Identical group gids may result in undefined behavior.
+     * 
+     * @param gid
+     *            The group ID
+     * @return a Group structure matching that group
+     */
+    Group getgrgid(int gid);
 
     int mach_task_self();
 
