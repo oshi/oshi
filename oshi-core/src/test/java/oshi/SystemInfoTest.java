@@ -72,26 +72,6 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
-        System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
-        // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(1024, ProcessSort.PID));
-
-        // TODO JUST HERE FOR TESTING, REMOVE
-        System.out.println("   PID  %CPU %MEM       VSZ       RSS uid   user             gid   group            Name");
-        for (int i = 0; i < procs.size(); i++) {
-            OSProcess p = procs.get(i);
-            // Only show procs with args
-            if (p.getCommandLine().split("\0").length > 1 || p.getCommandLine().split("\\s").length > 1) {
-                System.out.format(" %5d %5.1f %4.1f %9s %9s %4s %16s %5s %16s %s%n%s%n", p.getProcessID(),
-                        100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-                        100d * p.getResidentSetSize() / hal.getMemory().getTotal(),
-                        FormatUtil.formatBytes(p.getVirtualSize()), FormatUtil.formatBytes(p.getResidentSetSize()),
-                        p.getUserID(), p.getUser(), p.getGroupID(), p.getGroup(), p.getName(),
-                        p.getCommandLine().replaceAll("\0", " "));
-            }
-        }
-        System.exit(0);
-
         System.out.println(os);
 
         LOG.info("Checking computer system...");

@@ -102,21 +102,32 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the commandLine.
+     * @return Returns the process command line. The format of this string is
+     *         platform-dependent and may require the end user to parse the
+     *         result.
+     * 
+     *         On Linux and macOS systems, the string is
+     *         null-character-delimited, to permit the end user to parse the
+     *         executable and arguments if desired. Further, the macOS variant
+     *         may include environment variables which the end user may wish to
+     *         exclude from display. On Solaris, the string is truncated to 80
+     *         characters.
      */
     public String getCommandLine() {
         return this.commandLine;
     }
 
     /**
-     * @return Returns the user.
+     * @return Returns the user name. On Windows systems, also returns the
+     *         domain prepended to the username.
      */
     public String getUser() {
         return this.user;
     }
 
     /**
-     * @return Returns the userID.
+     * @return Returns the userID. On Windows systems, returns the Security ID
+     *         (SID)
      */
     public String getUserID() {
         return this.userID;

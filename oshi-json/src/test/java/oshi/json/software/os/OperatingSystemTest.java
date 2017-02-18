@@ -55,8 +55,8 @@ public class OperatingSystemTest {
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
         assertTrue(proc.getCommandLine().length() > 0);
-        assertTrue(proc.getUser().length() > 0);
-        assertTrue(proc.getUserID().length() > 0);
+        assertNotNull(proc.getUser());
+        assertNotNull(proc.getUserID());
         assertNotNull(proc.getGroup());
         assertNotNull(proc.getGroupID());
         assertNotNull(proc.getState());
