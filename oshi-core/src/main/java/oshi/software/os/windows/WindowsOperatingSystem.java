@@ -25,6 +25,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Advapi32Util.Account;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
@@ -64,6 +73,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final int TERMINATED = 7;
     private static final int STOPPED = 8;
     private static final int GROWING = 9;
+
+    static {
+        enableDebugPrivilege();
+    }
 
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
@@ -105,14 +118,41 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private List<OSProcess> processMapToList(Map<String, List<Object>> procs) {
         long now = System.currentTimeMillis();
         List<OSProcess> procList = new ArrayList<>();
+        List<String> groupList = new ArrayList<>();
+        List<String> groupIDList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         for (int p = 0; p < procs.get("Name").size(); p++) {
             OSProcess proc = new OSProcess();
             proc.setName((String) procs.get("Name").get(p));
             proc.setPath((String) procs.get("ExecutablePath").get(p));
             proc.setCommandLine((String) procs.get("CommandLine").get(p));
+            proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
+            proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
             proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
             proc.setUserID((String) procs.get("PROCESS_GETOWNERSID").get(p));
+
+            final HANDLE pHandle = Kernel32.INSTANCE
+                    .OpenProcess(WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
+            if (pHandle != null) {
+                final HANDLEByReference phToken = new HANDLEByReference();
+                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
+                    Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
+                    // get groups
+                    groupList.clear();
+                    groupIDList.clear();
+                    for (Account account : accounts) {
+                        groupList.add(account.name);
+                        groupIDList.add(account.sidString);
+                    }
+                    proc.setGroup(String.join(",", groupList));
+                    proc.setGroupID(String.join(",", groupIDList));
+                } else {
+                    LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
+                            Kernel32.INSTANCE.GetLastError());
+                }
+            }
+            Kernel32.INSTANCE.CloseHandle(pHandle);
+
             switch (((Long) procs.get("ExecutionState").get(p)).intValue()) {
             case READY:
             case SUSPENDED_READY:
@@ -140,8 +180,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setState(OSProcess.State.OTHER);
                 break;
             }
-            proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
-            proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
             proc.setThreadCount(((Long) procs.get("ThreadCount").get(p)).intValue());
             proc.setPriority(((Long) procs.get("Priority").get(p)).intValue());
             proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L));
@@ -198,5 +236,32 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new WindowsNetworkParams();
+    }
+
+    /**
+     * Enables debug privileges for this process, required for OpenProcess() to
+     * get processes other than the current user
+     */
+    private static void enableDebugPrivilege() {
+        HANDLEByReference hToken = new HANDLEByReference();
+        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
+                WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
+        if (!success) {
+            LOG.error("OpenProcessToken failed. Error: {}" + Native.getLastError());
+            return;
+        }
+        WinNT.LUID luid = new WinNT.LUID();
+        success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
+        if (!success) {
+            LOG.error("LookupprivilegeValue failed. Error: {}" + Native.getLastError());
+            return;
+        }
+        WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
+        tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
+        success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
+        if (!success) {
+            LOG.error("AdjustTokenPrivileges failed. Error: {}" + Native.getLastError());
+        }
+        Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
 }

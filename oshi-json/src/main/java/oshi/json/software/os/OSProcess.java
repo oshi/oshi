@@ -110,14 +110,18 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
-     * @return Returns the group.
+     * @return Returns the group. On Windows systems, returns a comma-delimited
+     *         list of groups with access to this process, corresponding to the
+     *         SIDs in {@link #getGroupID()}.
      */
     public String getGroup() {
         return this.osProcess.getGroup();
     }
 
     /**
-     * @return Returns the groupID.
+     * @return Returns the groupID. On Windows systems, returns a
+     *         comma-delimited list of group SIDs with access to this process,
+     *         corresponding to the names in {@link #getGroup()}.
      */
     public String getGroupID() {
         return this.osProcess.getGroupID();
