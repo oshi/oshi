@@ -1,4 +1,22 @@
 /**
+ * Oshi (https://github.com/dblock/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/dblock/oshi/graphs/contributors
+ */
+/**
 i * Oshi (https://github.com/dblock/oshi)
  *
  * Copyright (c) 2010 - 2017 The Oshi Project Team
@@ -54,7 +72,7 @@ public class WmiUtil {
 
     public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
 
-    private static boolean comInitializedExternally = false;
+    private static boolean comInitialized = false;
     private static boolean securityInitialized = false;
 
     /**
@@ -310,15 +328,13 @@ public class WmiUtil {
 
         // Initialize COM
         if (!initCOM()) {
-            Ole32.INSTANCE.CoUninitialize();
+            unInitCOM();
             return values;
         }
 
         PointerByReference pSvc = new PointerByReference();
         if (!connectServer(namespace, pSvc)) {
-            if (!comInitializedExternally) {
-                Ole32.INSTANCE.CoUninitialize();
-            }
+            unInitCOM();
             return values;
         }
         WbemServices svc = new WbemServices(pSvc.getValue());
@@ -326,9 +342,7 @@ public class WmiUtil {
         PointerByReference pEnumerator = new PointerByReference();
         if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {
             svc.Release();
-            if (!comInitializedExternally) {
-                Ole32.INSTANCE.CoUninitialize();
-            }
+            unInitCOM();
             return values;
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
@@ -338,9 +352,7 @@ public class WmiUtil {
         // Cleanup
         enumerator.Release();
         svc.Release();
-        if (!comInitializedExternally) {
-            Ole32.INSTANCE.CoUninitialize();
-        }
+        unInitCOM();
         return values;
     }
 
@@ -353,26 +365,23 @@ public class WmiUtil {
     /**
      * Initializes COM library and sets security to impersonate the local user
      *
-     * @return true if COM successfull initialized
+     * @return true if COM successfully initialized
      */
     private static boolean initCOM() {
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-        if (comInitializedExternally) {
-            return true;
-        }
         HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
         if (COMUtils.FAILED(hres)) {
             if (hres.intValue() == Ole32.RPC_E_CHANGED_MODE) {
                 // Com already initialized, ignore error
-                LOG.warn("COM already initialized.");
-                comInitializedExternally = true;
+                LOG.debug("COM already initialized.");
                 securityInitialized = true;
                 return true;
             }
             LOG.error(String.format("Failed to initialize COM library. Error code = 0x%08x", hres.intValue()));
             return false;
         }
+        comInitialized = true;
         if (securityInitialized) {
             // Only run CoInitializeSecuirty once
             return true;
@@ -417,9 +426,7 @@ public class WmiUtil {
             LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
                     hres.intValue()));
             loc.Release();
-            if (!comInitializedExternally) {
-                Ole32.INSTANCE.CoUninitialize();
-            }
+            unInitCOM();
             return false;
         }
         LOG.debug("Connected to {} WMI namespace", namespace);
@@ -432,9 +439,7 @@ public class WmiUtil {
         if (COMUtils.FAILED(hres)) {
             LOG.error(String.format("Could not set proxy blanket. Error code = 0x%08x", hres.intValue()));
             new WbemServices(pSvc.getValue()).Release();
-            if (!comInitializedExternally) {
-                Ole32.INSTANCE.CoUninitialize();
-            }
+            unInitCOM();
             return false;
         }
         return true;
@@ -472,9 +477,7 @@ public class WmiUtil {
         if (COMUtils.FAILED(hres)) {
             LOG.error(String.format("Query '%s' failed. Error code = 0x%08x", query, hres.intValue()));
             svc.Release();
-            if (!comInitializedExternally) {
-                Ole32.INSTANCE.CoUninitialize();
-            }
+            unInitCOM();
             return false;
         }
         return true;
@@ -570,6 +573,17 @@ public class WmiUtil {
             }
 
             clsObj.Release();
+        }
+    }
+
+    /**
+     * UnInitializes COM library if it was initialized by the {@link #initCOM()}
+     * method. Otherwise, does nothing.
+     */
+    private static void unInitCOM() {
+        if (comInitialized) {
+            Ole32.INSTANCE.CoUninitialize();
+            comInitialized = false;
         }
     }
 
