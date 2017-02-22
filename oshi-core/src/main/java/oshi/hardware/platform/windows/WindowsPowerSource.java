@@ -66,15 +66,23 @@ public class WindowsPowerSource extends AbstractPowerSource {
         
         if(0 == PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),
                 batteryState, new NativeLong(batteryState.size())) && batteryState.batteryPresent != 0) {
-            int estimatedTime = -2; // -1 = unknown, -2 = unlimited
+            int timeRemaining = -2; // -1 = unknown, -2 = unlimited
             if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {
-                estimatedTime = batteryState.estimatedTime;
+                timeRemaining = batteryState.estimatedTime;
             }
-            long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
             long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
+            long power = -FormatUtil.getUnsignedInt(batteryState.rate); // Windows defines discharge as rate < 0, we want opposite.
+            double remainingCharge;
+            if(timeRemaining < 0)
+                remainingCharge = (power * timeRemaining) / 60;
+            else
+                remainingCharge = 0;
             
-            pSource.setRemainingCapacity((double) remainingCapacity / maxCapacity);
-            pSource.setTimeRemaining(estimatedTime);
+            pSource.setRemainingCapacity(remainingCapacity);
+            pSource.setTimeRemaining(timeRemaining);
+            pSource.setMaximumCharge((long) (remainingCharge / remainingCapacity));
+            pSource.setRemainingCharge((long) remainingCharge); 
+            pSource.setPower((long) power);
         }
         
         psArray[0] = pSource;

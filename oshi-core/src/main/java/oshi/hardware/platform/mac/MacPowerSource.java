@@ -107,10 +107,34 @@ public class MacPowerSource extends AbstractPowerSource {
                     maxCapacity)) {
                 maxCapacity = new IntByReference(1);
             }
-
-            pSource.setRemainingCapacity((double) currentCapacity.getValue() / maxCapacity.getValue());
-            pSource.setTimeRemaining(timeRemaining);
+            IntByReference designCapacity = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_DESIGN_CAPACITY_KEY,
+                    designCapacity)) {
+                designCapacity = new IntByReference(1);
+            }
+            IntByReference voltage = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_VOLTAGE_KEY, voltage)) {
+                voltage = new IntByReference(0);
+            }
+            IntByReference current = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_KEY, current)) {
+                current = new IntByReference(0);
+            }
             
+            long power = voltage.getValue() * current.getValue() / 1000;
+            long remainingCapacity = currentCapacity.getValue() / maxCapacity.getValue();
+            double remainingCharge;
+            if(timeRemaining < 0)
+                remainingCharge = (power * timeRemaining) / 60;
+            else
+                remainingCharge = 0;
+            
+            pSource.setRemainingCapacity(remainingCapacity);
+            pSource.setTimeRemaining(timeRemaining);
+            pSource.setHealth((double) maxCapacity.getValue() / designCapacity.getValue()); 
+            pSource.setMaximumCharge((long) (remainingCharge / remainingCapacity));
+            pSource.setRemainingCharge((long) remainingCharge); 
+            pSource.setPower((long) power);
             psList.add(pSource);
         }
         // Release the blob
