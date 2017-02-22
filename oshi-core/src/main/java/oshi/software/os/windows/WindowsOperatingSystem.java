@@ -126,7 +126,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<String> groupList = new ArrayList<>();
         List<String> groupIDList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
-        for (int p = 0; p < procs.get("Name").size(); p++) {
+        final int procCount = procs.get("Name").size();
+        for (int p = 0; p < procCount; p++) {
             OSProcess proc = new OSProcess();
             proc.setName((String) procs.get("Name").get(p));
             proc.setPath((String) procs.get("ExecutablePath").get(p));
@@ -135,33 +136,37 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
             proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
             proc.setUserID((String) procs.get("PROCESS_GETOWNERSID").get(p));
-
-            final HANDLE pHandle = Kernel32.INSTANCE
-                    .OpenProcess(WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
-            if (pHandle != null) {
-                final HANDLEByReference phToken = new HANDLEByReference();
-                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                    Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-                    // get groups
-                    groupList.clear();
-                    groupIDList.clear();
-                    for (Account account : accounts) {
-                        groupList.add(account.name);
-                        groupIDList.add(account.sidString);
-                    }
-                    proc.setGroup(String.join(",", groupList));
-                    proc.setGroupID(String.join(",", groupIDList));
-                } else {
-                    int error = Kernel32.INSTANCE.GetLastError();
-                    // Access denied errors are common and will silently fail
-                    if (error != ERROR_ACCESS_DENIED) {
-                        LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
-                                Kernel32.INSTANCE.GetLastError());
+            // Fetching group information incurs significant latency.
+            // Only do for single-process queries
+            if (procCount == 1) {
+                final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(
+                        WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
+                if (pHandle != null) {
+                    final HANDLEByReference phToken = new HANDLEByReference();
+                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
+                            phToken)) {
+                        Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
+                        // get groups
+                        groupList.clear();
+                        groupIDList.clear();
+                        for (Account account : accounts) {
+                            groupList.add(account.name);
+                            groupIDList.add(account.sidString);
+                        }
+                        proc.setGroup(String.join(",", groupList));
+                        proc.setGroupID(String.join(",", groupIDList));
+                    } else {
+                        int error = Kernel32.INSTANCE.GetLastError();
+                        // Access denied errors are common and will silently
+                        // fail
+                        if (error != ERROR_ACCESS_DENIED) {
+                            LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
+                                    Kernel32.INSTANCE.GetLastError());
+                        }
                     }
                 }
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
-
             switch (((Long) procs.get("ExecutionState").get(p)).intValue()) {
             case READY:
             case SUSPENDED_READY:
