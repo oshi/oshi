@@ -74,6 +74,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final int STOPPED = 8;
     private static final int GROWING = 9;
 
+    /*
+     * LastError
+     */
+    private static final int ERROR_ACCESS_DENIED = 5;
+
     static {
         enableDebugPrivilege();
     }
@@ -147,8 +152,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     proc.setGroup(String.join(",", groupList));
                     proc.setGroupID(String.join(",", groupIDList));
                 } else {
-                    LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
-                            Kernel32.INSTANCE.GetLastError());
+                    int error = Kernel32.INSTANCE.GetLastError();
+                    // Access denied errors are common and will silently fail
+                    if (error != ERROR_ACCESS_DENIED) {
+                        LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
+                                Kernel32.INSTANCE.GetLastError());
+                    }
                 }
             }
             Kernel32.INSTANCE.CloseHandle(pHandle);
