@@ -67,40 +67,6 @@ public class DisksTest {
                 partArray[i].setMinor(parts[i].getMinor());
 
             }
-            lastDisk = new HWDiskStore();
-            assertTrue(disk.compareTo(lastDisk) > 0);
-
-            lastDisk.setModel(null);
-            assertNotEquals(disk, lastDisk);
-            assertNotEquals(lastDisk, disk);
-            lastDisk.setModel("model");
-            assertNotEquals(disk, lastDisk);
-            lastDisk.setModel(disk.getModel());
-            assertNotEquals(disk, lastDisk);
-
-            assertNotEquals(disk, lastDisk);
-            lastDisk.setName(null);
-            assertNotEquals(disk, lastDisk);
-            assertNotEquals(lastDisk, disk);
-            lastDisk.setName("name");
-            assertNotEquals(disk, lastDisk);
-            lastDisk.setName(disk.getName());
-            assertNotEquals(disk, lastDisk);
-
-            lastDisk.setPartitions(partArray);
-            assertNotEquals(disk, lastDisk);
-
-            lastDisk.setSerial(null);
-            assertNotEquals(disk, lastDisk);
-            assertNotEquals(lastDisk, disk);
-            lastDisk.setSerial("serial");
-            assertNotEquals(disk, lastDisk);
-            lastDisk.setSerial(disk.getSerial());
-            assertNotEquals(disk, lastDisk);
-
-            lastDisk.setSize(disk.getSize());
-            assertTrue(disk.equals(lastDisk));
-            assertEquals(disk.hashCode(), lastDisk.hashCode());
 
             assertNotNull(disk.getName());
             assertNotNull(disk.getModel());
@@ -112,6 +78,46 @@ public class DisksTest {
             assertTrue(disk.getWriteBytes() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
+
+            lastDisk = new HWDiskStore();
+            assertTrue(disk.compareTo(lastDisk) > 0);
+
+            lastDisk.setModel(disk.getModel());
+            lastDisk.setName(disk.getName());
+            lastDisk.setSerial(disk.getSerial());
+            lastDisk.setSize(disk.getSize());
+            lastDisk.setPartitions(partArray);
+
+            assertTrue(disk.equals(lastDisk));
+            assertEquals(disk.hashCode(), lastDisk.hashCode());
+
+            lastDisk.setModel("model");
+            assertNotEquals(disk, lastDisk);
+            assertNotEquals(lastDisk, disk);
+            lastDisk.setModel(disk.getModel());
+            assertEquals(disk, lastDisk);
+            assertEquals(lastDisk, disk);
+
+            lastDisk.setName("name");
+            assertNotEquals(disk, lastDisk);
+            assertNotEquals(lastDisk, disk);
+            lastDisk.setName(disk.getName());
+            assertEquals(disk, lastDisk);
+            assertEquals(lastDisk, disk);
+
+            lastDisk.setSerial("serial");
+            assertNotEquals(lastDisk, disk);
+            assertNotEquals(disk, lastDisk);
+            lastDisk.setSerial(disk.getSerial());
+            assertEquals(disk, lastDisk);
+            assertEquals(lastDisk, disk);
+
+            lastDisk.setSize(0);
+            assertNotEquals(lastDisk, disk);
+            assertNotEquals(disk, lastDisk);
+            lastDisk.setSize(disk.getSize());
+            assertEquals(disk, lastDisk);
+            assertEquals(lastDisk, disk);
 
             disk.setName("name");
             disk.setModel("model");
