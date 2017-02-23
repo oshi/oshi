@@ -18,14 +18,10 @@
  */
 package oshi.software.os;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
-
 import oshi.SystemInfo;
-import oshi.software.common.AbstractProcess;
+
+import static org.junit.Assert.*;
 
 /**
  * Test OS
@@ -79,23 +75,11 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        AbstractProcess newProcess = new AbstractProcess();
-        newProcess.setPath(oldProcess.getPath());
-        newProcess.setBytesRead(oldProcess.getBytesRead());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
-        newProcess.setKernelTime(oldProcess.getKernelTime());
-        newProcess.setName(oldProcess.getName());
-        newProcess.setParentProcessID(oldProcess.getParentProcessID());
-        newProcess.setThreadCount(oldProcess.getThreadCount());
-        newProcess.setPriority(oldProcess.getPriority());
-        newProcess.setProcessID(oldProcess.getProcessID());
-        newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
-        newProcess.setStartTime(oldProcess.getStartTime());
-        newProcess.setState(oldProcess.getState());
-        newProcess.setUpTime(oldProcess.getUpTime());
-        newProcess.setUserTime(oldProcess.getUserTime());
-        newProcess.setVirtualSize(oldProcess.getVirtualSize());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
+        DefaultAbstractProcess newProcess = new DefaultAbstractProcess(oldProcess.getName(),oldProcess.getPath(),
+                oldProcess.getState(),oldProcess.getProcessID(),oldProcess.getParentProcessID(),oldProcess.getThreadCount(),
+                oldProcess.getPriority(),oldProcess.getVirtualSize(),oldProcess.getResidentSetSize(),
+                oldProcess.getKernelTime(),oldProcess.getUserTime(),oldProcess.getStartTime(),oldProcess.getUpTime(),
+                oldProcess.getBytesRead(),oldProcess.getBytesWritten());
 
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());

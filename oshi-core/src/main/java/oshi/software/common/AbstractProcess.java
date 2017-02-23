@@ -28,7 +28,7 @@ import oshi.software.os.OSProcess;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class AbstractProcess implements OSProcess {
+public abstract class AbstractProcess implements OSProcess {
 
     private static final long serialVersionUID = 2L;
 

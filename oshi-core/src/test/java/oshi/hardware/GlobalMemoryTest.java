@@ -18,12 +18,10 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
-
 import oshi.SystemInfo;
+
+import static org.junit.Assert.*;
 
 /**
  * Test GlobalMemory
@@ -48,5 +46,28 @@ public class GlobalMemoryTest {
         assertTrue(memory.getSwapTotal() >= 0);
         assertTrue(memory.getSwapUsed() >= 0);
         assertTrue(memory.getSwapUsed() <= memory.getSwapTotal());
+    }
+
+    /**
+     * Test OSProcess setters and getters
+     */
+    @Test
+    public void testGlobalMemoryCopy() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        GlobalMemory oldMemory = hal.getMemory();
+        assertNotNull(oldMemory);
+
+        DefaultAbstractGlobalMemory newMemory = new DefaultAbstractGlobalMemory();
+
+        newMemory.setAvailable(oldMemory.getAvailable());
+        newMemory.setTotal(oldMemory.getTotal());
+        newMemory.setSwapTotal(oldMemory.getSwapTotal());
+        newMemory.setSwapUsed(oldMemory.getSwapUsed());
+
+        assertEquals(oldMemory.getAvailable(), newMemory.getAvailable());
+        assertEquals(oldMemory.getTotal(),newMemory.getTotal());
+        assertEquals(oldMemory.getSwapTotal(),newMemory.getSwapTotal());
+        assertEquals(oldMemory.getSwapUsed(),newMemory.getSwapUsed());
     }
 }
