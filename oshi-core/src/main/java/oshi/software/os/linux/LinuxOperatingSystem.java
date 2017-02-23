@@ -247,7 +247,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L));
         // The stat structure on Linux does not have consistent ordering or byte
         // size accross architectures so we are forced to use the stat command
-        List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G " + pid);
+        List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G /proc/" + pid);
         if (!stat.isEmpty()) {
             split = stat.get(0).split(",");
             if (split.length == 4) {
