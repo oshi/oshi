@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Oshi (https://github.com/dblock/oshi)
+    Oshi (https://github.com/oshi/oshi)
 
     Copyright (c) 2010 - 2017 The Oshi Project Team
 
@@ -16,16 +16,16 @@
     enrico.bianchi[at]gmail[dot]com
 
     Contributors:
-    https://github.com/dblock/oshi/graphs/contributors
+    https://github.com/oshi/oshi/graphs/contributors
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.github.dblock</groupId>
+		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.4-SNAPSHOT</version>
+		<version>3.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-dist</artifactId>

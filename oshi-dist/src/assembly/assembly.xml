@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Oshi (https://github.com/dblock/oshi)
+    Oshi (https://github.com/oshi/oshi)
 
     Copyright (c) 2010 - 2017 The Oshi Project Team
 
@@ -16,7 +16,7 @@
     enrico.bianchi[at]gmail[dot]com
 
     Contributors:
-    https://github.com/dblock/oshi/graphs/contributors
+    https://github.com/oshi/oshi/graphs/contributors
 
 -->
 <assembly
@@ -58,8 +58,8 @@
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<!-- Now, select which projects to include in this module-set. -->
 			<includes>
-				<include>com.github.dblock:oshi-core</include>
-				<include>com.github.dblock:oshi-json</include>
+				<include>com.github.oshi:oshi-core</include>
+				<include>com.github.oshi:oshi-json</include>
 			</includes>
 			<binaries>
 				<includeDependencies>false</includeDependencies>
