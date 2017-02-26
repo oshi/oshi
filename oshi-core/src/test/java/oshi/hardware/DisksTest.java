@@ -112,7 +112,7 @@ public class DisksTest {
             assertEquals(disk, lastDisk);
             assertEquals(lastDisk, disk);
 
-            lastDisk.setSize(0);
+            lastDisk.setSize(-1);
             assertNotEquals(lastDisk, disk);
             assertNotEquals(disk, lastDisk);
             lastDisk.setSize(disk.getSize());
