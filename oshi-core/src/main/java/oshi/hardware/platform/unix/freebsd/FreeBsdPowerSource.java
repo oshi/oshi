@@ -36,6 +36,12 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);
 
+    public FreeBsdPowerSource() {
+        super();
+        LOG.debug("Initialized FreeBsdPowerSource");
+    }
+    
+    @Deprecated
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized FreeBsdPowerSource");
@@ -55,7 +61,10 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         // life is in percent
         int life = BsdSysctlUtil.sysctl("hw.acpi.battery.life", 100);
         String name = "BAT0";
-        ps[0] = new FreeBsdPowerSource(name, life / 100d, state == 2 ? -2d : time == -1 ? -1d : 60d * time);
+        ps[0] = new FreeBsdPowerSource();
+        ps[0].setName(name);
+        ps[0].setRemainingCapacity(life / 100d);
+        ps[0].setTimeRemaining(state == 2 ? -2d : time == -1 ? -1d : 60d * time);
         return ps;
     }
 }
