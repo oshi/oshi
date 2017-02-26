@@ -40,6 +40,10 @@ public class PowerSourceTest {
             double epsilon = 1E-6;
             assertTrue(ps.getTimeRemaining() > 0 || Math.abs(ps.getTimeRemaining() - -1) < epsilon
                     || Math.abs(ps.getTimeRemaining() - -2) < epsilon);
+            assertTrue(ps.getHealth() >= 0 && ps.getHealth() <= 1);
+            assertTrue(ps.getMaximumCharge() >= 0);
+            assertTrue(ps.getRemainingCharge() >= 0 && ps.getRemainingCharge() <= ps.getMaximumCharge());
+            assertTrue(ps.getPower() >= 0);
         }
     }
 }

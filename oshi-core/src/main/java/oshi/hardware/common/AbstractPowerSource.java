@@ -69,8 +69,12 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     public AbstractPowerSource() {
         this.name = "unknown";
-        this.remainingCapacity = -1;
+        this.remainingCapacity = 0;
         this.timeRemaining = -1;
+        this.health = 1d;
+        this.maximumCharge = 0;
+        this.remainingCharge = 0;
+        this.power = 1;
     }
 
     /**

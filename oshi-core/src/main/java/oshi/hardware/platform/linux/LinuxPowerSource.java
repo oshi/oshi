@@ -117,10 +117,10 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     if (psSplit.length > 1) {
                         energyNow = Integer.parseInt(psSplit[1]);
                     }
-                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_DESIGN")
-                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_DESIGN")) {
+                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL_DESIGN")
+                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL_DESIGN")) {
                     // Health = energyNow / energyDesign
-                    charge = checkLine.startsWith("POWER_SUPPLY_CHARGE_DESIGN");
+                    charge = checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL_DESIGN");
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
                         energyDesigned = Integer.parseInt(psSplit[1]);
