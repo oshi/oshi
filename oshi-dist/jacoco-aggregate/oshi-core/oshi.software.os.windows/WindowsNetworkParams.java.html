@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsNetworkParams.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsNetworkParams.java</span></div><h1>WindowsNetworkParams.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.software.os.windows;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
+import oshi.jna.platform.windows.Kernel32;
+import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
+import oshi.util.platform.windows.WmiUtil;
+
+<span class="nc" id="L39">public class WindowsNetworkParams extends AbstractNetworkParams {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
+
+<span class="nc" id="L45">    private static final WmiUtil.ValueType[] GATEWAY_TYPES = { WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16 };</span>
+    private static final String IPV4_DEFAULT_DEST = &quot;0.0.0.0/0&quot;;
+    private static final String IPV6_DEFAULT_DEST = &quot;::/0&quot;;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDomainName() {
+<span class="nc" id="L54">        char[] buffer = new char[256];</span>
+<span class="nc" id="L55">        IntByReference bufferSize = new IntByReference(buffer.length);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetComputerNameEx(Kernel32.ComputerNameDnsDomainFullyQualified, buffer, bufferSize)) {</span>
+<span class="nc" id="L57">            LOG.error(&quot;Failed to get dns domain name. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L58">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L60">        return new String(buffer).trim();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getDnsServers() {
+        // this may be done by iterating WMI instances
+        // ROOT\CIMV2\Win32_NetworkAdapterConfiguration
+        // then sort by IPConnectionMetric, but current JNA release does not
+        // have string array support
+        // for Variant (it's merged but not release yet).
+<span class="nc" id="L73">        WinDef.ULONGByReference bufferSize = new WinDef.ULONGByReference();</span>
+<span class="nc" id="L74">        int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (ret != IPHlpAPI.ERROR_BUFFER_OVERFLOW) {</span>
+<span class="nc" id="L76">            LOG.error(&quot;Failed to get network parameters buffer size. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L77">            return new String[0];</span>
+        }
+
+<span class="nc" id="L80">        FIXED_INFO buffer = new FIXED_INFO(new Memory(bufferSize.getValue().longValue()));</span>
+<span class="nc" id="L81">        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (ret != 0) {</span>
+<span class="nc" id="L83">            LOG.error(&quot;Failed to get network parameters. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L84">            return new String[0];</span>
+        }
+
+<span class="nc" id="L87">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">        IPHlpAPI.IP_ADDR_STRING dns = buffer.DnsServerList;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        while (dns != null) {</span>
+<span class="nc" id="L90">            String addr = new String(dns.IpAddress.String);</span>
+<span class="nc" id="L91">            int nullPos = addr.indexOf(0);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (nullPos != -1) {</span>
+<span class="nc" id="L93">                addr = addr.substring(0, nullPos);</span>
+            }
+<span class="nc" id="L95">            list.add(addr);</span>
+<span class="nc" id="L96">            dns = dns.Next;</span>
+<span class="nc" id="L97">        }</span>
+
+<span class="nc" id="L99">        return list.toArray(new String[list.size()]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIpv4DefaultGateway() {
+        // IPv6 info not available in WMI pre Windows 8
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
+<span class="nc" id="L109">            return getNextHop(IPV4_DEFAULT_DEST);</span>
+        }
+        // IPv4 info available in Win32_IP4RouteTable
+<span class="nc" id="L112">        return getNextHopWin7(IPV4_DEFAULT_DEST.split(&quot;/&quot;)[0]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIpv6DefaultGateway() {
+        // IPv6 info not available in WMI pre Windows 8
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
+<span class="nc" id="L122">            return getNextHop(IPV6_DEFAULT_DEST);</span>
+        }
+<span class="nc" id="L124">        return parseIpv6Route();</span>
+    }
+
+    private String getNextHop(String dest) {
+<span class="nc" id="L128">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(&quot;ROOT\\StandardCimv2&quot;, &quot;MSFT_NetRoute&quot;,</span>
+                &quot;NextHop,RouteMetric&quot;, &quot;WHERE DestinationPrefix=\&quot;&quot; + dest + &quot;\&quot;&quot;, GATEWAY_TYPES);
+<span class="nc" id="L130">        List&lt;Object&gt; metrics = vals.get(&quot;RouteMetric&quot;);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (vals.get(&quot;RouteMetric&quot;).isEmpty()) {</span>
+<span class="nc" id="L132">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L134">        int index = 0;</span>
+<span class="nc" id="L135">        Long min = Long.MAX_VALUE;</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        for (int i = 0; i &lt; metrics.size(); i++) {</span>
+<span class="nc" id="L137">            Long metric = (Long) metrics.get(i);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (metric &lt; min) {</span>
+<span class="nc" id="L139">                min = metric;</span>
+<span class="nc" id="L140">                index = i;</span>
+            }
+        }
+<span class="nc" id="L143">        return (String) vals.get(&quot;NextHop&quot;).get(index);</span>
+    }
+
+    private String getNextHopWin7(String dest) {
+<span class="nc" id="L147">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(null, &quot;Win32_IP4RouteTable&quot;, &quot;NextHop,Metric1&quot;,</span>
+                &quot;WHERE Destination=\&quot;&quot; + dest + &quot;\&quot;&quot;, GATEWAY_TYPES);
+<span class="nc" id="L149">        List&lt;Object&gt; metrics = vals.get(&quot;Metric1&quot;);</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (vals.get(&quot;Metric1&quot;).isEmpty()) {</span>
+<span class="nc" id="L151">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L153">        int index = 0;</span>
+<span class="nc" id="L154">        Long min = Long.MAX_VALUE;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (int i = 0; i &lt; metrics.size(); i++) {</span>
+<span class="nc" id="L156">            Long metric = (Long) metrics.get(i);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (metric &lt; min) {</span>
+<span class="nc" id="L158">                min = metric;</span>
+<span class="nc" id="L159">                index = i;</span>
+            }
+        }
+<span class="nc" id="L162">        return (String) vals.get(&quot;NextHop&quot;).get(index);</span>
+    }
+
+    private String parseIpv6Route() {
+<span class="nc" id="L166">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L168">            String[] fields = line.trim().split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; &quot;::/0&quot;.equals(fields[2])) {</span>
+<span class="nc" id="L170">                return fields[3];</span>
+            }
+<span class="nc" id="L172">        }</span>
+<span class="nc" id="L173">        return &quot;&quot;;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

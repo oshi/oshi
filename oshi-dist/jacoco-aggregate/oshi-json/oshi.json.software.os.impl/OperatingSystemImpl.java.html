@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OperatingSystemImpl.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.software.os.impl</a> &gt; <span class="el_source">OperatingSystemImpl.java</span></div><h1>OperatingSystemImpl.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.json.software.os.impl;
 
@@ -29,6 +29,7 @@ import javax.json.JsonObjectBuilder;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.software.os.FileSystem;
+import oshi.json.software.os.NetworkParams;
 import oshi.json.software.os.OSProcess;
 import oshi.json.software.os.OperatingSystem;
 import oshi.json.software.os.OperatingSystemVersion;
@@ -43,7 +44,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L46">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L47">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.software.os.OperatingSystem os;
 
@@ -56,17 +57,17 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      * @param operatingSystem
      *            a platform-specific OperatingSystem object
      */
-<span class="nc" id="L59">    public OperatingSystemImpl(oshi.software.os.OperatingSystem operatingSystem) {</span>
-<span class="nc" id="L60">        this.os = operatingSystem;</span>
-<span class="nc" id="L61">        this.version = new OperatingSystemVersionImpl(this.os.getVersion());</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L60">    public OperatingSystemImpl(oshi.software.os.OperatingSystem operatingSystem) {</span>
+<span class="nc" id="L61">        this.os = operatingSystem;</span>
+<span class="nc" id="L62">        this.version = new OperatingSystemVersionImpl(this.os.getVersion());</span>
+<span class="nc" id="L63">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getFamily() {
-<span class="nc" id="L69">        return this.os.getFamily();</span>
+<span class="nc" id="L70">        return this.os.getFamily();</span>
     }
 
     /**
@@ -74,7 +75,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L77">        return this.os.getManufacturer();</span>
+<span class="nc" id="L78">        return this.os.getManufacturer();</span>
     }
 
     /**
@@ -82,7 +83,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public OperatingSystemVersion getVersion() {
-<span class="nc" id="L85">        return this.version;</span>
+<span class="nc" id="L86">        return this.version;</span>
     }
 
     /**
@@ -90,7 +91,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L93">        return new FileSystemImpl(this.os.getFileSystem());</span>
+<span class="nc" id="L94">        return new FileSystemImpl(this.os.getFileSystem());</span>
     }
 
     /**
@@ -98,12 +99,12 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L101">        oshi.software.os.OSProcess[] procs = this.os.getProcesses(limit, sort);</span>
-<span class="nc" id="L102">        OSProcess[] processes = new OSProcess[procs.length];</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (int i = 0; i &lt; procs.length; i++) {</span>
-<span class="nc" id="L104">            processes[i] = new OSProcessImpl(procs[i]);</span>
+<span class="nc" id="L102">        oshi.software.os.OSProcess[] procs = this.os.getProcesses(limit, sort);</span>
+<span class="nc" id="L103">        OSProcess[] processes = new OSProcess[procs.length];</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (int i = 0; i &lt; procs.length; i++) {</span>
+<span class="nc" id="L105">            processes[i] = new OSProcess(procs[i]);</span>
         }
-<span class="nc" id="L106">        return processes;</span>
+<span class="nc" id="L107">        return processes;</span>
     }
 
     /**
@@ -111,7 +112,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L114">        return new OSProcessImpl(this.os.getProcess(pid));</span>
+<span class="nc" id="L115">        return new OSProcess(this.os.getProcess(pid));</span>
     }
 
     /**
@@ -119,7 +120,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L122">        return this.os.getProcessId();</span>
+<span class="nc" id="L123">        return this.os.getProcessId();</span>
     }
 
     /**
@@ -127,7 +128,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L130">        return this.os.getProcessCount();</span>
+<span class="nc" id="L131">        return this.os.getProcessCount();</span>
     }
 
     /**
@@ -135,7 +136,15 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L138">        return this.os.getThreadCount();</span>
+<span class="nc" id="L139">        return this.os.getThreadCount();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+<span class="nc" id="L147">        return new NetworkParamsImpl(this.os.getNetworkParams());</span>
     }
 
     /**
@@ -143,43 +152,46 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L146">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.manufacturer&quot;)) {</span>
-<span class="nc" id="L148">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
+<span class="nc" id="L155">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.manufacturer&quot;)) {</span>
+<span class="nc" id="L157">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
         }
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.family&quot;)) {</span>
-<span class="nc" id="L151">            json.add(&quot;family&quot;, getFamily());</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.family&quot;)) {</span>
+<span class="nc" id="L160">            json.add(&quot;family&quot;, getFamily());</span>
         }
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version&quot;)) {</span>
-<span class="nc" id="L154">            json.add(&quot;version&quot;, getVersion().toJSON(properties));</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version&quot;)) {</span>
+<span class="nc" id="L163">            json.add(&quot;version&quot;, getVersion().toJSON(properties));</span>
         }
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem&quot;)) {</span>
-<span class="nc" id="L157">            json.add(&quot;fileSystem&quot;, getFileSystem().toJSON(properties));</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem&quot;)) {</span>
+<span class="nc" id="L166">            json.add(&quot;fileSystem&quot;, getFileSystem().toJSON(properties));</span>
         }
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processID&quot;)) {</span>
-<span class="nc" id="L160">            json.add(&quot;processID&quot;, getProcessId());</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processID&quot;)) {</span>
+<span class="nc" id="L169">            json.add(&quot;processID&quot;, getProcessId());</span>
         }
-<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processCount&quot;)) {</span>
-<span class="nc" id="L163">            json.add(&quot;processCount&quot;, getProcessCount());</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processCount&quot;)) {</span>
+<span class="nc" id="L172">            json.add(&quot;processCount&quot;, getProcessCount());</span>
         }
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.threadCount&quot;)) {</span>
-<span class="nc" id="L166">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.threadCount&quot;)) {</span>
+<span class="nc" id="L175">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes&quot;)) {</span>
-<span class="nc" id="L169">            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L170" title="All 2 branches missed.">            for (OSProcess proc : getProcesses(</span>
-<span class="nc" id="L171">                    PropertiesUtil.getIntOrDefault(properties, &quot;operatingSystem.processes.limit&quot;, 0),</span>
-<span class="nc" id="L172">                    PropertiesUtil.getEnum(properties, &quot;operatingSystem.processes.sort&quot;, ProcessSort.class))) {</span>
-<span class="nc" id="L173">                processArrayBuilder.add(proc.toJSON(properties));</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes&quot;)) {</span>
+<span class="nc" id="L178">            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            for (OSProcess proc : getProcesses(</span>
+<span class="nc" id="L180">                    PropertiesUtil.getIntOrDefault(properties, &quot;operatingSystem.processes.limit&quot;, 0),</span>
+<span class="nc" id="L181">                    PropertiesUtil.getEnum(properties, &quot;operatingSystem.processes.sort&quot;, ProcessSort.class))) {</span>
+<span class="nc" id="L182">                processArrayBuilder.add(proc.toJSON(properties));</span>
             }
-<span class="nc" id="L175">            json.add(&quot;processes&quot;, processArrayBuilder.build());</span>
+<span class="nc" id="L184">            json.add(&quot;processes&quot;, processArrayBuilder.build());</span>
         }
-<span class="nc" id="L177">        return json.build();</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams&quot;)) {</span>
+<span class="nc" id="L187">            json.add(&quot;networkParams&quot;, getNetworkParams().toJSON(properties));</span>
+        }
+<span class="nc" id="L189">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L182">        return this.os.toString();</span>
+<span class="nc" id="L194">        return this.os.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
