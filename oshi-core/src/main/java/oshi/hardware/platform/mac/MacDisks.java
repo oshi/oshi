@@ -20,10 +20,8 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -48,6 +46,7 @@ import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
@@ -64,8 +63,8 @@ public class MacDisks implements Disks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    private static final Map<String, String> mountPointMap = new HashMap<>();
-    private static final Map<String, String> logicalVolumeMap = new HashMap<>();
+    private static final DefaultHashMap<String, String> mountPointMap = new DefaultHashMap<>();
+    private static final DefaultHashMap<String, String> logicalVolumeMap = new DefaultHashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {

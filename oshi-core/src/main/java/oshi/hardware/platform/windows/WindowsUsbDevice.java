@@ -20,7 +20,6 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,6 +40,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.jna.platform.windows.Cfgmgr32;
+import oshi.util.DefaultHashMap;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -56,10 +56,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using PNPDeviceID as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
+    private static DefaultHashMap<String, String> nameMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> serialMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, List<String>> hubMap = new DefaultHashMap<>();
 
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {

@@ -39,6 +39,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -228,7 +229,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             offset += arg.length();
         }
         // Return args null-delimited
-        return String.join("\0", args);
+        return FormatUtil.join("\0", args);
     }
 
     /**

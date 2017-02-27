@@ -60,7 +60,12 @@ public class ProcUtil {
      */
     public static File[] getPidFiles() {
         File procdir = new File("/proc");
-        File[] pids = procdir.listFiles((FileFilter) file -> DIGITS.matcher(file.getName()).matches());
+        File[] pids = procdir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return DIGITS.matcher(file.getName()).matches();
+            }
+        });
         return pids != null ? pids : new File[0];
     }
 }

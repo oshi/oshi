@@ -18,7 +18,7 @@
  */
 package oshi.json.hardware;
 
-import java.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import oshi.json.json.OshiJsonObject;
 

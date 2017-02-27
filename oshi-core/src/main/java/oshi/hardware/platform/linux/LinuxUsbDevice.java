@@ -20,10 +20,9 @@ package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
@@ -31,6 +30,7 @@ import oshi.jna.platform.linux.Udev;
 import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
+import oshi.util.DefaultHashMap;
 
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
@@ -39,12 +39,12 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using device node path as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
+    private static DefaultHashMap<String, String> nameMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> productIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> serialMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, List<String>> hubMap = new DefaultHashMap<>();
 
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -137,7 +137,12 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             } else {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                hubMap.computeIfAbsent(parentPath, k -> new ArrayList<String>()).add(path);
+                hubMap.computeIfAbsent(parentPath, new Function<String, List<String>>() {
+                    @Override
+                    public List<String> apply(String k) {
+                        return new ArrayList<>();
+                    }
+                }).add(path);
             }
             Udev.INSTANCE.udev_device_unref(dev);
         }

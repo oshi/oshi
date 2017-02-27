@@ -18,7 +18,7 @@
  */
 package oshi.hardware.common;
 
-import java.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import oshi.hardware.Firmware;
 

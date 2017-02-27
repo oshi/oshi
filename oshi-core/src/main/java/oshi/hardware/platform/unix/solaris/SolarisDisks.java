@@ -19,9 +19,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import oshi.hardware.Disks;
@@ -29,6 +27,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -45,7 +44,7 @@ public class SolarisDisks implements Disks {
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
-        Map<String, HWDiskStore> diskMap = new HashMap<>();
+        DefaultHashMap<String, HWDiskStore> diskMap = new DefaultHashMap<>();
         // First, run iostat -er to enumerate disks by name. Sample output:
         // errors
         // device,s/w,h/w,trn,tot
@@ -55,7 +54,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with block device mount point for
         // later use in partition info
-        Map<String, String> deviceMap = new HashMap<>();
+        DefaultHashMap<String, String> deviceMap = new DefaultHashMap<>();
         // Also run iostat -ern to get the same list by mount point. Sample
         // output:
         // errors
@@ -85,7 +84,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with blick device mount point for
         // later use in partition info
-        Map<String, Integer> majorMap = new HashMap<>();
+        DefaultHashMap<String, Integer> majorMap = new DefaultHashMap<>();
         // Run lshal, if available, to get block device major (we'll use
         // partition # for minor)
         List<String> lshal = ExecutingCommand.runNative("lshal");

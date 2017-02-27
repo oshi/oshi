@@ -19,13 +19,16 @@
 package oshi.util;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -60,6 +63,11 @@ public class FormatUtil {
     private static final long EXA = 1000000000000000000L;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+    /*
+     * Two's complement reference: 2^64.
+     */
+    private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);
 
     private FormatUtil() {
     }
@@ -241,5 +249,65 @@ public class FormatUtil {
             LOG.warn("Date parse error: " + dtpe);
             return null;
         }
+    }
+
+    /**
+     * Represent a 32 bit value as if it were an unsigned integer.
+     * 
+     * This is a Java 7 implementation of Java 8's Integer.toUnsignedString.
+     * 
+     * @param i
+     *            a 32 bit value
+     * @return the string representation of the unsigned integer
+     */
+    public static String toUnsignedString(int i) {
+        if (i >= 0) {
+            return Integer.toString(i);
+        }
+        return Long.toString(getUnsignedInt(i));
+    }
+
+    /**
+     * Represent a 64 bit value as if it were an unsigned long.
+     * 
+     * This is a Java 7 implementation of Java 8's Long.toUnsignedString.
+     * 
+     * @param l
+     *            a 64 bit value
+     * @return the string representation of the unsigned long
+     */
+    public static String toUnsignedString(long l) {
+        if (l >= 0) {
+            return Long.toString(l);
+        }
+        return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();
+    }
+
+    /**
+     * Returns a new String composed of copies of the Collection of elements'
+     * string representations joined together with a copy of the specified
+     * delimiter.
+     * 
+     * This is a Java 7 implementation of Java 8's String.join generalized for a
+     * collection of objects
+     * 
+     * @param delimeter
+     *            a sequence of characters that is used to separate each of the
+     *            elements in the resulting String
+     * @param elements
+     *            a collection that will have its elements' string
+     *            representations joined together.
+     * @return a new String that is composed from the elements argument
+     */
+    public static String join(CharSequence delimeter, Collection<?> elements) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<?> iter = elements.iterator();
+        if (iter.hasNext())
+            sb.append(iter.next().toString());
+        while (iter.hasNext()) {
+            sb.append(delimeter);
+            sb.append(iter.next().toString());
+        }
+        return sb.toString();
     }
 }

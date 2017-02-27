@@ -20,12 +20,12 @@ package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -36,13 +36,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
-    private static Map<String, String> parentMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
+    private static DefaultHashMap<String, String> nameMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> productIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> serialMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> parentMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, List<String>> hubMap = new DefaultHashMap<>();
 
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -126,7 +126,12 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 // Store parent for later usbus-skipping
                 parentMap.put(key, parent);
                 // Add this key to the parent's hubmap list
-                hubMap.computeIfAbsent(parent, k -> new ArrayList<String>()).add(key);
+                hubMap.computeIfAbsent(parent, new Function<String, List<String>>() {
+                    @Override
+                    public List<String> apply(String k) {
+                        return new ArrayList<>();
+                    }
+                }).add(key);
             } else if (line.contains(".vendor =")) {
                 vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.contains(".product =")) {

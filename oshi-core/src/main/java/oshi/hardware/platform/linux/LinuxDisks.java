@@ -19,9 +19,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +28,7 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
+import oshi.util.DefaultHashMap;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -46,7 +45,7 @@ public class LinuxDisks implements Disks {
 
     private static final int SECTORSIZE = 512;
 
-    private final Map<String, String> mountsMap = new HashMap<>();
+    private final DefaultHashMap<String, String> mountsMap = new DefaultHashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {

@@ -20,21 +20,21 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.util.DefaultHashMap;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -45,12 +45,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using RegistryEntryID as the key
      */
-    private static Map<Long, String> nameMap = new HashMap<>();
-    private static Map<Long, String> vendorMap = new HashMap<>();
-    private static Map<Long, String> vendorIdMap = new HashMap<>();
-    private static Map<Long, String> productIdMap = new HashMap<>();
-    private static Map<Long, String> serialMap = new HashMap<>();
-    private static Map<Long, List<Long>> hubMap = new HashMap<>();
+    private static DefaultHashMap<Long, String> nameMap = new DefaultHashMap<>();
+    private static DefaultHashMap<Long, String> vendorMap = new DefaultHashMap<>();
+    private static DefaultHashMap<Long, String> vendorIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<Long, String> productIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<Long, String> serialMap = new DefaultHashMap<>();
+    private static DefaultHashMap<Long, List<Long>> hubMap = new DefaultHashMap<>();
 
     public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -142,7 +142,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
-                hubMap.computeIfAbsent(parentId.getValue(), k -> new ArrayList<Long>()).add(childId.getValue());
+                hubMap.computeIfAbsent(parentId.getValue(), new Function<Long, List<Long>>() {
+                    @Override
+                    public List<Long> apply(Long k) {
+                        return new ArrayList<>();
+                    }
+                }).add(childId.getValue());
 
                 // Get device name and store in map
                 IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);

@@ -19,16 +19,17 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java8.util.function.Function;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.Kernel32;
+import oshi.util.DefaultHashMap;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
@@ -45,15 +46,15 @@ public class WindowsDisks implements Disks {
     /**
      * Maps to store read/write bytes per drive index
      */
-    private static Map<String, Long> readMap = new HashMap<>();
-    private static Map<String, Long> readByteMap = new HashMap<>();
-    private static Map<String, Long> writeMap = new HashMap<>();
-    private static Map<String, Long> writeByteMap = new HashMap<>();
-    private static Map<String, Long> xferTimeMap = new HashMap<>();
-    private static Map<String, Long> timeStampMap = new HashMap<>();
-    private static Map<String, List<String>> driveToPartitionMap = new HashMap<>();
-    private static Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
-    private static Map<String, HWPartition> partitionMap = new HashMap<>();
+    private static DefaultHashMap<String, Long> readMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, Long> readByteMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, Long> writeMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, Long> writeByteMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, Long> xferTimeMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, Long> timeStampMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, List<String>> driveToPartitionMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> partitionToLogicalDriveMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, HWPartition> partitionMap = new DefaultHashMap<>();
 
     private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
@@ -149,9 +150,13 @@ public class WindowsDisks implements Disks {
             mAnt = DEVICE_ID.matcher(partitionQueryMap.get("Antecedent").get(i));
             mDep = DEVICE_ID.matcher(partitionQueryMap.get("Dependent").get(i));
             if (mAnt.matches() && mDep.matches()) {
-                driveToPartitionMap
-                        .computeIfAbsent(mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"), k -> new ArrayList<String>())
-                        .add(mDep.group(1));
+                driveToPartitionMap.computeIfAbsent(mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"),
+                        new Function<String, List<String>>() {
+                            @Override
+                            public List<String> apply(String k) {
+                                return new ArrayList<>();
+                            }
+                        }).add(mDep.group(1));
             }
         }
 

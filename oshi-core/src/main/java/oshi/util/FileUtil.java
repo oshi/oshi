@@ -24,9 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,8 +166,8 @@ public class FileUtil {
      *            The file to read
      * @return The map contained in the file, if any; otherwise empty map
      */
-    public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        Map<String, String> map = new HashMap<>();
+    public static DefaultHashMap<String, String> getKeyValueMapFromFile(String filename, String separator) {
+        DefaultHashMap<String, String> map = new DefaultHashMap<>();
         LOG.debug("Reading file {}", filename);
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {

@@ -19,7 +19,8 @@
 package oshi.hardware;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+
+import org.threeten.bp.LocalDate;
 
 /**
  * The Firmware represents the low level BIOS or equivalent

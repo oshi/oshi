@@ -18,19 +18,17 @@
  */
 package oshi.util;
 
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * String parsing utility.
@@ -80,10 +78,10 @@ public class ParseUtil {
     private static final String THZ = "THz";
     private static final String PHZ = "PHz";
 
-    private static final Map<String, Long> multipliers;
+    private static final DefaultHashMap<String, Long> multipliers;
 
     static {
-        multipliers = new HashMap<>();
+        multipliers = new DefaultHashMap<>();
         multipliers.put(HZ, 1L);
         multipliers.put(KHZ, 1000L);
         multipliers.put(MHZ, 1000000L);

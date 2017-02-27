@@ -21,15 +21,14 @@ package oshi.hardware.platform.unix.freebsd;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -46,9 +45,9 @@ public class FreeBsdDisks implements Disks {
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
     // Create map indexed by device name to populate data from multiple commands
-    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
+    private static final DefaultHashMap<String, HWDiskStore> diskMap = new DefaultHashMap<>();
     // Map of partitions to mount points
-    private static final Map<String, String> mountMap = new HashMap<>();
+    private static final DefaultHashMap<String, String> mountMap = new DefaultHashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {

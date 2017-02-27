@@ -37,6 +37,7 @@ i * Oshi (https://github.com/dblock/oshi)
 package oshi.util.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -555,8 +557,8 @@ public class WmiUtil {
                     break;
                 case PROCESS_GETOWNER:
                     // Win32_Process object GetOwner method
-                    String owner = String.join("\\",
-                            execMethod(svc, vtProp.stringValue(), "GetOwner", "Domain", "User"));
+                    String owner = FormatUtil.join("\\",
+                            Arrays.asList(execMethod(svc, vtProp.stringValue(), "GetOwner", "Domain", "User")));
                     values.get(propertyType.name()).add("\\".equals(owner) ? "N/A" : owner);
                     break;
                 case PROCESS_GETOWNERSID:

@@ -24,8 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -36,11 +38,11 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
-    private static Map<String, String> deviceTypeMap = new HashMap<>();
+    private static DefaultHashMap<String, String> nameMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> vendorIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> productIdMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, List<String>> hubMap = new DefaultHashMap<>();
+    private static DefaultHashMap<String, String> deviceTypeMap = new DefaultHashMap<>();
     /*
      * For parsing tree
      */
@@ -109,7 +111,12 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                 // Add as child to appropriate parent
                 if (depth > indent) {
                     // Has a parent. Get parent and add this node to child list
-                    hubMap.computeIfAbsent(lastParent.get(depth - indent), k -> new ArrayList<String>()).add(key);
+                    hubMap.computeIfAbsent(lastParent.get(depth - indent), new Function<String, List<String>>() {
+                        @Override
+                        public List<String> apply(String k) {
+                            return new ArrayList<>();
+                        }
+                    }).add(key);
                 } else {
                     // No parent, add to controllers list
                     usbControllers.add(key);

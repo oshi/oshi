@@ -19,10 +19,11 @@
 package oshi.software.os.linux;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.DefaultHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -100,7 +102,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Get all the pid files (guaranteed to be digit-only filenames)
         File[] pids = ProcUtil.getPidFiles();
         // Sort descending "numerically"
-        Arrays.sort(pids, (f1, f2) -> Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName())));
+        Arrays.sort(pids, new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                return Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName()));
+            }
+        });
 
         // Iterate /proc/[pid]/stat checking the creation time (field 22,
         // jiffies since boot). Since we're working on descending PIDs, we
@@ -206,7 +213,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (size > 0) {
             path = buf.getString(0).substring(0, size);
         }
-        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
+        DefaultHashMap<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         long now = System.currentTimeMillis();
         OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
@@ -524,9 +531,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Look for any /etc/*-release, *-version, and variants
         File etc = new File("/etc");
         // Find any *_input files in that path
-        File[] matchingFiles = etc.listFiles(f -> (f.getName().endsWith("-release") || f.getName().endsWith("-version")
-                || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
-                && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release")));
+        File[] matchingFiles = etc.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return (f.getName().endsWith("-release") || f.getName().endsWith("-version")
+                        || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
+                        && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release"));
+            }
+        });
         if (matchingFiles != null && matchingFiles.length > 0) {
             return matchingFiles[0].getPath();
         }
