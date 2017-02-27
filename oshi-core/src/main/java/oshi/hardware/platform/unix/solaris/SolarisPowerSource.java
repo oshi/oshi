@@ -53,7 +53,13 @@ public class SolarisPowerSource extends AbstractPowerSource {
             KSTAT_BATT_IDX = 0;
         }
     }
+    
+    public SolarisPowerSource() {
+        super();
+        LOG.debug("Initialized SolarisPowerSource");
+    }
 
+    @Deprecated
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized SolarisPowerSource");
@@ -75,11 +81,17 @@ public class SolarisPowerSource extends AbstractPowerSource {
             return new SolarisPowerSource[0];
         }
 
+        boolean amps = KstatUtil.kstatDataLookupLong(ksp, "bif_unit") != 0;
+        
         // Predicted battery capacity when fully charged.
         long energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_last_cap");
+        long energyDesign = KstatUtil.kstatDataLookupLong(ksp, "bif_design_cap");
         if (energyFull == 0xffffffff || energyFull <= 0) {
-            energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_design_cap");
+            energyFull = energyDesign;
+        } else if (energyDesign == 0xffffffff || energyDesign <= 0) {
+            energyDesign = energyFull;
         }
+        
         if (energyFull == 0xffffffff || energyFull <= 0) {
             return new SolarisPowerSource[0];
         }
@@ -101,6 +113,11 @@ public class SolarisPowerSource extends AbstractPowerSource {
         if (powerNow == 0xFFFFFFFF) {
             powerNow = 0L;
         }
+        
+        long voltageNow = KstatUtil.kstatDataLookupLong(ksp, "bst_voltage");
+        if (voltageNow == 0xFFFFFFFF) {
+            voltageNow = 0L;
+        }
 
         // Battery State:
         // bit 0 = discharging
@@ -110,8 +127,12 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
         // Set up single battery in array
         SolarisPowerSource[] ps = new SolarisPowerSource[1];
-        ps[0] = new SolarisPowerSource("BAT0", (double) energyNow / energyFull,
-                isCharging ? -2d : powerNow > 0 ? 3600d * energyNow / powerNow : -1d);
+        ps[0] = new SolarisPowerSource();
+        ps[0].setName("BAT0");
+        ps[0].setRemainingCapacity((double) energyNow / energyFull);
+        ps[0].setTimeRemaining(isCharging ? -2d : 3600d * energyNow / powerNow);
+        ps[0].setHealth((double) energyDesign / energyFull);
+        ps[0].setPower(amps ? powerNow * voltageNow : powerNow);
         return ps;
     }
 }

@@ -41,7 +41,13 @@ public class LinuxPowerSource extends AbstractPowerSource {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
 
     private static final String PS_PATH = "/sys/class/power_supply/";
+    
+    public LinuxPowerSource() {
+        super();
+        LOG.debug("Initialized LinuxPowerSource");
+    }
 
+    @Deprecated
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized LinuxPowerSource");
@@ -73,13 +79,20 @@ public class LinuxPowerSource extends AbstractPowerSource {
             if (psInfo.isEmpty()) {
                 continue;
             }
+            
+            LinuxPowerSource pSource = new LinuxPowerSource();
+            
             // Initialize defaults
             boolean isPresent = false;
             boolean isCharging = false;
-            String name = "Unknown";
+            String name = "unknown";
             int energyNow = 0;
             int energyFull = 1;
+            int energyDesigned = 1;
             int powerNow = 1;
+            boolean charge = false;
+            int voltageNow = 1;
+            int voltageMin = 1;
             for (String checkLine : psInfo) {
                 if (checkLine.startsWith("POWER_SUPPLY_PRESENT")) {
                     // Skip if not present
@@ -99,12 +112,22 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_NOW")
                         || checkLine.startsWith("POWER_SUPPLY_CHARGE_NOW")) {
                     // Remaining Capacity = energyNow / energyFull
+                    charge = checkLine.startsWith("POWER_SUPPLY_CHARGE_NOW");
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
                         energyNow = Integer.parseInt(psSplit[1]);
                     }
+                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL_DESIGN")
+                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL_DESIGN")) {
+                    // Health = energyNow / energyDesign
+                    charge = checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL_DESIGN");
+                    String[] psSplit = checkLine.split("=");
+                    if (psSplit.length > 1) {
+                        energyDesigned = Integer.parseInt(psSplit[1]);
+                    }
                 } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL")
                         || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL")) {
+                    charge = checkLine.startsWith("POWER_SUPPLY_CHARGE_NOW");
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
                         energyFull = Integer.parseInt(psSplit[1]);
@@ -118,6 +141,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 } else if (checkLine.startsWith("POWER_SUPPLY_POWER_NOW")
                         || checkLine.startsWith("POWER_SUPPLY_CURRENT_NOW")) {
                     // Time Remaining = energyNow / powerNow (hours)
+                    charge = checkLine.startsWith("POWER_SUPPLY_CURRENT_NOW");
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
                         powerNow = Integer.parseInt(psSplit[1]);
@@ -125,10 +149,38 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     if (powerNow <= 0) {
                         isCharging = true;
                     }
+                } else if (checkLine.startsWith("POWER_SUPPLY_VOLTAGE_NOW")) {
+                    String[] psSplit = checkLine.split("=");
+                    if (psSplit.length > 1) {
+                        voltageNow = Integer.parseInt(psSplit[1]);
+                    }
+                    if (powerNow <= 0) {
+                        isCharging = true;
+                    }
+                }  else if (checkLine.startsWith("POWER_SUPPLY_VOLTAGE_MIN_DESIGN")) {
+                    String[] psSplit = checkLine.split("=");
+                    if (psSplit.length > 1) {
+                        voltageMin = Integer.parseInt(psSplit[1]);
+                    }
+                    if (powerNow <= 0) {
+                        isCharging = true;
+                    }
                 }
             }
-            psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
-                    isCharging ? -2d : 3600d * energyNow / powerNow));
+            if(charge) {
+                energyNow *= voltageNow / 1000000d;
+                energyFull *= voltageMin / 1000000d;
+                energyDesigned *= voltageMin / 1000000d;
+                powerNow *= voltageNow / 1000000d;
+            }
+            pSource.setName(name);
+            pSource.setRemainingCapacity((double) energyNow / energyFull);
+            pSource.setTimeRemaining(isCharging ? -2d : 3600d * energyNow / powerNow);
+            pSource.setHealth((double) energyFull / energyDesigned);
+            pSource.setMaximumCharge(energyFull / 1000);
+            pSource.setRemainingCharge(energyNow / 1000);
+            pSource.setPower(powerNow / 1000);
+            psList.add(pSource);
         }
 
         return psList.toArray(new LinuxPowerSource[psList.size()]);

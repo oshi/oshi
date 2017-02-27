@@ -25,6 +25,7 @@ import java.io.Serializable;
  * of charge/discharge
  *
  * @author widdis[at]gmail[dot]com
+ * @author ethanjaszewski[at]yahoo[dot]com
  */
 public interface PowerSource extends Serializable {
     /**
@@ -48,4 +49,31 @@ public interface PowerSource extends Serializable {
      *         or -2.0 (unlimited)
      */
     double getTimeRemaining();
+    
+    /**
+     * Power source health as a fraction of the battery's designed capacity.
+     * 
+     * @return A value between 0.0 (no capacity) and 1.0 (at designed capacity)
+     */
+    double getHealth();
+    
+    /**
+     * Maximum charge of the power source, in milliwatt hours.
+     * 
+     * @return If positive, milliwatt hours of charge. If negative, the maximum charge is unknown.
+     */
+    long getMaximumCharge();
+    
+    /**
+     * Remaining charge of the power source, in milliwatt hours.
+     * 
+     * @return If positive, milliwatt hours of charge. If negative, the Remaining charge is unknown. 
+     */
+    long getRemainingCharge();
+    
+    /**
+     * Current power supplied by the power source, in milliwatts.
+     * @return If positive, milliwats of power. If negative, the power is unknown.
+     */
+    long getPower();
 }

@@ -6,6 +6,7 @@
 * [#308](https://github.com/dblock/oshi/pull/308): Add getProcessorID to CentralProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#309](https://github.com/dblock/oshi/pull/309): Reduce C library duplication. - [@dbwiddis](https://github.com/dbwiddis).
 * [#317](https://github.com/dblock/oshi/pull/317): Add user/uid, group/gid, and command line to OSProcess . - [@dbwiddis](https://github.com/dbwiddis).
+* [#322](https://github.com/oshi/oshi/pull/322): Extend PowerSource classes. - [@ejaszewski](https://github.com/ejaszewski).
 * Your contribution here.
 
 3.3 (12/31/2016)

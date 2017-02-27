@@ -24,6 +24,7 @@ import oshi.hardware.PowerSource;
  * A Power Source
  *
  * @author widdis[at]gmail[dot]com
+ * @author ethanjaszewski[at]yahoo[dot]com
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
@@ -34,10 +35,18 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double remainingCapacity;
 
     protected double timeRemaining;
+    
+    protected double health;
 
+    protected long maximumCharge;
+    
+    protected long remainingCharge;
+    
+    protected long power;
+    
     /**
-     * Super constructor used by platform-specific implementations of
-     * PowerSource
+     * Super constructor formerly used by platform-specific implementations
+     * of PowerSource
      *
      * @param newName
      *            The name to assign
@@ -46,10 +55,26 @@ public abstract class AbstractPowerSource implements PowerSource {
      * @param newTimeRemaining
      *            Seconds of time remaining
      */
+    @Deprecated
     public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         this.name = newName;
         this.remainingCapacity = newRemainingCapacity;
         this.timeRemaining = newTimeRemaining;
+    }
+    
+    /**
+     * Super constructor used by platform specific implementations of
+     * PowerSource. Initializes all values to defaults, which are then set
+     * using the setter methods.
+     */
+    public AbstractPowerSource() {
+        this.name = "unknown";
+        this.remainingCapacity = 0;
+        this.timeRemaining = -1;
+        this.health = 1d;
+        this.maximumCharge = 0;
+        this.remainingCharge = 0;
+        this.power = 1;
     }
 
     /**
@@ -75,4 +100,93 @@ public abstract class AbstractPowerSource implements PowerSource {
     public double getTimeRemaining() {
         return this.timeRemaining;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getHealth() {
+        return health;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getMaximumCharge() {
+        return maximumCharge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRemainingCharge() {
+        return remainingCharge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPower() {
+        return power;
+    }
+
+    /**
+     * @param name 
+     *             the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param remainingCapacity 
+     *             the remainingCapacity to set
+     */
+    public void setRemainingCapacity(double remainingCapacity) {
+        this.remainingCapacity = remainingCapacity;
+    }
+
+    /**
+     * @param timeRemaining
+     *             the timeRemaining to set
+     */
+    public void setTimeRemaining(double timeRemaining) {
+        this.timeRemaining = timeRemaining;
+    }
+
+    /**
+     * @param health 
+     *             the health to set
+     */
+    public void setHealth(double health) {
+        this.health = health;
+    }
+
+    /**
+     * @param maximumCharge 
+     *             the maximumCharge to set
+     */
+    public void setMaximumCharge(long maximumCharge) {
+        this.maximumCharge = maximumCharge;
+    }
+
+    /**
+     * @param remainingCharge
+     *             the remainingCharge to set
+     */
+    public void setRemainingCharge(long remainingCharge) {
+        this.remainingCharge = remainingCharge;
+    }
+
+    /**
+     * @param power
+     *             the power to set
+     */
+    public void setPower(long power) {
+        this.power = power;
+    }
+    
 }

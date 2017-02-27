@@ -47,6 +47,12 @@ public class MacPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
 
+    public MacPowerSource() {
+        super();
+        LOG.debug("Initialized MacPowerSource");
+    }
+    
+    @Deprecated
     public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized MacPowerSource");
@@ -70,6 +76,7 @@ public class MacPowerSource extends AbstractPowerSource {
         // For each power source, output various info
         List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
+            MacPowerSource pSource = new MacPowerSource();
             // Get the dictionary for that Power Source
             CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);
             CFDictionaryRef dictionary = IOKit.INSTANCE.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
@@ -86,8 +93,8 @@ public class MacPowerSource extends AbstractPowerSource {
             }
 
             // Get name
-            String name = CfUtil
-                    .cfPointerToString(CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY));
+            pSource.setName(CfUtil.cfPointerToString(
+                    CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY)));
 
             // Remaining Capacity = current / max
             IntByReference currentCapacity = new IntByReference();
@@ -100,10 +107,35 @@ public class MacPowerSource extends AbstractPowerSource {
                     maxCapacity)) {
                 maxCapacity = new IntByReference(1);
             }
-
-            // Add to list
-            psList.add(new MacPowerSource(name, (double) currentCapacity.getValue() / maxCapacity.getValue(),
-                    timeRemaining));
+            IntByReference designCapacity = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_DESIGN_CAPACITY_KEY,
+                    designCapacity)) {
+                designCapacity = new IntByReference(1);
+            }
+            IntByReference voltage = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_VOLTAGE_KEY, voltage)) {
+                voltage = new IntByReference(0);
+            }
+            IntByReference current = new IntByReference();
+            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_KEY, current)) {
+                current = new IntByReference(0);
+            }
+            
+            long power = voltage.getValue() * current.getValue() / 1000;
+            long remainingCapacity = currentCapacity.getValue() / maxCapacity.getValue();
+            double remainingCharge;
+            if(timeRemaining < 0)
+                remainingCharge = (power * timeRemaining) / 60;
+            else
+                remainingCharge = 0;
+            
+            pSource.setRemainingCapacity(remainingCapacity);
+            pSource.setTimeRemaining(timeRemaining);
+            pSource.setHealth((double) maxCapacity.getValue() / designCapacity.getValue()); 
+            pSource.setMaximumCharge((long) (remainingCharge / remainingCapacity));
+            pSource.setRemainingCharge((long) remainingCharge); 
+            pSource.setPower((long) power);
+            psList.add(pSource);
         }
         // Release the blob
         CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);

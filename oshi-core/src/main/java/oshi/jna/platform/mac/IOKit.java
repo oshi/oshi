@@ -52,6 +52,12 @@ public interface IOKit extends Library {
     CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString("Current Capacity");
 
     CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString("Max Capacity");
+    
+    CFStringRef IOPS_DESIGN_CAPACITY_KEY = CFStringRef.toCFString("DesignCapacity");
+    
+    CFStringRef IOPS_VOLTAGE_KEY = CFStringRef.toCFString("Voltage");
+    
+    CFStringRef IOPS_CURRENT_KEY = CFStringRef.toCFString("Current");
 
     String SMC_KEY_FAN_NUM = "FNum";
 
