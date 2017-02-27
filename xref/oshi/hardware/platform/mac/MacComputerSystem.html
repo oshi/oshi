@@ -7,9 +7,9 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/mac/MacComputerSystem.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/dblock/oshi)</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/oshi/oshi)</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2016 The Oshi Project Team</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2017 The Oshi Project Team</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
@@ -22,123 +22,140 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/dblock/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/oshi/oshi/graphs/contributors</em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.hardware.platform.mac;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractComputerSystem;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * Hardware data obtained by system_profiler</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * </em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * @author SchiTho1 [at] Securiton AG</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @author widdis [at] gmail [dot] com</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/mac/MacComputerSystem.html">MacComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractComputerSystem.html">AbstractComputerSystem</a> {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.mac.IOKitUtil;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * Hardware data obtained by system_profiler</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * @author SchiTho1 [at] Securiton AG</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * @author widdis [at] gmail [dot] com</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/mac/MacComputerSystem.html">MacComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractComputerSystem.html">AbstractComputerSystem</a> {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String APPLE = <span class="jxr_string">"Apple Inc."</span>;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <a href="../../../../oshi/hardware/platform/mac/MacComputerSystem.html">MacComputerSystem</a>() {
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          init();
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init() {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String APPLE = <span class="jxr_string">"Apple Inc."</span>;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <a href="../../../../oshi/hardware/platform/mac/MacComputerSystem.html">MacComputerSystem</a>() {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          init();
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          setManufacturer(APPLE);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init() {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// $ system_profiler SPHardwareDataType</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// Hardware:</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <em class="jxr_comment">// Hardware Overview:</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          setManufacturer(APPLE);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// $ system_profiler SPHardwareDataType</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <em class="jxr_comment">// Hardware:</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <em class="jxr_comment">// Model Name: MacBook Pro</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">// Model Identifier: MacBookPro8,2</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <em class="jxr_comment">// Processor Name: Intel Core i7</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// Processor Speed: 2.3 GHz</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <em class="jxr_comment">// Number of Processors: 1</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// Total Number of Cores: 4</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <em class="jxr_comment">// L2 Cache (per Core): 256 KB</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// L3 Cache: 8 MB</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Memory: 16 GB</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <em class="jxr_comment">// Boot ROM Version: MBP81.0047.B2C</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// SMC Version (system): 1.69f4</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Serial Number (system): C02FH4XYCB71</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// Hardware UUID: D92CE829-65AD-58FA-9C32-88968791B7BD</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// Sudden Motion Sensor:</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// State: Enabled</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          String modelName = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">final</strong> String modelNameMarker = <span class="jxr_string">"Model Name:"</span>;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          String modelIdentifier = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">final</strong> String modelIdMarker = <span class="jxr_string">"Model Identifier:"</span>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          String serialNumberSystem = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">final</strong> String serialNumMarker = <span class="jxr_string">"Serial Number (system):"</span>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          String smcVersion = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">final</strong> String smcMarker = <span class="jxr_string">"SMC Version (system):"</span>;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          String bootRomVersion = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">final</strong> String bootRomMarker = <span class="jxr_string">"Boot ROM Version:"</span>;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/hardware/platform/mac/MacFirmware.html">MacFirmware</a> firmware = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/mac/MacFirmware.html">MacFirmware</a>();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          firmware.setManufacturer(APPLE);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          firmware.setName(<span class="jxr_string">"EFI"</span>);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/hardware/platform/mac/MacBaseboard.html">MacBaseboard</a> baseboard = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/mac/MacBaseboard.html">MacBaseboard</a>();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          baseboard.setManufacturer(APPLE);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          baseboard.setModel(<span class="jxr_string">"SMC"</span>);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// Populate name and ID</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPHardwareDataType"</span>)) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(modelNameMarker)) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  modelName = checkLine.split(modelNameMarker)[1].trim();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(modelIdMarker)) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  modelIdentifier = checkLine.split(modelIdMarker)[1].trim();
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(bootRomMarker)) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(smcMarker)) {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(serialNumMarker)) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// Use name (id) if both available; else either one</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">if</strong> (!modelName.isEmpty()) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">if</strong> (!modelIdentifier.isEmpty()) {
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 setModel(modelName + <span class="jxr_string">" ("</span> + modelIdentifier + <span class="jxr_string">")"</span>);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 setModel(modelName);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>             }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">if</strong> (!modelIdentifier.isEmpty()) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 setModel(modelIdentifier);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">if</strong> (!serialNumberSystem.isEmpty()) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             setSerialNumber(serialNumberSystem);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             baseboard.setSerialNumber(serialNumberSystem);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <em class="jxr_comment">// Hardware Overview:</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <em class="jxr_comment">// Model Name: MacBook Pro</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// Model Identifier: MacBookPro8,2</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <em class="jxr_comment">// Processor Name: Intel Core i7</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// Processor Speed: 2.3 GHz</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <em class="jxr_comment">// Number of Processors: 1</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// Total Number of Cores: 4</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// L2 Cache (per Core): 256 KB</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <em class="jxr_comment">// L3 Cache: 8 MB</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Memory: 16 GB</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Boot ROM Version: MBP81.0047.B2C</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// SMC Version (system): 1.69f4</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// Serial Number (system): C02FH4XYCB71</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Hardware UUID: D92CE829-65AD-58FA-9C32-88968791B7BD</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// Sudden Motion Sensor:</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// State: Enabled</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          String modelName = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">final</strong> String modelNameMarker = <span class="jxr_string">"Model Name:"</span>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          String modelIdentifier = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">final</strong> String modelIdMarker = <span class="jxr_string">"Model Identifier:"</span>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          String serialNumberSystem = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">final</strong> String serialNumMarker = <span class="jxr_string">"Serial Number (system):"</span>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          String smcVersion = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">final</strong> String smcMarker = <span class="jxr_string">"SMC Version (system):"</span>;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          String bootRomVersion = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">final</strong> String bootRomMarker = <span class="jxr_string">"Boot ROM Version:"</span>;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/hardware/platform/mac/MacFirmware.html">MacFirmware</a> firmware = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/mac/MacFirmware.html">MacFirmware</a>();
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          firmware.setManufacturer(APPLE);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          firmware.setName(<span class="jxr_string">"EFI"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/hardware/platform/mac/MacBaseboard.html">MacBaseboard</a> baseboard = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/mac/MacBaseboard.html">MacBaseboard</a>();
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          baseboard.setManufacturer(APPLE);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          baseboard.setModel(<span class="jxr_string">"SMC"</span>);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// Populate name and ID</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPHardwareDataType"</span>)) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(modelNameMarker)) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  modelName = checkLine.split(modelNameMarker)[1].trim();
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(modelIdMarker)) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  modelIdentifier = checkLine.split(modelIdMarker)[1].trim();
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(bootRomMarker)) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(smcMarker)) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(serialNumMarker)) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <em class="jxr_comment">// Use name (id) if both available; else either one</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (!modelName.isEmpty()) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">if</strong> (!modelIdentifier.isEmpty()) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 setModel(modelName + <span class="jxr_string">" ("</span> + modelIdentifier + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 setModel(modelName);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">if</strong> (!modelIdentifier.isEmpty()) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 setModel(modelIdentifier);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">if</strong> (serialNumberSystem.isEmpty()) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             serialNumberSystem = getSystemSerialNumber();
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">if</strong> (!smcVersion.isEmpty()) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             baseboard.setVersion(smcVersion);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">if</strong> (bootRomVersion != <strong class="jxr_keyword">null</strong> &amp;&amp; !bootRomVersion.isEmpty()) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             firmware.setVersion(bootRomVersion);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         setFirmware(firmware);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         setBaseboard(baseboard);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         setSerialNumber(serialNumberSystem);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         baseboard.setSerialNumber(serialNumberSystem);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">if</strong> (!smcVersion.isEmpty()) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             baseboard.setVersion(smcVersion);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">if</strong> (bootRomVersion != <strong class="jxr_keyword">null</strong> &amp;&amp; !bootRomVersion.isEmpty()) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             firmware.setVersion(bootRomVersion);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         setFirmware(firmware);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         setBaseboard(baseboard);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">private</strong> String getSystemSerialNumber() {
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         String serialNumber = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">int</strong> service = IOKitUtil.getMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">if</strong> (service != 0) {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <em class="jxr_comment">// Fetch the serial number</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             serialNumber = IOKitUtil.getIORegistryStringProperty(service, <span class="jxr_string">"IOPlatformSerialNumber"</span>);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             IOKit.INSTANCE.IOObjectRelease(service);
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">if</strong> (serialNumber == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             serialNumber = <span class="jxr_string">"unknown"</span>;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">return</strong> serialNumber;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2016 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
