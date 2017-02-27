@@ -9,6 +9,7 @@ oshi.hardware.platform.windows
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.unix
+oshi.jna.platform.unix.freebsd
 oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
 oshi.jna.platform.windows.COM

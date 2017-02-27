@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi/oshi-core</link>
     <description>oshi-core - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2016 oshi</copyright>
+    <copyright>&#169;2010 - 2017 oshi</copyright>
     <item>
-      <title>File: 176,
-             Errors: 4838,
+      <title>File: 179,
+             Errors: 5257,
              Warnings: 0,
              Infos: 0
       </title>
@@ -60,6 +60,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.mac.MacNetworkParams.java">oshi/software/os/mac/MacNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.windows.WmiUtil.java">oshi/util/platform/windows/WmiUtil.java</a>
                 </td>
                 <td>
@@ -69,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  133
+                  158
                 </td>
               </tr>
                           <tr>
@@ -98,6 +112,20 @@ under the License.
                 </td>
                 <td>
                   143
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.linux.LinuxNetworkParams.java">oshi/software/os/linux/LinuxNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
                 </td>
               </tr>
                           <tr>
@@ -167,7 +195,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  95
+                  98
                 </td>
               </tr>
                           <tr>
@@ -181,7 +209,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  17
                 </td>
               </tr>
                           <tr>
@@ -280,20 +308,6 @@ under the License.
                 </td>
                 <td>
                   20
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdProcess.java">oshi/software/os/unix/freebsd/FreeBsdProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  25
                 </td>
               </tr>
                           <tr>
@@ -545,7 +559,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  34
                 </td>
               </tr>
                           <tr>
@@ -671,7 +685,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  10
                 </td>
               </tr>
                           <tr>
@@ -755,7 +769,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  78
+                  82
                 </td>
               </tr>
                           <tr>
@@ -783,7 +797,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  38
                 </td>
               </tr>
                           <tr>
@@ -854,6 +868,20 @@ under the License.
                 </td>
                 <td>
                   9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.WindowsNetworkParams.java">oshi/software/os/windows/WindowsNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
                 </td>
               </tr>
                           <tr>
@@ -937,7 +965,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  129
                 </td>
               </tr>
                           <tr>
@@ -979,7 +1007,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  93
                 </td>
               </tr>
                           <tr>
@@ -998,6 +1026,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.CLibrary.java">oshi/jna/platform/unix/CLibrary.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  59
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.FileSystem.java">oshi/software/os/FileSystem.java</a>
                 </td>
                 <td>
@@ -1008,20 +1050,6 @@ under the License.
                 </td>
                 <td>
                   0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.mac.MacProcess.java">oshi/software/os/mac/MacProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  26
                 </td>
               </tr>
                           <tr>
@@ -1362,20 +1390,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.linux.LinuxProcess.java">oshi/software/os/linux/LinuxProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  38
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.mac.package-info.java">oshi/software/os/mac/package-info.java</a>
                 </td>
                 <td>
@@ -1399,7 +1413,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  199
+                  266
                 </td>
               </tr>
                           <tr>
@@ -1427,7 +1441,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  85
+                  139
                 </td>
               </tr>
                           <tr>
@@ -1441,7 +1455,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  47
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.common.AbstractNetworkParams.java">oshi/software/common/AbstractNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
                 </td>
               </tr>
                           <tr>
@@ -1497,7 +1525,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  36
                 </td>
               </tr>
                           <tr>
@@ -1539,7 +1567,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  17
                 </td>
               </tr>
                           <tr>
@@ -1558,6 +1586,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.freebsd.package-info.java">oshi/jna/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.Sensors.java">oshi/hardware/Sensors.java</a>
                 </td>
                 <td>
@@ -1568,20 +1610,6 @@ under the License.
                 </td>
                 <td>
                   3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.LibC.java">oshi/jna/platform/unix/LibC.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  24
                 </td>
               </tr>
                           <tr>
@@ -1623,7 +1651,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  34
                 </td>
               </tr>
                           <tr>
@@ -1651,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  60
+                  63
                 </td>
               </tr>
                           <tr>
@@ -1670,6 +1698,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdNetworkParams.java">oshi/software/os/unix/freebsd/FreeBsdNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.LinuxComputerSystem.java">oshi/hardware/platform/linux/LinuxComputerSystem.java</a>
                 </td>
                 <td>
@@ -1679,7 +1721,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  18
                 </td>
               </tr>
                           <tr>
@@ -1763,7 +1805,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  51
                 </td>
               </tr>
                           <tr>
@@ -1791,7 +1833,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  63
                 </td>
               </tr>
                           <tr>
@@ -1866,20 +1908,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.common.AbstractProcess.java">oshi/software/common/AbstractProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  46
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdFileSystem.java">oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</a>
                 </td>
                 <td>
@@ -1917,7 +1945,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  10
                 </td>
               </tr>
                           <tr>
@@ -1950,6 +1978,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisNetworkParams.java">oshi/software/os/unix/solaris/SolarisNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.package-info.java">oshi/software/os/windows/package-info.java</a>
                 </td>
                 <td>
@@ -1960,6 +2002,20 @@ under the License.
                 </td>
                 <td>
                   2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.NetworkParams.java">oshi/software/os/NetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2001,7 +2057,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  31
                 </td>
               </tr>
                           <tr>
@@ -2071,7 +2127,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.unix.freebsd.Libc.java">oshi/jna/platform/unix/freebsd/Libc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
                 </td>
               </tr>
                           <tr>
@@ -2141,7 +2211,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  14
                 </td>
               </tr>
                           <tr>
@@ -2169,7 +2239,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  11
                 </td>
               </tr>
                           <tr>
@@ -2272,20 +2342,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.unix.solaris.SolarisProcess.java">oshi/software/os/unix/solaris/SolarisProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  22
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.WindowsOSVersionInfoEx.java">oshi/software/os/windows/WindowsOSVersionInfoEx.java</a>
                 </td>
                 <td>
@@ -2337,7 +2393,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  11
                 </td>
               </tr>
                           <tr>
@@ -2365,7 +2421,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  546
+                  591
                 </td>
               </tr>
                           <tr>
@@ -2393,7 +2449,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  10
                 </td>
               </tr>
                           <tr>
@@ -2450,20 +2506,6 @@ under the License.
                 </td>
                 <td>
                   9
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.windows.WindowsProcess.java">oshi/software/os/windows/WindowsProcess.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  30
                 </td>
               </tr>
                           <tr>

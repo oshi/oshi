@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WindowsOperatingSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOperatingSystem.java</span></div><h1>WindowsOperatingSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.software.os.windows;
 
@@ -25,11 +25,21 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Advapi32Util.Account;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -39,28 +49,52 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);</span>
 
     // For WMI Process queries
-<span class="nc" id="L45">    private static String processProperties = &quot;Name,CommandLine,ExecutionState,ProcessID,ParentProcessId&quot;</span>
+<span class="nc" id="L55">    private static String processProperties = &quot;Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId&quot;</span>
             + &quot;,ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate&quot;
-            + &quot;,ReadTransferCount,WriteTransferCount&quot;;
-<span class="nc" id="L48">    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.UINT32,</span>
-            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64, ValueType.UINT64 };
+            + &quot;,ReadTransferCount,WriteTransferCount,__PATH,__PATH&quot;;
+<span class="nc" id="L58">    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
+            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
+            ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
+            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
 
-<span class="nc" id="L52">    public WindowsOperatingSystem() {</span>
-<span class="nc" id="L53">        this.manufacturer = &quot;Microsoft&quot;;</span>
-<span class="nc" id="L54">        this.family = &quot;Windows&quot;;</span>
-<span class="nc" id="L55">        this.version = new WindowsOSVersionInfoEx();</span>
-<span class="nc" id="L56">    }</span>
+    /*
+     * Windows Execution States:
+     */
+    private static final int UNKNOWN = 0;
+    private static final int OTHER = 1;
+    private static final int READY = 2;
+    private static final int RUNNING = 3;
+    private static final int BLOCKED = 4;
+    private static final int SUSPENDED_BLOCKED = 5;
+    private static final int SUSPENDED_READY = 6;
+    private static final int TERMINATED = 7;
+    private static final int STOPPED = 8;
+    private static final int GROWING = 9;
+
+    /*
+     * LastError
+     */
+    private static final int ERROR_ACCESS_DENIED = 5;
+
+    static {
+<span class="nc" id="L83">        enableDebugPrivilege();</span>
+<span class="nc" id="L84">    }</span>
+
+<span class="nc" id="L86">    public WindowsOperatingSystem() {</span>
+<span class="nc" id="L87">        this.manufacturer = &quot;Microsoft&quot;;</span>
+<span class="nc" id="L88">        this.family = &quot;Windows&quot;;</span>
+<span class="nc" id="L89">        this.version = new WindowsOSVersionInfoEx();</span>
+<span class="nc" id="L90">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L63">        return new WindowsFileSystem();</span>
+<span class="nc" id="L97">        return new WindowsFileSystem();</span>
     }
 
     /**
@@ -68,11 +102,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L71">        Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(null, &quot;Win32_Process&quot;, processProperties, null,</span>
+<span class="nc" id="L105">        Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(null, &quot;Win32_Process&quot;, processProperties, null,</span>
                 processPropertyTypes);
-<span class="nc" id="L73">        List&lt;OSProcess&gt; procList = processMapToList(procs);</span>
-<span class="nc" id="L74">        List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);</span>
-<span class="nc" id="L75">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L107">        List&lt;OSProcess&gt; procList = processMapToList(procs);</span>
+<span class="nc" id="L108">        List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);</span>
+<span class="nc" id="L109">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     /**
@@ -80,33 +114,100 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L83">        Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(null, &quot;Win32_Process&quot;, processProperties,</span>
-<span class="nc" id="L84">                String.format(&quot;WHERE ProcessId=%d&quot;, pid), processPropertyTypes);</span>
-<span class="nc" id="L85">        List&lt;OSProcess&gt; procList = processMapToList(procs);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        return procList.isEmpty() ? null : procList.get(0);</span>
+<span class="nc" id="L117">        Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(null, &quot;Win32_Process&quot;, processProperties,</span>
+<span class="nc" id="L118">                String.format(&quot;WHERE ProcessId=%d&quot;, pid), processPropertyTypes);</span>
+<span class="nc" id="L119">        List&lt;OSProcess&gt; procList = processMapToList(procs);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        return procList.isEmpty() ? null : procList.get(0);</span>
     }
 
     private List&lt;OSProcess&gt; processMapToList(Map&lt;String, List&lt;Object&gt;&gt; procs) {
-<span class="nc" id="L90">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L91">        List&lt;OSProcess&gt; procList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L124">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L125">        List&lt;OSProcess&gt; procList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L126">        List&lt;String&gt; groupList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L127">        List&lt;String&gt; groupIDList = new ArrayList&lt;&gt;();</span>
         // All map lists should be the same length. Pick one size and iterate
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int p = 0; p &lt; procs.get(&quot;Name&quot;).size(); p++) {</span>
-<span class="nc" id="L94">            procList.add(new WindowsProcess((String) procs.get(&quot;Name&quot;).get(p), (String) procs.get(&quot;CommandLine&quot;).get(p),</span>
-<span class="nc" id="L95">                    ((Long) procs.get(&quot;ExecutionState&quot;).get(p)).intValue(),</span>
-<span class="nc" id="L96">                    ((Long) procs.get(&quot;ProcessID&quot;).get(p)).intValue(),</span>
-<span class="nc" id="L97">                    ((Long) procs.get(&quot;ParentProcessId&quot;).get(p)).intValue(),</span>
-<span class="nc" id="L98">                    ((Long) procs.get(&quot;ThreadCount&quot;).get(p)).intValue(),</span>
-<span class="nc" id="L99">                    ((Long) procs.get(&quot;Priority&quot;).get(p)).intValue(),</span>
-<span class="nc" id="L100">                    ParseUtil.parseLongOrDefault((String) procs.get(&quot;VirtualSize&quot;).get(p), 0L),</span>
-<span class="nc" id="L101">                    ParseUtil.parseLongOrDefault((String) procs.get(&quot;WorkingSetSize&quot;).get(p), 0L),</span>
-                    // Kernel and User time units are 100ns
-<span class="nc" id="L103">                    ParseUtil.parseLongOrDefault((String) procs.get(&quot;KernelModeTime&quot;).get(p), 0L) / 10000L,</span>
-<span class="nc" id="L104">                    ParseUtil.parseLongOrDefault((String) procs.get(&quot;UserModeTime&quot;).get(p), 0L) / 10000L,</span>
-<span class="nc" id="L105">                    (Long) procs.get(&quot;CreationDate&quot;).get(p), (Long) procs.get(&quot;ReadTransferCount&quot;).get(p),</span>
-<span class="nc" id="L106">                    (Long) procs.get(&quot;WriteTransferCount&quot;).get(p), now));</span>
+<span class="nc" id="L129">        final int procCount = procs.get(&quot;Name&quot;).size();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (int p = 0; p &lt; procCount; p++) {</span>
+<span class="nc" id="L131">            OSProcess proc = new OSProcess();</span>
+<span class="nc" id="L132">            proc.setName((String) procs.get(&quot;Name&quot;).get(p));</span>
+<span class="nc" id="L133">            proc.setPath((String) procs.get(&quot;ExecutablePath&quot;).get(p));</span>
+<span class="nc" id="L134">            proc.setCommandLine((String) procs.get(&quot;CommandLine&quot;).get(p));</span>
+<span class="nc" id="L135">            proc.setProcessID(((Long) procs.get(&quot;ProcessID&quot;).get(p)).intValue());</span>
+<span class="nc" id="L136">            proc.setParentProcessID(((Long) procs.get(&quot;ParentProcessId&quot;).get(p)).intValue());</span>
+<span class="nc" id="L137">            proc.setUser((String) procs.get(&quot;PROCESS_GETOWNER&quot;).get(p));</span>
+<span class="nc" id="L138">            proc.setUserID((String) procs.get(&quot;PROCESS_GETOWNERSID&quot;).get(p));</span>
+            // Fetching group information incurs significant latency.
+            // Only do for single-process queries
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (procCount == 1) {</span>
+<span class="nc" id="L142">                final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(</span>
+<span class="nc" id="L143">                        WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (pHandle != null) {</span>
+<span class="nc" id="L145">                    final HANDLEByReference phToken = new HANDLEByReference();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,</span>
+                            phToken)) {
+<span class="nc" id="L148">                        Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());</span>
+                        // get groups
+<span class="nc" id="L150">                        groupList.clear();</span>
+<span class="nc" id="L151">                        groupIDList.clear();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                        for (Account account : accounts) {</span>
+<span class="nc" id="L153">                            groupList.add(account.name);</span>
+<span class="nc" id="L154">                            groupIDList.add(account.sidString);</span>
+                        }
+<span class="nc" id="L156">                        proc.setGroup(String.join(&quot;,&quot;, groupList));</span>
+<span class="nc" id="L157">                        proc.setGroupID(String.join(&quot;,&quot;, groupIDList));</span>
+<span class="nc" id="L158">                    } else {</span>
+<span class="nc" id="L159">                        int error = Kernel32.INSTANCE.GetLastError();</span>
+                        // Access denied errors are common and will silently
+                        // fail
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                        if (error != ERROR_ACCESS_DENIED) {</span>
+<span class="nc" id="L163">                            LOG.error(&quot;Failed to get process token for process {}: {}&quot;, proc.getProcessID(),</span>
+<span class="nc" id="L164">                                    Kernel32.INSTANCE.GetLastError());</span>
+                        }
+                    }
+                }
+<span class="nc" id="L168">                Kernel32.INSTANCE.CloseHandle(pHandle);</span>
+            }
+<span class="nc bnc" id="L170" title="All 7 branches missed.">            switch (((Long) procs.get(&quot;ExecutionState&quot;).get(p)).intValue()) {</span>
+            case READY:
+            case SUSPENDED_READY:
+<span class="nc" id="L173">                proc.setState(OSProcess.State.SLEEPING);</span>
+<span class="nc" id="L174">                break;</span>
+            case BLOCKED:
+            case SUSPENDED_BLOCKED:
+<span class="nc" id="L177">                proc.setState(OSProcess.State.WAITING);</span>
+<span class="nc" id="L178">                break;</span>
+            case RUNNING:
+<span class="nc" id="L180">                proc.setState(OSProcess.State.RUNNING);</span>
+<span class="nc" id="L181">                break;</span>
+            case GROWING:
+<span class="nc" id="L183">                proc.setState(OSProcess.State.NEW);</span>
+<span class="nc" id="L184">                break;</span>
+            case TERMINATED:
+<span class="nc" id="L186">                proc.setState(OSProcess.State.ZOMBIE);</span>
+<span class="nc" id="L187">                break;</span>
+            case STOPPED:
+<span class="nc" id="L189">                proc.setState(OSProcess.State.STOPPED);</span>
+<span class="nc" id="L190">                break;</span>
+            case UNKNOWN:
+            case OTHER:
+            default:
+<span class="nc" id="L194">                proc.setState(OSProcess.State.OTHER);</span>
+                break;
+            }
+<span class="nc" id="L197">            proc.setThreadCount(((Long) procs.get(&quot;ThreadCount&quot;).get(p)).intValue());</span>
+<span class="nc" id="L198">            proc.setPriority(((Long) procs.get(&quot;Priority&quot;).get(p)).intValue());</span>
+<span class="nc" id="L199">            proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get(&quot;VirtualSize&quot;).get(p), 0L));</span>
+<span class="nc" id="L200">            proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get(&quot;WorkingSetSize&quot;).get(p), 0L));</span>
+            // Kernel and User time units are 100ns
+<span class="nc" id="L202">            proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get(&quot;KernelModeTime&quot;).get(p), 0L) / 10000L);</span>
+<span class="nc" id="L203">            proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get(&quot;UserModeTime&quot;).get(p), 0L) / 10000L);</span>
+<span class="nc" id="L204">            proc.setStartTime((Long) procs.get(&quot;CreationDate&quot;).get(p));</span>
+<span class="nc" id="L205">            proc.setUpTime(now - proc.getStartTime());</span>
+<span class="nc" id="L206">            proc.setBytesRead((Long) procs.get(&quot;ReadTransferCount&quot;).get(p));</span>
+<span class="nc" id="L207">            proc.setBytesWritten((Long) procs.get(&quot;WriteTransferCount&quot;).get(p));</span>
+<span class="nc" id="L208">            procList.add(proc);</span>
         }
-
-<span class="nc" id="L109">        return procList;</span>
+<span class="nc" id="L210">        return procList;</span>
     }
 
     /**
@@ -114,7 +215,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L117">        return Kernel32.INSTANCE.GetCurrentProcessId();</span>
+<span class="nc" id="L218">        return Kernel32.INSTANCE.GetCurrentProcessId();</span>
     }
 
     /**
@@ -122,12 +223,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L125">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L127">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L128">            return 0;</span>
+<span class="nc" id="L226">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L228">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L229">            return 0;</span>
         }
-<span class="nc" id="L130">        return perfInfo.ProcessCount.intValue();</span>
+<span class="nc" id="L231">        return perfInfo.ProcessCount.intValue();</span>
     }
 
     /**
@@ -135,12 +236,47 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L138">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L140">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L141">            return 0;</span>
+<span class="nc" id="L239">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L241">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L242">            return 0;</span>
         }
-<span class="nc" id="L143">        return perfInfo.ThreadCount.intValue();</span>
+<span class="nc" id="L244">        return perfInfo.ThreadCount.intValue();</span>
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NetworkParams getNetworkParams() {
+<span class="nc" id="L252">        return new WindowsNetworkParams();</span>
+    }
+
+    /**
+     * Enables debug privileges for this process, required for OpenProcess() to
+     * get processes other than the current user
+     */
+    private static void enableDebugPrivilege() {
+<span class="nc" id="L260">        HANDLEByReference hToken = new HANDLEByReference();</span>
+<span class="nc" id="L261">        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),</span>
+                WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L264">            LOG.error(&quot;OpenProcessToken failed. Error: {}&quot; + Native.getLastError());</span>
+<span class="nc" id="L265">            return;</span>
+        }
+<span class="nc" id="L267">        WinNT.LUID luid = new WinNT.LUID();</span>
+<span class="nc" id="L268">        success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L270">            LOG.error(&quot;LookupprivilegeValue failed. Error: {}&quot; + Native.getLastError());</span>
+<span class="nc" id="L271">            return;</span>
+        }
+<span class="nc" id="L273">        WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);</span>
+<span class="nc" id="L274">        tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));</span>
+<span class="nc" id="L275">        success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L277">            LOG.error(&quot;AdjustTokenPrivileges failed. Error: {}&quot; + Native.getLastError());</span>
+        }
+<span class="nc" id="L279">        Kernel32.INSTANCE.CloseHandle(hToken.getValue());</span>
+<span class="nc" id="L280">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

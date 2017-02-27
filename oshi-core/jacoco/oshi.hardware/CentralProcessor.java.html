@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CentralProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">CentralProcessor.java</span></div><h1>CentralProcessor.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware;
 
@@ -129,6 +129,29 @@ public interface CentralProcessor extends Serializable {
      *            Frequency.
      */
     void setVendorFreq(long freq);
+
+    /**
+     * Gets the Processor ID. This is a hexidecimal string representing an
+     * 8-byte value, normally obtained using the CPUID opcode with the EAX
+     * register set to 1. The first four bytes are the resulting contents of the
+     * EAX register, which is the Processor signature, represented in
+     * human-readable form by {@link #getIdentifier()} . The remaining four
+     * bytes are the contents of the EDX register, containing feature flags.
+     * 
+     * NOTE: The order of returned bytes is platform and software dependent.
+     * Values may be in either Big Endian or Little Endian order.
+     * 
+     * @return A string representing the Processor ID
+     */
+    String getProcessorID();
+
+    /**
+     * Set processor ID
+     * 
+     * @param processorID
+     *            The processor ID
+     */
+    void setProcessorID(String processorID);
 
     /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
@@ -342,7 +365,10 @@ public interface CentralProcessor extends Serializable {
      *
      * @return the System/CPU Serial Number, if available, otherwise returns
      *         &quot;unknown&quot;
+     * 
+     * @deprecated use {@link ComputerSystem#getSerialNumber()} instead.
      */
+    @Deprecated
     String getSystemSerialNumber();
 
     /**

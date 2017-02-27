@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WindowsComputerSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsComputerSystem.java</span></div><h1>WindowsComputerSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
 
@@ -53,17 +53,24 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 <span class="nc" id="L53">            setModel(models.get(0));</span>
         }
 
-<span class="nc" id="L56">        final Map&lt;String, List&lt;String&gt;&gt; win32BIOS = WmiUtil.selectStringsFrom(null, &quot;Win32_BIOS&quot;, &quot;SerialNumber&quot;,</span>
-                &quot;where PrimaryBIOS=true&quot;);
+<span class="nc" id="L56">        setSerialNumber(getSystemSerialNumber());</span>
 
-<span class="nc" id="L59">        final List&lt;String&gt; serialNumbers = win32BIOS.get(&quot;SerialNumber&quot;);</span>
-<span class="nc bnc" id="L60" title="All 4 branches missed.">        if (serialNumbers != null &amp;&amp; !serialNumbers.isEmpty()) {</span>
-<span class="nc" id="L61">            setSerialNumber(serialNumbers.get(0));</span>
+<span class="nc" id="L58">        setFirmware(new WindowsFirmware());</span>
+
+<span class="nc" id="L60">        setBaseboard(new WindowsBaseboard());</span>
+<span class="nc" id="L61">    }</span>
+
+    private String getSystemSerialNumber() {
+        // This should always work
+<span class="nc" id="L65">        String serialNumber = WmiUtil.selectStringFrom(null, &quot;Win32_BIOS&quot;, &quot;SerialNumber&quot;, &quot;where PrimaryBIOS=true&quot;);</span>
+        // If the above doesn't work, this might
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (&quot;&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L68">            serialNumber = WmiUtil.selectStringFrom(null, &quot;Win32_Csproduct&quot;, &quot;IdentifyingNumber&quot;, null);</span>
         }
-
-<span class="nc" id="L64">        setFirmware(new WindowsFirmware());</span>
-
-<span class="nc" id="L66">        setBaseboard(new WindowsBaseboard());</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (&quot;&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L71">            serialNumber = &quot;unknown&quot;;</span>
+        }
+<span class="nc" id="L73">        return serialNumber;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WindowsNetworks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsNetworks.java</span></div><h1>WindowsNetworks.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
 
@@ -22,20 +22,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.WinDef.ULONG;
+import com.sun.jna.platform.win32.WinNT.OSVERSIONINFO;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
+import oshi.jna.platform.windows.Kernel32;
 
 /**
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L34">public class WindowsNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L37">public class WindowsNetworks extends AbstractNetworks {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+
+    // Save Windows version info for 32 bit/64 bit branch later
+    private static final byte majorVersion;
+    static {
+<span class="nc" id="L46">        OSVERSIONINFO lpVersionInfo = new OSVERSIONINFO();</span>
+        // GetVersionEx() isn't accurate for Win8+ but is sufficient for
+        // detecting versions 5.x and earlier
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetVersionEx(lpVersionInfo)) {</span>
+<span class="nc" id="L50">            majorVersion = lpVersionInfo.dwMajorVersion.byteValue();</span>
+        } else {
+<span class="nc" id="L52">            majorVersion = 0;</span>
+        }
+<span class="nc" id="L54">    }</span>
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -45,23 +61,43 @@ import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        // Create new MIB_IFROW2 and set index to this interface index
-<span class="nc" id="L49">        MIB_IFROW2 ifRow = new MIB_IFROW2();</span>
-<span class="nc" id="L50">        ifRow.InterfaceIndex = new ULONG(netIF.getNetworkInterface().getIndex());</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
-            // Error, abort
-<span class="nc" id="L53">            LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
-<span class="nc" id="L54">                    netIF.getName());</span>
-<span class="nc" id="L55">            return;</span>
+        // MIB_IFROW2 requires Vista (6.0) or later.
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (majorVersion &gt;= 6) {</span>
+            // Create new MIB_IFROW2 and set index to this interface index
+<span class="nc" id="L67">            MIB_IFROW2 ifRow = new MIB_IFROW2();</span>
+<span class="nc" id="L68">            ifRow.InterfaceIndex = new ULONG(netIF.getNetworkInterface().getIndex());</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
+                // Error, abort
+<span class="nc" id="L71">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L72">                        netIF.getName());</span>
+<span class="nc" id="L73">                return;</span>
+            }
+<span class="nc" id="L75">            netIF.setBytesSent(ifRow.OutOctets);</span>
+<span class="nc" id="L76">            netIF.setBytesRecv(ifRow.InOctets);</span>
+<span class="nc" id="L77">            netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
+<span class="nc" id="L78">            netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
+<span class="nc" id="L79">            netIF.setOutErrors(ifRow.OutErrors);</span>
+<span class="nc" id="L80">            netIF.setInErrors(ifRow.InErrors);</span>
+<span class="nc" id="L81">            netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
+<span class="nc" id="L82">        } else {</span>
+            // Create new MIB_IFROW and set index to this interface index
+<span class="nc" id="L84">            MIB_IFROW ifRow = new MIB_IFROW();</span>
+<span class="nc" id="L85">            ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+                // Error, abort
+<span class="nc" id="L88">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L89">                        netIF.getName());</span>
+<span class="nc" id="L90">                return;</span>
+            }
+<span class="nc" id="L92">            netIF.setBytesSent(ifRow.dwOutOctets);</span>
+<span class="nc" id="L93">            netIF.setBytesRecv(ifRow.dwInOctets);</span>
+<span class="nc" id="L94">            netIF.setPacketsSent(ifRow.dwOutUcastPkts);</span>
+<span class="nc" id="L95">            netIF.setPacketsRecv(ifRow.dwInUcastPkts);</span>
+<span class="nc" id="L96">            netIF.setOutErrors(ifRow.dwOutErrors);</span>
+<span class="nc" id="L97">            netIF.setInErrors(ifRow.dwInErrors);</span>
+<span class="nc" id="L98">            netIF.setSpeed(ifRow.dwSpeed);</span>
         }
-<span class="nc" id="L57">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L58">        netIF.setBytesSent(ifRow.OutOctets);</span>
-<span class="nc" id="L59">        netIF.setBytesRecv(ifRow.InOctets);</span>
-<span class="nc" id="L60">        netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
-<span class="nc" id="L61">        netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
-<span class="nc" id="L62">        netIF.setOutErrors(ifRow.OutErrors);</span>
-<span class="nc" id="L63">        netIF.setInErrors(ifRow.InErrors);</span>
-<span class="nc" id="L64">        netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L100">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L101">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
