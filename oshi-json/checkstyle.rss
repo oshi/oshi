@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi/oshi-json</link>
     <description>oshi-json - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2016 oshi</copyright>
+    <copyright>&#169;2010 - 2017 oshi</copyright>
     <item>
-      <title>File: 45,
-             Errors: 808,
+      <title>File: 46,
+             Errors: 915,
              Warnings: 0,
              Infos: 0
       </title>
@@ -256,6 +256,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.NetworkParams.java">oshi/json/software/os/NetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.UsbDevice.java">oshi/json/hardware/UsbDevice.java</a>
                 </td>
                 <td>
@@ -377,7 +391,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  37
                 </td>
               </tr>
                           <tr>
@@ -392,20 +406,6 @@ under the License.
                 </td>
                 <td>
                   9
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.impl.OSProcessImpl.java">oshi/json/software/os/impl/OSProcessImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  41
                 </td>
               </tr>
                           <tr>
@@ -447,7 +447,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  7
                 </td>
               </tr>
                           <tr>
@@ -517,7 +517,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  112
                 </td>
               </tr>
                           <tr>
@@ -587,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  77
+                  81
                 </td>
               </tr>
                           <tr>
@@ -602,6 +602,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.impl.NetworkParamsImpl.java">oshi/json/software/os/impl/NetworkParamsImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  23
                 </td>
               </tr>
                           <tr>

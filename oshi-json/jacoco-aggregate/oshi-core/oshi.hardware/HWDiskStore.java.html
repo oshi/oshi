@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>HWDiskStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">HWDiskStore.java</span></div><h1>HWDiskStore.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/dblock/oshi)
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2016 The Oshi Project Team
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  * enrico.bianchi[at]gmail[dot]com
  *
  * Contributors:
- * https://github.com/dblock/oshi/graphs/contributors
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware;
 
@@ -177,7 +177,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the name to set
      */
     public void setName(String name) {
-<span class="fc" id="L180">        this.name = name;</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">        this.name = name == null ? &quot;&quot; : name;</span>
 <span class="fc" id="L181">    }</span>
 
     /**
@@ -185,7 +185,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the model to set
      */
     public void setModel(String model) {
-<span class="fc" id="L188">        this.model = model;</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">        this.model = model == null ? &quot;&quot; : model;</span>
 <span class="fc" id="L189">    }</span>
 
     /**
@@ -193,7 +193,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="fc" id="L196">        this.serial = serial;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        this.serial = serial == null ? &quot;&quot; : serial;</span>
 <span class="fc" id="L197">    }</span>
 
     /**
@@ -299,26 +299,26 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
 <span class="fc" id="L299">            return false;</span>
         }
 <span class="fc" id="L301">        HWDiskStore other = (HWDiskStore) obj;</span>
-<span class="fc bfc" id="L302" title="All 2 branches covered.">        if (this.model == null) {</span>
-<span class="pc bpc" id="L303" title="1 of 2 branches missed.">            if (other.model != null) {</span>
-<span class="fc" id="L304">                return false;</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">            if (other.model != null) {</span>
+<span class="nc" id="L304">                return false;</span>
             }
 <span class="fc bfc" id="L306" title="All 2 branches covered.">        } else if (!this.model.equals(other.model)) {</span>
 <span class="fc" id="L307">            return false;</span>
         }
-<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (this.name == null) {</span>
-<span class="pc bpc" id="L310" title="1 of 2 branches missed.">            if (other.name != null) {</span>
-<span class="fc" id="L311">                return false;</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            if (other.name != null) {</span>
+<span class="nc" id="L311">                return false;</span>
             }
 <span class="fc bfc" id="L313" title="All 2 branches covered.">        } else if (!this.name.equals(other.name)) {</span>
 <span class="fc" id="L314">            return false;</span>
         }
-<span class="fc bfc" id="L316" title="All 2 branches covered.">        if (!Arrays.equals(this.partitions, other.partitions)) {</span>
-<span class="fc" id="L317">            return false;</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">        if (!Arrays.equals(this.partitions, other.partitions)) {</span>
+<span class="nc" id="L317">            return false;</span>
         }
-<span class="fc bfc" id="L319" title="All 2 branches covered.">        if (this.serial == null) {</span>
-<span class="pc bpc" id="L320" title="1 of 2 branches missed.">            if (other.serial != null) {</span>
-<span class="fc" id="L321">                return false;</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        if (this.serial == null) {</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">            if (other.serial != null) {</span>
+<span class="nc" id="L321">                return false;</span>
             }
 <span class="fc bfc" id="L323" title="All 2 branches covered.">        } else if (!this.serial.equals(other.serial)) {</span>
 <span class="fc" id="L324">            return false;</span>

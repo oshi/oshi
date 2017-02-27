@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OSProcess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.software.os</a> &gt; <span class="el_source">OSProcess.java</span></div><h1>OSProcess.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.json.software.os;
+
+import java.util.Properties;
+
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import oshi.json.json.AbstractOshiJsonObject;
+import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.json.OshiJsonObject;
+import oshi.json.util.PropertiesUtil;
+import oshi.software.os.OSProcess.State;
+import oshi.software.os.OperatingSystem;
+
+/**
+ * A process is an instance of a computer program that is being executed. It
+ * contains the program code and its current activity. Depending on the
+ * operating system (OS), a process may be made up of multiple threads of
+ * execution that execute instructions concurrently.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject {
+    private static final long serialVersionUID = 3L;
+
+<span class="fc" id="L46">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+    private oshi.software.os.OSProcess osProcess;
+
+    /**
+     * Creates a new OSProcess object
+     */
+<span class="fc" id="L53">    public OSProcess() {</span>
+<span class="fc" id="L54">        this.osProcess = new oshi.software.os.OSProcess();</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Creates a new OSProcess object wrapping the provided argument
+     *
+     * @param osProcess
+     *            an OSProcessor object
+     */
+<span class="fc" id="L63">    public OSProcess(oshi.software.os.OSProcess osProcess) {</span>
+<span class="fc" id="L64">        this.osProcess = osProcess;</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * @return Returns the name of the process.
+     */
+    public String getName() {
+<span class="fc" id="L71">        return this.osProcess.getName();</span>
+    }
+
+    /**
+     * @return Returns the full path of the executing process.
+     */
+    public String getPath() {
+<span class="fc" id="L78">        return this.osProcess.getPath();</span>
+    }
+
+    /**
+     * @return Returns the process command line. The format of this string is
+     *         platform-dependent and may require the end user to parse the
+     *         result.
+     * 
+     *         On Linux and macOS systems, the string is
+     *         null-character-delimited, to permit the end user to parse the
+     *         executable and arguments if desired. Further, the macOS variant
+     *         may include environment variables which the end user may wish to
+     *         exclude from display. On Solaris, the string is truncated to 80
+     *         characters.
+     */
+    public String getCommandLine() {
+<span class="fc" id="L94">        return this.osProcess.getCommandLine();</span>
+    }
+
+    /**
+     * @return Returns the user name. On Windows systems, also returns the
+     *         domain prepended to the username.
+     */
+    public String getUser() {
+<span class="fc" id="L102">        return this.osProcess.getUser();</span>
+    }
+
+    /**
+     * @return Returns the userID. On Windows systems, returns the Security ID
+     *         (SID)
+     */
+    public String getUserID() {
+<span class="fc" id="L110">        return this.osProcess.getUserID();</span>
+    }
+
+    /**
+     * @return Returns the group.
+     * 
+     *         On Windows systems, populating this value for processes other
+     *         than the current user requires administrative privileges (and
+     *         still may fail for some system processes) and can incur
+     *         significant latency. The value is only calculated for single
+     *         process queries using {@link OperatingSystem#getProcess(int)}.
+     *         When successful, returns a comma-delimited list of groups with
+     *         access to this process, corresponding to the SIDs in
+     *         {@link #getGroupID()}.
+     */
+    public String getGroup() {
+<span class="fc" id="L126">        return this.osProcess.getGroup();</span>
+    }
+
+    /**
+     * @return Returns the groupID. On Windows systems, returns a
+     *         comma-delimited list of group SIDs with access to this process,
+     *         corresponding to the names in {@link #getGroup()}.
+     */
+    public String getGroupID() {
+<span class="fc" id="L135">        return this.osProcess.getGroupID();</span>
+    }
+
+    /**
+     * @return Returns the execution state of the process.
+     */
+    public State getState() {
+<span class="fc" id="L142">        return this.osProcess.getState();</span>
+    }
+
+    /**
+     * @return Returns the processID.
+     */
+    public int getProcessID() {
+<span class="fc" id="L149">        return this.osProcess.getProcessID();</span>
+    }
+
+    /**
+     * @return Returns the parentProcessID, if any; 0 otherwise.
+     */
+    public int getParentProcessID() {
+<span class="fc" id="L156">        return this.osProcess.getParentProcessID();</span>
+    }
+
+    /**
+     * @return Returns the number of threads in this process.
+     */
+    public int getThreadCount() {
+<span class="fc" id="L163">        return this.osProcess.getThreadCount();</span>
+    }
+
+    /**
+     * @return Returns the priority of this process.
+     *
+     *         For Linux and Unix, priority is a value in the range -20 to 19
+     *         (20 on some systems). The default priority is 0; lower priorities
+     *         cause more favorable scheduling.
+     *
+     *         For Windows, priority values can range from 0 (lowest priority)
+     *         to 31 (highest priority).
+     *
+     *         Mac OS X has 128 priority levels, ranging from 0 (lowest
+     *         priority) to 127 (highest priority). They are divided into
+     *         several major bands: 0 through 51 are the normal levels; the
+     *         default priority is 31. 52 through 79 are the highest priority
+     *         regular threads; 80 through 95 are for kernel mode threads; and
+     *         96 through 127 correspond to real-time threads, which are treated
+     *         differently than other threads by the scheduler.
+     */
+    public int getPriority() {
+<span class="fc" id="L185">        return this.osProcess.getPriority();</span>
+    }
+
+    /**
+     * @return Returns the Virtual Memory Size (VSZ). It includes all memory
+     *         that the process can access, including memory that is swapped out
+     *         and memory that is from shared libraries.
+     */
+    public long getVirtualSize() {
+<span class="fc" id="L194">        return this.osProcess.getVirtualSize();</span>
+    }
+
+    /**
+     * @return Returns the Resident Set Size (RSS). It is used to show how much
+     *         memory is allocated to that process and is in RAM. It does not
+     *         include memory that is swapped out. It does include memory from
+     *         shared libraries as long as the pages from those libraries are
+     *         actually in memory. It does include all stack and heap memory.
+     */
+    public long getResidentSetSize() {
+<span class="fc" id="L205">        return this.osProcess.getResidentSetSize();</span>
+    }
+
+    /**
+     * @return Returns the number of milliseconds the process has executed in
+     *         kernel/system mode.
+     */
+    public long getKernelTime() {
+<span class="fc" id="L213">        return this.osProcess.getKernelTime();</span>
+    }
+
+    /**
+     * @return Returns the number of milliseconds the process has executed in
+     *         user mode.
+     */
+    public long getUserTime() {
+<span class="fc" id="L221">        return this.osProcess.getUserTime();</span>
+    }
+
+    /**
+     * @return Returns the number of milliseconds since the process started.
+     */
+    public long getUpTime() {
+<span class="fc" id="L228">        return this.osProcess.getUpTime();</span>
+    }
+
+    /**
+     * @return Returns the start time of the process in number of milliseconds
+     *         since January 1, 1970.
+     */
+    public long getStartTime() {
+<span class="fc" id="L236">        return this.osProcess.getStartTime();</span>
+    }
+
+    /**
+     * @return Returns the number of bytes the process has read from disk.
+     */
+    public long getBytesRead() {
+<span class="fc" id="L243">        return this.osProcess.getBytesRead();</span>
+    }
+
+    /**
+     * @return Returns the number of bytes the process has written to disk.
+     */
+    public long getBytesWritten() {
+<span class="fc" id="L250">        return this.osProcess.getBytesWritten();</span>
+    }
+
+    /**
+     * Set the name of the process.
+     * 
+     * @param name
+     *            process name
+     */
+    public void setName(String name) {
+<span class="fc" id="L260">        this.osProcess.setName(name);</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * Set the full path of the executing process.
+     * 
+     * @param path
+     *            process path
+     */
+    public void setPath(String path) {
+<span class="fc" id="L270">        this.osProcess.setPath(path);</span>
+<span class="fc" id="L271">    }</span>
+
+    /**
+     * Sets the process command line.
+     * 
+     * @param commandLine
+     *            The commandLine to set.
+     */
+    public void setCommandLine(String commandLine) {
+<span class="fc" id="L280">        this.osProcess.setCommandLine(commandLine);</span>
+<span class="fc" id="L281">    }</span>
+
+    /**
+     * Sets the user.
+     * 
+     * @param user
+     *            The user to set.
+     */
+    public void setUser(String user) {
+<span class="fc" id="L290">        this.osProcess.setUser(user);</span>
+<span class="fc" id="L291">    }</span>
+
+    /**
+     * Sets the User ID.
+     * 
+     * @param userID
+     *            The userID to set.
+     */
+    public void setUserID(String userID) {
+<span class="fc" id="L300">        this.osProcess.setUserID(userID);</span>
+<span class="fc" id="L301">    }</span>
+
+    /**
+     * Sets the group.
+     * 
+     * @param group
+     *            The group to set.
+     */
+    public void setGroup(String group) {
+<span class="fc" id="L310">        this.osProcess.setGroup(group);</span>
+<span class="fc" id="L311">    }</span>
+
+    /**
+     * Sets the Group ID.
+     * 
+     * @param groupID
+     *            The groupID to set.
+     */
+    public void setGroupID(String groupID) {
+<span class="fc" id="L320">        this.osProcess.setGroupID(groupID);</span>
+<span class="fc" id="L321">    }</span>
+
+    /**
+     * Set the execution state of the process.
+     * 
+     * @param state
+     *            execution state
+     */
+    public void setState(State state) {
+<span class="fc" id="L330">        this.osProcess.setState(state);</span>
+<span class="fc" id="L331">    }</span>
+
+    /**
+     * Set the processID.
+     * 
+     * @param processID
+     *            process ID
+     */
+    public void setProcessID(int processID) {
+<span class="fc" id="L340">        this.osProcess.setProcessID(processID);</span>
+<span class="fc" id="L341">    }</span>
+
+    /**
+     * Set the parentProcessID.
+     * 
+     * @param parentProcessID
+     *            parent process ID
+     */
+    public void setParentProcessID(int parentProcessID) {
+<span class="fc" id="L350">        this.osProcess.setParentProcessID(parentProcessID);</span>
+<span class="fc" id="L351">    }</span>
+
+    /**
+     * Set the number of threads in this process.
+     *
+     * @param threadCount
+     *            number of threads
+     */
+    public void setThreadCount(int threadCount) {
+<span class="fc" id="L360">        this.osProcess.setThreadCount(threadCount);</span>
+<span class="fc" id="L361">    }</span>
+
+    /**
+     * Set the priority of this process.
+     *
+     * For Linux, priority is a value in the range -20 to 19 (20 on some
+     * systems). The default priority is 0; lower priorities cause more
+     * favorable scheduling.
+     *
+     * For Windows, priority values can range from 0 (lowest priority) to 31
+     * (highest priority).
+     *
+     * Mac OS X has 128 priority levels, ranging from 0 (lowest priority) to 127
+     * (highest priority). They are divided into several major bands: 0 through
+     * 51 are the normal levels; the default priority is 31. 52 through 79 are
+     * the highest priority regular threads; 80 through 95 are for kernel mode
+     * threads; and 96 through 127 correspond to real-time threads, which are
+     * treated differently than other threads by the scheduler.
+     *
+     * @param priority
+     *            priority
+     */
+    public void setPriority(int priority) {
+<span class="fc" id="L384">        this.osProcess.setPriority(priority);</span>
+<span class="fc" id="L385">    }</span>
+
+    /**
+     * Set the Virtual Memory Size (VSZ). It includes all memory that the
+     * process can access, including memory that is swapped out and memory that
+     * is from shared libraries.
+     *
+     * @param virtualSize
+     *            virtual size
+     */
+    public void setVirtualSize(long virtualSize) {
+<span class="fc" id="L396">        this.osProcess.setVirtualSize(virtualSize);</span>
+<span class="fc" id="L397">    }</span>
+
+    /**
+     * Set the Resident Set Size (RSS). It is used to show how much memory is
+     * allocated to that process and is in RAM. It does not include memory that
+     * is swapped out. It does include memory from shared libraries as long as
+     * the pages from those libraries are actually in memory. It does include
+     * all stack and heap memory.
+     * 
+     * @param residentSetSize
+     *            resident set size
+     */
+    public void setResidentSetSize(long residentSetSize) {
+<span class="fc" id="L410">        this.osProcess.setResidentSetSize(residentSetSize);</span>
+<span class="fc" id="L411">    }</span>
+
+    /**
+     * Set the number of milliseconds the process has executed in kernel mode.
+     * 
+     * @param kernelTime
+     *            kernel time
+     */
+    public void setKernelTime(long kernelTime) {
+<span class="fc" id="L420">        this.osProcess.setKernelTime(kernelTime);</span>
+<span class="fc" id="L421">    }</span>
+
+    /**
+     * Set the number of milliseconds the process has executed in user mode.
+     * 
+     * @param userTime
+     *            user time
+     */
+    public void setUserTime(long userTime) {
+<span class="fc" id="L430">        this.osProcess.setUserTime(userTime);</span>
+<span class="fc" id="L431">    }</span>
+
+    /**
+     * Set the start time of the process in number of milliseconds since January
+     * 1, 1970.
+     * 
+     * @param startTime
+     *            start time
+     */
+    public void setStartTime(long startTime) {
+<span class="fc" id="L441">        this.osProcess.setStartTime(startTime);</span>
+<span class="fc" id="L442">    }</span>
+
+    /**
+     * Set the number of milliseconds since the process started.
+     * 
+     * @param upTime
+     *            up time
+     */
+    public void setUpTime(long upTime) {
+<span class="fc" id="L451">        this.osProcess.setUpTime(upTime);</span>
+<span class="fc" id="L452">    }</span>
+
+    /**
+     * Set the number of bytes the process has read from disk.
+     * 
+     * @param bytesRead
+     *            number of bytes read
+     */
+    public void setBytesRead(long bytesRead) {
+<span class="fc" id="L461">        this.osProcess.setBytesRead(bytesRead);</span>
+<span class="fc" id="L462">    }</span>
+
+    /**
+     * Set the number of bytes the process has written to disk.
+     * 
+     * @param bytesWritten
+     *            number of bytes written
+     */
+    public void setBytesWritten(long bytesWritten) {
+<span class="fc" id="L471">        this.osProcess.setBytesWritten(bytesWritten);</span>
+<span class="fc" id="L472">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON(Properties properties) {
+<span class="fc" id="L479">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L480" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
+<span class="fc" id="L481">            json.add(&quot;name&quot;, getName());</span>
+        }
+<span class="pc bpc" id="L483" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
+<span class="fc" id="L484">            json.add(&quot;path&quot;, getPath());</span>
+        }
+<span class="pc bpc" id="L486" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
+<span class="fc" id="L487">            json.add(&quot;commandLine&quot;, getPath());</span>
+        }
+<span class="pc bpc" id="L489" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
+<span class="fc" id="L490">            json.add(&quot;user&quot;, getUser());</span>
+        }
+<span class="pc bpc" id="L492" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userID&quot;)) {</span>
+<span class="fc" id="L493">            json.add(&quot;userID&quot;, getUserID());</span>
+        }
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.group&quot;)) {</span>
+<span class="fc" id="L496">            json.add(&quot;group&quot;, getGroup());</span>
+        }
+<span class="pc bpc" id="L498" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.groupID&quot;)) {</span>
+<span class="fc" id="L499">            json.add(&quot;groupID&quot;, getGroupID());</span>
+        }
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
+<span class="fc" id="L502">            json.add(&quot;state&quot;, getState().name());</span>
+        }
+<span class="pc bpc" id="L504" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
+<span class="fc" id="L505">            json.add(&quot;processID&quot;, getProcessID());</span>
+        }
+<span class="pc bpc" id="L507" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
+<span class="fc" id="L508">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
+        }
+<span class="pc bpc" id="L510" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
+<span class="fc" id="L511">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+        }
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
+<span class="fc" id="L514">            json.add(&quot;priority&quot;, getPriority());</span>
+        }
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
+<span class="fc" id="L517">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
+        }
+<span class="pc bpc" id="L519" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
+<span class="fc" id="L520">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
+        }
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
+<span class="fc" id="L523">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
+        }
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
+<span class="fc" id="L526">            json.add(&quot;userTime&quot;, getUserTime());</span>
+        }
+<span class="pc bpc" id="L528" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
+<span class="fc" id="L529">            json.add(&quot;upTime&quot;, getUpTime());</span>
+        }
+<span class="pc bpc" id="L531" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
+<span class="fc" id="L532">            json.add(&quot;startTime&quot;, getStartTime());</span>
+        }
+<span class="pc bpc" id="L534" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesRead&quot;)) {</span>
+<span class="fc" id="L535">            json.add(&quot;bytesRead&quot;, getBytesRead());</span>
+        }
+<span class="pc bpc" id="L537" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesWritten&quot;)) {</span>
+<span class="fc" id="L538">            json.add(&quot;bytesWritten&quot;, getBytesWritten());</span>
+        }
+<span class="fc" id="L540">        return json.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

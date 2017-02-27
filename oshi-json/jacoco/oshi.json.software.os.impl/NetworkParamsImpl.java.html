@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkParamsImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.software.os.impl</a> &gt; <span class="el_source">NetworkParamsImpl.java</span></div><h1>NetworkParamsImpl.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.json.software.os.impl;
+
+import java.util.Properties;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import oshi.json.json.AbstractOshiJsonObject;
+import oshi.json.json.NullAwareJsonObjectBuilder;
+import oshi.json.software.os.NetworkParams;
+import oshi.json.util.PropertiesUtil;
+
+public class NetworkParamsImpl extends AbstractOshiJsonObject implements NetworkParams {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L38">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+
+    private oshi.software.os.NetworkParams networkParams;
+
+    /**
+     * Creates a new platform-specific NetworkParams object wrapping the
+     * provided argument
+     *
+     * @param networkParams
+     *            a platform-specific NetworkParams object
+     */
+<span class="nc" id="L49">    public NetworkParamsImpl(oshi.software.os.NetworkParams networkParams) {</span>
+<span class="nc" id="L50">        this.networkParams = networkParams;</span>
+<span class="nc" id="L51">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getHostName() {
+<span class="nc" id="L58">        return this.networkParams.getHostName();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDomainName() {
+<span class="nc" id="L66">        return this.networkParams.getDomainName();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getDnsServers() {
+<span class="nc" id="L74">        return this.networkParams.getDnsServers();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIpv4DefaultGateway() {
+<span class="nc" id="L82">        return this.networkParams.getIpv4DefaultGateway();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIpv6DefaultGateway() {
+<span class="nc" id="L90">        return this.networkParams.getIpv6DefaultGateway();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON(Properties properties) {
+<span class="nc" id="L98">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams.hostName&quot;)) {</span>
+<span class="nc" id="L100">            json.add(&quot;hostName&quot;, getHostName());</span>
+        }
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams.domainName&quot;)) {</span>
+<span class="nc" id="L103">            json.add(&quot;domainName&quot;, getDomainName());</span>
+        }
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams.dnsServers&quot;)) {</span>
+<span class="nc" id="L106">            JsonArrayBuilder nameServerArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (String server : getDnsServers()) {</span>
+<span class="nc" id="L108">                nameServerArrayBuilder.add(server);</span>
+            }
+<span class="nc" id="L110">            json.add(&quot;dnsServers&quot;, nameServerArrayBuilder.build());</span>
+        }
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams.ipv4DefaultGateway&quot;)) {</span>
+<span class="nc" id="L113">            json.add(&quot;ipv4DefaultGateway&quot;, getIpv4DefaultGateway());</span>
+        }
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams.ipv6DefaultGateway&quot;)) {</span>
+<span class="nc" id="L116">            json.add(&quot;ipv6DefaultGateway&quot;, getIpv6DefaultGateway());</span>
+        }
+<span class="nc" id="L118">        return json.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
