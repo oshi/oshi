@@ -119,12 +119,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.22</version>
+			<version>1.7.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.22</version>
+			<version>1.7.23</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -203,7 +203,7 @@
 						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh</artifactId>
-							<version>2.10</version>
+							<version>2.12</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -221,7 +221,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.12</version>
+					<version>3.0.0</version>
 				</plugin>
 				<!-- Packaging types / tools -->
 				<plugin>
@@ -373,7 +373,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.8</version>
+					<version>0.7.9</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
@@ -495,7 +495,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>1.4.4.1</version>
+					<version>1.4.5</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
