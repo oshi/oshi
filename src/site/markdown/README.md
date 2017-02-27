@@ -1,6 +1,6 @@
 ![OSHI](https://dl.dropboxusercontent.com/u/41603526/oshilogo.png)
 
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.dblock/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|oshi-)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|oshi-)
 [![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=com.github.dblock:oshi-parent)](https://sonarqube.com/overview?id=com.github.dblock%3Aoshi-parent)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
@@ -52,8 +52,8 @@ Downloads
 ----------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.3&amp;e=jar)  | [oshi-core-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-core&amp;v=3.4-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.3&amp;e=jar)   | [oshi-json-3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.dblock&amp;a=oshi-json&amp;v=3.4-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.4.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.3&amp;e=jar)  | [oshi-core-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.4.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.3&amp;e=jar)   | [oshi-json-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -68,14 +68,20 @@ enables the same capabilities via decorator classes.
 See [oshi.json.properties](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
 for a sample properties configuration file to customize JSON results.
 
-General information about the operating system and processor.
+General information about the operating system and computer system.
 ```
-Microsoft Windows 7 (Home)
+Apple macOS 10.12.3 (Sierra) build 16D32
+manufacturer: Apple Inc.
+model: MacBook Pro (MacBookPro8,2)
+serialnumber: C02FG6XYDF71
+```
+Processor identification.
+```
 Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
  4 physical CPU(s)
  8 logical CPU(s)
 Identifier: Intel64 Family 6 Model 42 Stepping 7
-Serial Num: 09203-891-5001202-52183
+ProcessorID: BFEBFBFF000206A7
 ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Java MXBean and per-processor information is also provided.
@@ -163,6 +169,17 @@ USB Devices:
          |-- USB2.0 Hub
              |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
              |-- Fitbit Base Station (Fitbit Inc.)
+```
+
+You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html).
+
+```
+git clone https://github.com/oshi/oshi.git && cd oshi
+
+mvn test-compile -pl oshi-core -q exec:java \
+  -Dexec.mainClass="oshi.SystemInfoTest" \
+  -Dexec.classpathScope="test"
 ```
 
 
