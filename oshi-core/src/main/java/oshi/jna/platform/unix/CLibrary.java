@@ -252,7 +252,7 @@ public interface CLibrary extends Library {
      *
      * @param e
      *            Error code from getaddrinfo
-     * @return
+     * @return A human-readable version of the error code
      */
     String gai_strerror(int e);
 

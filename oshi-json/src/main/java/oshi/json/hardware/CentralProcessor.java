@@ -87,7 +87,7 @@ public interface CentralProcessor extends OshiJsonObject {
      * macOS return the values in Big-Endian order, while Linux and Unix results
      * are in Little-Endian order.
      *
-     * @return
+     * @return A string representing the Processor ID
      */
     String getProcessorID();
 

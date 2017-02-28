@@ -56,15 +56,5 @@
 			<artifactId>streamsupport</artifactId>
 			<version>1.5.3</version>
 		</dependency>
-		<dependency>
-			<groupId>org.threeten</groupId>
-			<artifactId>threetenbp</artifactId>
-			<version>1.3.3</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.streamsupport</groupId>
-			<artifactId>streamsupport</artifactId>
-			<version>1.5.3</version>
-		</dependency>
 	</dependencies>
 </project>
