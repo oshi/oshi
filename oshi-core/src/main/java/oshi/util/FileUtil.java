@@ -166,6 +166,9 @@ public class FileUtil {
      *
      * @param filename
      *            The file to read
+     * @param separator
+     *            Characters in each line of the file that separate the key and
+     *            the value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {

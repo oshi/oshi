@@ -539,9 +539,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * feature flags.
      *
      * @param stepping
+     *            The CPU stepping
      * @param model
+     *            The CPU model
      * @param family
+     *            The CPU family
      * @param flags
+     *            A space-delimited list of CPU feature flags
      * @return The Processor ID string
      */
     protected String createProcessorID(String stepping, String model, String family, String[] flags) {

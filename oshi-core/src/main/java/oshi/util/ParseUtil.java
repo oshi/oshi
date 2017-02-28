@@ -455,6 +455,8 @@ public class ParseUtil {
      *
      * @param line
      *            The entire string
+     * @param n
+     *            Which set of integers to return
      * @return the value of nth integer if any; 0 otherwise
      */
     public static int getNthIntValue(String line, int n) {
