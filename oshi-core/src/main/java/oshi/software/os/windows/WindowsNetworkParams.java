@@ -26,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.windows.WmiUtil;
@@ -46,6 +46,8 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0/0";
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
+    private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
+
     /**
      * {@inheritDoc}
      */
@@ -53,7 +55,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     public String getDomainName() {
         char[] buffer = new char[256];
         IntByReference bufferSize = new IntByReference(buffer.length);
-        if (!Kernel32.INSTANCE.GetComputerNameEx(Kernel32.ComputerNameDnsDomainFullyQualified, buffer, bufferSize)) {
+        if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {
             LOG.error("Failed to get dns domain name. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return "";
         }

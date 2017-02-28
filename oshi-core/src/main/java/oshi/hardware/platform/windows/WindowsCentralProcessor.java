@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
@@ -35,7 +36,6 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -153,11 +153,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
 
         // Units are in 100-ns, divide by 10000 for ms
-        // TODO: Change to lp*Time.toDWordLong.longValue() with JNA 4.3
-        ticks[TickType.IDLE.getIndex()] = WinBase.FILETIME.dateToFileTime(lpIdleTime.toDate()) / 10000L;
-        ticks[TickType.SYSTEM.getIndex()] = WinBase.FILETIME.dateToFileTime(lpKernelTime.toDate()) / 10000L
+        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
+        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
                 - ticks[TickType.IDLE.getIndex()];
-        ticks[TickType.USER.getIndex()] = WinBase.FILETIME.dateToFileTime(lpUserTime.toDate()) / 10000L;
+        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;
         // Additional decrement to avoid double counting in the total array
         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
@@ -231,7 +230,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (majorVersion >= 6) {
             return Kernel32.INSTANCE.GetTickCount64() / 1000L;
         } else {
-            // 32 bit rolls over at 47 days
+            // 32 bit rolls over at ~ 49 days
             return Kernel32.INSTANCE.GetTickCount() / 1000L;
         }
     }
