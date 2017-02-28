@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
 
-import oshi.jna.platform.windows.Kernel32;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
@@ -45,9 +45,11 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final int BUFSIZE = 255;
 
+    private static final int SEM_FAILCRITICALERRORS = 0x0001;
+
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
-        Kernel32.INSTANCE.SetErrorMode(Kernel32.SEM_FAILCRITICALERRORS);
+        Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
 
     /**

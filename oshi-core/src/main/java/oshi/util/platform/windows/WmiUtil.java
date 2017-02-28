@@ -530,16 +530,23 @@ public class WmiUtil {
 
                 ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
                 switch (propertyType) {
-                // WMI Longs will return as strings
                 case STRING:
                     values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
-                case UINT16: // uint16 == VT_I4
-                    // WMI Uint32s will return as longs
-                case UINT32: // WinDef.LONG TODO improve in JNA 4.3
+                // uint16 == VT_I4, a 32-bit number
+                case UINT16:
+                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.intValue());
+                    break;
+                // WMI Uint32s will return as longs
+                case UINT32:
+                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.longValue());
+                    break;
+                // WMI Longs will return as strings so we have the option of
+                // calling a string and parsing later, or calling UINT64 and
+                // letting this method do the parsing
                 case UINT64:
-                    values.get(property)
-                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.lVal.longValue());
+                    values.get(property).add(
+                            vtProp.getValue() == null ? 0L : ParseUtil.parseLongOrDefault(vtProp.stringValue(), 0L));
                     break;
                 case FLOAT:
                     values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
@@ -550,9 +557,8 @@ public class WmiUtil {
                     values.get(property)
                             .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
-                case BOOLEAN: // WinDef.BOOL TODO improve in JNA 4.3
-                    values.get(property)
-                            .add(vtProp.getValue() == null ? 0L : vtProp._variant.__variant.boolVal.booleanValue());
+                case BOOLEAN:
+                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.booleanValue());
                     break;
                 case PROCESS_GETOWNER:
                     // Win32_Process object GetOwner method
@@ -570,7 +576,7 @@ public class WmiUtil {
                     // added something to the enum without adding it here. Tsk.
                     throw new IllegalArgumentException("Unimplemented enum type: " + propertyType.toString());
                 }
-                OleAuto.INSTANCE.VariantClear(vtProp.getPointer());
+                OleAuto.INSTANCE.VariantClear(vtProp);
             }
 
             clsObj.Release();

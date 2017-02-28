@@ -32,7 +32,7 @@ public interface Udev extends Library {
 
     Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
 
-    class UdevHandle extends PointerType {
+    final class UdevHandle extends PointerType {
 
         public UdevHandle(Pointer address) {
             super(address);
@@ -54,7 +54,7 @@ public interface Udev extends Library {
         }
     }
 
-    class UdevEnumerate extends PointerType {
+    final class UdevEnumerate extends PointerType {
 
         public UdevEnumerate(Pointer address) {
             super(address);
@@ -65,7 +65,7 @@ public interface Udev extends Library {
         }
     }
 
-    class UdevListEntry extends PointerType {
+    final class UdevListEntry extends PointerType {
 
         public UdevListEntry(Pointer address) {
             super(address);

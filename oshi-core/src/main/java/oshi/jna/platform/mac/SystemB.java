@@ -391,7 +391,7 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "gr_name", "gr_passwd", "gr_gid", "gr_mem" });
         }
-    };
+    }
 
     /**
      * This function searches the password database for the given user uid,
@@ -413,8 +413,6 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
      * @return a Group structure matching that group
      */
     Group getgrgid(int gid);
-
-    int mach_task_self();
 
     /**
      * Search through the current processes
