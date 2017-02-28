@@ -20,8 +20,10 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -46,8 +48,8 @@ import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Statfs;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
@@ -63,8 +65,8 @@ public class MacDisks implements Disks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    private static final OshiHashMap<String, String> mountPointMap = new OshiHashMap<>();
-    private static final OshiHashMap<String, String> logicalVolumeMap = new OshiHashMap<>();
+    private static final Map<String, String> mountPointMap = new HashMap<>();
+    private static final Map<String, String> logicalVolumeMap = new HashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -338,7 +340,7 @@ public class MacDisks implements Disks {
                                     if (logicalVolumeMap.containsKey(partBsdName)) {
                                         mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
                                     } else {
-                                        mountPoint = mountPointMap.getValueOrDefault(partBsdName, "");
+                                        mountPoint = MapUtil.getOrDefault(mountPointMap, partBsdName, "");
                                     }
                                     partitions.add(new HWPartition(partBsdName, name, type,
                                             IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),

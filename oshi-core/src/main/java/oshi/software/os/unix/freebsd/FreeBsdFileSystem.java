@@ -21,12 +21,14 @@ package oshi.software.os.unix.freebsd;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -89,7 +91,7 @@ public class FreeBsdFileSystem implements FileSystem {
     @Override
     public OSFileStore[] getFileStores() {
         // Find any partition UUIDs and map them
-        OshiHashMap<String, String> uuidMap = new OshiHashMap<>();
+        Map<String, String> uuidMap = new HashMap<>();
         // Now grab dmssg output
         String device = "";
         for (String line : ExecutingCommand.runNative("geom part list")) {
@@ -148,7 +150,7 @@ public class FreeBsdFileSystem implements FileSystem {
                 description = "Mount Point";
             }
             // Match UUID
-            String uuid = uuidMap.getValueOrDefault(name, "");
+            String uuid = MapUtil.getOrDefault(uuidMap, name, "");
             OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }

@@ -19,6 +19,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -29,7 +30,7 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.Kernel32;
-import oshi.util.OshiHashMap;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
@@ -46,15 +47,15 @@ public class WindowsDisks implements Disks {
     /**
      * Maps to store read/write bytes per drive index
      */
-    private static OshiHashMap<String, Long> readMap = new OshiHashMap<>();
-    private static OshiHashMap<String, Long> readByteMap = new OshiHashMap<>();
-    private static OshiHashMap<String, Long> writeMap = new OshiHashMap<>();
-    private static OshiHashMap<String, Long> writeByteMap = new OshiHashMap<>();
-    private static OshiHashMap<String, Long> xferTimeMap = new OshiHashMap<>();
-    private static OshiHashMap<String, Long> timeStampMap = new OshiHashMap<>();
-    private static OshiHashMap<String, List<String>> driveToPartitionMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> partitionToLogicalDriveMap = new OshiHashMap<>();
-    private static OshiHashMap<String, HWPartition> partitionMap = new OshiHashMap<>();
+    private static Map<String, Long> readMap = new HashMap<>();
+    private static Map<String, Long> readByteMap = new HashMap<>();
+    private static Map<String, Long> writeMap = new HashMap<>();
+    private static Map<String, Long> writeByteMap = new HashMap<>();
+    private static Map<String, Long> xferTimeMap = new HashMap<>();
+    private static Map<String, Long> timeStampMap = new HashMap<>();
+    private static Map<String, List<String>> driveToPartitionMap = new HashMap<>();
+    private static Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
+    private static Map<String, HWPartition> partitionMap = new HashMap<>();
 
     private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
@@ -85,12 +86,12 @@ public class WindowsDisks implements Disks {
             // Most vendors store serial # as a hex string; convert
             ds.setSerial(ParseUtil.hexStringToString((String) vals.get("SerialNumber").get(i)));
             String index = vals.get("Index").get(i).toString();
-            ds.setReads(readMap.getValueOrDefault(index, 0L));
-            ds.setReadBytes(readByteMap.getValueOrDefault(index, 0L));
-            ds.setWrites(writeMap.getValueOrDefault(index, 0L));
-            ds.setWriteBytes(writeByteMap.getValueOrDefault(index, 0L));
-            ds.setTransferTime(xferTimeMap.getValueOrDefault(index, 0L));
-            ds.setTimeStamp(timeStampMap.getValueOrDefault(index, 0L));
+            ds.setReads(MapUtil.getOrDefault(readMap, index, 0L));
+            ds.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
+            ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
+            ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
+            ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
+            ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
             // If successful this line is the desired value
             ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get("Size").get(i), 0L));
             // Get partitions
@@ -150,7 +151,7 @@ public class WindowsDisks implements Disks {
             mAnt = DEVICE_ID.matcher(partitionQueryMap.get("Antecedent").get(i));
             mDep = DEVICE_ID.matcher(partitionQueryMap.get("Dependent").get(i));
             if (mAnt.matches() && mDep.matches()) {
-                driveToPartitionMap.computeValueIfAbsent(mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"),
+                MapUtil.computeIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"),
                         new Function<String, List<String>>() {
                             @Override
                             public List<String> apply(String k) {
@@ -176,7 +177,7 @@ public class WindowsDisks implements Disks {
                 "Name,Type,Description,DeviceID,Size,DiskIndex,Index", null, PARTITION_TYPES);
         for (int i = 0; i < hwPartitionQueryMap.get("Name").size(); i++) {
             String deviceID = (String) hwPartitionQueryMap.get("DeviceID").get(i);
-            String logicalDrive = partitionToLogicalDriveMap.getValueOrDefault(deviceID, "");
+            String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, "");
             String uuid = "";
             if (!logicalDrive.isEmpty()) {
                 // Get matching volume for UUID

@@ -21,15 +21,17 @@ package oshi.hardware.platform.unix.freebsd;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -45,9 +47,9 @@ public class FreeBsdDisks implements Disks {
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
     // Create map indexed by device name to populate data from multiple commands
-    private static final OshiHashMap<String, HWDiskStore> diskMap = new OshiHashMap<>();
+    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
     // Map of partitions to mount points
-    private static final OshiHashMap<String, String> mountMap = new OshiHashMap<>();
+    private static final Map<String, String> mountMap = new HashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -168,7 +170,7 @@ public class FreeBsdDisks implements Disks {
                     partition = new HWPartition();
                     partition.setIdentification(part);
                     partition.setName(part);
-                    partition.setMountPoint(mountMap.getValueOrDefault(part, ""));
+                    partition.setMountPoint(MapUtil.getOrDefault(mountMap, part, ""));
                 }
             }
             // If we don't have a valid store, don't bother parsing anything

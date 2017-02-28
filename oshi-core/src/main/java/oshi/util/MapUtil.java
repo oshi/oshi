@@ -18,7 +18,7 @@
  */
 package oshi.util;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import java8.util.function.Function;
 
@@ -27,14 +27,17 @@ import java8.util.function.Function;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class OshiHashMap<K, V> extends HashMap<K, V> {
+public class MapUtil {
 
-    private static final long serialVersionUID = 1L;
+    private MapUtil() {
+    }
 
     /**
      * Returns the value to which the specified key is mapped, or defaultValue
      * if this map contains no mapping for the key.
      * 
+     * @param map
+     *            the map to use
      * @param key
      *            the key whose associated value is to be returned
      * @param defaultValue
@@ -42,9 +45,9 @@ public class OshiHashMap<K, V> extends HashMap<K, V> {
      * @return the value to which the specified key is mapped, or defaultValue
      *         if this map contains no mapping for the key
      */
-    public V getValueOrDefault(K key, V defaultValue) {
-        synchronized (this) {
-            V value = this.get(key);
+    public static <K, V> V getOrDefault(Map<K, V> map, K key, V defaultValue) {
+        synchronized (map) {
+            V value = map.get(key);
             if (value != null) {
                 return value;
             }
@@ -57,6 +60,8 @@ public class OshiHashMap<K, V> extends HashMap<K, V> {
      * to null) associates it with the given value and returns null, else
      * returns the current value.
      * 
+     * @param map
+     *            the map to use
      * @param key
      *            key with which the specified value is to be associated
      * @param value
@@ -66,13 +71,13 @@ public class OshiHashMap<K, V> extends HashMap<K, V> {
      *         indicate that the map previously associated null with the key, if
      *         the implementation supports null values.)
      */
-    public V putValueIfAbsent(K key, V value) {
-        synchronized (this) {
-            V existingValue = this.get(key);
+    public static <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
+        synchronized (map) {
+            V existingValue = map.get(key);
             if (value != null) {
                 return existingValue;
             }
-            this.put(key, value);
+            map.put(key, value);
             return null;
         }
     }
@@ -82,6 +87,8 @@ public class OshiHashMap<K, V> extends HashMap<K, V> {
      * compute its value using the given mapping function and enters it into
      * this map unless null.
      * 
+     * @param map
+     *            the map to use
      * @param key
      *            key with which the specified value is to be associated
      * @param mappingFunction
@@ -89,15 +96,16 @@ public class OshiHashMap<K, V> extends HashMap<K, V> {
      * @return the current (existing or computed) value associated with the
      *         specified key, or null if the computed value is null
      */
-    public V computeValueIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
-        synchronized (this) {
-            V value = this.get(key);
+    public static <K, V> V computeIfAbsent(Map<K, V> map, K key,
+            Function<? super K, ? extends V> mappingFunction) {
+        synchronized (map) {
+            V value = map.get(key);
             if (value != null) {
                 return value;
             }
             value = mappingFunction.apply(key);
             if (value != null) {
-                this.put(key, value);
+                map.put(key, value);
             }
             return value;
         }

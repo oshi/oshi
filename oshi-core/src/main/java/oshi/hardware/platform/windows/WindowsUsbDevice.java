@@ -20,6 +20,7 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -40,7 +41,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.jna.platform.windows.Cfgmgr32;
-import oshi.util.OshiHashMap;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -56,10 +57,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using PNPDeviceID as the key
      */
-    private static OshiHashMap<String, String> nameMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> vendorMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> serialMap = new OshiHashMap<>();
-    private static OshiHashMap<String, List<String>> hubMap = new OshiHashMap<>();
+    private static Map<String, String> nameMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<>();
+    private static Map<String, String> serialMap = new HashMap<>();
+    private static Map<String, List<String>> hubMap = new HashMap<>();
 
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -238,14 +239,15 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             vendorId = m.group(1).toLowerCase();
             productId = m.group(2).toLowerCase();
         }
-        List<String> pnpDeviceIds = hubMap.getValueOrDefault(hubDeviceId, new ArrayList<String>());
+        List<String> pnpDeviceIds = MapUtil.getOrDefault(hubMap, hubDeviceId, new ArrayList<String>());
         List<WindowsUsbDevice> usbDevices = new ArrayList<>();
         for (String pnpDeviceId : pnpDeviceIds) {
             usbDevices.add(getDeviceAndChildren(pnpDeviceId, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new WindowsUsbDevice(nameMap.getValueOrDefault(hubDeviceId, vendorId + ":" + productId),
-                vendorMap.getValueOrDefault(hubDeviceId, ""), vendorId, productId, serialMap.getValueOrDefault(hubDeviceId, ""),
+        return new WindowsUsbDevice(MapUtil.getOrDefault(nameMap, hubDeviceId, vendorId + ":" + productId),
+                MapUtil.getOrDefault(vendorMap, hubDeviceId, ""), vendorId, productId,
+                MapUtil.getOrDefault(serialMap, hubDeviceId, ""),
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

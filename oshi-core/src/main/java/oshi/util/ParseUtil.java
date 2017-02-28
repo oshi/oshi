@@ -19,7 +19,9 @@
 package oshi.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,10 +80,10 @@ public class ParseUtil {
     private static final String THZ = "THz";
     private static final String PHZ = "PHz";
 
-    private static final OshiHashMap<String, Long> multipliers;
+    private static final Map<String, Long> multipliers;
 
     static {
-        multipliers = new OshiHashMap<>();
+        multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
         multipliers.put(KHZ, 1000L);
         multipliers.put(MHZ, 1000000L);
@@ -104,7 +106,8 @@ public class ParseUtil {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
             // Regexp enforces #(.#) format so no test for NFE required
-            Double value = Double.valueOf(matcher.group(1)) * multipliers.getValueOrDefault(matcher.group(3), -1L);
+            Double value = Double.valueOf(matcher.group(1))
+                    * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
             return value < 0d ? -1L : value.longValue();
         }
         return -1L;

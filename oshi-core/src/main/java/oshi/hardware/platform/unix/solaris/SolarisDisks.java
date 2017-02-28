@@ -19,7 +19,9 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import oshi.hardware.Disks;
@@ -27,8 +29,8 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
@@ -44,7 +46,7 @@ public class SolarisDisks implements Disks {
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
-        OshiHashMap<String, HWDiskStore> diskMap = new OshiHashMap<>();
+        Map<String, HWDiskStore> diskMap = new HashMap<>();
         // First, run iostat -er to enumerate disks by name. Sample output:
         // errors
         // device,s/w,h/w,trn,tot
@@ -54,7 +56,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with block device mount point for
         // later use in partition info
-        OshiHashMap<String, String> deviceMap = new OshiHashMap<>();
+        Map<String, String> deviceMap = new HashMap<>();
         // Also run iostat -ern to get the same list by mount point. Sample
         // output:
         // errors
@@ -84,7 +86,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with blick device mount point for
         // later use in partition info
-        OshiHashMap<String, Integer> majorMap = new OshiHashMap<>();
+        Map<String, Integer> majorMap = new HashMap<>();
         // Run lshal, if available, to get block device major (we'll use
         // partition # for minor)
         List<String> lshal = ExecutingCommand.runNative("lshal");
@@ -124,7 +126,7 @@ public class SolarisDisks implements Disks {
                     // update
                     if (!disk.isEmpty()) {
                         updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),
-                                majorMap.getValueOrDefault(disk, 0));
+                                MapUtil.getOrDefault(majorMap, disk, 0));
                     }
                     // Reset values for next iteration
                     disk = keyValue;
@@ -156,7 +158,7 @@ public class SolarisDisks implements Disks {
             // At end of output update last entry
             if (!disk.isEmpty()) {
                 updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),
-                        majorMap.getValueOrDefault(disk, 0));
+                        MapUtil.getOrDefault(majorMap, disk, 0));
             }
         }
 

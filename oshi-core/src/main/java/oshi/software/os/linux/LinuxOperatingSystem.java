@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,9 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -213,7 +214,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (size > 0) {
             path = buf.getString(0).substring(0, size);
         }
-        OshiHashMap<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
+        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         long now = System.currentTimeMillis();
         OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
@@ -250,8 +251,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
-        proc.setBytesRead(ParseUtil.parseLongOrDefault(io.getValueOrDefault("read_bytes", ""), 0L));
-        proc.setBytesWritten(ParseUtil.parseLongOrDefault(io.getValueOrDefault("write_bytes", ""), 0L));
+        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
+        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
         // The stat structure on Linux does not have consistent ordering or byte
         // size accross architectures so we are forced to use the stat command
         List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G /proc/" + pid);

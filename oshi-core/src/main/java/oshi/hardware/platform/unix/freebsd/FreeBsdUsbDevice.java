@@ -20,13 +20,15 @@ package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
@@ -36,13 +38,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-    private static OshiHashMap<String, String> nameMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> vendorMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> vendorIdMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> productIdMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> serialMap = new OshiHashMap<>();
-    private static OshiHashMap<String, String> parentMap = new OshiHashMap<>();
-    private static OshiHashMap<String, List<String>> hubMap = new OshiHashMap<>();
+    private static Map<String, String> nameMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<>();
+    private static Map<String, String> vendorIdMap = new HashMap<>();
+    private static Map<String, String> productIdMap = new HashMap<>();
+    private static Map<String, String> serialMap = new HashMap<>();
+    private static Map<String, String> parentMap = new HashMap<>();
+    private static Map<String, List<String>> hubMap = new HashMap<>();
 
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -126,7 +128,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 // Store parent for later usbus-skipping
                 parentMap.put(key, parent);
                 // Add this key to the parent's hubmap list
-                hubMap.computeValueIfAbsent(parent, new Function<String, List<String>>() {
+                MapUtil.computeIfAbsent(hubMap, parent, new Function<String, List<String>>() {
                     @Override
                     public List<String> apply(String k) {
                         return new ArrayList<>();
@@ -170,15 +172,15 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-        String vendorId = vendorIdMap.getValueOrDefault(devPath, vid);
-        String productId = productIdMap.getValueOrDefault(devPath, pid);
-        List<String> childPaths = hubMap.getValueOrDefault(devPath, new ArrayList<String>());
+        String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);
+        String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);
+        List<String> childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList<String>());
         List<FreeBsdUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new FreeBsdUsbDevice(nameMap.getValueOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
-                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new FreeBsdUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + ":" + productId), "",
+                vendorId, productId, "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
