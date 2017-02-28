@@ -41,6 +41,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.jna.platform.windows.Cfgmgr32;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -238,14 +239,15 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             vendorId = m.group(1).toLowerCase();
             productId = m.group(2).toLowerCase();
         }
-        List<String> pnpDeviceIds = hubMap.getOrDefault(hubDeviceId, new ArrayList<String>());
+        List<String> pnpDeviceIds = MapUtil.getOrDefault(hubMap, hubDeviceId, new ArrayList<String>());
         List<WindowsUsbDevice> usbDevices = new ArrayList<>();
         for (String pnpDeviceId : pnpDeviceIds) {
             usbDevices.add(getDeviceAndChildren(pnpDeviceId, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new WindowsUsbDevice(nameMap.getOrDefault(hubDeviceId, vendorId + ":" + productId),
-                vendorMap.getOrDefault(hubDeviceId, ""), vendorId, productId, serialMap.getOrDefault(hubDeviceId, ""),
+        return new WindowsUsbDevice(MapUtil.getOrDefault(nameMap, hubDeviceId, vendorId + ":" + productId),
+                MapUtil.getOrDefault(vendorMap, hubDeviceId, ""), vendorId, productId,
+                MapUtil.getOrDefault(serialMap, hubDeviceId, ""),
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

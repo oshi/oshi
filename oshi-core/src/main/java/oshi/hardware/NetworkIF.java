@@ -25,11 +25,11 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java8.util.StringJoiner;
 import oshi.SystemInfo;
 import oshi.hardware.platform.linux.LinuxNetworks;
 import oshi.hardware.platform.mac.MacNetworks;

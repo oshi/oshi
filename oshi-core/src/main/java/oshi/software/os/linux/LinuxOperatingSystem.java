@@ -19,8 +19,10 @@
 package oshi.software.os.linux;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -100,7 +103,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Get all the pid files (guaranteed to be digit-only filenames)
         File[] pids = ProcUtil.getPidFiles();
         // Sort descending "numerically"
-        Arrays.sort(pids, (f1, f2) -> Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName())));
+        Arrays.sort(pids, new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                return Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName()));
+            }
+        });
 
         // Iterate /proc/[pid]/stat checking the creation time (field 22,
         // jiffies since boot). Since we're working on descending PIDs, we
@@ -243,8 +251,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
-        proc.setBytesRead(ParseUtil.parseLongOrDefault(io.getOrDefault("read_bytes", ""), 0L));
-        proc.setBytesWritten(ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L));
+        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
+        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
         // The stat structure on Linux does not have consistent ordering or byte
         // size accross architectures so we are forced to use the stat command
         List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G /proc/" + pid);
@@ -524,9 +532,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Look for any /etc/*-release, *-version, and variants
         File etc = new File("/etc");
         // Find any *_input files in that path
-        File[] matchingFiles = etc.listFiles(f -> (f.getName().endsWith("-release") || f.getName().endsWith("-version")
-                || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
-                && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release")));
+        File[] matchingFiles = etc.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return (f.getName().endsWith("-release") || f.getName().endsWith("-version")
+                        || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
+                        && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release"));
+            }
+        });
         if (matchingFiles != null && matchingFiles.length > 0) {
             return matchingFiles[0].getPath();
         }

@@ -18,13 +18,14 @@
  */
 package oshi.json.hardware.impl;
 
-import java.time.LocalDate;
 import java.util.Properties;
 
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+
+import org.threeten.bp.LocalDate;
 
 import oshi.json.hardware.Firmware;
 import oshi.json.json.AbstractOshiJsonObject;

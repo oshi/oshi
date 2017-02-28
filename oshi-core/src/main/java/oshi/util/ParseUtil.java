@@ -18,10 +18,6 @@
  */
 package oshi.util;
 
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -31,6 +27,10 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * String parsing utility.
@@ -106,7 +106,8 @@ public class ParseUtil {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
             // Regexp enforces #(.#) format so no test for NFE required
-            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
+            Double value = Double.valueOf(matcher.group(1))
+                    * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
             return value < 0d ? -1L : value.longValue();
         }
         return -1L;

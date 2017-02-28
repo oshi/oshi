@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -152,7 +153,7 @@ public class LinuxFileSystem implements FileSystem {
                 name = "/";
             }
             String volume = split[0].replaceAll("\\\\040", " ");
-            String uuid = uuidMap.getOrDefault(split[0], "");
+            String uuid = MapUtil.getOrDefault(uuidMap, split[0], "");
             long totalSpace = new File(path).getTotalSpace();
             long usableSpace = new File(path).getUsableSpace();
 

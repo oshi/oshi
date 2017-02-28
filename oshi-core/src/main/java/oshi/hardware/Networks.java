@@ -20,6 +20,8 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
+import java8.lang.FunctionalInterface;
+
 /**
  * Networks refers to network interfaces installed in the machine.
  *

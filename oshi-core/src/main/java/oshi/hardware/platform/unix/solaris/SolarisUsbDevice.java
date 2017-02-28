@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 
 public class SolarisUsbDevice extends AbstractUsbDevice {
@@ -109,7 +111,13 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                 // Add as child to appropriate parent
                 if (depth > indent) {
                     // Has a parent. Get parent and add this node to child list
-                    hubMap.computeIfAbsent(lastParent.get(depth - indent), k -> new ArrayList<String>()).add(key);
+                    MapUtil.computeIfAbsent(hubMap, lastParent.get(depth - indent),
+                            new Function<String, List<String>>() {
+                                @Override
+                                public List<String> apply(String k) {
+                                    return new ArrayList<>();
+                                }
+                            }).add(key);
                 } else {
                     // No parent, add to controllers list
                     usbControllers.add(key);
@@ -127,7 +135,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             } else if (line.startsWith("name:")) {
                 // Name is backup for model if model doesn't exist, so only
                 // put if key doesn't yet exist
-                nameMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
+                MapUtil.putIfAbsent(nameMap, key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.startsWith("vendor-id:")) {
                 // Format: vendor-id: 00008086
                 if (line.length() > 4) {
@@ -141,7 +149,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             } else if (line.startsWith("device_type:")) {
                 // Name is backup for model if model doesn't exist, so only
                 // put if key doesn't yet exist
-                deviceTypeMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
+                MapUtil.putIfAbsent(deviceTypeMap, key, ParseUtil.getSingleQuoteStringValue(line));
             }
         }
 
@@ -149,7 +157,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controller : usbControllers) {
             // Only do controllers that are USB device type
-            if ("usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
+            if ("usb".equals(MapUtil.getOrDefault(deviceTypeMap, controller, ""))) {
                 controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
             }
         }
@@ -169,15 +177,15 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-        String productId = productIdMap.getOrDefault(devPath, pid);
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
+        String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);
+        String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);
+        List<String> childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList<String>());
         List<SolarisUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
-                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new SolarisUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + ":" + productId), "",
+                vendorId, productId, "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

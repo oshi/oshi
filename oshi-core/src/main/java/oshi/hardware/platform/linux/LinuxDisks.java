@@ -31,6 +31,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -110,7 +111,7 @@ public class LinuxDisks implements Disks {
                                     0),
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
-                            this.mountsMap.getOrDefault(name, ""));
+                            MapUtil.getOrDefault(mountsMap, name, ""));
                     store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);

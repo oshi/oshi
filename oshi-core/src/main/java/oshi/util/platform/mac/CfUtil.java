@@ -27,9 +27,11 @@ import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import java8.util.function.Function;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.util.MapUtil;
 
 /**
  * Provides utilities for Core Foundations
@@ -52,7 +54,12 @@ public class CfUtil {
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-        return cfStringMap.computeIfAbsent(key, CFStringRef::toCFString);
+        return MapUtil.computeIfAbsent(cfStringMap, key, new Function<String, CFStringRef>() {
+            @Override
+            public CFStringRef apply(String s) {
+                return CFStringRef.toCFString(s);
+            }
+        });
     }
 
     /**

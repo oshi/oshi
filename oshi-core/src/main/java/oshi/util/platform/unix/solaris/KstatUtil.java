@@ -86,11 +86,11 @@ public class KstatUtil {
         case LibKstat.KSTAT_DATA_INT32:
             return Integer.toString(data.value.i32);
         case LibKstat.KSTAT_DATA_UINT32:
-            return Integer.toUnsignedString(data.value.ui32);
+            return FormatUtil.toUnsignedString(data.value.ui32);
         case LibKstat.KSTAT_DATA_INT64:
             return Long.toString(data.value.i64);
         case LibKstat.KSTAT_DATA_UINT64:
-            return Long.toUnsignedString(data.value.ui64);
+            return FormatUtil.toUnsignedString(data.value.ui64);
         case LibKstat.KSTAT_DATA_STRING:
             return data.value.str.addr.getString(0);
         default:

@@ -20,6 +20,8 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
+import java8.lang.FunctionalInterface;
+
 /**
  * Disks refers to hard drives installed in the machine.
  *

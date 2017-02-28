@@ -41,6 +41,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
@@ -153,8 +154,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                             groupList.add(account.name);
                             groupIDList.add(account.sidString);
                         }
-                        proc.setGroup(String.join(",", groupList));
-                        proc.setGroupID(String.join(",", groupIDList));
+                        proc.setGroup(FormatUtil.join(",", groupList));
+                        proc.setGroupID(FormatUtil.join(",", groupIDList));
                     } else {
                         int error = Kernel32.INSTANCE.GetLastError();
                         // Access denied errors are common and will silently
