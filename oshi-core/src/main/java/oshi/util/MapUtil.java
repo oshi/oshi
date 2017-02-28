@@ -36,6 +36,10 @@ public class MapUtil {
      * Returns the value to which the specified key is mapped, or defaultValue
      * if this map contains no mapping for the key.
      * 
+     * @param <K>
+     *            The map key type
+     * @param <V>
+     *            The map value type
      * @param map
      *            the map to use
      * @param key
@@ -60,6 +64,10 @@ public class MapUtil {
      * to null) associates it with the given value and returns null, else
      * returns the current value.
      * 
+     * @param <K>
+     *            The map key type
+     * @param <V>
+     *            The map value type
      * @param map
      *            the map to use
      * @param key
@@ -74,7 +82,7 @@ public class MapUtil {
     public static <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
         synchronized (map) {
             V existingValue = map.get(key);
-            if (value != null) {
+            if (existingValue != null) {
                 return existingValue;
             }
             map.put(key, value);
@@ -87,6 +95,10 @@ public class MapUtil {
      * compute its value using the given mapping function and enters it into
      * this map unless null.
      * 
+     * @param <K>
+     *            The map key type
+     * @param <V>
+     *            The map value type
      * @param map
      *            the map to use
      * @param key
@@ -96,8 +108,7 @@ public class MapUtil {
      * @return the current (existing or computed) value associated with the
      *         specified key, or null if the computed value is null
      */
-    public static <K, V> V computeIfAbsent(Map<K, V> map, K key,
-            Function<? super K, ? extends V> mappingFunction) {
+    public static <K, V> V computeIfAbsent(Map<K, V> map, K key, Function<? super K, ? extends V> mappingFunction) {
         synchronized (map) {
             V value = map.get(key);
             if (value != null) {

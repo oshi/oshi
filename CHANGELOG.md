@@ -1,16 +1,17 @@
 3.5.0 (in progress)
 ================
+* [#327](https://github.com/dblock/oshi/pull/327): Restore Java 7 compatibility. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.4.0 (2/26/2017)
 ================
 * Switch groupId to com.github.oshi
 * [#294](https://github.com/oshi/oshi/pull/294), [#305](https://github.com/oshi/oshi/pull/305): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei), [@dbwiddis](https://github.com/dbwiddis).
-* [#295](https://github.com/oshi/oshi/pull/295): Make OSProcess (AbstractProcess.java) more easily extendable - [@michaeldesigaud](https://github.com/michaeldesigaud).
+* [#295](https://github.com/oshi/oshi/pull/295): Make OSProcess (AbstractProcess.java) more easily extendible - [@michaeldesigaud](https://github.com/michaeldesigaud).
 * [#307](https://github.com/dblock/oshi/pull/307): Deprecate CentralProcessor's getSystemSerialNumber method that duplicated ComputerSystem's getSerialNumber method. - [@dbwiddis](https://github.com/dbwiddis).
 * [#308](https://github.com/dblock/oshi/pull/308): Add getProcessorID to CentralProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#309](https://github.com/dblock/oshi/pull/309): Reduce C library duplication. - [@dbwiddis](https://github.com/dbwiddis).
-* [#317](https://github.com/dblock/oshi/pull/317): Add user/uid, group/gid, and command line to OSProcess . - [@dbwiddis](https://github.com/dbwiddis).
+* [#317](https://github.com/dblock/oshi/pull/317): Add user/uid, group/gid, and command line to OSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.3 (12/31/2016)
 ================

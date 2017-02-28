@@ -20,12 +20,12 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-Beginning with version 2.5, OSHI uses Java 8.  The 2.6-m-java7 version (using a dependency to the threeten.org backport) is the last Java 7 version.  A user has forked an earlier version of the project to [Java 6](https://github.com/kaweesi/oshi).  
+Beginning with version 2.5, OSHI uses Java 8.  The 2.6-m-java7 version (using a dependency to the threeten.org backport) is the last released Java 7 version, however, support for Java 7 is planned with version 3.5.0.  A user has forked an earlier version of the project to [Java 6](https://github.com/kaweesi/oshi).  
 
 Which operating systems are supported?
 ========
 OSHI has been implemented and tested on the following systems.  Some features may work on earlier versions.
-* Windows 7 and higher. 
+* Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
 * Mac OS X version 10.6 (Snow Leopard) and higher
 * Linux (Most major distributions) Kernel 2.6 and higher
 * Unix: Solaris 11 (SunOS 5.11) / FreeBSD 10

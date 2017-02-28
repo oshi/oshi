@@ -20,7 +20,6 @@ package oshi.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
+
+import java8.util.StringJoiner;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -284,28 +285,46 @@ public class FormatUtil {
     }
 
     /**
-     * Returns a new String composed of copies of the Collection of elements'
-     * string representations joined together with a copy of the specified
-     * delimiter.
+     * Returns a new String composed of copies of the CharSequence elements
+     * joined together with a copy of the specified delimiter.
      * 
-     * This is a Java 7 implementation of Java 8's String.join generalized for a
-     * collection of objects
+     * This is a Java 7 implementation of Java 8's String.join
      * 
      * @param delimeter
+     *            the delimiter that separates each element
+     * @param elements
+     *            the elements to join together.
+     * @return a new String that is composed of the elements separated by the
+     *         delimiter
+     */
+    public static String join(CharSequence delimiter, CharSequence... elements) {
+        StringJoiner joiner = new StringJoiner(delimiter);
+        for (CharSequence cs : elements) {
+            joiner.add(cs);
+        }
+        return joiner.toString();
+    }
+
+    /**
+     * Returns a new String composed of copies of the CharSequence elements
+     * joined together with a copy of the specified delimiter.
+     * 
+     * This is a Java 7 implementation of Java 8's String.join
+     * 
+     * @param delimiter
      *            a sequence of characters that is used to separate each of the
      *            elements in the resulting String
      * @param elements
-     *            a collection that will have its elements' string
-     *            representations joined together.
+     *            an Iterable that will have its elements joined together.
      * @return a new String that is composed from the elements argument
      */
-    public static String join(CharSequence delimeter, Collection<?> elements) {
+    public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements) {
         StringBuilder sb = new StringBuilder();
         Iterator<?> iter = elements.iterator();
         if (iter.hasNext())
             sb.append(iter.next().toString());
         while (iter.hasNext()) {
-            sb.append(delimeter);
+            sb.append(delimiter);
             sb.append(iter.next().toString());
         }
         return sb.toString();

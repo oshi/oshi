@@ -4,7 +4,7 @@ script: mvn test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+  - if [ "$AFTER_SUCCESS" == "jacoco" ]; then
       mvn clean test jacoco:report coveralls:report;
       mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=df16219a00545aae71f880423a6f23191330744f;
     fi
@@ -28,5 +28,12 @@ matrix:
   include:
     - os: linux
       jdk: oraclejdk8
+      env: AFTER_SUCCESS="jacoco"
+    - os: linux
+      jdk: oraclejdk7
+    - os: linux
+      jdk: openjdk7
     - os: osx
       osx_image: xcode8
+    - os: osx
+      env: JAVA_HOME=$(/usr/libexec/java_home)
