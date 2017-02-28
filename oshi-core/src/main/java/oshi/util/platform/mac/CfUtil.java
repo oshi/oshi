@@ -28,7 +28,7 @@ import java8.util.function.Function;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 
 /**
  * Provides utilities for Core Foundations
@@ -41,7 +41,7 @@ public class CfUtil {
     /**
      * Cache cfStrings
      */
-    private static DefaultHashMap<String, CFStringRef> cfStringMap = new DefaultHashMap<>();
+    private static OshiHashMap<String, CFStringRef> cfStringMap = new OshiHashMap<>();
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -51,7 +51,7 @@ public class CfUtil {
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-        return cfStringMap.computeIfAbsent(key, new Function<String, CFStringRef>() {
+        return cfStringMap.computeValueIfAbsent(key, new Function<String, CFStringRef>() {
             @Override
             public CFStringRef apply(String s) {
                 return CFStringRef.toCFString(s);

@@ -30,7 +30,7 @@ import oshi.jna.platform.linux.Udev;
 import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
@@ -39,12 +39,12 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using device node path as the key
      */
-    private static DefaultHashMap<String, String> nameMap = new DefaultHashMap<>();
-    private static DefaultHashMap<String, String> vendorMap = new DefaultHashMap<>();
-    private static DefaultHashMap<String, String> vendorIdMap = new DefaultHashMap<>();
-    private static DefaultHashMap<String, String> productIdMap = new DefaultHashMap<>();
-    private static DefaultHashMap<String, String> serialMap = new DefaultHashMap<>();
-    private static DefaultHashMap<String, List<String>> hubMap = new DefaultHashMap<>();
+    private static OshiHashMap<String, String> nameMap = new OshiHashMap<>();
+    private static OshiHashMap<String, String> vendorMap = new OshiHashMap<>();
+    private static OshiHashMap<String, String> vendorIdMap = new OshiHashMap<>();
+    private static OshiHashMap<String, String> productIdMap = new OshiHashMap<>();
+    private static OshiHashMap<String, String> serialMap = new OshiHashMap<>();
+    private static OshiHashMap<String, List<String>> hubMap = new OshiHashMap<>();
 
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -137,7 +137,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             } else {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                hubMap.computeIfAbsent(parentPath, new Function<String, List<String>>() {
+                hubMap.computeValueIfAbsent(parentPath, new Function<String, List<String>>() {
                     @Override
                     public List<String> apply(String k) {
                         return new ArrayList<>();
@@ -171,16 +171,16 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * @return A LinuxUsbDevice corresponding to this device
      */
     private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-        String productId = productIdMap.getOrDefault(devPath, pid);
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
+        String vendorId = vendorIdMap.getValueOrDefault(devPath, vid);
+        String productId = productIdMap.getValueOrDefault(devPath, pid);
+        List<String> childPaths = hubMap.getValueOrDefault(devPath, new ArrayList<String>());
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
-                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""),
+        return new LinuxUsbDevice(nameMap.getValueOrDefault(devPath, vendorId + ":" + productId),
+                vendorMap.getValueOrDefault(devPath, ""), vendorId, productId, serialMap.getValueOrDefault(devPath, ""),
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

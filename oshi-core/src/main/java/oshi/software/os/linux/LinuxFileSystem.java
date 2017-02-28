@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -108,7 +108,7 @@ public class LinuxFileSystem implements FileSystem {
     @Override
     public OSFileStore[] getFileStores() {
         // Map uuids with device path as key
-        DefaultHashMap<String, String> uuidMap = new DefaultHashMap<>();
+        OshiHashMap<String, String> uuidMap = new OshiHashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
         if (uuidDir != null && uuidDir.listFiles() != null) {
             for (File uuid : uuidDir.listFiles()) {
@@ -151,7 +151,7 @@ public class LinuxFileSystem implements FileSystem {
                 name = "/";
             }
             String volume = split[0].replaceAll("\\\\040", " ");
-            String uuid = uuidMap.getOrDefault(split[0], "");
+            String uuid = uuidMap.getValueOrDefault(split[0], "");
             long totalSpace = new File(path).getTotalSpace();
             long usableSpace = new File(path).getUsableSpace();
 

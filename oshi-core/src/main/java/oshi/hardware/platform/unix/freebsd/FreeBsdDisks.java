@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -45,9 +45,9 @@ public class FreeBsdDisks implements Disks {
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
     // Create map indexed by device name to populate data from multiple commands
-    private static final DefaultHashMap<String, HWDiskStore> diskMap = new DefaultHashMap<>();
+    private static final OshiHashMap<String, HWDiskStore> diskMap = new OshiHashMap<>();
     // Map of partitions to mount points
-    private static final DefaultHashMap<String, String> mountMap = new DefaultHashMap<>();
+    private static final OshiHashMap<String, String> mountMap = new OshiHashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -168,7 +168,7 @@ public class FreeBsdDisks implements Disks {
                     partition = new HWPartition();
                     partition.setIdentification(part);
                     partition.setName(part);
-                    partition.setMountPoint(mountMap.getOrDefault(part, ""));
+                    partition.setMountPoint(mountMap.getValueOrDefault(part, ""));
                 }
             }
             // If we don't have a valid store, don't bother parsing anything

@@ -25,7 +25,7 @@ import java.util.List;
 
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -89,7 +89,7 @@ public class FreeBsdFileSystem implements FileSystem {
     @Override
     public OSFileStore[] getFileStores() {
         // Find any partition UUIDs and map them
-        DefaultHashMap<String, String> uuidMap = new DefaultHashMap<>();
+        OshiHashMap<String, String> uuidMap = new OshiHashMap<>();
         // Now grab dmssg output
         String device = "";
         for (String line : ExecutingCommand.runNative("geom part list")) {
@@ -148,7 +148,7 @@ public class FreeBsdFileSystem implements FileSystem {
                 description = "Mount Point";
             }
             // Match UUID
-            String uuid = uuidMap.getOrDefault(name, "");
+            String uuid = uuidMap.getValueOrDefault(name, "");
             OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }

@@ -28,7 +28,7 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -45,7 +45,7 @@ public class LinuxDisks implements Disks {
 
     private static final int SECTORSIZE = 512;
 
-    private final DefaultHashMap<String, String> mountsMap = new DefaultHashMap<>();
+    private final OshiHashMap<String, String> mountsMap = new OshiHashMap<>();
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -109,7 +109,7 @@ public class LinuxDisks implements Disks {
                                     0),
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
-                            this.mountsMap.getOrDefault(name, ""));
+                            this.mountsMap.getValueOrDefault(name, ""));
                     store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);

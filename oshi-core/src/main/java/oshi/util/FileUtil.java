@@ -166,8 +166,8 @@ public class FileUtil {
      *            The file to read
      * @return The map contained in the file, if any; otherwise empty map
      */
-    public static DefaultHashMap<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        DefaultHashMap<String, String> map = new DefaultHashMap<>();
+    public static OshiHashMap<String, String> getKeyValueMapFromFile(String filename, String separator) {
+        OshiHashMap<String, String> map = new OshiHashMap<>();
         LOG.debug("Reading file {}", filename);
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {

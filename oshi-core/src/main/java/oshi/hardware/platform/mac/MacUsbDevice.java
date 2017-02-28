@@ -34,7 +34,7 @@ import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.util.DefaultHashMap;
+import oshi.util.OshiHashMap;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -45,12 +45,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using RegistryEntryID as the key
      */
-    private static DefaultHashMap<Long, String> nameMap = new DefaultHashMap<>();
-    private static DefaultHashMap<Long, String> vendorMap = new DefaultHashMap<>();
-    private static DefaultHashMap<Long, String> vendorIdMap = new DefaultHashMap<>();
-    private static DefaultHashMap<Long, String> productIdMap = new DefaultHashMap<>();
-    private static DefaultHashMap<Long, String> serialMap = new DefaultHashMap<>();
-    private static DefaultHashMap<Long, List<Long>> hubMap = new DefaultHashMap<>();
+    private static OshiHashMap<Long, String> nameMap = new OshiHashMap<>();
+    private static OshiHashMap<Long, String> vendorMap = new OshiHashMap<>();
+    private static OshiHashMap<Long, String> vendorIdMap = new OshiHashMap<>();
+    private static OshiHashMap<Long, String> productIdMap = new OshiHashMap<>();
+    private static OshiHashMap<Long, String> serialMap = new OshiHashMap<>();
+    private static OshiHashMap<Long, List<Long>> hubMap = new OshiHashMap<>();
 
     public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -142,7 +142,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
-                hubMap.computeIfAbsent(parentId.getValue(), new Function<Long, List<Long>>() {
+                hubMap.computeValueIfAbsent(parentId.getValue(), new Function<Long, List<Long>>() {
                     @Override
                     public List<Long> apply(Long k) {
                         return new ArrayList<>();
@@ -255,16 +255,16 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * @return A MacUsbDevice corresponding to this device
      */
     private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid) {
-        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
-        String productId = productIdMap.getOrDefault(registryEntryId, pid);
-        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<Long>());
+        String vendorId = vendorIdMap.getValueOrDefault(registryEntryId, vid);
+        String productId = productIdMap.getValueOrDefault(registryEntryId, pid);
+        List<Long> childIds = hubMap.getValueOrDefault(registryEntryId, new ArrayList<Long>());
         List<MacUsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
-                vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new MacUsbDevice(nameMap.getValueOrDefault(registryEntryId, vendorId + ":" + productId),
+                vendorMap.getValueOrDefault(registryEntryId, ""), vendorId, productId,
+                serialMap.getValueOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

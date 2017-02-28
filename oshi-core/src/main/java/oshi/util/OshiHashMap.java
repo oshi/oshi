@@ -18,7 +18,7 @@
  */
 package oshi.util;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import java8.util.function.Function;
 
@@ -27,7 +27,7 @@ import java8.util.function.Function;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class DefaultHashMap<K, V> extends ConcurrentHashMap<K, V> {
+public class OshiHashMap<K, V> extends HashMap<K, V> {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class DefaultHashMap<K, V> extends ConcurrentHashMap<K, V> {
      * @return the value to which the specified key is mapped, or defaultValue
      *         if this map contains no mapping for the key
      */
-    public V getOrDefault(K key, V defaultValue) {
+    public V getValueOrDefault(K key, V defaultValue) {
         synchronized (this) {
             V value = this.get(key);
             if (value != null) {
@@ -59,20 +59,20 @@ public class DefaultHashMap<K, V> extends ConcurrentHashMap<K, V> {
      * 
      * @param key
      *            key with which the specified value is to be associated
-     * @param newValue
+     * @param value
      *            value to be associated with the specified key
      * @return the previous value associated with the specified key, or null if
      *         there was no mapping for the key. (A null return can also
      *         indicate that the map previously associated null with the key, if
      *         the implementation supports null values.)
      */
-    public V putIfAbsent(K key, V newValue) {
+    public V putValueIfAbsent(K key, V value) {
         synchronized (this) {
-            V value = this.get(key);
-            if (newValue != null) {
-                return value;
+            V existingValue = this.get(key);
+            if (value != null) {
+                return existingValue;
             }
-            this.put(key, newValue);
+            this.put(key, value);
             return null;
         }
     }
@@ -89,7 +89,7 @@ public class DefaultHashMap<K, V> extends ConcurrentHashMap<K, V> {
      * @return the current (existing or computed) value associated with the
      *         specified key, or null if the computed value is null
      */
-    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+    public V computeValueIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
         synchronized (this) {
             V value = this.get(key);
             if (value != null) {
