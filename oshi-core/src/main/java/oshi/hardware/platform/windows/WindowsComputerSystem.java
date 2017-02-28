@@ -26,7 +26,7 @@ import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Hardware data obtained from WMI
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */

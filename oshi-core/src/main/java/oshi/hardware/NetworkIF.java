@@ -239,7 +239,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getInErrors() {
-        return inErrors;
+        return this.inErrors;
     }
 
     /**
@@ -256,7 +256,7 @@ public class NetworkIF implements Serializable {
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getOutErrors() {
-        return outErrors;
+        return this.outErrors;
     }
 
     /**

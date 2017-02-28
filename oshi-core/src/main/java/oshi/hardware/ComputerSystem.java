@@ -24,32 +24,32 @@ import java.io.Serializable;
  * The ComputerSystem represents the physical hardware, of a computer
  * system/product and includes BIOS/firmware and a motherboard, logic board,
  * etc.
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
 public interface ComputerSystem extends Serializable {
     /**
      * Get the computer system manufacturer.
-     * 
+     *
      * @return The manufacturer.
      */
     String getManufacturer();
 
     /**
      * Get the computer system model.
-     * 
+     *
      * @return The model.
      */
     String getModel();
 
     /**
      * Get the computer system serial number, if available.
-     * 
+     *
      * Performs a best-effort attempt to retrieve a unique serial number from
      * the computer system. This may originate from the baseboard, BIOS,
      * processor, hardware UUID, etc.
-     * 
+     *
      * This value is provided for information only. Caution should be exercised
      * if using this result to "fingerprint" a system for licensing or other
      * purposes, as the result may change based on program permissions or
@@ -66,14 +66,14 @@ public interface ComputerSystem extends Serializable {
 
     /**
      * Get the computer system firmware/BIOS
-     * 
+     *
      * @return A {@link Firmware} object for this system
      */
     Firmware getFirmware();
 
     /**
      * Get the computer system baseboard/motherboard
-     * 
+     *
      * @return A {@link Baseboard} object for this system
      */
     Baseboard getBaseboard();

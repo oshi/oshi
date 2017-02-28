@@ -30,7 +30,7 @@ import com.sun.jna.PointerType;
  */
 public interface Udev extends Library {
 
-    Udev INSTANCE = (Udev) Native.loadLibrary("udev", Udev.class);
+    Udev INSTANCE = Native.loadLibrary("udev", Udev.class);
 
     final class UdevHandle extends PointerType {
 

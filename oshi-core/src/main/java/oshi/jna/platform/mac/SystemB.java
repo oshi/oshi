@@ -36,7 +36,7 @@ import oshi.jna.platform.unix.CLibrary;
  * @author widdis[at]gmail[dot]com
  */
 public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
-    SystemB INSTANCE = (SystemB) Native.loadLibrary("System", SystemB.class);
+    SystemB INSTANCE = Native.loadLibrary("System", SystemB.class);
 
     // params.h
     int MAXCOMLEN = 16;
@@ -396,7 +396,7 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
     /**
      * This function searches the password database for the given user uid,
      * always returning the first one encountered.
-     * 
+     *
      * @param uid
      *            The user ID
      * @return a Passwd structure matching that user
@@ -407,7 +407,7 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
      * This function searches the group database for the given group name
      * pointed to by the group id given by gid, returning the first one
      * encountered. Identical group gids may result in undefined behavior.
-     * 
+     *
      * @param gid
      *            The group ID
      * @return a Group structure matching that group

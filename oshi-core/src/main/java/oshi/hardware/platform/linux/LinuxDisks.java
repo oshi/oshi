@@ -111,7 +111,7 @@ public class LinuxDisks implements Disks {
                                     0),
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
-                            MapUtil.getOrDefault(mountsMap, name, ""));
+                            MapUtil.getOrDefault(this.mountsMap, name, ""));
                     store.setPartitions(partArray);
                 }
                 entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);

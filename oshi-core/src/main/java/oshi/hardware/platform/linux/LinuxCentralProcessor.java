@@ -154,7 +154,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (this.physicalProcessorCount == 0) {
             this.physicalProcessorCount = ids.size();
         }
-        // if at least one logical processor is present, we can safely assume there is at least one physical cpu
+        // if at least one logical processor is present, we can safely assume
+        // there is at least one physical cpu
         if (this.physicalProcessorCount == 0 && this.logicalProcessorCount > 0) {
             this.physicalProcessorCount = 1;
         }

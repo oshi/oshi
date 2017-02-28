@@ -183,7 +183,6 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new LinuxUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + ":" + productId),
                 MapUtil.getOrDefault(vendorMap, devPath, ""), vendorId, productId,
-                MapUtil.getOrDefault(serialMap, devPath, ""),
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                MapUtil.getOrDefault(serialMap, devPath, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

@@ -247,7 +247,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new WindowsUsbDevice(MapUtil.getOrDefault(nameMap, hubDeviceId, vendorId + ":" + productId),
                 MapUtil.getOrDefault(vendorMap, hubDeviceId, ""), vendorId, productId,
-                MapUtil.getOrDefault(serialMap, hubDeviceId, ""),
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                MapUtil.getOrDefault(serialMap, hubDeviceId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

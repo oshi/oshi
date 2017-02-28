@@ -24,7 +24,7 @@ import oshi.hardware.Firmware;
 
 /**
  * Hardware data
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
@@ -51,7 +51,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getManufacturer() {
-        return manufacturer;
+        return this.manufacturer;
     }
 
     /**
@@ -59,7 +59,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getModel() {
-        return model;
+        return this.model;
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getSerialNumber() {
-        return serialNumber;
+        return this.serialNumber;
     }
 
     /**
@@ -75,7 +75,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public Firmware getFirmware() {
-        return firmware;
+        return this.firmware;
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public Baseboard getBaseboard() {
-        return baseboard;
+        return this.baseboard;
     }
 
     /**

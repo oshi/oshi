@@ -24,7 +24,7 @@ import org.threeten.bp.LocalDate;
 
 /**
  * The Firmware represents the low level BIOS or equivalent
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  */
 public interface Firmware extends Serializable {

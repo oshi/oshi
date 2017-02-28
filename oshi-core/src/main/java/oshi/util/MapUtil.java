@@ -35,7 +35,7 @@ public class MapUtil {
     /**
      * Returns the value to which the specified key is mapped, or defaultValue
      * if this map contains no mapping for the key.
-     * 
+     *
      * @param <K>
      *            The map key type
      * @param <V>
@@ -63,7 +63,7 @@ public class MapUtil {
      * If the specified key is not already associated with a value (or is mapped
      * to null) associates it with the given value and returns null, else
      * returns the current value.
-     * 
+     *
      * @param <K>
      *            The map key type
      * @param <V>
@@ -94,7 +94,7 @@ public class MapUtil {
      * If the specified key is not already associated with a value, attempts to
      * compute its value using the given mapping function and enters it into
      * this map unless null.
-     * 
+     *
      * @param <K>
      *            The map key type
      * @param <V>

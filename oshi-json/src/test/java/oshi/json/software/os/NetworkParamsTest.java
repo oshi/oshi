@@ -18,11 +18,11 @@
  */
 package oshi.json.software.os;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import oshi.json.SystemInfo;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Test network parameters

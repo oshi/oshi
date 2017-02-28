@@ -82,7 +82,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      * @return Returns the process command line. The format of this string is
      *         platform-dependent and may require the end user to parse the
      *         result.
-     * 
+     *
      *         On Linux and macOS systems, the string is
      *         null-character-delimited, to permit the end user to parse the
      *         executable and arguments if desired. Further, the macOS variant
@@ -112,7 +112,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * @return Returns the group.
-     * 
+     *
      *         On Windows systems, populating this value for processes other
      *         than the current user requires administrative privileges (and
      *         still may fail for some system processes) and can incur
@@ -252,7 +252,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the name of the process.
-     * 
+     *
      * @param name
      *            process name
      */
@@ -262,7 +262,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the full path of the executing process.
-     * 
+     *
      * @param path
      *            process path
      */
@@ -272,7 +272,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Sets the process command line.
-     * 
+     *
      * @param commandLine
      *            The commandLine to set.
      */
@@ -282,7 +282,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Sets the user.
-     * 
+     *
      * @param user
      *            The user to set.
      */
@@ -292,7 +292,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Sets the User ID.
-     * 
+     *
      * @param userID
      *            The userID to set.
      */
@@ -302,7 +302,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Sets the group.
-     * 
+     *
      * @param group
      *            The group to set.
      */
@@ -312,7 +312,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Sets the Group ID.
-     * 
+     *
      * @param groupID
      *            The groupID to set.
      */
@@ -322,7 +322,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the execution state of the process.
-     * 
+     *
      * @param state
      *            execution state
      */
@@ -332,7 +332,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the processID.
-     * 
+     *
      * @param processID
      *            process ID
      */
@@ -342,7 +342,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the parentProcessID.
-     * 
+     *
      * @param parentProcessID
      *            parent process ID
      */
@@ -402,7 +402,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      * is swapped out. It does include memory from shared libraries as long as
      * the pages from those libraries are actually in memory. It does include
      * all stack and heap memory.
-     * 
+     *
      * @param residentSetSize
      *            resident set size
      */
@@ -412,7 +412,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the number of milliseconds the process has executed in kernel mode.
-     * 
+     *
      * @param kernelTime
      *            kernel time
      */
@@ -422,7 +422,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the number of milliseconds the process has executed in user mode.
-     * 
+     *
      * @param userTime
      *            user time
      */
@@ -433,7 +433,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     /**
      * Set the start time of the process in number of milliseconds since January
      * 1, 1970.
-     * 
+     *
      * @param startTime
      *            start time
      */
@@ -443,7 +443,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the number of milliseconds since the process started.
-     * 
+     *
      * @param upTime
      *            up time
      */
@@ -453,7 +453,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the number of bytes the process has read from disk.
-     * 
+     *
      * @param bytesRead
      *            number of bytes read
      */
@@ -463,7 +463,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 
     /**
      * Set the number of bytes the process has written to disk.
-     * 
+     *
      * @param bytesWritten
      *            number of bytes written
      */

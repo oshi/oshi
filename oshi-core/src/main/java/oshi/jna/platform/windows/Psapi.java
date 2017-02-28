@@ -33,7 +33,7 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
  * @author widdis[at]gmail[dot]com
  */
 public interface Psapi extends com.sun.jna.platform.win32.Psapi {
-    Psapi INSTANCE = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
+    Psapi INSTANCE = Native.loadLibrary("Psapi", Psapi.class);
 
     // TODO: Submit this change to JNA Psapi class
     class PERFORMANCE_INFORMATION extends Structure {

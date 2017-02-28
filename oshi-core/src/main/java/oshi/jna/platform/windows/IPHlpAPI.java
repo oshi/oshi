@@ -38,7 +38,7 @@ import com.sun.jna.platform.win32.WinDef.ULONGByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface IPHlpAPI extends Library {
-    IPHlpAPI INSTANCE = (IPHlpAPI) Native.loadLibrary("IPHlpAPI", IPHlpAPI.class);
+    IPHlpAPI INSTANCE = Native.loadLibrary("IPHlpAPI", IPHlpAPI.class);
 
     int IF_MAX_STRING_SIZE = 256;
     int IF_MAX_PHYS_ADDRESS_LENGTH = 32;

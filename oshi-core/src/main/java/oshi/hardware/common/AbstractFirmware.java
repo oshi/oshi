@@ -24,7 +24,7 @@ import oshi.hardware.Firmware;
 
 /**
  * Firmware data
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
@@ -51,7 +51,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getManufacturer() {
-        return manufacturer;
+        return this.manufacturer;
     }
 
     /**
@@ -59,7 +59,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
@@ -75,7 +75,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public LocalDate getReleaseDate() {
-        return releaseDate;
+        return this.releaseDate;
     }
 
     /**

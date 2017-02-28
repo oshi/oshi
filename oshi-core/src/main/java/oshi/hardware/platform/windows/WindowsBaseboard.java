@@ -26,7 +26,7 @@ import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Baseboard data obtained from WMI
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 public class WindowsBaseboard extends AbstractBaseboard {

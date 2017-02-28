@@ -27,7 +27,7 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Hardware data obtained by system_profiler
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */

@@ -35,7 +35,7 @@ import oshi.jna.platform.unix.CLibrary;
  */
 public interface Libc extends CLibrary {
 
-    Libc INSTANCE = (Libc) Native.loadLibrary("c", Libc.class);
+    Libc INSTANCE = Native.loadLibrary("c", Libc.class);
 
     class Sysinfo extends Structure {
         public NativeLong uptime; // Seconds since boot

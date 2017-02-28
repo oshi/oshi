@@ -245,7 +245,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19], 0));
         proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
         proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * memoryPageSize);
+        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * this.memoryPageSize);
         proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
         proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
         proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);

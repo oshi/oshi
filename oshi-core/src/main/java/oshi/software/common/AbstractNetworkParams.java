@@ -96,7 +96,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
     /**
      * Convenience method to parse the output of the `route` command. While the
      * command arguments vary between OS's the output is consistently parsable.
-     * 
+     *
      * @param lines
      *            output of OS-specific route command
      * @return default gateway

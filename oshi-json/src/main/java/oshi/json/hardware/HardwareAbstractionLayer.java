@@ -32,7 +32,7 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      * Instantiates a {@link ComputerSystem} object. This represents the
      * physical hardware, including components such as BIOS/Firmware and a
      * motherboard, logic board, etc.
-     * 
+     *
      * @return a {@link ComputerSystem} object.
      */
     ComputerSystem getComputerSystem();

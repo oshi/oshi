@@ -25,7 +25,7 @@ import oshi.util.FormatUtil;
 
 /**
  * Firmware data obtained by sysfs
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */

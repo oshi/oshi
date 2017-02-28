@@ -25,7 +25,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Hardware data obtained from sysfs
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */

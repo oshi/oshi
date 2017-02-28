@@ -181,7 +181,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     /**
      * Fetches the ProcessorID by encoding the stepping, model, family, and
      * feature flags.
-     * 
+     *
      * @param stepping
      * @param model
      * @param family

@@ -240,7 +240,7 @@ public interface CLibrary extends Library {
     /**
      * Frees the memory that was allocated for the dynamically allocated linked
      * list res.
-     * 
+     *
      * @param res
      *            Pointer to linked list returned by getaddrinfo
      */
@@ -249,7 +249,7 @@ public interface CLibrary extends Library {
     /**
      * Translates getaddrinfo error codes to a human readable string, suitable
      * for error reporting.
-     * 
+     *
      * @param e
      *            Error code from getaddrinfo
      * @return

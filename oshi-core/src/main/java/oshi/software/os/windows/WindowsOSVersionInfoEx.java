@@ -179,7 +179,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Gets the build number
-     * 
+     *
      * @return A string representing the Build Number
      */
     private String parseBuildNumber() {

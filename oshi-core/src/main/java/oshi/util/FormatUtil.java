@@ -227,7 +227,7 @@ public class FormatUtil {
 
     /**
      * Convert a java date to a MM-dd-yyyy string representation
-     * 
+     *
      * @param date
      *            the date to convert
      * @return a string in the form MM/dd/yyyy
@@ -238,7 +238,7 @@ public class FormatUtil {
 
     /**
      * Convert a MM-dd-yyyy string representation to a java LocalDate
-     * 
+     *
      * @param date
      *            a string in the form MM/dd/yyyy
      * @return the corresponding LocalDate
@@ -254,9 +254,9 @@ public class FormatUtil {
 
     /**
      * Represent a 32 bit value as if it were an unsigned integer.
-     * 
+     *
      * This is a Java 7 implementation of Java 8's Integer.toUnsignedString.
-     * 
+     *
      * @param i
      *            a 32 bit value
      * @return the string representation of the unsigned integer
@@ -270,9 +270,9 @@ public class FormatUtil {
 
     /**
      * Represent a 64 bit value as if it were an unsigned long.
-     * 
+     *
      * This is a Java 7 implementation of Java 8's Long.toUnsignedString.
-     * 
+     *
      * @param l
      *            a 64 bit value
      * @return the string representation of the unsigned long
@@ -287,9 +287,9 @@ public class FormatUtil {
     /**
      * Returns a new String composed of copies of the CharSequence elements
      * joined together with a copy of the specified delimiter.
-     * 
+     *
      * This is a Java 7 implementation of Java 8's String.join
-     * 
+     *
      * @param delimeter
      *            the delimiter that separates each element
      * @param elements
@@ -308,9 +308,9 @@ public class FormatUtil {
     /**
      * Returns a new String composed of copies of the CharSequence elements
      * joined together with a copy of the specified delimiter.
-     * 
+     *
      * This is a Java 7 implementation of Java 8's String.join
-     * 
+     *
      * @param delimiter
      *            a sequence of characters that is used to separate each of the
      *            elements in the resulting String
@@ -321,8 +321,9 @@ public class FormatUtil {
     public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements) {
         StringBuilder sb = new StringBuilder();
         Iterator<?> iter = elements.iterator();
-        if (iter.hasNext())
+        if (iter.hasNext()) {
             sb.append(iter.next().toString());
+        }
         while (iter.hasNext()) {
             sb.append(delimiter);
             sb.append(iter.next().toString());

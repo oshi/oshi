@@ -537,7 +537,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * Creates a Processor ID by encoding the stepping, model, family, and
      * feature flags.
-     * 
+     *
      * @param stepping
      * @param model
      * @param family

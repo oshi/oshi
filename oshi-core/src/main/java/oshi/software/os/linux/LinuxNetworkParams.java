@@ -85,7 +85,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
             if (fields.length > 4 && fields[0].equals(IPV4_DEFAULT_DEST)) {
                 boolean isGateway = fields[3].indexOf('G') != -1;
                 int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);
-                if (isGateway && (metric < minMetric)) {
+                if (isGateway && metric < minMetric) {
                     minMetric = metric;
                     gateway = fields[1];
                 }
@@ -112,7 +112,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
             if (fields.length > 3 && fields[0].equals(IPV6_DEFAULT_DEST)) {
                 boolean isGateway = fields[2].indexOf('G') != -1;
                 int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);
-                if (isGateway && (metric < minMetric)) {
+                if (isGateway && metric < minMetric) {
                     minMetric = metric;
                     gateway = fields[1];
                 }

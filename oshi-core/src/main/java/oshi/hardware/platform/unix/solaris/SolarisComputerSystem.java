@@ -25,7 +25,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Hardware data obtained from smbios
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 final class SolarisComputerSystem extends AbstractComputerSystem {

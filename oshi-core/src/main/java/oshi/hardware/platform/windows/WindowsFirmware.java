@@ -30,7 +30,7 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
 
 /**
  * Firmware data obtained from WMI
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  */
 final class WindowsFirmware extends AbstractFirmware {

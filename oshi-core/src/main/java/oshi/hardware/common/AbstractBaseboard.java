@@ -22,7 +22,7 @@ import oshi.hardware.Baseboard;
 
 /**
  * Baseboard data
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 public abstract class AbstractBaseboard implements Baseboard {
@@ -46,7 +46,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getManufacturer() {
-        return manufacturer;
+        return this.manufacturer;
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getModel() {
-        return model;
+        return this.model;
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getSerialNumber() {
-        return serialNumber;
+        return this.serialNumber;
     }
 
     /**

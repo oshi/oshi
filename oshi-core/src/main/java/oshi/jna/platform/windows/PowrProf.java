@@ -34,7 +34,7 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-    PowrProf INSTANCE = (PowrProf) Native.loadLibrary("PowrProf", PowrProf.class);
+    PowrProf INSTANCE = Native.loadLibrary("PowrProf", PowrProf.class);
 
     int SYSTEM_BATTERY_STATE = 5;
 

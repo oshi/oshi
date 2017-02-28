@@ -96,7 +96,7 @@ public class WmiUtil {
     /**
      * Determine if WMI has the requested namespace. Some namespaces only exist
      * on newer versions of Windows.
-     * 
+     *
      * @param namespace
      *            The namespace to test
      * @return true if the namespace exists, false otherwise
@@ -596,7 +596,7 @@ public class WmiUtil {
 
     /**
      * Convenience method for executing WMI methods without any input parameters
-     * 
+     *
      * @param svc
      *            The WbemServices object
      * @param clsObj

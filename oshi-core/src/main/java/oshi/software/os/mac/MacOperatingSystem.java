@@ -64,8 +64,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
         this.version = new MacOSVersionInfoEx();
-        this.family = ParseUtil.getFirstIntValue(version.getVersion()) == 10
-                && ParseUtil.getNthIntValue(version.getVersion(), 2) >= 12 ? "macOS" : System.getProperty("os.name");
+        this.family = ParseUtil.getFirstIntValue(this.version.getVersion()) == 10
+                && ParseUtil.getNthIntValue(this.version.getVersion(), 2) >= 12 ? "macOS"
+                        : System.getProperty("os.name");
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
     }

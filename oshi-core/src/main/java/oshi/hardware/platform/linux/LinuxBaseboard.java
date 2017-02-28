@@ -23,7 +23,7 @@ import oshi.util.FileUtil;
 
 /**
  * Baseboard data obtained by sysfs
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 final class LinuxBaseboard extends AbstractBaseboard {

@@ -82,18 +82,18 @@ public interface CentralProcessor extends OshiJsonObject {
      * EAX register, which is the Processor signature, represented in
      * human-readable form by {@link #getIdentifier()} . The remaining four
      * bytes are the contents of the EDX register, containing feature flags.
-     * 
+     *
      * NOTE: The order of returned bytes is platform dependent. Windows and
      * macOS return the values in Big-Endian order, while Linux and Unix results
      * are in Little-Endian order.
-     * 
+     *
      * @return
      */
     String getProcessorID();
 
     /**
      * Set processor ID
-     * 
+     *
      * @param processorID
      *            The processor ID
      */
@@ -316,7 +316,7 @@ public interface CentralProcessor extends OshiJsonObject {
      *
      * @return the System/CPU Serial Number, if available, otherwise returns
      *         "unknown"
-     * 
+     *
      * @deprecated use {@link ComputerSystem#getSerialNumber()} instead.
      */
     @Deprecated

@@ -31,7 +31,7 @@ import com.sun.jna.win32.W32APIOptions;
  * @author widdis[at]gmail[dot]com
  */
 public interface Cfgmgr32 extends Library {
-    Cfgmgr32 INSTANCE = (Cfgmgr32) Native.loadLibrary("Cfgmgr32", Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);
+    Cfgmgr32 INSTANCE = Native.loadLibrary("Cfgmgr32", Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);
 
     int CM_Get_Parent(IntByReference pdnDevInst, int dnDevInst, int ulFlags);
 

@@ -40,13 +40,13 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
     }
 
     public int getOsxVersionNumber() {
-        return osxVersionNumber;
+        return this.osxVersionNumber;
     }
 
     private String parseCodeName() {
         if (ParseUtil.getFirstIntValue(getVersion()) == 10) {
-            osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);
-            switch (osxVersionNumber) {
+            this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);
+            switch (this.osxVersionNumber) {
             // MacOS
             case 12:
                 return "Sierra";

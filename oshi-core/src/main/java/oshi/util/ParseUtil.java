@@ -106,8 +106,7 @@ public class ParseUtil {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
             // Regexp enforces #(.#) format so no test for NFE required
-            Double value = Double.valueOf(matcher.group(1))
-                    * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
+            Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
             return value < 0d ? -1L : value.longValue();
         }
         return -1L;

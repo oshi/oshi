@@ -23,34 +23,34 @@ import oshi.json.json.OshiJsonObject;
 /**
  * The Baseboard represents the system board, also called motherboard, logic
  * board, etc.
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 public interface Baseboard extends OshiJsonObject {
     /**
      * Get the baseboard manufacturer.
-     * 
+     *
      * @return The manufacturer.
      */
     String getManufacturer();
 
     /**
      * Get the baseboard model.
-     * 
+     *
      * @return The model.
      */
     String getModel();
 
     /**
      * Get the baseboard version.
-     * 
+     *
      * @return The version.
      */
     String getVersion();
 
     /**
      * Get the baseboard serial number
-     * 
+     *
      * @return The serial number.
      */
     String getSerialNumber();

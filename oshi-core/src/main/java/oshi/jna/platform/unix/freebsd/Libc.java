@@ -33,7 +33,7 @@ import oshi.jna.platform.unix.CLibrary;
  * @author widdis[at]gmail[dot]com
  */
 public interface Libc extends CLibrary {
-    Libc INSTANCE = (Libc) Native.loadLibrary("libc", Libc.class);
+    Libc INSTANCE = Native.loadLibrary("libc", Libc.class);
 
     /*
      * Data size

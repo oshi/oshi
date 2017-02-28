@@ -32,7 +32,7 @@ import com.sun.jna.win32.W32APIOptions;
  * @author widdis[at]gmail[dot]com
  */
 public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
-    Ole32 INSTANCE = (Ole32) Native.loadLibrary("Ole32", Ole32.class, W32APIOptions.DEFAULT_OPTIONS);
+    Ole32 INSTANCE = Native.loadLibrary("Ole32", Ole32.class, W32APIOptions.DEFAULT_OPTIONS);
 
     int RPC_C_AUTHN_LEVEL_DEFAULT = 0;
     int RPC_C_AUTHN_WINNT = 10;
