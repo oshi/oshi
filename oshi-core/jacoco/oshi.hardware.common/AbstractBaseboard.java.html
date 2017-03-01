@@ -22,7 +22,7 @@ import oshi.hardware.Baseboard;
 
 /**
  * Baseboard data
- * 
+ *
  * @author widdis [at] gmail [dot] com
  */
 public abstract class AbstractBaseboard implements Baseboard {
@@ -46,7 +46,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L49">        return manufacturer;</span>
+<span class="nc" id="L49">        return this.manufacturer;</span>
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getModel() {
-<span class="nc" id="L57">        return model;</span>
+<span class="nc" id="L57">        return this.model;</span>
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getVersion() {
-<span class="nc" id="L65">        return version;</span>
+<span class="nc" id="L65">        return this.version;</span>
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L73">        return serialNumber;</span>
+<span class="nc" id="L73">        return this.serialNumber;</span>
     }
 
     /**
@@ -106,4 +106,4 @@ public abstract class AbstractBaseboard implements Baseboard {
 <span class="nc" id="L106">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

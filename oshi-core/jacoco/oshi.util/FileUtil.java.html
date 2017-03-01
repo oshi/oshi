@@ -163,22 +163,25 @@ public class FileUtil {
     /**
      * Read a file and return a map of string keys to string values contained
      * therein. Intended primarily for Linux /proc/[pid]/io
-     * 
+     *
      * @param filename
      *            The file to read
+     * @param separator
+     *            Characters in each line of the file that separate the key and
+     *            the value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map&lt;String, String&gt; getKeyValueMapFromFile(String filename, String separator) {
-<span class="fc" id="L172">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L173">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="fc" id="L174">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (String line : lines) {</span>
-<span class="fc" id="L176">            String[] parts = line.split(separator);</span>
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
-<span class="fc" id="L178">                map.put(parts[0], parts[1].trim());</span>
+<span class="fc" id="L175">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L176">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L177">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L179">            String[] parts = line.split(separator);</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="fc" id="L181">                map.put(parts[0], parts[1].trim());</span>
             }
-<span class="fc" id="L180">        }</span>
-<span class="fc" id="L181">        return map;</span>
+<span class="fc" id="L183">        }</span>
+<span class="fc" id="L184">        return map;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -545,126 +545,130 @@
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">     * Creates a Processor ID by encoding the stepping, model, family, and</em>
 <a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">     * feature flags.</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">     * @param stepping</em>
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">     * @param model</em>
-<a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">     * @param family</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">     * @param flags</em>
-<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
-<a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <strong class="jxr_keyword">protected</strong> String createProcessorID(String stepping, String model, String family, String[] flags) {
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <strong class="jxr_keyword">long</strong> processorID = 0L;
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">long</strong> steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">long</strong> modelL = ParseUtil.parseLongOrDefault(model, 0L);
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">long</strong> familyL = ParseUtil.parseLongOrDefault(family, 0L);
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <em class="jxr_comment">// 3:0 – Stepping</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         processorID |= steppingL &amp; 0xf;
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <em class="jxr_comment">// 19:16,7:4 – Model</em>
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         processorID |= (modelL &amp; 0x0f) &lt;&lt; 4;
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         processorID |= (modelL &amp; 0xf0) &lt;&lt; 16;
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <em class="jxr_comment">// 27:20,11:8 – Family</em>
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>         processorID |= (familyL &amp; 0x0f) &lt;&lt; 8;
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         processorID |= (familyL &amp; 0xf0) &lt;&lt; 20;
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <em class="jxr_comment">// 13:12 – Processor Type, assume 0</em>
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <strong class="jxr_keyword">for</strong> (String flag : flags) {
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>             <strong class="jxr_keyword">switch</strong> (flag) {
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"fpu"</span>:
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 processorID |= 1L &lt;&lt; 32;
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"vme"</span>:
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>                 processorID |= 1L &lt;&lt; 33;
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"de"</span>:
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>                 processorID |= 1L &lt;&lt; 34;
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pse"</span>:
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>                 processorID |= 1L &lt;&lt; 35;
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"tsc"</span>:
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>                 processorID |= 1L &lt;&lt; 36;
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"msr"</span>:
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>                 processorID |= 1L &lt;&lt; 37;
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pae"</span>:
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>                 processorID |= 1L &lt;&lt; 38;
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mce"</span>:
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>                 processorID |= 1L &lt;&lt; 39;
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"cx8"</span>:
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>                 processorID |= 1L &lt;&lt; 40;
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"apic"</span>:
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>                 processorID |= 1L &lt;&lt; 41;
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sep"</span>:
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>                 processorID |= 1L &lt;&lt; 43;
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mtrr"</span>:
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>                 processorID |= 1L &lt;&lt; 44;
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pge"</span>:
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>                 processorID |= 1L &lt;&lt; 45;
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mca"</span>:
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>                 processorID |= 1L &lt;&lt; 46;
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"cmov"</span>:
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>                 processorID |= 1L &lt;&lt; 47;
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pat"</span>:
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 processorID |= 1L &lt;&lt; 48;
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pse-36"</span>:
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 processorID |= 1L &lt;&lt; 49;
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"psn"</span>:
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>                 processorID |= 1L &lt;&lt; 50;
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"clfsh"</span>:
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>                 processorID |= 1L &lt;&lt; 51;
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ds"</span>:
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>                 processorID |= 1L &lt;&lt; 53;
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"acpi"</span>:
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>                 processorID |= 1L &lt;&lt; 54;
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mmx"</span>:
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>                 processorID |= 1L &lt;&lt; 55;
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"fxsr"</span>:
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>                 processorID |= 1L &lt;&lt; 56;
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sse"</span>:
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>                 processorID |= 1L &lt;&lt; 57;
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sse2"</span>:
-<a class="jxr_linenumber" name="L636" href="#L636">636</a>                 processorID |= 1L &lt;&lt; 58;
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ss"</span>:
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>                 processorID |= 1L &lt;&lt; 59;
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"htt"</span>:
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>                 processorID |= 1L &lt;&lt; 60;
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"tm"</span>:
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>                 processorID |= 1L &lt;&lt; 61;
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ia64"</span>:
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>                 processorID |= 1L &lt;&lt; 62;
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pbe"</span>:
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>                 processorID |= 1L &lt;&lt; 63;
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>             <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>             }
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>         }
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>         <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"%016X"</span>, processorID);
-<a class="jxr_linenumber" name="L658" href="#L658">658</a>     }
-<a class="jxr_linenumber" name="L659" href="#L659">659</a> }
+<a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">     *            The CPU stepping</em>
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">     * @param model</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">     *            The CPU model</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">     * @param family</em>
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">     *            The CPU family</em>
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">     * @param flags</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">     *            A space-delimited list of CPU feature flags</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>     <strong class="jxr_keyword">protected</strong> String createProcessorID(String stepping, String model, String family, String[] flags) {
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">long</strong> processorID = 0L;
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <strong class="jxr_keyword">long</strong> steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">long</strong> modelL = ParseUtil.parseLongOrDefault(model, 0L);
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">long</strong> familyL = ParseUtil.parseLongOrDefault(family, 0L);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         <em class="jxr_comment">// 3:0 – Stepping</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         processorID |= steppingL &amp; 0xf;
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         <em class="jxr_comment">// 19:16,7:4 – Model</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         processorID |= (modelL &amp; 0x0f) &lt;&lt; 4;
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>         processorID |= (modelL &amp; 0xf0) &lt;&lt; 16;
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <em class="jxr_comment">// 27:20,11:8 – Family</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         processorID |= (familyL &amp; 0x0f) &lt;&lt; 8;
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         processorID |= (familyL &amp; 0xf0) &lt;&lt; 20;
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         <em class="jxr_comment">// 13:12 – Processor Type, assume 0</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <strong class="jxr_keyword">for</strong> (String flag : flags) {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>             <strong class="jxr_keyword">switch</strong> (flag) {
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"fpu"</span>:
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>                 processorID |= 1L &lt;&lt; 32;
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"vme"</span>:
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>                 processorID |= 1L &lt;&lt; 33;
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"de"</span>:
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>                 processorID |= 1L &lt;&lt; 34;
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pse"</span>:
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>                 processorID |= 1L &lt;&lt; 35;
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"tsc"</span>:
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>                 processorID |= 1L &lt;&lt; 36;
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"msr"</span>:
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>                 processorID |= 1L &lt;&lt; 37;
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pae"</span>:
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>                 processorID |= 1L &lt;&lt; 38;
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mce"</span>:
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>                 processorID |= 1L &lt;&lt; 39;
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"cx8"</span>:
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>                 processorID |= 1L &lt;&lt; 40;
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"apic"</span>:
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>                 processorID |= 1L &lt;&lt; 41;
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sep"</span>:
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>                 processorID |= 1L &lt;&lt; 43;
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mtrr"</span>:
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>                 processorID |= 1L &lt;&lt; 44;
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pge"</span>:
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>                 processorID |= 1L &lt;&lt; 45;
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mca"</span>:
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>                 processorID |= 1L &lt;&lt; 46;
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"cmov"</span>:
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>                 processorID |= 1L &lt;&lt; 47;
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pat"</span>:
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>                 processorID |= 1L &lt;&lt; 48;
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pse-36"</span>:
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                 processorID |= 1L &lt;&lt; 49;
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"psn"</span>:
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 processorID |= 1L &lt;&lt; 50;
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"clfsh"</span>:
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 processorID |= 1L &lt;&lt; 51;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ds"</span>:
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 processorID |= 1L &lt;&lt; 53;
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"acpi"</span>:
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>                 processorID |= 1L &lt;&lt; 54;
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"mmx"</span>:
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>                 processorID |= 1L &lt;&lt; 55;
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"fxsr"</span>:
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>                 processorID |= 1L &lt;&lt; 56;
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sse"</span>:
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>                 processorID |= 1L &lt;&lt; 57;
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"sse2"</span>:
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>                 processorID |= 1L &lt;&lt; 58;
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ss"</span>:
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>                 processorID |= 1L &lt;&lt; 59;
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"htt"</span>:
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>                 processorID |= 1L &lt;&lt; 60;
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"tm"</span>:
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>                 processorID |= 1L &lt;&lt; 61;
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"ia64"</span>:
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>                 processorID |= 1L &lt;&lt; 62;
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>             <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pbe"</span>:
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>                 processorID |= 1L &lt;&lt; 63;
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>             }
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>         }
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"%016X"</span>, processorID);
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>     }
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

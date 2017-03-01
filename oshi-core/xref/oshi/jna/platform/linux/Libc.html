@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/linux/Libc.html">Libc</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/jna/platform/unix/CLibrary.html">CLibrary</a> {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <a href="../../../../oshi/jna/platform/linux/Libc.html">Libc</a> INSTANCE = (Libc) Native.loadLibrary(<span class="jxr_string">"c"</span>, Libc.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <a href="../../../../oshi/jna/platform/linux/Libc.html">Libc</a> INSTANCE = Native.loadLibrary(<span class="jxr_string">"c"</span>, Libc.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a> <strong class="jxr_keyword">extends</strong> Structure {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">public</strong> NativeLong uptime; <em class="jxr_comment">// Seconds since boot</em>

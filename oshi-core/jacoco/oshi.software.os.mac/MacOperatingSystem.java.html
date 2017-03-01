@@ -39,6 +39,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -46,9 +47,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);</span>
+<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);</span>
 
-<span class="nc" id="L51">    private int maxProc = 1024;</span>
+<span class="nc" id="L52">    private int maxProc = 1024;</span>
     /*
      * OS X States:
      */
@@ -60,21 +61,22 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                                         // termination
     private static final int SSTOP = 6; // process being traced
 
-<span class="nc" id="L63">    public MacOperatingSystem() {</span>
-<span class="nc" id="L64">        this.manufacturer = &quot;Apple&quot;;</span>
-<span class="nc" id="L65">        this.version = new MacOSVersionInfoEx();</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        this.family = ParseUtil.getFirstIntValue(version.getVersion()) == 10</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">                &amp;&amp; ParseUtil.getNthIntValue(version.getVersion(), 2) &gt;= 12 ? &quot;macOS&quot; : System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc" id="L64">    public MacOperatingSystem() {</span>
+<span class="nc" id="L65">        this.manufacturer = &quot;Apple&quot;;</span>
+<span class="nc" id="L66">        this.version = new MacOSVersionInfoEx();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        this.family = ParseUtil.getFirstIntValue(this.version.getVersion()) == 10</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                &amp;&amp; ParseUtil.getNthIntValue(this.version.getVersion(), 2) &gt;= 12 ? &quot;macOS&quot;</span>
+<span class="nc" id="L69">                        : System.getProperty(&quot;os.name&quot;);</span>
         // Set max processes
-<span class="nc" id="L69">        this.maxProc = SysctlUtil.sysctl(&quot;kern.maxproc&quot;, 0x1000);</span>
-<span class="nc" id="L70">    }</span>
+<span class="nc" id="L71">        this.maxProc = SysctlUtil.sysctl(&quot;kern.maxproc&quot;, 0x1000);</span>
+<span class="nc" id="L72">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L77">        return new MacFileSystem();</span>
+<span class="nc" id="L79">        return new MacFileSystem();</span>
     }
 
     /**
@@ -82,18 +84,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L85">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L86">        int[] pids = new int[this.maxProc];</span>
-<span class="nc" id="L87">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
+<span class="nc" id="L87">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">        int[] pids = new int[this.maxProc];</span>
+<span class="nc" id="L89">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
                 / SystemB.INT_SIZE;
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-<span class="nc" id="L90">            OSProcess proc = getProcess(pids[i]);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">            if (proc != null) {</span>
-<span class="nc" id="L92">                procs.add(proc);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc" id="L92">            OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (proc != null) {</span>
+<span class="nc" id="L94">                procs.add(proc);</span>
             }
         }
-<span class="nc" id="L95">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L96">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L97">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L98">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     /**
@@ -101,134 +103,134 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L104">        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {</span>
-<span class="nc" id="L106">            return null;</span>
+<span class="nc" id="L106">        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {</span>
+<span class="nc" id="L108">            return null;</span>
         }
-<span class="nc" id="L108">        String name = null;</span>
-<span class="nc" id="L109">        String path = &quot;&quot;;</span>
-<span class="nc" id="L110">        Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (0 &lt; SystemB.INSTANCE.proc_pidpath(pid, buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
-<span class="nc" id="L112">            path = buf.getString(0).trim();</span>
+<span class="nc" id="L110">        String name = null;</span>
+<span class="nc" id="L111">        String path = &quot;&quot;;</span>
+<span class="nc" id="L112">        Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (0 &lt; SystemB.INSTANCE.proc_pidpath(pid, buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
+<span class="nc" id="L114">            path = buf.getString(0).trim();</span>
             // Overwrite name with last part of path
-<span class="nc" id="L114">            String[] pathSplit = path.split(&quot;/&quot;);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (pathSplit.length &gt; 0) {</span>
-<span class="nc" id="L116">                name = pathSplit[pathSplit.length - 1];</span>
+<span class="nc" id="L116">            String[] pathSplit = path.split(&quot;/&quot;);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (pathSplit.length &gt; 0) {</span>
+<span class="nc" id="L118">                name = pathSplit[pathSplit.length - 1];</span>
             }
         }
         // If process is gone, return null
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (taskAllInfo.ptinfo.pti_threadnum &lt; 1) {</span>
-<span class="nc" id="L121">            return null;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (taskAllInfo.ptinfo.pti_threadnum &lt; 1) {</span>
+<span class="nc" id="L123">            return null;</span>
         }
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (name == null) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (name == null) {</span>
             // pbi_comm contains first 16 characters of name
             // null terminated
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (int t = 0; t &lt; taskAllInfo.pbsd.pbi_comm.length; t++) {</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                if (taskAllInfo.pbsd.pbi_comm[t] == 0) {</span>
-<span class="nc" id="L128">                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);</span>
-<span class="nc" id="L129">                    break;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            for (int t = 0; t &lt; taskAllInfo.pbsd.pbi_comm.length; t++) {</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                if (taskAllInfo.pbsd.pbi_comm[t] == 0) {</span>
+<span class="nc" id="L130">                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);</span>
+<span class="nc" id="L131">                    break;</span>
                 }
             }
         }
-<span class="nc" id="L133">        long bytesRead = 0;</span>
-<span class="nc" id="L134">        long bytesWritten = 0;</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (getVersion().getOsxVersionNumber() &gt;= 9) {</span>
-<span class="nc" id="L136">            RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
-<span class="nc" id="L138">                bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
-<span class="nc" id="L139">                bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
+<span class="nc" id="L135">        long bytesRead = 0;</span>
+<span class="nc" id="L136">        long bytesWritten = 0;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (getVersion().getOsxVersionNumber() &gt;= 9) {</span>
+<span class="nc" id="L138">            RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
+<span class="nc" id="L140">                bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
+<span class="nc" id="L141">                bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
             }
         }
-<span class="nc" id="L142">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L143">        OSProcess proc = new OSProcess();</span>
-<span class="nc" id="L144">        proc.setName(name);</span>
-<span class="nc" id="L145">        proc.setPath(path);</span>
-<span class="nc bnc" id="L146" title="All 7 branches missed.">        switch (taskAllInfo.pbsd.pbi_status) {</span>
+<span class="nc" id="L144">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L145">        OSProcess proc = new OSProcess();</span>
+<span class="nc" id="L146">        proc.setName(name);</span>
+<span class="nc" id="L147">        proc.setPath(path);</span>
+<span class="nc bnc" id="L148" title="All 7 branches missed.">        switch (taskAllInfo.pbsd.pbi_status) {</span>
         case SSLEEP:
-<span class="nc" id="L148">            proc.setState(OSProcess.State.SLEEPING);</span>
-<span class="nc" id="L149">            break;</span>
+<span class="nc" id="L150">            proc.setState(OSProcess.State.SLEEPING);</span>
+<span class="nc" id="L151">            break;</span>
         case SWAIT:
-<span class="nc" id="L151">            proc.setState(OSProcess.State.WAITING);</span>
-<span class="nc" id="L152">            break;</span>
+<span class="nc" id="L153">            proc.setState(OSProcess.State.WAITING);</span>
+<span class="nc" id="L154">            break;</span>
         case SRUN:
-<span class="nc" id="L154">            proc.setState(OSProcess.State.RUNNING);</span>
-<span class="nc" id="L155">            break;</span>
+<span class="nc" id="L156">            proc.setState(OSProcess.State.RUNNING);</span>
+<span class="nc" id="L157">            break;</span>
         case SIDL:
-<span class="nc" id="L157">            proc.setState(OSProcess.State.NEW);</span>
-<span class="nc" id="L158">            break;</span>
+<span class="nc" id="L159">            proc.setState(OSProcess.State.NEW);</span>
+<span class="nc" id="L160">            break;</span>
         case SZOMB:
-<span class="nc" id="L160">            proc.setState(OSProcess.State.ZOMBIE);</span>
-<span class="nc" id="L161">            break;</span>
+<span class="nc" id="L162">            proc.setState(OSProcess.State.ZOMBIE);</span>
+<span class="nc" id="L163">            break;</span>
         case SSTOP:
-<span class="nc" id="L163">            proc.setState(OSProcess.State.STOPPED);</span>
-<span class="nc" id="L164">            break;</span>
+<span class="nc" id="L165">            proc.setState(OSProcess.State.STOPPED);</span>
+<span class="nc" id="L166">            break;</span>
         default:
-<span class="nc" id="L166">            proc.setState(OSProcess.State.OTHER);</span>
+<span class="nc" id="L168">            proc.setState(OSProcess.State.OTHER);</span>
             break;
         }
-<span class="nc" id="L169">        proc.setProcessID(pid);</span>
-<span class="nc" id="L170">        proc.setParentProcessID(taskAllInfo.pbsd.pbi_ppid);</span>
-<span class="nc" id="L171">        proc.setUserID(Integer.toString(taskAllInfo.pbsd.pbi_uid));</span>
-<span class="nc" id="L172">        Passwd user = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">        proc.setUser(user == null ? proc.getUserID() : user.pw_name);</span>
-<span class="nc" id="L174">        proc.setGroupID(Integer.toString(taskAllInfo.pbsd.pbi_gid));</span>
-<span class="nc" id="L175">        Group group = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        proc.setGroup(group == null ? proc.getGroupID() : group.gr_name);</span>
-<span class="nc" id="L177">        proc.setThreadCount(taskAllInfo.ptinfo.pti_threadnum);</span>
-<span class="nc" id="L178">        proc.setPriority(taskAllInfo.ptinfo.pti_priority);</span>
-<span class="nc" id="L179">        proc.setVirtualSize(taskAllInfo.ptinfo.pti_virtual_size);</span>
-<span class="nc" id="L180">        proc.setResidentSetSize(taskAllInfo.ptinfo.pti_resident_size);</span>
-<span class="nc" id="L181">        proc.setKernelTime(taskAllInfo.ptinfo.pti_total_system / 1000000L);</span>
-<span class="nc" id="L182">        proc.setUserTime(taskAllInfo.ptinfo.pti_total_user / 1000000L);</span>
-<span class="nc" id="L183">        proc.setStartTime(taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L);</span>
-<span class="nc" id="L184">        proc.setUpTime(now - proc.getStartTime());</span>
-<span class="nc" id="L185">        proc.setBytesRead(bytesRead);</span>
-<span class="nc" id="L186">        proc.setBytesWritten(bytesWritten);</span>
-<span class="nc" id="L187">        proc.setCommandLine(getCommandLine(pid));</span>
-<span class="nc" id="L188">        return proc;</span>
+<span class="nc" id="L171">        proc.setProcessID(pid);</span>
+<span class="nc" id="L172">        proc.setParentProcessID(taskAllInfo.pbsd.pbi_ppid);</span>
+<span class="nc" id="L173">        proc.setUserID(Integer.toString(taskAllInfo.pbsd.pbi_uid));</span>
+<span class="nc" id="L174">        Passwd user = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        proc.setUser(user == null ? proc.getUserID() : user.pw_name);</span>
+<span class="nc" id="L176">        proc.setGroupID(Integer.toString(taskAllInfo.pbsd.pbi_gid));</span>
+<span class="nc" id="L177">        Group group = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        proc.setGroup(group == null ? proc.getGroupID() : group.gr_name);</span>
+<span class="nc" id="L179">        proc.setThreadCount(taskAllInfo.ptinfo.pti_threadnum);</span>
+<span class="nc" id="L180">        proc.setPriority(taskAllInfo.ptinfo.pti_priority);</span>
+<span class="nc" id="L181">        proc.setVirtualSize(taskAllInfo.ptinfo.pti_virtual_size);</span>
+<span class="nc" id="L182">        proc.setResidentSetSize(taskAllInfo.ptinfo.pti_resident_size);</span>
+<span class="nc" id="L183">        proc.setKernelTime(taskAllInfo.ptinfo.pti_total_system / 1000000L);</span>
+<span class="nc" id="L184">        proc.setUserTime(taskAllInfo.ptinfo.pti_total_user / 1000000L);</span>
+<span class="nc" id="L185">        proc.setStartTime(taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L);</span>
+<span class="nc" id="L186">        proc.setUpTime(now - proc.getStartTime());</span>
+<span class="nc" id="L187">        proc.setBytesRead(bytesRead);</span>
+<span class="nc" id="L188">        proc.setBytesWritten(bytesWritten);</span>
+<span class="nc" id="L189">        proc.setCommandLine(getCommandLine(pid));</span>
+<span class="nc" id="L190">        return proc;</span>
     }
 
     private String getCommandLine(int pid) {
         // Get command line via sysctl
-<span class="nc" id="L193">        int[] mib = new int[3];</span>
-<span class="nc" id="L194">        mib[0] = 1; // CTL_KERN</span>
-<span class="nc" id="L195">        mib[1] = 49; // KERN_PROCARGS2</span>
-<span class="nc" id="L196">        mib[2] = pid;</span>
+<span class="nc" id="L195">        int[] mib = new int[3];</span>
+<span class="nc" id="L196">        mib[0] = 1; // CTL_KERN</span>
+<span class="nc" id="L197">        mib[1] = 49; // KERN_PROCARGS2</span>
+<span class="nc" id="L198">        mib[2] = pid;</span>
         // Allocate memory for arguments
-<span class="nc" id="L198">        int argmax = SysctlUtil.sysctl(&quot;kern.argmax&quot;, 0);</span>
-<span class="nc" id="L199">        Pointer procargs = new Memory(argmax);</span>
-<span class="nc" id="L200">        IntByReference size = new IntByReference(argmax);</span>
+<span class="nc" id="L200">        int argmax = SysctlUtil.sysctl(&quot;kern.argmax&quot;, 0);</span>
+<span class="nc" id="L201">        Pointer procargs = new Memory(argmax);</span>
+<span class="nc" id="L202">        IntByReference size = new IntByReference(argmax);</span>
         // Fetch arguments
-<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {</span>
-<span class="nc" id="L203">            LOG.error(&quot;Failed syctl call: kern.procargs2, Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {</span>
+<span class="nc" id="L205">            LOG.error(&quot;Failed syctl call: kern.procargs2, Error code: {}&quot;, Native.getLastError());</span>
         }
         // Procargs contains an int representing total # of args, followed by a
         // null-terminated execpath string and then the arguments, each
         // null-terminated (possible multiple consecutive nulls),
         // The execpath string is also the first arg.
-<span class="nc" id="L209">        int nargs = procargs.getInt(0);</span>
-<span class="nc" id="L210">        List&lt;String&gt; args = new ArrayList&lt;&gt;(nargs);</span>
+<span class="nc" id="L211">        int nargs = procargs.getInt(0);</span>
+<span class="nc" id="L212">        List&lt;String&gt; args = new ArrayList&lt;&gt;(nargs);</span>
         // Skip first int (containing value of nargs)
-<span class="nc" id="L212">        long offset = SystemB.INT_SIZE;</span>
+<span class="nc" id="L214">        long offset = SystemB.INT_SIZE;</span>
         // Skip exec_command
-<span class="nc" id="L214">        offset += procargs.getString(offset).length();</span>
+<span class="nc" id="L216">        offset += procargs.getString(offset).length();</span>
         // Iterate character by character using offset
         // Build each arg and add to list
-<span class="nc bnc" id="L217" title="All 4 branches missed.">        while (nargs-- &gt; 0 &amp;&amp; offset &lt; size.getValue()) {</span>
+<span class="nc bnc" id="L219" title="All 4 branches missed.">        while (nargs-- &gt; 0 &amp;&amp; offset &lt; size.getValue()) {</span>
             // Advance through additional nulls
-<span class="nc bnc" id="L219" title="All 2 branches missed.">            while (procargs.getByte(offset) == 0) {</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">                if (++offset &gt;= size.getValue()) {</span>
-<span class="nc" id="L221">                    break;</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            while (procargs.getByte(offset) == 0) {</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">                if (++offset &gt;= size.getValue()) {</span>
+<span class="nc" id="L223">                    break;</span>
                 }
             }
             // Grab a string. This should go until the null terminator
-<span class="nc" id="L225">            String arg = procargs.getString(offset);</span>
-<span class="nc" id="L226">            args.add(arg);</span>
+<span class="nc" id="L227">            String arg = procargs.getString(offset);</span>
+<span class="nc" id="L228">            args.add(arg);</span>
             // Advance offset to next null
-<span class="nc" id="L228">            offset += arg.length();</span>
-<span class="nc" id="L229">        }</span>
+<span class="nc" id="L230">            offset += arg.length();</span>
+<span class="nc" id="L231">        }</span>
         // Return args null-delimited
-<span class="nc" id="L231">        return String.join(&quot;\0&quot;, args);</span>
+<span class="nc" id="L233">        return FormatUtil.join(&quot;\0&quot;, args);</span>
     }
 
     /**
@@ -236,7 +238,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public MacOSVersionInfoEx getVersion() {
-<span class="nc" id="L239">        return (MacOSVersionInfoEx) this.version;</span>
+<span class="nc" id="L241">        return (MacOSVersionInfoEx) this.version;</span>
     }
 
     /**
@@ -244,7 +246,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L247">        return SystemB.INSTANCE.getpid();</span>
+<span class="nc" id="L249">        return SystemB.INSTANCE.getpid();</span>
     }
 
     /**
@@ -252,7 +254,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L255">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
+<span class="nc" id="L257">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
     }
 
     /**
@@ -262,16 +264,16 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
         // allocating array space
-<span class="nc" id="L265">        int[] pids = new int[getProcessCount() + 10];</span>
-<span class="nc" id="L266">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
+<span class="nc" id="L267">        int[] pids = new int[getProcessCount() + 10];</span>
+<span class="nc" id="L268">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
                 / SystemB.INT_SIZE;
-<span class="nc" id="L268">        int numberOfThreads = 0;</span>
-<span class="nc" id="L269">        ProcTaskInfo taskInfo = new ProcTaskInfo();</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-<span class="nc" id="L271">            SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());</span>
-<span class="nc" id="L272">            numberOfThreads += taskInfo.pti_threadnum;</span>
+<span class="nc" id="L270">        int numberOfThreads = 0;</span>
+<span class="nc" id="L271">        ProcTaskInfo taskInfo = new ProcTaskInfo();</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc" id="L273">            SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());</span>
+<span class="nc" id="L274">            numberOfThreads += taskInfo.pti_threadnum;</span>
         }
-<span class="nc" id="L274">        return numberOfThreads;</span>
+<span class="nc" id="L276">        return numberOfThreads;</span>
     }
 
     /**
@@ -279,7 +281,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L282">        return new MacNetworkParams();</span>
+<span class="nc" id="L284">        return new MacNetworkParams();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

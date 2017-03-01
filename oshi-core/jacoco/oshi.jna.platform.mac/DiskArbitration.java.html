@@ -33,7 +33,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface DiskArbitration extends Library {
-<span class="nc" id="L36">    DiskArbitration INSTANCE = (DiskArbitration) Native.loadLibrary(&quot;DiskArbitration&quot;, DiskArbitration.class);</span>
+<span class="nc" id="L36">    DiskArbitration INSTANCE = Native.loadLibrary(&quot;DiskArbitration&quot;, DiskArbitration.class);</span>
 
 <span class="nc" id="L38">    class DASessionRef extends PointerType {</span>
     }
@@ -102,12 +102,12 @@ public interface DiskArbitration extends Library {
 
     /**
      * Obtains the BSD device name for the specified disk.
-     * 
+     *
      * @param disk
      *            The DADisk for which to obtain the BSD device name.
-     * 
+     *
      * @return The disk's BSD device name.
      */
     String DADiskGetBSDName(DADiskRef disk);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -18,13 +18,13 @@
  */
 package oshi.hardware.common;
 
-import java.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import oshi.hardware.Firmware;
 
 /**
  * Firmware data
- * 
+ *
  * @author SchiTho1 [at] Securiton AG
  * @author widdis [at] gmail [dot] com
  */
@@ -51,7 +51,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L54">        return manufacturer;</span>
+<span class="nc" id="L54">        return this.manufacturer;</span>
     }
 
     /**
@@ -59,7 +59,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getName() {
-<span class="nc" id="L62">        return name;</span>
+<span class="nc" id="L62">        return this.name;</span>
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getDescription() {
-<span class="nc" id="L70">        return description;</span>
+<span class="nc" id="L70">        return this.description;</span>
     }
 
     /**
@@ -75,7 +75,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getVersion() {
-<span class="nc" id="L78">        return version;</span>
+<span class="nc" id="L78">        return this.version;</span>
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public LocalDate getReleaseDate() {
-<span class="nc" id="L86">        return releaseDate;</span>
+<span class="nc" id="L86">        return this.releaseDate;</span>
     }
 
     /**
@@ -127,4 +127,4 @@ public abstract class AbstractFirmware implements Firmware {
 <span class="nc" id="L127">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

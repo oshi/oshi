@@ -39,7 +39,7 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32.html">Cfgmgr32</a> <strong class="jxr_keyword">extends</strong> Library {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <a href="../../../../oshi/jna/platform/windows/Cfgmgr32.html">Cfgmgr32</a> INSTANCE = (Cfgmgr32) Native.loadLibrary(<span class="jxr_string">"Cfgmgr32"</span>, Cfgmgr32.<strong class="jxr_keyword">class</strong>, W32APIOptions.DEFAULT_OPTIONS);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <a href="../../../../oshi/jna/platform/windows/Cfgmgr32.html">Cfgmgr32</a> INSTANCE = Native.loadLibrary(<span class="jxr_string">"Cfgmgr32"</span>, Cfgmgr32.<strong class="jxr_keyword">class</strong>, W32APIOptions.DEFAULT_OPTIONS);
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">int</strong> CM_Get_Parent(IntByReference pdnDevInst, <strong class="jxr_keyword">int</strong> dnDevInst, <strong class="jxr_keyword">int</strong> ulFlags);
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  

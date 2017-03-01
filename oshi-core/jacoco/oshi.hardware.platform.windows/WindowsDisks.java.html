@@ -25,10 +25,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.jna.platform.win32.Kernel32;
+
+import java8.util.function.Function;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.jna.platform.windows.Kernel32;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
@@ -38,155 +41,159 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L41">public class WindowsDisks implements Disks {</span>
+<span class="nc" id="L44">public class WindowsDisks implements Disks {</span>
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Maps to store read/write bytes per drive index
      */
-<span class="nc" id="L48">    private static Map&lt;String, Long&gt; readMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L49">    private static Map&lt;String, Long&gt; readByteMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L50">    private static Map&lt;String, Long&gt; writeMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L51">    private static Map&lt;String, Long&gt; writeByteMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L52">    private static Map&lt;String, Long&gt; xferTimeMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L53">    private static Map&lt;String, Long&gt; timeStampMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L54">    private static Map&lt;String, List&lt;String&gt;&gt; driveToPartitionMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L55">    private static Map&lt;String, String&gt; partitionToLogicalDriveMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L56">    private static Map&lt;String, HWPartition&gt; partitionMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L51">    private static Map&lt;String, Long&gt; readMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L52">    private static Map&lt;String, Long&gt; readByteMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L53">    private static Map&lt;String, Long&gt; writeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L54">    private static Map&lt;String, Long&gt; writeByteMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L55">    private static Map&lt;String, Long&gt; xferTimeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L56">    private static Map&lt;String, Long&gt; timeStampMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L57">    private static Map&lt;String, List&lt;String&gt;&gt; driveToPartitionMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L58">    private static Map&lt;String, String&gt; partitionToLogicalDriveMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L59">    private static Map&lt;String, HWPartition&gt; partitionMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L58">    private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
+<span class="nc" id="L61">    private static final ValueType[] DRIVE_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
             ValueType.STRING, ValueType.STRING, ValueType.UINT32 };
 
-<span class="nc" id="L61">    private static final ValueType[] READ_WRITE_TYPES = { ValueType.STRING, ValueType.UINT32, ValueType.STRING,</span>
+<span class="nc" id="L64">    private static final ValueType[] READ_WRITE_TYPES = { ValueType.STRING, ValueType.UINT32, ValueType.STRING,</span>
             ValueType.UINT32, ValueType.STRING, ValueType.STRING, ValueType.STRING };
 
-<span class="nc" id="L64">    private static final ValueType[] PARTITION_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
+<span class="nc" id="L67">    private static final ValueType[] PARTITION_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,</span>
             ValueType.STRING, ValueType.STRING, ValueType.UINT32, ValueType.UINT32 };
 
-<span class="nc" id="L67">    private static final Pattern DEVICE_ID = Pattern.compile(&quot;.*\\.DeviceID=\&quot;(.*)\&quot;&quot;);</span>
+<span class="nc" id="L70">    private static final Pattern DEVICE_ID = Pattern.compile(&quot;.*\\.DeviceID=\&quot;(.*)\&quot;&quot;);</span>
 
     private static final int BUFSIZE = 255;
 
     @Override
     public HWDiskStore[] getDisks() {
         List&lt;HWDiskStore&gt; result;
-<span class="nc" id="L74">        result = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L75">        populateReadWriteMaps();</span>
-<span class="nc" id="L76">        populatePartitionMaps();</span>
+<span class="nc" id="L77">        result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L78">        populateReadWriteMaps();</span>
+<span class="nc" id="L79">        populatePartitionMaps();</span>
 
-<span class="nc" id="L78">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(null, &quot;Win32_DiskDrive&quot;,</span>
+<span class="nc" id="L81">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(null, &quot;Win32_DiskDrive&quot;,</span>
                 &quot;Name,Manufacturer,Model,SerialNumber,Size,Index&quot;, null, DRIVE_TYPES);
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L81">            HWDiskStore ds = new HWDiskStore();</span>
-<span class="nc" id="L82">            ds.setName((String) vals.get(&quot;Name&quot;).get(i));</span>
-<span class="nc" id="L83">            ds.setModel(String.format(&quot;%s %s&quot;, vals.get(&quot;Model&quot;).get(i), vals.get(&quot;Manufacturer&quot;).get(i)).trim());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L84">            HWDiskStore ds = new HWDiskStore();</span>
+<span class="nc" id="L85">            ds.setName((String) vals.get(&quot;Name&quot;).get(i));</span>
+<span class="nc" id="L86">            ds.setModel(String.format(&quot;%s %s&quot;, vals.get(&quot;Model&quot;).get(i), vals.get(&quot;Manufacturer&quot;).get(i)).trim());</span>
             // Most vendors store serial # as a hex string; convert
-<span class="nc" id="L85">            ds.setSerial(ParseUtil.hexStringToString((String) vals.get(&quot;SerialNumber&quot;).get(i)));</span>
-<span class="nc" id="L86">            String index = vals.get(&quot;Index&quot;).get(i).toString();</span>
-<span class="nc" id="L87">            ds.setReads(readMap.getOrDefault(index, 0L));</span>
-<span class="nc" id="L88">            ds.setReadBytes(readByteMap.getOrDefault(index, 0L));</span>
-<span class="nc" id="L89">            ds.setWrites(writeMap.getOrDefault(index, 0L));</span>
-<span class="nc" id="L90">            ds.setWriteBytes(writeByteMap.getOrDefault(index, 0L));</span>
-<span class="nc" id="L91">            ds.setTransferTime(xferTimeMap.getOrDefault(index, 0L));</span>
-<span class="nc" id="L92">            ds.setTimeStamp(timeStampMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L88">            ds.setSerial(ParseUtil.hexStringToString((String) vals.get(&quot;SerialNumber&quot;).get(i)));</span>
+<span class="nc" id="L89">            String index = vals.get(&quot;Index&quot;).get(i).toString();</span>
+<span class="nc" id="L90">            ds.setReads(MapUtil.getOrDefault(readMap, index, 0L));</span>
+<span class="nc" id="L91">            ds.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));</span>
+<span class="nc" id="L92">            ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));</span>
+<span class="nc" id="L93">            ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));</span>
+<span class="nc" id="L94">            ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
+<span class="nc" id="L95">            ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
             // If successful this line is the desired value
-<span class="nc" id="L94">            ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get(&quot;Size&quot;).get(i), 0L));</span>
+<span class="nc" id="L97">            ds.setSize(ParseUtil.parseLongOrDefault((String) vals.get(&quot;Size&quot;).get(i), 0L));</span>
             // Get partitions
-<span class="nc" id="L96">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L97">            List&lt;String&gt; partList = driveToPartitionMap.get(ds.getName());</span>
-<span class="nc bnc" id="L98" title="All 4 branches missed.">            if (partList != null &amp;&amp; !partList.isEmpty()) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                for (String part : partList) {</span>
-<span class="nc" id="L100">                    partitions.add(partitionMap.get(part));</span>
-<span class="nc" id="L101">                }</span>
+<span class="nc" id="L99">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L100">            List&lt;String&gt; partList = driveToPartitionMap.get(ds.getName());</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">            if (partList != null &amp;&amp; !partList.isEmpty()) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                for (String part : partList) {</span>
+<span class="nc" id="L103">                    partitions.add(partitionMap.get(part));</span>
+<span class="nc" id="L104">                }</span>
             }
-<span class="nc" id="L103">            ds.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));</span>
+<span class="nc" id="L106">            ds.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));</span>
             // Add to list
-<span class="nc" id="L105">            result.add(ds);</span>
+<span class="nc" id="L108">            result.add(ds);</span>
         }
-<span class="nc" id="L107">        return result.toArray(new HWDiskStore[result.size()]);</span>
+<span class="nc" id="L110">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
 
     private void populateReadWriteMaps() {
-<span class="nc" id="L111">        readMap.clear();</span>
-<span class="nc" id="L112">        readByteMap.clear();</span>
-<span class="nc" id="L113">        writeMap.clear();</span>
-<span class="nc" id="L114">        writeByteMap.clear();</span>
-<span class="nc" id="L115">        xferTimeMap.clear();</span>
-<span class="nc" id="L116">        timeStampMap.clear();</span>
+<span class="nc" id="L114">        readMap.clear();</span>
+<span class="nc" id="L115">        readByteMap.clear();</span>
+<span class="nc" id="L116">        writeMap.clear();</span>
+<span class="nc" id="L117">        writeByteMap.clear();</span>
+<span class="nc" id="L118">        xferTimeMap.clear();</span>
+<span class="nc" id="L119">        timeStampMap.clear();</span>
         // Although the field names say &quot;PerSec&quot; this is the Raw Data from which
         // the associated fields are populated in the Formatted Data class, so
         // in fact this is the data we want
-<span class="nc" id="L120">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(null, &quot;Win32_PerfRawData_PerfDisk_PhysicalDisk&quot;,</span>
+<span class="nc" id="L123">        Map&lt;String, List&lt;Object&gt;&gt; vals = WmiUtil.selectObjectsFrom(null, &quot;Win32_PerfRawData_PerfDisk_PhysicalDisk&quot;,</span>
                 &quot;Name,DiskReadsPerSec,DiskReadBytesPerSec,DiskWritesPerSec,DiskWriteBytesPerSec,PercentDiskTime,Timestamp_Sys100NS&quot;,
                 null, READ_WRITE_TYPES);
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L124">            String name = ((String) vals.get(&quot;Name&quot;).get(i)).split(&quot;\\s+&quot;)[0];</span>
-<span class="nc" id="L125">            readMap.put(name, (long) vals.get(&quot;DiskReadsPerSec&quot;).get(i));</span>
-<span class="nc" id="L126">            readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(&quot;DiskReadBytesPerSec&quot;).get(i), 0L));</span>
-<span class="nc" id="L127">            writeMap.put(name, (long) vals.get(&quot;DiskWritesPerSec&quot;).get(i));</span>
-<span class="nc" id="L128">            writeByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(&quot;DiskWriteBytesPerSec&quot;).get(i), 0L));</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L127">            String name = ((String) vals.get(&quot;Name&quot;).get(i)).split(&quot;\\s+&quot;)[0];</span>
+<span class="nc" id="L128">            readMap.put(name, (long) vals.get(&quot;DiskReadsPerSec&quot;).get(i));</span>
+<span class="nc" id="L129">            readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(&quot;DiskReadBytesPerSec&quot;).get(i), 0L));</span>
+<span class="nc" id="L130">            writeMap.put(name, (long) vals.get(&quot;DiskWritesPerSec&quot;).get(i));</span>
+<span class="nc" id="L131">            writeByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(&quot;DiskWriteBytesPerSec&quot;).get(i), 0L));</span>
             // Units are 100-ns, divide to get ms
-<span class="nc" id="L130">            xferTimeMap.put(name,</span>
-<span class="nc" id="L131">                    ParseUtil.parseLongOrDefault((String) vals.get(&quot;PercentDiskTime&quot;).get(i), 0L) / 10000L);</span>
-<span class="nc" id="L132">            timeStampMap.put(name,</span>
-<span class="nc" id="L133">                    ParseUtil.parseLongOrDefault((String) vals.get(&quot;Timestamp_Sys100NS&quot;).get(i), 0L) / 10000L);</span>
+<span class="nc" id="L133">            xferTimeMap.put(name,</span>
+<span class="nc" id="L134">                    ParseUtil.parseLongOrDefault((String) vals.get(&quot;PercentDiskTime&quot;).get(i), 0L) / 10000L);</span>
+<span class="nc" id="L135">            timeStampMap.put(name,</span>
+<span class="nc" id="L136">                    ParseUtil.parseLongOrDefault((String) vals.get(&quot;Timestamp_Sys100NS&quot;).get(i), 0L) / 10000L);</span>
         }
-<span class="nc" id="L135">    }</span>
+<span class="nc" id="L138">    }</span>
 
     private void populatePartitionMaps() {
-<span class="nc" id="L138">        driveToPartitionMap.clear();</span>
-<span class="nc" id="L139">        partitionToLogicalDriveMap.clear();</span>
-<span class="nc" id="L140">        partitionMap.clear();</span>
+<span class="nc" id="L141">        driveToPartitionMap.clear();</span>
+<span class="nc" id="L142">        partitionToLogicalDriveMap.clear();</span>
+<span class="nc" id="L143">        partitionMap.clear();</span>
         // For Regexp matching DeviceIDs
         Matcher mAnt;
         Matcher mDep;
 
         // Map drives to partitions
-<span class="nc" id="L146">        Map&lt;String, List&lt;String&gt;&gt; partitionQueryMap = WmiUtil.selectStringsFrom(null, &quot;Win32_DiskDriveToDiskPartition&quot;,</span>
+<span class="nc" id="L149">        Map&lt;String, List&lt;String&gt;&gt; partitionQueryMap = WmiUtil.selectStringsFrom(null, &quot;Win32_DiskDriveToDiskPartition&quot;,</span>
                 &quot;Antecedent,Dependent&quot;, null);
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (int i = 0; i &lt; partitionQueryMap.get(&quot;Antecedent&quot;).size(); i++) {</span>
-<span class="nc" id="L149">            mAnt = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Antecedent&quot;).get(i));</span>
-<span class="nc" id="L150">            mDep = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Dependent&quot;).get(i));</span>
-<span class="nc bnc" id="L151" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
-<span class="nc" id="L152">                driveToPartitionMap</span>
-<span class="nc" id="L153">                        .computeIfAbsent(mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;), k -&gt; new ArrayList&lt;String&gt;())</span>
-<span class="nc" id="L154">                        .add(mDep.group(1));</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (int i = 0; i &lt; partitionQueryMap.get(&quot;Antecedent&quot;).size(); i++) {</span>
+<span class="nc" id="L152">            mAnt = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Antecedent&quot;).get(i));</span>
+<span class="nc" id="L153">            mDep = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Dependent&quot;).get(i));</span>
+<span class="nc bnc" id="L154" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L155">                MapUtil.computeIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;),</span>
+<span class="nc" id="L156">                        new Function&lt;String, List&lt;String&gt;&gt;() {</span>
+                            @Override
+                            public List&lt;String&gt; apply(String k) {
+<span class="nc" id="L159">                                return new ArrayList&lt;&gt;();</span>
+                            }
+<span class="nc" id="L161">                        }).add(mDep.group(1));</span>
             }
         }
 
         // Map partitions to logical disks
-<span class="nc" id="L159">        partitionQueryMap = WmiUtil.selectStringsFrom(null, &quot;Win32_LogicalDiskToPartition&quot;, &quot;Antecedent,Dependent&quot;,</span>
+<span class="nc" id="L166">        partitionQueryMap = WmiUtil.selectStringsFrom(null, &quot;Win32_LogicalDiskToPartition&quot;, &quot;Antecedent,Dependent&quot;,</span>
                 null);
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (int i = 0; i &lt; partitionQueryMap.get(&quot;Antecedent&quot;).size(); i++) {</span>
-<span class="nc" id="L162">            mAnt = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Antecedent&quot;).get(i));</span>
-<span class="nc" id="L163">            mDep = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Dependent&quot;).get(i));</span>
-<span class="nc bnc" id="L164" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
-<span class="nc" id="L165">                partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + &quot;\\&quot;);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        for (int i = 0; i &lt; partitionQueryMap.get(&quot;Antecedent&quot;).size(); i++) {</span>
+<span class="nc" id="L169">            mAnt = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Antecedent&quot;).get(i));</span>
+<span class="nc" id="L170">            mDep = DEVICE_ID.matcher(partitionQueryMap.get(&quot;Dependent&quot;).get(i));</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L172">                partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + &quot;\\&quot;);</span>
             }
         }
 
         // Next, get all partitions and create objects
-<span class="nc" id="L170">        final Map&lt;String, List&lt;Object&gt;&gt; hwPartitionQueryMap = WmiUtil.selectObjectsFrom(null, &quot;Win32_DiskPartition&quot;,</span>
+<span class="nc" id="L177">        final Map&lt;String, List&lt;Object&gt;&gt; hwPartitionQueryMap = WmiUtil.selectObjectsFrom(null, &quot;Win32_DiskPartition&quot;,</span>
                 &quot;Name,Type,Description,DeviceID,Size,DiskIndex,Index&quot;, null, PARTITION_TYPES);
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (int i = 0; i &lt; hwPartitionQueryMap.get(&quot;Name&quot;).size(); i++) {</span>
-<span class="nc" id="L173">            String deviceID = (String) hwPartitionQueryMap.get(&quot;DeviceID&quot;).get(i);</span>
-<span class="nc" id="L174">            String logicalDrive = partitionToLogicalDriveMap.getOrDefault(deviceID, &quot;&quot;);</span>
-<span class="nc" id="L175">            String uuid = &quot;&quot;;</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (!logicalDrive.isEmpty()) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; hwPartitionQueryMap.get(&quot;Name&quot;).size(); i++) {</span>
+<span class="nc" id="L180">            String deviceID = (String) hwPartitionQueryMap.get(&quot;DeviceID&quot;).get(i);</span>
+<span class="nc" id="L181">            String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, &quot;&quot;);</span>
+<span class="nc" id="L182">            String uuid = &quot;&quot;;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            if (!logicalDrive.isEmpty()) {</span>
                 // Get matching volume for UUID
-<span class="nc" id="L178">                char[] volumeChr = new char[BUFSIZE];</span>
-<span class="nc" id="L179">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);</span>
-<span class="nc" id="L180">                uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), &quot;&quot;);</span>
+<span class="nc" id="L185">                char[] volumeChr = new char[BUFSIZE];</span>
+<span class="nc" id="L186">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);</span>
+<span class="nc" id="L187">                uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), &quot;&quot;);</span>
             }
-<span class="nc" id="L182">            partitionMap.put(deviceID,</span>
-<span class="nc" id="L183">                    new HWPartition((String) hwPartitionQueryMap.get(&quot;Name&quot;).get(i),</span>
-<span class="nc" id="L184">                            (String) hwPartitionQueryMap.get(&quot;Type&quot;).get(i),</span>
-<span class="nc" id="L185">                            (String) hwPartitionQueryMap.get(&quot;Description&quot;).get(i), uuid,</span>
-<span class="nc" id="L186">                            ParseUtil.parseLongOrDefault((String) hwPartitionQueryMap.get(&quot;Size&quot;).get(i), 0L),</span>
-<span class="nc" id="L187">                            ((Long) hwPartitionQueryMap.get(&quot;DiskIndex&quot;).get(i)).intValue(),</span>
-<span class="nc" id="L188">                            ((Long) hwPartitionQueryMap.get(&quot;Index&quot;).get(i)).intValue(), logicalDrive));</span>
+<span class="nc" id="L189">            partitionMap.put(deviceID,</span>
+<span class="nc" id="L190">                    new HWPartition((String) hwPartitionQueryMap.get(&quot;Name&quot;).get(i),</span>
+<span class="nc" id="L191">                            (String) hwPartitionQueryMap.get(&quot;Type&quot;).get(i),</span>
+<span class="nc" id="L192">                            (String) hwPartitionQueryMap.get(&quot;Description&quot;).get(i), uuid,</span>
+<span class="nc" id="L193">                            ParseUtil.parseLongOrDefault((String) hwPartitionQueryMap.get(&quot;Size&quot;).get(i), 0L),</span>
+<span class="nc" id="L194">                            ((Long) hwPartitionQueryMap.get(&quot;DiskIndex&quot;).get(i)).intValue(),</span>
+<span class="nc" id="L195">                            ((Long) hwPartitionQueryMap.get(&quot;Index&quot;).get(i)).intValue(), logicalDrive));</span>
         }
-<span class="nc" id="L190">    }</span>
+<span class="nc" id="L197">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

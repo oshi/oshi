@@ -60,8 +60,13 @@ public class ProcUtil {
      */
     public static File[] getPidFiles() {
 <span class="nc" id="L62">        File procdir = new File(&quot;/proc&quot;);</span>
-<span class="nc" id="L63">        File[] pids = procdir.listFiles((FileFilter) file -&gt; DIGITS.matcher(file.getName()).matches());</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
+<span class="nc" id="L63">        File[] pids = procdir.listFiles(new FileFilter() {</span>
+            @Override
+            public boolean accept(File file) {
+<span class="nc" id="L66">                return DIGITS.matcher(file.getName()).matches();</span>
+            }
+        });
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

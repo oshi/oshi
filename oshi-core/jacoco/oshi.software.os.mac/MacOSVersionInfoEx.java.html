@@ -40,13 +40,13 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 <span class="nc" id="L40">    }</span>
 
     public int getOsxVersionNumber() {
-<span class="nc" id="L43">        return osxVersionNumber;</span>
+<span class="nc" id="L43">        return this.osxVersionNumber;</span>
     }
 
     private String parseCodeName() {
 <span class="nc bnc" id="L47" title="All 2 branches missed.">        if (ParseUtil.getFirstIntValue(getVersion()) == 10) {</span>
-<span class="nc" id="L48">            osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);</span>
-<span class="nc bnc" id="L49" title="All 14 branches missed.">            switch (osxVersionNumber) {</span>
+<span class="nc" id="L48">            this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);</span>
+<span class="nc bnc" id="L49" title="All 14 branches missed.">            switch (this.osxVersionNumber) {</span>
             // MacOS
             case 12:
 <span class="nc" id="L52">                return &quot;Sierra&quot;;</span>
@@ -83,4 +83,4 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 <span class="nc" id="L83">        return &quot;&quot;;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
