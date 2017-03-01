@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOKit</a> <strong class="jxr_keyword">extends</strong> Library {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOKit</a> INSTANCE = (IOKit) Native.loadLibrary(<span class="jxr_string">"IOKit"</span>, IOKit.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <a href="../../../../oshi/jna/platform/mac/IOKit.html">IOKit</a> INSTANCE = Native.loadLibrary(<span class="jxr_string">"IOKit"</span>, IOKit.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> IOPS_NAME_KEY = CFStringRef.toCFString(<span class="jxr_string">"Name"</span>);
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  

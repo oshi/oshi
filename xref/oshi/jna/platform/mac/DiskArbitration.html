@@ -41,7 +41,7 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DiskArbitration</a> <strong class="jxr_keyword">extends</strong> Library {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DiskArbitration</a> INSTANCE = (DiskArbitration) Native.loadLibrary(<span class="jxr_string">"DiskArbitration"</span>, DiskArbitration.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DiskArbitration</a> INSTANCE = Native.loadLibrary(<span class="jxr_string">"DiskArbitration"</span>, DiskArbitration.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DASessionRef</a> <strong class="jxr_keyword">extends</strong> PointerType {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
@@ -110,10 +110,10 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * Obtains the BSD device name for the specified disk.</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     * @param disk</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     *            The DADisk for which to obtain the BSD device name.</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     * @return The disk's BSD device name.</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     String DADiskGetBSDName(<a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DADiskRef</a> disk);

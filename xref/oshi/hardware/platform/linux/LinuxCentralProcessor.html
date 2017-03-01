@@ -162,178 +162,179 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.physicalProcessorCount == 0) {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorCount = ids.size();
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_comment">// if at least one logical processor is present, we can safely assume there is at least one physical cpu</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.physicalProcessorCount == 0 &amp;&amp; <strong class="jxr_keyword">this</strong>.logicalProcessorCount &gt; 0) {
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorCount = 1;
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <em class="jxr_comment">// Force at least one processor</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.logicalProcessorCount &lt; 1) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             LOG.error(<span class="jxr_string">"Couldn't find logical processor count. Assuming 1."</span>);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">this</strong>.logicalProcessorCount = 1;
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.physicalProcessorCount &lt; 1) {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             LOG.error(<span class="jxr_string">"Couldn't find physical processor count. Assuming 1."</span>);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorCount = 1;
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         }
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     @Override
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">long</strong>[] getSystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <em class="jxr_comment">// /proc/stat expected format</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <em class="jxr_comment">// first line is overall user,nice,system,idle,iowait,irq, etc.</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// cpu 3357 0 4313 1362393 ...</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         String tickStr;
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (!procStat.isEmpty()) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             tickStr = procStat.get(0);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so remaining</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         String[] tickArr = tickStr.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <em class="jxr_comment">// Note tickArr is offset by 1</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TickType.values().length; i++) {
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// If next value is steal, add it</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &gt; TickType.values().length + 1) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             <em class="jxr_comment">// Add steal to system</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             ticks[TickType.SYSTEM.getIndex()] += ParseUtil.parseLongOrDefault(tickArr[TickType.values().length + 1],
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                     0L);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <em class="jxr_comment">// Ignore guest or guest_nice, they are included in user/nice</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         }
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     }
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     @Override
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">int</strong> retval = Libc.INSTANCE.getloadavg(average, nelem);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = Math.max(retval, 0); i &lt; average.length; i++) {
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>                 average[i] = -1d;
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     @Override
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[<strong class="jxr_keyword">this</strong>.logicalProcessorCount][TickType.values().length];
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <em class="jxr_comment">// /proc/stat expected format</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <em class="jxr_comment">// first line is overall user,nice,system,idle, etc.</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// cpu 3357 0 4313 1362393 ...</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// per-processor subsequent lines for cpu0, cpu1, etc.</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">int</strong> cpu = 0;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"cpu"</span>) &amp;&amp; !stat.startsWith(<span class="jxr_string">"cpu "</span>)) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>                 <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>                 <em class="jxr_comment">// remaining</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 String[] tickArr = stat.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                     <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                     <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 <em class="jxr_comment">// Note tickArr is offset by 1</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TickType.values().length; i++) {
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>                 <em class="jxr_comment">// If next value is steal, add it</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &gt; TickType.values().length + 1) {
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                     <em class="jxr_comment">// Add steal to system</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] += ParseUtil
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                             .parseLongOrDefault(tickArr[TickType.values().length + 1], 0L);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                     <em class="jxr_comment">// Ignore guest or guest_nice, they are included in</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                     <em class="jxr_comment">// user/nice</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 }
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <strong class="jxr_keyword">if</strong> (++cpu &gt;= <strong class="jxr_keyword">this</strong>.logicalProcessorCount) {
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             }
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     @Override
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">long</strong>) ProcUtil.getSystemUptimeFromProc();
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     }
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> 
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     @Override
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     @Deprecated
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxComputerSystem.html">LinuxComputerSystem</a>().getSerialNumber();
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * permissions), the cpuid command (if installed) or by encoding the</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * stepping, model, family, and feature flags.</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * @param stepping</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * @param model</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * @param family</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @param flags</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">private</strong> String getProcessorID(String stepping, String model, String family, String[] flags) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t system"</span>)) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 marker = <span class="jxr_string">"ID:"</span>;
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>             }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         marker = <span class="jxr_string">"eax="</span>;
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>)) {
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 String eax = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 String edx = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 <strong class="jxr_keyword">for</strong> (String register : checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>)) {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>                         eax = register.replace(<span class="jxr_string">"eax=0x"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>                         edx = register.replace(<span class="jxr_string">"edx=0x"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>                     }
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 }
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>             }
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         }
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags);
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a> }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_comment">// if at least one logical processor is present, we can safely assume</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <em class="jxr_comment">// there is at least one physical cpu</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.physicalProcessorCount == 0 &amp;&amp; <strong class="jxr_keyword">this</strong>.logicalProcessorCount &gt; 0) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorCount = 1;
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// Force at least one processor</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.logicalProcessorCount &lt; 1) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             LOG.error(<span class="jxr_string">"Couldn't find logical processor count. Assuming 1."</span>);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">this</strong>.logicalProcessorCount = 1;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.physicalProcessorCount &lt; 1) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             LOG.error(<span class="jxr_string">"Couldn't find physical processor count. Assuming 1."</span>);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorCount = 1;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Override
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">long</strong>[] getSystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <em class="jxr_comment">// /proc/stat expected format</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// first line is overall user,nice,system,idle,iowait,irq, etc.</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <em class="jxr_comment">// cpu 3357 0 4313 1362393 ...</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         String tickStr;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">if</strong> (!procStat.isEmpty()) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             tickStr = procStat.get(0);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so remaining</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         String[] tickArr = tickStr.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <em class="jxr_comment">// Note tickArr is offset by 1</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TickType.values().length; i++) {
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_comment">// If next value is steal, add it</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &gt; TickType.values().length + 1) {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <em class="jxr_comment">// Add steal to system</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             ticks[TickType.SYSTEM.getIndex()] += ParseUtil.parseLongOrDefault(tickArr[TickType.values().length + 1],
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                     0L);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             <em class="jxr_comment">// Ignore guest or guest_nice, they are included in user/nice</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         }
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     }
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     @Override
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">int</strong> retval = Libc.INSTANCE.getloadavg(average, nelem);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = Math.max(retval, 0); i &lt; average.length; i++) {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 average[i] = -1d;
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             }
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     @Override
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[<strong class="jxr_keyword">this</strong>.logicalProcessorCount][TickType.values().length];
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <em class="jxr_comment">// /proc/stat expected format</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// first line is overall user,nice,system,idle, etc.</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// cpu 3357 0 4313 1362393 ...</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <em class="jxr_comment">// per-processor subsequent lines for cpu0, cpu1, etc.</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">int</strong> cpu = 0;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"cpu"</span>) &amp;&amp; !stat.startsWith(<span class="jxr_string">"cpu "</span>)) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                 <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <em class="jxr_comment">// remaining</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 String[] tickArr = stat.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                     <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                     <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 <em class="jxr_comment">// Note tickArr is offset by 1</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TickType.values().length; i++) {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                 }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                 <em class="jxr_comment">// If next value is steal, add it</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &gt; TickType.values().length + 1) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                     <em class="jxr_comment">// Add steal to system</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] += ParseUtil
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                             .parseLongOrDefault(tickArr[TickType.values().length + 1], 0L);
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                     <em class="jxr_comment">// Ignore guest or guest_nice, they are included in</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     <em class="jxr_comment">// user/nice</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 }
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 <strong class="jxr_keyword">if</strong> (++cpu &gt;= <strong class="jxr_keyword">this</strong>.logicalProcessorCount) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     @Override
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">long</strong>) ProcUtil.getSystemUptimeFromProc();
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     @Override
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     @Deprecated
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxComputerSystem.html">LinuxComputerSystem</a>().getSerialNumber();
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * permissions), the cpuid command (if installed) or by encoding the</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * stepping, model, family, and feature flags.</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * @param stepping</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * @param model</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @param family</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * @param flags</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <strong class="jxr_keyword">private</strong> String getProcessorID(String stepping, String model, String family, String[] flags) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t system"</span>)) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 marker = <span class="jxr_string">"ID:"</span>;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>             }
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         marker = <span class="jxr_string">"eax="</span>;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>)) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 String eax = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 String edx = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 <strong class="jxr_keyword">for</strong> (String register : checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>)) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                         eax = register.replace(<span class="jxr_string">"eax=0x"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                         edx = register.replace(<span class="jxr_string">"edx=0x"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>                 }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>             }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         }
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

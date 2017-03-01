@@ -94,11 +94,11 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_INT32:
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">return</strong> Integer.toString(data.value.i32);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_UINT32:
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">return</strong> Integer.toUnsignedString(data.value.ui32);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">return</strong> FormatUtil.toUnsignedString(data.value.ui32);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_INT64:
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">return</strong> Long.toString(data.value.i64);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_UINT64:
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">return</strong> Long.toUnsignedString(data.value.ui64);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">return</strong> FormatUtil.toUnsignedString(data.value.ui64);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_STRING:
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">return</strong> data.value.str.addr.getString(0);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">default</strong>:
