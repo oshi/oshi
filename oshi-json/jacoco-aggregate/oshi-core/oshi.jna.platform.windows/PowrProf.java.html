@@ -34,7 +34,7 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-<span class="nc" id="L37">    PowrProf INSTANCE = (PowrProf) Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
+<span class="nc" id="L37">    PowrProf INSTANCE = Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     int SYSTEM_BATTERY_STATE = 5;
 
@@ -71,4 +71,4 @@ public interface PowrProf extends Library {
     int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
             Structure lpOutputBuffer, NativeLong nOutputBufferSize);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

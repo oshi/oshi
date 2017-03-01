@@ -37,7 +37,7 @@ import com.sun.jna.Union;
  * @author widdis[at]gmail[dot]com
  */
 public interface LibKstat extends Library {
-<span class="nc" id="L40">    LibKstat INSTANCE = (LibKstat) Native.loadLibrary(&quot;kstat&quot;, LibKstat.class);</span>
+<span class="nc" id="L40">    LibKstat INSTANCE = Native.loadLibrary(&quot;kstat&quot;, LibKstat.class);</span>
 
     /*
      * Kstat Data Types
@@ -434,4 +434,4 @@ public interface LibKstat extends Library {
      */
     Pointer kstat_data_lookup(Kstat ksp, String name);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

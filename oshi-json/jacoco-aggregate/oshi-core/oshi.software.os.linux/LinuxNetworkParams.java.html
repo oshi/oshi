@@ -85,7 +85,7 @@ import oshi.util.ParseUtil;
 <span class="nc bnc" id="L85" title="All 4 branches missed.">            if (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {</span>
 <span class="nc bnc" id="L86" title="All 2 branches missed.">                boolean isGateway = fields[3].indexOf('G') != -1;</span>
 <span class="nc" id="L87">                int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L88" title="All 4 branches missed.">                if (isGateway &amp;&amp; (metric &lt; minMetric)) {</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
 <span class="nc" id="L89">                    minMetric = metric;</span>
 <span class="nc" id="L90">                    gateway = fields[1];</span>
                 }
@@ -112,7 +112,7 @@ import oshi.util.ParseUtil;
 <span class="nc bnc" id="L112" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {</span>
 <span class="nc bnc" id="L113" title="All 2 branches missed.">                boolean isGateway = fields[2].indexOf('G') != -1;</span>
 <span class="nc" id="L114">                int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L115" title="All 4 branches missed.">                if (isGateway &amp;&amp; (metric &lt; minMetric)) {</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
 <span class="nc" id="L116">                    minMetric = metric;</span>
 <span class="nc" id="L117">                    gateway = fields[1];</span>
                 }
@@ -121,4 +121,4 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L121">        return gateway;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

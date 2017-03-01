@@ -18,10 +18,6 @@
  */
 package oshi.util;
 
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -31,6 +27,10 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * String parsing utility.
@@ -106,7 +106,7 @@ public class ParseUtil {
 <span class="fc" id="L106">        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());</span>
 <span class="pc bpc" id="L107" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
             // Regexp enforces #(.#) format so no test for NFE required
-<span class="fc" id="L109">            Double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
+<span class="fc" id="L109">            Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);</span>
 <span class="pc bpc" id="L110" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
         }
 <span class="fc" id="L112">        return -1L;</span>
@@ -455,15 +455,17 @@ public class ParseUtil {
      *
      * @param line
      *            The entire string
+     * @param n
+     *            Which set of integers to return
      * @return the value of nth integer if any; 0 otherwise
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-<span class="fc" id="L462">        String[] split = line.replaceFirst(&quot;^[^0-9]*&quot;, &quot;&quot;).split(&quot;[^0-9]+&quot;);</span>
-<span class="fc bfc" id="L463" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
-<span class="fc" id="L464">            return parseIntOrDefault(split[n - 1], 0);</span>
+<span class="fc" id="L464">        String[] split = line.replaceFirst(&quot;^[^0-9]*&quot;, &quot;&quot;).split(&quot;[^0-9]+&quot;);</span>
+<span class="fc bfc" id="L465" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
+<span class="fc" id="L466">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="fc" id="L466">        return 0;</span>
+<span class="fc" id="L468">        return 0;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

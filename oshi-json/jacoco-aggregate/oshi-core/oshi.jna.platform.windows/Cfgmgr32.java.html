@@ -31,7 +31,7 @@ import com.sun.jna.win32.W32APIOptions;
  * @author widdis[at]gmail[dot]com
  */
 public interface Cfgmgr32 extends Library {
-<span class="nc" id="L34">    Cfgmgr32 INSTANCE = (Cfgmgr32) Native.loadLibrary(&quot;Cfgmgr32&quot;, Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
+<span class="nc" id="L34">    Cfgmgr32 INSTANCE = Native.loadLibrary(&quot;Cfgmgr32&quot;, Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
 
     int CM_Get_Parent(IntByReference pdnDevInst, int dnDevInst, int ulFlags);
 
@@ -43,4 +43,4 @@ public interface Cfgmgr32 extends Library {
 
     int CM_Get_Device_ID_Size(NativeLongByReference pulLen, int dnDevInst, int ulFlags);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
