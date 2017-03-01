@@ -38,7 +38,7 @@ import com.sun.jna.platform.win32.WinDef.ULONGByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface IPHlpAPI extends Library {
-<span class="nc" id="L41">    IPHlpAPI INSTANCE = (IPHlpAPI) Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
+<span class="nc" id="L41">    IPHlpAPI INSTANCE = Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
 
     int IF_MAX_STRING_SIZE = 256;
     int IF_MAX_PHYS_ADDRESS_LENGTH = 32;
@@ -254,4 +254,4 @@ public interface IPHlpAPI extends Library {
      */
     int GetNetworkParams(FIXED_INFO pFixedInfo, ULONGByReference pOutBufLen);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

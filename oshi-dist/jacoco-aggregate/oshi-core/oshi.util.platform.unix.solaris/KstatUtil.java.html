@@ -86,11 +86,11 @@ public class KstatUtil {
         case LibKstat.KSTAT_DATA_INT32:
 <span class="nc" id="L87">            return Integer.toString(data.value.i32);</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L89">            return Integer.toUnsignedString(data.value.ui32);</span>
+<span class="nc" id="L89">            return FormatUtil.toUnsignedString(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
 <span class="nc" id="L91">            return Long.toString(data.value.i64);</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L93">            return Long.toUnsignedString(data.value.ui64);</span>
+<span class="nc" id="L93">            return FormatUtil.toUnsignedString(data.value.ui64);</span>
         case LibKstat.KSTAT_DATA_STRING:
 <span class="nc" id="L95">            return data.value.str.addr.getString(0);</span>
         default:
@@ -223,4 +223,4 @@ public class KstatUtil {
 <span class="nc" id="L223">        return kstats;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

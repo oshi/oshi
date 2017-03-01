@@ -30,9 +30,9 @@ import com.sun.jna.PointerType;
  */
 public interface Udev extends Library {
 
-<span class="nc" id="L33">    Udev INSTANCE = (Udev) Native.loadLibrary(&quot;udev&quot;, Udev.class);</span>
+<span class="nc" id="L33">    Udev INSTANCE = Native.loadLibrary(&quot;udev&quot;, Udev.class);</span>
 
-    class UdevHandle extends PointerType {
+    final class UdevHandle extends PointerType {
 
         public UdevHandle(Pointer address) {
 <span class="nc" id="L38">            super(address);</span>
@@ -54,7 +54,7 @@ public interface Udev extends Library {
 <span class="nc" id="L54">        }</span>
     }
 
-    class UdevEnumerate extends PointerType {
+    final class UdevEnumerate extends PointerType {
 
         public UdevEnumerate(Pointer address) {
 <span class="nc" id="L60">            super(address);</span>
@@ -65,7 +65,7 @@ public interface Udev extends Library {
 <span class="nc" id="L65">        }</span>
     }
 
-    class UdevListEntry extends PointerType {
+    final class UdevListEntry extends PointerType {
 
         public UdevListEntry(Pointer address) {
 <span class="nc" id="L71">            super(address);</span>
@@ -113,4 +113,4 @@ public interface Udev extends Library {
 
     String udev_device_get_sysname(UdevDevice udev_device);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
