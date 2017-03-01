@@ -1,8 +1,11 @@
 3.5.0 (in progress)
 ================
+* Your contribution here.
+
+3.4.1 (3/1/2017)
+================
 * [#327](https://github.com/dblock/oshi/pull/327): Restore Java 7 compatibility. - [@dbwiddis](https://github.com/dbwiddis).
 * [#328](https://github.com/dblock/oshi/pull/328): Updated to JNA 4.3.0. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.4.0 (2/26/2017)
 ================

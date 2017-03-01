@@ -290,7 +290,7 @@ public class FormatUtil {
      *
      * This is a Java 7 implementation of Java 8's String.join
      *
-     * @param delimeter
+     * @param delimiter
      *            the delimiter that separates each element
      * @param elements
      *            the elements to join together.
