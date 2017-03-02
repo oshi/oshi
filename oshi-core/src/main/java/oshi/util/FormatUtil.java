@@ -29,8 +29,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
 
-import java8.util.StringJoiner;
-
 /**
  * Formatting utility for appending units or converting between number types.
  *
@@ -298,11 +296,17 @@ public class FormatUtil {
      *         delimiter
      */
     public static String join(CharSequence delimiter, CharSequence... elements) {
-        StringJoiner joiner = new StringJoiner(delimiter);
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
         for (CharSequence cs : elements) {
-            joiner.add(cs);
+            if (first) {
+                first = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(cs);
         }
-        return joiner.toString();
+        return sb.toString();
     }
 
     /**

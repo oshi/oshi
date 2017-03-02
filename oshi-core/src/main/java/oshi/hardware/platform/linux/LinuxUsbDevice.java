@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
@@ -139,12 +138,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             } else {
                 // Add child path (path variable) to parent's path
                 String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                MapUtil.computeIfAbsent(hubMap, parentPath, new Function<String, List<String>>() {
-                    @Override
-                    public List<String> apply(String k) {
-                        return new ArrayList<>();
-                    }
-                }).add(path);
+                MapUtil.createNewListIfAbsent(hubMap, parentPath).add(path);
             }
             Udev.INSTANCE.udev_device_unref(dev);
         }

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
@@ -128,12 +127,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 // Store parent for later usbus-skipping
                 parentMap.put(key, parent);
                 // Add this key to the parent's hubmap list
-                MapUtil.computeIfAbsent(hubMap, parent, new Function<String, List<String>>() {
-                    @Override
-                    public List<String> apply(String k) {
-                        return new ArrayList<>();
-                    }
-                }).add(key);
+                MapUtil.createNewListIfAbsent(hubMap, parent).add(key);
             } else if (line.contains(".vendor =")) {
                 vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.contains(".product =")) {

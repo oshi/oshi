@@ -20,14 +20,11 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
-import java8.lang.FunctionalInterface;
-
 /**
  * Disks refers to hard drives installed in the machine.
  *
  * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-@FunctionalInterface
 public interface Disks extends Serializable {
 
     /**

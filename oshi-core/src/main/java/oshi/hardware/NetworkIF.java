@@ -25,17 +25,18 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java8.util.StringJoiner;
 import oshi.SystemInfo;
 import oshi.hardware.platform.linux.LinuxNetworks;
 import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
+import oshi.util.FormatUtil;
 
 /**
  * A network interface in the machine, including statistics
@@ -84,11 +85,11 @@ public class NetworkIF implements Serializable {
             // Set MAC
             byte[] hwmac = networkInterface.getHardwareAddress();
             if (hwmac != null) {
-                StringJoiner sj = new StringJoiner(":");
+                List<String> octets = new ArrayList<>(6);
                 for (byte b : hwmac) {
-                    sj.add(String.format("%02x", b));
+                    octets.add(String.format("%02x", b));
                 }
-                this.mac = sj.toString();
+                this.mac = FormatUtil.join(":", octets);
             } else {
                 this.mac = "Unknown";
             }

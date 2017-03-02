@@ -20,15 +20,12 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
-import java8.lang.FunctionalInterface;
-
 /**
  * Display refers to the information regarding a video source and monitor
  * identified by the EDID standard.
  *
  * @author widdis[at]gmail[dot]com
  */
-@FunctionalInterface
 public interface Display extends Serializable {
     /**
      * The EDID byte array.

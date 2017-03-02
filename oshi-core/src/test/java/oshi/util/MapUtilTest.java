@@ -21,11 +21,10 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
-import java8.util.function.Function;
 
 /**
  * Test map methods
@@ -45,16 +44,10 @@ public class MapUtilTest {
         assertEquals(null, MapUtil.putIfAbsent(testMap, "b", "B"));
         assertEquals("B", testMap.get("b"));
 
-        Function<String, String> testFunction = new Function<String, String>() {
-            @Override
-            public String apply(String s) {
-                return s + s;
-            }
-        };
-
-        assertEquals("A", MapUtil.computeIfAbsent(testMap, "a", testFunction));
-        assertEquals("A", testMap.get("a"));
-        assertEquals("cc", MapUtil.computeIfAbsent(testMap, "c", testFunction));
-        assertEquals("cc", testMap.get("c"));
+        Map<String, List<String>> testListMap = new HashMap<>();
+        assertEquals(0, MapUtil.createNewListIfAbsent(testListMap, "a").size());
+        testListMap.get("a").add("foo");
+        assertEquals(1, MapUtil.createNewListIfAbsent(testListMap, "a").size());
+        assertEquals("foo", MapUtil.createNewListIfAbsent(testListMap, "a").get(0));
     }
 }

@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import com.sun.jna.platform.win32.Kernel32;
 
-import java8.util.function.Function;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -152,13 +151,8 @@ public class WindowsDisks implements Disks {
             mAnt = DEVICE_ID.matcher(partitionQueryMap.get("Antecedent").get(i));
             mDep = DEVICE_ID.matcher(partitionQueryMap.get("Dependent").get(i));
             if (mAnt.matches() && mDep.matches()) {
-                MapUtil.computeIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"),
-                        new Function<String, List<String>>() {
-                            @Override
-                            public List<String> apply(String k) {
-                                return new ArrayList<>();
-                            }
-                        }).add(mDep.group(1));
+                MapUtil.createNewListIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"))
+                        .add(mDep.group(1));
             }
         }
 

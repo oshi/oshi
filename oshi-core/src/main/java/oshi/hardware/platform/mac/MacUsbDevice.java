@@ -29,7 +29,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.CoreFoundation;
@@ -144,12 +143,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
-                MapUtil.computeIfAbsent(hubMap, parentId.getValue(), new Function<Long, List<Long>>() {
-                    @Override
-                    public List<Long> apply(Long k) {
-                        return new ArrayList<>();
-                    }
-                }).add(childId.getValue());
+                MapUtil.createNewListIfAbsent(hubMap, parentId.getValue()).add(childId.getValue());
 
                 // Get device name and store in map
                 IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);

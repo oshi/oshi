@@ -18,9 +18,9 @@
  */
 package oshi.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-
-import java8.util.function.Function;
 
 /**
  * Allow Java 8 features on Java 7 HashMaps
@@ -91,34 +91,31 @@ public class MapUtil {
     }
 
     /**
-     * If the specified key is not already associated with a value, attempts to
-     * compute its value using the given mapping function and enters it into
-     * this map unless null.
+     * If the specified key is not already associated with a value (or is mapped
+     * to null) associates it with a new List<> and returns it, else returns the
+     * current value.
      *
      * @param <K>
      *            The map key type
      * @param <V>
-     *            The map value type
+     *            The map value type in the list
      * @param map
      *            the map to use
      * @param key
      *            key with which the specified value is to be associated
-     * @param mappingFunction
-     *            the function to compute a value
-     * @return the current (existing or computed) value associated with the
-     *         specified key, or null if the computed value is null
+     * @return the previous value associated with the specified key, or a new
+     *         list
      */
-    public static <K, V> V computeIfAbsent(Map<K, V> map, K key, Function<? super K, ? extends V> mappingFunction) {
+    public static <K, V> List<V> createNewListIfAbsent(Map<K, List<V>> map, K key) {
         synchronized (map) {
-            V value = map.get(key);
+            List<V> value = map.get(key);
             if (value != null) {
                 return value;
             }
-            value = mappingFunction.apply(key);
-            if (value != null) {
-                map.put(key, value);
-            }
+            value = new ArrayList<>();
+            map.put(key, value);
             return value;
         }
     }
+
 }

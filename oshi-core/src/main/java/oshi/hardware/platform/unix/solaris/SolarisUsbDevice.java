@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import java8.util.function.Function;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
@@ -111,13 +110,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                 // Add as child to appropriate parent
                 if (depth > indent) {
                     // Has a parent. Get parent and add this node to child list
-                    MapUtil.computeIfAbsent(hubMap, lastParent.get(depth - indent),
-                            new Function<String, List<String>>() {
-                                @Override
-                                public List<String> apply(String k) {
-                                    return new ArrayList<>();
-                                }
-                            }).add(key);
+                    MapUtil.createNewListIfAbsent(hubMap, lastParent.get(depth - indent)).add(key);
                 } else {
                     // No parent, add to controllers list
                     usbControllers.add(key);
