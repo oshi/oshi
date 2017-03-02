@@ -103,6 +103,24 @@ public class FileUtil {
     }
 
     /**
+     * Read a file and return the unsigned long value contained therein as a
+     * long. Intended primarily for Linux /sys filesystem
+     *
+     * @param filename
+     *            The file to read
+     * @return The value contained in the file, if any; otherwise zero
+     */
+    public static long getUnsignedLongFromFile(String filename) {
+        LOG.debug("Reading file {}", filename);
+        List<String> read = FileUtil.readFile(filename, false);
+        if (!read.isEmpty()) {
+            LOG.trace("Read {}", read.get(0));
+            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);
+        }
+        return 0L;
+    }
+
+    /**
      * Read a file and return the int value contained therein. Intended
      * primarily for Linux /sys filesystem
      *

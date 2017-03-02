@@ -72,6 +72,7 @@ public class WindowsNetworks extends AbstractNetworks {
                         netIF.getName());
                 return;
             }
+            // These are unsigned longs. netIF setter will mask sign bit.
             netIF.setBytesSent(ifRow.OutOctets);
             netIF.setBytesRecv(ifRow.InOctets);
             netIF.setPacketsSent(ifRow.OutUcastPkts);
@@ -89,13 +90,14 @@ public class WindowsNetworks extends AbstractNetworks {
                         netIF.getName());
                 return;
             }
-            netIF.setBytesSent(ifRow.dwOutOctets);
-            netIF.setBytesRecv(ifRow.dwInOctets);
-            netIF.setPacketsSent(ifRow.dwOutUcastPkts);
-            netIF.setPacketsRecv(ifRow.dwInUcastPkts);
-            netIF.setOutErrors(ifRow.dwOutErrors);
-            netIF.setInErrors(ifRow.dwInErrors);
-            netIF.setSpeed(ifRow.dwSpeed);
+            // These are unsigned ints. Widen them to longs.
+            netIF.setBytesSent(ifRow.dwOutOctets & 0xfffffffL);
+            netIF.setBytesRecv(ifRow.dwInOctets & 0xfffffffL);
+            netIF.setPacketsSent(ifRow.dwOutUcastPkts & 0xfffffffL);
+            netIF.setPacketsRecv(ifRow.dwInUcastPkts & 0xfffffffL);
+            netIF.setOutErrors(ifRow.dwOutErrors & 0xfffffffL);
+            netIF.setInErrors(ifRow.dwInErrors & 0xfffffffL);
+            netIF.setSpeed(ifRow.dwSpeed & 0xfffffffL);
         }
         netIF.setTimeStamp(System.currentTimeMillis());
     }

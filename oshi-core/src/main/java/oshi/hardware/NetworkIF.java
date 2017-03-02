@@ -179,7 +179,7 @@ public class NetworkIF implements Serializable {
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-        this.bytesRecv = bytesRecv;
+        this.bytesRecv = bytesRecv & 0x7fffffffffffffffL;
     }
 
     /**
@@ -196,7 +196,7 @@ public class NetworkIF implements Serializable {
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-        this.bytesSent = bytesSent;
+        this.bytesSent = bytesSent & 0x7fffffffffffffffL;
     }
 
     /**
@@ -214,7 +214,7 @@ public class NetworkIF implements Serializable {
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-        this.packetsRecv = packetsRecv;
+        this.packetsRecv = packetsRecv & 0x7fffffffffffffffL;
     }
 
     /**
@@ -231,7 +231,7 @@ public class NetworkIF implements Serializable {
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-        this.packetsSent = packetsSent;
+        this.packetsSent = packetsSent & 0x7fffffffffffffffL;
     }
 
     /**
@@ -248,7 +248,7 @@ public class NetworkIF implements Serializable {
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-        this.inErrors = inErrors;
+        this.inErrors = inErrors & 0x7fffffffffffffffL;
     }
 
     /**
@@ -265,7 +265,7 @@ public class NetworkIF implements Serializable {
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-        this.outErrors = outErrors;
+        this.outErrors = outErrors & 0x7fffffffffffffffL;
     }
 
     /**
@@ -283,7 +283,7 @@ public class NetworkIF implements Serializable {
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-        this.speed = speed;
+        this.speed = speed & 0x7fffffffffffffffL;
     }
 
     /**
