@@ -177,6 +177,18 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test parse long
+     */
+    @Test
+    public void testParseUnsignedLongOrDefault() {
+        assertEquals(9223372036854775807L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775807", 123L));
+        assertEquals(-9223372036854775808L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775808", 45L));
+        assertEquals(-1L, ParseUtil.parseUnsignedLongOrDefault("18446744073709551615", 123L));
+        assertEquals(0L, ParseUtil.parseUnsignedLongOrDefault("18446744073709551616", 45L));
+        assertEquals(123L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775808L", 123L));
+    }
+
+    /**
      * Test parse double
      */
     @Test

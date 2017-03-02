@@ -74,6 +74,10 @@ public class FileUtilTest {
      */
     @Test
     public void testGetFromFile() {
+        assertEquals(123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
+        assertEquals(0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
+        assertEquals(0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
+
         assertEquals(123L, FileUtil.getLongFromFile(INT_FILE));
         assertEquals(0L, FileUtil.getLongFromFile(STRING_FILE));
         assertEquals(0L, FileUtil.getLongFromFile(NO_FILE));

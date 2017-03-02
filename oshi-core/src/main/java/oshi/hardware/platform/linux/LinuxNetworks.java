@@ -46,12 +46,12 @@ public class LinuxNetworks extends AbstractNetworks {
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
 
         netIF.setTimeStamp(System.currentTimeMillis());
-        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));
-        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));
-        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));
-        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));
-        netIF.setOutErrors(FileUtil.getLongFromFile(txErrorsPath));
-        netIF.setInErrors(FileUtil.getLongFromFile(rxErrorsPath));
-        netIF.setSpeed(FileUtil.getLongFromFile(speed));
+        netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
+        netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
+        netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));
+        netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
+        netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
+        netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
+        netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));
     }
 }

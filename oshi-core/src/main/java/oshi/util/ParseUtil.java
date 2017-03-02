@@ -18,6 +18,7 @@
  */
 package oshi.util;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -353,6 +354,27 @@ public class ParseUtil {
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
             return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return defaultLong;
+        }
+    }
+
+    /**
+     * Attempts to parse a string to an "unsigned" long. If it fails, returns
+     * the default
+     *
+     * @param s
+     *            The string to parse
+     * @param defaultLong
+     *            The value to return if parsing fails
+     * @return The parsed long containing the same 64 bits that an unsigned long
+     *         would contain (which may produce a negative value)
+     */
+    public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
+        try {
+            BigInteger bi = new BigInteger(s);
+            return bi.longValue();
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
