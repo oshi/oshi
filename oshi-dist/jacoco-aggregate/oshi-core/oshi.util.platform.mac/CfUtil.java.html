@@ -27,24 +27,22 @@ import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import java8.util.function.Function;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.util.MapUtil;
 
 /**
  * Provides utilities for Core Foundations
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L41">public class CfUtil {</span>
-<span class="nc" id="L42">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+<span class="nc" id="L39">public class CfUtil {</span>
+<span class="nc" id="L40">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
 
     /**
      * Cache cfStrings
      */
-<span class="nc" id="L47">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -54,20 +52,23 @@ import oshi.util.MapUtil;
      * @return the corresponding CFString
      */
     public static CFStringRef getCFString(String key) {
-<span class="nc" id="L57">        return MapUtil.computeIfAbsent(cfStringMap, key, new Function&lt;String, CFStringRef&gt;() {</span>
-            @Override
-            public CFStringRef apply(String s) {
-<span class="nc" id="L60">                return CFStringRef.toCFString(s);</span>
+<span class="nc" id="L55">        synchronized (cfStringMap) {</span>
+<span class="nc" id="L56">            CFStringRef value = cfStringMap.get(key);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L58">                return value;</span>
             }
-        });
+<span class="nc" id="L60">            value = CFStringRef.toCFString(key);</span>
+<span class="nc" id="L61">            cfStringMap.put(key, value);</span>
+<span class="nc" id="L62">            return value;</span>
+<span class="nc" id="L63">        }</span>
     }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
      * fetch the corresponding constant.
      */
-<span class="nc" id="L69">    public enum CFNumberType {</span>
-<span class="nc" id="L70">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+<span class="nc" id="L70">    public enum CFNumberType {</span>
+<span class="nc" id="L71">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
     }
 
     /**
@@ -78,9 +79,9 @@ import oshi.util.MapUtil;
      * @return The corresponding long
      */
     public static long cfPointerToLong(Pointer p) {
-<span class="nc" id="L81">        LongByReference lbr = new LongByReference();</span>
-<span class="nc" id="L82">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
-<span class="nc" id="L83">        return lbr.getValue();</span>
+<span class="nc" id="L82">        LongByReference lbr = new LongByReference();</span>
+<span class="nc" id="L83">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="nc" id="L84">        return lbr.getValue();</span>
     }
 
     /**
@@ -91,9 +92,9 @@ import oshi.util.MapUtil;
      * @return The corresponding int
      */
     public static int cfPointerToInt(Pointer p) {
-<span class="nc" id="L94">        IntByReference ibr = new IntByReference();</span>
-<span class="nc" id="L95">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
-<span class="nc" id="L96">        return ibr.getValue();</span>
+<span class="nc" id="L95">        IntByReference ibr = new IntByReference();</span>
+<span class="nc" id="L96">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
+<span class="nc" id="L97">        return ibr.getValue();</span>
     }
 
     /**
@@ -105,7 +106,7 @@ import oshi.util.MapUtil;
      * @return The corresponding boolean
      */
     public static boolean cfPointerToBoolean(Pointer p) {
-<span class="nc" id="L108">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
+<span class="nc" id="L109">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
     }
 
     /**
@@ -116,17 +117,17 @@ import oshi.util.MapUtil;
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L120">            return &quot;null&quot;;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L121">            return &quot;null&quot;;</span>
         }
-<span class="nc" id="L122">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="nc" id="L123">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (maxSize == 0) {</span>
-<span class="nc" id="L125">            maxSize = 1;</span>
+<span class="nc" id="L123">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="nc" id="L124">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L126">            maxSize = 1;</span>
         }
-<span class="nc" id="L127">        Pointer buf = new Memory(maxSize);</span>
-<span class="nc" id="L128">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="nc" id="L129">        return buf.getString(0);</span>
+<span class="nc" id="L128">        Pointer buf = new Memory(maxSize);</span>
+<span class="nc" id="L129">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="nc" id="L130">        return buf.getString(0);</span>
     }
 
     /**
@@ -137,10 +138,10 @@ import oshi.util.MapUtil;
      *            The reference to release
      */
     public static void release(PointerType ref) {
-<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (ref != null) {</span>
-<span class="nc" id="L141">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (ref != null) {</span>
+<span class="nc" id="L142">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
         }
-<span class="nc" id="L143">    }</span>
+<span class="nc" id="L144">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

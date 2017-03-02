@@ -18,9 +18,9 @@
  */
 package oshi.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-
-import java8.util.function.Function;
 
 /**
  * Allow Java 8 features on Java 7 HashMaps
@@ -91,35 +91,32 @@ public class MapUtil {
     }
 
     /**
-     * If the specified key is not already associated with a value, attempts to
-     * compute its value using the given mapping function and enters it into
-     * this map unless null.
+     * If the specified key is not already associated with a value (or is mapped
+     * to null) associates it with a new List and returns it, else returns the
+     * current value.
      *
      * @param &lt;K&gt;
      *            The map key type
      * @param &lt;V&gt;
-     *            The map value type
+     *            The map value type in the list
      * @param map
      *            the map to use
      * @param key
      *            key with which the specified value is to be associated
-     * @param mappingFunction
-     *            the function to compute a value
-     * @return the current (existing or computed) value associated with the
-     *         specified key, or null if the computed value is null
+     * @return the previous value associated with the specified key, or a new
+     *         list
      */
-    public static &lt;K, V&gt; V computeIfAbsent(Map&lt;K, V&gt; map, K key, Function&lt;? super K, ? extends V&gt; mappingFunction) {
-<span class="fc" id="L112">        synchronized (map) {</span>
-<span class="fc" id="L113">            V value = map.get(key);</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">            if (value != null) {</span>
-<span class="fc" id="L115">                return value;</span>
+    public static &lt;K, V&gt; List&lt;V&gt; createNewListIfAbsent(Map&lt;K, List&lt;V&gt;&gt; map, K key) {
+<span class="fc" id="L110">        synchronized (map) {</span>
+<span class="fc" id="L111">            List&lt;V&gt; value = map.get(key);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            if (value != null) {</span>
+<span class="fc" id="L113">                return value;</span>
             }
-<span class="fc" id="L117">            value = mappingFunction.apply(key);</span>
-<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            if (value != null) {</span>
-<span class="fc" id="L119">                map.put(key, value);</span>
-            }
-<span class="fc" id="L121">            return value;</span>
-<span class="nc" id="L122">        }</span>
+<span class="fc" id="L115">            value = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L116">            map.put(key, value);</span>
+<span class="fc" id="L117">            return value;</span>
+<span class="nc" id="L118">        }</span>
     }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
