@@ -52,8 +52,8 @@ Downloads
 ----------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.4.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.3&amp;e=jar)  | [oshi-core-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/) • [streamsupport](https://github.com/streamsupport/streamsupport) |
-| [oshi-json-3.4.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.3&amp;e=jar)   | [oshi-json-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.4.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.3&amp;e=jar)  | [oshi-core-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/)) |
+| [oshi-json-3.4.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.3&amp;e=jar)   | [oshi-json-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------

@@ -2,6 +2,10 @@
 ================
 * Your contribution here.
 
+3.4.2 (3/2/2017)
+================
+* [#332](https://github.com/dblock/oshi/pull/332): Remove 3.4.1's streamsupport dependency to prevent license issues - [@dbwiddis](https://github.com/dbwiddis).
+
 3.4.1 (3/1/2017)
 ================
 * [#327](https://github.com/dblock/oshi/pull/327): Restore Java 7 compatibility. - [@dbwiddis](https://github.com/dbwiddis).

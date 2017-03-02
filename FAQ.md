@@ -20,7 +20,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-OSHI is compatible with Java 7 and will remain so for the near future, using the [threetenbp](http://www.threeten.org/threetenbp/) and [streamsupport](https://github.com/streamsupport/streamsupport) dependencies. Users may fork the project, upgrade to Java 8, and remove those dependencies if desired. A user has forked a much earlier version of the project to [Java 6](https://github.com/kaweesi/oshi).  
+OSHI is compatible with Java 7 and will remain so for the near future, using the [threetenbp](http://www.threeten.org/threetenbp/) dependency. A user has forked a much earlier version of the project to [Java 6](https://github.com/kaweesi/oshi).  
 
 Which operating systems are supported?
 ========

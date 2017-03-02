@@ -92,7 +92,7 @@ public class MapUtil {
 
     /**
      * If the specified key is not already associated with a value (or is mapped
-     * to null) associates it with a new List<> and returns it, else returns the
+     * to null) associates it with a new List and returns it, else returns the
      * current value.
      *
      * @param <K>
