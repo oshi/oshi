@@ -18,6 +18,7 @@
  */
 package oshi.software.os.windows;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -128,12 +129,16 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<String> groupIDList = new ArrayList<>();
         // All map lists should be the same length. Pick one size and iterate
         final int procCount = procs.get("Name").size();
+        int myPid = getProcessId();
         for (int p = 0; p < procCount; p++) {
             OSProcess proc = new OSProcess();
             proc.setName((String) procs.get("Name").get(p));
             proc.setPath((String) procs.get("ExecutablePath").get(p));
             proc.setCommandLine((String) procs.get("CommandLine").get(p));
             proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
+            if (myPid == proc.getProcessID()) {
+                proc.setCurrentWorkingDirectory(new File(".").getAbsolutePath());
+            }
             proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
             proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
             proc.setUserID((String) procs.get("PROCESS_GETOWNERSID").get(p));

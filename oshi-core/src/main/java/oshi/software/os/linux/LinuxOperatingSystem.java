@@ -20,6 +20,7 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -267,6 +268,15 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
+        try {
+            String cwdLink = String.format("/proc/%d/cwd", pid);
+            String cwd = new File(cwdLink).getCanonicalPath();
+            if (!cwd.equals(cwdLink)) {
+                proc.setCurrentWorkingDirectory(cwd);
+            }
+        } catch (IOException e) {
+            LOG.trace("Couldn't find cwd for pid {}: {}", pid, e);
+        }
         return proc;
     }
 

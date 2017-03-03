@@ -35,6 +35,7 @@ public class OSProcess implements Serializable {
     private String name = "";
     private String path = "";
     private String commandLine = "";
+    private String currentWorkingDirectory = "";
     private String user = "";
     private String userID = "";
     private String group = "";
@@ -115,6 +116,15 @@ public class OSProcess implements Serializable {
      */
     public String getCommandLine() {
         return this.commandLine;
+    }
+
+    /**
+     * @return Returns the process current working directory.
+     * 
+     *         On Windows, this value is only populated for the current process.
+     */
+    public String getCurrentWorkingDirectory() {
+        return this.currentWorkingDirectory;
     }
 
     /**
@@ -311,6 +321,16 @@ public class OSProcess implements Serializable {
      */
     public void setCommandLine(String commandLine) {
         this.commandLine = commandLine;
+    }
+
+    /**
+     * Sets the process current working directory
+     *
+     * @param currentWorkingDirectory
+     *            The currentWorkingDirectory to set.
+     */
+    public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
+        this.currentWorkingDirectory = currentWorkingDirectory;
     }
 
     /**
