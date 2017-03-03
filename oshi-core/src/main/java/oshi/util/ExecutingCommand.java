@@ -66,7 +66,7 @@ public class ExecutingCommand {
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
-            LOG.trace("", e);
+            LOG.trace("Couldn't run command {}: {}", cmdToRunWithArgs, e);
             return new ArrayList<>(0);
         }
 
@@ -78,7 +78,7 @@ public class ExecutingCommand {
             }
             p.waitFor();
         } catch (InterruptedException | IOException e) {
-            LOG.trace("", e);
+            LOG.trace("Problem reading output from {}: {}", cmdToRunWithArgs, e);
             return new ArrayList<>(0);
         }
         return sa;

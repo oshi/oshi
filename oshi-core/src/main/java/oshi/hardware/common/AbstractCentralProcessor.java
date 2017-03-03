@@ -126,7 +126,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             LOG.debug("Oracle MXBean detected.");
         } catch (ClassNotFoundException e) {
             LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
+            LOG.trace("{}", e);
         }
     }
 
