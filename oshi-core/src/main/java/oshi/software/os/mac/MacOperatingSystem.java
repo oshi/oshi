@@ -18,6 +18,7 @@
  */
 package oshi.software.os.mac;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import oshi.jna.platform.mac.SystemB.Passwd;
 import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
 import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
+import oshi.jna.platform.mac.SystemB.VnodePathInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -187,6 +189,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
+
+        VnodePathInfo vpi = new VnodePathInfo();
+        if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
+            int len = 0;
+            for (byte b : vpi.pvi_cdir.vip_path) {
+                if (b == 0) {
+                    break;
+                }
+                len++;
+            }
+            proc.setCurrentWorkingDirectory(new String(vpi.pvi_cdir.vip_path, 0, len, StandardCharsets.US_ASCII));
+        }
         return proc;
     }
 

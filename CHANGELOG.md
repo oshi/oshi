@@ -1,10 +1,11 @@
 3.5.0 (in progress)
 ================
+* [#336](https://github.com/dblock/oshi/pull/336): Add Process Current Working Directory - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.4.2 (3/2/2017)
 ================
-* [#332](https://github.com/dblock/oshi/pull/332): Remove 3.4.1's streamsupport dependency to prevent license issues - [@dbwiddis](https://github.com/dbwiddis).
+* [#332](https://github.com/dblock/oshi/pull/332): Remove streamsupport dependency - [@dbwiddis](https://github.com/dbwiddis).
 
 3.4.1 (3/1/2017)
 ================

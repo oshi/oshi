@@ -55,6 +55,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
         assertTrue(proc.getCommandLine().length() > 0);
+        assertNotNull(proc.getCurrentWorkingDirectory());
         assertNotNull(proc.getUser());
         assertNotNull(proc.getUserID());
         assertNotNull(proc.getGroup());
@@ -87,6 +88,7 @@ public class OperatingSystemTest {
         newProcess.setName(oldProcess.getName());
         newProcess.setPath(oldProcess.getPath());
         newProcess.setCommandLine(oldProcess.getCommandLine());
+        newProcess.setCurrentWorkingDirectory(oldProcess.getCurrentWorkingDirectory());
         newProcess.setUser(oldProcess.getUser());
         newProcess.setUserID(oldProcess.getUserID());
         newProcess.setGroup(oldProcess.getGroup());
@@ -108,6 +110,7 @@ public class OperatingSystemTest {
         assertEquals(oldProcess.getName(), newProcess.getName());
         assertEquals(oldProcess.getPath(), newProcess.getPath());
         assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
+        assertEquals(oldProcess.getCurrentWorkingDirectory(), newProcess.getCurrentWorkingDirectory());
         assertEquals(oldProcess.getUser(), newProcess.getUser());
         assertEquals(oldProcess.getUserID(), newProcess.getUserID());
         assertEquals(oldProcess.getGroup(), newProcess.getGroup());

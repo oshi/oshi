@@ -20,6 +20,7 @@ package oshi.software.os.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -27,6 +28,8 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
+import oshi.util.LsofUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -60,7 +63,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args");
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -71,16 +74,17 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess getProcess(int pid) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p " + pid);
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p ", pid);
         if (procs.isEmpty()) {
             return null;
         }
         return procs.get(0);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand) {
+    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+        Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
         List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
+        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;
         }
@@ -138,6 +142,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setPath(split[14]);
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
+            fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
             // 'top -bm io' gives read/write counts, not bytes
             procs.add(fproc);
         }

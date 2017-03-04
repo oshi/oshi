@@ -20,6 +20,7 @@ package oshi.software.os.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -27,6 +28,8 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
+import oshi.util.LsofUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -60,7 +63,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args");
+                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -71,16 +74,17 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess getProcess(int pid) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + pid);
+                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
         if (procs.isEmpty()) {
             return null;
         }
         return procs.get(0);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand) {
+    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+        Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
         List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
+        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;
         }
@@ -135,6 +139,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setPath(split[13]);
             sproc.setName(sproc.getPath().substring(sproc.getPath().lastIndexOf('/') + 1));
             sproc.setCommandLine(split[14]);
+            sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
             // bytes read/written not easily available
             procs.add(sproc);
         }

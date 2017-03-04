@@ -48,6 +48,7 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
     int PROC_PIDTASKALLINFO = 2;
     int PROC_PIDTBSDINFO = 3;
     int PROC_PIDTASKINFO = 4;
+    int PROC_PIDVNODEPATHINFO = 9;
 
     // length of fs type name including null
     int MFSTYPENAMELEN = 16;
@@ -162,6 +163,27 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
                     "ri_proc_start_abstime", "ri_proc_exit_abstime", "ri_child_user_time", "ri_child_system_time",
                     "ri_child_pkg_idle_wkups", "ri_child_interrupt_wkups", "ri_child_pageins",
                     "ri_child_elapsed_abstime", "ri_diskio_bytesread", "ri_diskio_byteswritten" });
+        }
+    }
+
+    class VnodeInfoPath extends Structure {
+        public byte[] vip_vi = new byte[152]; // vnode_info but we don't
+                                              // need its data
+        public byte[] vip_path = new byte[MAXPATHLEN];
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "vip_vi", "vip_path" });
+        }
+    }
+
+    class VnodePathInfo extends Structure {
+        public VnodeInfoPath pvi_cdir;
+        public VnodeInfoPath pvi_rdir;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "pvi_cdir", "pvi_rdir" });
         }
     }
 

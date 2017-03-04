@@ -95,6 +95,15 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
+     * @return Returns the process current working directory.
+     * 
+     *         On Windows, this value is only populated for the current process.
+     */
+    public String getCurrentWorkingDirectory() {
+        return this.osProcess.getCurrentWorkingDirectory();
+    }
+
+    /**
      * @return Returns the user name. On Windows systems, also returns the
      *         domain prepended to the username.
      */
@@ -278,6 +287,16 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      */
     public void setCommandLine(String commandLine) {
         this.osProcess.setCommandLine(commandLine);
+    }
+
+    /**
+     * Sets the process current working directory
+     *
+     * @param currentWorkingDirectory
+     *            The currentWorkingDirectory to set.
+     */
+    public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
+        this.osProcess.setCurrentWorkingDirectory(currentWorkingDirectory);
     }
 
     /**
@@ -485,6 +504,9 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.commandLine")) {
             json.add("commandLine", getPath());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.currentWorkingDirectory")) {
+            json.add("currentWorkingDirectory", getPath());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.user")) {
             json.add("user", getUser());
