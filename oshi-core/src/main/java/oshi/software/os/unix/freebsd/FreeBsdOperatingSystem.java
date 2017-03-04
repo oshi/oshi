@@ -20,6 +20,7 @@ package oshi.software.os.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -27,6 +28,8 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
+import oshi.util.LsofUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -79,6 +82,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     private List<OSProcess> getProcessListFromPS(String psCommand) {
+        Map<Integer, String> cwdMap = LsofUtil.getCwdMap();
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.isEmpty() || procList.size() < 2) {
@@ -138,6 +142,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setPath(split[14]);
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
+            fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
             // 'top -bm io' gives read/write counts, not bytes
             procs.add(fproc);
         }
