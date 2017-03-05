@@ -54,9 +54,9 @@ public class JsonUtil {
         config.put(JsonGenerator.PRETTY_PRINTING, true);
         JsonWriterFactory writerFactory = Json.createWriterFactory(config);
         // Writer
-        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);
-        jsonWriter.write(json);
-        jsonWriter.close();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(stringWriter)) {
+            jsonWriter.write(json);
+        }
         // Return
         return stringWriter.toString();
     }

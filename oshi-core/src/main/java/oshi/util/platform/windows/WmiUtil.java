@@ -320,10 +320,10 @@ public class WmiUtil {
         for (int i = 0; i < props.length; i++) {
             if ("__PATH".equals(props[i])) {
                 // Methods will query __PATH
-                values.put(propertyTypes[i].name(), new ArrayList<Object>());
+                values.put(propertyTypes[i].name(), new ArrayList<>());
             } else {
                 // Properties are named
-                values.put(props[i], new ArrayList<Object>());
+                values.put(props[i], new ArrayList<>());
             }
         }
 
