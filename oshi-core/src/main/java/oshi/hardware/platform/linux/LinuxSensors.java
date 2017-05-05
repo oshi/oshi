@@ -41,30 +41,57 @@ public class LinuxSensors implements Sensors {
 
     // Base HWMON path, adds 0, 1, etc. to end for various sensors
     private static final String HWMON = "/sys/class/hwmon/hwmon";
+    // Base THERMAL_ZONE path, adds 0, 1, etc. to end for temperature sensors
+    private static final String THERMAL_ZONE = "/sys/class/thermal/thermal_zone";
 
     // Map from sensor to path
-    private Map<String, String> hwmonMap = new HashMap<>();
+    private Map<String, String> sensorsMap = new HashMap<>();
 
     public LinuxSensors() {
         // Iterate over all hwmon* directories and look for sensor files
         // e.g. /sys/class/hwmon/hwmon0/temp1_input
-        int i = 0;
-        while (Paths.get(HWMON + i).toFile().isDirectory()) {
-            for (String sensor : SENSORS) {
-                String path = HWMON + i;
-                // Final to pass to anonymous class
-                final String prefix = sensor;
+        for (String sensor : SENSORS) {
+            // Final to pass to anonymous class
+            final String sensorPrefix = sensor;
+            getSensorFilesFromPath(HWMON, sensor, new FileFilter() {
                 // Find any *_input files in that path
-                File dir = new File(path);
-                File[] matchingFiles = dir.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.getName().startsWith(prefix) && f.getName().endsWith("_input");
-                    }
-                });
-                if (matchingFiles != null && matchingFiles.length > 0) {
-                    this.hwmonMap.put(sensor, String.format("%s/%s", path, sensor));
+                @Override
+                public boolean accept(File f) {
+                    return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input");
                 }
+            });
+        }
+        // Iterate over all thermal_zone* directories and look for sensor files if no temperature sensor is found
+        // e.g. /sys/class/thermal/thermal_zone0/temp
+        if (!sensorsMap.containsKey(TEMP)) {
+            getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
+                // Find any temp files in that path
+                @Override
+                public boolean accept(File f) {
+                    return f.getName().equals(TEMP);
+                }
+            });
+        }
+    }
+
+    /**
+     * Find all sensor files in a specific path and adds them to the hwmonMap
+     * 
+     * @param sensorPath
+     *            A string containing the sensor path
+     * @param sensor
+     *            A string containing the sensor
+     * @param sensorFileFilter
+     *            A FileFilter for detecting valid sensor files
+     */
+    private void getSensorFilesFromPath(String sensorPath, String sensor, FileFilter sensorFileFilter) {
+        int i = 0;
+        while (Paths.get(sensorPath + i).toFile().isDirectory()) {
+            String path = sensorPath + i;
+            File dir = new File(path);
+            File[] matchingFiles = dir.listFiles(sensorFileFilter);
+            if (matchingFiles != null && matchingFiles.length > 0) {
+                sensorsMap.put(sensor, String.format("%s/%s", path, sensor));
             }
             i++;
         }
@@ -75,10 +102,10 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (!this.hwmonMap.containsKey(TEMP)) {
+        if (!sensorsMap.containsKey(TEMP)) {
             return 0d;
         }
-        String hwmon = this.hwmonMap.get(TEMP);
+        String hwmon = sensorsMap.get(TEMP);
         // First attempt should be CPU temperature at index 1, if available
         long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
         // Should return a single line of millidegrees Celsius
@@ -99,6 +126,12 @@ public class LinuxSensors implements Sensors {
         if (count > 0) {
             return sum / (count * 1000d);
         }
+        // If temp2..temp6_input doesn't exist, try thermal_zone0
+        millidegrees = FileUtil.getLongFromFile(String.format("%s", hwmon));
+        // Should return a single line of millidegrees Celsius
+        if (millidegrees > 0) {
+            return millidegrees / 1000d;
+        }
         return 0d;
     }
 
@@ -107,8 +140,8 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.hwmonMap.containsKey(FAN)) {
-            String hwmon = this.hwmonMap.get(FAN);
+        if (sensorsMap.containsKey(FAN)) {
+            String hwmon = sensorsMap.get(FAN);
             List<Integer> speeds = new ArrayList<>();
             int fan = 1;
             for (;;) {
@@ -136,9 +169,9 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (this.hwmonMap.containsKey(VOLTAGE)) {
-            String hwmon = this.hwmonMap.get(VOLTAGE);
-            // Should return a single line of millidegrees Celsius
+        if (sensorsMap.containsKey(VOLTAGE)) {
+            String hwmon = sensorsMap.get(VOLTAGE);
+            // Should return a single line of millivolt
             return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
         }
         return 0d;
