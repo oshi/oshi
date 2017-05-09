@@ -28,21 +28,12 @@ public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    // If null, haven't attempted OHM.
-    private String tempIdentifierStr = null;
-
     // Successful (?) WMI namespace, path and property
     private String wmiTempNamespace = null;
 
     private String wmiTempClass = null;
 
     private String wmiTempProperty = null;
-
-    // If false, can't get from WMI
-    private boolean fanSpeedWMI = true;
-
-    // If null, haven't attempted OHM.
-    private String voltIdentifierStr = null;
 
     // Successful (?) WMI path and property
     private String wmiVoltNamespace = null;
@@ -58,11 +49,13 @@ public class WindowsSensors implements Sensors {
     public double getCpuTemperature() {
         // Initialize
         double tempC = 0d;
-        // If Open Hardware Monitor identifier is set, we couldn't get through
-        // normal WMI, and got ID from OHM at least once so go directly to OHM
-        if (this.tempIdentifierStr != null) {
+
+        // Attempt to fetch value from Open Hardware Monitor if it is running
+        String cpuIdentifier = WmiUtil.selectStringFrom("root\\OpenHardwareMonitor", "Hardware", "Identifier",
+                "WHERE HardwareType=\"CPU\"");
+        if (cpuIdentifier.length() > 0) {
             Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
-                    "WHERE Parent=\"" + this.tempIdentifierStr + "\" AND SensorType=\"Temperature\"");
+                    "WHERE Parent=\"" + cpuIdentifier + "\" AND SensorType=\"Temperature\"");
             if (!vals.get("Value").isEmpty()) {
                 double sum = 0;
                 for (double val : vals.get("Value")) {
@@ -72,9 +65,9 @@ public class WindowsSensors implements Sensors {
             }
             return tempC;
         }
-        // This branch is used the first time and all subsequent times if
-        // successful (tempIdenifierStr == null)
-        // Try to get value using initial or updated successful values
+
+        // If we get this far, OHM is not running.
+        // Try to get from conventional WMI
         long tempK;
         if (this.wmiTempClass == null) {
             this.wmiTempNamespace = "root\\cimv2";
@@ -108,15 +101,7 @@ public class WindowsSensors implements Sensors {
             tempC = tempK - 273d;
         }
         if (tempC <= 0d) {
-            // Unable to get temperature via WMI. Future attempts will be
-            // attempted via Open Hardware Monitor WMI if successful
-            String cpuIdentifier = WmiUtil.selectStringFrom("root\\OpenHardwareMonitor", "Hardware", "Identifier",
-                    "WHERE HardwareType=\"CPU\"");
-            this.tempIdentifierStr = cpuIdentifier.length() > 0 ? cpuIdentifier : null;
-            // If not null, recurse and get value via OHM
-            if (this.tempIdentifierStr != null) {
-                return getCpuTemperature();
-            }
+            // Unable to get temperature via WMI.
             tempC = 0d;
         }
         return tempC;
@@ -129,10 +114,13 @@ public class WindowsSensors implements Sensors {
     public int[] getFanSpeeds() {
         // Initialize
         int[] fanSpeeds = new int[1];
-        // If we couldn't get through normal WMI go directly to OHM
-        if (!this.fanSpeedWMI) {
+
+        // Attempt to fetch value from Open Hardware Monitor if it is running
+        String cpuIdentifier = WmiUtil.selectStringFrom("root\\OpenHardwareMonitor", "Hardware", "Identifier",
+                "WHERE HardwareType=\"CPU\"");
+        if (cpuIdentifier.length() > 0) {
             Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
-                    "WHERE Parent=\"" + this.tempIdentifierStr + "\" AND SensorType=\"Fan\"");
+                    "WHERE Parent=\"" + cpuIdentifier + "\" AND SensorType=\"Fan\"");
             if (!vals.get("Value").isEmpty()) {
                 fanSpeeds = new int[vals.get("Value").size()];
                 for (int i = 0; i < vals.get("Value").size(); i++) {
@@ -141,17 +129,13 @@ public class WindowsSensors implements Sensors {
             }
             return fanSpeeds;
         }
-        // This branch is used the first time and all subsequent times if
-        // successful (fanSpeedWMI == true)
-        // Try to get value
+
+        // If we get this far, OHM is not running.
+        // Try to get from conventional WMI
         int rpm = WmiUtil.selectUint32From(null, "Win32_Fan", "DesiredSpeed", null).intValue();
         // Set in array and return
         if (rpm > 0) {
             fanSpeeds[0] = rpm;
-        } else {
-            // Fail, switch to OHM
-            this.fanSpeedWMI = false;
-            return getFanSpeeds();
         }
         return fanSpeeds;
     }
@@ -163,15 +147,29 @@ public class WindowsSensors implements Sensors {
     public double getCpuVoltage() {
         // Initialize
         double volts = 0d;
-        // If we couldn't get through normal WMI go directly to OHM
-        if (this.voltIdentifierStr != null) {
-            return WmiUtil.selectFloatFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
-                    "WHERE Parent=\"" + this.voltIdentifierStr + "\" AND SensorType=\"Voltage\"");
+
+        // Attempt to fetch value from Open Hardware Monitor if it is running
+        Map<String, List<String>> voltIdentifiers = WmiUtil.selectStringsFrom("root\\OpenHardwareMonitor", "Hardware",
+                "Identifier", "WHERE SensorType=\"Voltage\"");
+        // Look for identifier containing "cpu"
+        String voltIdentifierStr = null;
+        for (String id : voltIdentifiers.get("Identifier")) {
+            if (id.toLowerCase().contains("cpu")) {
+                voltIdentifierStr = id;
+                break;
+            }
         }
-        // This branch is used the first time and all subsequent times if
-        // successful (voltIdenifierStr == null)
-        // Try to get value
-        // Try to get value using initial or updated successful values
+        // If none contain cpu just grab the first one
+        if (voltIdentifierStr == null && !voltIdentifiers.get("Identifier").isEmpty()) {
+            voltIdentifierStr = voltIdentifiers.get("Identifier").get(0);
+        }
+        if (voltIdentifierStr != null) {
+            return WmiUtil.selectFloatFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
+                    "WHERE Parent=\"" + voltIdentifierStr + "\" AND SensorType=\"Voltage\"");
+        }
+
+        // If we get this far, OHM is not running.
+        // Try to get from conventional WMI
         int decivolts;
         if (this.wmiVoltClass == null) {
             this.wmiVoltNamespace = "root\\cimv2";
@@ -209,28 +207,6 @@ public class WindowsSensors implements Sensors {
             } else {
                 // Value from bits 0-6
                 volts = (decivolts & 0x7F) / 10d;
-            }
-        }
-        if (volts <= 0d) {
-            // Unable to get voltage via WMI. Future attempts will be
-            // attempted via Open Hardware Monitor WMI if successful
-            Map<String, List<String>> voltIdentifiers = WmiUtil.selectStringsFrom("root\\OpenHardwareMonitor",
-                    "Hardware", "Identifier", "WHERE SensorType=\"Voltage\"");
-            // Look for identifier containing "cpu"
-
-            for (String id : voltIdentifiers.get("Identifier")) {
-                if (id.toLowerCase().contains("cpu")) {
-                    this.voltIdentifierStr = id;
-                    break;
-                }
-            }
-            // If none contain cpu just grab the first one
-            if (this.voltIdentifierStr == null && !voltIdentifiers.get("Identifier").isEmpty()) {
-                this.voltIdentifierStr = voltIdentifiers.get("Identifier").get(0);
-            }
-            // If not null, recurse and get value via OHM
-            if (this.voltIdentifierStr != null) {
-                return getCpuVoltage();
             }
         }
         return volts;
