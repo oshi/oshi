@@ -1,6 +1,7 @@
 3.5.0 (in progress)
 ================
 * [#336](https://github.com/dblock/oshi/pull/336): Add Process Current Working Directory - [@dbwiddis](https://github.com/dbwiddis).
+* [#357](https://github.com/dblock/oshi/pull/357): Prioritize OpenHardwareMonitor for Windows Sensors - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.4.2 (3/2/2017)

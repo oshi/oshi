@@ -101,8 +101,7 @@ public class WindowsSensors implements Sensors {
             tempC = tempK - 273d;
         }
         if (tempC <= 0d) {
-            // Unable to get temperature via WMI. Future attempts will be
-            // attempted via Open Hardware Monitor WMI if successful
+            // Unable to get temperature via WMI.
             tempC = 0d;
         }
         return tempC;
