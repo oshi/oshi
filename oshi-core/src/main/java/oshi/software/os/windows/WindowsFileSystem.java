@@ -140,7 +140,7 @@ public class WindowsFileSystem implements FileSystem {
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume, strMount,
+                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume, "", strMount,
                         getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
@@ -192,7 +192,7 @@ public class WindowsFileSystem implements FileSystem {
             }
 
             fs.add(new OSFileStore(String.format("%s (%s)", description, drives.get("Name").get(i)), volume,
-                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
+                    null, drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
                     drives.get("FileSystem").get(i), "", free, total));
         }
         return fs;

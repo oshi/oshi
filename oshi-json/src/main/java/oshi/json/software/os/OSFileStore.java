@@ -51,6 +51,8 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Name of the filestore
      * @param newVolume
      *            Volume of the filestore
+     * @param newMappedVolume
+     *            Mapped Volume of the filestore
      * @param newMount
      *            Mountpoint of the filestore
      * @param newDescription
@@ -64,9 +66,9 @@ public class OSFileStore extends AbstractOshiJsonObject {
      * @param newTotalSpace
      *            Total bytes
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
+    public OSFileStore(String newName, String newVolume, String newMappedVolume, String newMount, String newDescription, String newType,
             String newUuid, long newUsableSpace, long newTotalSpace) {
-        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
+        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMappedVolume, newMount, newDescription, newType,
                 newUuid, newUsableSpace, newTotalSpace);
     }
 
@@ -106,6 +108,25 @@ public class OSFileStore extends AbstractOshiJsonObject {
      */
     public void setVolume(String value) {
         this.fileStore.setVolume(value);
+    }
+
+    /**
+     * Mapped Volume of the File System
+     *
+     * @return The mapped volume of the file system
+     */
+    public String getMappedVolume() {
+        return this.fileStore.getMappedVolume();
+    }
+
+    /**
+     * Sets the mapped volume of the File System
+     *
+     * @param value
+     *            The mapped volume
+     */
+    public void setMappedVolume(String value) {
+        this.fileStore.setMappedVolume(value);
     }
 
     /**

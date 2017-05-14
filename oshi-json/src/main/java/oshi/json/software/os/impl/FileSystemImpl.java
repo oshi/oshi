@@ -63,8 +63,8 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
         oshi.software.os.OSFileStore[] fs = this.fileSystem.getFileStores();
         OSFileStore[] fileStores = new OSFileStore[fs.length];
         for (int i = 0; i < fs.length; i++) {
-            fileStores[i] = new OSFileStore(fs[i].getName(), fs[i].getVolume(), fs[i].getMount(),
-                    fs[i].getDescription(), fs[i].getType(), fs[i].getUUID(), fs[i].getUsableSpace(),
+            fileStores[i] = new OSFileStore(fs[i].getName(), fs[i].getVolume(), fs[i].getMappedVolume(),
+                    fs[i].getMount(), fs[i].getDescription(), fs[i].getType(), fs[i].getUUID(), fs[i].getUsableSpace(),
                     fs[i].getTotalSpace());
         }
         return fileStores;

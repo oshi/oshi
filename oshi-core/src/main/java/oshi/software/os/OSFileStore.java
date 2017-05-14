@@ -35,6 +35,8 @@ public class OSFileStore implements Serializable {
 
     private String volume;
 
+    private String mappedVolume;
+
     private String mount;
 
     private String description;
@@ -54,6 +56,8 @@ public class OSFileStore implements Serializable {
      *            Name of the filestore
      * @param newVolume
      *            Volume of the filestore
+     * @param newMappedVolume
+     *            Mapped Volume of the filestore
      * @param newMount
      *            Mountpoint of the filestore
      * @param newDescription
@@ -67,10 +71,11 @@ public class OSFileStore implements Serializable {
      * @param newTotalSpace
      *            Total bytes
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
+    public OSFileStore(String newName, String newVolume, String newMappedVolume, String newMount, String newDescription, String newType,
             String newUuid, long newUsableSpace, long newTotalSpace) {
         setName(newName);
         setVolume(newVolume);
+        setMappedVolume(newMappedVolume);
         setMount(newMount);
         setDescription(newDescription);
         setType(newType);
@@ -108,6 +113,15 @@ public class OSFileStore implements Serializable {
     }
 
     /**
+     * Mapped Volume of the File System
+     *
+     * @return The mapped volume of the file system
+     */
+    public String getMappedVolume() {
+        return this.mappedVolume;
+    }
+
+    /**
      * Sets the volume of the File System
      *
      * @param value
@@ -115,6 +129,16 @@ public class OSFileStore implements Serializable {
      */
     public void setVolume(String value) {
         this.volume = value;
+    }
+
+    /**
+     * Sets the mapped volume of the File System
+     *
+     * @param value
+     *            The mapped volume
+     */
+    public void setMappedVolume(String value) {
+        this.mappedVolume = value;
     }
 
     /**
