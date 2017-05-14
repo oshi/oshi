@@ -151,7 +151,7 @@ public class FreeBsdFileSystem implements FileSystem {
             }
             // Match UUID
             String uuid = MapUtil.getOrDefault(uuidMap, name, "");
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
+            OSFileStore osStore = new OSFileStore(name, volume, "", path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);

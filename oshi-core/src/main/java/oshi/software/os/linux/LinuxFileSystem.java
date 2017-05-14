@@ -20,6 +20,9 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,7 +171,23 @@ public class LinuxFileSystem implements FileSystem {
                 description = "Mount Point";
             }
 
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
+            // Add in mapped volume found at /dev/mapper, useful when linking file system with drive.
+            String mappedVolume = "";
+            String volumeMapperDirectory = "/dev/mapper/";
+            Path link = Paths.get(volume);
+            if (Files.exists(link) && Files.isSymbolicLink(link)) {
+                try {
+                    Path slink = Files.readSymbolicLink(link);
+                    Path full = Paths.get(volumeMapperDirectory + slink.toString());
+                    if (Files.exists(full)) {
+                        mappedVolume = full.normalize().toString();
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e);
+                }
+            }
+
+            OSFileStore osStore = new OSFileStore(name, volume, mappedVolume, path, description, type, uuid, usableSpace, totalSpace);
             fsList.add(osStore);
         }
 
