@@ -115,6 +115,9 @@ public class OSFileStore implements Serializable {
     /**
      * Logical volume of the File System
      *
+     * Provides an optional alternative volume identifier for the file system.
+     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM file systems).
+     *
      * @return The logical volume of the file system
      */
     public String getLogicalVolume() {
