@@ -109,6 +109,25 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
+     * Logical volume of the File System
+     *
+     * @return The logical volume of the file system
+     */
+    public String getLogicalvolume() {
+        return this.fileStore.getLogicalVolume();
+    }
+
+    /**
+     * Sets the logical volume of the File System
+     *
+     * @param value
+     *            The logical volume
+     */
+    public void setLogicalvolume(String value) {
+        this.fileStore.setLogicalVolume(value);
+    }
+
+    /**
      * Mountpoint of the File System
      *
      * @return The mountpoint of the file system
