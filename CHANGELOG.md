@@ -2,6 +2,7 @@
 ================
 * [#336](https://github.com/dblock/oshi/pull/336): Add Process Current Working Directory - [@dbwiddis](https://github.com/dbwiddis).
 * [#357](https://github.com/dblock/oshi/pull/357): Prioritize OpenHardwareMonitor for Windows Sensors - [@dbwiddis](https://github.com/dbwiddis).
+* [#362](https://github.com/oshi/oshi/pull/362): Add logical volume attribute to OSFileStore (Linux support only), providing a place for an alternate volume name. [@darinhoward](https://github.com/darinhoward)
 * [#363](https://github.com/oshi/oshi/pull/363): Adding Steal Tick Type for Linux - [@darinhoward](https://github.com/darinhoward).
 * Your contribution here.
 

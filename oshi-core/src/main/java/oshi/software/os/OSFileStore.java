@@ -35,6 +35,8 @@ public class OSFileStore implements Serializable {
 
     private String volume;
 
+    private String logicalVolume;
+
     private String mount;
 
     private String description;
@@ -46,6 +48,8 @@ public class OSFileStore implements Serializable {
     private long usableSpace;
 
     private long totalSpace;
+
+    public OSFileStore() {}
 
     /**
      * Creates an OSFileStore with the specified parameters.
@@ -71,6 +75,7 @@ public class OSFileStore implements Serializable {
             String newUuid, long newUsableSpace, long newTotalSpace) {
         setName(newName);
         setVolume(newVolume);
+        setLogicalVolume("");
         setMount(newMount);
         setDescription(newDescription);
         setType(newType);
@@ -108,6 +113,18 @@ public class OSFileStore implements Serializable {
     }
 
     /**
+     * Logical volume of the File System
+     *
+     * Provides an optional alternative volume identifier for the file system.
+     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM file systems).
+     *
+     * @return The logical volume of the file system
+     */
+    public String getLogicalVolume() {
+        return this.logicalVolume;
+    }
+
+    /**
      * Sets the volume of the File System
      *
      * @param value
@@ -115,6 +132,16 @@ public class OSFileStore implements Serializable {
      */
     public void setVolume(String value) {
         this.volume = value;
+    }
+
+    /**
+     * Sets the logical volume of the File System
+     *
+     * @param value
+     *            The logical volume
+     */
+    public void setLogicalVolume(String value) {
+        this.logicalVolume = value;
     }
 
     /**
