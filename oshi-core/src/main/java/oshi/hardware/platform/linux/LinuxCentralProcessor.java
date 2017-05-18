@@ -197,13 +197,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < TickType.values().length; i++) {
             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
         }
-        // If next value is steal, add it
-        if (tickArr.length > TickType.values().length + 1) {
-            // Add steal to system
-            ticks[TickType.SYSTEM.getIndex()] += ParseUtil.parseLongOrDefault(tickArr[TickType.values().length + 1],
-                    0L);
-            // Ignore guest or guest_nice, they are included in user/nice
-        }
+        // Ignore guest or guest_nice, they are included in user/nice
         return ticks;
     }
 
@@ -251,14 +245,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 for (int i = 0; i < TickType.values().length; i++) {
                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
-                // If next value is steal, add it
-                if (tickArr.length > TickType.values().length + 1) {
-                    // Add steal to system
-                    ticks[cpu][TickType.SYSTEM.getIndex()] += ParseUtil
-                            .parseLongOrDefault(tickArr[TickType.values().length + 1], 0L);
-                    // Ignore guest or guest_nice, they are included in
-                    // user/nice
-                }
+                // Ignore guest or guest_nice, they are included in
                 if (++cpu >= this.logicalProcessorCount) {
                     break;
                 }
