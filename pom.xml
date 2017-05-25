@@ -396,6 +396,9 @@
 						<header>LICENSE_HEADER</header>
                         <excludes>
 							<exclude>**/*test.*.txt</exclude>
+                            <exclude>**/maven-wrapper.properties</exclude>
+                            <exclude>mvnw</exclude>
+                            <exclude>mvnw.cmd</exclude>
                         </excludes>
 					</configuration>
 				</plugin>
