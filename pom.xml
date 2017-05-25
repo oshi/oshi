@@ -838,7 +838,7 @@
 											<pluginExecutionFilter>
 												<groupId>com.mycila</groupId>
 												<artifactId>license-maven-plugin</artifactId>
-												<versionRange>[2.11,)</versionRange>
+												<versionRange>[3.0,)</versionRange>
 												<goals>
 													<goal>format</goal>
 												</goals>
@@ -851,7 +851,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.jacoco</groupId>
 												<artifactId>jacoco-maven-plugin</artifactId>
-												<versionRange>[0.7.5.201505241946,)</versionRange>
+												<versionRange>[0.7.9,)</versionRange>
 												<goals>
 													<goal>prepare-agent</goal>
 												</goals>
