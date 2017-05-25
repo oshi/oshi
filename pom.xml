@@ -385,8 +385,8 @@
 					<artifactId>tidy-maven-plugin</artifactId>
 					<version>1.0.0</version>
 				</plugin>
-				<!-- Not yet Mars compatible <plugin> <groupId>net.revelc.code</groupId> 
-					<artifactId>formatter-maven-plugin</artifactId> <version>0.5.2</version> 
+				<!-- Not yet Neon compatible <plugin> <groupId>net.revelc.code.formatter</groupId> 
+					<artifactId>formatter-maven-plugin</artifactId> <version>2.0.1</version> 
 					</plugin> -->
 				<plugin>
 					<groupId>com.mycila</groupId>
@@ -860,9 +860,9 @@
 												<ignore />
 											</action>
 										</pluginExecution>
-										<!-- Not yet Mars compatible <pluginExecution> <pluginExecutionFilter> 
-											<groupId>net.revelc.code</groupId> <artifactId>formatter-maven-plugin</artifactId> 
-											<versionRange>[0.5.2,)</versionRange> <goals> <goal>format</goal> </goals> 
+										<!-- Not yet Neon compatible <pluginExecution> <pluginExecutionFilter> 
+											<groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
+											<versionRange>[2.0.1,)</versionRange> <goals> <goal>format</goal> </goals> 
 											</pluginExecutionFilter> <action> <ignore /> </action> </pluginExecution> -->
 										<pluginExecution>
 											<pluginExecutionFilter>
@@ -885,8 +885,8 @@
 				</pluginManagement>
 			</build>
 		</profile>
-		<!-- Not yet Mars compatible <profile> <id>format</id> <build> <plugins> 
-			<plugin> <groupId>net.revelc.code</groupId> <artifactId>formatter-maven-plugin</artifactId> 
+		<!-- Not yet Neon compatible <profile> <id>format</id> <build> <plugins> 
+			<plugin> <groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
 			<configuration> <configFile>eclipse/format.xml</configFile> </configuration> 
 			<dependencies> <dependency> <groupId>${project.groupId}</groupId> <artifactId>oshi-core</artifactId> 
 			<version>${project.version}</version> </dependency> </dependencies> <executions> 
