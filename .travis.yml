@@ -20,7 +20,7 @@ addons:
       name: "dblock/oshi"
       description: "Build submitted via Travis CI"
     notification_email: widdis@gmail.com
-    build_command_prepend: "mvn clean"
+    build_command_prepend: "./mvnw clean"
     build_command:   "./mvnw -DskipTests=true compile"
     branch_pattern: coverity_scan
 
