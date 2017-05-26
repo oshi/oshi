@@ -385,8 +385,8 @@
 					<artifactId>tidy-maven-plugin</artifactId>
 					<version>1.0.0</version>
 				</plugin>
-				<!-- Not yet Mars compatible <plugin> <groupId>net.revelc.code</groupId> 
-					<artifactId>formatter-maven-plugin</artifactId> <version>0.5.2</version> 
+				<!-- Not yet Neon compatible <plugin> <groupId>net.revelc.code.formatter</groupId> 
+					<artifactId>formatter-maven-plugin</artifactId> <version>2.0.1</version> 
 					</plugin> -->
 				<plugin>
 					<groupId>com.mycila</groupId>
@@ -396,6 +396,9 @@
 						<header>LICENSE_HEADER</header>
                         <excludes>
 							<exclude>**/*test.*.txt</exclude>
+                            <exclude>**/maven-wrapper.properties</exclude>
+                            <exclude>mvnw</exclude>
+                            <exclude>mvnw.cmd</exclude>
                         </excludes>
 					</configuration>
 				</plugin>
@@ -459,7 +462,7 @@
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.7.0.201704051617-r</version>
+							<version>4.8.0.201705170830-rc1</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
@@ -646,12 +649,24 @@
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
 			</plugin>
-		</plugins>
+            <!-- Checkstyle dependencies required here or they won't be used (per maven) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>7.7</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>2.10</version>
+				<version>2.12</version>
 			</extension>
 		</extensions>
 	</build>
@@ -838,7 +853,7 @@
 											<pluginExecutionFilter>
 												<groupId>com.mycila</groupId>
 												<artifactId>license-maven-plugin</artifactId>
-												<versionRange>[2.11,)</versionRange>
+												<versionRange>[3.0,)</versionRange>
 												<goals>
 													<goal>format</goal>
 												</goals>
@@ -851,7 +866,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.jacoco</groupId>
 												<artifactId>jacoco-maven-plugin</artifactId>
-												<versionRange>[0.7.5.201505241946,)</versionRange>
+												<versionRange>[0.7.9,)</versionRange>
 												<goals>
 													<goal>prepare-agent</goal>
 												</goals>
@@ -860,9 +875,9 @@
 												<ignore />
 											</action>
 										</pluginExecution>
-										<!-- Not yet Mars compatible <pluginExecution> <pluginExecutionFilter> 
-											<groupId>net.revelc.code</groupId> <artifactId>formatter-maven-plugin</artifactId> 
-											<versionRange>[0.5.2,)</versionRange> <goals> <goal>format</goal> </goals> 
+										<!-- Not yet Neon compatible <pluginExecution> <pluginExecutionFilter> 
+											<groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
+											<versionRange>[2.0.1,)</versionRange> <goals> <goal>format</goal> </goals> 
 											</pluginExecutionFilter> <action> <ignore /> </action> </pluginExecution> -->
 										<pluginExecution>
 											<pluginExecutionFilter>
@@ -885,8 +900,8 @@
 				</pluginManagement>
 			</build>
 		</profile>
-		<!-- Not yet Mars compatible <profile> <id>format</id> <build> <plugins> 
-			<plugin> <groupId>net.revelc.code</groupId> <artifactId>formatter-maven-plugin</artifactId> 
+		<!-- Not yet Neon compatible <profile> <id>format</id> <build> <plugins> 
+			<plugin> <groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
 			<configuration> <configFile>eclipse/format.xml</configFile> </configuration> 
 			<dependencies> <dependency> <groupId>${project.groupId}</groupId> <artifactId>oshi-core</artifactId> 
 			<version>${project.version}</version> </dependency> </dependencies> <executions> 
