@@ -23,7 +23,9 @@ addons:
     build_command_prepend: "./mvnw clean"
     build_command:   "./mvnw -DskipTests=true compile"
     branch_pattern: coverity_scan
-
+  hosts:
+    - oshi
+  hostname: oshi
 matrix:
   include:
     - os: linux
