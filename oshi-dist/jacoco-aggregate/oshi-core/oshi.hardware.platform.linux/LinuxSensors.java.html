@@ -41,65 +41,98 @@ public class LinuxSensors implements Sensors {
 
     // Base HWMON path, adds 0, 1, etc. to end for various sensors
     private static final String HWMON = &quot;/sys/class/hwmon/hwmon&quot;;
+    // Base THERMAL_ZONE path, adds 0, 1, etc. to end for temperature sensors
+    private static final String THERMAL_ZONE = &quot;/sys/class/thermal/thermal_zone&quot;;
 
     // Map from sensor to path
-<span class="nc" id="L46">    private Map&lt;String, String&gt; hwmonMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">    private Map&lt;String, String&gt; sensorsMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L48">    public LinuxSensors() {</span>
+<span class="nc" id="L50">    public LinuxSensors() {</span>
         // Iterate over all hwmon* directories and look for sensor files
         // e.g. /sys/class/hwmon/hwmon0/temp1_input
-<span class="nc" id="L51">        int i = 0;</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        while (Paths.get(HWMON + i).toFile().isDirectory()) {</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">            for (String sensor : SENSORS) {</span>
-<span class="nc" id="L54">                String path = HWMON + i;</span>
-                // Final to pass to anonymous class
-<span class="nc" id="L56">                final String prefix = sensor;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (String sensor : SENSORS) {</span>
+            // Final to pass to anonymous class
+<span class="nc" id="L55">            final String sensorPrefix = sensor;</span>
+<span class="nc" id="L56">            getSensorFilesFromPath(HWMON, sensor, new FileFilter() {</span>
                 // Find any *_input files in that path
-<span class="nc" id="L58">                File dir = new File(path);</span>
-<span class="nc" id="L59">                File[] matchingFiles = dir.listFiles(new FileFilter() {</span>
-                    @Override
-                    public boolean accept(File f) {
-<span class="nc bnc" id="L62" title="All 4 branches missed.">                        return f.getName().startsWith(prefix) &amp;&amp; f.getName().endsWith(&quot;_input&quot;);</span>
-                    }
-                });
-<span class="nc bnc" id="L65" title="All 4 branches missed.">                if (matchingFiles != null &amp;&amp; matchingFiles.length &gt; 0) {</span>
-<span class="nc" id="L66">                    this.hwmonMap.put(sensor, String.format(&quot;%s/%s&quot;, path, sensor));</span>
+                @Override
+                public boolean accept(File f) {
+<span class="nc bnc" id="L60" title="All 4 branches missed.">                    return f.getName().startsWith(sensorPrefix) &amp;&amp; f.getName().endsWith(&quot;_input&quot;);</span>
                 }
-            }
-<span class="nc" id="L69">            i++;</span>
+            });
         }
-<span class="nc" id="L71">    }</span>
+        // Iterate over all thermal_zone* directories and look for sensor files if no temperature sensor is found
+        // e.g. /sys/class/thermal/thermal_zone0/temp
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!sensorsMap.containsKey(TEMP)) {</span>
+<span class="nc" id="L67">            getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {</span>
+                // Find any temp files in that path
+                @Override
+                public boolean accept(File f) {
+<span class="nc" id="L71">                    return f.getName().equals(TEMP);</span>
+                }
+            });
+        }
+<span class="nc" id="L75">    }</span>
+
+    /**
+     * Find all sensor files in a specific path and adds them to the hwmonMap
+     * 
+     * @param sensorPath
+     *            A string containing the sensor path
+     * @param sensor
+     *            A string containing the sensor
+     * @param sensorFileFilter
+     *            A FileFilter for detecting valid sensor files
+     */
+    private void getSensorFilesFromPath(String sensorPath, String sensor, FileFilter sensorFileFilter) {
+<span class="nc" id="L88">        int i = 0;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        while (Paths.get(sensorPath + i).toFile().isDirectory()) {</span>
+<span class="nc" id="L90">            String path = sensorPath + i;</span>
+<span class="nc" id="L91">            File dir = new File(path);</span>
+<span class="nc" id="L92">            File[] matchingFiles = dir.listFiles(sensorFileFilter);</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">            if (matchingFiles != null &amp;&amp; matchingFiles.length &gt; 0) {</span>
+<span class="nc" id="L94">                sensorsMap.put(sensor, String.format(&quot;%s/%s&quot;, path, sensor));</span>
+            }
+<span class="nc" id="L96">            i++;</span>
+<span class="nc" id="L97">        }</span>
+<span class="nc" id="L98">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!this.hwmonMap.containsKey(TEMP)) {</span>
-<span class="nc" id="L79">            return 0d;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (!sensorsMap.containsKey(TEMP)) {</span>
+<span class="nc" id="L106">            return 0d;</span>
         }
-<span class="nc" id="L81">        String hwmon = this.hwmonMap.get(TEMP);</span>
+<span class="nc" id="L108">        String hwmon = sensorsMap.get(TEMP);</span>
         // First attempt should be CPU temperature at index 1, if available
-<span class="nc" id="L83">        long millidegrees = FileUtil.getLongFromFile(String.format(&quot;%s1_input&quot;, hwmon));</span>
+<span class="nc" id="L110">        long millidegrees = FileUtil.getLongFromFile(String.format(&quot;%s1_input&quot;, hwmon));</span>
         // Should return a single line of millidegrees Celsius
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (millidegrees &gt; 0) {</span>
-<span class="nc" id="L86">            return millidegrees / 1000d;</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (millidegrees &gt; 0) {</span>
+<span class="nc" id="L113">            return millidegrees / 1000d;</span>
         }
         // If temp1_input doesn't exist, iterate over temp2..temp6_input
         // and average
-<span class="nc" id="L90">        int sum = 0;</span>
-<span class="nc" id="L91">        int count = 0;</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (int i = 2; i &lt;= 6; i++) {</span>
-<span class="nc" id="L93">            millidegrees = FileUtil.getLongFromFile(String.format(&quot;%s%d_input&quot;, hwmon, i));</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (millidegrees &gt; 0) {</span>
-<span class="nc" id="L95">                sum += millidegrees;</span>
-<span class="nc" id="L96">                count++;</span>
+<span class="nc" id="L117">        int sum = 0;</span>
+<span class="nc" id="L118">        int count = 0;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (int i = 2; i &lt;= 6; i++) {</span>
+<span class="nc" id="L120">            millidegrees = FileUtil.getLongFromFile(String.format(&quot;%s%d_input&quot;, hwmon, i));</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (millidegrees &gt; 0) {</span>
+<span class="nc" id="L122">                sum += millidegrees;</span>
+<span class="nc" id="L123">                count++;</span>
             }
         }
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (count &gt; 0) {</span>
-<span class="nc" id="L100">            return sum / (count * 1000d);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (count &gt; 0) {</span>
+<span class="nc" id="L127">            return sum / (count * 1000d);</span>
         }
-<span class="nc" id="L102">        return 0d;</span>
+        // If temp2..temp6_input doesn't exist, try thermal_zone0
+<span class="nc" id="L130">        millidegrees = FileUtil.getLongFromFile(String.format(&quot;%s&quot;, hwmon));</span>
+        // Should return a single line of millidegrees Celsius
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (millidegrees &gt; 0) {</span>
+<span class="nc" id="L133">            return millidegrees / 1000d;</span>
+        }
+<span class="nc" id="L135">        return 0d;</span>
     }
 
     /**
@@ -107,28 +140,28 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (this.hwmonMap.containsKey(FAN)) {</span>
-<span class="nc" id="L111">            String hwmon = this.hwmonMap.get(FAN);</span>
-<span class="nc" id="L112">            List&lt;Integer&gt; speeds = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L113">            int fan = 1;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (sensorsMap.containsKey(FAN)) {</span>
+<span class="nc" id="L144">            String hwmon = sensorsMap.get(FAN);</span>
+<span class="nc" id="L145">            List&lt;Integer&gt; speeds = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L146">            int fan = 1;</span>
             for (;;) {
-<span class="nc" id="L115">                String fanPath = String.format(&quot;%s%d_input&quot;, hwmon, fan);</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (!new File(fanPath).exists()) {</span>
+<span class="nc" id="L148">                String fanPath = String.format(&quot;%s%d_input&quot;, hwmon, fan);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                if (!new File(fanPath).exists()) {</span>
                     // No file found, we've reached max fans
-<span class="nc" id="L118">                    break;</span>
+<span class="nc" id="L151">                    break;</span>
                 }
                 // Should return a single line of RPM
-<span class="nc" id="L121">                speeds.add(FileUtil.getIntFromFile(fanPath));</span>
+<span class="nc" id="L154">                speeds.add(FileUtil.getIntFromFile(fanPath));</span>
                 // Done reading data for current fan, read next fan
-<span class="nc" id="L123">                fan++;</span>
-<span class="nc" id="L124">            }</span>
-<span class="nc" id="L125">            int[] fanSpeeds = new int[speeds.size()];</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (int i = 0; i &lt; speeds.size(); i++) {</span>
-<span class="nc" id="L127">                fanSpeeds[i] = speeds.get(i);</span>
+<span class="nc" id="L156">                fan++;</span>
+<span class="nc" id="L157">            }</span>
+<span class="nc" id="L158">            int[] fanSpeeds = new int[speeds.size()];</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            for (int i = 0; i &lt; speeds.size(); i++) {</span>
+<span class="nc" id="L160">                fanSpeeds[i] = speeds.get(i);</span>
             }
-<span class="nc" id="L129">            return fanSpeeds;</span>
+<span class="nc" id="L162">            return fanSpeeds;</span>
         }
-<span class="nc" id="L131">        return new int[0];</span>
+<span class="nc" id="L164">        return new int[0];</span>
     }
 
     /**
@@ -136,12 +169,12 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (this.hwmonMap.containsKey(VOLTAGE)) {</span>
-<span class="nc" id="L140">            String hwmon = this.hwmonMap.get(VOLTAGE);</span>
-            // Should return a single line of millidegrees Celsius
-<span class="nc" id="L142">            return FileUtil.getIntFromFile(String.format(&quot;%s1_input&quot;, hwmon)) / 1000d;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (sensorsMap.containsKey(VOLTAGE)) {</span>
+<span class="nc" id="L173">            String hwmon = sensorsMap.get(VOLTAGE);</span>
+            // Should return a single line of millivolt
+<span class="nc" id="L175">            return FileUtil.getIntFromFile(String.format(&quot;%s1_input&quot;, hwmon)) / 1000d;</span>
         }
-<span class="nc" id="L144">        return 0d;</span>
+<span class="nc" id="L177">        return 0d;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

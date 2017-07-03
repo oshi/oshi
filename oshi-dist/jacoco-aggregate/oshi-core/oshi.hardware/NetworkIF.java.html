@@ -179,7 +179,7 @@ import oshi.util.FormatUtil;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L182">        this.bytesRecv = bytesRecv;</span>
+<span class="fc" id="L182">        this.bytesRecv = bytesRecv &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L183">    }</span>
 
     /**
@@ -196,7 +196,7 @@ import oshi.util.FormatUtil;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L199">        this.bytesSent = bytesSent;</span>
+<span class="fc" id="L199">        this.bytesSent = bytesSent &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L200">    }</span>
 
     /**
@@ -214,7 +214,7 @@ import oshi.util.FormatUtil;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L217">        this.packetsRecv = packetsRecv;</span>
+<span class="fc" id="L217">        this.packetsRecv = packetsRecv &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L218">    }</span>
 
     /**
@@ -231,7 +231,7 @@ import oshi.util.FormatUtil;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L234">        this.packetsSent = packetsSent;</span>
+<span class="fc" id="L234">        this.packetsSent = packetsSent &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L235">    }</span>
 
     /**
@@ -248,7 +248,7 @@ import oshi.util.FormatUtil;
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-<span class="fc" id="L251">        this.inErrors = inErrors;</span>
+<span class="fc" id="L251">        this.inErrors = inErrors &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L252">    }</span>
 
     /**
@@ -265,7 +265,7 @@ import oshi.util.FormatUtil;
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-<span class="fc" id="L268">        this.outErrors = outErrors;</span>
+<span class="fc" id="L268">        this.outErrors = outErrors &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L269">    }</span>
 
     /**
@@ -283,7 +283,7 @@ import oshi.util.FormatUtil;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L286">        this.speed = speed;</span>
+<span class="fc" id="L286">        this.speed = speed &amp; 0x7fffffffffffffffL;</span>
 <span class="fc" id="L287">    }</span>
 
     /**
