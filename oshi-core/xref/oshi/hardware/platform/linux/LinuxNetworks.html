@@ -54,13 +54,13 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>          String speed = String.format(<span class="jxr_string">"/sys/class/net/%s/speed"</span>, netIF.getName());
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          netIF.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          netIF.setOutErrors(FileUtil.getLongFromFile(txErrorsPath));
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          netIF.setInErrors(FileUtil.getLongFromFile(rxErrorsPath));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          netIF.setSpeed(FileUtil.getLongFromFile(speed));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
 </pre>

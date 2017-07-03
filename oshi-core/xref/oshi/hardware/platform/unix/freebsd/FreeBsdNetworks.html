@@ -53,12 +53,12 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              <em class="jxr_comment">// No update</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[10], 0L));
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          netIF.setOutErrors(ParseUtil.parseLongOrDefault(split[9], 0L));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          netIF.setInErrors(ParseUtil.parseLongOrDefault(split[5], 0L));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          netIF.setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          netIF.setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          netIF.setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  }
 </pre>

@@ -26,268 +26,273 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.software.os.windows;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util.Account;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORD;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Psapi;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOperatingSystem;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.ValueType;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/software/common/AbstractOperatingSystem.html">AbstractOperatingSystem</a> {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_comment">// For WMI Process queries</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String processProperties = <span class="jxr_string">"Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"</span>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              + <span class="jxr_string">",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"</span>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              + <span class="jxr_string">",ReadTransferCount,WriteTransferCount,__PATH,__PATH"</span>;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">ValueType</a>[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_comment">     * Windows Execution States:</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UNKNOWN = 0;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> OTHER = 1;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> READY = 2;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RUNNING = 3;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BLOCKED = 4;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SUSPENDED_BLOCKED = 5;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SUSPENDED_READY = 6;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> TERMINATED = 7;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> STOPPED = 8;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> GROWING = 9;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_comment">     * LastError</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ERROR_ACCESS_DENIED = 5;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          enableDebugPrivilege();
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a>() {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">this</strong>.manufacturer = <span class="jxr_string">"Microsoft"</span>;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">this</strong>.family = <span class="jxr_string">"Windows"</span>;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsOSVersionInfoEx.html">WindowsOSVersionInfoEx</a>();
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Override
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/FileSystem.html">FileSystem</a> getFileSystem() {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">WindowsFileSystem</a>();
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     @Override
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Process"</span>, processProperties, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 processPropertyTypes);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         List&lt;OSProcess&gt; procList = processMapToList(procs);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[sorted.size()]);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Override
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Process"</span>, processProperties,
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 String.format(<span class="jxr_string">"WHERE ProcessId=%d"</span>, pid), processPropertyTypes);
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         List&lt;OSProcess&gt; procList = processMapToList(procs);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> procList.isEmpty() ? <strong class="jxr_keyword">null</strong> : procList.get(0);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; processMapToList(Map&lt;String, List&lt;Object&gt;&gt; procs) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         List&lt;OSProcess&gt; procList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         List&lt;String&gt; groupList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         List&lt;String&gt; groupIDList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">// All map lists should be the same length. Pick one size and iterate</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> procCount = procs.get(<span class="jxr_string">"Name"</span>).size();
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = 0; p &lt; procCount; p++) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>();
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             proc.setName((String) procs.get(<span class="jxr_string">"Name"</span>).get(p));
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             proc.setPath((String) procs.get(<span class="jxr_string">"ExecutablePath"</span>).get(p));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             proc.setCommandLine((String) procs.get(<span class="jxr_string">"CommandLine"</span>).get(p));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             proc.setProcessID(((Long) procs.get(<span class="jxr_string">"ProcessID"</span>).get(p)).intValue());
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             proc.setParentProcessID(((Long) procs.get(<span class="jxr_string">"ParentProcessId"</span>).get(p)).intValue());
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>             proc.setUser((String) procs.get(<span class="jxr_string">"PROCESS_GETOWNER"</span>).get(p));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             proc.setUserID((String) procs.get(<span class="jxr_string">"PROCESS_GETOWNERSID"</span>).get(p));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             <em class="jxr_comment">// Fetching group information incurs significant latency.</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             <em class="jxr_comment">// Only do for single-process queries</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">if</strong> (procCount == 1) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                         WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     <strong class="jxr_keyword">final</strong> HANDLEByReference phToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                             phToken)) {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>                         Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                         <em class="jxr_comment">// get groups</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                         groupList.clear();
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         groupIDList.clear();
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                         <strong class="jxr_keyword">for</strong> (Account account : accounts) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                             groupList.add(account.name);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                             groupIDList.add(account.sidString);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                         }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                         proc.setGroup(FormatUtil.join(<span class="jxr_string">","</span>, groupList));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                         proc.setGroupID(FormatUtil.join(<span class="jxr_string">","</span>, groupIDList));
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                         <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                         <em class="jxr_comment">// Access denied errors are common and will silently</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                         <em class="jxr_comment">// fail</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                         <strong class="jxr_keyword">if</strong> (error != ERROR_ACCESS_DENIED) {
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                             LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, proc.getProcessID(),
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                                     Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>                         }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>             }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">switch</strong> (((Long) procs.get(<span class="jxr_string">"ExecutionState"</span>).get(p)).intValue()) {
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">case</strong> READY:
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">case</strong> SUSPENDED_READY:
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 proc.setState(OSProcess.State.SLEEPING);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">case</strong> BLOCKED:
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">case</strong> SUSPENDED_BLOCKED:
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 proc.setState(OSProcess.State.WAITING);
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">case</strong> RUNNING:
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                 proc.setState(OSProcess.State.RUNNING);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>             <strong class="jxr_keyword">case</strong> GROWING:
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 proc.setState(OSProcess.State.NEW);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">case</strong> TERMINATED:
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 proc.setState(OSProcess.State.ZOMBIE);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             <strong class="jxr_keyword">case</strong> STOPPED:
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 proc.setState(OSProcess.State.STOPPED);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             <strong class="jxr_keyword">case</strong> UNKNOWN:
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <strong class="jxr_keyword">case</strong> OTHER:
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 proc.setState(OSProcess.State.OTHER);
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util.Account;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORD;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Psapi;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOperatingSystem;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.ValueType;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/software/common/AbstractOperatingSystem.html">AbstractOperatingSystem</a> {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_comment">// For WMI Process queries</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String processProperties = <span class="jxr_string">"Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"</span>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              + <span class="jxr_string">",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"</span>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              + <span class="jxr_string">",ReadTransferCount,WriteTransferCount,__PATH,__PATH"</span>;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">ValueType</a>[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_comment">     * Windows Execution States:</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UNKNOWN = 0;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> OTHER = 1;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> READY = 2;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RUNNING = 3;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BLOCKED = 4;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SUSPENDED_BLOCKED = 5;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SUSPENDED_READY = 6;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> TERMINATED = 7;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> STOPPED = 8;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> GROWING = 9;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_comment">     * LastError</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ERROR_ACCESS_DENIED = 5;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          enableDebugPrivilege();
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a>() {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">this</strong>.manufacturer = <span class="jxr_string">"Microsoft"</span>;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">this</strong>.family = <span class="jxr_string">"Windows"</span>;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsOSVersionInfoEx.html">WindowsOSVersionInfoEx</a>();
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      @Override
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/FileSystem.html">FileSystem</a> getFileSystem() {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">WindowsFileSystem</a>();
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     @Override
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Process"</span>, processProperties, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 processPropertyTypes);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         List&lt;OSProcess&gt; procList = processMapToList(procs);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[sorted.size()]);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     @Override
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         Map&lt;String, List&lt;Object&gt;&gt; procs = WmiUtil.selectObjectsFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Process"</span>, processProperties,
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 String.format(<span class="jxr_string">"WHERE ProcessId=%d"</span>, pid), processPropertyTypes);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         List&lt;OSProcess&gt; procList = processMapToList(procs);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">return</strong> procList.isEmpty() ? <strong class="jxr_keyword">null</strong> : procList.get(0);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; processMapToList(Map&lt;String, List&lt;Object&gt;&gt; procs) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         List&lt;OSProcess&gt; procList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         List&lt;String&gt; groupList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         List&lt;String&gt; groupIDList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <em class="jxr_comment">// All map lists should be the same length. Pick one size and iterate</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> procCount = procs.get(<span class="jxr_string">"Name"</span>).size();
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">int</strong> myPid = getProcessId();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = 0; p &lt; procCount; p++) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>();
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             proc.setName((String) procs.get(<span class="jxr_string">"Name"</span>).get(p));
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             proc.setPath((String) procs.get(<span class="jxr_string">"ExecutablePath"</span>).get(p));
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             proc.setCommandLine((String) procs.get(<span class="jxr_string">"CommandLine"</span>).get(p));
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             proc.setProcessID(((Long) procs.get(<span class="jxr_string">"ProcessID"</span>).get(p)).intValue());
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">if</strong> (myPid == proc.getProcessID()) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 proc.setCurrentWorkingDirectory(<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"."</span>).getAbsolutePath());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             proc.setParentProcessID(((Long) procs.get(<span class="jxr_string">"ParentProcessId"</span>).get(p)).intValue());
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             proc.setUser((String) procs.get(<span class="jxr_string">"PROCESS_GETOWNER"</span>).get(p));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             proc.setUserID((String) procs.get(<span class="jxr_string">"PROCESS_GETOWNERSID"</span>).get(p));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <em class="jxr_comment">// Fetching group information incurs significant latency.</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <em class="jxr_comment">// Only do for single-process queries</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">if</strong> (procCount == 1) {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                         WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                     <strong class="jxr_keyword">final</strong> HANDLEByReference phToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                     <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                             phToken)) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                         Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                         <em class="jxr_comment">// get groups</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                         groupList.clear();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                         groupIDList.clear();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                         <strong class="jxr_keyword">for</strong> (Account account : accounts) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                             groupList.add(account.name);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                             groupIDList.add(account.sidString);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                         }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                         proc.setGroup(FormatUtil.join(<span class="jxr_string">","</span>, groupList));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                         proc.setGroupID(FormatUtil.join(<span class="jxr_string">","</span>, groupIDList));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                         <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                         <em class="jxr_comment">// Access denied errors are common and will silently</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         <em class="jxr_comment">// fail</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>                         <strong class="jxr_keyword">if</strong> (error != ERROR_ACCESS_DENIED) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                             LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, proc.getProcessID(),
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                                     Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                     }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                 }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">switch</strong> (((Long) procs.get(<span class="jxr_string">"ExecutionState"</span>).get(p)).intValue()) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">case</strong> READY:
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">case</strong> SUSPENDED_READY:
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 proc.setState(OSProcess.State.SLEEPING);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">case</strong> BLOCKED:
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">case</strong> SUSPENDED_BLOCKED:
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 proc.setState(OSProcess.State.WAITING);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">case</strong> RUNNING:
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 proc.setState(OSProcess.State.RUNNING);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             <strong class="jxr_keyword">case</strong> GROWING:
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 proc.setState(OSProcess.State.NEW);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             <strong class="jxr_keyword">case</strong> TERMINATED:
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 proc.setState(OSProcess.State.ZOMBIE);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">case</strong> STOPPED:
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 proc.setState(OSProcess.State.STOPPED);
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>             proc.setThreadCount(((Long) procs.get(<span class="jxr_string">"ThreadCount"</span>).get(p)).intValue());
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             proc.setPriority(((Long) procs.get(<span class="jxr_string">"Priority"</span>).get(p)).intValue());
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"VirtualSize"</span>).get(p), 0L));
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"WorkingSetSize"</span>).get(p), 0L));
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <em class="jxr_comment">// Kernel and User time units are 100ns</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"KernelModeTime"</span>).get(p), 0L) / 10000L);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"UserModeTime"</span>).get(p), 0L) / 10000L);
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             proc.setStartTime((Long) procs.get(<span class="jxr_string">"CreationDate"</span>).get(p));
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             proc.setUpTime(now - proc.getStartTime());
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             proc.setBytesRead((Long) procs.get(<span class="jxr_string">"ReadTransferCount"</span>).get(p));
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             proc.setBytesWritten((Long) procs.get(<span class="jxr_string">"WriteTransferCount"</span>).get(p));
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             procList.add(proc);
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         }
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">return</strong> procList;
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     }
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     @Override
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessId() {
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetCurrentProcessId();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     @Override
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessCount() {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a> perfInfo = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a>();
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">return</strong> perfInfo.ProcessCount.intValue();
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     @Override
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a> perfInfo = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a>();
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         }
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">return</strong> perfInfo.ThreadCount.intValue();
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     @Override
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/NetworkParams.html">NetworkParams</a> getNetworkParams() {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsNetworkParams.html">WindowsNetworkParams</a>();
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * Enables debug privileges for this process, required for OpenProcess() to</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * get processes other than the current user</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> enableDebugPrivilege() {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         HANDLEByReference hToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">boolean</strong> success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">if</strong> (!success) {
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             LOG.error(<span class="jxr_string">"OpenProcessToken failed. Error: {}"</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         WinNT.LUID luid = <strong class="jxr_keyword">new</strong> WinNT.LUID();
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         success = Advapi32.INSTANCE.LookupPrivilegeValue(<strong class="jxr_keyword">null</strong>, WinNT.SE_DEBUG_NAME, luid);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">if</strong> (!success) {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             LOG.error(<span class="jxr_string">"LookupprivilegeValue failed. Error: {}"</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         WinNT.TOKEN_PRIVILEGES tkp = <strong class="jxr_keyword">new</strong> WinNT.TOKEN_PRIVILEGES(1);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         tkp.Privileges[0] = <strong class="jxr_keyword">new</strong> WinNT.LUID_AND_ATTRIBUTES(luid, <strong class="jxr_keyword">new</strong> DWORD(WinNT.SE_PRIVILEGE_ENABLED));
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">if</strong> (!success) {
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             LOG.error(<span class="jxr_string">"AdjustTokenPrivileges failed. Error: {}"</span> + Native.getLastError());
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">case</strong> UNKNOWN:
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             <strong class="jxr_keyword">case</strong> OTHER:
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 proc.setState(OSProcess.State.OTHER);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             }
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             proc.setThreadCount(((Long) procs.get(<span class="jxr_string">"ThreadCount"</span>).get(p)).intValue());
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             proc.setPriority(((Long) procs.get(<span class="jxr_string">"Priority"</span>).get(p)).intValue());
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"VirtualSize"</span>).get(p), 0L));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"WorkingSetSize"</span>).get(p), 0L));
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <em class="jxr_comment">// Kernel and User time units are 100ns</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"KernelModeTime"</span>).get(p), 0L) / 10000L);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get(<span class="jxr_string">"UserModeTime"</span>).get(p), 0L) / 10000L);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             proc.setStartTime((Long) procs.get(<span class="jxr_string">"CreationDate"</span>).get(p));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             proc.setUpTime(now - proc.getStartTime());
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             proc.setBytesRead((Long) procs.get(<span class="jxr_string">"ReadTransferCount"</span>).get(p));
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             proc.setBytesWritten((Long) procs.get(<span class="jxr_string">"WriteTransferCount"</span>).get(p));
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             procList.add(proc);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">return</strong> procList;
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     @Override
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessId() {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetCurrentProcessId();
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     @Override
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessCount() {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a> perfInfo = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a>();
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">return</strong> perfInfo.ProcessCount.intValue();
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     @Override
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a> perfInfo = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Psapi.html">PERFORMANCE_INFORMATION</a>();
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <strong class="jxr_keyword">return</strong> perfInfo.ThreadCount.intValue();
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     @Override
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/NetworkParams.html">NetworkParams</a> getNetworkParams() {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsNetworkParams.html">WindowsNetworkParams</a>();
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     }
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * Enables debug privileges for this process, required for OpenProcess() to</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * get processes other than the current user</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> enableDebugPrivilege() {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         HANDLEByReference hToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">boolean</strong> success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">if</strong> (!success) {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             LOG.error(<span class="jxr_string">"OpenProcessToken failed. Error: {}"</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         WinNT.LUID luid = <strong class="jxr_keyword">new</strong> WinNT.LUID();
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         success = Advapi32.INSTANCE.LookupPrivilegeValue(<strong class="jxr_keyword">null</strong>, WinNT.SE_DEBUG_NAME, luid);
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (!success) {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             LOG.error(<span class="jxr_string">"LookupprivilegeValue failed. Error: {}"</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         WinNT.TOKEN_PRIVILEGES tkp = <strong class="jxr_keyword">new</strong> WinNT.TOKEN_PRIVILEGES(1);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         tkp.Privileges[0] = <strong class="jxr_keyword">new</strong> WinNT.LUID_AND_ATTRIBUTES(luid, <strong class="jxr_keyword">new</strong> DWORD(WinNT.SE_PRIVILEGE_ENABLED));
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (!success) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             LOG.error(<span class="jxr_string">"AdjustTokenPrivileges failed. Error: {}"</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

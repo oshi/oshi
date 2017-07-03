@@ -45,12 +45,12 @@ import oshi.util.ParseUtil;
             // No update
 <span class="nc" id="L46">            return;</span>
         }
-<span class="nc" id="L48">        netIF.setBytesSent(ParseUtil.parseLongOrDefault(split[10], 0L));</span>
-<span class="nc" id="L49">        netIF.setBytesRecv(ParseUtil.parseLongOrDefault(split[7], 0L));</span>
-<span class="nc" id="L50">        netIF.setPacketsSent(ParseUtil.parseLongOrDefault(split[8], 0L));</span>
-<span class="nc" id="L51">        netIF.setPacketsRecv(ParseUtil.parseLongOrDefault(split[4], 0L));</span>
-<span class="nc" id="L52">        netIF.setOutErrors(ParseUtil.parseLongOrDefault(split[9], 0L));</span>
-<span class="nc" id="L53">        netIF.setInErrors(ParseUtil.parseLongOrDefault(split[5], 0L));</span>
+<span class="nc" id="L48">        netIF.setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));</span>
+<span class="nc" id="L49">        netIF.setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));</span>
+<span class="nc" id="L50">        netIF.setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));</span>
+<span class="nc" id="L51">        netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));</span>
+<span class="nc" id="L52">        netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));</span>
+<span class="nc" id="L53">        netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));</span>
 <span class="nc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

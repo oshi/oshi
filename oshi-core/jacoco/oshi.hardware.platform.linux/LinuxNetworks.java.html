@@ -46,13 +46,13 @@ import oshi.util.FileUtil;
 <span class="nc" id="L46">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
 
 <span class="nc" id="L48">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L49">        netIF.setBytesSent(FileUtil.getLongFromFile(txBytesPath));</span>
-<span class="nc" id="L50">        netIF.setBytesRecv(FileUtil.getLongFromFile(rxBytesPath));</span>
-<span class="nc" id="L51">        netIF.setPacketsSent(FileUtil.getLongFromFile(txPacketsPath));</span>
-<span class="nc" id="L52">        netIF.setPacketsRecv(FileUtil.getLongFromFile(rxPacketsPath));</span>
-<span class="nc" id="L53">        netIF.setOutErrors(FileUtil.getLongFromFile(txErrorsPath));</span>
-<span class="nc" id="L54">        netIF.setInErrors(FileUtil.getLongFromFile(rxErrorsPath));</span>
-<span class="nc" id="L55">        netIF.setSpeed(FileUtil.getLongFromFile(speed));</span>
+<span class="nc" id="L49">        netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));</span>
+<span class="nc" id="L50">        netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));</span>
+<span class="nc" id="L51">        netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));</span>
+<span class="nc" id="L52">        netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));</span>
+<span class="nc" id="L53">        netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));</span>
+<span class="nc" id="L54">        netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));</span>
+<span class="nc" id="L55">        netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));</span>
 <span class="nc" id="L56">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

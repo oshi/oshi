@@ -43,10 +43,9 @@ public class Util {
 <span class="fc" id="L43">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
 <span class="fc" id="L44">            Thread.sleep(ms);</span>
 <span class="nc" id="L45">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
-<span class="nc" id="L46">            LOG.trace(&quot;&quot;, e);</span>
-<span class="nc" id="L47">            LOG.warn(&quot;Interrupted while sleeping for {} ms&quot;, ms);</span>
-<span class="fc" id="L48">        }</span>
-<span class="fc" id="L49">    }</span>
+<span class="nc" id="L46">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
+<span class="fc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
 
     /**
      * Sleeps for the specified number of milliseconds after the given system
@@ -59,12 +58,12 @@ public class Util {
      *            How long after startTime to sleep
      */
     public static void sleepAfter(long startTime, long ms) {
-<span class="fc" id="L62">        long now = System.currentTimeMillis();</span>
-<span class="fc" id="L63">        long until = startTime + ms;</span>
-<span class="fc" id="L64">        LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (now &lt; until) {</span>
-<span class="fc" id="L66">            sleep(until - now);</span>
+<span class="fc" id="L61">        long now = System.currentTimeMillis();</span>
+<span class="fc" id="L62">        long until = startTime + ms;</span>
+<span class="fc" id="L63">        LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (now &lt; until) {</span>
+<span class="fc" id="L65">            sleep(until - now);</span>
         }
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L67">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

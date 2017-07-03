@@ -67,20 +67,24 @@ public interface CentralProcessor extends Serializable {
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L70">        SOFTIRQ(6);</span>
+<span class="fc" id="L70">        SOFTIRQ(6),</span>
+        /**
+         * Time which the hypervisor dedicated for other guests in the system. Only supported on Linux.
+         */
+<span class="fc" id="L74">        STEAL(7);</span>
 
         private int index;
 
-<span class="fc" id="L74">        TickType(int value) {</span>
-<span class="fc" id="L75">            this.index = value;</span>
-<span class="fc" id="L76">        }</span>
+<span class="fc" id="L78">        TickType(int value) {</span>
+<span class="fc" id="L79">            this.index = value;</span>
+<span class="fc" id="L80">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays,
          *         which matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L83">            return index;</span>
+<span class="fc" id="L87">            return index;</span>
         }
     }
 
@@ -235,7 +239,7 @@ public interface CentralProcessor extends Serializable {
      * Get System-wide CPU Load tick counters. Returns an array with seven
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
+     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or Steal (7)
      * states. Use {@link TickType#getIndex()} to retrieve the appropriate
      * index. By measuring the difference between ticks across a time interval,
      * CPU load over that interval may be calculated.
@@ -245,12 +249,12 @@ public interface CentralProcessor extends Serializable {
      * zero.
      *
      * To calculate overall Idle time using this method, include both Idle and
-     * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
+     * IOWait ticks. Similarly, IRQ, SoftIRQ, and Steal ticks should be added to the
      * System value to get the total. System ticks also include time executing
      * other virtual hosts (steal).
      *
      * @return An array of 7 long values representing time spent in User, Nice,
-     *         System, Idle, IOwait, IRQ, and SoftIRQ states.
+     *         System, Idle, IOwait, IRQ, SoftIRQ, and Steal states.
      */
     long[] getSystemCpuLoadTicks();
 
@@ -328,7 +332,7 @@ public interface CentralProcessor extends Serializable {
      * with {@link #getLogicalProcessorCount()} arrays, each containing seven
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), or Software interrupts/DPC (SoftIRQ) (6)
+     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or Steal (7)
      * states. Use {@link TickType#getIndex()} to retrieve the appropriate
      * index. By measuring the difference between ticks across a time interval,
      * CPU load over that interval may be calculated.
@@ -338,12 +342,12 @@ public interface CentralProcessor extends Serializable {
      * will always be zero.
      *
      * To calculate overall Idle time using this method, include both Idle and
-     * IOWait ticks. Similarly, IRQ and SoftIRQ ticks should be added to the
+     * IOWait ticks. Similarly, IRQ, SoftIRQ and Steal ticks should be added to the
      * System value to get the total. System ticks also include time executing
      * other virtual hosts (steal).
      *
      * @return A 2D array of logicalProcessorCount x 7 long values representing
-     *         time spent in User, Nice, System, Idle, IOwait, IRQ, and SoftIRQ
+     *         time spent in User, Nice, System, Idle, IOwait, IRQ, SoftIRQ, and Steal
      *         states.
      */
     long[][] getProcessorCpuLoadTicks();
