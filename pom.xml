@@ -230,6 +230,7 @@
 					<version>3.0.2</version>
 					<configuration>
 						<archive>
+							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 							<manifest>
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
@@ -269,6 +270,18 @@
 								<X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
 							</manifestEntries>
 						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>biz.aQute.bnd</groupId>
+					<artifactId>bnd-maven-plugin</artifactId>
+					<version>3.3.0</version>
+					<configuration>
+					<bnd><![CDATA[
+						Export-Package: oshi.*
+						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+						-snapshot: SNAPSHOT
+					]]></bnd>
 					</configuration>
 				</plugin>
 				<!-- Reporting plugins -->
@@ -351,6 +364,14 @@
 								<Os-Version>${os.version}</Os-Version>
 								<X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
 								<X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+
+								<!-- OSGi source header -->
+								<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+								<Bundle-Name>${project.name}</Bundle-Name>
+								<Bundle-SymbolicName>${project.groupId}.${project.artifactId}.source</Bundle-SymbolicName>
+								<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+								<Bundle-Version>${parsedVersion.osgiVersion}</Bundle-Version>
+								<Eclipse-SourceBundle>${project.groupId}.${project.artifactId};version="${parsedVersion.osgiVersion}";roots:="."</Eclipse-SourceBundle>
 							</manifestEntries>
 						</archive>
 					</configuration>
@@ -522,6 +543,28 @@
 							<goal>revision</goal>
 						</goals>
 						<phase>validate</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
