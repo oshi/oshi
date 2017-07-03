@@ -51,30 +51,29 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>              LOG.trace(<span class="jxr_string">"Sleeping for {} ms"</span>, ms);
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              Thread.sleep(ms);
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          } <strong class="jxr_keyword">catch</strong> (InterruptedException e) { <em class="jxr_comment">// NOSONAR squid:S2142</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              LOG.trace(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              LOG.warn(<span class="jxr_string">"Interrupted while sleeping for {} ms"</span>, ms);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Sleeps for the specified number of milliseconds after the given system</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * time in milliseconds. If that number of milliseconds has already elapsed,</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * does nothing.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param startTime</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     *            System time in milliseconds to sleep after</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param ms</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     *            How long after startTime to sleep</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> sleepAfter(<strong class="jxr_keyword">long</strong> startTime, <strong class="jxr_keyword">long</strong> ms) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">long</strong> until = startTime + ms;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          LOG.trace(<span class="jxr_string">"Sleeping until {}"</span>, until);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">if</strong> (now &lt; until) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              sleep(until - now);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              LOG.warn(<span class="jxr_string">"Interrupted while sleeping for {} ms: {}"</span>, ms, e);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * Sleeps for the specified number of milliseconds after the given system</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * time in milliseconds. If that number of milliseconds has already elapsed,</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * does nothing.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param startTime</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     *            System time in milliseconds to sleep after</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @param ms</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     *            How long after startTime to sleep</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> sleepAfter(<strong class="jxr_keyword">long</strong> startTime, <strong class="jxr_keyword">long</strong> ms) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">long</strong> until = startTime + ms;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          LOG.trace(<span class="jxr_string">"Sleeping until {}"</span>, until);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> (now &lt; until) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              sleep(until - now);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

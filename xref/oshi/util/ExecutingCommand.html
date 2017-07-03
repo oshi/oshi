@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              p = Runtime.getRuntime().exec(cmdToRunWithArgs);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          } <strong class="jxr_keyword">catch</strong> (SecurityException | IOException e) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              LOG.trace(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              LOG.trace(<span class="jxr_string">"Couldn't run command {}: {}"</span>, cmdToRunWithArgs, e);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(0);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              }
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              p.waitFor();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          } <strong class="jxr_keyword">catch</strong> (InterruptedException | IOException e) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              LOG.trace(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              LOG.trace(<span class="jxr_string">"Problem reading output from {}: {}"</span>, cmdToRunWithArgs, e);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(0);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">return</strong> sa;
