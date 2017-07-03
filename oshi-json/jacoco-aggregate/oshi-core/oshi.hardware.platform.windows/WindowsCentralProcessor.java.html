@@ -31,7 +31,6 @@ import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.OSVERSIONINFO;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 
@@ -50,59 +49,49 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
 
     // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte majorVersion;
-    static {
-<span class="nc" id="L58">        OSVERSIONINFO lpVersionInfo = new OSVERSIONINFO();</span>
-        // GetVersionEx() isn't accurate for Win8+ but is sufficient for
-        // detecting versions 5.x and earlier
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetVersionEx(lpVersionInfo)) {</span>
-<span class="nc" id="L62">            majorVersion = lpVersionInfo.dwMajorVersion.byteValue();</span>
-        } else {
-<span class="nc" id="L64">            majorVersion = 0;</span>
-        }
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L55">    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().byteValue();</span>
 
     /**
      * Create a Processor
      */
     public WindowsCentralProcessor() {
-<span class="nc" id="L72">        super();</span>
+<span class="nc" id="L61">        super();</span>
         // Initialize class variables
-<span class="nc" id="L74">        initVars();</span>
+<span class="nc" id="L63">        initVars();</span>
         // Initialize tick arrays
-<span class="nc" id="L76">        initTicks();</span>
+<span class="nc" id="L65">        initTicks();</span>
 
-<span class="nc" id="L78">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L67">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L68">    }</span>
 
     /**
      * Initializes Class variables
      */
     private void initVars() {
-<span class="nc" id="L85">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
-<span class="nc" id="L86">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
-<span class="nc" id="L88">            String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorIds[0];</span>
-<span class="nc" id="L89">            setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="nc" id="L74">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor&quot;;</span>
+<span class="nc" id="L75">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
+<span class="nc" id="L77">            String cpuRegistryPath = cpuRegistryRoot + &quot;\\&quot; + processorIds[0];</span>
+<span class="nc" id="L78">            setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
                     &quot;VendorIdentifier&quot;));
-<span class="nc" id="L91">            setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="nc" id="L80">            setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
                     &quot;ProcessorNameString&quot;));
-<span class="nc" id="L93">            setIdentifier(</span>
-<span class="nc" id="L94">                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;Identifier&quot;));</span>
+<span class="nc" id="L82">            setIdentifier(</span>
+<span class="nc" id="L83">                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;Identifier&quot;));</span>
         }
-<span class="nc" id="L96">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L97">        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64</span>
-<span class="nc" id="L100">            setCpu64(true);</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL</span>
-<span class="nc" id="L102">            setCpu64(false);</span>
+<span class="nc" id="L85">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
+<span class="nc" id="L86">        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64</span>
+<span class="nc" id="L89">            setCpu64(true);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL</span>
+<span class="nc" id="L91">            setCpu64(false);</span>
         }
-<span class="nc" id="L104">        setProcessorID(WmiUtil.selectStringFrom(null, &quot;Win32_Processor&quot;, &quot;ProcessorID&quot;, null));</span>
-<span class="nc" id="L105">    }</span>
+<span class="nc" id="L93">        setProcessorID(WmiUtil.selectStringFrom(null, &quot;Win32_Processor&quot;, &quot;ProcessorID&quot;, null));</span>
+<span class="nc" id="L94">    }</span>
 
     /**
      * Updates logical and physical processor counts from /proc/cpuinfo
@@ -110,31 +99,31 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected void calculateProcessorCounts() {
         // Get number of logical processors
-<span class="nc" id="L113">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L114">        Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
-<span class="nc" id="L115">        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L102">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
+<span class="nc" id="L103">        Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
+<span class="nc" id="L104">        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
 
         // Get number of physical processors
-<span class="nc" id="L118">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
-<span class="nc" id="L121">                this.physicalProcessorCount++;</span>
+<span class="nc" id="L107">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
+<span class="nc" id="L110">                this.physicalProcessorCount++;</span>
             }
         }
-<span class="nc" id="L124">    }</span>
+<span class="nc" id="L113">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L131">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L132">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L133">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L134">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
-<span class="nc" id="L136">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L137">            return ticks;</span>
+<span class="nc" id="L120">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L121">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L122">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L123">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
+<span class="nc" id="L125">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L126">            return ticks;</span>
         }
         // IOwait:
         // Windows does not measure IOWait.
@@ -142,24 +131,24 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10000 to get milliseconds
-<span class="nc" id="L145">        Map&lt;String, List&lt;String&gt;&gt; irq = WmiUtil.selectStringsFrom(null,</span>
+<span class="nc" id="L134">        Map&lt;String, List&lt;String&gt;&gt; irq = WmiUtil.selectStringsFrom(null,</span>
                 &quot;Win32_PerfRawData_Counters_ProcessorInformation&quot;, &quot;PercentInterruptTime,PercentDPCTime&quot;,
                 &quot;WHERE Name=\&quot;_Total\&quot;&quot;);
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (!irq.get(&quot;PercentInterruptTime&quot;).isEmpty()) {</span>
-<span class="nc" id="L149">            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get(&quot;PercentInterruptTime&quot;).get(0), 0L)</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (!irq.get(&quot;PercentInterruptTime&quot;).isEmpty()) {</span>
+<span class="nc" id="L138">            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get(&quot;PercentInterruptTime&quot;).get(0), 0L)</span>
                     / 10000L;
-<span class="nc" id="L151">            ticks[TickType.SOFTIRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get(&quot;PercentDPCTime&quot;).get(0), 0L)</span>
+<span class="nc" id="L140">            ticks[TickType.SOFTIRQ.getIndex()] = ParseUtil.parseLongOrDefault(irq.get(&quot;PercentDPCTime&quot;).get(0), 0L)</span>
                     / 10000L;
         }
 
         // Units are in 100-ns, divide by 10000 for ms
-<span class="nc" id="L156">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;</span>
-<span class="nc" id="L157">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L</span>
-<span class="nc" id="L158">                - ticks[TickType.IDLE.getIndex()];</span>
-<span class="nc" id="L159">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;</span>
+<span class="nc" id="L145">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;</span>
+<span class="nc" id="L146">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L</span>
+<span class="nc" id="L147">                - ticks[TickType.IDLE.getIndex()];</span>
+<span class="nc" id="L148">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;</span>
         // Additional decrement to avoid double counting in the total array
-<span class="nc" id="L161">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
-<span class="nc" id="L162">        return ticks;</span>
+<span class="nc" id="L150">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L151">        return ticks;</span>
     }
 
     /**
@@ -167,16 +156,16 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L170" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L171">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L160">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L173">        double[] average = new double[nelem];</span>
+<span class="nc" id="L162">        double[] average = new double[nelem];</span>
         // TODO: If Windows ever actually implements a laod average for 1/5/15,
         // return it
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
-<span class="nc" id="L177">            average[i] = -1;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
+<span class="nc" id="L166">            average[i] = -1;</span>
         }
-<span class="nc" id="L179">        return average;</span>
+<span class="nc" id="L168">        return average;</span>
     }
 
     /**
@@ -184,41 +173,41 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L187">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L176">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10000 to get milliseconds
-<span class="nc" id="L190">        Map&lt;String, List&lt;String&gt;&gt; wmiTicks = WmiUtil.selectStringsFrom(null,</span>
+<span class="nc" id="L179">        Map&lt;String, List&lt;String&gt;&gt; wmiTicks = WmiUtil.selectStringsFrom(null,</span>
                 &quot;Win32_PerfRawData_Counters_ProcessorInformation&quot;,
                 &quot;Name,PercentIdleTime,PercentPrivilegedTime,PercentUserTime,PercentInterruptTime,PercentDPCTime&quot;,
                 &quot;WHERE NOT Name LIKE \&quot;%_Total\&quot;&quot;);
-<span class="nc bnc" id="L194" title="All 2 branches missed.">        for (int index = 0; index &lt; wmiTicks.get(&quot;Name&quot;).size(); index++) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (int index = 0; index &lt; wmiTicks.get(&quot;Name&quot;).size(); index++) {</span>
             // It would be too easy if the WMI order matched logical processors
             // but alas, it goes &quot;0,3&quot;; &quot;0,2&quot;; &quot;0,1&quot;; &quot;0,0&quot;. So let's do it
             // right and actually string match the name. The first 0 will be
             // there unless we're dealing with NUMA nodes
-<span class="nc bnc" id="L199" title="All 2 branches missed.">            for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L200">                String name = &quot;0,&quot; + cpu;</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">                if (wmiTicks.get(&quot;Name&quot;).get(index).equals(name)) {</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L189">                String name = &quot;0,&quot; + cpu;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                if (wmiTicks.get(&quot;Name&quot;).get(index).equals(name)) {</span>
                     // Skipping nice and IOWait, they'll stay 0
-<span class="nc" id="L203">                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil</span>
-<span class="nc" id="L204">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentUserTime&quot;).get(index), 0L) / 10000L;</span>
-<span class="nc" id="L205">                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil</span>
-<span class="nc" id="L206">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentPrivilegedTime&quot;).get(index), 0L) / 10000L;</span>
-<span class="nc" id="L207">                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil</span>
-<span class="nc" id="L208">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentIdleTime&quot;).get(index), 0L) / 10000L;</span>
-<span class="nc" id="L209">                    ticks[cpu][TickType.IRQ.getIndex()] = ParseUtil</span>
-<span class="nc" id="L210">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentInterruptTime&quot;).get(index), 0L) / 10000L;</span>
-<span class="nc" id="L211">                    ticks[cpu][TickType.SOFTIRQ.getIndex()] = ParseUtil</span>
-<span class="nc" id="L212">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentDPCTime&quot;).get(index), 0L) / 10000L;</span>
+<span class="nc" id="L192">                    ticks[cpu][TickType.USER.getIndex()] = ParseUtil</span>
+<span class="nc" id="L193">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentUserTime&quot;).get(index), 0L) / 10000L;</span>
+<span class="nc" id="L194">                    ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil</span>
+<span class="nc" id="L195">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentPrivilegedTime&quot;).get(index), 0L) / 10000L;</span>
+<span class="nc" id="L196">                    ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil</span>
+<span class="nc" id="L197">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentIdleTime&quot;).get(index), 0L) / 10000L;</span>
+<span class="nc" id="L198">                    ticks[cpu][TickType.IRQ.getIndex()] = ParseUtil</span>
+<span class="nc" id="L199">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentInterruptTime&quot;).get(index), 0L) / 10000L;</span>
+<span class="nc" id="L200">                    ticks[cpu][TickType.SOFTIRQ.getIndex()] = ParseUtil</span>
+<span class="nc" id="L201">                            .parseLongOrDefault(wmiTicks.get(&quot;PercentDPCTime&quot;).get(index), 0L) / 10000L;</span>
                     // Additional decrement to avoid double counting in the
                     // total array
-<span class="nc" id="L215">                    ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
-<span class="nc" id="L216">                            + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
-<span class="nc" id="L217">                    break;</span>
+<span class="nc" id="L204">                    ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
+<span class="nc" id="L205">                            + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L206">                    break;</span>
                 }
             }
         }
-<span class="nc" id="L221">        return ticks;</span>
+<span class="nc" id="L210">        return ticks;</span>
     }
 
     /**
@@ -227,11 +216,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getSystemUptime() {
         // GetTickCount64 requires Vista (6.0) or later
-<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (majorVersion &gt;= 6) {</span>
-<span class="nc" id="L231">            return Kernel32.INSTANCE.GetTickCount64() / 1000L;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        if (majorVersion &gt;= 6) {</span>
+<span class="nc" id="L220">            return Kernel32.INSTANCE.GetTickCount64() / 1000L;</span>
         } else {
             // 32 bit rolls over at ~ 49 days
-<span class="nc" id="L234">            return Kernel32.INSTANCE.GetTickCount() / 1000L;</span>
+<span class="nc" id="L223">            return Kernel32.INSTANCE.GetTickCount() / 1000L;</span>
         }
     }
 
@@ -241,7 +230,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     @Deprecated
     public String getSystemSerialNumber() {
-<span class="nc" id="L244">        return new WindowsComputerSystem().getSerialNumber();</span>
+<span class="nc" id="L233">        return new WindowsComputerSystem().getSerialNumber();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

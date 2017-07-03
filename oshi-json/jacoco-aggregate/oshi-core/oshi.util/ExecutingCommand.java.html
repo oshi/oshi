@@ -66,7 +66,7 @@ public class ExecutingCommand {
         try {
 <span class="fc" id="L67">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
 <span class="fc" id="L68">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L69">            LOG.trace(&quot;&quot;, e);</span>
+<span class="fc" id="L69">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, cmdToRunWithArgs, e);</span>
 <span class="fc" id="L70">            return new ArrayList&lt;&gt;(0);</span>
 <span class="fc" id="L71">        }</span>
 
@@ -78,7 +78,7 @@ public class ExecutingCommand {
             }
 <span class="fc" id="L79">            p.waitFor();</span>
 <span class="pc bpc" id="L80" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
-<span class="nc" id="L81">            LOG.trace(&quot;&quot;, e);</span>
+<span class="nc" id="L81">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, cmdToRunWithArgs, e);</span>
 <span class="nc" id="L82">            return new ArrayList&lt;&gt;(0);</span>
 <span class="fc" id="L83">        }</span>
 <span class="fc" id="L84">        return sa;</span>

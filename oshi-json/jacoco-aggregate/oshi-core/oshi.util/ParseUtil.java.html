@@ -18,6 +18,7 @@
  */
 package oshi.util;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,36 +40,36 @@ import org.threeten.bp.format.DateTimeParseException;
  */
 public class ParseUtil {
 
-<span class="fc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
+<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
     private static final String DEFAULT_LOG_MSG = &quot;{} didn't parse. Returning default. {}&quot;;
     /*
      * Used for matching
      */
-<span class="fc" id="L48">    private static final Pattern HERTZ_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz).*&quot;);</span>
+<span class="fc" id="L49">    private static final Pattern HERTZ_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz).*&quot;);</span>
 
     /*
      * Used to check validity of a hexadecimal string
      */
-<span class="fc" id="L53">    private static final Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
+<span class="fc" id="L54">    private static final Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
 
     /*
      * Format for parsing DATETIME originally 20160513072950.782000-420,
      * modified to 20160513072950.782000-07:00
      */
-<span class="fc" id="L59">    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;,</span>
+<span class="fc" id="L60">    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;,</span>
             Locale.US);
 
     /*
      * Pattern for [dd-[hh:[mm:ss]]]
      */
-<span class="fc" id="L65">    private static final Pattern DHMS = Pattern.compile(&quot;(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?&quot;);</span>
+<span class="fc" id="L66">    private static final Pattern DHMS = Pattern.compile(&quot;(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?&quot;);</span>
 
     /*
      * Pattern for a UUID
      */
-<span class="fc" id="L70">    private static final Pattern UUID_PATTERN = Pattern</span>
-<span class="fc" id="L71">            .compile(&quot;.*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*&quot;);</span>
+<span class="fc" id="L71">    private static final Pattern UUID_PATTERN = Pattern</span>
+<span class="fc" id="L72">            .compile(&quot;.*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*&quot;);</span>
 
     /*
      * Hertz related variables.
@@ -83,17 +84,17 @@ public class ParseUtil {
     private static final Map&lt;String, Long&gt; multipliers;
 
     static {
-<span class="fc" id="L86">        multipliers = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L87">        multipliers.put(HZ, 1L);</span>
-<span class="fc" id="L88">        multipliers.put(KHZ, 1000L);</span>
-<span class="fc" id="L89">        multipliers.put(MHZ, 1000000L);</span>
-<span class="fc" id="L90">        multipliers.put(GHZ, 1000000000L);</span>
-<span class="fc" id="L91">        multipliers.put(THZ, 1000000000000L);</span>
-<span class="fc" id="L92">        multipliers.put(PHZ, 1000000000000000L);</span>
-<span class="fc" id="L93">    }</span>
+<span class="fc" id="L87">        multipliers = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L88">        multipliers.put(HZ, 1L);</span>
+<span class="fc" id="L89">        multipliers.put(KHZ, 1000L);</span>
+<span class="fc" id="L90">        multipliers.put(MHZ, 1000000L);</span>
+<span class="fc" id="L91">        multipliers.put(GHZ, 1000000000L);</span>
+<span class="fc" id="L92">        multipliers.put(THZ, 1000000000000L);</span>
+<span class="fc" id="L93">        multipliers.put(PHZ, 1000000000000000L);</span>
+<span class="fc" id="L94">    }</span>
 
-<span class="nc" id="L95">    private ParseUtil() {</span>
-<span class="nc" id="L96">    }</span>
+<span class="nc" id="L96">    private ParseUtil() {</span>
+<span class="nc" id="L97">    }</span>
 
     /**
      * Parse hertz from a string, eg. &quot;2.00MHz&quot; in 2000000L.
@@ -103,13 +104,13 @@ public class ParseUtil {
      * @return {@link Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
-<span class="fc" id="L106">        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());</span>
-<span class="pc bpc" id="L107" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
+<span class="fc" id="L107">        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());</span>
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
             // Regexp enforces #(.#) format so no test for NFE required
-<span class="fc" id="L109">            Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);</span>
-<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
+<span class="fc" id="L110">            Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">            return value &lt; 0d ? -1L : value.longValue();</span>
         }
-<span class="fc" id="L112">        return -1L;</span>
+<span class="fc" id="L113">        return -1L;</span>
     }
 
     /**
@@ -123,10 +124,10 @@ public class ParseUtil {
      */
     public static int parseLastInt(String s, int i) {
         try {
-<span class="fc" id="L126">            return Integer.parseInt(parseLastString(s));</span>
-<span class="fc" id="L127">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L128">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L129">            return i;</span>
+<span class="fc" id="L127">            return Integer.parseInt(parseLastString(s));</span>
+<span class="fc" id="L128">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L129">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L130">            return i;</span>
         }
     }
 
@@ -138,11 +139,11 @@ public class ParseUtil {
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-<span class="fc" id="L141">        String[] ss = s.split(&quot;\\s+&quot;);</span>
-<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (ss.length &lt; 1) {</span>
-<span class="nc" id="L143">            return s;</span>
+<span class="fc" id="L142">        String[] ss = s.split(&quot;\\s+&quot;);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (ss.length &lt; 1) {</span>
+<span class="nc" id="L144">            return s;</span>
         } else {
-<span class="fc" id="L145">            return ss[ss.length - 1];</span>
+<span class="fc" id="L146">            return ss[ss.length - 1];</span>
         }
     }
 
@@ -155,18 +156,18 @@ public class ParseUtil {
      *         empty array if the string is not valid hex
      */
     public static byte[] hexStringToByteArray(String digits) {
-<span class="fc" id="L158">        int len = digits.length();</span>
+<span class="fc" id="L159">        int len = digits.length();</span>
         // Check if string is valid hex
-<span class="fc bfc" id="L160" title="All 4 branches covered.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
-<span class="fc" id="L161">            LOG.warn(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
-<span class="fc" id="L162">            return new byte[0];</span>
+<span class="fc bfc" id="L161" title="All 4 branches covered.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
+<span class="fc" id="L162">            LOG.warn(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
+<span class="fc" id="L163">            return new byte[0];</span>
         }
-<span class="fc" id="L164">        byte[] data = new byte[len / 2];</span>
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="fc" id="L166">            data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4</span>
-<span class="fc" id="L167">                    | Character.digit(digits.charAt(i + 1), 16));</span>
+<span class="fc" id="L165">        byte[] data = new byte[len / 2];</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="fc" id="L167">            data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4</span>
+<span class="fc" id="L168">                    | Character.digit(digits.charAt(i + 1), 16));</span>
         }
-<span class="fc" id="L169">        return data;</span>
+<span class="fc" id="L170">        return data;</span>
     }
 
     /**
@@ -182,7 +183,7 @@ public class ParseUtil {
      *         provided string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
-<span class="fc" id="L185">        return Arrays.copyOf(text.getBytes(), length);</span>
+<span class="fc" id="L186">        return Arrays.copyOf(text.getBytes(), length);</span>
     }
 
     /**
@@ -199,16 +200,16 @@ public class ParseUtil {
      *         first valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
-<span class="fc" id="L202">        long val = value;</span>
+<span class="fc" id="L203">        long val = value;</span>
         // Convert the long to 8-byte BE representation
-<span class="fc" id="L204">        byte[] b = new byte[8];</span>
-<span class="pc bpc" id="L205" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {</span>
-<span class="fc" id="L206">            b[i] = (byte) val;</span>
-<span class="fc" id="L207">            val &gt;&gt;&gt;= 8;</span>
+<span class="fc" id="L205">        byte[] b = new byte[8];</span>
+<span class="pc bpc" id="L206" title="1 of 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {</span>
+<span class="fc" id="L207">            b[i] = (byte) val;</span>
+<span class="fc" id="L208">            val &gt;&gt;&gt;= 8;</span>
         }
         // Then copy the rightmost valueSize bytes
         // e.g., for an integer we want rightmost 4 bytes
-<span class="fc" id="L211">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
+<span class="fc" id="L212">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
     }
 
     /**
@@ -222,7 +223,7 @@ public class ParseUtil {
      *         treated as a byte
      */
     public static long strToLong(String str, int size) {
-<span class="fc" id="L225">        return byteArrayToLong(str.getBytes(), size);</span>
+<span class="fc" id="L226">        return byteArrayToLong(str.getBytes(), size);</span>
     }
 
     /**
@@ -235,17 +236,17 @@ public class ParseUtil {
      * @return An integer representing the byte array as a 64-bit number
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
-<span class="fc bfc" id="L238" title="All 2 branches covered.">        if (size &gt; 8) {</span>
-<span class="fc" id="L239">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        if (size &gt; 8) {</span>
+<span class="fc" id="L240">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
         }
-<span class="fc bfc" id="L241" title="All 2 branches covered.">        if (size &gt; bytes.length) {</span>
-<span class="fc" id="L242">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (size &gt; bytes.length) {</span>
+<span class="fc" id="L243">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
         }
-<span class="fc" id="L244">        long total = 0L;</span>
-<span class="fc bfc" id="L245" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
-<span class="fc" id="L246">            total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;</span>
+<span class="fc" id="L245">        long total = 0L;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L247">            total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;</span>
         }
-<span class="fc" id="L248">        return total;</span>
+<span class="fc" id="L249">        return total;</span>
     }
 
     /**
@@ -262,7 +263,7 @@ public class ParseUtil {
      *         remaining bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
-<span class="fc" id="L265">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
+<span class="fc" id="L266">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
     }
 
     /**
@@ -278,16 +279,16 @@ public class ParseUtil {
         // Keep first 22 characters: digits, decimal, and + or - sign of
         // time zone. Parse last 3 digits from minutes to HH:mm
         try {
-<span class="fc" id="L281">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
-<span class="fc" id="L282">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
-<span class="fc" id="L283">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
-<span class="fc" id="L284">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
-<span class="fc" id="L285">            return dateTime.toInstant().toEpochMilli();</span>
-<span class="fc" id="L286">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
+<span class="fc" id="L282">            int tzInMinutes = Integer.parseInt(cimDate.substring(22));</span>
+<span class="fc" id="L283">            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);</span>
+<span class="fc" id="L284">            OffsetDateTime dateTime = OffsetDateTime.parse(</span>
+<span class="fc" id="L285">                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);</span>
+<span class="fc" id="L286">            return dateTime.toInstant().toEpochMilli();</span>
+<span class="fc" id="L287">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-<span class="fc" id="L289">            LOG.trace(DEFAULT_LOG_MSG, cimDate, e);</span>
-<span class="fc" id="L290">            return 0L;</span>
+<span class="fc" id="L290">            LOG.trace(DEFAULT_LOG_MSG, cimDate, e);</span>
+<span class="fc" id="L291">            return 0L;</span>
         }
     }
 
@@ -302,25 +303,25 @@ public class ParseUtil {
      */
     public static String hexStringToString(String hexString) {
         // Odd length strings won't parse, return
-<span class="fc bfc" id="L305" title="All 2 branches covered.">        if (hexString.length() % 2 &gt; 0) {</span>
-<span class="fc" id="L306">            return hexString;</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (hexString.length() % 2 &gt; 0) {</span>
+<span class="fc" id="L307">            return hexString;</span>
         }
         int charAsInt;
-<span class="fc" id="L309">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L310">        StringBuilder sb = new StringBuilder();</span>
         try {
-<span class="fc bfc" id="L311" title="All 2 branches covered.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
-<span class="fc" id="L312">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
-<span class="pc bpc" id="L313" title="1 of 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
-<span class="fc" id="L314">                    return hexString;</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
+<span class="fc" id="L313">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
+<span class="pc bpc" id="L314" title="1 of 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
+<span class="fc" id="L315">                    return hexString;</span>
                 }
-<span class="fc" id="L316">                sb.append((char) charAsInt);</span>
+<span class="fc" id="L317">                sb.append((char) charAsInt);</span>
             }
-<span class="fc" id="L318">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L319">            LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="fc" id="L319">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L320">            LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             // Hex failed to parse, just return the existing string
-<span class="fc" id="L321">            return hexString;</span>
-<span class="fc" id="L322">        }</span>
-<span class="fc" id="L323">        return sb.toString();</span>
+<span class="fc" id="L322">            return hexString;</span>
+<span class="fc" id="L323">        }</span>
+<span class="fc" id="L324">        return sb.toString();</span>
     }
 
     /**
@@ -334,10 +335,10 @@ public class ParseUtil {
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
-<span class="fc" id="L337">            return Integer.parseInt(s);</span>
-<span class="fc" id="L338">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L339">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L340">            return defaultInt;</span>
+<span class="fc" id="L338">            return Integer.parseInt(s);</span>
+<span class="fc" id="L339">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L340">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L341">            return defaultInt;</span>
         }
     }
 
@@ -352,10 +353,31 @@ public class ParseUtil {
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
-<span class="fc" id="L355">            return Long.parseLong(s);</span>
-<span class="fc" id="L356">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L357">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L358">            return defaultLong;</span>
+<span class="fc" id="L356">            return Long.parseLong(s);</span>
+<span class="fc" id="L357">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L358">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L359">            return defaultLong;</span>
+        }
+    }
+
+    /**
+     * Attempts to parse a string to an &quot;unsigned&quot; long. If it fails, returns
+     * the default
+     *
+     * @param s
+     *            The string to parse
+     * @param defaultLong
+     *            The value to return if parsing fails
+     * @return The parsed long containing the same 64 bits that an unsigned long
+     *         would contain (which may produce a negative value)
+     */
+    public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
+        try {
+<span class="fc" id="L376">            BigInteger bi = new BigInteger(s);</span>
+<span class="fc" id="L377">            return bi.longValue();</span>
+<span class="fc" id="L378">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L379">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L380">            return defaultLong;</span>
         }
     }
 
@@ -370,10 +392,10 @@ public class ParseUtil {
      */
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
         try {
-<span class="fc" id="L373">            return Double.parseDouble(s);</span>
-<span class="fc" id="L374">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L375">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L376">            return defaultDouble;</span>
+<span class="fc" id="L395">            return Double.parseDouble(s);</span>
+<span class="fc" id="L396">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L397">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L398">            return defaultDouble;</span>
         }
     }
 
@@ -388,21 +410,21 @@ public class ParseUtil {
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
-<span class="fc" id="L391">        Matcher m = DHMS.matcher(s);</span>
-<span class="fc bfc" id="L392" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc" id="L393">            long milliseconds = 0L;</span>
-<span class="fc bfc" id="L394" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
-<span class="fc" id="L395">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
+<span class="fc" id="L413">        Matcher m = DHMS.matcher(s);</span>
+<span class="fc bfc" id="L414" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L415">            long milliseconds = 0L;</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
+<span class="fc" id="L417">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
             }
-<span class="fc bfc" id="L397" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
-<span class="fc" id="L398">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
+<span class="fc" id="L420">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
             }
-<span class="fc" id="L400">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
-<span class="fc" id="L401">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
-<span class="fc" id="L402">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
-<span class="fc" id="L403">            return milliseconds;</span>
+<span class="fc" id="L422">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
+<span class="fc" id="L423">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
+<span class="fc" id="L424">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
+<span class="fc" id="L425">            return milliseconds;</span>
         }
-<span class="fc" id="L405">        return defaultLong;</span>
+<span class="fc" id="L427">        return defaultLong;</span>
     }
 
     /**
@@ -415,11 +437,11 @@ public class ParseUtil {
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
-<span class="fc" id="L418">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
-<span class="fc bfc" id="L419" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc" id="L420">            return m.group(1);</span>
+<span class="fc" id="L440">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
+<span class="fc bfc" id="L441" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L442">            return m.group(1);</span>
         }
-<span class="fc" id="L422">        return defaultStr;</span>
+<span class="fc" id="L444">        return defaultStr;</span>
     }
 
     /**
@@ -430,11 +452,11 @@ public class ParseUtil {
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-<span class="fc" id="L433">        String[] split = line.split(&quot;'&quot;);</span>
-<span class="fc bfc" id="L434" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
-<span class="fc" id="L435">            return &quot;&quot;;</span>
+<span class="fc" id="L455">        String[] split = line.split(&quot;'&quot;);</span>
+<span class="fc bfc" id="L456" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L457">            return &quot;&quot;;</span>
         }
-<span class="fc" id="L437">        return split[1];</span>
+<span class="fc" id="L459">        return split[1];</span>
     }
 
     /**
@@ -446,7 +468,7 @@ public class ParseUtil {
      * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-<span class="fc" id="L449">        return getNthIntValue(line, 1);</span>
+<span class="fc" id="L471">        return getNthIntValue(line, 1);</span>
     }
 
     /**
@@ -461,11 +483,11 @@ public class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-<span class="fc" id="L464">        String[] split = line.replaceFirst(&quot;^[^0-9]*&quot;, &quot;&quot;).split(&quot;[^0-9]+&quot;);</span>
-<span class="fc bfc" id="L465" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
-<span class="fc" id="L466">            return parseIntOrDefault(split[n - 1], 0);</span>
+<span class="fc" id="L486">        String[] split = line.replaceFirst(&quot;^[^0-9]*&quot;, &quot;&quot;).split(&quot;[^0-9]+&quot;);</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
+<span class="fc" id="L488">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="fc" id="L468">        return 0;</span>
+<span class="fc" id="L490">        return 0;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

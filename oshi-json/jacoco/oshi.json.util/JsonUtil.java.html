@@ -54,9 +54,9 @@ public class JsonUtil {
 <span class="fc" id="L54">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
 <span class="fc" id="L55">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
         // Writer
-<span class="fc" id="L57">        JsonWriter jsonWriter = writerFactory.createWriter(stringWriter);</span>
-<span class="fc" id="L58">        jsonWriter.write(json);</span>
-<span class="fc" id="L59">        jsonWriter.close();</span>
+<span class="pc" id="L57">        try (JsonWriter jsonWriter = writerFactory.createWriter(stringWriter)) {</span>
+<span class="fc" id="L58">            jsonWriter.write(json);</span>
+<span class="pc bpc" id="L59" title="6 of 8 branches missed.">        }</span>
         // Return
 <span class="fc" id="L61">        return stringWriter.toString();</span>
     }

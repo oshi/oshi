@@ -197,14 +197,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc bnc" id="L197" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
 <span class="nc" id="L198">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
         }
-        // If next value is steal, add it
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (tickArr.length &gt; TickType.values().length + 1) {</span>
-            // Add steal to system
-<span class="nc" id="L203">            ticks[TickType.SYSTEM.getIndex()] += ParseUtil.parseLongOrDefault(tickArr[TickType.values().length + 1],</span>
-                    0L);
-            // Ignore guest or guest_nice, they are included in user/nice
-        }
-<span class="nc" id="L207">        return ticks;</span>
+        // Ignore guest or guest_nice, they are included in user/nice
+<span class="nc" id="L201">        return ticks;</span>
     }
 
     /**
@@ -212,17 +206,17 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L215" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L216">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L209" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L210">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L218">        double[] average = new double[nelem];</span>
-<span class="nc" id="L219">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
-<span class="nc" id="L222">                average[i] = -1d;</span>
+<span class="nc" id="L212">        double[] average = new double[nelem];</span>
+<span class="nc" id="L213">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L216">                average[i] = -1d;</span>
             }
         }
-<span class="nc" id="L225">        return average;</span>
+<span class="nc" id="L219">        return average;</span>
     }
 
     /**
@@ -230,41 +224,34 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L233">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L227">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
-<span class="nc" id="L238">        int cpu = 0;</span>
-<span class="nc" id="L239">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        for (String stat : procStat) {</span>
-<span class="nc bnc" id="L241" title="All 4 branches missed.">            if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
+<span class="nc" id="L232">        int cpu = 0;</span>
+<span class="nc" id="L233">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L235" title="All 4 branches missed.">            if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
                 // Split the line. Note the first (0) element is &quot;cpu&quot; so
                 // remaining
                 // elements are offset by 1 from the enum index
-<span class="nc" id="L245">                String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">                if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
+<span class="nc" id="L239">                String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
                     // If ticks don't at least go user/nice/system/idle, abort
-<span class="nc" id="L248">                    return ticks;</span>
+<span class="nc" id="L242">                    return ticks;</span>
                 }
                 // Note tickArr is offset by 1
-<span class="nc bnc" id="L251" title="All 2 branches missed.">                for (int i = 0; i &lt; TickType.values().length; i++) {</span>
-<span class="nc" id="L252">                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                for (int i = 0; i &lt; TickType.values().length; i++) {</span>
+<span class="nc" id="L246">                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
                 }
-                // If next value is steal, add it
-<span class="nc bnc" id="L255" title="All 2 branches missed.">                if (tickArr.length &gt; TickType.values().length + 1) {</span>
-                    // Add steal to system
-<span class="nc" id="L257">                    ticks[cpu][TickType.SYSTEM.getIndex()] += ParseUtil</span>
-<span class="nc" id="L258">                            .parseLongOrDefault(tickArr[TickType.values().length + 1], 0L);</span>
-                    // Ignore guest or guest_nice, they are included in
-                    // user/nice
-                }
-<span class="nc bnc" id="L262" title="All 2 branches missed.">                if (++cpu &gt;= this.logicalProcessorCount) {</span>
-<span class="nc" id="L263">                    break;</span>
+                // Ignore guest or guest_nice, they are included in
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                if (++cpu &gt;= this.logicalProcessorCount) {</span>
+<span class="nc" id="L250">                    break;</span>
                 }
             }
-<span class="nc" id="L266">        }</span>
-<span class="nc" id="L267">        return ticks;</span>
+<span class="nc" id="L253">        }</span>
+<span class="nc" id="L254">        return ticks;</span>
     }
 
     /**
@@ -272,7 +259,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L275">        return (long) ProcUtil.getSystemUptimeFromProc();</span>
+<span class="nc" id="L262">        return (long) ProcUtil.getSystemUptimeFromProc();</span>
     }
 
     /**
@@ -281,7 +268,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     @Deprecated
     public String getSystemSerialNumber() {
-<span class="nc" id="L284">        return new LinuxComputerSystem().getSerialNumber();</span>
+<span class="nc" id="L271">        return new LinuxComputerSystem().getSerialNumber();</span>
     }
 
     /**
@@ -296,34 +283,34 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @return The Processor ID string
      */
     private String getProcessorID(String stepping, String model, String family, String[] flags) {
-<span class="nc" id="L299">        boolean procInfo = false;</span>
-<span class="nc" id="L300">        String marker = &quot;Processor Information&quot;;</span>
-<span class="nc bnc" id="L301" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L302" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L303">                marker = &quot;ID:&quot;;</span>
-<span class="nc" id="L304">                procInfo = true;</span>
-<span class="nc bnc" id="L305" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L306">                return checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L286">        boolean procInfo = false;</span>
+<span class="nc" id="L287">        String marker = &quot;Processor Information&quot;;</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L289" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L290">                marker = &quot;ID:&quot;;</span>
+<span class="nc" id="L291">                procInfo = true;</span>
+<span class="nc bnc" id="L292" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L293">                return checkLine.split(marker)[1].trim();</span>
             }
-<span class="nc" id="L308">        }</span>
+<span class="nc" id="L295">        }</span>
         // If we've gotten this far, dmidecode failed. Try cpuid.
-<span class="nc" id="L310">        marker = &quot;eax=&quot;;</span>
-<span class="nc bnc" id="L311" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;cpuid -1r&quot;)) {</span>
-<span class="nc bnc" id="L312" title="All 4 branches missed.">            if (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(&quot;0x00000001&quot;)) {</span>
-<span class="nc" id="L313">                String eax = &quot;&quot;;</span>
-<span class="nc" id="L314">                String edx = &quot;&quot;;</span>
-<span class="nc bnc" id="L315" title="All 2 branches missed.">                for (String register : checkLine.split(&quot;\\s+&quot;)) {</span>
-<span class="nc bnc" id="L316" title="All 2 branches missed.">                    if (register.startsWith(&quot;eax=&quot;)) {</span>
-<span class="nc" id="L317">                        eax = register.replace(&quot;eax=0x&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L318" title="All 2 branches missed.">                    } else if (register.startsWith(&quot;edx=&quot;)) {</span>
-<span class="nc" id="L319">                        edx = register.replace(&quot;edx=0x&quot;, &quot;&quot;);</span>
+<span class="nc" id="L297">        marker = &quot;eax=&quot;;</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;cpuid -1r&quot;)) {</span>
+<span class="nc bnc" id="L299" title="All 4 branches missed.">            if (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(&quot;0x00000001&quot;)) {</span>
+<span class="nc" id="L300">                String eax = &quot;&quot;;</span>
+<span class="nc" id="L301">                String edx = &quot;&quot;;</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">                for (String register : checkLine.split(&quot;\\s+&quot;)) {</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">                    if (register.startsWith(&quot;eax=&quot;)) {</span>
+<span class="nc" id="L304">                        eax = register.replace(&quot;eax=0x&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                    } else if (register.startsWith(&quot;edx=&quot;)) {</span>
+<span class="nc" id="L306">                        edx = register.replace(&quot;edx=0x&quot;, &quot;&quot;);</span>
                     }
                 }
-<span class="nc" id="L322">                return edx + eax;</span>
+<span class="nc" id="L309">                return edx + eax;</span>
             }
-<span class="nc" id="L324">        }</span>
+<span class="nc" id="L311">        }</span>
         // If we've gotten this far, dmidecode failed. Encode arguments
-<span class="nc" id="L326">        return createProcessorID(stepping, model, family, flags);</span>
+<span class="nc" id="L313">        return createProcessorID(stepping, model, family, flags);</span>
     }
 
 }

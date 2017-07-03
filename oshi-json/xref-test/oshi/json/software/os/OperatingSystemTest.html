@@ -63,78 +63,81 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(proc.getName().length() &gt; 0);
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(proc.getPath().length() &gt; 0);
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertTrue(proc.getCommandLine().length() &gt; 0);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertNotNull(proc.getUser());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertNotNull(proc.getUserID());
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertNotNull(proc.getGroup());
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertNotNull(proc.getGroupID());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertNotNull(proc.getState());
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertEquals(proc.getProcessID(), os.getProcessId());
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertTrue(proc.getParentProcessID() &gt; 0);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertTrue(proc.getThreadCount() &gt; 0);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertTrue(proc.getPriority() &gt;= -20 &amp;&amp; proc.getPriority() &lt;= 128);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertTrue(proc.getVirtualSize() &gt;= proc.getResidentSetSize());
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(proc.getResidentSetSize() &gt;= 0);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertTrue(proc.getKernelTime() &gt;= 0);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertTrue(proc.getUserTime() &gt;= 0);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertTrue(proc.getUpTime() &gt;= 0);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertTrue(proc.getStartTime() &gt;= 0);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertTrue(proc.getBytesRead() &gt;= 0);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertTrue(proc.getBytesWritten() &gt;= 0);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * Test OSProcess setters and getters</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      @Test
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOSProcessSetters() {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          OSProcess oldProcess = os.getProcess(os.getProcessId());
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          OSProcess newProcess = <strong class="jxr_keyword">new</strong> OSProcess();
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          newProcess.setName(oldProcess.getName());
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          newProcess.setPath(oldProcess.getPath());
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          newProcess.setCommandLine(oldProcess.getCommandLine());
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          newProcess.setUser(oldProcess.getUser());
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          newProcess.setUserID(oldProcess.getUserID());
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          newProcess.setGroup(oldProcess.getGroup());
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          newProcess.setGroupID(oldProcess.getGroupID());
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          newProcess.setState(oldProcess.getState());
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          newProcess.setProcessID(oldProcess.getProcessID());
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          newProcess.setParentProcessID(oldProcess.getParentProcessID());
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          newProcess.setThreadCount(oldProcess.getThreadCount());
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          newProcess.setPriority(oldProcess.getPriority());
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          newProcess.setVirtualSize(oldProcess.getVirtualSize());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         newProcess.setKernelTime(oldProcess.getKernelTime());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         newProcess.setUserTime(oldProcess.getUserTime());
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         newProcess.setUpTime(oldProcess.getUpTime());
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         newProcess.setStartTime(oldProcess.getStartTime());
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         newProcess.setBytesRead(oldProcess.getBytesRead());
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         newProcess.setBytesWritten(oldProcess.getBytesWritten());
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertEquals(oldProcess.getName(), newProcess.getName());
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertEquals(oldProcess.getPath(), newProcess.getPath());
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertEquals(oldProcess.getUser(), newProcess.getUser());
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertEquals(oldProcess.getUserID(), newProcess.getUserID());
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertEquals(oldProcess.getGroup(), newProcess.getGroup());
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertEquals(oldProcess.getGroupID(), newProcess.getGroupID());
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertEquals(oldProcess.getState(), newProcess.getState());
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertEquals(oldProcess.getThreadCount(), newProcess.getThreadCount());
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertEquals(oldProcess.getPriority(), newProcess.getPriority());
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertEquals(oldProcess.getUpTime(), newProcess.getUpTime());
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     }
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertNotNull(proc.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertNotNull(proc.getUser());
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertNotNull(proc.getUserID());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertNotNull(proc.getGroup());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertNotNull(proc.getGroupID());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertNotNull(proc.getState());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertEquals(proc.getProcessID(), os.getProcessId());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertTrue(proc.getParentProcessID() &gt; 0);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertTrue(proc.getThreadCount() &gt; 0);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertTrue(proc.getPriority() &gt;= -20 &amp;&amp; proc.getPriority() &lt;= 128);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(proc.getVirtualSize() &gt;= proc.getResidentSetSize());
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertTrue(proc.getResidentSetSize() &gt;= 0);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertTrue(proc.getKernelTime() &gt;= 0);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertTrue(proc.getUserTime() &gt;= 0);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertTrue(proc.getUpTime() &gt;= 0);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertTrue(proc.getStartTime() &gt;= 0);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertTrue(proc.getBytesRead() &gt;= 0);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertTrue(proc.getBytesWritten() &gt;= 0);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * Test OSProcess setters and getters</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Test
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOSProcessSetters() {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          OSProcess oldProcess = os.getProcess(os.getProcessId());
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          OSProcess newProcess = <strong class="jxr_keyword">new</strong> OSProcess();
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          newProcess.setName(oldProcess.getName());
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          newProcess.setPath(oldProcess.getPath());
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          newProcess.setCommandLine(oldProcess.getCommandLine());
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          newProcess.setCurrentWorkingDirectory(oldProcess.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          newProcess.setUser(oldProcess.getUser());
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          newProcess.setUserID(oldProcess.getUserID());
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          newProcess.setGroup(oldProcess.getGroup());
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          newProcess.setGroupID(oldProcess.getGroupID());
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          newProcess.setState(oldProcess.getState());
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          newProcess.setProcessID(oldProcess.getProcessID());
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          newProcess.setParentProcessID(oldProcess.getParentProcessID());
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          newProcess.setThreadCount(oldProcess.getThreadCount());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         newProcess.setPriority(oldProcess.getPriority());
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         newProcess.setVirtualSize(oldProcess.getVirtualSize());
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         newProcess.setKernelTime(oldProcess.getKernelTime());
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         newProcess.setUserTime(oldProcess.getUserTime());
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         newProcess.setUpTime(oldProcess.getUpTime());
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         newProcess.setStartTime(oldProcess.getStartTime());
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         newProcess.setBytesRead(oldProcess.getBytesRead());
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         newProcess.setBytesWritten(oldProcess.getBytesWritten());
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertEquals(oldProcess.getName(), newProcess.getName());
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertEquals(oldProcess.getPath(), newProcess.getPath());
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertEquals(oldProcess.getCurrentWorkingDirectory(), newProcess.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertEquals(oldProcess.getUser(), newProcess.getUser());
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertEquals(oldProcess.getUserID(), newProcess.getUserID());
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertEquals(oldProcess.getGroup(), newProcess.getGroup());
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertEquals(oldProcess.getGroupID(), newProcess.getGroupID());
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertEquals(oldProcess.getState(), newProcess.getState());
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertEquals(oldProcess.getThreadCount(), newProcess.getThreadCount());
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertEquals(oldProcess.getPriority(), newProcess.getPriority());
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertEquals(oldProcess.getUpTime(), newProcess.getUpTime());
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
