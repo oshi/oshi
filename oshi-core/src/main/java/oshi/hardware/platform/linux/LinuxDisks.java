@@ -133,7 +133,7 @@ public class LinuxDisks implements Disks {
         this.mountsMap.clear();
         List<String> mounts = FileUtil.readFile("/proc/self/mounts");
         for (String mount : mounts) {
-            String[] split = mount.split("\\s+");
+            String[] split = ParseUtil.whitespace.split(mount);
             if (split.length < 2 || !split[0].startsWith("/dev/")) {
                 continue;
             }

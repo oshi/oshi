@@ -121,7 +121,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         for (File pid : pids) {
             List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()));
             if (!stat.isEmpty()) {
-                String[] split = stat.get(0).split("\\s+");
+                String[] split = ParseUtil.whitespace.split(stat.get(0));
                 if (split.length >= 22) {
                     youngestJiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
                     youngestPid = pid.getName();

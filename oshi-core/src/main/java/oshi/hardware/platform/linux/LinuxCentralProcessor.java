@@ -1,36 +1,36 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
- *
+ * <p>
  * Copyright (c) 2010 - 2017 The Oshi Project Team
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
  * enrico.bianchi[at]gmail[dot]com
- *
+ * <p>
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware.platform.linux;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -58,43 +58,44 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         LOG.debug("Initialized Processor");
     }
 
+
     private void initVars() {
         String[] flags = new String[0];
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
-            String[] splitLine = line.split("\\s+:\\s");
+            String[] splitLine = ParseUtil.whitespaceCloneWhitespace.split(line);
             if (splitLine.length < 2) {
                 break;
             }
             switch (splitLine[0]) {
-            case "vendor_id":
-                setVendor(splitLine[1]);
-                break;
-            case "model name":
-                setName(splitLine[1]);
-                break;
-            case "flags":
-                flags = splitLine[1].toLowerCase().split(" ");
-                boolean found = false;
-                for (String flag : flags) {
-                    if ("lm".equals(flag)) {
-                        found = true;
-                        break;
+                case "vendor_id":
+                    setVendor(splitLine[1]);
+                    break;
+                case "model name":
+                    setName(splitLine[1]);
+                    break;
+                case "flags":
+                    flags = splitLine[1].toLowerCase().split(" ");
+                    boolean found = false;
+                    for (String flag : flags) {
+                        if ("lm".equals(flag)) {
+                            found = true;
+                            break;
+                        }
                     }
-                }
-                setCpu64(found);
-                break;
-            case "stepping":
-                setStepping(splitLine[1]);
-                break;
-            case "model":
-                setModel(splitLine[1]);
-                break;
-            case "cpu family":
-                setFamily(splitLine[1]);
-                break;
-            default:
-                // Do nothing
+                    setCpu64(found);
+                    break;
+                case "stepping":
+                    setStepping(splitLine[1]);
+                    break;
+                case "model":
+                    setModel(splitLine[1]);
+                    break;
+                case "cpu family":
+                    setFamily(splitLine[1]);
+                    break;
+                default:
+                    // Do nothing
             }
         }
         setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
@@ -188,7 +189,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
-        String[] tickArr = tickStr.split("\\s+");
+        String[] tickArr = ParseUtil.whitespace.split(tickStr);
         if (tickArr.length <= TickType.IDLE.getIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
@@ -236,7 +237,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // Split the line. Note the first (0) element is "cpu" so
                 // remaining
                 // elements are offset by 1 from the enum index
-                String[] tickArr = stat.split("\\s+");
+                String[] tickArr = ParseUtil.whitespace.split(stat);
                 if (tickArr.length <= TickType.IDLE.getIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
@@ -299,11 +300,11 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             if (checkLine.contains(marker) && checkLine.trim().startsWith("0x00000001")) {
                 String eax = "";
                 String edx = "";
-                for (String register : checkLine.split("\\s+")) {
+                for (String register : ParseUtil.whitespace.split(checkLine)) {
                     if (register.startsWith("eax=")) {
-                        eax = register.replace("eax=0x", "");
+                        eax = StringUtils.replace(register, "eax=0x", "");
                     } else if (register.startsWith("edx=")) {
-                        edx = register.replace("edx=0x", "");
+                        edx = StringUtils.replace(register, "edx=0x", "");
                     }
                 }
                 return edx + eax;

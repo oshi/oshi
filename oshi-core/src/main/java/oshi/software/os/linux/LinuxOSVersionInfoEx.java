@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
@@ -50,7 +51,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
         List<String> procVersion = null;
         procVersion = FileUtil.readFile("/proc/version");
         if (!procVersion.isEmpty()) {
-            String[] split = procVersion.get(0).split("\\s+");
+            String[] split = ParseUtil.whitespace.split(procVersion.get(0));
             for (String s : split) {
                 if (!"Linux".equals(s) && !"version".equals(s)) {
                     setBuildNumber(s);

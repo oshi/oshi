@@ -173,7 +173,7 @@ public class FileUtil {
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             LOG.trace("Read {}", read.get(0));
-            return read.get(0).split("\\s+");
+            return ParseUtil.whitespace.split(read.get(0));
         }
         return new String[0];
     }

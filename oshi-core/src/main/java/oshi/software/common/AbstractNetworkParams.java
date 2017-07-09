@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.software.os.NetworkParams;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Common NetworkParams implementation.
@@ -105,7 +106,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         for (String line : lines) {
             String leftTrimmed = line.replaceFirst("^\\s+", "");
             if (leftTrimmed.startsWith("gateway:")) {
-                String[] split = leftTrimmed.split("\\s+");
+                String[] split = ParseUtil.whitespace.split(leftTrimmed);
                 if (split.length < 2) {
                     return "";
                 }

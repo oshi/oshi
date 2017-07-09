@@ -83,6 +83,10 @@ public class ParseUtil {
 
     private static final Map<String, Long> multipliers;
 
+    public static final Pattern whitespaceCloneWhitespace = Pattern.compile("\\s+:\\s");
+
+    public static final Pattern whitespace = Pattern.compile("\\s+");
+
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
@@ -139,7 +143,7 @@ public class ParseUtil {
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-        String[] ss = s.split("\\s+");
+        String[] ss = whitespace.split(s);
         if (ss.length < 1) {
             return s;
         } else {
