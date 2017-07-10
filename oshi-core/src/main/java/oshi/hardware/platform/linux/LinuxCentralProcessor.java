@@ -95,7 +95,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 break;
             default:
                 // Do nothing
-        }
+            }
         }
         setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
     }
