@@ -261,6 +261,8 @@ public class ParseUtilTest {
         assertEquals("foo = 0x2a (int)", ParseUtil.removeMatchingString("foo = 0x2a (int)", "qqq"));
         assertEquals("10.1.", ParseUtil.removeMatchingString("10.12.2", "2"));
         assertEquals("", ParseUtil.removeMatchingString("10.12.2", "10.12.2"));
+        assertEquals("", ParseUtil.removeMatchingString("", "10.12.2"));
+        assertEquals(null, ParseUtil.removeMatchingString(null, "10.12.2"));
         assertEquals("2", ParseUtil.removeMatchingString("10.12.2", "10.12."));
     }
 }
