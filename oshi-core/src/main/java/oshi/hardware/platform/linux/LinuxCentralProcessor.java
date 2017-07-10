@@ -18,7 +18,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -63,7 +62,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         String[] flags = new String[0];
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
-            String[] splitLine = ParseUtil.whitespaceCloneWhitespace.split(line);
+            String[] splitLine = ParseUtil.whitespaceColonWhitespace.split(line);
             if (splitLine.length < 2) {
                 break;
             }
@@ -302,9 +301,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 String edx = "";
                 for (String register : ParseUtil.whitespace.split(checkLine)) {
                     if (register.startsWith("eax=")) {
-                        eax = StringUtils.replace(register, "eax=0x", "");
+                        eax = ParseUtil.removeMatchingString(register, "eax=0x");
                     } else if (register.startsWith("edx=")) {
-                        edx = StringUtils.replace(register, "edx=0x", "");
+                        edx = ParseUtil.removeMatchingString(register, "edx=0x");
                     }
                 }
                 return edx + eax;

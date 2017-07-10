@@ -493,4 +493,31 @@ public class ParseUtil {
         }
         return 0;
     }
+
+    /**
+     * Removes all sub strings from the string
+     * @param original source String to remove from
+     * @param toRemove the sub string to be removed
+     * @return
+     */
+    public static String removeMatchingString(final String original, final String toRemove) {
+        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())
+            return original;
+
+        int matchIndex = original.indexOf(toRemove, 0);
+        if (matchIndex == -1)
+            return original;
+
+        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());
+        int currIndex = 0;
+        do {
+            buffer.append(original.substring(currIndex, matchIndex));
+            currIndex = matchIndex + toRemove.length();
+            matchIndex = original.indexOf(toRemove, currIndex);
+        } while (matchIndex != -1);
+
+        buffer.append(original.substring(currIndex));
+        return buffer.toString();
+    }
+
 }
