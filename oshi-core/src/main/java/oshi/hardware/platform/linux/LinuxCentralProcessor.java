@@ -67,35 +67,35 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 break;
             }
             switch (splitLine[0]) {
-                case "vendor_id":
-                    setVendor(splitLine[1]);
-                    break;
-                case "model name":
-                    setName(splitLine[1]);
-                    break;
-                case "flags":
-                    flags = splitLine[1].toLowerCase().split(" ");
-                    boolean found = false;
-                    for (String flag : flags) {
-                        if ("lm".equals(flag)) {
-                            found = true;
-                            break;
-                        }
+            case "vendor_id":
+                setVendor(splitLine[1]);
+                break;
+            case "model name":
+                setName(splitLine[1]);
+                break;
+            case "flags":
+                flags = splitLine[1].toLowerCase().split(" ");
+                boolean found = false;
+                for (String flag : flags) {
+                    if ("lm".equals(flag)) {
+                        found = true;
+                        break;
                     }
-                    setCpu64(found);
-                    break;
-                case "stepping":
-                    setStepping(splitLine[1]);
-                    break;
-                case "model":
-                    setModel(splitLine[1]);
-                    break;
-                case "cpu family":
-                    setFamily(splitLine[1]);
-                    break;
-                default:
-                    // Do nothing
-            }
+                }
+                setCpu64(found);
+                break;
+            case "stepping":
+                setStepping(splitLine[1]);
+                break;
+            case "model":
+                setModel(splitLine[1]);
+                break;
+            case "cpu family":
+                setFamily(splitLine[1]);
+                break;
+            default:
+                // Do nothing
+        }
         }
         setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
     }
