@@ -83,7 +83,7 @@ public class ParseUtil {
 
     private static final Map<String, Long> multipliers;
 
-    public static final Pattern whitespaceCloneWhitespace = Pattern.compile("\\s+:\\s");
+    public static final Pattern whitespaceColonWhitespace = Pattern.compile("\\s+:\\s");
 
     public static final Pattern whitespace = Pattern.compile("\\s+");
 
