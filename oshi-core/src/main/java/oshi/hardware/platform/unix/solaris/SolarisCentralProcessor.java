@@ -198,7 +198,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             }
             flags.append(' ').append(line.trim());
         }
-        return createProcessorID(stepping, model, family, flags.toString().toLowerCase().split("\\s+"));
+        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
     }
 
 }

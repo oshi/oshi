@@ -34,6 +34,7 @@ import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsNetworkParams extends AbstractNetworkParams {
@@ -167,7 +168,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     private String parseIpv6Route() {
         List<String> lines = ExecutingCommand.runNative("route print -6 ::/0");
         for (String line : lines) {
-            String[] fields = line.trim().split("\\s+");
+            String[] fields = ParseUtil.whitespaces.split(line.trim());
             if (fields.length > 3 && "::/0".equals(fields[2])) {
                 return fields[3];
             }

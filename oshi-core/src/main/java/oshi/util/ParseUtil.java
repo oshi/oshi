@@ -83,9 +83,13 @@ public class ParseUtil {
 
     private static final Map<String, Long> multipliers;
 
-    public static final Pattern whitespaceColonWhitespace = Pattern.compile("\\s+:\\s");
+    public static final Pattern whitespacesColonWhitespace = Pattern.compile("\\s+:\\s");
 
-    public static final Pattern whitespace = Pattern.compile("\\s+");
+    public static final Pattern whitespaces = Pattern.compile("\\s+");
+
+    public static final Pattern notDigits = Pattern.compile("[^0-9]+");
+
+    public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
     static {
         multipliers = new HashMap<>();
@@ -143,7 +147,7 @@ public class ParseUtil {
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-        String[] ss = whitespace.split(s);
+        String[] ss = whitespaces.split(s);
         if (ss.length < 1) {
             return s;
         } else {
@@ -487,7 +491,7 @@ public class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-        String[] split = line.replaceFirst("^[^0-9]*", "").split("[^0-9]+");
+        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(""));
         if (split.length >= n) {
             return parseIntOrDefault(split[n - 1], 0);
         }

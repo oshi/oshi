@@ -62,7 +62,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         String[] flags = new String[0];
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
-            String[] splitLine = ParseUtil.whitespaceColonWhitespace.split(line);
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
                 break;
             }
@@ -188,7 +188,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
-        String[] tickArr = ParseUtil.whitespace.split(tickStr);
+        String[] tickArr = ParseUtil.whitespaces.split(tickStr);
         if (tickArr.length <= TickType.IDLE.getIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
@@ -236,7 +236,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // Split the line. Note the first (0) element is "cpu" so
                 // remaining
                 // elements are offset by 1 from the enum index
-                String[] tickArr = ParseUtil.whitespace.split(stat);
+                String[] tickArr = ParseUtil.whitespaces.split(stat);
                 if (tickArr.length <= TickType.IDLE.getIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
@@ -299,7 +299,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             if (checkLine.contains(marker) && checkLine.trim().startsWith("0x00000001")) {
                 String eax = "";
                 String edx = "";
-                for (String register : ParseUtil.whitespace.split(checkLine)) {
+                for (String register : ParseUtil.whitespaces.split(checkLine)) {
                     if (register.startsWith("eax=")) {
                         eax = ParseUtil.removeMatchingString(register, "eax=0x");
                     } else if (register.startsWith("edx=")) {

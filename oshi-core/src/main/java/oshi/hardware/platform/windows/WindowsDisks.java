@@ -123,7 +123,7 @@ public class WindowsDisks implements Disks {
                 "Name,DiskReadsPerSec,DiskReadBytesPerSec,DiskWritesPerSec,DiskWriteBytesPerSec,PercentDiskTime,Timestamp_Sys100NS",
                 null, READ_WRITE_TYPES);
         for (int i = 0; i < vals.get("Name").size(); i++) {
-            String name = ((String) vals.get("Name").get(i)).split("\\s+")[0];
+            String name = ParseUtil.whitespaces.split((String) vals.get("Name").get(i))[0];
             readMap.put(name, (long) vals.get("DiskReadsPerSec").get(i));
             readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get("DiskReadBytesPerSec").get(i), 0L));
             writeMap.put(name, (long) vals.get("DiskWritesPerSec").get(i));

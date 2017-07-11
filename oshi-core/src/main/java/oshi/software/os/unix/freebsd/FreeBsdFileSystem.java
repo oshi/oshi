@@ -29,6 +29,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.MapUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -113,7 +114,7 @@ public class FreeBsdFileSystem implements FileSystem {
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -p")) {
-            String[] split = fs.split("\\s+");
+            String[] split = ParseUtil.whitespaces.split(fs);
             if (split.length < 5) {
                 continue;
             }

@@ -150,7 +150,7 @@ public class SolarisDisks implements Disks {
                     // Size: 1.23GB <1227563008 bytes>
                     String[] bytes = keyValue.split("<");
                     if (bytes.length > 1) {
-                        bytes = bytes[1].split("\\s+");
+                        bytes = ParseUtil.whitespaces.split(bytes[1]);
                         size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
                     }
                 }
@@ -228,7 +228,7 @@ public class SolarisDisks implements Disks {
                 // specifying bytes per sector
                 if (line.startsWith("*")) {
                     if (line.endsWith("bytes/sector")) {
-                        split = line.split("\\s+");
+                        split = ParseUtil.whitespaces.split(line);
                         if (split.length > 0) {
                             bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);
                         }
@@ -240,10 +240,10 @@ public class SolarisDisks implements Disks {
                 if (bytesPerSector == 0) {
                     continue;
                 }
-                // Lines without asterisk have 6 or 7 whitespace-split values
+                // Lines without asterisk have 6 or 7 whitespaces-split values
                 // representing (last field optional):
                 // Partition Tag Flags Sector Count Sector Mount
-                split = line.trim().split("\\s+");
+                split = ParseUtil.whitespaces.split(line.trim());
                 // Partition 2 is always the whole disk so we ignore it
                 if (split.length < 6 || "2".equals(split[0])) {
                     continue;

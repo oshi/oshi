@@ -66,7 +66,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             }
             boolean found = false;
             for (String checkLine : memInfo) {
-                String[] memorySplit = ParseUtil.whitespace.split(checkLine);
+                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
                 if (memorySplit.length > 1) {
                     switch (memorySplit[0]) {
                     case "MemTotal:":
