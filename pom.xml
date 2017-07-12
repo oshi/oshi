@@ -332,7 +332,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.0.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -457,7 +457,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
-					<version>2.3</version>
+					<version>2.4</version>
 				</plugin>
 				<!-- SCM -->
 				<plugin>
@@ -483,7 +483,7 @@
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.8.0.201705170830-rc1</version>
+							<version>4.8.0.201706111038-r</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
@@ -519,7 +519,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>1.4.5</version>
+					<version>2.0.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -700,7 +700,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>7.7</version>
+                        <version>8.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
