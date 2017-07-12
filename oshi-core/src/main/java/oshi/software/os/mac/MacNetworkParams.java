@@ -30,6 +30,7 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.jna.platform.mac.SystemB;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 public class MacNetworkParams extends AbstractNetworkParams {
 
@@ -84,7 +85,7 @@ public class MacNetworkParams extends AbstractNetworkParams {
         boolean v6Table = false;
         for (String line : lines) {
             if (v6Table && line.startsWith(DEFAULT_GATEWAY)) {
-                String[] fields = line.split("\\s+");
+                String[] fields = ParseUtil.whitespaces.split(line);
                 if (fields.length > 2 && fields[2].contains("G")) {
                     return fields[1].split("%")[0];
                 }

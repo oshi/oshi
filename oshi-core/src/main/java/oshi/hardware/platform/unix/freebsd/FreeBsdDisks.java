@@ -64,7 +64,7 @@ public class FreeBsdDisks implements Disks {
 
         // Get list of valid disks
         diskMap.clear();
-        List<String> devices = Arrays.asList(BsdSysctlUtil.sysctl("kern.disks", "").split("\\s+"));
+        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("kern.disks", "")));
 
         // Temporary list to hold partitions
         List<HWPartition> partList = new ArrayList<>();
@@ -73,7 +73,7 @@ public class FreeBsdDisks implements Disks {
         List<String> disks = ExecutingCommand.runNative("iostat -Ix");
         long timeStamp = System.currentTimeMillis();
         for (String line : disks) {
-            String[] split = line.split("\\s+");
+            String[] split = ParseUtil.whitespaces.split(line);
             if (split.length < 7 || !devices.contains(split[0])) {
                 continue;
             }
@@ -119,7 +119,7 @@ public class FreeBsdDisks implements Disks {
             }
             line = line.trim();
             if (line.startsWith("Mediasize:")) {
-                String[] split = line.split("\\s+");
+                String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 1) {
                     store.setSize(ParseUtil.parseLongOrDefault(split[1], 0L));
                 }
@@ -178,7 +178,7 @@ public class FreeBsdDisks implements Disks {
             if (partition == null) {
                 continue;
             }
-            String[] split = line.split("\\s+");
+            String[] split = ParseUtil.whitespaces.split(line);
             if (split.length < 2) {
                 continue;
             }

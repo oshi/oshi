@@ -57,7 +57,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     protected void updateSwap() {
         this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
         String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
-        String[] split = swapInfo.split("\\s+");
+        String[] split = ParseUtil.whitespaces.split(swapInfo);
         if (split.length < 5) {
             return;
         }

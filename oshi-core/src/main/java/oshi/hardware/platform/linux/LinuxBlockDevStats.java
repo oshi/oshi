@@ -62,7 +62,7 @@ public class LinuxBlockDevStats implements Serializable {
         String[] splitstats;
 
         devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
-        splitstats = devstat.split("\\s+");
+        splitstats = ParseUtil.whitespaces.split(devstat);
 
         if (splitstats.length < 11) {
             throw new IllegalStateException("Unexpected length of array: " + splitstats.length);

@@ -27,6 +27,7 @@ import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
@@ -91,7 +92,7 @@ public class SolarisFileSystem implements FileSystem {
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) {
-            String[] split = fs.split("\\s+");
+            String[] split = ParseUtil.whitespaces.split(fs);
             if (split.length < 5) {
                 continue;
             }

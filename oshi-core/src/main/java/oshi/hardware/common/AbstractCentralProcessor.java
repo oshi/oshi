@@ -357,7 +357,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return the string following id
      */
     private String parseIdentifier(String id) {
-        String[] idSplit = getIdentifier().split("\\s+");
+        String[] idSplit = ParseUtil.whitespaces.split(getIdentifier());
         boolean found = false;
         for (String s : idSplit) {
             // If id string found, return next value

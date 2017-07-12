@@ -92,7 +92,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = proc.trim().split("\\s+", 16);
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
             if (split.length < 16) {
                 continue;

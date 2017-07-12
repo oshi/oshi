@@ -92,7 +92,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = proc.trim().split("\\s+", 15);
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);
             // Elements should match ps command order
             if (split.length < 15) {
                 continue;

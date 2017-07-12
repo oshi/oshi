@@ -83,6 +83,14 @@ public class ParseUtil {
 
     private static final Map<String, Long> multipliers;
 
+    public static final Pattern whitespacesColonWhitespace = Pattern.compile("\\s+:\\s");
+
+    public static final Pattern whitespaces = Pattern.compile("\\s+");
+
+    public static final Pattern notDigits = Pattern.compile("[^0-9]+");
+
+    public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
+
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
@@ -139,7 +147,7 @@ public class ParseUtil {
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-        String[] ss = s.split("\\s+");
+        String[] ss = whitespaces.split(s);
         if (ss.length < 1) {
             return s;
         } else {
@@ -483,10 +491,37 @@ public class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-        String[] split = line.replaceFirst("^[^0-9]*", "").split("[^0-9]+");
+        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(""));
         if (split.length >= n) {
             return parseIntOrDefault(split[n - 1], 0);
         }
         return 0;
     }
+
+    /**
+     * Removes all sub strings from the string
+     * @param original source String to remove from
+     * @param toRemove the sub string to be removed
+     * @return
+     */
+    public static String removeMatchingString(final String original, final String toRemove) {
+        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())
+            return original;
+
+        int matchIndex = original.indexOf(toRemove, 0);
+        if (matchIndex == -1)
+            return original;
+
+        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());
+        int currIndex = 0;
+        do {
+            buffer.append(original.substring(currIndex, matchIndex));
+            currIndex = matchIndex + toRemove.length();
+            matchIndex = original.indexOf(toRemove, currIndex);
+        } while (matchIndex != -1);
+
+        buffer.append(original.substring(currIndex));
+        return buffer.toString();
+    }
+
 }
