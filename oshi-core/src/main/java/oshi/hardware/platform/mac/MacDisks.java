@@ -263,7 +263,7 @@ public class MacDisks implements Disks {
                                 stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
                                         CfUtil.getCFString("Total Time (Write)"));
                                 xferTime += CfUtil.cfPointerToLong(stat);
-                                diskStore.setTransferTime(xferTime / 10000L);
+                                diskStore.setTransferTime(xferTime / 1000000L);
 
                                 CfUtil.release(properties);
                             } else {
