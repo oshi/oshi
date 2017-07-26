@@ -1,5 +1,6 @@
 3.5.0 (in progress)
 ================
+* [#392](https://github.com/dblock/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.4.3 (6/2/17)

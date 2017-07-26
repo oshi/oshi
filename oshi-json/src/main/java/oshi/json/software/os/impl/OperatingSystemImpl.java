@@ -102,7 +102,7 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
         oshi.software.os.OSProcess[] procs = this.os.getProcesses(limit, sort);
         OSProcess[] processes = new OSProcess[procs.length];
         for (int i = 0; i < procs.length; i++) {
-            processes[i] = new OSProcess(procs[i]);
+            processes[i] = procs[i] == null ? null : new OSProcess(procs[i]);
         }
         return processes;
     }
@@ -112,7 +112,8 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public OSProcess getProcess(int pid) {
-        return new OSProcess(this.os.getProcess(pid));
+        oshi.software.os.OSProcess proc = this.os.getProcess(pid);
+        return proc == null ? null : new OSProcess(proc);
     }
 
     /**

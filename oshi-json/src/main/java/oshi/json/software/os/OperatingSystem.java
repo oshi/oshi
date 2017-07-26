@@ -75,7 +75,8 @@ public interface OperatingSystem extends OshiJsonObject {
      *            If not null, determines sorting of results
      * @return An array of {@link oshi.software.os.OSProcess} objects for the
      *         specified number (or all) of currently running processes, sorted
-     *         as specified
+     *         as specified. The array may contain null elements if a process
+     *         terminates during iteration.
      */
     OSProcess[] getProcesses(int limit, ProcessSort sort);
 
@@ -85,8 +86,7 @@ public interface OperatingSystem extends OshiJsonObject {
      * @param pid
      *            A process ID
      * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise currently running
-     *         processes
+     *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
 
