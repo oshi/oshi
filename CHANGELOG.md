@@ -1,6 +1,7 @@
 3.5.0 (in progress)
 ================
 * [#392](https://github.com/dblock/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
+* [#396](https://github.com/oshi/oshi/pull/396): Fix issue on Mac OS X whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)
 * Your contribution here.
 
 3.4.3 (6/2/17)
