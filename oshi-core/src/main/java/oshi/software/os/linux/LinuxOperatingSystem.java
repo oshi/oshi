@@ -119,7 +119,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         long youngestJiffies = 0L;
         String youngestPid = "";
         for (File pid : pids) {
-            List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()));
+            List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()), false);
             if (!stat.isEmpty()) {
                 String[] split = ParseUtil.whitespaces.split(stat.get(0));
                 if (split.length >= 22) {
