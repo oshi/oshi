@@ -124,7 +124,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             this.lastCpuLoadTime = System.currentTimeMillis();
             this.sunMXBean = true;
             LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | ClassCastException e) {
             LOG.debug("Oracle MXBean not detected.");
             LOG.trace("{}", e);
         }
