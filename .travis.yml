@@ -32,8 +32,6 @@ matrix:
       jdk: oraclejdk8
       env: AFTER_SUCCESS="jacoco"
     - os: linux
-      jdk: oraclejdk7
-    - os: linux
       jdk: openjdk7
     - os: osx
       osx_image: xcode8
