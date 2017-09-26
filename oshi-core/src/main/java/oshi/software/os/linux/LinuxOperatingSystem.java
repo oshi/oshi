@@ -247,9 +247,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
         proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22], 0L));
         proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
+        if(hz != 0) {
+            proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
+            proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
+            proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
+        } else {
+            LOG.warn("Process info recovery called on improperly initialized Linux OS handler.");
+        }
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
