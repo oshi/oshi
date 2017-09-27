@@ -162,6 +162,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
+        // reset to default if value is invalid
+        if(hz == 0) hz = 1000L;
     }
 
     private static int getMemoryPageSize() {
