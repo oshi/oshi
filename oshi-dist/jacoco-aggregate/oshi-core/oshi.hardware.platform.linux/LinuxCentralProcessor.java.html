@@ -18,19 +18,18 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -43,26 +42,27 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);</span>
 
     /**
      * Create a Processor
      */
     public LinuxCentralProcessor() {
-<span class="nc" id="L52">        super();</span>
+<span class="nc" id="L51">        super();</span>
         // Initialize class variables
-<span class="nc" id="L54">        initVars();</span>
+<span class="nc" id="L53">        initVars();</span>
         // Initialize tick arrays
-<span class="nc" id="L56">        initTicks();</span>
+<span class="nc" id="L55">        initTicks();</span>
 
-<span class="nc" id="L58">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L57">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L58">    }</span>
+
 
     private void initVars() {
 <span class="nc" id="L62">        String[] flags = new String[0];</span>
 <span class="nc" id="L63">        List&lt;String&gt; cpuInfo = FileUtil.readFile(&quot;/proc/cpuinfo&quot;);</span>
 <span class="nc bnc" id="L64" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
-<span class="nc" id="L65">            String[] splitLine = line.split(&quot;\\s+:\\s&quot;);</span>
+<span class="nc" id="L65">            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);</span>
 <span class="nc bnc" id="L66" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
 <span class="nc" id="L67">                break;</span>
             }
@@ -188,7 +188,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // Split the line. Note the first (0) element is &quot;cpu&quot; so remaining
         // elements are offset by 1 from the enum index
-<span class="nc" id="L191">        String[] tickArr = tickStr.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L191">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
 <span class="nc bnc" id="L192" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
             // If ticks don't at least go user/nice/system/idle, abort
 <span class="nc" id="L194">            return ticks;</span>
@@ -236,7 +236,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 // Split the line. Note the first (0) element is &quot;cpu&quot; so
                 // remaining
                 // elements are offset by 1 from the enum index
-<span class="nc" id="L239">                String[] tickArr = stat.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L239">                String[] tickArr = ParseUtil.whitespaces.split(stat);</span>
 <span class="nc bnc" id="L240" title="All 2 branches missed.">                if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
                     // If ticks don't at least go user/nice/system/idle, abort
 <span class="nc" id="L242">                    return ticks;</span>
@@ -299,11 +299,11 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 <span class="nc bnc" id="L299" title="All 4 branches missed.">            if (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(&quot;0x00000001&quot;)) {</span>
 <span class="nc" id="L300">                String eax = &quot;&quot;;</span>
 <span class="nc" id="L301">                String edx = &quot;&quot;;</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">                for (String register : checkLine.split(&quot;\\s+&quot;)) {</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">                for (String register : ParseUtil.whitespaces.split(checkLine)) {</span>
 <span class="nc bnc" id="L303" title="All 2 branches missed.">                    if (register.startsWith(&quot;eax=&quot;)) {</span>
-<span class="nc" id="L304">                        eax = register.replace(&quot;eax=0x&quot;, &quot;&quot;);</span>
+<span class="nc" id="L304">                        eax = ParseUtil.removeMatchingString(register, &quot;eax=0x&quot;);</span>
 <span class="nc bnc" id="L305" title="All 2 branches missed.">                    } else if (register.startsWith(&quot;edx=&quot;)) {</span>
-<span class="nc" id="L306">                        edx = register.replace(&quot;edx=0x&quot;, &quot;&quot;);</span>
+<span class="nc" id="L306">                        edx = ParseUtil.removeMatchingString(register, &quot;edx=0x&quot;);</span>
                     }
                 }
 <span class="nc" id="L309">                return edx + eax;</span>

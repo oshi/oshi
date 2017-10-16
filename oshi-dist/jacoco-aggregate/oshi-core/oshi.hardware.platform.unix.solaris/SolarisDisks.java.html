@@ -150,7 +150,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
                     // Size: 1.23GB &lt;1227563008 bytes&gt;
 <span class="nc" id="L151">                    String[] bytes = keyValue.split(&quot;&lt;&quot;);</span>
 <span class="nc bnc" id="L152" title="All 2 branches missed.">                    if (bytes.length &gt; 1) {</span>
-<span class="nc" id="L153">                        bytes = bytes[1].split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L153">                        bytes = ParseUtil.whitespaces.split(bytes[1]);</span>
 <span class="nc" id="L154">                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);</span>
                     }
                 }
@@ -228,7 +228,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
                 // specifying bytes per sector
 <span class="nc bnc" id="L229" title="All 2 branches missed.">                if (line.startsWith(&quot;*&quot;)) {</span>
 <span class="nc bnc" id="L230" title="All 2 branches missed.">                    if (line.endsWith(&quot;bytes/sector&quot;)) {</span>
-<span class="nc" id="L231">                        split = line.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L231">                        split = ParseUtil.whitespaces.split(line);</span>
 <span class="nc bnc" id="L232" title="All 2 branches missed.">                        if (split.length &gt; 0) {</span>
 <span class="nc" id="L233">                            bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);</span>
                         }
@@ -240,10 +240,10 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 <span class="nc bnc" id="L240" title="All 2 branches missed.">                if (bytesPerSector == 0) {</span>
 <span class="nc" id="L241">                    continue;</span>
                 }
-                // Lines without asterisk have 6 or 7 whitespace-split values
+                // Lines without asterisk have 6 or 7 whitespaces-split values
                 // representing (last field optional):
                 // Partition Tag Flags Sector Count Sector Mount
-<span class="nc" id="L246">                split = line.trim().split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L246">                split = ParseUtil.whitespaces.split(line.trim());</span>
                 // Partition 2 is always the whole disk so we ignore it
 <span class="nc bnc" id="L248" title="All 4 branches missed.">                if (split.length &lt; 6 || &quot;2&quot;.equals(split[0])) {</span>
 <span class="nc" id="L249">                    continue;</span>

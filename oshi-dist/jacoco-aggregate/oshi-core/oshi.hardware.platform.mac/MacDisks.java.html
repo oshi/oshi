@@ -263,7 +263,7 @@ import oshi.util.platform.mac.IOKitUtil;
 <span class="nc" id="L263">                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,</span>
 <span class="nc" id="L264">                                        CfUtil.getCFString(&quot;Total Time (Write)&quot;));</span>
 <span class="nc" id="L265">                                xferTime += CfUtil.cfPointerToLong(stat);</span>
-<span class="nc" id="L266">                                diskStore.setTransferTime(xferTime / 10000L);</span>
+<span class="nc" id="L266">                                diskStore.setTransferTime(xferTime / 1000000L);</span>
 
 <span class="nc" id="L268">                                CfUtil.release(properties);</span>
 <span class="nc" id="L269">                            } else {</span>
