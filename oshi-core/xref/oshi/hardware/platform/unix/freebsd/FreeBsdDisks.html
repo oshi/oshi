@@ -72,7 +72,7 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Get list of valid disks</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          diskMap.clear();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          List&lt;String&gt; devices = Arrays.asList(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.disks"</span>, <span class="jxr_string">""</span>).split(<span class="jxr_string">"&#92;&#92;s+"</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.disks"</span>, <span class="jxr_string">""</span>)));
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Temporary list to hold partitions</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          List&lt;HWPartition&gt; partList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;String&gt; disks = ExecutingCommand.runNative(<span class="jxr_string">"iostat -Ix"</span>);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">long</strong> timeStamp = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">for</strong> (String line : disks) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              String[] split = line.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              String[] split = ParseUtil.whitespaces.split(line);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">if</strong> (split.length &lt; 7 || !devices.contains(split[0])) {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              }
@@ -127,7 +127,7 @@
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             }
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             line = line.trim();
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"Mediasize:"</span>)) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 String[] split = line.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 String[] split = ParseUtil.whitespaces.split(line);
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>                     store.setSize(ParseUtil.parseLongOrDefault(split[1], 0L));
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 }
@@ -186,7 +186,7 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">if</strong> (partition == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>             }
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             String[] split = line.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             String[] split = ParseUtil.whitespaces.split(line);
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             }

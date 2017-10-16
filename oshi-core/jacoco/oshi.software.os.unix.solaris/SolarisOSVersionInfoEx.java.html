@@ -20,20 +20,21 @@ package oshi.software.os.unix.solaris;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L28">    public SolarisOSVersionInfoEx() {</span>
+<span class="nc" id="L29">    public SolarisOSVersionInfoEx() {</span>
         // TODO use sysinfo() instead of commandline
-<span class="nc" id="L30">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
-<span class="nc" id="L31">        String[] split = versionInfo.split(&quot;\\s+&quot;);</span>
-<span class="nc" id="L32">        setVersion(split[0]);</span>
-<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L34">            setBuildNumber(split[1]);</span>
+<span class="nc" id="L31">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
+<span class="nc" id="L32">        String[] split = ParseUtil.whitespaces.split(versionInfo);</span>
+<span class="nc" id="L33">        setVersion(split[0]);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L35">            setBuildNumber(split[1]);</span>
         }
-<span class="nc" id="L36">        setCodeName(&quot;Solaris&quot;);</span>
-<span class="nc" id="L37">    }</span>
+<span class="nc" id="L37">        setCodeName(&quot;Solaris&quot;);</span>
+<span class="nc" id="L38">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

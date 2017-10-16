@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateNetworkStats(<a href="../../../../../oshi/hardware/NetworkIF.html">NetworkIF</a> netIF) {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          String stats = ExecutingCommand.getAnswerAt(<span class="jxr_string">"netstat -bI "</span> + netIF.getName(), 1);
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          netIF.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          String[] split = stats.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          String[] split = ParseUtil.whitespaces.split(stats);
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">if</strong> (split.length &lt; 12) {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              <em class="jxr_comment">// No update</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">return</strong>;

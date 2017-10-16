@@ -40,7 +40,7 @@ import oshi.util.ParseUtil;
     public static void updateNetworkStats(NetworkIF netIF) {
 <span class="nc" id="L41">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + netIF.getName(), 1);</span>
 <span class="nc" id="L42">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L43">        String[] split = stats.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L43">        String[] split = ParseUtil.whitespaces.split(stats);</span>
 <span class="nc bnc" id="L44" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
             // No update
 <span class="nc" id="L46">            return;</span>

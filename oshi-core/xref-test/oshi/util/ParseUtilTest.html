@@ -259,7 +259,21 @@
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertEquals(0, ParseUtil.getNthIntValue(<span class="jxr_string">"foo = 0x2a (int)"</span>, 3));
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertEquals(12, ParseUtil.getNthIntValue(<span class="jxr_string">"10.12.2"</span>, 2));
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * Test parse removeMatchingString</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     @Test
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveMatchingString() {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         assertEquals(<span class="jxr_string">"foo = 42 () (int)"</span>, ParseUtil.removeMatchingString(<span class="jxr_string">"foo = 42 (0x2a) (int)"</span>, <span class="jxr_string">"0x2a"</span>));
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         assertEquals(<span class="jxr_string">"foo = 0x2a (int)"</span>, ParseUtil.removeMatchingString(<span class="jxr_string">"foo = 0x2a (int)"</span>, <span class="jxr_string">"qqq"</span>));
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         assertEquals(<span class="jxr_string">"10.1."</span>, ParseUtil.removeMatchingString(<span class="jxr_string">"10.12.2"</span>, <span class="jxr_string">"2"</span>));
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         assertEquals(<span class="jxr_string">""</span>, ParseUtil.removeMatchingString(<span class="jxr_string">"10.12.2"</span>, <span class="jxr_string">"10.12.2"</span>));
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         assertEquals(<span class="jxr_string">""</span>, ParseUtil.removeMatchingString(<span class="jxr_string">""</span>, <span class="jxr_string">"10.12.2"</span>));
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         assertEquals(<strong class="jxr_keyword">null</strong>, ParseUtil.removeMatchingString(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"10.12.2"</span>));
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         assertEquals(<span class="jxr_string">"2"</span>, ParseUtil.removeMatchingString(<span class="jxr_string">"10.12.2"</span>, <span class="jxr_string">"10.12."</span>));
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

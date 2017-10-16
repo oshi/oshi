@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <span class="jxr_string">"Name,DiskReadsPerSec,DiskReadBytesPerSec,DiskWritesPerSec,DiskWriteBytesPerSec,PercentDiskTime,Timestamp_Sys100NS"</span>,
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <strong class="jxr_keyword">null</strong>, READ_WRITE_TYPES);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; vals.get(<span class="jxr_string">"Name"</span>).size(); i++) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             String name = ((String) vals.get(<span class="jxr_string">"Name"</span>).get(i)).split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0];
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             String name = ParseUtil.whitespaces.split((String) vals.get(<span class="jxr_string">"Name"</span>).get(i))[0];
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             readMap.put(name, (<strong class="jxr_keyword">long</strong>) vals.get(<span class="jxr_string">"DiskReadsPerSec"</span>).get(i));
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(<span class="jxr_string">"DiskReadBytesPerSec"</span>).get(i), 0L));
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             writeMap.put(name, (<strong class="jxr_keyword">long</strong>) vals.get(<span class="jxr_string">"DiskWritesPerSec"</span>).get(i));

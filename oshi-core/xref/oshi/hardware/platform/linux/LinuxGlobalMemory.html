@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">boolean</strong> found = false;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String[] memorySplit = checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 1) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">switch</strong> (memorySplit[0]) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemTotal:"</span>:

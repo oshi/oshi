@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">this</strong>.mountsMap.clear();
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         List&lt;String&gt; mounts = FileUtil.readFile(<span class="jxr_string">"/proc/self/mounts"</span>);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">for</strong> (String mount : mounts) {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             String[] split = mount.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             String[] split = ParseUtil.whitespaces.split(mount);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>             <strong class="jxr_keyword">if</strong> (split.length &lt; 2 || !split[0].startsWith(<span class="jxr_string">"/dev/"</span>)) {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>             }

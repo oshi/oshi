@@ -133,7 +133,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L133">        this.mountsMap.clear();</span>
 <span class="nc" id="L134">        List&lt;String&gt; mounts = FileUtil.readFile(&quot;/proc/self/mounts&quot;);</span>
 <span class="nc bnc" id="L135" title="All 2 branches missed.">        for (String mount : mounts) {</span>
-<span class="nc" id="L136">            String[] split = mount.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L136">            String[] split = ParseUtil.whitespaces.split(mount);</span>
 <span class="nc bnc" id="L137" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
 <span class="nc" id="L138">                continue;</span>
             }

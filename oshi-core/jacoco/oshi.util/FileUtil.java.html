@@ -161,7 +161,7 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return an array of whitespace-delimited string values
+     * Read a file and return an array of whitespaces-delimited string values
      * contained therein. Intended primarily for Linux /proc
      *
      * @param filename
@@ -173,7 +173,7 @@ public class FileUtil {
 <span class="fc" id="L173">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
 <span class="fc bfc" id="L174" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
 <span class="fc" id="L175">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="fc" id="L176">            return read.get(0).split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L176">            return ParseUtil.whitespaces.split(read.get(0));</span>
         }
 <span class="fc" id="L178">        return new String[0];</span>
     }

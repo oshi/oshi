@@ -62,7 +62,7 @@ public class LinuxBlockDevStats implements Serializable {
         String[] splitstats;
 
 <span class="nc" id="L64">        devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
-<span class="nc" id="L65">        splitstats = devstat.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L65">        splitstats = ParseUtil.whitespaces.split(devstat);</span>
 
 <span class="nc bnc" id="L67" title="All 2 branches missed.">        if (splitstats.length &lt; 11) {</span>
 <span class="nc" id="L68">            throw new IllegalStateException(&quot;Unexpected length of array: &quot; + splitstats.length);</span>
