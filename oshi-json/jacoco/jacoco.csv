@@ -50,8 +50,8 @@ oshi-json,oshi.software.os.windows,WindowsOSSystemInfo,61,0,4,0,19,0,6,0,4,0
 oshi-json,oshi.util.platform.unix.solaris,KstatUtil,316,0,48,0,60,0,35,0,7,0
 oshi-json,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.software.os.mac,MacNetworkParams,121,0,14,0,31,0,12,0,5,0
-oshi-json,oshi.software.os.mac,MacOSVersionInfoEx,73,0,16,0,26,0,18,0,4,0
-oshi-json,oshi.software.os.mac,MacOperatingSystem,592,0,55,0,125,0,41,0,11,0
+oshi-json,oshi.software.os.mac,MacOSVersionInfoEx,75,0,17,0,27,0,19,0,4,0
+oshi-json,oshi.software.os.mac,MacOperatingSystem,599,0,57,0,127,0,42,0,11,0
 oshi-json,oshi.software.os.mac,MacFileSystem,243,0,34,0,58,0,22,0,5,0
 oshi-json,oshi.json.json,NullAwareJsonObjectBuilder,6,151,1,13,1,40,1,20,0,14
 oshi-json,oshi.json.json,AbstractOshiJsonObject,3,41,0,0,1,9,1,6,1,6
@@ -73,7 +73,7 @@ oshi-json,oshi.json.hardware,HWDiskStore,7,511,15,29,2,99,14,36,0,28
 oshi-json,oshi.json.hardware,NetworkIF,19,329,19,19,9,78,19,30,0,28
 oshi-json,oshi.software.os.linux,LinuxFileSystem,423,0,44,0,67,0,29,0,7,0
 oshi-json,oshi.software.os.linux,LinuxOSVersionInfoEx,468,0,90,0,100,0,54,0,9,0
-oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1324,0,235,0,243,0,163,0,19,0
+oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1331,0,237,0,244,0,164,0,19,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},37,0,12,0,4,0,8,0,2,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.new Comparator() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.software.os.linux,LinuxNetworkParams,200,0,30,0,47,0,20,0,5,0
@@ -104,7 +104,7 @@ oshi-json,oshi.jna.platform.unix,CLibrary.Sockaddr,19,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.jna.platform.unix,CLibrary.Sockaddr.ByReference,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.json.software.os,OSProcess,0,430,21,21,0,114,21,45,0,45
 oshi-json,oshi.json.software.os,OSFileStore,4,185,8,8,1,48,9,19,1,19
-oshi-json,oshi.json.software.os.impl,OperatingSystemImpl,236,0,22,0,45,0,24,0,13,0
+oshi-json,oshi.json.software.os.impl,OperatingSystemImpl,248,0,26,0,46,0,26,0,13,0
 oshi-json,oshi.json.software.os.impl,OperatingSystemVersionImpl,79,0,6,0,22,0,12,0,9,0
 oshi-json,oshi.json.software.os.impl,FileSystemImpl,147,0,10,0,25,0,10,0,5,0
 oshi-json,oshi.json.software.os.impl,NetworkParamsImpl,113,0,12,0,24,0,13,0,7,0
@@ -142,7 +142,7 @@ oshi-json,oshi.hardware.platform.linux,LinuxFirmware,109,0,24,0,25,0,14,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},24,0,4,0,2,0,4,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,38,0,22,0,3,0
-oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,637,0,116,0,132,0,73,0,10,0
+oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,635,0,116,0,132,0,73,0,10,0
 oshi-json,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,64,0,8,0,18,0,14,0,10,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisks,338,0,24,0,71,0,17,0,5,0
 oshi-json,oshi.hardware.platform.linux,LinuxBlockDevStats,136,0,2,0,19,0,2,0,1,0
@@ -222,7 +222,7 @@ oshi-json,oshi.util,Util,30,13,2,0,10,5,3,2,2,2
 oshi-json,oshi.util,EdidUtil,545,7,21,0,65,2,31,2,18,2
 oshi-json,oshi.util,FormatUtil,427,49,45,3,69,12,36,4,13,3
 oshi-json,oshi.util,LsofUtil,68,0,9,0,15,0,7,0,2,0
-oshi-json,oshi.util,ParseUtil,339,217,33,11,77,42,32,12,12,10
+oshi-json,oshi.util,ParseUtil,401,230,45,11,90,46,39,12,13,10
 oshi-json,oshi.util,ExecutingCommand,75,56,10,4,12,14,9,4,3,3
 oshi-json,oshi.util,MapUtil,41,46,2,4,11,12,3,4,2,2
 oshi-json,oshi.util,FileUtil,200,25,19,1,51,5,17,3,7,3

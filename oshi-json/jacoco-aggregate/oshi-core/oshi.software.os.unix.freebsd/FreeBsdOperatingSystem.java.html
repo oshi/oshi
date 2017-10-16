@@ -92,7 +92,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L92">        procList.remove(0);</span>
         // Fill list
 <span class="nc bnc" id="L94" title="All 2 branches missed.">        for (String proc : procList) {</span>
-<span class="nc" id="L95">            String[] split = proc.trim().split(&quot;\\s+&quot;, 16);</span>
+<span class="nc" id="L95">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);</span>
             // Elements should match ps command order
 <span class="nc bnc" id="L97" title="All 2 branches missed.">            if (split.length &lt; 16) {</span>
 <span class="nc" id="L98">                continue;</span>
