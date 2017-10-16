@@ -132,7 +132,7 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">this</strong>.lastCpuLoadTime = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">this</strong>.sunMXBean = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>             LOG.debug(<span class="jxr_string">"Oracle MXBean detected."</span>);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         } <strong class="jxr_keyword">catch</strong> (ClassNotFoundException e) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         } <strong class="jxr_keyword">catch</strong> (ClassNotFoundException | ClassCastException e) {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             LOG.debug(<span class="jxr_string">"Oracle MXBean not detected."</span>);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             LOG.trace(<span class="jxr_string">"{}"</span>, e);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
@@ -365,7 +365,7 @@
 <a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">     * @return the string following id</em>
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>     <strong class="jxr_keyword">private</strong> String parseIdentifier(String id) {
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>         String[] idSplit = getIdentifier().split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         String[] idSplit = ParseUtil.whitespaces.split(getIdentifier());
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>         <strong class="jxr_keyword">boolean</strong> found = false;
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">for</strong> (String s : idSplit) {
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>             <em class="jxr_comment">// If id string found, return next value</em>

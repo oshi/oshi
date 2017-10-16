@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          String[] splitstats;
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, <span class="jxr_string">"stat"</span>);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          splitstats = devstat.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          splitstats = ParseUtil.whitespaces.split(devstat);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">if</strong> (splitstats.length &lt; 11) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Unexpected length of array: "</span> + splitstats.length);

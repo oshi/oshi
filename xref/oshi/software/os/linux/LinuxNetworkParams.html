@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">int</strong> minMetric = Integer.MAX_VALUE;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 2; i &lt; routes.size(); i++) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              String[] fields = routes.get(i).split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              String[] fields = ParseUtil.whitespaces.split(routes.get(i));
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">if</strong> (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <strong class="jxr_keyword">boolean</strong> isGateway = fields[3].indexOf('G') != -1;
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">int</strong> metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);
@@ -116,7 +116,7 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">int</strong> minMetric = Integer.MAX_VALUE;
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 2; i &lt; routes.size(); i++) {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             String[] fields = routes.get(i).split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             String[] fields = ParseUtil.whitespaces.split(routes.get(i));
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">if</strong> (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">boolean</strong> isGateway = fields[2].indexOf('G') != -1;
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">int</strong> metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);

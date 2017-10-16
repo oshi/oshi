@@ -85,18 +85,18 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     *            If not null, determines sorting of results</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * @return An array of {@link oshi.software.os.OSProcess} objects for the</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     *         specified number (or all) of currently running processes, sorted</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     *         as specified</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <a href="../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * Gets information on a currently running process</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * @param pid</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     *            A process ID</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * @return An {@link oshi.software.os.OSProcess} object for the specified</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     *         process id if it is running; null otherwise currently running</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *         processes</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     *         as specified. The array may contain null elements if a process</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     *         terminates during iteration.</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <a href="../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * Gets information on a currently running process</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * @param pid</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     *            A process ID</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * @return An {@link oshi.software.os.OSProcess} object for the specified</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *         process id if it is running; null otherwise</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      <a href="../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  

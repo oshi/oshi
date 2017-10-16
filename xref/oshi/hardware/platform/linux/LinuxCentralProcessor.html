@@ -26,51 +26,51 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.hardware.platform.linux;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Libc;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.linux.ProcUtil;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * A CPU as defined in Linux /proc.</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author alessio.fachechi[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessor.html">LinuxCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractCentralProcessor.html">AbstractCentralProcessor</a> {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * Create a Processor</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessor.html">LinuxCentralProcessor</a>() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <em class="jxr_comment">// Initialize class variables</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          initVars();
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <em class="jxr_comment">// Initialize tick arrays</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          initTicks();
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          LOG.debug(<span class="jxr_string">"Initialized Processor"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Libc;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.linux.ProcUtil;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * A CPU as defined in Linux /proc.</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author alessio.fachechi[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessor.html">LinuxCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractCentralProcessor.html">AbstractCentralProcessor</a> {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * Create a Processor</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessor.html">LinuxCentralProcessor</a>() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">// Initialize class variables</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          initVars();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// Initialize tick arrays</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          initTicks();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          LOG.debug(<span class="jxr_string">"Initialized Processor"</span>);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initVars() {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          String[] flags = <strong class="jxr_keyword">new</strong> String[0];
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          List&lt;String&gt; cpuInfo = FileUtil.readFile(<span class="jxr_string">"/proc/cpuinfo"</span>);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">for</strong> (String line : cpuInfo) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              String[] splitLine = line.split(<span class="jxr_string">"&#92;&#92;s+:&#92;&#92;s"</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">if</strong> (splitLine.length &lt; 2) {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              }
@@ -196,7 +196,7 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so remaining</em>
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         String[] tickArr = tickStr.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         String[] tickArr = ParseUtil.whitespaces.split(tickStr);
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>             <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">return</strong> ticks;
@@ -244,7 +244,7 @@
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>                 <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so</em>
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>                 <em class="jxr_comment">// remaining</em>
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>                 <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 String[] tickArr = stat.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 String[] tickArr = ParseUtil.whitespaces.split(stat);
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>                 <strong class="jxr_keyword">if</strong> (tickArr.length &lt;= TickType.IDLE.getIndex()) {
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>                     <em class="jxr_comment">// If ticks don't at least go user/nice/system/idle, abort</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>                     <strong class="jxr_keyword">return</strong> ticks;
@@ -307,11 +307,11 @@
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>                 String eax = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>                 String edx = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 <strong class="jxr_keyword">for</strong> (String register : checkLine.split(<span class="jxr_string">"&#92;&#92;s+"</span>)) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 <strong class="jxr_keyword">for</strong> (String register : ParseUtil.whitespaces.split(checkLine)) {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                         eax = register.replace(<span class="jxr_string">"eax=0x"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                         eax = ParseUtil.removeMatchingString(register, <span class="jxr_string">"eax=0x"</span>);
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                         edx = register.replace(<span class="jxr_string">"edx=0x"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                         edx = ParseUtil.removeMatchingString(register, <span class="jxr_string">"edx=0x"</span>);
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>                     }
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>                 }
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
