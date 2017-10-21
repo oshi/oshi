@@ -88,10 +88,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         int[] pids = new int[this.maxProc];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length * SystemB.INT_SIZE)
-                / SystemB.INT_SIZE;
+        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
         for (int i = 0; i < numberOfProcesses; i++) {
-            // Handle off-by-one bug in proc_listpids where the size returned is: SystemB.INT_SIZE * (pids + 1)
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
             if (pids[i] == 0) {
                 continue;
             }
@@ -222,12 +223,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         // Fetch arguments
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
             LOG.error("Failed syctl call: kern.procargs2, Error code: {}", Native.getLastError());
+            return "";
         }
         // Procargs contains an int representing total # of args, followed by a
         // null-terminated execpath string and then the arguments, each
         // null-terminated (possible multiple consecutive nulls),
         // The execpath string is also the first arg.
         int nargs = procargs.getInt(0);
+        // Sanity check
+        if (nargs < 0 || nargs > 1024) {
+            LOG.error("Nonsensical number of process arguments for pid {}: {}", pid, nargs);
+            return "";
+        }
         List<String> args = new ArrayList<>(nargs);
         // Skip first int (containing value of nargs)
         long offset = SystemB.INT_SIZE;
