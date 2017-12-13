@@ -69,7 +69,7 @@ public class FileUtil {
      *         list if file could not be read or is empty
      */
     public static List<String> readFile(String filename, boolean reportError) {
-        if (new File(filename).exists()) {
+        if (new File(filename).canRead()) {
             LOG.debug("Reading file {}", filename);
             try {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
@@ -79,7 +79,7 @@ public class FileUtil {
                 }
             }
         } else if (reportError) {
-            LOG.warn("File not found: {}", filename);
+            LOG.warn("File not found or not readable: {}", filename);
         }
         return new ArrayList<>();
     }

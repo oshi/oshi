@@ -191,9 +191,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
+        
+        LinuxUserInfo userInfo = getUserInfo();
+        Map<String, String> users = userInfo.getUsers();
+        Map<String, String> groups = userInfo.getGroups();
+        
         // now for each file (with digit name) get process info
         for (File pid : pids) {
-            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
+            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0), users, groups);
             if (proc != null) {
                 procs.add(proc);
             }
@@ -207,6 +212,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
+    	return getProcess(pid, null, null);
+    }
+    
+    private OSProcess getProcess(int pid, Map<String, String> users, Map<String,String> groups) {
         String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
         if (split.length < 24) {
             return null;
@@ -256,18 +265,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-        // The stat structure on Linux does not have consistent ordering or byte
-        // size accross architectures so we are forced to use the stat command
-        List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G /proc/" + pid);
-        if (!stat.isEmpty()) {
-            split = stat.get(0).split(",");
-            if (split.length == 4) {
-                proc.setUserID(split[0]);
-                proc.setUser(split[1]);
-                proc.setGroupID(split[2]);
-                proc.setGroup(split[3]);
-            }
+        
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
+        proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
+        if (users == null) {
+        	users = getUserInfo().getUsers();
         }
+        if (groups == null) {
+        	groups = getUserInfo().getGroups();
+        }
+        proc.setUser(users.get(proc.getUserID()));
+        proc.setGroup(groups.get(proc.getGroupID()));
+        
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         try {
@@ -322,6 +332,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
+    }
+    
+    private LinuxUserInfo getUserInfo() {
+    	return new LinuxUserInfo();
     }
 
     private void setFamilyFromReleaseFiles() {
