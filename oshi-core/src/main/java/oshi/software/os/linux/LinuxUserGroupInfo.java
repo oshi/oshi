@@ -9,16 +9,25 @@ import oshi.util.ExecutingCommand;
 
 public class LinuxUserGroupInfo {
 	
-	private final UsersCache usersCache = new UsersCache();
-	private final GroupsCache groupsCache = new GroupsCache();
+	private static final long CACHE_REFRESH_TIME_MS = 3*60*1000; //3 minutes
+	private static final UsersCache usersCache = new UsersCache();
+	private static final GroupsCache groupsCache = new GroupsCache();
+
+	public OSUser getUser(String userId) {
+		return usersCache.getUser(userId);
+	}
+	
+	public String getGroupName(String groupId) {
+		return groupsCache.getGroup(groupId);
+	}
 
 	private static class UsersCache {
-		private static final long GROUPS_REFRESH_TIME_MS = 3*60*1000; //3 minutes
+		
 		private Map<String, OSUser> usersIdMap = new HashMap<>();
 		private long lastRefreshedTimestamp;
 		
 		public OSUser getUser(String userId) {
-			if ((System.currentTimeMillis() - lastRefreshedTimestamp) > GROUPS_REFRESH_TIME_MS) {
+			if ((System.currentTimeMillis() - lastRefreshedTimestamp) > CACHE_REFRESH_TIME_MS) {
 				refresh();
 			}
 			OSUser osUser = usersIdMap.get(userId);
@@ -53,12 +62,11 @@ public class LinuxUserGroupInfo {
 	}
 	
 	private static class GroupsCache {
-		private static final long GROUPS_REFRESH_TIME_MS = 3*60*1000; //3 minutes
 		private Map<String, String> groupsIdMap = new HashMap<>();
 		private long lastRefreshedTimestamp;
 		
 		public String getGroup(String groupId){
-			if ((System.currentTimeMillis() - lastRefreshedTimestamp) > GROUPS_REFRESH_TIME_MS) {
+			if ((System.currentTimeMillis() - lastRefreshedTimestamp) > CACHE_REFRESH_TIME_MS) {
 				refresh();
 			}
 			String groupName = groupsIdMap.get(groupId);
@@ -86,13 +94,5 @@ public class LinuxUserGroupInfo {
 			}
 			lastRefreshedTimestamp = System.currentTimeMillis();
 		}
-	}
-	
-	public OSUser getUser(String userId) {
-		return usersCache.getUser(userId);
-	}
-	
-	public String getGroupName(String groupId) {
-		return groupsCache.getGroup(groupId);
 	}
 }
