@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinDef.ULONG;
-import com.sun.jna.platform.win32.WinNT.OSVERSIONINFO;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
@@ -41,17 +40,7 @@ public class WindowsNetworks extends AbstractNetworks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte majorVersion;
-    static {
-        OSVERSIONINFO lpVersionInfo = new OSVERSIONINFO();
-        // GetVersionEx() isn't accurate for Win8+ but is sufficient for
-        // detecting versions 5.x and earlier
-        if (!Kernel32.INSTANCE.GetVersionEx(lpVersionInfo)) {
-            majorVersion = lpVersionInfo.dwMajorVersion.byteValue();
-        } else {
-            majorVersion = 0;
-        }
-    }
+    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
     /**
      * Updates interface network statistics on the given interface. Statistics
