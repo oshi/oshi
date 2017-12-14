@@ -40,6 +40,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.MapUtil;
@@ -72,6 +73,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static long hz = 1000L;
     // Boot time in MS
     private static long bootTime = 0L;
+    
+    private LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
+    
     static {
         init();
     }
@@ -192,13 +196,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
         
-        LinuxUserInfo userInfo = getUserInfo();
-        Map<String, String> users = userInfo.getUsers();
-        Map<String, String> groups = userInfo.getGroups();
-        
         // now for each file (with digit name) get process info
         for (File pid : pids) {
-            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0), users, groups);
+            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
             if (proc != null) {
                 procs.add(proc);
             }
@@ -212,10 +212,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-    	return getProcess(pid, null, null);
-    }
-    
-    private OSProcess getProcess(int pid, Map<String, String> users, Map<String,String> groups) {
         String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
         if (split.length < 24) {
             return null;
@@ -269,14 +265,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
-        if (users == null) {
-        	users = getUserInfo().getUsers();
+        OSUser user = userGroupInfo.getUser(proc.getUserID());
+        if (user != null) {
+        	proc.setUser(user.getUserName());
         }
-        if (groups == null) {
-        	groups = getUserInfo().getGroups();
-        }
-        proc.setUser(users.get(proc.getUserID()));
-        proc.setGroup(groups.get(proc.getGroupID()));
+        proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
         
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
@@ -334,10 +327,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return new LinuxNetworkParams();
     }
     
-    private LinuxUserInfo getUserInfo() {
-    	return new LinuxUserInfo();
-    }
-
     private void setFamilyFromReleaseFiles() {
         if (this.family == null) {
             // There are two competing options for family/version information.
