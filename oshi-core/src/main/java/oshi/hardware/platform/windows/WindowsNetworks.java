@@ -29,6 +29,7 @@ import oshi.hardware.common.AbstractNetworks;
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
+import oshi.util.ParseUtil;
 
 /**
  * @author widdis[at]gmail[dot]com
@@ -80,13 +81,13 @@ public class WindowsNetworks extends AbstractNetworks {
                 return;
             }
             // These are unsigned ints. Widen them to longs.
-            netIF.setBytesSent(ifRow.dwOutOctets & 0xfffffffL);
-            netIF.setBytesRecv(ifRow.dwInOctets & 0xfffffffL);
-            netIF.setPacketsSent(ifRow.dwOutUcastPkts & 0xfffffffL);
-            netIF.setPacketsRecv(ifRow.dwInUcastPkts & 0xfffffffL);
-            netIF.setOutErrors(ifRow.dwOutErrors & 0xfffffffL);
-            netIF.setInErrors(ifRow.dwInErrors & 0xfffffffL);
-            netIF.setSpeed(ifRow.dwSpeed & 0xfffffffL);
+            netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
+            netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
+            netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
+            netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
+            netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
+            netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+            netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
         }
         netIF.setTimeStamp(System.currentTimeMillis());
     }

@@ -275,6 +275,23 @@ public class ParseUtil {
     }
 
     /**
+     * Convert an unsigned integer to a long value.
+     * The method assumes that all bits in the specified integer value are 'data' bits, including the most-significant bit which
+     * Java normally considers a sign bit. The method must be used only when it is certain that the integer value
+     * represents an unsigned integer, for example when the integer is returned by JNA library in a structure
+     * which holds unsigned integers.
+     *
+     * @param unsignedValue The unsigned integer value to convert.
+     * @return The unsigned integer value widened to a long.
+     */
+    public static long unsignedIntToLong(int unsignedValue) {
+        //use standard Java widening conversion to long which does sign-extension,
+        //then drop any copies of the sign bit, to prevent the value being considered a negative one by Java if it is set
+        long longValue = (long) unsignedValue;
+        return longValue & 0xffffffffL;
+    }
+
+    /**
      * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
      * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
      *
