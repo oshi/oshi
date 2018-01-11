@@ -135,6 +135,16 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test unsigned int to long
+     */
+    @Test
+    public void testUnsignedIntToLong() {
+        assertEquals(0L, ParseUtil.unsignedIntToLong(0));
+        assertEquals(123L, ParseUtil.unsignedIntToLong(123));
+        assertEquals(4294967295L, ParseUtil.unsignedIntToLong(0xffffffff));
+    }
+
+    /**
      * Test CIM date to long.
      */
     @Test
