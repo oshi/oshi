@@ -40,6 +40,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.MapUtil;
@@ -72,6 +73,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static long hz = 1000L;
     // Boot time in MS
     private static long bootTime = 0L;
+    
+    private LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
+    
     static {
         init();
     }
@@ -162,6 +166,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
+        // reset to default if value is invalid
+        if(hz == 0) hz = 1000L;
     }
 
     private static int getMemoryPageSize() {
@@ -189,6 +195,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
+        
         // now for each file (with digit name) get process info
         for (File pid : pids) {
             OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
@@ -254,18 +261,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-        // The stat structure on Linux does not have consistent ordering or byte
-        // size accross architectures so we are forced to use the stat command
-        List<String> stat = ExecutingCommand.runNative("stat -c %u,%U,%g,%G /proc/" + pid);
-        if (!stat.isEmpty()) {
-            split = stat.get(0).split(",");
-            if (split.length == 4) {
-                proc.setUserID(split[0]);
-                proc.setUser(split[1]);
-                proc.setGroupID(split[2]);
-                proc.setGroup(split[3]);
-            }
+        
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
+        proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
+        OSUser user = userGroupInfo.getUser(proc.getUserID());
+        if (user != null) {
+        	proc.setUser(user.getUserName());
         }
+        proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
+        
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         try {
@@ -321,7 +326,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
     }
-
+    
     private void setFamilyFromReleaseFiles() {
         if (this.family == null) {
             // There are two competing options for family/version information.

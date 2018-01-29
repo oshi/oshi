@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinDef.ULONG;
-import com.sun.jna.platform.win32.WinNT.OSVERSIONINFO;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
+import oshi.util.ParseUtil;
 
 /**
  * @author widdis[at]gmail[dot]com
@@ -41,17 +41,7 @@ public class WindowsNetworks extends AbstractNetworks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte majorVersion;
-    static {
-        OSVERSIONINFO lpVersionInfo = new OSVERSIONINFO();
-        // GetVersionEx() isn't accurate for Win8+ but is sufficient for
-        // detecting versions 5.x and earlier
-        if (!Kernel32.INSTANCE.GetVersionEx(lpVersionInfo)) {
-            majorVersion = lpVersionInfo.dwMajorVersion.byteValue();
-        } else {
-            majorVersion = 0;
-        }
-    }
+    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -91,13 +81,13 @@ public class WindowsNetworks extends AbstractNetworks {
                 return;
             }
             // These are unsigned ints. Widen them to longs.
-            netIF.setBytesSent(ifRow.dwOutOctets & 0xfffffffL);
-            netIF.setBytesRecv(ifRow.dwInOctets & 0xfffffffL);
-            netIF.setPacketsSent(ifRow.dwOutUcastPkts & 0xfffffffL);
-            netIF.setPacketsRecv(ifRow.dwInUcastPkts & 0xfffffffL);
-            netIF.setOutErrors(ifRow.dwOutErrors & 0xfffffffL);
-            netIF.setInErrors(ifRow.dwInErrors & 0xfffffffL);
-            netIF.setSpeed(ifRow.dwSpeed & 0xfffffffL);
+            netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
+            netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
+            netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
+            netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
+            netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
+            netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+            netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
         }
         netIF.setTimeStamp(System.currentTimeMillis());
     }
