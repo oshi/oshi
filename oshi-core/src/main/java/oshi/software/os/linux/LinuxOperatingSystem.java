@@ -226,9 +226,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         long now = System.currentTimeMillis();
         OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
-        proc.setName(split[1].replaceFirst("\\(", "").replace(")", ""));
+        int nameOffset = 0;
+        StringBuilder name = new StringBuilder(
+                split[1].replaceFirst("\\(", ""));
+        while (!split[1 + nameOffset].endsWith(")")) {
+            nameOffset++;
+            name.append(' ').append(split[1 + nameOffset]);
+        }
+        proc.setName(name.substring(0, name.length() - 1));
         proc.setPath(path);
-        switch (split[2].charAt(0)) {
+        switch (split[2 + nameOffset].charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -249,14 +256,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             break;
         }
         proc.setProcessID(pid);
-        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3], 0));
-        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19], 0));
-        proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
-        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
+        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3 + nameOffset], 0));
+        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19 + nameOffset], 0));
+        proc.setPriority(ParseUtil.parseIntOrDefault(split[17 + nameOffset], 0));
+        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22 + nameOffset], 0L));
+        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23 + nameOffset], 0L) * this.memoryPageSize);
+        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14 + nameOffset], 0L) * 1000L / hz);
+        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13 + nameOffset], 0L) * 1000L / hz);
+        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21 + nameOffset], 0L) * 1000L / hz);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
