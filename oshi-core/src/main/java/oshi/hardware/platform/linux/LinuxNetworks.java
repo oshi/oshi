@@ -52,6 +52,7 @@ public class LinuxNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
         netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
         netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
-        netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));
+        long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
+        netIF.setSpeed(netSpeed < 0 ?0 :netSpeed);
     }
 }
