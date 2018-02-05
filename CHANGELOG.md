@@ -1,6 +1,7 @@
 3.5.0 (in progress)
 ================
 * [#433] (https://github.com/oshi/oshi/pull/433): performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
+* [#446] (https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
 * Your contribution here.
 
 3.4.4 (10/15/2017)

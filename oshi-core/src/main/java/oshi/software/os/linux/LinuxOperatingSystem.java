@@ -289,6 +289,36 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        List<OSProcess> procs = new ArrayList<>();
+        File[] procFiles = ProcUtil.getPidFiles();
+        
+        // now for each file (with digit name) get process info
+        for (File procFile : procFiles) {
+            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
+            if (parentPid == getParentPidFromProcFile(pid)) {
+                OSProcess proc = getProcess(pid);
+                if (proc != null) {
+                    procs.add(proc);
+                }
+            }
+        }
+        List<OSProcess> sorted = processSort(procs, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
+    }
+
+    private static int getParentPidFromProcFile(int pid) {
+        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
+        if (split.length < 24) {
+            return 0;
+        }
+        return ParseUtil.parseIntOrDefault(split[3], 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int getProcessId() {
         return Libc.INSTANCE.getpid();
     }

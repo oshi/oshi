@@ -115,6 +115,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, 
+                String.format("WHERE ParentProcessId=%d", parentPid), processPropertyTypes);
+        List<OSProcess> procList = processMapToList(procs);
+        List<OSProcess> sorted = processSort(procList, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public OSProcess getProcess(int pid) {
         Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
                 String.format("WHERE ProcessId=%d", pid), processPropertyTypes);

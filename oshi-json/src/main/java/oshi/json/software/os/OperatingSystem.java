@@ -91,6 +91,26 @@ public interface OperatingSystem extends OshiJsonObject {
     OSProcess getProcess(int pid);
 
     /**
+     * Gets currently running child processes of provided PID. If a positive limit is specified,
+     * returns only that number of processes; zero will return all processes.
+     * The order may be specified by the sort parameter, for example, to return
+     * the top cpu or memory consuming processes; if null, no order is
+     * guaranteed. 
+     * 
+     * @param parentPid
+     *            A process ID
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @param sort
+     *            If not null, determines sorting of results
+     * @return An array of {@link oshi.software.os.OSProcess} objects presenting the
+     *         specified number (or all) of currently running child processes of the provided PID, sorted
+     *         as specified. The array may contain null elements if a process
+     *         terminates during iteration. 
+     */
+    OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
+
+    /**
      * Gets the current process ID
      *
      * @return the Process ID of the current process
