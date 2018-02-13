@@ -201,4 +201,19 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        return -1;
+    }
 }

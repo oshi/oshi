@@ -335,4 +335,16 @@ public interface CentralProcessor extends OshiJsonObject {
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();
+
+    /**
+     *  Get the number of context switches happened
+     * @return The number of context switches
+     */
+    long getContextSwitches();
+
+    /**
+     * Get the number of interrupts happened
+     * @return The number of interrupts
+     */
+    long getInterrupts();
 }
