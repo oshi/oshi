@@ -61,6 +61,7 @@ Projects using OSHI
 * [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
+* [sys-API](https://github.com/Krillsson/sys-API)
 
 Output
 -------------
