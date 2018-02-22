@@ -147,7 +147,7 @@ public class EdidUtil {
      */
     public static boolean isDigital(byte[] edid) {
         // Byte 20 is Video input params
-        return 1 == edid[20] >> 7;
+        return 1 == (edid[20] & 0xff) >> 7;
     }
 
     /**
@@ -211,8 +211,8 @@ public class EdidUtil {
      */
     public static String getTimingDescriptor(byte[] desc) {
         int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;
-        int hActive = (desc[2] & 0xff) + (desc[4] & 0xf0) << 4;
-        int vActive = (desc[5] & 0xff) + (desc[7] & 0xf0) << 4;
+        int hActive = (desc[2] & 0xff) + ((desc[4] & 0xf0) << 4);
+        int vActive = (desc[5] & 0xff) + ((desc[7] & 0xf0) << 4);
         return String.format("Clock %dMHz, Active Pixels %dx%d ", clock, hActive, vActive);
     }
 
