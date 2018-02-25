@@ -56,11 +56,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     // For WMI Process queries
     private static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
-            + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH";
+            + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH,HandleCount";
     private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
-            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID, ValueType.UINT32 };
 
     /*
      * Windows Execution States:
@@ -136,6 +136,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setPath((String) procs.get("ExecutablePath").get(p));
             proc.setCommandLine((String) procs.get("CommandLine").get(p));
             proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
+            proc.setOpenFiles(((Long) procs.get("HandleCount").get(p)));
             if (myPid == proc.getProcessID()) {
                 proc.setCurrentWorkingDirectory(new File(".").getAbsolutePath());
             }
