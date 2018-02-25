@@ -21,6 +21,8 @@ package oshi.software.os.unix.freebsd;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -40,7 +42,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
-
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
     private static final long serialVersionUID = 1L;
 
     public FreeBsdOperatingSystem() {
@@ -143,9 +145,17 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
-            // 'top -bm io' gives read/write counts, not bytes
-            procs.add(fproc);
-        }
+            //gets the open files count
+            try {
+                String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
+                if (openFilesString!=null)
+                    fproc.setOpenFiles(Long.parseLong(openFilesString));
+            } catch (Exception ex) {
+                LOG.warn("Couldn't find get open file count for pid {}: {}", pid, ex);
+            }
+                // 'top -bm io' gives read/write counts, not bytes
+                procs.add(fproc);
+            }
         return procs;
     }
 
