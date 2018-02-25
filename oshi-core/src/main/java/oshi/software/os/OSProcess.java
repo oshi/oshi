@@ -528,7 +528,6 @@ public class OSProcess implements Serializable {
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * since .5.0
      * @param count 
      */
     public void setOpenFiles(long count){
@@ -538,8 +537,7 @@ public class OSProcess implements Serializable {
     /**
      * Sets the number of open file handles (or network connections) that 
      * belongs to the process
-     * @since 3.5.0
-     * @return 
+     * @return open files or -1 if
      */
     public long getOpenFiles(){
         return handles;

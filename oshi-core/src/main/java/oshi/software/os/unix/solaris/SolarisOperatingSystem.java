@@ -21,8 +21,6 @@ package oshi.software.os.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -42,7 +40,6 @@ import oshi.util.platform.linux.ProcUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisOperatingSystem.class);
     private static final long serialVersionUID = 1L;
 
     public SolarisOperatingSystem() {
@@ -145,13 +142,9 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             // bytes read/written not easily available
             
             //gets the open files count
-            try {
-                String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
-                if (openFilesString!=null)
-                    sproc.setOpenFiles(Long.parseLong(openFilesString));
-            } catch (Exception ex) {
-                LOG.warn("Couldn't find get open file count for pid {}: {}", pid, ex);
-            }
+            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
+            sproc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+                
             procs.add(sproc);
         }
         return procs;

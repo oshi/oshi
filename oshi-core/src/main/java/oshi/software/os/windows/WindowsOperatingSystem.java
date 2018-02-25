@@ -136,7 +136,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setPath((String) procs.get("ExecutablePath").get(p));
             proc.setCommandLine((String) procs.get("CommandLine").get(p));
             proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
-            proc.setOpenFiles(((Long) procs.get("HandleCount").get(p)));
             if (myPid == proc.getProcessID()) {
                 proc.setCurrentWorkingDirectory(new File(".").getAbsolutePath());
             }
@@ -212,6 +211,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setUpTime(now - proc.getStartTime());
             proc.setBytesRead((Long) procs.get("ReadTransferCount").get(p));
             proc.setBytesWritten((Long) procs.get("WriteTransferCount").get(p));
+            proc.setOpenFiles((Long) procs.get("HandleCount").get(p));
             procList.add(proc);
         }
         return procList;
