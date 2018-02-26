@@ -54,13 +54,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
     // For WMI Process queries
-    private static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
+    private final static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
-            + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH,HandleCount";
-    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
+            + ",ReadTransferCount,WriteTransferCount,HandleCount,__PATH,__PATH";
+    private final static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
-            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID, ValueType.UINT32 };
+            ValueType.UINT64, ValueType.UINT32, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
 
     /*
      * Windows Execution States:
