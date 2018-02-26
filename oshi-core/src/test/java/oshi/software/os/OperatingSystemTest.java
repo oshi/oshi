@@ -73,7 +73,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
-        assertTrue(proc.getOpenFiles()>= 0);
+        assertTrue(proc.getOpenFiles()>= -1);
     }
 
     /**
