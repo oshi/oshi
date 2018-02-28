@@ -53,7 +53,7 @@ public class OSProcess implements Serializable {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
-    private long handles;
+    private long openFiles;
 
     /**
      * Process Execution States
@@ -531,15 +531,15 @@ public class OSProcess implements Serializable {
      * @param count 
      */
     public void setOpenFiles(long count){
-        this.handles = count;
+        this.openFiles = count;
     }
     
     /**
      * Sets the number of open file handles (or network connections) that 
      * belongs to the process
-     * @return open files or -1 if
+     * @return open files or -1 if unknown or not supported
      */
     public long getOpenFiles(){
-        return handles;
+        return openFiles;
     }
 }
