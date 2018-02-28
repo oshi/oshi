@@ -489,6 +489,25 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     public void setBytesWritten(long bytesWritten) {
         this.osProcess.setBytesWritten(bytesWritten);
     }
+    
+    
+    /**
+     * Sets the number of open file handles (or network connections) that
+     * belongs to the process
+     * @param count 
+     */
+    public void setOpenFiles(long count){
+        this.osProcess.setOpenFiles(count);
+    }
+    
+    /**
+     * Sets the number of open file handles (or network connections) that 
+     * belongs to the process
+     * @return open files or -1 if unknown or not supported
+     */
+    public long getOpenFiles(){
+        return this.osProcess.getOpenFiles();
+    }
 
     /**
      * {@inheritDoc}
@@ -558,6 +577,9 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.bytesWritten")) {
             json.add("bytesWritten", getBytesWritten());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.handles")) {
+            json.add("handles", getOpenFiles());
         }
         return json.build();
     }

@@ -40,7 +40,6 @@ import oshi.util.platform.linux.ProcUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-
     private static final long serialVersionUID = 1L;
 
     public SolarisOperatingSystem() {
@@ -141,6 +140,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setCommandLine(split[14]);
             sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
             // bytes read/written not easily available
+            
+            //gets the open files count
+            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
+            sproc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+                
             procs.add(sproc);
         }
         return procs;

@@ -40,7 +40,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
-
     private static final long serialVersionUID = 1L;
 
     public FreeBsdOperatingSystem() {
@@ -143,7 +142,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
-            // 'top -bm io' gives read/write counts, not bytes
+            //gets the open files count
+            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
+            fproc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
             procs.add(fproc);
         }
         return procs;

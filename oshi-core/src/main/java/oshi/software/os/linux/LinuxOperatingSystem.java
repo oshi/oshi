@@ -262,6 +262,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
         
+        //gets the open files count
+        String openFilesString = ExecutingCommand.getFirstAnswer(String.format("ls -f /proc/%d/fd | wc -l", pid));
+        proc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+        
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);

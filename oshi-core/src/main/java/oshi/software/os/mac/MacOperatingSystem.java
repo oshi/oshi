@@ -41,6 +41,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -195,6 +196,14 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
+        //gets the open files count
+        try {
+            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
+            if (openFilesString!=null)
+                proc.setOpenFiles(Long.parseLong(openFilesString));
+        } catch (Exception ex) {
+            LOG.warn("Couldn't find get open file count for pid {}: {}", pid, ex);
+        }
 
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
