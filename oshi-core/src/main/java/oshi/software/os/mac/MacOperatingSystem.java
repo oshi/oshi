@@ -29,6 +29,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.Group;
@@ -317,5 +319,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OSProcess> getProcesses(Collection<Integer> pids) {
+        Collection<OSProcess> returnValue = new LinkedList<>();
+        for (Integer pid : pids) {
+            OSProcess process = getProcess(pid);
+            if (process!=null)
+                returnValue.add(process);
+        }
+        return returnValue;
     }
 }

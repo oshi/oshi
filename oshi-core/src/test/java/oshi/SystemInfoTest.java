@@ -18,7 +18,9 @@
  */
 package oshi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -86,8 +88,8 @@ public class SystemInfoTest {
         LOG.info("Checking CPU...");
         printCpu(hal.getProcessor());
 
-        LOG.info("Checking Processes...");
-        printProcesses(os, hal.getMemory());
+        LOG.info("Checking Processes...");  //this can take a while if not running elevated
+        printProcesses(os, hal.getMemory(), os.getFileSystem());
 
         LOG.info("Checking Sensors...");
         printSensors(hal.getSensors());
@@ -147,6 +149,7 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
+        //TODO swap rates?
         System.out.println("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
                 + FormatUtil.formatBytes(memory.getTotal()));
         System.out.println("Swap used: " + FormatUtil.formatBytes(memory.getSwapUsed()) + "/"
@@ -191,18 +194,53 @@ public class SystemInfoTest {
         System.out.println(procCpu.toString());
     }
 
-    private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
-        System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
+    private static void printProcesses(OperatingSystem os, GlobalMemory memory, FileSystem fileSystem) {
+        System.out.println("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount() + " " + fileSystem.getOpenFileDescriptors());
+        //TODO needs system wide open handles
+        
+        OSProcess[] processes = os.getProcesses(5, ProcessSort.CPU);
+        List<OSProcess> procs = Arrays.asList(processes);
+        
+        List<Integer> pids = new ArrayList<>();
+        pids.add(processes[0].getProcessID());
+        pids.add(processes[1].getProcessID());
+        Collection<OSProcess> process = os.getProcesses(pids);
+        for (OSProcess p: process){
+            System.out.println(p.getProcessID() + " " + 
+                    100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime() + " " + 
+                    100d * p.getResidentSetSize() / memory.getTotal() + " " + 
+                    FormatUtil.formatBytes(p.getVirtualSize()) + " " + 
+                    FormatUtil.formatBytes(p.getResidentSetSize()) + " " + 
+                    p.getName() + " " + 
+                    p.getCommandLine()  + " " +  
+                    p.getStartTime()  + " " + 
+                    p.getUpTime()  + " " +  
+                    p.getThreadCount() + " " +
+                            p.getOpenFiles());
+        }
+        
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
+        procs = Arrays.asList(os.getProcesses(-1, ProcessSort.CPU));
 
         System.out.println("   PID  %CPU %MEM       VSZ       RSS Name");
-        for (int i = 0; i < procs.size() && i < 5; i++) {
+        for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
-            System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
-                    100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-                    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
-                    FormatUtil.formatBytes(p.getResidentSetSize()), p.getName());
+            //System.out.format(" %5d %5.1f %4.1f %9s %9s %s%n %s %n %n %n", p.getProcessID(),
+              //      100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+                //    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+                  //  FormatUtil.formatBytes(p.getResidentSetSize()), p.getName(), p.getCommandLine(), p.getStartTime(), p.getUpTime(), p.getThreadCount());
+            System.out.println(p.getProcessID() + " " + 
+                    100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime() + " " + 
+                    100d * p.getResidentSetSize() / memory.getTotal() + " " + 
+                    FormatUtil.formatBytes(p.getVirtualSize()) + " " + 
+                    FormatUtil.formatBytes(p.getResidentSetSize()) + " " + 
+                    p.getName() + " " + 
+                    p.getCommandLine()  + " " +  
+                    p.getStartTime()  + " " + 
+                    p.getUpTime()  + " " +  
+                    p.getThreadCount() + " " +
+                            p.getOpenFiles());
+            //TODO needs open file handles
         }
     }
 
@@ -239,6 +277,7 @@ public class SystemInfoTest {
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
             System.out.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), xfer: %s ms%n",
+                    //TODO rate information
                     disk.getName(), disk.getModel(), disk.getSerial(),
                     disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
                     readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
@@ -280,11 +319,17 @@ public class SystemInfoTest {
     private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
         System.out.println("Network interfaces:");
         for (NetworkIF net : networkIFs) {
+            net.updateNetworkStats();
+            //TODO need rate information
+            //TODO time connected
+            //TODO time since enabled
             System.out.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName());
             System.out.format("   MAC Address: %s %n", net.getMacaddr());
             System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
             System.out.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr()));
+            
             System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
+            
             boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
                     || net.getPacketsSent() > 0;
             System.out.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",

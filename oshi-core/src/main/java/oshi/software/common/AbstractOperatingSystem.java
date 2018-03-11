@@ -150,6 +150,9 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
             }
         }
+        if (limit == 0)
+            return processes;
+        
         // Return max of limit or process size
         // Nonpositive limit means return all
         int maxProcs = processes.size();

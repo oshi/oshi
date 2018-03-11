@@ -19,6 +19,8 @@
 package oshi.software.os.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -189,5 +191,19 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new FreeBsdNetworkParams();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OSProcess> getProcesses(Collection<Integer> pids) {
+        Collection<OSProcess> returnValue = new LinkedList<>();
+        for (Integer pid : pids) {
+            OSProcess process = getProcess(pid);
+            if (process!=null)
+                returnValue.add(process);
+        }
+        return returnValue;
     }
 }

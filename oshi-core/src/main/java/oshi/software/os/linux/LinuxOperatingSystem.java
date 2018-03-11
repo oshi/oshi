@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
@@ -638,5 +640,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         default:
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OSProcess> getProcesses(Collection<Integer> pids) {
+        Collection<OSProcess> returnValue = new LinkedList<>();
+        for (Integer pid : pids) {
+            OSProcess process = getProcess(pid);
+            if (process!=null)
+                returnValue.add(process);
+        }
+        return returnValue;
     }
 }
