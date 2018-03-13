@@ -279,6 +279,7 @@
 					<configuration>
 					<bnd><![CDATA[
 						Export-Package: oshi.*
+                                                Import-Package: com.sun.jna.*
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
 					]]></bnd>
