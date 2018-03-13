@@ -64,6 +64,7 @@
 
 	<modules>
 		<module>oshi-core</module>
+		<module>oshi-core-shaded</module>
 		<module>oshi-json</module>
 		<module>oshi-dist</module>
 	</modules>
