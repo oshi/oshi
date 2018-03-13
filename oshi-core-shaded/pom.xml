@@ -72,6 +72,7 @@
                                     <includes>
                                         <include>org.slf4j:slf4j-api:</include>
                                         <include>org.slf4j:slf4j-jdk14:</include>
+                                        <include>org.threeten:threetenbp:</include>
                                     </includes>
                                 </artifactSet>
                             </configuration>
