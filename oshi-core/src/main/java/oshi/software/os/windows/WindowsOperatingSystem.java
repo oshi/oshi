@@ -288,7 +288,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public Collection<OSProcess> getProcesses(Collection<Integer> pids) {
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
         StringBuilder query = new StringBuilder("WHERE ");
         for (Integer pid: pids) {
             query.append(String.format("ProcessId=%d OR ", pid));

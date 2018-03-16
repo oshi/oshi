@@ -19,8 +19,10 @@
 package oshi.software.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import oshi.software.os.OSProcess;
@@ -171,5 +173,19 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
         return sb.toString();
+    }
+    
+     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        List<OSProcess> returnValue = new LinkedList<>();
+        for (Integer pid : pids) {
+            OSProcess process = getProcess(pid);
+            if (process!=null)
+                returnValue.add(process);
+        }
+        return returnValue;
     }
 }

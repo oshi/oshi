@@ -193,17 +193,4 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return new FreeBsdNetworkParams();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<OSProcess> getProcesses(Collection<Integer> pids) {
-        Collection<OSProcess> returnValue = new LinkedList<>();
-        for (Integer pid : pids) {
-            OSProcess process = getProcess(pid);
-            if (process!=null)
-                returnValue.add(process);
-        }
-        return returnValue;
-    }
 }
