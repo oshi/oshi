@@ -35,6 +35,7 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import java.util.Collection;
 
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
@@ -284,5 +285,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             LOG.error("AdjustTokenPrivileges failed. Error: {}" + Native.getLastError());
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+    }
+
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        StringBuilder query = new StringBuilder("WHERE ");
+        for (Integer pid: pids) {
+            query.append(String.format("ProcessId=%d OR ", pid));
+        }
+        query.setLength(query.length()-3);
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
+                query.toString(), processPropertyTypes);
+        List<OSProcess> procList = processMapToList(procs);
+        return procList;
     }
 }

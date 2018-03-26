@@ -18,6 +18,9 @@
  */
 package oshi.software.os;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +76,44 @@ public class OperatingSystemTest {
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
-        assertTrue(proc.getOpenFiles()>= -1);
+        assertTrue(proc.getOpenFiles() >= -1);
+    }
+    
+    
+    /**
+     * tests the
+     */
+    @Test
+    public void testProcessQueryByList(){
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        assertNotNull(os.getFamily());
+        assertNotNull(os.getManufacturer());
+        OperatingSystemVersion version = os.getVersion();
+        assertNotNull(version);
+        assertNotNull(version.getVersion());
+        assertNotNull(version.getCodeName());
+        assertNotNull(version.getBuildNumber());
+
+        assertTrue(os.getProcessCount() >= 1);
+        assertTrue(os.getThreadCount() >= 1);
+        assertTrue(os.getProcessId() > 0);
+
+        OSProcess[] processes = os.getProcesses(5, null);
+        assertNotNull(processes);
+        //every OS should have at least one process running on it
+        assertTrue(processes.length > 0);
+        //the list of pids we want info on
+        List<Integer> pids = new ArrayList<>();
+        for (OSProcess p : processes) {
+            pids.add(p.getProcessID());
+        }
+        //query for just those processes
+        Collection<OSProcess> processes1 = os.getProcesses(pids);
+        //theres a potential for a race condition here, if a process we queried
+        //for initially wasn't running during the second query.
+        assertEquals(processes.length, processes1.size());
+        
     }
 
     /**

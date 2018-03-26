@@ -19,6 +19,8 @@
 package oshi.software.os;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * An operating system (OS) is the software on a computer that manages the way
@@ -91,6 +93,17 @@ public interface OperatingSystem extends Serializable {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
+    
+    /**
+     * Gets information on a currently running processes. This was primarily written
+     * to provide an optimized mechanism for windows based operating systems.
+     *
+     * @param pids
+     *            A collection of process IDs
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process ids if it is running
+     */
+    List<OSProcess> getProcesses(Collection<Integer> pids);
 
     /**
      * Gets the current process ID

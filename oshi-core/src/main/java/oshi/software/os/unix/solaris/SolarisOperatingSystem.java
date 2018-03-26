@@ -186,4 +186,5 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParams();
     }
+
 }
