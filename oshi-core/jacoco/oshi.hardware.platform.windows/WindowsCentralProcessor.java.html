@@ -52,7 +52,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
 
     // Save Windows version info for 32 bit/64 bit branch later
-<span class="nc" id="L55">    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().byteValue();</span>
+<span class="nc" id="L55">    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();</span>
 
     /**
      * Create a Processor
