@@ -60,7 +60,7 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <em class="jxr_comment">// Save Windows version info for 32 bit/64 bit branch later</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte majorVersion = Kernel32.INSTANCE.GetVersion().byteValue();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * Create a Processor</em>
@@ -243,6 +243,6 @@
 <a class="jxr_linenumber" name="L235" href="#L235">235</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

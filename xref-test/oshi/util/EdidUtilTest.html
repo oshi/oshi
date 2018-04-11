@@ -27,7 +27,7 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.util;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertFalse;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> javax.xml.bind.DatatypeConverter;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertEquals((byte) 44, EdidUtil.getWeek(EDID));
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertEquals(2012, EdidUtil.getYear(EDID));
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertEquals(<span class="jxr_string">"1.4"</span>, EdidUtil.getVersion(EDID));
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertFalse(EdidUtil.isDigital(EDID));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertTrue(EdidUtil.isDigital(EDID));
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertEquals(60, EdidUtil.getHcm(EDID));
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEquals(34, EdidUtil.getVcm(EDID));
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
@@ -94,12 +94,12 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">switch</strong> (i) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">case</strong> 0:
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                  assertEquals(0x565E00A0, type);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  assertEquals(<span class="jxr_string">"Clock 241MHz, Active Pixels 2560x3840 "</span>, timing);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  assertEquals(<span class="jxr_string">"Clock 241MHz, Active Pixels 2560x1440 "</span>, timing);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  assertEquals(<span class="jxr_string">"Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz"</span>, range);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">case</strong> 1:
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  assertEquals(0x1A1D0080, type);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  assertEquals(<span class="jxr_string">"Clock 74MHz, Active Pixels 1280x3840 "</span>, timing);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  assertEquals(<span class="jxr_string">"Clock 74MHz, Active Pixels 1280x720 "</span>, timing);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                  assertEquals(<span class="jxr_string">"Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz"</span>, range);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">case</strong> 2:
@@ -126,6 +126,6 @@
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

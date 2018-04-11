@@ -155,7 +155,7 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isDigital(byte[] edid) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// Byte 20 is Video input params</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> 1 == edid[20] &gt;&gt; 7;
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> 1 == (edid[20] &amp; 0xff) &gt;&gt; 7;
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> 
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <em class="jxr_javadoccomment">/**</em>
@@ -219,8 +219,8 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getTimingDescriptor(byte[] desc) {
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">int</strong> clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">int</strong> hActive = (desc[2] &amp; 0xff) + (desc[4] &amp; 0xf0) &lt;&lt; 4;
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">int</strong> vActive = (desc[5] &amp; 0xff) + (desc[7] &amp; 0xf0) &lt;&lt; 4;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">int</strong> hActive = (desc[2] &amp; 0xff) + ((desc[4] &amp; 0xf0) &lt;&lt; 4);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">int</strong> vActive = (desc[5] &amp; 0xff) + ((desc[7] &amp; 0xf0) &lt;&lt; 4);
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"Clock %dMHz, Active Pixels %dx%d "</span>, clock, hActive, vActive);
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>     }
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> 
@@ -311,6 +311,6 @@
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2017 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
