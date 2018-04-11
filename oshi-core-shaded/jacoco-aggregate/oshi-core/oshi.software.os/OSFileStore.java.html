@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSFileStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSFileStore.java</span></div><h1>OSFileStore.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.software.os;
+
+import java.io.Serializable;
+
+/**
+ * A File Store is a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. See subclasses
+ * for definitions as they apply to specific platforms.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class OSFileStore implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+
+    private String volume;
+
+    private String logicalVolume;
+
+    private String mount;
+
+    private String description;
+
+    private String fsType;
+
+    private String uuid;
+
+    private long usableSpace;
+
+    private long totalSpace;
+
+<span class="nc" id="L52">    public OSFileStore() {}</span>
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     *
+     * @param newName
+     *            Name of the filestore
+     * @param newVolume
+     *            Volume of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUuid
+     *            UUID/GUID of the filestore
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
+<span class="fc" id="L75">            String newUuid, long newUsableSpace, long newTotalSpace) {</span>
+<span class="fc" id="L76">        setName(newName);</span>
+<span class="fc" id="L77">        setVolume(newVolume);</span>
+<span class="fc" id="L78">        setLogicalVolume(&quot;&quot;);</span>
+<span class="fc" id="L79">        setMount(newMount);</span>
+<span class="fc" id="L80">        setDescription(newDescription);</span>
+<span class="fc" id="L81">        setType(newType);</span>
+<span class="fc" id="L82">        setUUID(newUuid);</span>
+<span class="fc" id="L83">        setUsableSpace(newUsableSpace);</span>
+<span class="fc" id="L84">        setTotalSpace(newTotalSpace);</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Name of the File System
+     *
+     * @return The file system name
+     */
+    public String getName() {
+<span class="fc" id="L93">        return this.name;</span>
+    }
+
+    /**
+     * Sets the File System name
+     *
+     * @param value
+     *            The name
+     */
+    public void setName(String value) {
+<span class="fc" id="L103">        this.name = value;</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * Volume of the File System
+     *
+     * @return The volume of the file system
+     */
+    public String getVolume() {
+<span class="fc" id="L112">        return this.volume;</span>
+    }
+
+    /**
+     * Logical volume of the File System
+     *
+     * Provides an optional alternative volume identifier for the file system.
+     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM file systems).
+     *
+     * @return The logical volume of the file system
+     */
+    public String getLogicalVolume() {
+<span class="fc" id="L124">        return this.logicalVolume;</span>
+    }
+
+    /**
+     * Sets the volume of the File System
+     *
+     * @param value
+     *            The volume
+     */
+    public void setVolume(String value) {
+<span class="fc" id="L134">        this.volume = value;</span>
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Sets the logical volume of the File System
+     *
+     * @param value
+     *            The logical volume
+     */
+    public void setLogicalVolume(String value) {
+<span class="fc" id="L144">        this.logicalVolume = value;</span>
+<span class="fc" id="L145">    }</span>
+
+    /**
+     * Mountpoint of the File System
+     *
+     * @return The mountpoint of the file system
+     */
+    public String getMount() {
+<span class="fc" id="L153">        return this.mount;</span>
+    }
+
+    /**
+     * Sets the mountpoint of the File System
+     *
+     * @param value
+     *            The mountpoint
+     */
+    public void setMount(String value) {
+<span class="fc" id="L163">        this.mount = value;</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * Description of the File System
+     *
+     * @return The file system description
+     */
+    public String getDescription() {
+<span class="fc" id="L172">        return this.description;</span>
+    }
+
+    /**
+     * Sets the File System description
+     *
+     * @param value
+     *            The description
+     */
+    public void setDescription(String value) {
+<span class="fc" id="L182">        this.description = value;</span>
+<span class="fc" id="L183">    }</span>
+
+    /**
+     * Type of the File System (FAT, NTFS, etx2, ext4, etc)
+     *
+     * @return The file system type
+     */
+    public String getType() {
+<span class="fc" id="L191">        return this.fsType;</span>
+    }
+
+    /**
+     * Sets the File System type
+     *
+     * @param value
+     *            The type
+     */
+    public void setType(String value) {
+<span class="fc" id="L201">        this.fsType = value;</span>
+<span class="fc" id="L202">    }</span>
+
+    /**
+     * UUID/GUID of the File System
+     *
+     * @return The file system UUID/GUID
+     */
+    public String getUUID() {
+<span class="fc" id="L210">        return this.uuid;</span>
+    }
+
+    /**
+     * Sets the File System UUID/GUID
+     *
+     * @param value
+     *            The UUID/GUID
+     */
+    public void setUUID(String value) {
+<span class="fc" id="L220">        this.uuid = value;</span>
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * Usable space on the drive.
+     *
+     * @return Usable space on the drive (in bytes)
+     */
+    public long getUsableSpace() {
+<span class="fc" id="L229">        return this.usableSpace;</span>
+    }
+
+    /**
+     * Sets usable space on the drive.
+     *
+     * @param value
+     *            Bytes of writable space.
+     */
+    public void setUsableSpace(long value) {
+<span class="fc" id="L239">        this.usableSpace = value;</span>
+<span class="fc" id="L240">    }</span>
+
+    /**
+     * Total space/capacity of the drive.
+     *
+     * @return Total capacity of the drive (in bytes)
+     */
+    public long getTotalSpace() {
+<span class="fc" id="L248">        return this.totalSpace;</span>
+    }
+
+    /**
+     * Sets the total space on the drive.
+     *
+     * @param value
+     *            Bytes of total space.
+     */
+    public void setTotalSpace(long value) {
+<span class="fc" id="L258">        this.totalSpace = value;</span>
+<span class="fc" id="L259">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdFirmware.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdFirmware.java</span></div><h1>FreeBsdFirmware.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.unix.freebsd;
+
+import oshi.hardware.common.AbstractFirmware;
+import oshi.util.ExecutingCommand;
+import oshi.util.FormatUtil;
+
+final class FreeBsdFirmware extends AbstractFirmware {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L29">    FreeBsdFirmware() {</span>
+<span class="nc" id="L30">        init();</span>
+<span class="nc" id="L31">    }</span>
+
+    private void init() {
+
+        // $ sudo dmidecode -t bios
+        // # dmidecode 3.0
+        // Scanning /dev/mem for entry point.
+        // SMBIOS 2.7 present.
+        //
+        // Handle 0x0000, DMI type 0, 24 bytes
+        // BIOS Information
+        // Vendor: Parallels Software International Inc.
+        // Version: 11.2.1 (32626)
+        // Release Date: 07/15/2016
+        // ... &lt;snip&gt; ...
+        // BIOS Revision: 11.2
+        // Firmware Revision: 11.2
+
+<span class="nc" id="L49">        String manufacturer = &quot;&quot;;</span>
+<span class="nc" id="L50">        final String manufacturerMarker = &quot;Vendor:&quot;;</span>
+<span class="nc" id="L51">        String version = &quot;&quot;;</span>
+<span class="nc" id="L52">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L53">        String releaseDate = &quot;&quot;;</span>
+<span class="nc" id="L54">        final String releaseDateMarker = &quot;Release Date:&quot;;</span>
+
+        // Only works with root permissions but it's all we've got
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L59">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L61">                version = checkLine.split(versionMarker)[1].trim();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            } else if (checkLine.contains(releaseDateMarker)) {</span>
+<span class="nc" id="L63">                releaseDate = checkLine.split(releaseDateMarker)[1].trim();</span>
+            }
+<span class="nc" id="L65">        }</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L67">            setManufacturer(manufacturer);</span>
+        }
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
+<span class="nc" id="L70">            setVersion(version);</span>
+        }
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!releaseDate.isEmpty()) {</span>
+<span class="nc" id="L73">            setReleaseDate(FormatUtil.formatStringDate(releaseDate));</span>
+        }
+<span class="nc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

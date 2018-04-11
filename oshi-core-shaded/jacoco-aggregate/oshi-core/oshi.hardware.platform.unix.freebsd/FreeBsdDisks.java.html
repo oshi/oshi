@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdDisks.java</span></div><h1>FreeBsdDisks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.unix.freebsd;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.hardware.Disks;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
+import oshi.util.ExecutingCommand;
+import oshi.util.MapUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+
+/**
+ * FreeBSD hard disk implementation.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L43">public class FreeBsdDisks implements Disks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L47">    private static final Pattern MOUNT_PATTERN = Pattern.compile(&quot;/dev/(\\S+p\\d+) on (\\S+) .*&quot;);</span>
+
+    // Create map indexed by device name to populate data from multiple commands
+<span class="nc" id="L50">    private static final Map&lt;String, HWDiskStore&gt; diskMap = new HashMap&lt;&gt;();</span>
+    // Map of partitions to mount points
+<span class="nc" id="L52">    private static final Map&lt;String, String&gt; mountMap = new HashMap&lt;&gt;();</span>
+
+    @Override
+    public HWDiskStore[] getDisks() {
+        // Parse 'mount' to map partitions to mount point
+<span class="nc" id="L57">        mountMap.clear();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (String mnt : ExecutingCommand.runNative(&quot;mount&quot;)) {</span>
+<span class="nc" id="L59">            Matcher m = MOUNT_PATTERN.matcher(mnt);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (m.matches()) {</span>
+<span class="nc" id="L61">                mountMap.put(m.group(1), m.group(2));</span>
+            }
+<span class="nc" id="L63">        }</span>
+
+        // Get list of valid disks
+<span class="nc" id="L66">        diskMap.clear();</span>
+<span class="nc" id="L67">        List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(&quot;kern.disks&quot;, &quot;&quot;)));</span>
+
+        // Temporary list to hold partitions
+<span class="nc" id="L70">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
+
+        // Run iostat -Ix to enumerate disks by name and get kb r/w
+<span class="nc" id="L73">        List&lt;String&gt; disks = ExecutingCommand.runNative(&quot;iostat -Ix&quot;);</span>
+<span class="nc" id="L74">        long timeStamp = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (String line : disks) {</span>
+<span class="nc" id="L76">            String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L77" title="All 4 branches missed.">            if (split.length &lt; 7 || !devices.contains(split[0])) {</span>
+<span class="nc" id="L78">                continue;</span>
+            }
+<span class="nc" id="L80">            HWDiskStore store = new HWDiskStore();</span>
+<span class="nc" id="L81">            store.setName(split[0]);</span>
+<span class="nc" id="L82">            store.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));</span>
+<span class="nc" id="L83">            store.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));</span>
+            // In KB
+<span class="nc" id="L85">            store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));</span>
+<span class="nc" id="L86">            store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));</span>
+            // In seconds, multiply for ms
+<span class="nc" id="L88">            store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));</span>
+<span class="nc" id="L89">            store.setTimeStamp(timeStamp);</span>
+<span class="nc" id="L90">            diskMap.put(split[0], store);</span>
+<span class="nc" id="L91">        }</span>
+
+        // Now grab geom output for disks
+<span class="nc" id="L94">        List&lt;String&gt; geom = ExecutingCommand.runNative(&quot;geom disk list&quot;);</span>
+
+<span class="nc" id="L96">        HWDiskStore store = null;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String line : geom) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
+                // Process partition list on current store, if any
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                if (store != null) {</span>
+<span class="nc" id="L101">                    setPartitions(store, partList);</span>
+                }
+<span class="nc" id="L103">                String device = line.substring(line.lastIndexOf(' ') + 1);</span>
+                // Get the device.
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (devices.contains(device)) {</span>
+<span class="nc" id="L106">                    store = diskMap.get(device);</span>
+                    // If for some reason we didn't have one, create
+                    // a new value here.
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                    if (store == null) {</span>
+<span class="nc" id="L110">                        store = new HWDiskStore();</span>
+<span class="nc" id="L111">                        store.setName(device);</span>
+                    }
+                }
+            }
+            // If we don't have a valid store, don't bother parsing anything
+            // until we do.
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (store == null) {</span>
+<span class="nc" id="L118">                continue;</span>
+            }
+<span class="nc" id="L120">            line = line.trim();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
+<span class="nc" id="L122">                String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                if (split.length &gt; 1) {</span>
+<span class="nc" id="L124">                    store.setSize(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
+                }
+            }
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (line.startsWith(&quot;descr:&quot;)) {</span>
+<span class="nc" id="L128">                store.setModel(line.replace(&quot;descr:&quot;, &quot;&quot;).trim());</span>
+            }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (line.startsWith(&quot;ident:&quot;)) {</span>
+<span class="nc" id="L131">                store.setSerial(line.replace(&quot;ident:&quot;, &quot;&quot;).replace(&quot;(null)&quot;, &quot;&quot;).trim());</span>
+            }
+<span class="nc" id="L133">        }</span>
+
+        // Now grab geom output for partitions
+<span class="nc" id="L136">        geom = ExecutingCommand.runNative(&quot;geom part list&quot;);</span>
+<span class="nc" id="L137">        store = null;</span>
+<span class="nc" id="L138">        HWPartition partition = null;</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        for (String line : geom) {</span>
+<span class="nc" id="L140">            line = line.trim();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
+<span class="nc" id="L142">                String device = line.substring(line.lastIndexOf(' ') + 1);</span>
+                // Get the device.
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (devices.contains(device)) {</span>
+<span class="nc" id="L145">                    store = diskMap.get(device);</span>
+                    // If for some reason we didn't have one, create
+                    // a new value here.
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                    if (store == null) {</span>
+<span class="nc" id="L149">                        store = new HWDiskStore();</span>
+<span class="nc" id="L150">                        store.setName(device);</span>
+                    }
+                }
+            }
+            // If we don't have a valid store, don't bother parsing anything
+            // until we do.
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (store == null) {</span>
+<span class="nc" id="L157">                continue;</span>
+            }
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (line.contains(&quot;Name:&quot;)) {</span>
+                // Save the current partition, if any
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                if (partition != null) {</span>
+<span class="nc" id="L162">                    partList.add(partition);</span>
+<span class="nc" id="L163">                    partition = null;</span>
+                }
+                // Verify new entry is a partition
+                // (will happen in 'providers' section)
+<span class="nc" id="L167">                String part = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                if (part.startsWith(store.getName())) {</span>
+                    // Create a new partition.
+<span class="nc" id="L170">                    partition = new HWPartition();</span>
+<span class="nc" id="L171">                    partition.setIdentification(part);</span>
+<span class="nc" id="L172">                    partition.setName(part);</span>
+<span class="nc" id="L173">                    partition.setMountPoint(MapUtil.getOrDefault(mountMap, part, &quot;&quot;));</span>
+                }
+            }
+            // If we don't have a valid store, don't bother parsing anything
+            // until we do.
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            if (partition == null) {</span>
+<span class="nc" id="L179">                continue;</span>
+            }
+<span class="nc" id="L181">            String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (split.length &lt; 2) {</span>
+<span class="nc" id="L183">                continue;</span>
+            }
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
+<span class="nc" id="L186">                partition.setSize(ParseUtil.parseLongOrDefault(split[1], 0L));</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            } else if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
+<span class="nc" id="L188">                partition.setUuid(split[1]);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            } else if (line.startsWith(&quot;type:&quot;)) {</span>
+<span class="nc" id="L190">                partition.setType(split[1]);</span>
+            }
+<span class="nc" id="L192">        }</span>
+        // Process last partition list
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if (store != null) {</span>
+<span class="nc" id="L195">            setPartitions(store, partList);</span>
+        }
+
+        // Populate result array
+<span class="nc" id="L199">        List&lt;HWDiskStore&gt; diskList = new ArrayList&lt;&gt;(diskMap.keySet().size());</span>
+<span class="nc" id="L200">        diskList.addAll(diskMap.values());</span>
+<span class="nc" id="L201">        Collections.sort(diskList);</span>
+
+<span class="nc" id="L203">        return diskList.toArray(new HWDiskStore[diskList.size()]);</span>
+    }
+
+    private void setPartitions(HWDiskStore store, List&lt;HWPartition&gt; partList) {
+<span class="nc" id="L207">        HWPartition[] partitions = new HWPartition[partList.size()];</span>
+<span class="nc" id="L208">        int index = 0;</span>
+<span class="nc" id="L209">        Collections.sort(partList);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        for (HWPartition partition : partList) {</span>
+            // FreeBSD Major # is 0.
+            // Minor # is filesize of /dev entry.
+<span class="nc" id="L213">            partition.setMinor(ParseUtil</span>
+<span class="nc" id="L214">                    .parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;stat -f %i /dev/&quot; + partition.getName()), 0));</span>
+<span class="nc" id="L215">            partitions[index++] = partition;</span>
+<span class="nc" id="L216">        }</span>
+<span class="nc" id="L217">        partList.clear();</span>
+<span class="nc" id="L218">        store.setPartitions(partitions);</span>
+<span class="nc" id="L219">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

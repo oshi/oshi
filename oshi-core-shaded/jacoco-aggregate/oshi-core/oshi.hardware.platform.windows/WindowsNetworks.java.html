@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsNetworks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsNetworks.java</span></div><h1>WindowsNetworks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.windows;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinDef.ULONG;
+
+import oshi.hardware.NetworkIF;
+import oshi.hardware.common.AbstractNetworks;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
+import oshi.util.ParseUtil;
+
+/**
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L37">public class WindowsNetworks extends AbstractNetworks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
+
+    // Save Windows version info for 32 bit/64 bit branch later
+<span class="nc" id="L44">    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();</span>
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     *
+     * @param netIF
+     *            The interface on which to update statistics
+     */
+    public static void updateNetworkStats(NetworkIF netIF) {
+        // MIB_IFROW2 requires Vista (6.0) or later.
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (majorVersion &gt;= 6) {</span>
+            // Create new MIB_IFROW2 and set index to this interface index
+<span class="nc" id="L57">            MIB_IFROW2 ifRow = new MIB_IFROW2();</span>
+<span class="nc" id="L58">            ifRow.InterfaceIndex = new ULONG(netIF.getNetworkInterface().getIndex());</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
+                // Error, abort
+<span class="nc" id="L61">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L62">                        netIF.getName());</span>
+<span class="nc" id="L63">                return;</span>
+            }
+            // These are unsigned longs. netIF setter will mask sign bit.
+<span class="nc" id="L66">            netIF.setBytesSent(ifRow.OutOctets);</span>
+<span class="nc" id="L67">            netIF.setBytesRecv(ifRow.InOctets);</span>
+<span class="nc" id="L68">            netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
+<span class="nc" id="L69">            netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
+<span class="nc" id="L70">            netIF.setOutErrors(ifRow.OutErrors);</span>
+<span class="nc" id="L71">            netIF.setInErrors(ifRow.InErrors);</span>
+<span class="nc" id="L72">            netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
+<span class="nc" id="L73">        } else {</span>
+            // Create new MIB_IFROW and set index to this interface index
+<span class="nc" id="L75">            MIB_IFROW ifRow = new MIB_IFROW();</span>
+<span class="nc" id="L76">            ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+                // Error, abort
+<span class="nc" id="L79">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L80">                        netIF.getName());</span>
+<span class="nc" id="L81">                return;</span>
+            }
+            // These are unsigned ints. Widen them to longs.
+<span class="nc" id="L84">            netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));</span>
+<span class="nc" id="L85">            netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));</span>
+<span class="nc" id="L86">            netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));</span>
+<span class="nc" id="L87">            netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));</span>
+<span class="nc" id="L88">            netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));</span>
+<span class="nc" id="L89">            netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));</span>
+<span class="nc" id="L90">            netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));</span>
+        }
+<span class="nc" id="L92">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L93">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

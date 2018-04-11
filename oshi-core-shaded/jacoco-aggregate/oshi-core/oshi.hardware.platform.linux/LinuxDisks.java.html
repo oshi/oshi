@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxDisks.java</span></div><h1>LinuxDisks.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.linux;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.Disks;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
+import oshi.jna.platform.linux.Udev;
+import oshi.util.FileUtil;
+import oshi.util.MapUtil;
+import oshi.util.ParseUtil;
+
+/**
+ * Linux hard disk implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+<span class="nc" id="L42">public class LinuxDisks implements Disks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);</span>
+
+    private static final int SECTORSIZE = 512;
+
+<span class="nc" id="L50">    private final Map&lt;String, String&gt; mountsMap = new HashMap&lt;&gt;();</span>
+
+    @Override
+    public HWDiskStore[] getDisks() {
+<span class="nc" id="L54">        HWDiskStore store = null;</span>
+        List&lt;HWDiskStore&gt; result;
+
+<span class="nc" id="L57">        updateMountsMap();</span>
+
+<span class="nc" id="L59">        Udev.UdevHandle handle = null;</span>
+<span class="nc" id="L60">        Udev.UdevDevice device = null;</span>
+<span class="nc" id="L61">        Udev.UdevEnumerate enumerate = null;</span>
+        Udev.UdevListEntry entry;
+        Udev.UdevListEntry oldEntry;
+
+<span class="nc" id="L65">        result = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L67">        handle = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L68">        enumerate = Udev.INSTANCE.udev_enumerate_new(handle);</span>
+<span class="nc" id="L69">        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, &quot;block&quot;);</span>
+<span class="nc" id="L70">        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);</span>
+
+<span class="nc" id="L72">        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);</span>
+        while (true) {
+            try {
+<span class="nc" id="L75">                oldEntry = entry;</span>
+<span class="nc" id="L76">                device = Udev.INSTANCE.udev_device_new_from_syspath(handle,</span>
+<span class="nc" id="L77">                        Udev.INSTANCE.udev_list_entry_get_name(entry));</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/loop&quot;)</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                        || Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/ram&quot;)) {</span>
+                    // Ignore loopback and ram disks; do nothing
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                } else if (&quot;disk&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device))) {</span>
+<span class="nc" id="L82">                    store = new HWDiskStore();</span>
+<span class="nc" id="L83">                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));</span>
+
+                    // Avoid model and serial in virtual environments
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;) == null ? &quot;Unknown&quot;</span>
+<span class="nc" id="L87">                            : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;));</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;) == null</span>
+<span class="nc" id="L89">                            ? &quot;Unknown&quot; : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;));</span>
+
+<span class="nc" id="L91">                    store.setSize(ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L92">                            Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;), 0L) * SECTORSIZE);</span>
+<span class="nc" id="L93">                    store.setPartitions(new HWPartition[0]);</span>
+<span class="nc" id="L94">                    computeDiskStats(store, device);</span>
+<span class="nc" id="L95">                    result.add(store);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                } else if (&quot;partition&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device)) &amp;&amp; store != null) {</span>
+                    // `store` should still point to the HWDiskStore this
+                    // partition is attached to. If not, it's an error, so skip.
+<span class="nc" id="L99">                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];</span>
+<span class="nc" id="L100">                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);</span>
+<span class="nc" id="L101">                    String name = Udev.INSTANCE.udev_device_get_devnode(device);</span>
+<span class="nc" id="L102">                    partArray[partArray.length - 1] = new HWPartition(name,</span>
+<span class="nc" id="L103">                            Udev.INSTANCE.udev_device_get_sysname(device),</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;) == null ? &quot;partition&quot;</span>
+<span class="nc" id="L105">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;),</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;) == null ? &quot;&quot;</span>
+<span class="nc" id="L107">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;),</span>
+<span class="nc" id="L108">                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;),</span>
+                                    0L) * SECTORSIZE,
+<span class="nc" id="L110">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MAJOR&quot;),</span>
+                                    0),
+<span class="nc" id="L112">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MINOR&quot;),</span>
+                                    0),
+<span class="nc" id="L114">                            MapUtil.getOrDefault(this.mountsMap, name, &quot;&quot;));</span>
+<span class="nc" id="L115">                    store.setPartitions(partArray);</span>
+                }
+<span class="nc" id="L117">                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);</span>
+<span class="nc" id="L118">            } catch (NullPointerException ex) { // NOSONAR squid:S1166</span>
+<span class="nc" id="L119">                LOG.debug(&quot;Reached all disks. Exiting &quot;);</span>
+                break;
+            } finally {
+<span class="nc" id="L122">                Udev.INSTANCE.udev_device_unref(device);</span>
+<span class="nc" id="L123">            }</span>
+        }
+
+<span class="nc" id="L126">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
+<span class="nc" id="L127">        Udev.INSTANCE.udev_unref(handle);</span>
+
+<span class="nc" id="L129">        return result.toArray(new HWDiskStore[result.size()]);</span>
+    }
+
+    private void updateMountsMap() {
+<span class="nc" id="L133">        this.mountsMap.clear();</span>
+<span class="nc" id="L134">        List&lt;String&gt; mounts = FileUtil.readFile(&quot;/proc/self/mounts&quot;);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (String mount : mounts) {</span>
+<span class="nc" id="L136">            String[] split = ParseUtil.whitespaces.split(mount);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
+<span class="nc" id="L138">                continue;</span>
+            }
+<span class="nc" id="L140">            this.mountsMap.put(split[0], split[1]);</span>
+<span class="nc" id="L141">        }</span>
+<span class="nc" id="L142">    }</span>
+
+    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
+        LinuxBlockDevStats stats;
+<span class="nc" id="L146">        stats = new LinuxBlockDevStats(store.getName(), disk);</span>
+<span class="nc" id="L147">        store.setTimeStamp(System.currentTimeMillis());</span>
+
+        // Reads and writes are converted in bytes
+<span class="nc" id="L150">        store.setReads(stats.read_ops);</span>
+<span class="nc" id="L151">        store.setReadBytes(stats.read_512bytes * SECTORSIZE);</span>
+<span class="nc" id="L152">        store.setWrites(stats.write_ops);</span>
+<span class="nc" id="L153">        store.setWriteBytes(stats.write_512bytes * SECTORSIZE);</span>
+<span class="nc" id="L154">        store.setTransferTime(stats.active_ms);</span>
+<span class="nc" id="L155">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

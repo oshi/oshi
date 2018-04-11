@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>CfUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.mac</a> &gt; <span class="el_source">CfUtil.java</span></div><h1>CfUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.util.platform.mac;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+
+/**
+ * Provides utilities for Core Foundations
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L39">public class CfUtil {</span>
+<span class="nc" id="L40">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
+
+    /**
+     * Cache cfStrings
+     */
+<span class="nc" id="L45">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
+
+    /**
+     * Return a CFStringRef representing a string, caching the result
+     *
+     * @param key
+     *            The string, usually a registry key
+     * @return the corresponding CFString
+     */
+    public static CFStringRef getCFString(String key) {
+<span class="nc" id="L55">        synchronized (cfStringMap) {</span>
+<span class="nc" id="L56">            CFStringRef value = cfStringMap.get(key);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L58">                return value;</span>
+            }
+<span class="nc" id="L60">            value = CFStringRef.toCFString(key);</span>
+<span class="nc" id="L61">            cfStringMap.put(key, value);</span>
+<span class="nc" id="L62">            return value;</span>
+<span class="nc" id="L63">        }</span>
+    }
+
+    /**
+     * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
+     * fetch the corresponding constant.
+     */
+<span class="nc" id="L70">    public enum CFNumberType {</span>
+<span class="nc" id="L71">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations LongLong into its long
+     *
+     * @param p
+     *            The pointer to a 64-bit integer
+     * @return The corresponding long
+     */
+    public static long cfPointerToLong(Pointer p) {
+<span class="nc" id="L82">        LongByReference lbr = new LongByReference();</span>
+<span class="nc" id="L83">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="nc" id="L84">        return lbr.getValue();</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations LongLong into its long
+     *
+     * @param p
+     *            The pointer to an integer
+     * @return The corresponding int
+     */
+    public static int cfPointerToInt(Pointer p) {
+<span class="nc" id="L95">        IntByReference ibr = new IntByReference();</span>
+<span class="nc" id="L96">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
+<span class="nc" id="L97">        return ibr.getValue();</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations Boolean into its
+     * boolean
+     *
+     * @param p
+     *            The pointer to a boolean
+     * @return The corresponding boolean
+     */
+    public static boolean cfPointerToBoolean(Pointer p) {
+<span class="nc" id="L109">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
+    }
+
+    /**
+     * Convert a pointer representing a Core Foundations String into its string
+     *
+     * @param p
+     *            The pointer to a CFString
+     * @return The corresponding string
+     */
+    public static String cfPointerToString(Pointer p) {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L121">            return &quot;null&quot;;</span>
+        }
+<span class="nc" id="L123">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="nc" id="L124">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L126">            maxSize = 1;</span>
+        }
+<span class="nc" id="L128">        Pointer buf = new Memory(maxSize);</span>
+<span class="nc" id="L129">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="nc" id="L130">        return buf.getString(0);</span>
+    }
+
+    /**
+     * Releases a CF reference. Mandatory when an object is owned (using
+     * 'create' or 'copy' methods).
+     *
+     * @param ref
+     *            The reference to release
+     */
+    public static void release(PointerType ref) {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (ref != null) {</span>
+<span class="nc" id="L142">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+        }
+<span class="nc" id="L144">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

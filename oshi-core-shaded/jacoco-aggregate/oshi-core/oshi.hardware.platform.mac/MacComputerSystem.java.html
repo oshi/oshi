@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacComputerSystem.java</span></div><h1>MacComputerSystem.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.mac;
+
+import java.util.regex.Pattern;
+
+import oshi.hardware.common.AbstractComputerSystem;
+import oshi.jna.platform.mac.IOKit;
+import oshi.util.ExecutingCommand;
+import oshi.util.platform.mac.IOKitUtil;
+
+/**
+ * Hardware data obtained by system_profiler
+ *
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
+ */
+final class MacComputerSystem extends AbstractComputerSystem {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final String APPLE = &quot;Apple Inc.&quot;;
+
+<span class="nc" id="L40">    MacComputerSystem() {</span>
+<span class="nc" id="L41">        init();</span>
+<span class="nc" id="L42">    }</span>
+
+    private void init() {
+
+<span class="nc" id="L46">        setManufacturer(APPLE);</span>
+
+        // $ system_profiler SPHardwareDataType
+        // Hardware:
+        //
+        // Hardware Overview:
+        //
+        // Model Name: MacBook Pro
+        // Model Identifier: MacBookPro8,2
+        // Processor Name: Intel Core i7
+        // Processor Speed: 2.3 GHz
+        // Number of Processors: 1
+        // Total Number of Cores: 4
+        // L2 Cache (per Core): 256 KB
+        // L3 Cache: 8 MB
+        // Memory: 16 GB
+        // Boot ROM Version: MBP81.0047.B2C
+        // SMC Version (system): 1.69f4
+        // Serial Number (system): C02FH4XYCB71
+        // Hardware UUID: D92CE829-65AD-58FA-9C32-88968791B7BD
+        // Sudden Motion Sensor:
+        // State: Enabled
+
+<span class="nc" id="L69">        String modelName = &quot;&quot;;</span>
+<span class="nc" id="L70">        final String modelNameMarker = &quot;Model Name:&quot;;</span>
+<span class="nc" id="L71">        String modelIdentifier = &quot;&quot;;</span>
+<span class="nc" id="L72">        final String modelIdMarker = &quot;Model Identifier:&quot;;</span>
+<span class="nc" id="L73">        String serialNumberSystem = &quot;&quot;;</span>
+<span class="nc" id="L74">        final String serialNumMarker = &quot;Serial Number (system):&quot;;</span>
+<span class="nc" id="L75">        String smcVersion = &quot;&quot;;</span>
+<span class="nc" id="L76">        final String smcMarker = &quot;SMC Version (system):&quot;;</span>
+<span class="nc" id="L77">        String bootRomVersion = &quot;&quot;;</span>
+<span class="nc" id="L78">        final String bootRomMarker = &quot;Boot ROM Version:&quot;;</span>
+
+<span class="nc" id="L80">        final MacFirmware firmware = new MacFirmware();</span>
+<span class="nc" id="L81">        firmware.setManufacturer(APPLE);</span>
+<span class="nc" id="L82">        firmware.setName(&quot;EFI&quot;);</span>
+
+<span class="nc" id="L84">        final MacBaseboard baseboard = new MacBaseboard();</span>
+<span class="nc" id="L85">        baseboard.setManufacturer(APPLE);</span>
+<span class="nc" id="L86">        baseboard.setModel(&quot;SMC&quot;);</span>
+
+        // Populate name and ID
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;system_profiler SPHardwareDataType&quot;)) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (checkLine.contains(modelNameMarker)) {</span>
+<span class="nc" id="L91">                modelName = checkLine.split(modelNameMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (checkLine.contains(modelIdMarker)) {</span>
+<span class="nc" id="L94">                modelIdentifier = checkLine.split(modelIdMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (checkLine.contains(bootRomMarker)) {</span>
+<span class="nc" id="L97">                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (checkLine.contains(smcMarker)) {</span>
+<span class="nc" id="L100">                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();</span>
+            }
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L103">                serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();</span>
+            }
+<span class="nc" id="L105">        }</span>
+        // Use name (id) if both available; else either one
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!modelName.isEmpty()) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
+<span class="nc" id="L109">                setModel(modelName + &quot; (&quot; + modelIdentifier + &quot;)&quot;);</span>
+            } else {
+<span class="nc" id="L111">                setModel(modelName);</span>
+            }
+        } else {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
+<span class="nc" id="L115">                setModel(modelIdentifier);</span>
+            }
+        }
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (serialNumberSystem.isEmpty()) {</span>
+<span class="nc" id="L119">            serialNumberSystem = getSystemSerialNumber();</span>
+        }
+<span class="nc" id="L121">        setSerialNumber(serialNumberSystem);</span>
+<span class="nc" id="L122">        baseboard.setSerialNumber(serialNumberSystem);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (!smcVersion.isEmpty()) {</span>
+<span class="nc" id="L124">            baseboard.setVersion(smcVersion);</span>
+        }
+<span class="nc bnc" id="L126" title="All 4 branches missed.">        if (bootRomVersion != null &amp;&amp; !bootRomVersion.isEmpty()) {</span>
+<span class="nc" id="L127">            firmware.setVersion(bootRomVersion);</span>
+        }
+
+<span class="nc" id="L130">        setFirmware(firmware);</span>
+<span class="nc" id="L131">        setBaseboard(baseboard);</span>
+<span class="nc" id="L132">    }</span>
+
+    private String getSystemSerialNumber() {
+<span class="nc" id="L135">        String serialNumber = null;</span>
+<span class="nc" id="L136">        int service = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (service != 0) {</span>
+            // Fetch the serial number
+<span class="nc" id="L139">            serialNumber = IOKitUtil.getIORegistryStringProperty(service, &quot;IOPlatformSerialNumber&quot;);</span>
+<span class="nc" id="L140">            IOKit.INSTANCE.IOObjectRelease(service);</span>
+        }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (serialNumber == null) {</span>
+<span class="nc" id="L143">            serialNumber = &quot;unknown&quot;;</span>
+        }
+<span class="nc" id="L145">        return serialNumber;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Util.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">Util.java</span></div><h1>Util.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2017 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * General utility methods
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class Util {
+<span class="fc" id="L30">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+
+<span class="nc" id="L32">    private Util() {</span>
+<span class="nc" id="L33">    }</span>
+
+    /**
+     * Sleeps for the specified number of milliseconds.
+     *
+     * @param ms
+     *            How long to sleep
+     */
+    public static void sleep(long ms) {
+        try {
+<span class="fc" id="L43">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="fc" id="L44">            Thread.sleep(ms);</span>
+<span class="nc" id="L45">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
+<span class="nc" id="L46">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
+<span class="fc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Sleeps for the specified number of milliseconds after the given system
+     * time in milliseconds. If that number of milliseconds has already elapsed,
+     * does nothing.
+     *
+     * @param startTime
+     *            System time in milliseconds to sleep after
+     * @param ms
+     *            How long after startTime to sleep
+     */
+    public static void sleepAfter(long startTime, long ms) {
+<span class="fc" id="L61">        long now = System.currentTimeMillis();</span>
+<span class="fc" id="L62">        long until = startTime + ms;</span>
+<span class="fc" id="L63">        LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (now &lt; until) {</span>
+<span class="fc" id="L65">            sleep(until - now);</span>
+        }
+<span class="fc" id="L67">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
