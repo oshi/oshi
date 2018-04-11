@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi/oshi-json</link>
     <description>oshi-json - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2017 oshi</copyright>
+    <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
       <title>File: 46,
-             Errors: 622,
+             Errors: 633,
              Warnings: 0,
              Infos: 0
       </title>
@@ -46,20 +46,6 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.Display.java">oshi/json/hardware/Display.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.GlobalMemoryImpl.java">oshi/json/hardware/impl/GlobalMemoryImpl.java</a>
                 </td>
                 <td>
@@ -70,6 +56,20 @@ under the License.
                 </td>
                 <td>
                   12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.Display.java">oshi/json/hardware/Display.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -242,20 +242,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.json.package-info.java">oshi/json/json/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.software.os.NetworkParams.java">oshi/json/software/os/NetworkParams.java</a>
                 </td>
                 <td>
@@ -266,6 +252,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.json.package-info.java">oshi/json/json/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -517,21 +517,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  55
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.SensorsImpl.java">oshi/json/hardware/impl/SensorsImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
+                  66
                 </td>
               </tr>
                           <tr>
@@ -546,6 +532,20 @@ under the License.
                 </td>
                 <td>
                   18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-json/checkstyle.html#oshi.json.hardware.impl.SensorsImpl.java">oshi/json/hardware/impl/SensorsImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
                 </td>
               </tr>
                           <tr>
