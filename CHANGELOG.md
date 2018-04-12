@@ -1,11 +1,14 @@
 3.5.0 (in progress)
 ================
+* Your contribution here.
+
+3.4.5 (4/11/18)
+================
 * [#433] (https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
 * [#455] (https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
 * [#459] (https://github.com/oshi/oshi/pull/459): New methods for querying for a list of specific pids - [@spyhunter99](https://github.com/spyhunter99).
-* Your contribution here.
 
-3.4.4 (10/15/2017)
+3.4.4 (10/15/17)
 ================
 * [#392](https://github.com/dblock/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
 * [#396](https://github.com/oshi/oshi/pull/396): Fix issue on Mac OS X whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)
