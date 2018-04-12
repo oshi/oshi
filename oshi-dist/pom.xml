@@ -25,10 +25,11 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.5.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-dist</artifactId>
+  <version>3.4.5</version>
 	<packaging>pom</packaging>
 
 	<!-- NOTE: These dependency declarations are only required to sort this 
