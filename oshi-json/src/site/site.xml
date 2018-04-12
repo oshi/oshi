@@ -35,7 +35,7 @@
 	</custom>
 	<body>
 		<links>
-			<item name="oshi" href="http://github.com/dblock/oshi" />
+			<item name="oshi" href="http://github.com/oshi/oshi" />
 		</links>
 		<menu name="User guide">
 			<item href="README.html" name="README" />

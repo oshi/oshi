@@ -41,6 +41,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>oshi-core-shaded</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>oshi-json</artifactId>
 			<version>${project.version}</version>
 		</dependency>
