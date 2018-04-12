@@ -420,6 +420,7 @@
                         <excludes>
 							<exclude>**/*test.*.txt</exclude>
                             <exclude>**/maven-wrapper.properties</exclude>
+                            <exclude>**/MavenWrapperDownloader.java</exclude>
                             <exclude>mvnw</exclude>
                             <exclude>mvnw.cmd</exclude>
                         </excludes>
