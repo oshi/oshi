@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -231,5 +231,29 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Deprecated
     public String getSystemSerialNumber() {
         return new WindowsComputerSystem().getSerialNumber();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        Long ctxt = WmiUtil.selectUint32From(null,
+                "Win32_PerfRawData_PerfOS_System",
+                "ContextSwitchesPerSec",
+                "");
+        return ctxt != null ? ctxt.longValue() : -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+         Long irq = WmiUtil.selectUint32From(null,
+                "Win32_PerfRawData_PerfOS_Processor",
+                 "InterruptsPerSec",
+                "WHERE Name=\"_Total\"");
+        return irq != null ? irq.longValue() : -1;
     }
 }

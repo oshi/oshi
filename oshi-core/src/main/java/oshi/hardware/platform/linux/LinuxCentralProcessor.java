@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -313,4 +313,37 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return createProcessorID(stepping, model, family, flags);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("ctxt ")) {
+                String[] ctxtArr = ParseUtil.whitespaces.split(stat);
+                if (ctxtArr.length == 2) {
+                    return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("intr ")) {
+                String[] intrArr = ParseUtil.whitespaces.split(stat);
+                if (intrArr.length > 2) {
+                    return ParseUtil.parseLongOrDefault(intrArr[1], 0);
+                }
+            }
+        }
+        return -1;
+    }
 }

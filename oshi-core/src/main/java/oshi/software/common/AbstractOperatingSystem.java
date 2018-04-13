@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,8 +19,10 @@
 package oshi.software.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import oshi.software.os.OSProcess;
@@ -155,6 +157,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         int maxProcs = processes.size();
         if (limit > 0 && maxProcs > limit) {
             maxProcs = limit;
+        } else {
+            return processes;
         }
         List<OSProcess> procs = new ArrayList<>();
         for (int i = 0; i < maxProcs; i++) {
@@ -168,5 +172,19 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
         return sb.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        List<OSProcess> returnValue = new LinkedList<>();
+        for (Integer pid : pids) {
+            OSProcess process = getProcess(pid);
+            if (process != null)
+                returnValue.add(process);
+        }
+        return returnValue;
     }
 }

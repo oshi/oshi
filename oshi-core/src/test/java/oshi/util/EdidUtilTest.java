@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,7 +19,7 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -71,7 +71,7 @@ public class EdidUtilTest {
         assertEquals((byte) 44, EdidUtil.getWeek(EDID));
         assertEquals(2012, EdidUtil.getYear(EDID));
         assertEquals("1.4", EdidUtil.getVersion(EDID));
-        assertFalse(EdidUtil.isDigital(EDID));
+        assertTrue(EdidUtil.isDigital(EDID));
         assertEquals(60, EdidUtil.getHcm(EDID));
         assertEquals(34, EdidUtil.getVcm(EDID));
     }
@@ -86,12 +86,12 @@ public class EdidUtilTest {
             switch (i) {
             case 0:
                 assertEquals(0x565E00A0, type);
-                assertEquals("Clock 241MHz, Active Pixels 2560x3840 ", timing);
+                assertEquals("Clock 241MHz, Active Pixels 2560x1440 ", timing);
                 assertEquals("Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz", range);
                 break;
             case 1:
                 assertEquals(0x1A1D0080, type);
-                assertEquals("Clock 74MHz, Active Pixels 1280x3840 ", timing);
+                assertEquals("Clock 74MHz, Active Pixels 1280x720 ", timing);
                 assertEquals("Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz", range);
                 break;
             case 2:

@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -491,6 +491,27 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
+     * Sets the number of open file handles (or network connections) that
+     * belongs to the process
+     * 
+     * @param count
+     *            The number of handles
+     */
+    public void setOpenFiles(long count) {
+        this.osProcess.setOpenFiles(count);
+    }
+
+    /**
+     * Sets the number of open file handles (or network connections) that
+     * belongs to the process
+     * 
+     * @return open files or -1 if unknown or not supported
+     */
+    public long getOpenFiles() {
+        return this.osProcess.getOpenFiles();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -558,6 +579,9 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.bytesWritten")) {
             json.add("bytesWritten", getBytesWritten());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.handles")) {
+            json.add("handles", getOpenFiles());
         }
         return json.build();
     }

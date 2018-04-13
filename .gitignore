@@ -6,3 +6,5 @@ target
 .idea
 .DS_Store
 *.iml
+.mvn/wrapper/maven-wrapper.jar
+oshi-core-shaded/dependency-reduced-pom.xml

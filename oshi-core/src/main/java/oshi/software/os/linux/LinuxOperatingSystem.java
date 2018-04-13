@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -73,9 +73,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static long hz = 1000L;
     // Boot time in MS
     private static long bootTime = 0L;
-    
+
     private LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
-    
+
     static {
         init();
     }
@@ -167,7 +167,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
         // reset to default if value is invalid
-        if(hz == 0) hz = 1000L;
+        if (hz == 0)
+            hz = 1000L;
     }
 
     private static int getMemoryPageSize() {
@@ -195,7 +196,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
-        
+
         // now for each file (with digit name) get process info
         for (File pid : pids) {
             OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
@@ -226,9 +227,15 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         long now = System.currentTimeMillis();
         OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
-        proc.setName(split[1].replaceFirst("\\(", "").replace(")", ""));
+        int nameOffset = 0;
+        StringBuilder name = new StringBuilder(split[1].replaceFirst("\\(", ""));
+        while (!split[1 + nameOffset].endsWith(")")) {
+            nameOffset++;
+            name.append(' ').append(split[1 + nameOffset]);
+        }
+        proc.setName(name.substring(0, name.length() - 1));
         proc.setPath(path);
-        switch (split[2].charAt(0)) {
+        switch (split[2 + nameOffset].charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -249,28 +256,32 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             break;
         }
         proc.setProcessID(pid);
-        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3], 0));
-        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19], 0));
-        proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
-        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
+        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3 + nameOffset], 0));
+        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19 + nameOffset], 0));
+        proc.setPriority(ParseUtil.parseIntOrDefault(split[17 + nameOffset], 0));
+        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22 + nameOffset], 0L));
+        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23 + nameOffset], 0L) * this.memoryPageSize);
+        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14 + nameOffset], 0L) * 1000L / hz);
+        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13 + nameOffset], 0L) * 1000L / hz);
+        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21 + nameOffset], 0L) * 1000L / hz);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-        
+
+        // gets the open files count
+        String openFilesString = ExecutingCommand.getFirstAnswer(String.format("ls -f /proc/%d/fd | wc -l", pid));
+        proc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
         OSUser user = userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
-        	proc.setUser(user.getUserName());
+            proc.setUser(user.getUserName());
         }
         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
-        
+
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         try {
@@ -356,7 +367,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
     }
-    
+
     private void setFamilyFromReleaseFiles() {
         if (this.family == null) {
             // There are two competing options for family/version information.
@@ -665,4 +676,5 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
     }
+
 }

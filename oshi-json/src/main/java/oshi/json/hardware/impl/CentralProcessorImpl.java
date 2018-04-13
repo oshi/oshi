@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -291,6 +291,22 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      * {@inheritDoc}
      */
     @Override
+    public long getContextSwitches() {
+        return this.processor.getContextSwitches();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        return this.processor.getInterrupts();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.name")) {
@@ -369,6 +385,12 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemUptime")) {
             json.add("systemUptime", getSystemUptime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.contextSwitches")) {
+            json.add("contextSwitches", getContextSwitches());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.interrupts")) {
+            json.add("interrupts", getInterrupts());
         }
         return json.build();
     }

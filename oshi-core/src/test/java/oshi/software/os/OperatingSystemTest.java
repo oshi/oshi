@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,10 @@ package oshi.software.os;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -73,6 +77,52 @@ public class OperatingSystemTest {
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
+        assertTrue(proc.getOpenFiles() >= -1);
+    }
+
+    /**
+     * tests the
+     */
+    @Test
+    public void testProcessQueryByList() {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        assertNotNull(os.getFamily());
+        assertNotNull(os.getManufacturer());
+        OperatingSystemVersion version = os.getVersion();
+        assertNotNull(version);
+        assertNotNull(version.getVersion());
+        assertNotNull(version.getCodeName());
+        assertNotNull(version.getBuildNumber());
+
+        assertTrue(os.getProcessCount() >= 1);
+        assertTrue(os.getThreadCount() >= 1);
+        assertTrue(os.getProcessId() > 0);
+
+        OSProcess[] processes = os.getProcesses(5, null);
+        assertNotNull(processes);
+        // every OS should have at least one process running on it
+        assertTrue(processes.length > 0);
+        // the list of pids we want info on
+        List<Integer> pids = new ArrayList<>();
+        for (OSProcess p : processes) {
+            pids.add(p.getProcessID());
+        }
+        // query for just those processes
+        Collection<OSProcess> processes1 = os.getProcesses(pids);
+        // theres a potential for a race condition here, if a process we queried
+        // for initially wasn't running during the second query. In this case,
+        // try again with the shorter list
+        if (processes1.size() < processes.length) {
+            pids.clear();
+            for (OSProcess p : processes1) {
+                pids.add(p.getProcessID());
+            }
+            // query for just those processes
+            processes1 = os.getProcesses(pids);
+        }
+        assertEquals(processes.length, processes1.size());
+
     }
 
     /**

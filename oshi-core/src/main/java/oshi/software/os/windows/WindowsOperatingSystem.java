@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -35,6 +35,7 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import java.util.Collection;
 
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
@@ -54,13 +55,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
     // For WMI Process queries
-    private static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
+    private final static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
-            + ",ReadTransferCount,WriteTransferCount,__PATH,__PATH";
-    private static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
+            + ",ReadTransferCount,WriteTransferCount,HandleCount,__PATH,__PATH";
+    private final static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
-            ValueType.UINT64, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+            ValueType.UINT64, ValueType.UINT32, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
 
     /*
      * Windows Execution States:
@@ -223,6 +224,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setUpTime(now - proc.getStartTime());
             proc.setBytesRead((Long) procs.get("ReadTransferCount").get(p));
             proc.setBytesWritten((Long) procs.get("WriteTransferCount").get(p));
+            proc.setOpenFiles((Long) procs.get("HandleCount").get(p));
             procList.add(proc);
         }
         return procList;
@@ -295,5 +297,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             LOG.error("AdjustTokenPrivileges failed. Error: {}" + Native.getLastError());
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+    }
+
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        StringBuilder query = new StringBuilder("WHERE ");
+        for (Integer pid: pids) {
+            query.append(String.format("ProcessId=%d OR ", pid));
+        }
+        query.setLength(query.length()-3);
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
+                query.toString(), processPropertyTypes);
+        List<OSProcess> procList = processMapToList(procs);
+        return procList;
     }
 }
