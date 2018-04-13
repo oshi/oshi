@@ -1,5 +1,6 @@
 3.5.0 (in progress)
 ================
+* [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
 * [#447](https://github.com/oshi/oshi/pull/447): Added context switches and interrupts (linux/windows) - [@jpbempel](https://github.com/jpbempel).
 * Your contribution here.
 
