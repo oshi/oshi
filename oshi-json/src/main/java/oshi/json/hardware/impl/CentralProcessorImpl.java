@@ -287,12 +287,17 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         return this.processor.getPhysicalProcessorCount();
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getContextSwitches() {
         return this.processor.getContextSwitches();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getInterrupts() {
         return this.processor.getInterrupts();
