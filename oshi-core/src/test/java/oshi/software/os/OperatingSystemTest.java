@@ -24,7 +24,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -81,7 +83,7 @@ public class OperatingSystemTest {
     }
 
     /**
-     * tests the
+     * Tests process query by pid list
      */
     @Test
     public void testProcessQueryByList() {
@@ -123,6 +125,65 @@ public class OperatingSystemTest {
         }
         assertEquals(processes.length, processes1.size());
 
+    }
+
+    /**
+     * Tests child process getter
+     */
+    @Test
+    public void testGetChildProcesses() {
+        // Get list of PIDS
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        OSProcess[] processes = os.getProcesses(0, null);
+        Map<Integer, Integer> childMap = new HashMap<>();
+        // First iteration to set all 0's
+        for (OSProcess p : processes) {
+            childMap.put(p.getProcessID(), 0);
+            childMap.put(p.getParentProcessID(), 0);
+        }
+        // Second iteration to count children
+        for (OSProcess p : processes) {
+            childMap.put(p.getParentProcessID(), childMap.get(p.getParentProcessID()) + 1);
+        }
+        // Find a PID with 0, 1, and N>1 children
+        int zeroPid = -1;
+        int onePid = -1;
+        int nPid = -1;
+        int nNum = 0;
+        int mPid = -1;
+        int mNum = 0;
+        for (Integer i : childMap.keySet()) {
+            if (zeroPid < 0 && childMap.get(i) == 0) {
+                zeroPid = i;
+            } else if (onePid < 0 && childMap.get(i) == 1) {
+                onePid = i;
+            } else if (nPid < 0 && childMap.get(i) > 1) {
+                nPid = i;
+                nNum = childMap.get(i);
+            } else if (mPid < 0 && childMap.get(i) > 1) {
+                mPid = i;
+                mNum = childMap.get(i);
+            }
+            if (zeroPid >= 0 && onePid >= 0 && nPid >= 0 && mPid >= 0) {
+                break;
+            }
+        }
+        if (zeroPid >= 0) {
+            assertEquals(os.getChildProcesses(zeroPid, 0, null).length, 0);
+        }
+        if (onePid >= 0) {
+            assertEquals(os.getChildProcesses(onePid, 0, null).length, 1);
+        }
+        // Due to race condition, a process may terminate before we count its
+        // children. nPid is probably PID=1 with all PIDs with no other parent
+        // In case one has ended we'll try a backup
+        if (nPid >= 0 && mPid >= 0) {
+            System.out.println(os.getChildProcesses(nPid, 0, null).length + "=" + nNum + ">>" + nPid);
+            System.out.println(os.getChildProcesses(mPid, 0, null).length + "=" + mNum + ">>" + mPid);
+            assertTrue(os.getChildProcesses(nPid, 0, null).length == nNum
+                    || os.getChildProcesses(mPid, 0, null).length == mNum);
+        }
     }
 
     /**

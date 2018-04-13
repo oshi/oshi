@@ -18,6 +18,9 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import javax.json.Json;
@@ -114,6 +117,19 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
     public OSProcess getProcess(int pid) {
         oshi.software.os.OSProcess proc = this.os.getProcess(pid);
         return proc == null ? null : new OSProcess(proc);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        List<oshi.software.os.OSProcess> procs = this.os.getProcesses(pids);
+        List<OSProcess> processes = new ArrayList<>();
+        for (oshi.software.os.OSProcess proc : procs) {
+            processes.add(new OSProcess(proc));
+        }
+        return processes;
     }
 
     /**
