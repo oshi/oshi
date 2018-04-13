@@ -28,6 +28,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.VMMeter;
 import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -194,7 +195,14 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        return -1;
+        int machPort = SystemB.INSTANCE.mach_host_self();
+        VMMeter vmstats = new VMMeter();
+        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
+                new IntByReference(vmstats.size()))) {
+            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
     }
 
     /**
@@ -202,6 +210,13 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        return -1;
+        int machPort = SystemB.INSTANCE.mach_host_self();
+        VMMeter vmstats = new VMMeter();
+        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
+                new IntByReference(vmstats.size()))) {
+            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(vmstats.v_intr);
     }
 }

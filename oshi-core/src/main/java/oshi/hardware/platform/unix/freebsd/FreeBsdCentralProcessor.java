@@ -264,7 +264,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        return -1;
+        String name = "vm.stats.sys.v_swtch";
+        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 
     /**
@@ -272,6 +278,12 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        return -1;
+        String name = "vm.stats.sys.v_intr";
+        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 }

@@ -206,7 +206,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        return -1;
+        long swtch = 0;
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
+        for (String s : kstat) {
+            swtch += ParseUtil.parseLastLong(s, 0L);
+        }
+        return swtch > 0 ? swtch : -1L;
     }
 
     /**
@@ -214,6 +219,11 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        return -1;
+        long intr = 0;
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
+        for (String s : kstat) {
+            intr += ParseUtil.parseLastLong(s, 0L);
+        }
+        return intr > 0 ? intr : -1L;
     }
 }

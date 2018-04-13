@@ -55,6 +55,12 @@ public class ParseUtilTest {
         assertEquals(-1, ParseUtil.parseLastInt("foo : bar", -1));
         assertEquals(1, ParseUtil.parseLastInt("foo : 1", 0));
         assertEquals(2, ParseUtil.parseLastInt("foo", 2));
+        assertEquals(3, ParseUtil.parseLastInt("max_int plus one is 2147483648", 3));
+
+        assertEquals(-1L, ParseUtil.parseLastLong("foo : bar", -1L));
+        assertEquals(1L, ParseUtil.parseLastLong("foo : 1", 0L));
+        assertEquals(2L, ParseUtil.parseLastLong("foo", 2L));
+        assertEquals(2147483648L, ParseUtil.parseLastLong("max_int plus one is 2147483648", 3L));
     }
 
     /**

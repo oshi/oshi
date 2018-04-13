@@ -140,6 +140,24 @@ public class ParseUtil {
     }
 
     /**
+     * Parse the last element of a space-delimited string to a value
+     *
+     * @param s
+     *            The string to parse
+     * @param li
+     *            Default long integer if not parsable
+     * @return value or the given default if not parsable
+     */
+    public static long parseLastLong(String s, long li) {
+        try {
+            return Long.parseLong(parseLastString(s));
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return li;
+        }
+    }
+
+    /**
      * Parse the last element of a space-delimited string to a string
      *
      * @param s
@@ -548,5 +566,4 @@ public class ParseUtil {
         buffer.append(original.substring(currIndex));
         return buffer.toString();
     }
-
 }
