@@ -1,12 +1,13 @@
 3.5.0 (in progress)
 ================
+* [#447](https://github.com/oshi/oshi/pull/447): Added context switches and interrupts (linux/windows) - [@jpbempel](https://github.com/jpbempel).
 * Your contribution here.
 
 3.4.5 (4/11/18)
 ================
-* [#433] (https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
-* [#455] (https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
-* [#459] (https://github.com/oshi/oshi/pull/459): New methods for querying for a list of specific pids - [@spyhunter99](https://github.com/spyhunter99).
+* [#433](https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
+* [#455](https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
+* [#459](https://github.com/oshi/oshi/pull/459): New methods for querying for a list of specific pids - [@spyhunter99](https://github.com/spyhunter99).
 
 3.4.4 (10/15/17)
 ================
