@@ -188,4 +188,20 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         return new MacComputerSystem().getSerialNumber();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        return -1;
+    }
 }

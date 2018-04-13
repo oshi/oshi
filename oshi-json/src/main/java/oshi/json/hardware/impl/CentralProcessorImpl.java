@@ -287,6 +287,17 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         return this.processor.getPhysicalProcessorCount();
     }
 
+
+    @Override
+    public long getContextSwitches() {
+        return this.processor.getContextSwitches();
+    }
+
+    @Override
+    public long getInterrupts() {
+        return this.processor.getInterrupts();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -369,6 +380,12 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.systemUptime")) {
             json.add("systemUptime", getSystemUptime());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.contextSwitches")) {
+            json.add("contextSwitches", getContextSwitches());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.interrupts")) {
+            json.add("interrupts", getInterrupts());
         }
         return json.build();
     }

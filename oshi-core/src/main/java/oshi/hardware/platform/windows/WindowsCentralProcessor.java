@@ -232,4 +232,28 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public String getSystemSerialNumber() {
         return new WindowsComputerSystem().getSerialNumber();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        Long ctxt = WmiUtil.selectUint32From(null,
+                "Win32_PerfRawData_PerfOS_System",
+                "ContextSwitchesPerSec",
+                "");
+        return ctxt != null ? ctxt.longValue() : -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+         Long irq = WmiUtil.selectUint32From(null,
+                "Win32_PerfRawData_PerfOS_Processor",
+                 "InterruptsPerSec",
+                "WHERE Name=\"_Total\"");
+        return irq != null ? irq.longValue() : -1;
+    }
 }
