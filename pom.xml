@@ -162,7 +162,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.4.1</version>
+					<version>3.0.0-M1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -929,7 +929,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.apache.maven.plugins</groupId>
 												<artifactId>maven-enforcer-plugin</artifactId>
-												<versionRange>[1.4.1,)</versionRange>
+												<versionRange>[3.0.0-M1,)</versionRange>
 												<goals>
 													<goal>enforce</goal>
 												</goals>
