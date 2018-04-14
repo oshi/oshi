@@ -29,7 +29,6 @@
 	</parent>
 
 	<artifactId>oshi-dist</artifactId>
-  <version>3.4.5</version>
 	<packaging>pom</packaging>
 
 	<!-- NOTE: These dependency declarations are only required to sort this 
@@ -38,11 +37,6 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>oshi-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>oshi-core-shaded</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

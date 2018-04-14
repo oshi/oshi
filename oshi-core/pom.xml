@@ -29,7 +29,6 @@
 	</parent>
 
 	<artifactId>oshi-core</artifactId>
-  <version>3.4.5</version>
 	<packaging>jar</packaging>
 
 	<name>oshi-core</name>
