@@ -100,10 +100,7 @@ public class CentralProcessorTest {
         assertNotNull(p.getSystemSerialNumber());
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
-
-        if (Platform.isLinux() || Platform.isWindows()) {
-            assertTrue(p.getContextSwitches() >= 0);
-            assertTrue(p.getInterrupts() >= 0);
-        }
+        assertTrue(p.getContextSwitches() >= 0);
+        assertTrue(p.getInterrupts() >= 0);
     }
 }

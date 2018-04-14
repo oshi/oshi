@@ -1,7 +1,8 @@
 3.5.0 (in progress)
 ================
 * [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
-* [#447](https://github.com/oshi/oshi/pull/447): Added context switches and interrupts (linux/windows) - [@jpbempel](https://github.com/jpbempel).
+* [#447](https://github.com/oshi/oshi/pull/447), [#471](https://github.com/oshi/oshi/pull/471): Added context switches and interrupts - [@jpbempel](https://github.com/jpbempel), [@dbwiddis](https://github.com/dbwiddis).
+* Updated to JNA 4.5.1
 * Your contribution here.
 
 3.4.5 (4/11/18)

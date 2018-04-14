@@ -69,7 +69,8 @@ public interface CentralProcessor extends Serializable {
          */
         SOFTIRQ(6),
         /**
-         * Time which the hypervisor dedicated for other guests in the system. Only supported on Linux.
+         * Time which the hypervisor dedicated for other guests in the system.
+         * Only supported on Linux.
          */
         STEAL(7);
 
@@ -239,19 +240,19 @@ public interface CentralProcessor extends Serializable {
      * Get System-wide CPU Load tick counters. Returns an array with seven
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or Steal (7)
-     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
-     * index. By measuring the difference between ticks across a time interval,
-     * CPU load over that interval may be calculated.
+     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or
+     * Steal (7) states. Use {@link TickType#getIndex()} to retrieve the
+     * appropriate index. By measuring the difference between ticks across a
+     * time interval, CPU load over that interval may be calculated.
      *
      * Nice and IOWait information is not available on Windows, and IOwait and
      * IRQ information is not available on macOS, so these ticks will always be
      * zero.
      *
      * To calculate overall Idle time using this method, include both Idle and
-     * IOWait ticks. Similarly, IRQ, SoftIRQ, and Steal ticks should be added to the
-     * System value to get the total. System ticks also include time executing
-     * other virtual hosts (steal).
+     * IOWait ticks. Similarly, IRQ, SoftIRQ, and Steal ticks should be added to
+     * the System value to get the total. System ticks also include time
+     * executing other virtual hosts (steal).
      *
      * @return An array of 7 long values representing time spent in User, Nice,
      *         System, Idle, IOwait, IRQ, SoftIRQ, and Steal states.
@@ -317,10 +318,9 @@ public interface CentralProcessor extends Serializable {
      * than 1 second. If less than one second has elapsed since the last call of
      * this method, it will return a calculation based on the tick counts and
      * times of the previous two calls. If at least a second has elapsed, it
-     * will return the average CPU load for the interval and update the
-     * "last called" times. This method is intended to be used for periodic
-     * polling (iterating over all processors) at intervals of 1 second or
-     * longer.
+     * will return the average CPU load for the interval and update the "last
+     * called" times. This method is intended to be used for periodic polling
+     * (iterating over all processors) at intervals of 1 second or longer.
      *
      * @return array of CPU load between 0 and 1 (100%) for each logical
      *         processor
@@ -332,23 +332,23 @@ public interface CentralProcessor extends Serializable {
      * with {@link #getLogicalProcessorCount()} arrays, each containing seven
      * elements representing either clock ticks or milliseconds (platform
      * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or Steal (7)
-     * states. Use {@link TickType#getIndex()} to retrieve the appropriate
-     * index. By measuring the difference between ticks across a time interval,
-     * CPU load over that interval may be calculated.
+     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or
+     * Steal (7) states. Use {@link TickType#getIndex()} to retrieve the
+     * appropriate index. By measuring the difference between ticks across a
+     * time interval, CPU load over that interval may be calculated.
      *
      * Nice and IOwait per processor information is not available on Windows,
      * and IOwait and IRQ information is not available on macOS, so these ticks
      * will always be zero.
      *
      * To calculate overall Idle time using this method, include both Idle and
-     * IOWait ticks. Similarly, IRQ, SoftIRQ and Steal ticks should be added to the
-     * System value to get the total. System ticks also include time executing
-     * other virtual hosts (steal).
+     * IOWait ticks. Similarly, IRQ, SoftIRQ and Steal ticks should be added to
+     * the System value to get the total. System ticks also include time
+     * executing other virtual hosts (steal).
      *
      * @return A 2D array of logicalProcessorCount x 7 long values representing
-     *         time spent in User, Nice, System, Idle, IOwait, IRQ, SoftIRQ, and Steal
-     *         states.
+     *         time spent in User, Nice, System, Idle, IOwait, IRQ, SoftIRQ, and
+     *         Steal states.
      */
     long[][] getProcessorCpuLoadTicks();
 
@@ -390,13 +390,15 @@ public interface CentralProcessor extends Serializable {
     int getPhysicalProcessorCount();
 
     /**
-     *  Get the number of context switches happened
+     * Get the number of context switches which have occurred
+     * 
      * @return The number of context switches
      */
     long getContextSwitches();
 
     /**
-     * Get the number of interrupts happened
+     * Get the number of interrupts which have occurred
+     * 
      * @return The number of interrupts
      */
     long getInterrupts();
