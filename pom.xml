@@ -102,7 +102,7 @@
 	</distributionManagement>
 
 	<properties>
-		<copyright>2017</copyright>
+		<copyright>2018</copyright>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
