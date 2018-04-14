@@ -482,7 +482,7 @@
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.9.2.201712150930-r</version>
+							<version>4.11.0.201803080745-r</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
