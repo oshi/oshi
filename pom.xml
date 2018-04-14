@@ -58,10 +58,6 @@
 		</developer>
 	</developers>
 
-	<prerequisites>
-		<maven>${maven-min.version}</maven>
-	</prerequisites>
-
 	<modules>
 		<module>oshi-core</module>
 		<module>oshi-core-shaded</module>
