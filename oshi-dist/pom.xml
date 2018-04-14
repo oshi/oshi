@@ -62,7 +62,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<tarLongFileMode>posix</tarLongFileMode>
 					<descriptors>
-						<descriptor>src/assembly/assembly.xml</descriptor>
+						<descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
