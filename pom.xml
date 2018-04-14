@@ -87,7 +87,7 @@
 		<site>
 			<id>gh-pages</id>
 			<name>OSHI GitHub Pages</name>
-			<url>github:http://oshi.github.io/oshi/</url>
+			<url>github:ssh://oshi.github.io/oshi/</url>
 		</site>
 		<snapshotRepository>
 			<id>sonatype-nexus-snapshots</id>
