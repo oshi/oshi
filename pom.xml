@@ -396,7 +396,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.9</version>
+					<version>0.8.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
@@ -912,7 +912,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.jacoco</groupId>
 												<artifactId>jacoco-maven-plugin</artifactId>
-												<versionRange>[0.7.9,)</versionRange>
+												<versionRange>[0.8.1,)</versionRange>
 												<goals>
 													<goal>prepare-agent</goal>
 												</goals>
