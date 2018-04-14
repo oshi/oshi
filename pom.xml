@@ -193,7 +193,7 @@
 							<groupId>net.trajano.wagon</groupId>
 							<artifactId>wagon-git</artifactId>
 							<version>2.0.3</version>
-							<!-- 2.0.4 is buggy -->
+							<!-- 2.0.4 does not work with ssh properly -->
 						</dependency>
 						<!-- For reporting only of versions -->
 						<dependency>
