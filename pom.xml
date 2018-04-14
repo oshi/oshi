@@ -73,7 +73,7 @@
 		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
 		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
 		<url>https://github.com/oshi/oshi.git</url>
-		<tag>oshi-parent-3.4.5</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<issueManagement>
 		<system>Github</system>
@@ -87,7 +87,7 @@
 		<site>
 			<id>gh-pages</id>
 			<name>OSHI GitHub Pages</name>
-			<url>github:http://oshi.github.io/oshi/</url>
+			<url>github:ssh://oshi.github.io/oshi/</url>
 		</site>
 		<snapshotRepository>
 			<id>sonatype-nexus-snapshots</id>
@@ -102,7 +102,7 @@
 	</distributionManagement>
 
 	<properties>
-		<copyright>2017</copyright>
+		<copyright>2018</copyright>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
@@ -129,9 +129,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>4.12.3</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -143,7 +143,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -162,7 +162,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.4.1</version>
+					<version>3.0.0-M1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -182,7 +182,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.6</version>
+					<version>3.7</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
@@ -193,13 +193,13 @@
 							<groupId>net.trajano.wagon</groupId>
 							<artifactId>wagon-git</artifactId>
 							<version>2.0.3</version>
-							<!-- 2.0.4 is buggy -->
+							<!-- 2.0.4 does not work with ssh properly -->
 						</dependency>
 						<!-- For reporting only of versions -->
 						<dependency>
 							<groupId>org.apache.maven.skins</groupId>
 							<artifactId>maven-fluido-skin</artifactId>
-							<version>1.6</version>
+							<version>1.7</version>
 						</dependency>
 						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
@@ -211,7 +211,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.20.1</version>
+					<version>2.19.1</version> <!-- Don't upgrade past this until junit5 is properly supported (memory leaks) -->
 				</plugin>
 				<!-- Build Plugins -->
 				<plugin>
@@ -228,7 +228,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.0</version>
 					<configuration>
 						<archive>
 							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -290,7 +290,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>2.17</version>
+					<version>3.0.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -318,7 +318,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-pmd-plugin</artifactId>
-					<version>3.8</version>
+					<version>3.9.0</version>
 				</plugin>
 				<!-- Tools -->
 				<plugin>
@@ -334,7 +334,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -389,14 +389,14 @@
 				</plugin>
 				<!-- External Tools -->
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
+					<groupId>org.codehaus.mojo</groupId> <!-- Upgrade to spotbugs (jdk8) -->
 					<artifactId>findbugs-maven-plugin</artifactId>
 					<version>3.0.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.9</version>
+					<version>0.8.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
@@ -450,7 +450,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.20.1</version>
+					<version>2.19.1</version> <!-- Stay until memory leaks fixed -->
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -497,7 +497,7 @@
 				</plugin>
 				<!-- Sonar -->
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
+					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>3.4.0.905</version>
 				</plugin>
@@ -522,7 +522,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -703,7 +703,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.5</version>
+                        <version>8.9</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -912,7 +912,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.jacoco</groupId>
 												<artifactId>jacoco-maven-plugin</artifactId>
-												<versionRange>[0.7.9,)</versionRange>
+												<versionRange>[0.8.1,)</versionRange>
 												<goals>
 													<goal>prepare-agent</goal>
 												</goals>
@@ -929,7 +929,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.apache.maven.plugins</groupId>
 												<artifactId>maven-enforcer-plugin</artifactId>
-												<versionRange>[1.4.1,)</versionRange>
+												<versionRange>[3.0.0-M1,)</versionRange>
 												<goals>
 													<goal>enforce</goal>
 												</goals>

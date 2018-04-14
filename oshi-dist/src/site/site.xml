@@ -19,13 +19,13 @@
     https://github.com/oshi/oshi/graphs/contributors
 
 -->
-<project xmlns="http://maven.apache.org/DECORATION/1.7.0"
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="${project.name}"
-	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.7.0 http://maven.apache.org/xsd/decoration-1.7.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-fluido-skin</artifactId>
-		<version>1.5</version>
+		<version>1.7</version>
 	</skin>
 	<custom>
 		<fluidoSkin>

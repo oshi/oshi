@@ -31,6 +31,13 @@
 	<artifactId>oshi-dist</artifactId>
 	<packaging>pom</packaging>
 
+ 	<scm>
+		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
+		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
+		<url>https://github.com/oshi/oshi.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<!-- NOTE: These dependency declarations are only required to sort this 
 		project to the end of the line in the multimodule build. -->
 	<dependencies>
@@ -55,7 +62,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<tarLongFileMode>posix</tarLongFileMode>
 					<descriptors>
-						<descriptor>src/assembly/assembly.xml</descriptor>
+						<descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
