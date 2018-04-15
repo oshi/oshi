@@ -152,10 +152,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
             // bytes read/written not easily available
 
-            // gets the open files count
-            List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
-            sproc.setOpenFiles(openFilesList.size() - 1);
-
+            // gets the open files count -- only do for single-PID requests
+            if (pid >= 0) {
+                List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
+                sproc.setOpenFiles(openFilesList.size() - 1);
+            }
             procs.add(sproc);
         }
         return procs;

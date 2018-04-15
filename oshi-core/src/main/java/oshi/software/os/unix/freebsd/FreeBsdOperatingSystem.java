@@ -154,9 +154,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
-            // gets the open files count
-            List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
-            fproc.setOpenFiles(openFilesList.size() - 1);
+            // gets the open files count -- only do for single-PID requests
+            if (pid >= 0) {
+                List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
+                fproc.setOpenFiles(openFilesList.size() - 1);
+            }
             procs.add(fproc);
         }
         return procs;
