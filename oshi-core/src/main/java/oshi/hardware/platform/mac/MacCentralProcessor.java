@@ -101,6 +101,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     protected void calculateProcessorCounts() {
         this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
+        this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
     }
 
     /**

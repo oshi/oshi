@@ -120,21 +120,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Updates logical and physical processor counts from psrinfo
+     * Updates logical and physical processor/package counts
      */
     @Override
     protected void calculateProcessorCounts() {
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
-        long physMask = 0;
-        long virtMask = 0;
-        long lastMask = 0;
+        int physMask = 0;
+        int virtMask = 0;
+        int lastMask = 0;
+        int physPackage = 0;
         for (String topo : topology) {
             if (topo.contains("<cpu")) {
                 // Find <cpu> tag and extract bits
                 Matcher m = CPUMASK.matcher(topo);
                 if (m.matches()) {
                     // Add this processor mask to cpus. Regex guarantees parsing
-                    lastMask = Long.parseLong(m.group(1), 16);
+                    lastMask = Integer.parseInt(m.group(1), 16);
                     physMask |= lastMask;
                     virtMask |= lastMask;
                 }
@@ -142,19 +143,26 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     && (topo.contains("HTT") || topo.contains("SMT") || topo.contains("THREAD"))) {
                 // These are virtual cpus, remove processor mask from physical
                 physMask &= ~lastMask;
+            } else if (topo.contains("<group level=\"2\"")) {
+                // This is a physical package
+                physPackage++;
             }
         }
 
-        this.logicalProcessorCount = Long.bitCount(virtMask);
-        this.physicalProcessorCount = Long.bitCount(physMask);
-
+        this.logicalProcessorCount = Integer.bitCount(virtMask);
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
         }
+        this.physicalProcessorCount = Integer.bitCount(physMask);
         if (this.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
+        }
+        this.physicalPackageCount = physPackage;
+        if (this.physicalPackageCount < 1) {
+            LOG.error("Couldn't find physical package count. Assuming 1.");
+            this.physicalPackageCount = 1;
         }
     }
 

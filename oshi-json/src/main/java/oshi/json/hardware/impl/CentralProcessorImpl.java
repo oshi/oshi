@@ -291,6 +291,14 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      * {@inheritDoc}
      */
     @Override
+    public int getPhysicalPackageCount() {
+        return this.processor.getPhysicalPackageCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long getContextSwitches() {
         return this.processor.getContextSwitches();
     }
@@ -311,6 +319,9 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.name")) {
             json.add("name", getName());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.processor.physicalPackageCount")) {
+            json.add("physicalPackageCount", getPhysicalPackageCount());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.processor.physicalProcessorCount")) {
             json.add("physicalProcessorCount", getPhysicalProcessorCount());

@@ -70,6 +70,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     protected int physicalProcessorCount = 0;
 
+    protected int physicalPackageCount = 0;
+
     // Maintain previous ticks to be used for calculating usage between them.
     // System ticks
     private long tickTime;
@@ -527,6 +529,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPhysicalPackageCount() {
+        return this.physicalPackageCount;
     }
 
     @Override

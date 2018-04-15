@@ -2,6 +2,7 @@
 ================
 * [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
 * [#447](https://github.com/oshi/oshi/pull/447), [#471](https://github.com/oshi/oshi/pull/471): Added context switches and interrupts - [@jpbempel](https://github.com/jpbempel), [@dbwiddis](https://github.com/dbwiddis).
+* [#476](https://github.com/dblock/oshi/pull/476): Count CPU Packages - [@dbwiddis](https://github.com/dbwiddis).
 * Updated to JNA 4.5.1
 * Your contribution here.
 
