@@ -539,6 +539,9 @@ public class OSProcess implements Serializable {
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
+     *
+     * On FreeBSD and Solaris, this value is only populated if information for a
+     * single process id is requested.
      * 
      * @return open files or -1 if unknown or not supported
      */
