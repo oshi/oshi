@@ -270,8 +270,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
 
         // gets the open files count
-        String openFilesString = ExecutingCommand.getFirstAnswer(String.format("ls -f /proc/%d/fd | wc -l", pid));
-        proc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+        proc.setOpenFiles(openFilesList.size() - 1);
 
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
@@ -303,7 +303,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] procFiles = ProcUtil.getPidFiles();
-        
+
         // now for each file (with digit name) get process info
         for (File procFile : procFiles) {
             int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);

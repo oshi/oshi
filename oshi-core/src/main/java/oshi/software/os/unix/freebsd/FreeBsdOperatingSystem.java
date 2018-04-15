@@ -86,7 +86,8 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid", parentPid);
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid",
+                parentPid);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -153,9 +154,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
-            //gets the open files count
-            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
-            fproc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+            // gets the open files count
+            List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
+            fproc.setOpenFiles(openFilesList.size() - 1);
             procs.add(fproc);
         }
         return procs;

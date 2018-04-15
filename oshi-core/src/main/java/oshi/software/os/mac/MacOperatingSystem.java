@@ -196,14 +196,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
-        //gets the open files count
-        try {
-            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
-            if (openFilesString!=null)
-                proc.setOpenFiles(Long.parseLong(openFilesString));
-        } catch (Exception ex) {
-            LOG.warn("Couldn't find get open file count for pid {}: {}", pid, ex);
-        }
+        // gets the open files count
+        List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
+        proc.setOpenFiles(openFilesList.size() - 1);
 
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
