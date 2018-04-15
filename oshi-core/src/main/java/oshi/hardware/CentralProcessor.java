@@ -376,7 +376,8 @@ public interface CentralProcessor extends Serializable {
     String getSystemSerialNumber();
 
     /**
-     * Get the number of logical CPUs available for processing.
+     * Get the number of logical CPUs available for processing. This value may
+     * be higher than physical CPUs if hyperthreading is enabled.
      *
      * @return The number of logical CPUs available.
      */
@@ -388,6 +389,14 @@ public interface CentralProcessor extends Serializable {
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();
+
+    /**
+     * Get the number of packages/sockets in the system. A single package may
+     * contain multiple cores.
+     * 
+     * @return The number of physical packages available.
+     */
+    int getPhysicalPackageCount();
 
     /**
      * Get the number of context switches which have occurred

@@ -18,7 +18,9 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,6 +81,20 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected void calculateProcessorCounts() {
+        List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
+        Set<String> chipIDs = new HashSet<>();
+        for (Kstat ksp : kstats) {
+            if (ksp != null && KstatUtil.kstatRead(ksp)) {
+                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
+            }
+        }
+
+        this.physicalPackageCount = chipIDs.size();
+        if (this.physicalPackageCount < 1) {
+            LOG.error("Couldn't find physical package count. Assuming 1.");
+            this.physicalPackageCount = 1;
+        }
+
         this.logicalProcessorCount = 0;
         this.physicalProcessorCount = 0;
         // Get number of logical processors

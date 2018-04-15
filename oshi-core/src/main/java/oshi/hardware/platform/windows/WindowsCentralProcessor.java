@@ -94,7 +94,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Updates logical and physical processor counts from /proc/cpuinfo
+     * Updates logical and physical processor counts
      */
     @Override
     protected void calculateProcessorCounts() {
@@ -106,6 +106,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Get number of physical processors
         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+                this.physicalPackageCount++;
+            }
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
                 this.physicalProcessorCount++;
             }
@@ -238,10 +241,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        Long ctxt = WmiUtil.selectUint32From(null,
-                "Win32_PerfRawData_PerfOS_System",
-                "ContextSwitchesPerSec",
-                "");
+        Long ctxt = WmiUtil.selectUint32From(null, "Win32_PerfRawData_PerfOS_System", "ContextSwitchesPerSec", "");
         return ctxt != null ? ctxt.longValue() : -1;
     }
 
@@ -250,9 +250,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-         Long irq = WmiUtil.selectUint32From(null,
-                "Win32_PerfRawData_PerfOS_Processor",
-                 "InterruptsPerSec",
+        Long irq = WmiUtil.selectUint32From(null, "Win32_PerfRawData_PerfOS_Processor", "InterruptsPerSec",
                 "WHERE Name=\"_Total\"");
         return irq != null ? irq.longValue() : -1;
     }

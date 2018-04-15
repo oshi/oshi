@@ -152,7 +152,8 @@ public class SystemInfoTest {
 
     private static void printProcessor(CentralProcessor processor) {
         System.out.println(processor);
-        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
+        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
         System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
 
         System.out.println("Identifier: " + processor.getIdentifier());
@@ -188,7 +189,7 @@ public class SystemInfoTest {
         System.out.format(
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%%n",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
-                100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu,  100d * steal / totalCpu);
+                100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu);
         System.out.format("CPU load: %.1f%% (counting ticks)%n", processor.getSystemCpuLoadBetweenTicks() * 100);
         System.out.format("CPU load: %.1f%% (OS MXBean)%n", processor.getSystemCpuLoad() * 100);
         double[] loadAverage = processor.getSystemLoadAverage(3);

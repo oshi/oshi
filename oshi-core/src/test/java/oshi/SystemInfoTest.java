@@ -139,11 +139,13 @@ public class SystemInfoTest {
 
     private static void printProcessor(CentralProcessor processor) {
         System.out.println(processor);
-        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
+        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
         System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
 
         System.out.println("Identifier: " + processor.getIdentifier());
         System.out.println("ProcessorID: " + processor.getProcessorID());
+        System.exit(0); // TODO REMOVE
     }
 
     private static void printMemory(GlobalMemory memory) {
@@ -268,10 +270,11 @@ public class SystemInfoTest {
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s " +
-                            (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s") +
-                            " and is mounted at %s%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+            System.out.format(
+                    " %s (%s) [%s] %s of %s free (%.1f%%) is %s "
+                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                            + " and is mounted at %s%n",
+                    fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
         }
