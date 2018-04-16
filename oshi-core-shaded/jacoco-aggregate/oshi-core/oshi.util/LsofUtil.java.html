@@ -29,8 +29,8 @@ import java.util.Map;
  */
 public class LsofUtil {
 
-<span class="nc" id="L32">    private LsofUtil() {</span>
-<span class="nc" id="L33">    }</span>
+    private LsofUtil() {
+    }
 
     public static Map&lt;Integer, String&gt; getCwdMap(int pid) {
 <span class="nc bnc" id="L36" title="All 2 branches missed.">        List&lt;String&gt; lsof = ExecutingCommand.runNative(&quot;lsof -Fn -d cwd&quot; + (pid &lt; 0 ? &quot;&quot; : &quot; -p &quot; + pid));</span>
@@ -56,4 +56,4 @@ public class LsofUtil {
 <span class="nc" id="L56">        return cwdMap;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -93,10 +93,11 @@ public interface OperatingSystem extends Serializable {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
-    
+
     /**
-     * Gets information on a currently running processes. This was primarily written
-     * to provide an optimized mechanism for windows based operating systems.
+     * Gets information on a currently running processes. This was primarily
+     * written to provide an optimized mechanism for windows based operating
+     * systems.
      *
      * @param pids
      *            A collection of process IDs
@@ -104,6 +105,26 @@ public interface OperatingSystem extends Serializable {
      *         process ids if it is running
      */
     List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids);
+
+    /**
+     * Gets currently running child processes of provided PID. If a positive
+     * limit is specified, returns only that number of processes; zero will
+     * return all processes. The order may be specified by the sort parameter,
+     * for example, to return the top cpu or memory consuming processes; if
+     * null, no order is guaranteed.
+     * 
+     * @param parentPid
+     *            A process ID
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @param sort
+     *            If not null, determines sorting of results
+     * @return An array of {@link oshi.software.os.OSProcess} objects presenting
+     *         the specified number (or all) of currently running child
+     *         processes of the provided PID, sorted as specified. The array may
+     *         contain null elements if a process terminates during iteration.
+     */
+    OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
     /**
      * Gets the current process ID
@@ -133,4 +154,4 @@ public interface OperatingSystem extends Serializable {
      */
     NetworkParams getNetworkParams();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

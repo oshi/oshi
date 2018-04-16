@@ -52,7 +52,8 @@ import oshi.util.FileUtil;
 <span class="nc" id="L52">        netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));</span>
 <span class="nc" id="L53">        netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));</span>
 <span class="nc" id="L54">        netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));</span>
-<span class="nc" id="L55">        netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));</span>
-<span class="nc" id="L56">    }</span>
+<span class="nc" id="L55">        long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);</span>
+<span class="nc" id="L57">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
