@@ -37,8 +37,8 @@ public class ExecutingCommand {
 
 <span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
-<span class="nc" id="L40">    private ExecutingCommand() {</span>
-<span class="nc" id="L41">    }</span>
+    private ExecutingCommand() {
+    }
 
     /**
      * Executes a command on the native command line and returns the result.
@@ -71,13 +71,13 @@ public class ExecutingCommand {
 <span class="fc" id="L71">        }</span>
 
 <span class="fc" id="L73">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L74">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
+<span class="fc" id="L74">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
             String line;
 <span class="fc bfc" id="L76" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
 <span class="fc" id="L77">                sa.add(line);</span>
             }
 <span class="fc" id="L79">            p.waitFor();</span>
-<span class="pc bpc" id="L80" title="6 of 8 branches missed.">        } catch (InterruptedException | IOException e) {</span>
+<span class="nc" id="L80">        } catch (InterruptedException | IOException e) {</span>
 <span class="nc" id="L81">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, cmdToRunWithArgs, e);</span>
 <span class="nc" id="L82">            return new ArrayList&lt;&gt;(0);</span>
 <span class="fc" id="L83">        }</span>
@@ -116,4 +116,4 @@ public class ExecutingCommand {
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -60,9 +60,10 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">long</strong> netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

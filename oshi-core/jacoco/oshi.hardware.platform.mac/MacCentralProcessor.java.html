@@ -28,6 +28,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.VMMeter;
 import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -45,83 +46,84 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);</span>
+<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);</span>
 
     private static final long BOOTTIME;
     static {
-<span class="nc" id="L52">        Timeval tv = new Timeval();</span>
-<span class="nc bnc" id="L53" title="All 4 branches missed.">        if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec == 0) {</span>
+<span class="nc" id="L53">        Timeval tv = new Timeval();</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">        if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec == 0) {</span>
             // Usually this works. If it doesn't, fall back to text parsing.
             // Boot time will be the first consecutive string of digits.
-<span class="nc" id="L56">            BOOTTIME = ParseUtil.parseLongOrDefault(</span>
-<span class="nc" id="L57">                    ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
-<span class="nc" id="L58">                    System.currentTimeMillis() / 1000);</span>
+<span class="nc" id="L57">            BOOTTIME = ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L58">                    ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
+<span class="nc" id="L59">                    System.currentTimeMillis() / 1000);</span>
         } else {
             // tv now points to a 64-bit timeval structure for boot time.
             // First 4 bytes are seconds, second 4 bytes are microseconds
             // (we ignore)
-<span class="nc" id="L63">            BOOTTIME = tv.tv_sec;</span>
+<span class="nc" id="L64">            BOOTTIME = tv.tv_sec;</span>
         }
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L66">    }</span>
 
     /**
      * Create a Processor
      */
     public MacCentralProcessor() {
-<span class="nc" id="L71">        super();</span>
+<span class="nc" id="L72">        super();</span>
         // Initialize class variables
-<span class="nc" id="L73">        initVars();</span>
+<span class="nc" id="L74">        initVars();</span>
         // Initialize tick arrays
-<span class="nc" id="L75">        initTicks();</span>
+<span class="nc" id="L76">        initTicks();</span>
 
-<span class="nc" id="L77">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L78">    }</span>
+<span class="nc" id="L78">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L79">    }</span>
 
     private void initVars() {
-<span class="nc" id="L81">        setVendor(SysctlUtil.sysctl(&quot;machdep.cpu.vendor&quot;, &quot;&quot;));</span>
-<span class="nc" id="L82">        setName(SysctlUtil.sysctl(&quot;machdep.cpu.brand_string&quot;, &quot;&quot;));</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        setCpu64(SysctlUtil.sysctl(&quot;hw.cpu64bit_capable&quot;, 0) != 0);</span>
-<span class="nc" id="L84">        int i = SysctlUtil.sysctl(&quot;machdep.cpu.stepping&quot;, -1);</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        setStepping(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
-<span class="nc" id="L86">        i = SysctlUtil.sysctl(&quot;machdep.cpu.model&quot;, -1);</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        setModel(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
-<span class="nc" id="L88">        i = SysctlUtil.sysctl(&quot;machdep.cpu.family&quot;, -1);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        setFamily(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
-<span class="nc" id="L90">        long processorID = 0L;</span>
-<span class="nc" id="L91">        processorID |= SysctlUtil.sysctl(&quot;machdep.cpu.signature&quot;, 0);</span>
-<span class="nc" id="L92">        processorID |= (SysctlUtil.sysctl(&quot;machdep.cpu.feature_bits&quot;, 0L) &amp; 0xffffffff) &lt;&lt; 32;</span>
-<span class="nc" id="L93">        setProcessorID(String.format(&quot;%016X&quot;, processorID));</span>
-<span class="nc" id="L94">    }</span>
+<span class="nc" id="L82">        setVendor(SysctlUtil.sysctl(&quot;machdep.cpu.vendor&quot;, &quot;&quot;));</span>
+<span class="nc" id="L83">        setName(SysctlUtil.sysctl(&quot;machdep.cpu.brand_string&quot;, &quot;&quot;));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        setCpu64(SysctlUtil.sysctl(&quot;hw.cpu64bit_capable&quot;, 0) != 0);</span>
+<span class="nc" id="L85">        int i = SysctlUtil.sysctl(&quot;machdep.cpu.stepping&quot;, -1);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        setStepping(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
+<span class="nc" id="L87">        i = SysctlUtil.sysctl(&quot;machdep.cpu.model&quot;, -1);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        setModel(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
+<span class="nc" id="L89">        i = SysctlUtil.sysctl(&quot;machdep.cpu.family&quot;, -1);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        setFamily(i &lt; 0 ? &quot;&quot; : Integer.toString(i));</span>
+<span class="nc" id="L91">        long processorID = 0L;</span>
+<span class="nc" id="L92">        processorID |= SysctlUtil.sysctl(&quot;machdep.cpu.signature&quot;, 0);</span>
+<span class="nc" id="L93">        processorID |= (SysctlUtil.sysctl(&quot;machdep.cpu.feature_bits&quot;, 0L) &amp; 0xffffffff) &lt;&lt; 32;</span>
+<span class="nc" id="L94">        setProcessorID(String.format(&quot;%016X&quot;, processorID));</span>
+<span class="nc" id="L95">    }</span>
 
     /**
      * Updates logical and physical processor counts from sysctl calls
      */
     @Override
     protected void calculateProcessorCounts() {
-<span class="nc" id="L101">        this.logicalProcessorCount = SysctlUtil.sysctl(&quot;hw.logicalcpu&quot;, 1);</span>
-<span class="nc" id="L102">        this.physicalProcessorCount = SysctlUtil.sysctl(&quot;hw.physicalcpu&quot;, 1);</span>
-<span class="nc" id="L103">    }</span>
+<span class="nc" id="L102">        this.logicalProcessorCount = SysctlUtil.sysctl(&quot;hw.logicalcpu&quot;, 1);</span>
+<span class="nc" id="L103">        this.physicalProcessorCount = SysctlUtil.sysctl(&quot;hw.physicalcpu&quot;, 1);</span>
+<span class="nc" id="L104">        this.physicalPackageCount = SysctlUtil.sysctl(&quot;hw.packages&quot;, 1);</span>
+<span class="nc" id="L105">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L110">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L111">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
-<span class="nc" id="L112">        HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,</span>
-<span class="nc" id="L114">                new IntByReference(cpuLoadInfo.size()))) {</span>
-<span class="nc" id="L115">            LOG.error(&quot;Failed to get System CPU ticks. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L116">            return ticks;</span>
+<span class="nc" id="L112">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L113">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L114">        HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,</span>
+<span class="nc" id="L116">                new IntByReference(cpuLoadInfo.size()))) {</span>
+<span class="nc" id="L117">            LOG.error(&quot;Failed to get System CPU ticks. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L118">            return ticks;</span>
         }
 
-<span class="nc" id="L119">        ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];</span>
-<span class="nc" id="L120">        ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];</span>
-<span class="nc" id="L121">        ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];</span>
-<span class="nc" id="L122">        ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];</span>
+<span class="nc" id="L121">        ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];</span>
+<span class="nc" id="L122">        ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];</span>
+<span class="nc" id="L123">        ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];</span>
+<span class="nc" id="L124">        ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];</span>
         // Leave IOWait and IRQ values as 0
-<span class="nc" id="L124">        return ticks;</span>
+<span class="nc" id="L126">        return ticks;</span>
     }
 
     /**
@@ -129,17 +131,17 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L132" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L133">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L135">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L135">        double[] average = new double[nelem];</span>
-<span class="nc" id="L136">        int retval = SystemB.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
-<span class="nc" id="L139">                average[i] = -1d;</span>
+<span class="nc" id="L137">        double[] average = new double[nelem];</span>
+<span class="nc" id="L138">        int retval = SystemB.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L141">                average[i] = -1d;</span>
             }
         }
-<span class="nc" id="L142">        return average;</span>
+<span class="nc" id="L144">        return average;</span>
     }
 
     /**
@@ -147,29 +149,29 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L150">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L152">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
 
-<span class="nc" id="L152">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L154">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
 
-<span class="nc" id="L154">        IntByReference procCount = new IntByReference();</span>
-<span class="nc" id="L155">        PointerByReference procCpuLoadInfo = new PointerByReference();</span>
-<span class="nc" id="L156">        IntByReference procInfoCount = new IntByReference();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,</span>
+<span class="nc" id="L156">        IntByReference procCount = new IntByReference();</span>
+<span class="nc" id="L157">        PointerByReference procCpuLoadInfo = new PointerByReference();</span>
+<span class="nc" id="L158">        IntByReference procInfoCount = new IntByReference();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,</span>
                 procCpuLoadInfo, procInfoCount)) {
-<span class="nc" id="L159">            LOG.error(&quot;Failed to update CPU Load. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L160">            return ticks;</span>
+<span class="nc" id="L161">            LOG.error(&quot;Failed to update CPU Load. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L162">            return ticks;</span>
         }
 
-<span class="nc" id="L163">        int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());</span>
-<span class="nc bnc" id="L164" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; procCount.getValue(); cpu++) {</span>
-<span class="nc" id="L165">            int offset = cpu * SystemB.CPU_STATE_MAX;</span>
-<span class="nc" id="L166">            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);</span>
-<span class="nc" id="L167">            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);</span>
-<span class="nc" id="L168">            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil</span>
-<span class="nc" id="L169">                    .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);</span>
-<span class="nc" id="L170">            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);</span>
+<span class="nc" id="L165">        int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; procCount.getValue(); cpu++) {</span>
+<span class="nc" id="L167">            int offset = cpu * SystemB.CPU_STATE_MAX;</span>
+<span class="nc" id="L168">            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);</span>
+<span class="nc" id="L169">            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);</span>
+<span class="nc" id="L170">            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil</span>
+<span class="nc" id="L171">                    .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);</span>
+<span class="nc" id="L172">            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);</span>
         }
-<span class="nc" id="L172">        return ticks;</span>
+<span class="nc" id="L174">        return ticks;</span>
     }
 
     /**
@@ -177,7 +179,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L180">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+<span class="nc" id="L182">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
     }
 
     /**
@@ -186,7 +188,37 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     @Deprecated
     public String getSystemSerialNumber() {
-<span class="nc" id="L189">        return new MacComputerSystem().getSerialNumber();</span>
+<span class="nc" id="L191">        return new MacComputerSystem().getSerialNumber();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+<span class="nc" id="L199">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L200">        VMMeter vmstats = new VMMeter();</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
+<span class="nc" id="L202">                new IntByReference(vmstats.size()))) {</span>
+<span class="nc" id="L203">            LOG.error(&quot;Failed to update vmstats. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L204">            return -1;</span>
+        }
+<span class="nc" id="L206">        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+<span class="nc" id="L214">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L215">        VMMeter vmstats = new VMMeter();</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
+<span class="nc" id="L217">                new IntByReference(vmstats.size()))) {</span>
+<span class="nc" id="L218">            LOG.error(&quot;Failed to update vmstats. Error code: &quot; + Native.getLastError());</span>
+<span class="nc" id="L219">            return -1;</span>
+        }
+<span class="nc" id="L221">        return ParseUtil.unsignedIntToLong(vmstats.v_intr);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

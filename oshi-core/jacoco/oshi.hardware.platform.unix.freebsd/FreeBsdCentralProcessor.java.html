@@ -120,58 +120,66 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L120">    }</span>
 
     /**
-     * Updates logical and physical processor counts from psrinfo
+     * Updates logical and physical processor/package counts
      */
     @Override
     protected void calculateProcessorCounts() {
 <span class="nc" id="L127">        String[] topology = BsdSysctlUtil.sysctl(&quot;kern.sched.topology_spec&quot;, &quot;&quot;).split(&quot;\\n|\\r&quot;);</span>
-<span class="nc" id="L128">        long physMask = 0;</span>
-<span class="nc" id="L129">        long virtMask = 0;</span>
-<span class="nc" id="L130">        long lastMask = 0;</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (String topo : topology) {</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (topo.contains(&quot;&lt;cpu&quot;)) {</span>
+<span class="nc" id="L128">        int physMask = 0;</span>
+<span class="nc" id="L129">        int virtMask = 0;</span>
+<span class="nc" id="L130">        int lastMask = 0;</span>
+<span class="nc" id="L131">        int physPackage = 0;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (String topo : topology) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (topo.contains(&quot;&lt;cpu&quot;)) {</span>
                 // Find &lt;cpu&gt; tag and extract bits
-<span class="nc" id="L134">                Matcher m = CPUMASK.matcher(topo);</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L135">                Matcher m = CPUMASK.matcher(topo);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (m.matches()) {</span>
                     // Add this processor mask to cpus. Regex guarantees parsing
-<span class="nc" id="L137">                    lastMask = Long.parseLong(m.group(1), 16);</span>
-<span class="nc" id="L138">                    physMask |= lastMask;</span>
-<span class="nc" id="L139">                    virtMask |= lastMask;</span>
+<span class="nc" id="L138">                    lastMask = Integer.parseInt(m.group(1), 16);</span>
+<span class="nc" id="L139">                    physMask |= lastMask;</span>
+<span class="nc" id="L140">                    virtMask |= lastMask;</span>
                 }
-<span class="nc bnc" id="L141" title="All 2 branches missed.">            } else if (topo.contains(&quot;&lt;flags&gt;&quot;)</span>
-<span class="nc bnc" id="L142" title="All 6 branches missed.">                    &amp;&amp; (topo.contains(&quot;HTT&quot;) || topo.contains(&quot;SMT&quot;) || topo.contains(&quot;THREAD&quot;))) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            } else if (topo.contains(&quot;&lt;flags&gt;&quot;)</span>
+<span class="nc bnc" id="L143" title="All 6 branches missed.">                    &amp;&amp; (topo.contains(&quot;HTT&quot;) || topo.contains(&quot;SMT&quot;) || topo.contains(&quot;THREAD&quot;))) {</span>
                 // These are virtual cpus, remove processor mask from physical
-<span class="nc" id="L144">                physMask &amp;= ~lastMask;</span>
+<span class="nc" id="L145">                physMask &amp;= ~lastMask;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            } else if (topo.contains(&quot;&lt;group level=\&quot;2\&quot;&quot;)) {</span>
+                // This is a physical package
+<span class="nc" id="L148">                physPackage++;</span>
             }
         }
 
-<span class="nc" id="L148">        this.logicalProcessorCount = Long.bitCount(virtMask);</span>
-<span class="nc" id="L149">        this.physicalProcessorCount = Long.bitCount(physMask);</span>
-
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (this.logicalProcessorCount &lt; 1) {</span>
-<span class="nc" id="L152">            LOG.error(&quot;Couldn't find logical processor count. Assuming 1.&quot;);</span>
-<span class="nc" id="L153">            this.logicalProcessorCount = 1;</span>
+<span class="nc" id="L152">        this.logicalProcessorCount = Integer.bitCount(virtMask);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (this.logicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L154">            LOG.error(&quot;Couldn't find logical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L155">            this.logicalProcessorCount = 1;</span>
         }
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (this.physicalProcessorCount &lt; 1) {</span>
-<span class="nc" id="L156">            LOG.error(&quot;Couldn't find physical processor count. Assuming 1.&quot;);</span>
-<span class="nc" id="L157">            this.physicalProcessorCount = 1;</span>
+<span class="nc" id="L157">        this.physicalProcessorCount = Integer.bitCount(physMask);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (this.physicalProcessorCount &lt; 1) {</span>
+<span class="nc" id="L159">            LOG.error(&quot;Couldn't find physical processor count. Assuming 1.&quot;);</span>
+<span class="nc" id="L160">            this.physicalProcessorCount = 1;</span>
         }
-<span class="nc" id="L159">    }</span>
+<span class="nc" id="L162">        this.physicalPackageCount = physPackage;</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (this.physicalPackageCount &lt; 1) {</span>
+<span class="nc" id="L164">            LOG.error(&quot;Couldn't find physical package count. Assuming 1.&quot;);</span>
+<span class="nc" id="L165">            this.physicalPackageCount = 1;</span>
+        }
+<span class="nc" id="L167">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L166">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L167">        CpTime cpTime = new CpTime();</span>
-<span class="nc" id="L168">        BsdSysctlUtil.sysctl(&quot;kern.cp_time&quot;, cpTime);</span>
-<span class="nc" id="L169">        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[Libc.CP_USER];</span>
-<span class="nc" id="L170">        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[Libc.CP_NICE];</span>
-<span class="nc" id="L171">        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[Libc.CP_SYS];</span>
-<span class="nc" id="L172">        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[Libc.CP_INTR];</span>
-<span class="nc" id="L173">        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[Libc.CP_IDLE];</span>
-<span class="nc" id="L174">        return ticks;</span>
+<span class="nc" id="L174">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L175">        CpTime cpTime = new CpTime();</span>
+<span class="nc" id="L176">        BsdSysctlUtil.sysctl(&quot;kern.cp_time&quot;, cpTime);</span>
+<span class="nc" id="L177">        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[Libc.CP_USER];</span>
+<span class="nc" id="L178">        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[Libc.CP_NICE];</span>
+<span class="nc" id="L179">        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[Libc.CP_SYS];</span>
+<span class="nc" id="L180">        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[Libc.CP_INTR];</span>
+<span class="nc" id="L181">        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[Libc.CP_IDLE];</span>
+<span class="nc" id="L182">        return ticks;</span>
     }
 
     /**
@@ -179,17 +187,17 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L182" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L183">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L190" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L191">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L185">        double[] average = new double[nelem];</span>
-<span class="nc" id="L186">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc bnc" id="L188" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
-<span class="nc" id="L189">                average[i] = -1d;</span>
+<span class="nc" id="L193">        double[] average = new double[nelem];</span>
+<span class="nc" id="L194">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L197">                average[i] = -1d;</span>
             }
         }
-<span class="nc" id="L192">        return average;</span>
+<span class="nc" id="L200">        return average;</span>
     }
 
     /**
@@ -197,27 +205,27 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L200">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L208">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
 
         // Allocate memory for array of CPTime
-<span class="nc" id="L203">        int offset = new CpTime().size();</span>
-<span class="nc" id="L204">        int size = offset * this.logicalProcessorCount;</span>
-<span class="nc" id="L205">        Pointer p = new Memory(size);</span>
-<span class="nc" id="L206">        String name = &quot;kern.cp_times&quot;;</span>
+<span class="nc" id="L211">        int offset = new CpTime().size();</span>
+<span class="nc" id="L212">        int size = offset * this.logicalProcessorCount;</span>
+<span class="nc" id="L213">        Pointer p = new Memory(size);</span>
+<span class="nc" id="L214">        String name = &quot;kern.cp_times&quot;;</span>
         // Fetch
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {</span>
-<span class="nc" id="L209">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
-<span class="nc" id="L210">            return ticks;</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {</span>
+<span class="nc" id="L217">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L218">            return ticks;</span>
         }
         // p now points to the data; need to copy each element
-<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L214">            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE);</span>
-<span class="nc" id="L215">            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE);</span>
-<span class="nc" id="L216">            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE);</span>
-<span class="nc" id="L217">            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE);</span>
-<span class="nc" id="L218">            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE);</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L222">            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE);</span>
+<span class="nc" id="L223">            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE);</span>
+<span class="nc" id="L224">            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE);</span>
+<span class="nc" id="L225">            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE);</span>
+<span class="nc" id="L226">            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE);</span>
         }
-<span class="nc" id="L220">        return ticks;</span>
+<span class="nc" id="L228">        return ticks;</span>
     }
 
     /**
@@ -225,7 +233,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L228">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+<span class="nc" id="L236">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
     }
 
     /**
@@ -234,7 +242,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     @Deprecated
     public String getSystemSerialNumber() {
-<span class="nc" id="L237">        return new FreeBsdComputerSystem().getSerialNumber();</span>
+<span class="nc" id="L245">        return new FreeBsdComputerSystem().getSerialNumber();</span>
     }
 
     /**
@@ -245,18 +253,46 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * @return The ProcessorID string
      */
     private String getProcessorID(long processorID) {
-<span class="nc" id="L248">        boolean procInfo = false;</span>
-<span class="nc" id="L249">        String marker = &quot;Processor Information&quot;;</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L251" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L252">                marker = &quot;ID:&quot;;</span>
-<span class="nc" id="L253">                procInfo = true;</span>
-<span class="nc bnc" id="L254" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L255">                return checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L256">        boolean procInfo = false;</span>
+<span class="nc" id="L257">        String marker = &quot;Processor Information&quot;;</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L259" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L260">                marker = &quot;ID:&quot;;</span>
+<span class="nc" id="L261">                procInfo = true;</span>
+<span class="nc bnc" id="L262" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L263">                return checkLine.split(marker)[1].trim();</span>
             }
-<span class="nc" id="L257">        }</span>
+<span class="nc" id="L265">        }</span>
         // If we've gotten this far, dmidecode failed. Used the passed-in values
-<span class="nc" id="L259">        return String.format(&quot;%016X&quot;, processorID);</span>
+<span class="nc" id="L267">        return String.format(&quot;%016X&quot;, processorID);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+<span class="nc" id="L275">        String name = &quot;vm.stats.sys.v_swtch&quot;;</span>
+<span class="nc" id="L276">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
+<span class="nc" id="L277">        Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L279">            return -1;</span>
+        }
+<span class="nc" id="L281">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+<span class="nc" id="L289">        String name = &quot;vm.stats.sys.v_intr&quot;;</span>
+<span class="nc" id="L290">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
+<span class="nc" id="L291">        Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L293">            return -1;</span>
+        }
+<span class="nc" id="L295">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
