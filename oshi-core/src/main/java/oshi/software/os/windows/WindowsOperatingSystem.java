@@ -20,6 +20,8 @@ package oshi.software.os.windows;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +37,6 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-import java.util.Collection;
 
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
@@ -54,7 +55,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    // For WMI Process queries
+    // For WMI Process queries for most process info
     private final static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
             + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
             + ",ReadTransferCount,WriteTransferCount,HandleCount,__PATH,__PATH";
@@ -62,6 +63,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
             ValueType.UINT64, ValueType.UINT32, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+
+    // For WMI Process queries for private working set
+    private final static String workingSetPrivateProperties = "IDProcess,WorkingSetPrivate";
+    private final static ValueType[] workingSetPrivatePropertyTypes = { ValueType.UINT32, ValueType.STRING };
 
     /*
      * Windows Execution States:
@@ -117,7 +122,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, 
+        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
                 String.format("WHERE ParentProcessId=%d", parentPid), processPropertyTypes);
         List<OSProcess> procList = processMapToList(procs);
         List<OSProcess> sorted = processSort(procList, limit, sort);
@@ -140,8 +145,27 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procList = new ArrayList<>();
         List<String> groupList = new ArrayList<>();
         List<String> groupIDList = new ArrayList<>();
+        Map<Integer, Long> pwsMap = new HashMap<>();
         // All map lists should be the same length. Pick one size and iterate
         final int procCount = procs.get("Name").size();
+        // Generate Private Working Set map
+        Map<String, List<Object>> pws = null;
+        if (procCount == 1) {
+            pws = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
+                    String.format("WHERE IDProcess=%d", ((Long) procs.get("ProcessID").get(0)).intValue()),
+                    workingSetPrivatePropertyTypes);
+        } else {
+            pws = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
+                    null, workingSetPrivatePropertyTypes);
+        }
+        for (int p = 0; p < pws.get("IDProcess").size(); p++) {
+            // Last line "total" appears with PID 0, so avoid overwriting
+            int pwsPid = ((Long) pws.get("IDProcess").get(p)).intValue();
+            if (!pwsMap.containsKey(pwsPid)) {
+                pwsMap.put(pwsPid, ParseUtil.parseLongOrDefault((String) pws.get("WorkingSetPrivate").get(p), 0L));
+            }
+        }
+
         int myPid = getProcessId();
         for (int p = 0; p < procCount; p++) {
             OSProcess proc = new OSProcess();
@@ -216,7 +240,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setThreadCount(((Long) procs.get("ThreadCount").get(p)).intValue());
             proc.setPriority(((Long) procs.get("Priority").get(p)).intValue());
             proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L));
-            proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L));
+            if (pwsMap.containsKey(proc.getProcessID())) {
+                proc.setResidentSetSize(pwsMap.get(proc.getProcessID()));
+            } else {
+                proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L));
+            }
             // Kernel and User time units are 100ns
             proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L);
             proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L);
@@ -227,6 +255,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setOpenFiles((Long) procs.get("HandleCount").get(p));
             procList.add(proc);
         }
+
         return procList;
     }
 
@@ -302,10 +331,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         StringBuilder query = new StringBuilder("WHERE ");
-        for (Integer pid: pids) {
+        for (Integer pid : pids) {
             query.append(String.format("ProcessId=%d OR ", pid));
         }
-        query.setLength(query.length()-3);
+        query.setLength(query.length() - 3);
         Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
                 query.toString(), processPropertyTypes);
         List<OSProcess> procList = processMapToList(procs);

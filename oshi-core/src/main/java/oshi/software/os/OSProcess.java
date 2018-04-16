@@ -236,11 +236,12 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the Resident Set Size (RSS). It is used to show how much
-     *         memory is allocated to that process and is in RAM. It does not
-     *         include memory that is swapped out. It does include memory from
-     *         shared libraries as long as the pages from those libraries are
-     *         actually in memory. It does include all stack and heap memory.
+     * @return Returns the Resident Set Size (RSS). On Windows, returns the
+     *         Private Working Set size. It is used to show how much memory is
+     *         allocated to that process and is in RAM. It does not include
+     *         memory that is swapped out. It does include memory from shared
+     *         libraries as long as the pages from those libraries are actually
+     *         in memory. It does include all stack and heap memory.
      */
     public long getResidentSetSize() {
         return this.residentSetSize;
