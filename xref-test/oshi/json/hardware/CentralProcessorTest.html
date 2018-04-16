@@ -108,8 +108,12 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertNotNull(p.getSystemSerialNumber());
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertTrue(p.getPhysicalProcessorCount() &gt; 0);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertTrue(p.getPhysicalProcessorCount() &gt;= p.getPhysicalPackageCount());
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertTrue(p.getPhysicalPackageCount() &gt; 0);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertTrue(p.getContextSwitches() &gt;= 0);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertTrue(p.getInterrupts() &gt;= 0);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
