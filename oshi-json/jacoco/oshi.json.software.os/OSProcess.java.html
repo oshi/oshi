@@ -204,14 +204,15 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
-     * @return Returns the Resident Set Size (RSS). It is used to show how much
-     *         memory is allocated to that process and is in RAM. It does not
-     *         include memory that is swapped out. It does include memory from
-     *         shared libraries as long as the pages from those libraries are
-     *         actually in memory. It does include all stack and heap memory.
+     * @return Returns the Resident Set Size (RSS). On Windows, returns the
+     *         Private Working Set size. It is used to show how much memory is
+     *         allocated to that process and is in RAM. It does not include
+     *         memory that is swapped out. It does include memory from shared
+     *         libraries as long as the pages from those libraries are actually
+     *         in memory. It does include all stack and heap memory.
      */
     public long getResidentSetSize() {
-<span class="fc" id="L214">        return this.osProcess.getResidentSetSize();</span>
+<span class="fc" id="L215">        return this.osProcess.getResidentSetSize();</span>
     }
 
     /**
@@ -219,7 +220,7 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *         kernel/system mode.
      */
     public long getKernelTime() {
-<span class="fc" id="L222">        return this.osProcess.getKernelTime();</span>
+<span class="fc" id="L223">        return this.osProcess.getKernelTime();</span>
     }
 
     /**
@@ -227,14 +228,14 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *         user mode.
      */
     public long getUserTime() {
-<span class="fc" id="L230">        return this.osProcess.getUserTime();</span>
+<span class="fc" id="L231">        return this.osProcess.getUserTime();</span>
     }
 
     /**
      * @return Returns the number of milliseconds since the process started.
      */
     public long getUpTime() {
-<span class="fc" id="L237">        return this.osProcess.getUpTime();</span>
+<span class="fc" id="L238">        return this.osProcess.getUpTime();</span>
     }
 
     /**
@@ -242,21 +243,21 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *         since January 1, 1970.
      */
     public long getStartTime() {
-<span class="fc" id="L245">        return this.osProcess.getStartTime();</span>
+<span class="fc" id="L246">        return this.osProcess.getStartTime();</span>
     }
 
     /**
      * @return Returns the number of bytes the process has read from disk.
      */
     public long getBytesRead() {
-<span class="fc" id="L252">        return this.osProcess.getBytesRead();</span>
+<span class="fc" id="L253">        return this.osProcess.getBytesRead();</span>
     }
 
     /**
      * @return Returns the number of bytes the process has written to disk.
      */
     public long getBytesWritten() {
-<span class="fc" id="L259">        return this.osProcess.getBytesWritten();</span>
+<span class="fc" id="L260">        return this.osProcess.getBytesWritten();</span>
     }
 
     /**
@@ -266,8 +267,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            process name
      */
     public void setName(String name) {
-<span class="fc" id="L269">        this.osProcess.setName(name);</span>
-<span class="fc" id="L270">    }</span>
+<span class="fc" id="L270">        this.osProcess.setName(name);</span>
+<span class="fc" id="L271">    }</span>
 
     /**
      * Set the full path of the executing process.
@@ -276,8 +277,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            process path
      */
     public void setPath(String path) {
-<span class="fc" id="L279">        this.osProcess.setPath(path);</span>
-<span class="fc" id="L280">    }</span>
+<span class="fc" id="L280">        this.osProcess.setPath(path);</span>
+<span class="fc" id="L281">    }</span>
 
     /**
      * Sets the process command line.
@@ -286,8 +287,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The commandLine to set.
      */
     public void setCommandLine(String commandLine) {
-<span class="fc" id="L289">        this.osProcess.setCommandLine(commandLine);</span>
-<span class="fc" id="L290">    }</span>
+<span class="fc" id="L290">        this.osProcess.setCommandLine(commandLine);</span>
+<span class="fc" id="L291">    }</span>
 
     /**
      * Sets the process current working directory
@@ -296,8 +297,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The currentWorkingDirectory to set.
      */
     public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
-<span class="fc" id="L299">        this.osProcess.setCurrentWorkingDirectory(currentWorkingDirectory);</span>
-<span class="fc" id="L300">    }</span>
+<span class="fc" id="L300">        this.osProcess.setCurrentWorkingDirectory(currentWorkingDirectory);</span>
+<span class="fc" id="L301">    }</span>
 
     /**
      * Sets the user.
@@ -306,8 +307,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The user to set.
      */
     public void setUser(String user) {
-<span class="fc" id="L309">        this.osProcess.setUser(user);</span>
-<span class="fc" id="L310">    }</span>
+<span class="fc" id="L310">        this.osProcess.setUser(user);</span>
+<span class="fc" id="L311">    }</span>
 
     /**
      * Sets the User ID.
@@ -316,8 +317,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The userID to set.
      */
     public void setUserID(String userID) {
-<span class="fc" id="L319">        this.osProcess.setUserID(userID);</span>
-<span class="fc" id="L320">    }</span>
+<span class="fc" id="L320">        this.osProcess.setUserID(userID);</span>
+<span class="fc" id="L321">    }</span>
 
     /**
      * Sets the group.
@@ -326,8 +327,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The group to set.
      */
     public void setGroup(String group) {
-<span class="fc" id="L329">        this.osProcess.setGroup(group);</span>
-<span class="fc" id="L330">    }</span>
+<span class="fc" id="L330">        this.osProcess.setGroup(group);</span>
+<span class="fc" id="L331">    }</span>
 
     /**
      * Sets the Group ID.
@@ -336,8 +337,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            The groupID to set.
      */
     public void setGroupID(String groupID) {
-<span class="fc" id="L339">        this.osProcess.setGroupID(groupID);</span>
-<span class="fc" id="L340">    }</span>
+<span class="fc" id="L340">        this.osProcess.setGroupID(groupID);</span>
+<span class="fc" id="L341">    }</span>
 
     /**
      * Set the execution state of the process.
@@ -346,8 +347,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            execution state
      */
     public void setState(State state) {
-<span class="fc" id="L349">        this.osProcess.setState(state);</span>
-<span class="fc" id="L350">    }</span>
+<span class="fc" id="L350">        this.osProcess.setState(state);</span>
+<span class="fc" id="L351">    }</span>
 
     /**
      * Set the processID.
@@ -356,8 +357,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            process ID
      */
     public void setProcessID(int processID) {
-<span class="fc" id="L359">        this.osProcess.setProcessID(processID);</span>
-<span class="fc" id="L360">    }</span>
+<span class="fc" id="L360">        this.osProcess.setProcessID(processID);</span>
+<span class="fc" id="L361">    }</span>
 
     /**
      * Set the parentProcessID.
@@ -366,8 +367,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            parent process ID
      */
     public void setParentProcessID(int parentProcessID) {
-<span class="fc" id="L369">        this.osProcess.setParentProcessID(parentProcessID);</span>
-<span class="fc" id="L370">    }</span>
+<span class="fc" id="L370">        this.osProcess.setParentProcessID(parentProcessID);</span>
+<span class="fc" id="L371">    }</span>
 
     /**
      * Set the number of threads in this process.
@@ -376,8 +377,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            number of threads
      */
     public void setThreadCount(int threadCount) {
-<span class="fc" id="L379">        this.osProcess.setThreadCount(threadCount);</span>
-<span class="fc" id="L380">    }</span>
+<span class="fc" id="L380">        this.osProcess.setThreadCount(threadCount);</span>
+<span class="fc" id="L381">    }</span>
 
     /**
      * Set the priority of this process.
@@ -400,8 +401,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            priority
      */
     public void setPriority(int priority) {
-<span class="fc" id="L403">        this.osProcess.setPriority(priority);</span>
-<span class="fc" id="L404">    }</span>
+<span class="fc" id="L404">        this.osProcess.setPriority(priority);</span>
+<span class="fc" id="L405">    }</span>
 
     /**
      * Set the Virtual Memory Size (VSZ). It includes all memory that the
@@ -412,8 +413,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            virtual size
      */
     public void setVirtualSize(long virtualSize) {
-<span class="fc" id="L415">        this.osProcess.setVirtualSize(virtualSize);</span>
-<span class="fc" id="L416">    }</span>
+<span class="fc" id="L416">        this.osProcess.setVirtualSize(virtualSize);</span>
+<span class="fc" id="L417">    }</span>
 
     /**
      * Set the Resident Set Size (RSS). It is used to show how much memory is
@@ -426,8 +427,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            resident set size
      */
     public void setResidentSetSize(long residentSetSize) {
-<span class="fc" id="L429">        this.osProcess.setResidentSetSize(residentSetSize);</span>
-<span class="fc" id="L430">    }</span>
+<span class="fc" id="L430">        this.osProcess.setResidentSetSize(residentSetSize);</span>
+<span class="fc" id="L431">    }</span>
 
     /**
      * Set the number of milliseconds the process has executed in kernel mode.
@@ -436,8 +437,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            kernel time
      */
     public void setKernelTime(long kernelTime) {
-<span class="fc" id="L439">        this.osProcess.setKernelTime(kernelTime);</span>
-<span class="fc" id="L440">    }</span>
+<span class="fc" id="L440">        this.osProcess.setKernelTime(kernelTime);</span>
+<span class="fc" id="L441">    }</span>
 
     /**
      * Set the number of milliseconds the process has executed in user mode.
@@ -446,8 +447,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            user time
      */
     public void setUserTime(long userTime) {
-<span class="fc" id="L449">        this.osProcess.setUserTime(userTime);</span>
-<span class="fc" id="L450">    }</span>
+<span class="fc" id="L450">        this.osProcess.setUserTime(userTime);</span>
+<span class="fc" id="L451">    }</span>
 
     /**
      * Set the start time of the process in number of milliseconds since January
@@ -457,8 +458,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            start time
      */
     public void setStartTime(long startTime) {
-<span class="fc" id="L460">        this.osProcess.setStartTime(startTime);</span>
-<span class="fc" id="L461">    }</span>
+<span class="fc" id="L461">        this.osProcess.setStartTime(startTime);</span>
+<span class="fc" id="L462">    }</span>
 
     /**
      * Set the number of milliseconds since the process started.
@@ -467,8 +468,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            up time
      */
     public void setUpTime(long upTime) {
-<span class="fc" id="L470">        this.osProcess.setUpTime(upTime);</span>
-<span class="fc" id="L471">    }</span>
+<span class="fc" id="L471">        this.osProcess.setUpTime(upTime);</span>
+<span class="fc" id="L472">    }</span>
 
     /**
      * Set the number of bytes the process has read from disk.
@@ -477,8 +478,8 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            number of bytes read
      */
     public void setBytesRead(long bytesRead) {
-<span class="fc" id="L480">        this.osProcess.setBytesRead(bytesRead);</span>
-<span class="fc" id="L481">    }</span>
+<span class="fc" id="L481">        this.osProcess.setBytesRead(bytesRead);</span>
+<span class="fc" id="L482">    }</span>
 
     /**
      * Set the number of bytes the process has written to disk.
@@ -487,26 +488,31 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      *            number of bytes written
      */
     public void setBytesWritten(long bytesWritten) {
-<span class="fc" id="L490">        this.osProcess.setBytesWritten(bytesWritten);</span>
-<span class="fc" id="L491">    }</span>
-    
-    
+<span class="fc" id="L491">        this.osProcess.setBytesWritten(bytesWritten);</span>
+<span class="fc" id="L492">    }</span>
+
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * @param count 
+     * 
+     * @param count
+     *            The number of handles
      */
-    public void setOpenFiles(long count){
-<span class="nc" id="L500">        this.osProcess.setOpenFiles(count);</span>
-<span class="nc" id="L501">    }</span>
-    
+    public void setOpenFiles(long count) {
+<span class="nc" id="L502">        this.osProcess.setOpenFiles(count);</span>
+<span class="nc" id="L503">    }</span>
+
     /**
-     * Sets the number of open file handles (or network connections) that 
+     * Sets the number of open file handles (or network connections) that
      * belongs to the process
+     *
+     * On FreeBSD and Solaris, this value is only populated if information for a
+     * single process id is requested.
+     * 
      * @return open files or -1 if unknown or not supported
      */
-    public long getOpenFiles(){
-<span class="fc" id="L509">        return this.osProcess.getOpenFiles();</span>
+    public long getOpenFiles() {
+<span class="fc" id="L515">        return this.osProcess.getOpenFiles();</span>
     }
 
     /**
@@ -514,74 +520,74 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="fc" id="L517">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="pc bpc" id="L518" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
-<span class="fc" id="L519">            json.add(&quot;name&quot;, getName());</span>
+<span class="fc" id="L523">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L524" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
+<span class="fc" id="L525">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="pc bpc" id="L521" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
-<span class="fc" id="L522">            json.add(&quot;path&quot;, getPath());</span>
+<span class="pc bpc" id="L527" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
+<span class="fc" id="L528">            json.add(&quot;path&quot;, getPath());</span>
         }
-<span class="pc bpc" id="L524" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
-<span class="fc" id="L525">            json.add(&quot;commandLine&quot;, getPath());</span>
+<span class="pc bpc" id="L530" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
+<span class="fc" id="L531">            json.add(&quot;commandLine&quot;, getPath());</span>
         }
-<span class="pc bpc" id="L527" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.currentWorkingDirectory&quot;)) {</span>
-<span class="fc" id="L528">            json.add(&quot;currentWorkingDirectory&quot;, getPath());</span>
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.currentWorkingDirectory&quot;)) {</span>
+<span class="fc" id="L534">            json.add(&quot;currentWorkingDirectory&quot;, getPath());</span>
         }
-<span class="pc bpc" id="L530" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
-<span class="fc" id="L531">            json.add(&quot;user&quot;, getUser());</span>
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
+<span class="fc" id="L537">            json.add(&quot;user&quot;, getUser());</span>
         }
-<span class="pc bpc" id="L533" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userID&quot;)) {</span>
-<span class="fc" id="L534">            json.add(&quot;userID&quot;, getUserID());</span>
+<span class="pc bpc" id="L539" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userID&quot;)) {</span>
+<span class="fc" id="L540">            json.add(&quot;userID&quot;, getUserID());</span>
         }
-<span class="pc bpc" id="L536" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.group&quot;)) {</span>
-<span class="fc" id="L537">            json.add(&quot;group&quot;, getGroup());</span>
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.group&quot;)) {</span>
+<span class="fc" id="L543">            json.add(&quot;group&quot;, getGroup());</span>
         }
-<span class="pc bpc" id="L539" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.groupID&quot;)) {</span>
-<span class="fc" id="L540">            json.add(&quot;groupID&quot;, getGroupID());</span>
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.groupID&quot;)) {</span>
+<span class="fc" id="L546">            json.add(&quot;groupID&quot;, getGroupID());</span>
         }
-<span class="pc bpc" id="L542" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
-<span class="fc" id="L543">            json.add(&quot;state&quot;, getState().name());</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
+<span class="fc" id="L549">            json.add(&quot;state&quot;, getState().name());</span>
         }
-<span class="pc bpc" id="L545" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
-<span class="fc" id="L546">            json.add(&quot;processID&quot;, getProcessID());</span>
+<span class="pc bpc" id="L551" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
+<span class="fc" id="L552">            json.add(&quot;processID&quot;, getProcessID());</span>
         }
-<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
-<span class="fc" id="L549">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
+<span class="pc bpc" id="L554" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
+<span class="fc" id="L555">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
         }
-<span class="pc bpc" id="L551" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
-<span class="fc" id="L552">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+<span class="pc bpc" id="L557" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
+<span class="fc" id="L558">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
-<span class="pc bpc" id="L554" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
-<span class="fc" id="L555">            json.add(&quot;priority&quot;, getPriority());</span>
+<span class="pc bpc" id="L560" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
+<span class="fc" id="L561">            json.add(&quot;priority&quot;, getPriority());</span>
         }
-<span class="pc bpc" id="L557" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
-<span class="fc" id="L558">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
+<span class="pc bpc" id="L563" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
+<span class="fc" id="L564">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
         }
-<span class="pc bpc" id="L560" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
-<span class="fc" id="L561">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
+<span class="fc" id="L567">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
         }
-<span class="pc bpc" id="L563" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
-<span class="fc" id="L564">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
+<span class="pc bpc" id="L569" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
+<span class="fc" id="L570">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
         }
-<span class="pc bpc" id="L566" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
-<span class="fc" id="L567">            json.add(&quot;userTime&quot;, getUserTime());</span>
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
+<span class="fc" id="L573">            json.add(&quot;userTime&quot;, getUserTime());</span>
         }
-<span class="pc bpc" id="L569" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
-<span class="fc" id="L570">            json.add(&quot;upTime&quot;, getUpTime());</span>
+<span class="pc bpc" id="L575" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
+<span class="fc" id="L576">            json.add(&quot;upTime&quot;, getUpTime());</span>
         }
-<span class="pc bpc" id="L572" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
-<span class="fc" id="L573">            json.add(&quot;startTime&quot;, getStartTime());</span>
+<span class="pc bpc" id="L578" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
+<span class="fc" id="L579">            json.add(&quot;startTime&quot;, getStartTime());</span>
         }
-<span class="pc bpc" id="L575" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesRead&quot;)) {</span>
-<span class="fc" id="L576">            json.add(&quot;bytesRead&quot;, getBytesRead());</span>
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesRead&quot;)) {</span>
+<span class="fc" id="L582">            json.add(&quot;bytesRead&quot;, getBytesRead());</span>
         }
-<span class="pc bpc" id="L578" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesWritten&quot;)) {</span>
-<span class="fc" id="L579">            json.add(&quot;bytesWritten&quot;, getBytesWritten());</span>
+<span class="pc bpc" id="L584" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesWritten&quot;)) {</span>
+<span class="fc" id="L585">            json.add(&quot;bytesWritten&quot;, getBytesWritten());</span>
         }
-<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.handles&quot;)) {</span>
-<span class="fc" id="L582">            json.add(&quot;handles&quot;, getOpenFiles());</span>
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.handles&quot;)) {</span>
+<span class="fc" id="L588">            json.add(&quot;handles&quot;, getOpenFiles());</span>
         }
-<span class="fc" id="L584">        return json.build();</span>
+<span class="fc" id="L590">        return json.build();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
