@@ -263,7 +263,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     private String getProcessorID(String stepping, String model, String family, String[] flags) {
         boolean procInfo = false;
         String marker = "Processor Information";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t 4")) {
             if (!procInfo && checkLine.contains(marker)) {
                 marker = "ID:";
                 procInfo = true;
