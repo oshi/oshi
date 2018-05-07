@@ -169,7 +169,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // reset to default if value is invalid
         if(hz == 0) hz = 1000L;
     }
-
+    
     private static int getMemoryPageSize() {
         try {
             return Libc.INSTANCE.getpagesize();
@@ -639,4 +639,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
     }
+    
+    /**
+     * gets the calculated Jiffies per second, useful for converting ticks to milliseconds and vice versa
+     * @return Jiffies per second
+     */
+    public static long getHz(){
+        return hz;
+    }
+
 }
