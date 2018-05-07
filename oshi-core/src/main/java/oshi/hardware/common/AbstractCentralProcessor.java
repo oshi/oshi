@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -69,6 +69,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected int logicalProcessorCount = 0;
 
     protected int physicalProcessorCount = 0;
+
+    protected int physicalPackageCount = 0;
 
     // Maintain previous ticks to be used for calculating usage between them.
     // System ticks
@@ -527,6 +529,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPhysicalPackageCount() {
+        return this.physicalPackageCount;
     }
 
     @Override

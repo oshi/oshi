@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,6 +18,9 @@
  */
 package oshi.json.software.os.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import javax.json.Json;
@@ -114,6 +117,32 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
     public OSProcess getProcess(int pid) {
         oshi.software.os.OSProcess proc = this.os.getProcess(pid);
         return proc == null ? null : new OSProcess(proc);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        List<oshi.software.os.OSProcess> procs = this.os.getProcesses(pids);
+        List<OSProcess> processes = new ArrayList<>();
+        for (oshi.software.os.OSProcess proc : procs) {
+            processes.add(new OSProcess(proc));
+        }
+        return processes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        oshi.software.os.OSProcess[] procs = this.os.getChildProcesses(parentPid, limit, sort);
+        OSProcess[] processes = new OSProcess[procs.length];
+        for (int i = 0; i < procs.length; i++) {
+            processes[i] = procs[i] == null ? null : new OSProcess(procs[i]);
+        }
+        return processes;
     }
 
     /**

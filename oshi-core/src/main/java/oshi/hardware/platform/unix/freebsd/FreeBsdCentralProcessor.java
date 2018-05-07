@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -120,21 +120,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Updates logical and physical processor counts from psrinfo
+     * Updates logical and physical processor/package counts
      */
     @Override
     protected void calculateProcessorCounts() {
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
-        long physMask = 0;
-        long virtMask = 0;
-        long lastMask = 0;
+        int physMask = 0;
+        int virtMask = 0;
+        int lastMask = 0;
+        int physPackage = 0;
         for (String topo : topology) {
             if (topo.contains("<cpu")) {
                 // Find <cpu> tag and extract bits
                 Matcher m = CPUMASK.matcher(topo);
                 if (m.matches()) {
                     // Add this processor mask to cpus. Regex guarantees parsing
-                    lastMask = Long.parseLong(m.group(1), 16);
+                    lastMask = Integer.parseInt(m.group(1), 16);
                     physMask |= lastMask;
                     virtMask |= lastMask;
                 }
@@ -142,19 +143,26 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     && (topo.contains("HTT") || topo.contains("SMT") || topo.contains("THREAD"))) {
                 // These are virtual cpus, remove processor mask from physical
                 physMask &= ~lastMask;
+            } else if (topo.contains("<group level=\"2\"")) {
+                // This is a physical package
+                physPackage++;
             }
         }
 
-        this.logicalProcessorCount = Long.bitCount(virtMask);
-        this.physicalProcessorCount = Long.bitCount(physMask);
-
+        this.logicalProcessorCount = Integer.bitCount(virtMask);
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
         }
+        this.physicalProcessorCount = Integer.bitCount(physMask);
         if (this.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
+        }
+        this.physicalPackageCount = physPackage;
+        if (this.physicalPackageCount < 1) {
+            LOG.error("Couldn't find physical package count. Assuming 1.");
+            this.physicalPackageCount = 1;
         }
     }
 
@@ -257,5 +265,33 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         }
         // If we've gotten this far, dmidecode failed. Used the passed-in values
         return String.format("%016X", processorID);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        String name = "vm.stats.sys.v_swtch";
+        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(p.getInt(0));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        String name = "vm.stats.sys.v_intr";
+        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 }

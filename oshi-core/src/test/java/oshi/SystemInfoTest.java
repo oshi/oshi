@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -139,7 +139,8 @@ public class SystemInfoTest {
 
     private static void printProcessor(CentralProcessor processor) {
         System.out.println(processor);
-        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU(s)");
+        System.out.println(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
+        System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
         System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
 
         System.out.println("Identifier: " + processor.getIdentifier());
@@ -155,6 +156,8 @@ public class SystemInfoTest {
 
     private static void printCpu(CentralProcessor processor) {
         System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(processor.getSystemUptime()));
+        System.out.println(
+                "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
@@ -268,10 +271,11 @@ public class SystemInfoTest {
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            System.out.format(" %s (%s) [%s] %s of %s free (%.1f%%) is %s " +
-                            (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s") +
-                            " and is mounted at %s%n", fs.getName(),
-                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+            System.out.format(
+                    " %s (%s) [%s] %s of %s free (%.1f%%) is %s "
+                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                            + " and is mounted at %s%n",
+                    fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
         }

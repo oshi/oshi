@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -41,7 +41,6 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -196,14 +195,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
-        //gets the open files count
-        try {
-            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
-            if (openFilesString!=null)
-                proc.setOpenFiles(Long.parseLong(openFilesString));
-        } catch (Exception ex) {
-            LOG.warn("Couldn't find get open file count for pid {}: {}", pid, ex);
-        }
+        // gets the open files count
+        proc.setOpenFiles(taskAllInfo.pbsd.pbi_nfiles);
 
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
@@ -217,6 +210,40 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             proc.setCurrentWorkingDirectory(new String(vpi.pvi_cdir.vip_path, 0, len, StandardCharsets.US_ASCII));
         }
         return proc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        List<OSProcess> procs = new ArrayList<>();
+        int[] pids = new int[this.maxProc];
+        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+        for (int i = 0; i < numberOfProcesses; i++) {
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+            if (pids[i] == 0) {
+                continue;
+            }
+            if (parentPid == getParentProcessPid(pids[i])) {
+                OSProcess proc = getProcess(pids[i]);
+                if (proc != null) {
+                    procs.add(proc);
+                }
+            }
+        }
+        List<OSProcess> sorted = processSort(procs, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
+    }
+
+    private int getParentProcessPid(int pid) {
+        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
+        if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
+            return 0;
+        }
+        return taskAllInfo.pbsd.pbi_ppid;
     }
 
     private String getCommandLine(int pid) {
@@ -318,4 +345,5 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();
     }
+
 }

@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,7 +18,9 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,6 +81,20 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected void calculateProcessorCounts() {
+        List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
+        Set<String> chipIDs = new HashSet<>();
+        for (Kstat ksp : kstats) {
+            if (ksp != null && KstatUtil.kstatRead(ksp)) {
+                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
+            }
+        }
+
+        this.physicalPackageCount = chipIDs.size();
+        if (this.physicalPackageCount < 1) {
+            LOG.error("Couldn't find physical package count. Assuming 1.");
+            this.physicalPackageCount = 1;
+        }
+
         this.logicalProcessorCount = 0;
         this.physicalProcessorCount = 0;
         // Get number of logical processors
@@ -201,4 +217,29 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        long swtch = 0;
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
+        for (String s : kstat) {
+            swtch += ParseUtil.parseLastLong(s, 0L);
+        }
+        return swtch > 0 ? swtch : -1L;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        long intr = 0;
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
+        for (String s : kstat) {
+            intr += ParseUtil.parseLastLong(s, 0L);
+        }
+        return intr > 0 ? intr : -1L;
+    }
 }

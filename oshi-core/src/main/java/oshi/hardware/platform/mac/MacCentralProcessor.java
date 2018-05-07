@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.VMMeter;
 import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -100,6 +101,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     protected void calculateProcessorCounts() {
         this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
+        this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
     }
 
     /**
@@ -187,5 +189,35 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     @Deprecated
     public String getSystemSerialNumber() {
         return new MacComputerSystem().getSerialNumber();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        int machPort = SystemB.INSTANCE.mach_host_self();
+        VMMeter vmstats = new VMMeter();
+        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
+                new IntByReference(vmstats.size()))) {
+            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        int machPort = SystemB.INSTANCE.mach_host_self();
+        VMMeter vmstats = new VMMeter();
+        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
+                new IntByReference(vmstats.size()))) {
+            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            return -1;
+        }
+        return ParseUtil.unsignedIntToLong(vmstats.v_intr);
     }
 }

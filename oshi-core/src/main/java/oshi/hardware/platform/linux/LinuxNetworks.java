@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -52,6 +52,7 @@ public class LinuxNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
         netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
         netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
-        netIF.setSpeed(FileUtil.getUnsignedLongFromFile(speed));
+        long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
+        netIF.setSpeed(netSpeed < 0 ? 0 : netSpeed);
     }
 }

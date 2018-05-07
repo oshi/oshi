@@ -2,7 +2,7 @@
 
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|com.github.oshi)
 [![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
-[![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=com.github.oshi:oshi-parent)](https://sonarqube.com/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=alert_status)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
@@ -52,15 +52,17 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.4.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.4.4&amp;e=jar)  | [oshi-core-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/) |
-| [oshi-json-3.4.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.4.4&amp;e=jar)   | [oshi-json-3.5.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.5.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0&amp;e=jar)  | [oshi-core-3.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.6.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/) |
+| [oshi-json-3.5.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0&amp;e=jar)   | [oshi-json-3.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.6.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Projects using OSHI
 -------------------
 * [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
+* [OfficeConnector](https://confluence.atlassian.com/doc/edit-office-files-170494553.html) for [Atlassian Confluence](https://www.atlassian.com/software/confluence)
 * [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
+* [sys-API](https://github.com/Krillsson/sys-API)
 
 Output
 -------------

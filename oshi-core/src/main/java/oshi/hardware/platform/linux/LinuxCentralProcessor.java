@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,18 +18,19 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -56,7 +57,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
         LOG.debug("Initialized Processor");
     }
-
 
     private void initVars() {
         String[] flags = new String[0];
@@ -105,68 +105,46 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected void calculateProcessorCounts() {
-        List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
-        // Get number of logical processors
-        for (String cpu : procCpu) {
-            if (cpu.startsWith("processor")) {
-                this.logicalProcessorCount++;
-            }
-        }
-        // Get number of physical processors
-        int siblings = 0;
-        int cpucores;
         int[] uniqueID = new int[2];
         uniqueID[0] = -1;
         uniqueID[1] = -1;
 
-        Set<String> ids = new HashSet<>();
+        Set<String> processorIDs = new HashSet<>();
+        Set<Integer> packageIDs = new HashSet<>();
 
+        List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
         for (String cpu : procCpu) {
-            if (cpu.startsWith("siblings")) {
-                // if siblings = 1, no hyperthreading
-                siblings = ParseUtil.parseLastInt(cpu, 1);
-                if (siblings == 1) {
-                    this.physicalProcessorCount = this.logicalProcessorCount;
-                    break;
-                }
+            // Count logical processors
+            if (cpu.startsWith("processor")) {
+                this.logicalProcessorCount++;
             }
-            if (cpu.startsWith("cpu cores")) {
-                // if siblings > 1, ratio with cores
-                cpucores = ParseUtil.parseLastInt(cpu, 1);
-                if (siblings > 1) {
-                    this.physicalProcessorCount = this.logicalProcessorCount * cpucores / siblings;
-                    break;
-                }
-            }
-            // If siblings and cpu cores don't define it, count unique
-            // combinations of core id and physical id.
+            // Count unique combinations of core id and physical id.
             if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
                 uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);
             } else if (cpu.startsWith("physical id")) {
                 uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);
             }
             if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
-                ids.add(uniqueID[0] + " " + uniqueID[1]);
+                packageIDs.add(uniqueID[1]);
+                processorIDs.add(uniqueID[0] + " " + uniqueID[1]);
                 uniqueID[0] = -1;
                 uniqueID[1] = -1;
             }
-        }
-        if (this.physicalProcessorCount == 0) {
-            this.physicalProcessorCount = ids.size();
-        }
-        // if at least one logical processor is present, we can safely assume
-        // there is at least one physical cpu
-        if (this.physicalProcessorCount == 0 && this.logicalProcessorCount > 0) {
-            this.physicalProcessorCount = 1;
         }
         // Force at least one processor
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
         }
+        this.physicalProcessorCount = processorIDs.size();
         if (this.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
+        }
+        this.physicalPackageCount = packageIDs.size();
+        if (this.physicalPackageCount < 1) {
+            LOG.error("Couldn't find physical package count. Assuming 1.");
+            this.physicalPackageCount = 1;
         }
     }
 
@@ -285,7 +263,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     private String getProcessorID(String stepping, String model, String family, String[] flags) {
         boolean procInfo = false;
         String marker = "Processor Information";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t 4")) {
             if (!procInfo && checkLine.contains(marker)) {
                 marker = "ID:";
                 procInfo = true;
@@ -313,4 +291,37 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return createProcessorID(stepping, model, family, flags);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getContextSwitches() {
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("ctxt ")) {
+                String[] ctxtArr = ParseUtil.whitespaces.split(stat);
+                if (ctxtArr.length == 2) {
+                    return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getInterrupts() {
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("intr ")) {
+                String[] intrArr = ParseUtil.whitespaces.split(stat);
+                if (intrArr.length > 2) {
+                    return ParseUtil.parseLongOrDefault(intrArr[1], 0);
+                }
+            }
+        }
+        return -1;
+    }
 }

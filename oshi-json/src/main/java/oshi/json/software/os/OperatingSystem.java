@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,9 @@
  * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.json.software.os;
+
+import java.util.Collection;
+import java.util.List;
 
 import oshi.json.json.OshiJsonObject;
 import oshi.software.os.OperatingSystem.ProcessSort;
@@ -89,6 +92,38 @@ public interface OperatingSystem extends OshiJsonObject {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
+
+    /**
+     * Gets information on a currently running processes. This was primarily
+     * written to provide an optimized mechanism for windows based operating
+     * systems.
+     *
+     * @param pids
+     *            A collection of process IDs
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process ids if it is running
+     */
+    List<OSProcess> getProcesses(Collection<Integer> pids);
+
+    /**
+     * Gets currently running child processes of provided PID. If a positive
+     * limit is specified, returns only that number of processes; zero will
+     * return all processes. The order may be specified by the sort parameter,
+     * for example, to return the top cpu or memory consuming processes; if
+     * null, no order is guaranteed.
+     * 
+     * @param parentPid
+     *            A process ID
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @param sort
+     *            If not null, determines sorting of results
+     * @return An array of {@link oshi.software.os.OSProcess} objects presenting
+     *         the specified number (or all) of currently running child
+     *         processes of the provided PID, sorted as specified. The array may
+     *         contain null elements if a process terminates during iteration.
+     */
+    OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
     /**
      * Gets the current process ID

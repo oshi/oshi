@@ -1,10 +1,24 @@
-3.5.0 (in progress)
+3.6.0 (in progress)
 ================
-* [#433] (https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
-* [#455] (https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
 * Your contribution here.
 
-3.4.4 (10/15/2017)
+3.5.0 (4/15/18)
+================
+* [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
+* [#447](https://github.com/oshi/oshi/pull/447), [#471](https://github.com/oshi/oshi/pull/471): Added context switches and interrupts - [@jpbempel](https://github.com/jpbempel), [@dbwiddis](https://github.com/dbwiddis).
+* [#476](https://github.com/dblock/oshi/pull/476): Count CPU Packages - [@dbwiddis](https://github.com/dbwiddis).
+* [#478](https://github.com/dblock/oshi/pull/478): Windows RSS now reports Private Working Set, matching Task Manager - [@dbwiddis](https://github.com/dbwiddis).
+* Updated to JNA 4.5.1
+
+3.4.5 (4/11/18)
+================
+* [#433](https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
+* [#455](https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
+* [#459](https://github.com/oshi/oshi/pull/459): New methods for querying for a list of specific pids - [@spyhunter99](https://github.com/spyhunter99).
+* [#464](https://github.com/oshi/oshi/pull/464): OSGi fixes - [@lprimak](https://github.com/lprimak).
+* [#465](https://github.com/oshi/oshi/pull/465): Include a shaded jar with all dependencies - [@lprimak](https://github.com/lprimak).
+
+3.4.4 (10/15/17)
 ================
 * [#392](https://github.com/dblock/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
 * [#396](https://github.com/oshi/oshi/pull/396): Fix issue on Mac OS X whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)

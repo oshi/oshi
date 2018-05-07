@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -132,6 +132,65 @@ public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
                     "pti_total_system", "pti_threads_user", "pti_threads_system", "pti_policy", "pti_faults",
                     "pti_pageins", "pti_cow_faults", "pti_messages_sent", "pti_messages_received", "pti_syscalls_mach",
                     "pti_syscalls_unix", "pti_csw", "pti_threadnum", "pti_numrunning", "pti_priority" });
+        }
+    }
+
+    class VMMeter extends Structure {
+        /*
+         * General system activity.
+         */
+        public int v_swtch; /* context switches */
+        public int v_trap; /* calls to trap */
+        public int v_syscall; /* calls to syscall() */
+        public int v_intr; /* device interrupts */
+        public int v_soft; /* software interrupts */
+        public int v_faults; /* total faults taken */
+        /*
+         * Virtual memory activity.
+         */
+        public int v_lookups; /* object cache lookups */
+        public int v_hits; /* object cache hits */
+        public int v_vm_faults; /* number of address memory faults */
+        public int v_cow_faults; /* number of copy-on-writes */
+        public int v_swpin; /* swapins */
+        public int v_swpout; /* swapouts */
+        public int v_pswpin; /* pages swapped in */
+        public int v_pswpout; /* pages swapped out */
+        public int v_pageins; /* number of pageins */
+        public int v_pageouts; /* number of pageouts */
+        public int v_pgpgin; /* pages paged in */
+        public int v_pgpgout; /* pages paged out */
+        public int v_intrans; /* intransit blocking page faults */
+        public int v_reactivated; /*
+                                   * number of pages reactivated from free list
+                                   */
+        public int v_rev; /* revolutions of the hand */
+        public int v_scan; /* scans in page out daemon */
+        public int v_dfree; /* pages freed by daemon */
+        public int v_pfree; /* pages freed by exiting processes */
+        public int v_zfod; /* pages zero filled on demand */
+        public int v_nzfod; /* number of zfod's created */
+        /*
+         * Distribution of page usages.
+         */
+        public int v_page_size; /* page size in bytes */
+        public int v_kernel_pages; /* number of pages in use by kernel */
+        public int v_free_target; /* number of pages desired free */
+        public int v_free_min; /* minimum number of pages desired free */
+        public int v_free_count; /* number of pages free */
+        public int v_wire_count; /* number of pages wired down */
+        public int v_active_count; /* number of pages active */
+        public int v_inactive_target; /* number of pages desired inactive */
+        public int v_inactive_count; /* number of pages inactive */
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "v_swtch", "v_trap", "v_syscall", "v_intr", "v_soft", "v_faults",
+                    "v_lookups", "v_hits", "v_vm_faults", "v_cow_faults", "v_swpin", "v_swpout", "v_pswpin",
+                    "v_pswpout", "v_pageins", "v_pageouts", "v_pgpgin", "v_pgpgout", "v_intrans", "v_reactivated",
+                    "v_rev", "v_scan", "v_dfree", "v_pfree", "v_zfod", "v_nzfod", "v_page_size", "v_kernel_pages",
+                    "v_free_target", "v_free_min", "v_free_count", "v_wire_count", "v_active_count",
+                    "v_inactive_target", "v_inactive_count" });
         }
     }
 

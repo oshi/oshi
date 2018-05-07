@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -406,8 +406,11 @@ public class WmiUtil {
         // pSvc to make IWbemServices calls.
         HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);
         if (COMUtils.FAILED(hres)) {
-            LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
-                    hres.intValue()));
+            // Don't error on OpenHardwareMonitor
+            if (!"root\\OpenHardwareMonitor".equals(namespace)) {
+                LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
+                        hres.intValue()));
+            }
             loc.Release();
             unInitCOM();
             return false;
@@ -425,6 +428,7 @@ public class WmiUtil {
             unInitCOM();
             return false;
         }
+        LOG.debug("Proxy blanket set.");
         return true;
     }
 
@@ -463,6 +467,7 @@ public class WmiUtil {
             unInitCOM();
             return false;
         }
+        LOG.debug("Query succeeded.");
         return true;
     }
 
@@ -493,6 +498,7 @@ public class WmiUtil {
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
         LongByReference uReturn = new LongByReference(0L);
+        int resultCount = 0;
         while (enumerator.getPointer() != Pointer.NULL) {
             HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),
                     pclsObj, uReturn);
@@ -500,15 +506,18 @@ public class WmiUtil {
             if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {
                 // Enumerator will be released by calling method so no need to
                 // release it here.
+                LOG.debug(String.format("Returned %d results.", resultCount));
                 return;
             }
+            resultCount++;
             VARIANT.ByReference vtProp = new VARIANT.ByReference();
 
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
             for (int p = 0; p < properties.length; p++) {
                 String property = properties[p];
-                hres = clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
+                // hres =
+                clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
 
                 ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
                 switch (propertyType) {

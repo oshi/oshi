@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -259,10 +259,9 @@ public interface CentralProcessor extends OshiJsonObject {
      * than 1 second. If less than one second has elapsed since the last call of
      * this method, it will return a calculation based on the tick counts and
      * times of the previous two calls. If at least a second has elapsed, it
-     * will return the average CPU load for the interval and update the
-     * "last called" times. This method is intended to be used for periodic
-     * polling (iterating over all processors) at intervals of 1 second or
-     * longer.
+     * will return the average CPU load for the interval and update the "last
+     * called" times. This method is intended to be used for periodic polling
+     * (iterating over all processors) at intervals of 1 second or longer.
      *
      * @return array of CPU load between 0 and 1 (100%) for each logical
      *         processor
@@ -323,7 +322,8 @@ public interface CentralProcessor extends OshiJsonObject {
     String getSystemSerialNumber();
 
     /**
-     * Get the number of logical CPUs available for processing.
+     * Get the number of logical CPUs available for processing. This value may
+     * be higher than physical CPUs if hyperthreading is enabled.
      *
      * @return The number of logical CPUs available.
      */
@@ -335,4 +335,26 @@ public interface CentralProcessor extends OshiJsonObject {
      * @return The number of physical CPUs available.
      */
     int getPhysicalProcessorCount();
+
+    /**
+     * Get the number of packages/sockets in the system. A single package may
+     * contain multiple cores.
+     * 
+     * @return The number of physical packages available.
+     */
+    int getPhysicalPackageCount();
+
+    /**
+     * Get the number of context switches which have occurred
+     * 
+     * @return The number of context switches
+     */
+    long getContextSwitches();
+
+    /**
+     * Get the number of interrupts which have occurred
+     * 
+     * @return The number of interrupts
+     */
+    long getInterrupts();
 }

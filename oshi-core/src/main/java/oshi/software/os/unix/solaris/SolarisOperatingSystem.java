@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -80,6 +80,17 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        List<OSProcess> procs = getProcessListFromPS(
+                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args --ppid", parentPid);
+        List<OSProcess> sorted = processSort(procs, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
+    }
+
     private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
         Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
         List<OSProcess> procs = new ArrayList<>();
@@ -140,11 +151,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setCommandLine(split[14]);
             sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
             // bytes read/written not easily available
-            
-            //gets the open files count
-            String openFilesString = ExecutingCommand.getFirstAnswer(String.format("lsof -p %d | wc -l", pid));
-            sproc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
-                
+
+            // gets the open files count -- only do for single-PID requests
+            if (pid >= 0) {
+                List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
+                sproc.setOpenFiles(openFilesList.size() - 1);
+            }
             procs.add(sproc);
         }
         return procs;
@@ -186,4 +198,5 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParams();
     }
+
 }

@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -167,7 +167,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // divide jiffies (since boot) by seconds (since boot)
         hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
         // reset to default if value is invalid
-        if(hz == 0) hz = 1000L;
+        if (hz == 0)
+            hz = 1000L;
     }
     
     private static int getMemoryPageSize() {
@@ -226,9 +227,15 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         long now = System.currentTimeMillis();
         OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
-        proc.setName(split[1].replaceFirst("\\(", "").replace(")", ""));
+        int nameOffset = 0;
+        StringBuilder name = new StringBuilder(split[1].replaceFirst("\\(", ""));
+        while (!split[1 + nameOffset].endsWith(")")) {
+            nameOffset++;
+            name.append(' ').append(split[1 + nameOffset]);
+        }
+        proc.setName(name.substring(0, name.length() - 1));
         proc.setPath(path);
-        switch (split[2].charAt(0)) {
+        switch (split[2 + nameOffset].charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -249,22 +256,22 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             break;
         }
         proc.setProcessID(pid);
-        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3], 0));
-        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19], 0));
-        proc.setPriority(ParseUtil.parseIntOrDefault(split[17], 0));
-        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21], 0L) * 1000L / hz);
+        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3 + nameOffset], 0));
+        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19 + nameOffset], 0));
+        proc.setPriority(ParseUtil.parseIntOrDefault(split[17 + nameOffset], 0));
+        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22 + nameOffset], 0L));
+        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23 + nameOffset], 0L) * this.memoryPageSize);
+        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14 + nameOffset], 0L) * 1000L / hz);
+        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13 + nameOffset], 0L) * 1000L / hz);
+        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21 + nameOffset], 0L) * 1000L / hz);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
         
         //gets the open files count
-        String openFilesString = ExecutingCommand.getFirstAnswer(String.format("ls -f /proc/%d/fd | wc -l", pid));
-        proc.setOpenFiles(ParseUtil.parseLongOrDefault(openFilesString, -1));
+        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+        proc.setOpenFiles(openFilesList.size() - 1);
         
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
@@ -287,6 +294,36 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             LOG.trace("Couldn't find cwd for pid {}: {}", pid, e);
         }
         return proc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        List<OSProcess> procs = new ArrayList<>();
+        File[] procFiles = ProcUtil.getPidFiles();
+
+        // now for each file (with digit name) get process info
+        for (File procFile : procFiles) {
+            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
+            if (parentPid == getParentPidFromProcFile(pid)) {
+                OSProcess proc = getProcess(pid);
+                if (proc != null) {
+                    procs.add(proc);
+                }
+            }
+        }
+        List<OSProcess> sorted = processSort(procs, limit, sort);
+        return sorted.toArray(new OSProcess[sorted.size()]);
+    }
+
+    private static int getParentPidFromProcFile(int pid) {
+        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
+        if (split.length < 24) {
+            return 0;
+        }
+        return ParseUtil.parseIntOrDefault(split[3], 0);
     }
 
     /**

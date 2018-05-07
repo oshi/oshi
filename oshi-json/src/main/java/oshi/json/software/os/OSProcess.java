@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -204,11 +204,12 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
-     * @return Returns the Resident Set Size (RSS). It is used to show how much
-     *         memory is allocated to that process and is in RAM. It does not
-     *         include memory that is swapped out. It does include memory from
-     *         shared libraries as long as the pages from those libraries are
-     *         actually in memory. It does include all stack and heap memory.
+     * @return Returns the Resident Set Size (RSS). On Windows, returns the
+     *         Private Working Set size. It is used to show how much memory is
+     *         allocated to that process and is in RAM. It does not include
+     *         memory that is swapped out. It does include memory from shared
+     *         libraries as long as the pages from those libraries are actually
+     *         in memory. It does include all stack and heap memory.
      */
     public long getResidentSetSize() {
         return this.osProcess.getResidentSetSize();
@@ -489,23 +490,28 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     public void setBytesWritten(long bytesWritten) {
         this.osProcess.setBytesWritten(bytesWritten);
     }
-    
-    
+
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * @param count 
+     * 
+     * @param count
+     *            The number of handles
      */
-    public void setOpenFiles(long count){
+    public void setOpenFiles(long count) {
         this.osProcess.setOpenFiles(count);
     }
-    
+
     /**
-     * Sets the number of open file handles (or network connections) that 
+     * Sets the number of open file handles (or network connections) that
      * belongs to the process
+     *
+     * On FreeBSD and Solaris, this value is only populated if information for a
+     * single process id is requested.
+     * 
      * @return open files or -1 if unknown or not supported
      */
-    public long getOpenFiles(){
+    public long getOpenFiles() {
         return this.osProcess.getOpenFiles();
     }
 

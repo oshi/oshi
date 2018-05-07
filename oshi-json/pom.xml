@@ -3,7 +3,7 @@
 
     Oshi (https://github.com/oshi/oshi)
 
-    Copyright (c) 2010 - 2017 The Oshi Project Team
+    Copyright (c) 2010 - 2018 The Oshi Project Team
 
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.5.0-SNAPSHOT</version>
+		<version>3.6.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-json</artifactId>
@@ -34,9 +34,9 @@
 	<name>oshi-json</name>
 
 	<scm>
-		<connection>scm:git:git@github.com:dblock/oshi.git</connection>
-		<developerConnection>scm:git:git@github.com:dblock/oshi.git</developerConnection>
-		<url>https://github.com/dblock/oshi.git</url>
+		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
+		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
+		<url>https://github.com/oshi/oshi.git</url>
 		<tag>HEAD</tag>
 	</scm>
 

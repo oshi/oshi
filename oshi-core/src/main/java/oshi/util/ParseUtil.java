@@ -1,7 +1,7 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2017 The Oshi Project Team
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -136,6 +136,24 @@ public class ParseUtil {
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return i;
+        }
+    }
+
+    /**
+     * Parse the last element of a space-delimited string to a value
+     *
+     * @param s
+     *            The string to parse
+     * @param li
+     *            Default long integer if not parsable
+     * @return value or the given default if not parsable
+     */
+    public static long parseLastLong(String s, long li) {
+        try {
+            return Long.parseLong(parseLastString(s));
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return li;
         }
     }
 
@@ -275,18 +293,22 @@ public class ParseUtil {
     }
 
     /**
-     * Convert an unsigned integer to a long value.
-     * The method assumes that all bits in the specified integer value are 'data' bits, including the most-significant bit which
-     * Java normally considers a sign bit. The method must be used only when it is certain that the integer value
-     * represents an unsigned integer, for example when the integer is returned by JNA library in a structure
-     * which holds unsigned integers.
+     * Convert an unsigned integer to a long value. The method assumes that all
+     * bits in the specified integer value are 'data' bits, including the
+     * most-significant bit which Java normally considers a sign bit. The method
+     * must be used only when it is certain that the integer value represents an
+     * unsigned integer, for example when the integer is returned by JNA library
+     * in a structure which holds unsigned integers.
      *
-     * @param unsignedValue The unsigned integer value to convert.
+     * @param unsignedValue
+     *            The unsigned integer value to convert.
      * @return The unsigned integer value widened to a long.
      */
     public static long unsignedIntToLong(int unsignedValue) {
-        //use standard Java widening conversion to long which does sign-extension,
-        //then drop any copies of the sign bit, to prevent the value being considered a negative one by Java if it is set
+        // use standard Java widening conversion to long which does
+        // sign-extension,
+        // then drop any copies of the sign bit, to prevent the value being
+        // considered a negative one by Java if it is set
         long longValue = (long) unsignedValue;
         return longValue & 0xffffffffL;
     }
@@ -516,10 +538,14 @@ public class ParseUtil {
     }
 
     /**
-     * Removes all sub strings from the string
-     * @param original source String to remove from
-     * @param toRemove the sub string to be removed
-     * @return
+     * Removes all matching sub strings from the string. More efficient than
+     * regexp.
+     * 
+     * @param original
+     *            source String to remove from
+     * @param toRemove
+     *            the sub string to be removed
+     * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
         if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())
@@ -540,5 +566,4 @@ public class ParseUtil {
         buffer.append(original.substring(currIndex));
         return buffer.toString();
     }
-
 }
