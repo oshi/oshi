@@ -677,4 +677,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
+    /**
+     * gets the calculated Jiffies per second, useful for converting ticks to
+     * milliseconds and vice versa
+     * 
+     * @return Jiffies per second
+     */
+    public static long getHz() {
+        return hz;
+    }
+
 }

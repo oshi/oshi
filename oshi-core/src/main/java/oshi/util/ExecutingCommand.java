@@ -54,7 +54,8 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result line by line.
+     * Executes a command on the native command line and returns the result line
+     * by line.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array

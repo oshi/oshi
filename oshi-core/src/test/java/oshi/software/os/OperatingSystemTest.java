@@ -238,4 +238,31 @@ public class OperatingSystemTest {
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
     }
+
+    /**
+     * TODO Here for development/testing debug. Remove.
+     */
+    public static void main(String[] args) {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+
+        int myPid = os.getProcessId();
+
+        System.out.println("WTSEnumerateProcessesEx Method.");
+        long timestamp = System.currentTimeMillis();
+        OSProcess[] procs = os.getProcesses(0, null);
+        System.out.println("Elapsed: " + (System.currentTimeMillis() - timestamp) + " ms");
+        System.out.println("Counted " + procs.length + " processes");
+        for (OSProcess p : procs) {
+            if (p.getProcessID() == myPid) {
+                System.out.println("PID " + p.getProcessID() + ", Name: " + p.getName() + ", User: " + p.getUser()
+                        + ", KernelTime: " + p.getKernelTime() + ", RSS: " + p.getResidentSetSize() + ", VSZ: "
+                        + p.getVirtualSize());
+            }
+        }
+        OSProcess p = os.getProcess(myPid);
+        System.out.println(
+                "PID " + p.getProcessID() + ", Name: " + p.getName() + ", User: " + p.getUser() + ", KernelTime: "
+                        + p.getKernelTime() + ", RSS: " + p.getResidentSetSize() + ", VSZ: " + p.getVirtualSize());
+    }
 }
