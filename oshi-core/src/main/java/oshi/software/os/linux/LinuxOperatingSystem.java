@@ -73,9 +73,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static long hz = 1000L;
     // Boot time in MS
     private static long bootTime = 0L;
-    
+
     private LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
-    
+
     static {
         init();
     }
@@ -170,7 +170,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (hz == 0)
             hz = 1000L;
     }
-    
+
     private static int getMemoryPageSize() {
         try {
             return Libc.INSTANCE.getpagesize();
@@ -196,7 +196,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
-        
+
         // now for each file (with digit name) get process info
         for (File pid : pids) {
             OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
@@ -268,20 +268,20 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-        
-        //gets the open files count
+
+        // gets the open files count
         List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
         proc.setOpenFiles(openFilesList.size() - 1);
-        
+
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
         OSUser user = userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
-        	proc.setUser(user.getUserName());
+            proc.setUser(user.getUserName());
         }
         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
-        
+
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         try {
@@ -367,7 +367,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
     }
-    
+
     private void setFamilyFromReleaseFiles() {
         if (this.family == null) {
             // There are two competing options for family/version information.
@@ -676,12 +676,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
     }
-    
+
     /**
-     * gets the calculated Jiffies per second, useful for converting ticks to milliseconds and vice versa
+     * gets the calculated Jiffies per second, useful for converting ticks to
+     * milliseconds and vice versa
+     * 
      * @return Jiffies per second
      */
-    public static long getHz(){
+    public static long getHz() {
         return hz;
     }
 

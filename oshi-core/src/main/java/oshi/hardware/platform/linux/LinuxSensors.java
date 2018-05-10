@@ -61,7 +61,8 @@ public class LinuxSensors implements Sensors {
                 }
             });
         }
-        // Iterate over all thermal_zone* directories and look for sensor files if no temperature sensor is found
+        // Iterate over all thermal_zone* directories and look for sensor files
+        // if no temperature sensor is found
         // e.g. /sys/class/thermal/thermal_zone0/temp
         if (!sensorsMap.containsKey(TEMP)) {
             getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {

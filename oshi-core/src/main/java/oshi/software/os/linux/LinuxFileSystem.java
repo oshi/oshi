@@ -171,7 +171,8 @@ public class LinuxFileSystem implements FileSystem {
                 description = "Mount Point";
             }
 
-            // Add in logical volume found at /dev/mapper, useful when linking file system with drive.
+            // Add in logical volume found at /dev/mapper, useful when linking
+            // file system with drive.
             String logicalVolume = "";
             String volumeMapperDirectory = "/dev/mapper/";
             Path link = Paths.get(volume);
