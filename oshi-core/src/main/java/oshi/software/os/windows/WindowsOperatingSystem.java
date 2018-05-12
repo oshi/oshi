@@ -22,24 +22,35 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Tlhelp32;
+import com.sun.jna.platform.win32.WinBase.FILETIME;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
+import oshi.jna.platform.windows.Kernel32;
+import oshi.jna.platform.windows.Kernel32.IO_COUNTERS;
 import oshi.jna.platform.windows.Psapi;
 import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
+import oshi.jna.platform.windows.Wtsapi32;
+import oshi.jna.platform.windows.Wtsapi32.WTS_PROCESS_INFO_EX;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -55,33 +66,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    // For WMI Process queries for most process info
-    private final static String processProperties = "Name,ExecutablePath,CommandLine,ExecutionState,ProcessID,ParentProcessId"
-            + ",ThreadCount,Priority,VirtualSize,WorkingSetSize,KernelModeTime,UserModeTime,CreationDate"
-            + ",ReadTransferCount,WriteTransferCount,HandleCount,__PATH,__PATH";
-    private final static ValueType[] processPropertyTypes = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-            ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.UINT32, ValueType.STRING,
-            ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.UINT64,
-            ValueType.UINT64, ValueType.UINT32, ValueType.PROCESS_GETOWNER, ValueType.PROCESS_GETOWNERSID };
+    // For WMI Process queries for command line
+    private static final String processProperties = "ProcessID,CommandLine";
+    private static final ValueType[] processPropertyTypes = { ValueType.UINT32, ValueType.STRING };
 
     // For WMI Process queries for private working set
-    private final static String workingSetPrivateProperties = "IDProcess,WorkingSetPrivate";
-    private final static ValueType[] workingSetPrivatePropertyTypes = { ValueType.UINT32, ValueType.STRING };
+    private static final String workingSetPrivateProperties = "IDProcess,WorkingSetPrivate";
+    private static final ValueType[] workingSetPrivatePropertyTypes = { ValueType.UINT32, ValueType.STRING };
 
-    /*
-     * Windows Execution States:
-     */
-    private static final int UNKNOWN = 0;
-    private static final int OTHER = 1;
-    private static final int READY = 2;
-    private static final int RUNNING = 3;
-    private static final int BLOCKED = 4;
-    private static final int SUSPENDED_BLOCKED = 5;
-    private static final int SUSPENDED_READY = 6;
-    private static final int TERMINATED = 7;
-    private static final int STOPPED = 8;
-    private static final int GROWING = 9;
-
+    // For WMI Process queries for start time, IO counters
+    private static final String perfRawDataProperties = "IDProcess,ElapsedTime,Timestamp_Sys100NS,IOReadBytesPerSec,IOWriteBytesPerSec";
+    private static final ValueType[] perfRawDataPropertyTypes = { ValueType.UINT32, ValueType.STRING, ValueType.STRING,
+            ValueType.STRING, ValueType.STRING };
     /*
      * LastError
      */
@@ -90,6 +86,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     static {
         enableDebugPrivilege();
     }
+
+    /*
+     * This process map will cache process info to avoid repeated calls for data
+     */
+    private final Map<Integer, OSProcess> processMap = new HashMap<>();
 
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
@@ -110,9 +111,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties, null,
-                processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
+        List<OSProcess> procList = processMapToList(null);
         List<OSProcess> sorted = processSort(procList, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -122,9 +121,20 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
-                String.format("WHERE ParentProcessId=%d", parentPid), processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
+        Set<Integer> childPids = new HashSet<>();
+        // Get processes from ToolHelp API for parent PID
+        Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
+        WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS, new DWORD(0));
+        try {
+            while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
+                if (processEntry.th32ParentProcessID.intValue() == parentPid) {
+                    childPids.add(processEntry.th32ProcessID.intValue());
+                }
+            }
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(snapshot);
+        }
+        List<OSProcess> procList = getProcesses(childPids);
         List<OSProcess> sorted = processSort(procList, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -134,129 +144,273 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
-                String.format("WHERE ProcessId=%d", pid), processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
+        Set<Integer> pids = new HashSet<>(1);
+        pids.add(pid);
+        List<OSProcess> procList = processMapToList(pids);
         return procList.isEmpty() ? null : procList.get(0);
     }
 
-    private List<OSProcess> processMapToList(Map<String, List<Object>> procs) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        return processMapToList(pids);
+    }
+
+    /**
+     * Private method to do the heavy lifting for all the getProcess functions.
+     * 
+     * @param pids
+     *            A collection of pids to query. If null, the entire process
+     *            list will be queried.
+     * @return A corresponding list of processes
+     */
+    private List<OSProcess> processMapToList(Collection<Integer> pids) {
         long now = System.currentTimeMillis();
         List<OSProcess> procList = new ArrayList<>();
+        // define here to avoid object creation overhead later
+        // For process times
+        FILETIME lpCreationTime = new FILETIME();
+        FILETIME lpExitTime = new FILETIME();
+        FILETIME lpKernelTime = new FILETIME();
+        FILETIME lpUserTime = new FILETIME();
+        // For read/write bytes
+        IO_COUNTERS lpIoCounters = new IO_COUNTERS();
+        // For groups
         List<String> groupList = new ArrayList<>();
         List<String> groupIDList = new ArrayList<>();
-        Map<Integer, Long> pwsMap = new HashMap<>();
-        // All map lists should be the same length. Pick one size and iterate
-        final int procCount = procs.get("Name").size();
-        // Generate Private Working Set map
-        Map<String, List<Object>> pws = null;
-        if (procCount == 1) {
-            pws = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
-                    String.format("WHERE IDProcess=%d", ((Long) procs.get("ProcessID").get(0)).intValue()),
-                    workingSetPrivatePropertyTypes);
+        // Track when data fails and we need fallback
+        Set<Integer> wmiDataNeeded = new HashSet<>();
+
+        int myPid = getProcessId();
+        Map<Integer, OSProcess> tempProcessMap = new HashMap<>();
+
+        // Populate WMI process list with Private Working Set size
+        Map<String, List<Object>> procs = null;
+        // If there's a list of pids, filter the WHERE clause
+        if (pids != null) {
+            StringBuilder query = new StringBuilder("WHERE ");
+            for (Integer pid : pids) {
+                query.append(String.format("IDProcess=%d OR ", pid));
+            }
+            query.setLength(query.length() - 3);
+            procs = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
+                    query.toString(), workingSetPrivatePropertyTypes);
         } else {
-            pws = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
+            procs = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfProc_Process", workingSetPrivateProperties,
                     null, workingSetPrivatePropertyTypes);
-        }
-        for (int p = 0; p < pws.get("IDProcess").size(); p++) {
-            // Last line "total" appears with PID 0, so avoid overwriting
-            int pwsPid = ((Long) pws.get("IDProcess").get(p)).intValue();
-            if (!pwsMap.containsKey(pwsPid)) {
-                pwsMap.put(pwsPid, ParseUtil.parseLongOrDefault((String) pws.get("WorkingSetPrivate").get(p), 0L));
+            // If querying the whole process list, Remove any non-existent
+            // processes from the global process map/cache
+            List<Object> processIDs = procs.get("IDProcess");
+            List<Integer> pidsToKeep = new ArrayList<>(processIDs.size());
+            for (Object pid : processIDs) {
+                pidsToKeep.add(((Long) pid).intValue());
+            }
+            for (Integer pid : processMap.keySet()) {
+                if (!pidsToKeep.contains(pid)) {
+                    processMap.remove(pid);
+                }
             }
         }
 
-        int myPid = getProcessId();
-        for (int p = 0; p < procCount; p++) {
+        // Get processes from WTS, for additional info
+        final PointerByReference ppProcessInfo = new PointerByReference();
+        IntByReference pCount = new IntByReference(0);
+        if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+                Wtsapi32.WTSTypeProcessInfoLevel1, Wtsapi32.WTS_ANY_SESSION, ppProcessInfo, pCount)) {
+            LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            return procList;
+        }
+        // extract the pointed-to pointer
+        final Pointer pProcessInfo = ppProcessInfo.getValue();
+        final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
+        processInfoRef.read();
+        final WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
+
+        for (WTS_PROCESS_INFO_EX procInfo : processInfo) {
+            // Only consider processes passed to this method
+            if (pids != null && !pids.contains(procInfo.ProcessId.intValue())) {
+                continue;
+            }
             OSProcess proc = new OSProcess();
-            proc.setName((String) procs.get("Name").get(p));
-            proc.setPath((String) procs.get("ExecutablePath").get(p));
-            proc.setCommandLine((String) procs.get("CommandLine").get(p));
-            proc.setProcessID(((Long) procs.get("ProcessID").get(p)).intValue());
+            proc.setProcessID(procInfo.ProcessId.intValue());
+            proc.setName(procInfo.pProcessName);
+            // For my own process, set CWD
             if (myPid == proc.getProcessID()) {
                 proc.setCurrentWorkingDirectory(new File(".").getAbsolutePath());
             }
-            proc.setParentProcessID(((Long) procs.get("ParentProcessId").get(p)).intValue());
-            proc.setUser((String) procs.get("PROCESS_GETOWNER").get(p));
-            proc.setUserID((String) procs.get("PROCESS_GETOWNERSID").get(p));
-            // Fetching group information incurs significant latency.
-            // Only do for single-process queries
-            if (procCount == 1) {
-                final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(
-                        WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false, proc.getProcessID());
-                if (pHandle != null) {
-                    final HANDLEByReference phToken = new HANDLEByReference();
-                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
-                            phToken)) {
+
+            proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
+            proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
+
+            // Get a handle to the process for various extended info. Only gets
+            // current user unless running as administrator
+            final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false,
+                    proc.getProcessID());
+            if (pHandle != null) {
+                if (Kernel32.INSTANCE.GetProcessTimes(pHandle, lpCreationTime, lpExitTime, lpKernelTime, lpUserTime)) {
+                    proc.setStartTime(lpCreationTime.toTime());
+                    proc.setUpTime(now - proc.getStartTime());
+                    // Kernel and User time units are already saved
+                }
+                // Read/Write bytes
+                if (Kernel32.INSTANCE.GetProcessIoCounters(pHandle, lpIoCounters)) {
+                    proc.setBytesRead(lpIoCounters.ReadTransferCount);
+                    proc.setBytesWritten(lpIoCounters.WriteTransferCount);
+                }
+                // Full path
+                proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
+
+                final HANDLEByReference phToken = new HANDLEByReference();
+                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
+                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                    proc.setUser(account.name);
+                    proc.setUserID(account.sidString);
+                    // Fetching group information incurs ~10ms latency per
+                    // process. Skip for full process list
+                    if (pids != null) {
                         Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
                         // get groups
                         groupList.clear();
                         groupIDList.clear();
-                        for (Account account : accounts) {
-                            groupList.add(account.name);
-                            groupIDList.add(account.sidString);
+                        for (Account a : accounts) {
+                            groupList.add(a.name);
+                            groupIDList.add(a.sidString);
                         }
                         proc.setGroup(FormatUtil.join(",", groupList));
                         proc.setGroupID(FormatUtil.join(",", groupIDList));
-                    } else {
-                        int error = Kernel32.INSTANCE.GetLastError();
-                        // Access denied errors are common and will silently
-                        // fail
-                        if (error != ERROR_ACCESS_DENIED) {
-                            LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
-                                    Kernel32.INSTANCE.GetLastError());
-                        }
+                    }
+                } else {
+                    int error = Kernel32.INSTANCE.GetLastError();
+                    // Access denied errors are common. Fail silently.
+                    if (error != ERROR_ACCESS_DENIED) {
+                        LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
+                                Kernel32.INSTANCE.GetLastError());
                     }
                 }
-                Kernel32.INSTANCE.CloseHandle(pHandle);
-            }
-            switch (((Long) procs.get("ExecutionState").get(p)).intValue()) {
-            case READY:
-            case SUSPENDED_READY:
-                proc.setState(OSProcess.State.SLEEPING);
-                break;
-            case BLOCKED:
-            case SUSPENDED_BLOCKED:
-                proc.setState(OSProcess.State.WAITING);
-                break;
-            case RUNNING:
-                proc.setState(OSProcess.State.RUNNING);
-                break;
-            case GROWING:
-                proc.setState(OSProcess.State.NEW);
-                break;
-            case TERMINATED:
-                proc.setState(OSProcess.State.ZOMBIE);
-                break;
-            case STOPPED:
-                proc.setState(OSProcess.State.STOPPED);
-                break;
-            case UNKNOWN:
-            case OTHER:
-            default:
-                proc.setState(OSProcess.State.OTHER);
-                break;
-            }
-            proc.setThreadCount(((Long) procs.get("ThreadCount").get(p)).intValue());
-            proc.setPriority(((Long) procs.get("Priority").get(p)).intValue());
-            proc.setVirtualSize(ParseUtil.parseLongOrDefault((String) procs.get("VirtualSize").get(p), 0L));
-            if (pwsMap.containsKey(proc.getProcessID())) {
-                proc.setResidentSetSize(pwsMap.get(proc.getProcessID()));
             } else {
-                proc.setResidentSetSize(ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetSize").get(p), 0L));
+                // Get Data from WMI
+                wmiDataNeeded.add(proc.getProcessID());
             }
-            // Kernel and User time units are 100ns
-            proc.setKernelTime(ParseUtil.parseLongOrDefault((String) procs.get("KernelModeTime").get(p), 0L) / 10000L);
-            proc.setUserTime(ParseUtil.parseLongOrDefault((String) procs.get("UserModeTime").get(p), 0L) / 10000L);
-            proc.setStartTime((Long) procs.get("CreationDate").get(p));
-            proc.setUpTime(now - proc.getStartTime());
-            proc.setBytesRead((Long) procs.get("ReadTransferCount").get(p));
-            proc.setBytesWritten((Long) procs.get("WriteTransferCount").get(p));
-            proc.setOpenFiles((Long) procs.get("HandleCount").get(p));
-            procList.add(proc);
+            Kernel32.INSTANCE.CloseHandle(pHandle);
+
+            // TODO: There is no easy way to get ExecutuionState for a process.
+            // The WMI value is null. It's possible to get thread Execution
+            // State and possibly roll up.
+            proc.setState(OSProcess.State.OTHER);
+
+            proc.setThreadCount(procInfo.NumberOfThreads.intValue());
+            proc.setVirtualSize(procInfo.PagefileUsage.longValue());
+            // This is the Working Set, not the Private Working Set
+            // Set here as a default and overwrite later with data from WMI
+            proc.setResidentSetSize(procInfo.WorkingSetSize.longValue());
+
+            proc.setOpenFiles(procInfo.HandleCount.intValue());
+            tempProcessMap.put(proc.getProcessID(), proc);
+        }
+        // Clean up memory allocated in C
+        if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTSTypeProcessInfoLevel1.getValue(), pProcessInfo,
+                pCount.getValue())) {
+            LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            return procList;
         }
 
-        return procList;
+        // Get processes from ToolHelp API for parent PID and priority info
+        Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
+        WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS, new DWORD(0));
+        try {
+            while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
+                // Only consider processes passed to this method
+                if (!procs.containsKey(processEntry.th32ProcessID.intValue())) {
+                    continue;
+                }
+                if (tempProcessMap.containsKey(processEntry.th32ProcessID.intValue())) {
+                    OSProcess proc = tempProcessMap.get(processEntry.th32ProcessID.intValue());
+                    proc.setThreadCount(processEntry.cntThreads.intValue());
+                    proc.setParentProcessID(processEntry.th32ParentProcessID.intValue());
+                    proc.setPriority(processEntry.pcPriClassBase.intValue());
+                }
+            }
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(snapshot);
+        }
+
+        // Update RSS from Private Working Set value.
+        // Reuse the proc object since we're done with the loop
+        for (int p = 0; p < procs.get("IDProcess").size() - 1; p++) {
+            // Last line "total" appears with PID 0, so iterating to size - 1
+            int pwsPid = ((Long) procs.get("IDProcess").get(p)).intValue();
+            if (tempProcessMap.containsKey(pwsPid)) {
+                OSProcess proc = tempProcessMap.get(pwsPid);
+                proc.setResidentSetSize(
+                        ParseUtil.parseLongOrDefault((String) procs.get("WorkingSetPrivate").get(p), 0L));
+            }
+        }
+
+        // Update start time and IO
+        if (!wmiDataNeeded.isEmpty()) {
+            StringBuilder query = new StringBuilder("WHERE ");
+            for (Integer pid : wmiDataNeeded) {
+                query.append(String.format("IDProcess=%d OR ", pid));
+            }
+            query.setLength(query.length() - 3);
+            Map<String, List<Object>> rawDataProcs = WmiUtil.selectObjectsFrom(null,
+                    "Win32_PerfRawData_PerfProc_Process", perfRawDataProperties, query.toString(),
+                    perfRawDataPropertyTypes);
+            for (int p = 0; p < rawDataProcs.get("IDProcess").size(); p++) {
+                int pid = ((Long) rawDataProcs.get("IDProcess").get(p)).intValue();
+                if (tempProcessMap.containsKey(pid)) {
+                    OSProcess proc = tempProcessMap.get(pid);
+                    proc.setUpTime(
+                            (ParseUtil.parseLongOrDefault((String) rawDataProcs.get("Timestamp_Sys100NS").get(p), 0L)
+                                    - ParseUtil.parseLongOrDefault((String) rawDataProcs.get("ElapsedTime").get(p), 0L))
+                                    / 10000L);
+                    proc.setStartTime(now - proc.getUpTime());
+
+                    proc.setBytesRead(
+                            ParseUtil.parseLongOrDefault((String) rawDataProcs.get("IOReadBytesPerSec").get(p), 0L));
+                    proc.setBytesWritten(
+                            ParseUtil.parseLongOrDefault((String) rawDataProcs.get("IOWriteBytesPerSec").get(p), 0L));
+                    // If start time is newer than cached version, delete cache
+                    if (processMap.containsKey(proc.getProcessID())
+                            && processMap.get(proc.getProcessID()).getStartTime() < proc.getStartTime()) {
+                        processMap.remove(proc.getProcessID());
+                    }
+                }
+            }
+        }
+        // Update Command Line
+        Set<Integer> emptyCommandLines = new HashSet<>();
+        for (Integer pid : tempProcessMap.keySet()) {
+            if (processMap.containsKey(pid) && processMap.get(pid).getCommandLine().isEmpty()) {
+                emptyCommandLines.add(pid);
+            }
+        }
+        if (!emptyCommandLines.isEmpty()) {
+            StringBuilder query = new StringBuilder("WHERE ");
+            for (Integer pid : emptyCommandLines) {
+                query.append(String.format("ProcessID=%d OR ", pid));
+            }
+            query.setLength(query.length() - 3);
+            Map<String, List<Object>> commandLineProcs = WmiUtil.selectObjectsFrom(null, "Win32_Process",
+                    processProperties, query.toString(), processPropertyTypes);
+            for (int p = 0; p < commandLineProcs.get("ProcessID").size(); p++) {
+                int pid = ((Long) commandLineProcs.get("ProcessID").get(p)).intValue();
+                if (tempProcessMap.containsKey(pid)) {
+                    OSProcess proc = tempProcessMap.get(pid);
+                    proc.setCommandLine((String) commandLineProcs.get("CommandLine").get(p));
+                }
+            }
+        }
+
+        // Update cached list
+        for (OSProcess p : tempProcessMap.values()) {
+            processMap.put(p.getProcessID(), p);
+            procList.add(p);
+        }
+
+        return new ArrayList<>(tempProcessMap.values());
     }
 
     /**
@@ -310,34 +464,22 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
         if (!success) {
-            LOG.error("OpenProcessToken failed. Error: {}" + Native.getLastError());
+            LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
             return;
         }
         WinNT.LUID luid = new WinNT.LUID();
         success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
         if (!success) {
-            LOG.error("LookupprivilegeValue failed. Error: {}" + Native.getLastError());
+            LOG.error("LookupprivilegeValue failed. Error: {}", Native.getLastError());
             return;
         }
         WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
         tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
         success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
         if (!success) {
-            LOG.error("AdjustTokenPrivileges failed. Error: {}" + Native.getLastError());
+            LOG.error("AdjustTokenPrivileges failed. Error: {}", Native.getLastError());
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
 
-    @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        StringBuilder query = new StringBuilder("WHERE ");
-        for (Integer pid : pids) {
-            query.append(String.format("ProcessId=%d OR ", pid));
-        }
-        query.setLength(query.length() - 3);
-        Map<String, List<Object>> procs = WmiUtil.selectObjectsFrom(null, "Win32_Process", processProperties,
-                query.toString(), processPropertyTypes);
-        List<OSProcess> procList = processMapToList(procs);
-        return procList;
-    }
 }
