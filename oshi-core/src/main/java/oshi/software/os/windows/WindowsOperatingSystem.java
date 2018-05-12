@@ -75,9 +75,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final ValueType[] workingSetPrivatePropertyTypes = { ValueType.UINT32, ValueType.STRING };
 
     // For WMI Process queries for start time, IO counters
-    private static final String perfRawDataProperties = "IDProcess,ElapsedTime,IOReadBytesPerSec,IOWriteBytesPerSec";
+    private static final String perfRawDataProperties = "IDProcess,ElapsedTime,Timestamp_Sys100NS,IOReadBytesPerSec,IOWriteBytesPerSec";
     private static final ValueType[] perfRawDataPropertyTypes = { ValueType.UINT32, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING };
+            ValueType.STRING, ValueType.STRING };
     /*
      * LastError
      */
@@ -362,9 +362,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 int pid = ((Long) rawDataProcs.get("IDProcess").get(p)).intValue();
                 if (tempProcessMap.containsKey(pid)) {
                     OSProcess proc = tempProcessMap.get(pid);
-                    proc.setStartTime(
-                            ParseUtil.parseLongOrDefault((String) rawDataProcs.get("ElapsedTime").get(p), 0L) / 10000L);
-                    proc.setUpTime(now - proc.getStartTime());
+                    proc.setUpTime(
+                            (ParseUtil.parseLongOrDefault((String) rawDataProcs.get("Timestamp_Sys100NS").get(p), 0L)
+                                    - ParseUtil.parseLongOrDefault((String) rawDataProcs.get("ElapsedTime").get(p), 0L))
+                                    / 10000L);
+                    proc.setStartTime(now - proc.getUpTime());
 
                     proc.setBytesRead(
                             ParseUtil.parseLongOrDefault((String) rawDataProcs.get("IOReadBytesPerSec").get(p), 0L));
@@ -408,7 +410,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             procList.add(p);
         }
 
-        return new ArrayList<OSProcess>(tempProcessMap.values());
+        return new ArrayList<>(tempProcessMap.values());
     }
 
     /**
@@ -468,14 +470,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         WinNT.LUID luid = new WinNT.LUID();
         success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
         if (!success) {
-            LOG.error("LookupprivilegeValue failed. Error: {}" + Native.getLastError());
+            LOG.error("LookupprivilegeValue failed. Error: {}", Native.getLastError());
             return;
         }
         WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
         tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
         success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
         if (!success) {
-            LOG.error("AdjustTokenPrivileges failed. Error: {}" + Native.getLastError());
+            LOG.error("AdjustTokenPrivileges failed. Error: {}", Native.getLastError());
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
