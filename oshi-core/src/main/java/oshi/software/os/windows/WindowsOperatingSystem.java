@@ -36,6 +36,8 @@ import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.WinBase.FILETIME;
 import com.sun.jna.platform.win32.WinDef.DWORD;
@@ -47,8 +49,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Kernel32.IO_COUNTERS;
-import oshi.jna.platform.windows.Psapi;
-import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.jna.platform.windows.Wtsapi32;
 import oshi.jna.platform.windows.Wtsapi32.WTS_PROCESS_INFO_EX;
 import oshi.software.common.AbstractOperatingSystem;

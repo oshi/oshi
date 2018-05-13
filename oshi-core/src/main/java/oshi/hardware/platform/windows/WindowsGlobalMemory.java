@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.windows.Psapi;
-import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
