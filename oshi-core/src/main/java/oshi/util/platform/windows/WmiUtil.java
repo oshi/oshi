@@ -32,6 +32,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.OleAuto;
 import com.sun.jna.platform.win32.Variant.VARIANT;
 import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.HRESULT;
 import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.ptr.LongByReference;
@@ -355,7 +356,7 @@ public class WmiUtil {
         // Initialize COM. ------------------------------------------
         HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
         if (COMUtils.FAILED(hres)) {
-            if (hres.intValue() == Ole32.RPC_E_CHANGED_MODE) {
+            if (hres.intValue() == WinError.RPC_E_CHANGED_MODE) {
                 // Com already initialized, ignore error
                 LOG.debug("COM already initialized.");
                 securityInitialized = true;
@@ -373,7 +374,7 @@ public class WmiUtil {
         // Set general COM security levels --------------------------
         hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,
                 Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-        if (COMUtils.FAILED(hres) && hres.intValue() != Ole32.RPC_E_TOO_LATE) {
+        if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
             LOG.error(String.format("Failed to initialize security. Error code = 0x%08x", hres.intValue()));
             Ole32.INSTANCE.CoUninitialize();
             return false;
