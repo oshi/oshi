@@ -21,8 +21,6 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +42,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
-
-    private static final Pattern PSRINFO = Pattern.compile(".*physical processor has (\\d+) virtual processors.*");
 
     /**
      * Create a Processor
@@ -83,9 +79,13 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     protected void calculateProcessorCounts() {
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
+		Set<String> coreIDs = new HashSet<>();
+		this.logicalProcessorCount = 0;
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
+				this.logicalProcessorCount++;
                 chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
+				coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
             }
         }
 
@@ -94,24 +94,14 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical package count. Assuming 1.");
             this.physicalPackageCount = 1;
         }
-
-        this.logicalProcessorCount = 0;
-        this.physicalProcessorCount = 0;
-        // Get number of logical processors
-        for (String cpu : ExecutingCommand.runNative("psrinfo -pv")) {
-            Matcher m = PSRINFO.matcher(cpu.trim());
-            if (m.matches()) {
-                this.physicalProcessorCount++;
-                this.logicalProcessorCount += ParseUtil.parseIntOrDefault(m.group(1), 0);
-            }
+		this.physicalProcessorCount = coreIDs.size();
+        if (this.physicalProcessorCount < 1) {
+            LOG.error("Couldn't find physical processor count. Assuming 1.");
+            this.physicalProcessorCount = 1;
         }
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
-        }
-        if (this.physicalProcessorCount < 1) {
-            LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
         }
     }
 
