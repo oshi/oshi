@@ -79,13 +79,13 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     protected void calculateProcessorCounts() {
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
-		Set<String> coreIDs = new HashSet<>();
-		this.logicalProcessorCount = 0;
+	Set<String> coreIDs = new HashSet<>();
+	this.logicalProcessorCount = 0;
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
-				this.logicalProcessorCount++;
+		this.logicalProcessorCount++;
                 chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
-				coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
+		coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
             }
         }
 
@@ -94,7 +94,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical package count. Assuming 1.");
             this.physicalPackageCount = 1;
         }
-		this.physicalProcessorCount = coreIDs.size();
+	this.physicalProcessorCount = coreIDs.size();
         if (this.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
