@@ -63,6 +63,7 @@ Projects using OSHI
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
 * [sys-API](https://github.com/Krillsson/sys-API)
+* [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
 
 Output
 -------------
