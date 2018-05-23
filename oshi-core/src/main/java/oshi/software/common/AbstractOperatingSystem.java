@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import oshi.software.os.OSFamily;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
@@ -36,6 +37,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
+    protected OSFamily osFamily;
 
     /*
      * Comparators for use in processSort()
@@ -98,6 +100,14 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public String getFamily() {
         return this.family;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OSFamily getOSFamily() {
+        return this.osFamily;
     }
 
     /**

@@ -26,6 +26,7 @@ import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSFamily;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -45,6 +46,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     public FreeBsdOperatingSystem() {
         this.manufacturer = "Unix/BSD";
         this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+        this.osFamily = OSFamily.UNIX;
         this.version = new FreeBsdOSVersionInfoEx();
     }
 

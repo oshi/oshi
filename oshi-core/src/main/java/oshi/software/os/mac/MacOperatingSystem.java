@@ -40,6 +40,7 @@ import oshi.jna.platform.mac.SystemB.VnodePathInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSFamily;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -69,6 +70,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         this.family = ParseUtil.getFirstIntValue(this.version.getVersion()) == 10
                 && ParseUtil.getNthIntValue(this.version.getVersion(), 2) >= 12 ? "macOS"
                         : System.getProperty("os.name");
+
+        this.osFamily = OSFamily.UNIX;
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
     }
