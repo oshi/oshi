@@ -54,6 +54,7 @@ import oshi.jna.platform.windows.Wtsapi32.WTS_PROCESS_INFO_EX;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSFamily;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -95,6 +96,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
         this.family = "Windows";
+        this.osFamily = OSFamily.WINDOWS;
         this.version = new WindowsOSVersionInfoEx();
     }
 

@@ -26,6 +26,7 @@ import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSFamily;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -45,6 +46,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     public SolarisOperatingSystem() {
         this.manufacturer = "Oracle";
         this.family = "SunOS";
+        this.osFamily = OSFamily.UNIX;
         this.version = new SolarisOSVersionInfoEx();
     }
 

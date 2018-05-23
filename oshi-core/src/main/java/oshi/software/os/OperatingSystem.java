@@ -46,6 +46,13 @@ public interface OperatingSystem extends Serializable {
     String getFamily();
 
     /**
+     * Operating system family (enum).
+     *
+     * @return OSFamily.
+     */
+    OSFamily getOSFamily();
+
+    /**
      * Manufacturer.
      *
      * @return String.
