@@ -18,6 +18,20 @@
  */
 package oshi.hardware;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.hardware.platform.linux.LinuxDisks;
+import oshi.hardware.platform.linux.LinuxNetworks;
+import oshi.hardware.platform.mac.MacDisks;
+import oshi.hardware.platform.mac.MacNetworks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
+import oshi.hardware.platform.unix.solaris.SolarisDisks;
+import oshi.hardware.platform.unix.solaris.SolarisNetworks;
+import oshi.hardware.platform.windows.WindowsDisks;
+import oshi.hardware.platform.windows.WindowsNetworks;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -34,6 +48,8 @@ import java.util.Arrays;
 public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
 
     private String model;
     private String name;
@@ -93,6 +109,32 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         setTransferTime(transferTime);
         setPartitions(partitions);
         setTimeStamp(timeStamp);
+    }
+
+    /**
+     * Update all the statistics about the drive without needing to recreate the drive list
+     */
+    public void updateDiskStats() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+            case WINDOWS:
+                WindowsDisks.updateDiskStats(this);
+                break;
+            case LINUX:
+                LinuxDisks.updateDiskStats(this);
+                break;
+            case MACOSX:
+                MacDisks.updateDiskStats(this);
+                break;
+            case SOLARIS:
+                SolarisDisks.updateDiskStats(this);
+                break;
+            case FREEBSD:
+                FreeBsdDisks.updateDiskStats(this);
+                break;
+            default:
+                LOG.error("Unsupported platform. No update performed.");
+                break;
+        }
     }
 
     /**

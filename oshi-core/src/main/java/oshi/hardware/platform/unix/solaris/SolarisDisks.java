@@ -43,6 +43,20 @@ public class SolarisDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 
+    public static void updateDiskStats(HWDiskStore diskStore) {
+        Kstat ksp = KstatUtil.kstatLookup(null, 0, diskStore.getName());
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            KstatIO data = new KstatIO(ksp.ks_data);
+            diskStore.setReads(data.reads);
+            diskStore.setWrites(data.writes);
+            diskStore.setReadBytes(data.nread);
+            diskStore.setWriteBytes(data.nwritten);
+            // rtime and snaptime are nanoseconds, convert to millis
+            diskStore.setTransferTime(data.rtime / 1000000L);
+            diskStore.setTimeStamp(ksp.ks_snaptime / 1000000L);
+        }
+    }
+
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
@@ -167,17 +181,7 @@ public class SolarisDisks implements Disks {
         HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];
         int index = 0;
         for (Entry<String, HWDiskStore> entry : diskMap.entrySet()) {
-            Kstat ksp = KstatUtil.kstatLookup(null, 0, entry.getKey());
-            if (ksp != null && KstatUtil.kstatRead(ksp)) {
-                KstatIO data = new KstatIO(ksp.ks_data);
-                entry.getValue().setReads(data.reads);
-                entry.getValue().setWrites(data.writes);
-                entry.getValue().setReadBytes(data.nread);
-                entry.getValue().setWriteBytes(data.nwritten);
-                // rtime and snaptime are nanoseconds, convert to millis
-                entry.getValue().setTransferTime(data.rtime / 1000000L);
-                entry.getValue().setTimeStamp(ksp.ks_snaptime / 1000000L);
-            }
+            updateDiskStats(entry.getValue());
             results[index++] = entry.getValue();
         }
 

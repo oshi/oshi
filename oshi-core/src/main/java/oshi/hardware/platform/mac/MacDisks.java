@@ -68,6 +68,177 @@ public class MacDisks implements Disks {
     private static final Map<String, String> mountPointMap = new HashMap<>();
     private static final Map<String, String> logicalVolumeMap = new HashMap<>();
 
+    public static void updateDiskStats(HWDiskStore diskStore, DASessionRef session) {
+        String bsdName = diskStore.getName();
+        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+        if (matchingDict != null) {
+            // search for all IOservices that match the bsd name
+            IntByReference driveList = new IntByReference();
+            IOKitUtil.getMatchingServices(matchingDict, driveList);
+            // getMatchingServices releases matchingDict
+            int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());
+            // Should only match one drive
+            if (drive != 0) {
+                // Should be an IOMedia object with a parent
+                // IOBlockStorageDriver object
+                // Get the properties from the parent
+                IntByReference parent = new IntByReference();
+                if (IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
+                        && IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) == 0) {
+                    PointerByReference propsPtr = new PointerByReference();
+                    if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
+                            && IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
+                            CfUtil.ALLOCATOR, 0) == 0) {
+                        CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
+                        properties.setPointer(propsPtr.getValue());
+                        // We now have a properties object with the
+                        // statistics we need on it. Fetch them
+                        Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
+                                CfUtil.getCFString("Statistics"));
+                        diskStore.setTimeStamp(System.currentTimeMillis());
+                        CFDictionaryRef statistics = new CFDictionaryRef();
+                        statistics.setPointer(statsPtr);
+
+                        // Now get the stats we want
+                        Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Operations (Read)"));
+                        diskStore.setReads(CfUtil.cfPointerToLong(stat));
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Bytes (Read)"));
+                        diskStore.setReadBytes(CfUtil.cfPointerToLong(stat));
+
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Operations (Write)"));
+                        diskStore.setWrites(CfUtil.cfPointerToLong(stat));
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Bytes (Write)"));
+                        diskStore.setWriteBytes(CfUtil.cfPointerToLong(stat));
+
+                        // Total time is in nanoseconds. Add read+write
+                        // and convert total to ms
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Total Time (Read)"));
+                        long xferTime = CfUtil.cfPointerToLong(stat);
+                        stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
+                                CfUtil.getCFString("Total Time (Write)"));
+                        xferTime += CfUtil.cfPointerToLong(stat);
+                        diskStore.setTransferTime(xferTime / 1000000L);
+
+                        CfUtil.release(properties);
+                    } else {
+                        // This is normal for FileVault drives, Fusion
+                        // drives, and other virtual bsd names
+                        LOG.debug("Unable to find block storage driver properties for {}", bsdName);
+                    }
+                    // Now get partitions for this disk.
+                    List<HWPartition> partitions = new ArrayList<>();
+                    if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR,
+                            0) == 0) {
+                        CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
+                        properties.setPointer(propsPtr.getValue());
+                        // Partitions will match BSD Unit property
+                        Pointer p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
+                                CfUtil.getCFString("BSD Unit"));
+                        CFNumberRef bsdUnit = new CFNumberRef();
+                        bsdUnit.setPointer(p);
+                        // We need a CFBoolean that's false.
+                        // Whole disk has 'true' for Whole and 'false'
+                        // for leaf; store the boolean false
+                        p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
+                                CfUtil.getCFString("Leaf"));
+                        CFBooleanRef cfFalse = new CFBooleanRef();
+                        cfFalse.setPointer(p);
+                        // create a matching dict for BSD Unit
+                        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
+                                .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,
+                                CfUtil.getCFString("BSD Unit"), bsdUnit);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Whole"),
+                                cfFalse);
+                        matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
+                                null, null);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
+                                CfUtil.getCFString("IOPropertyMatch"), propertyDict);
+
+                        // search for IOservices that match the BSD Unit
+                        // with whole=false; these are partitions
+                        IntByReference serviceIterator = new IntByReference();
+                        IOKitUtil.getMatchingServices(matchingDict, serviceIterator);
+                        // getMatchingServices releases matchingDict
+                        CfUtil.release(properties);
+                        CfUtil.release(propertyDict);
+                        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+                        while (sdService != 0) {
+                            // look up the BSD Name
+                            String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, "BSD Name");
+                            String name = partBsdName;
+                            String type = "";
+                            // Get the DiskArbitration dictionary for
+                            // this partition
+                            DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,
+                                    partBsdName);
+                            if (disk != null) {
+                                CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
+                                if (diskInfo != null) {
+                                    // get volume name from its key
+                                    Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
+                                            CfUtil.getCFString("DAMediaName"));
+                                    type = CfUtil.cfPointerToString(volumePtr);
+                                    volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
+                                            CfUtil.getCFString("DAVolumeName"));
+                                    if (volumePtr == null) {
+                                        name = type;
+                                    } else {
+                                        name = CfUtil.cfPointerToString(volumePtr);
+                                    }
+                                    CfUtil.release(diskInfo);
+                                }
+                                CfUtil.release(disk);
+                            }
+                            String mountPoint;
+                            if (logicalVolumeMap.containsKey(partBsdName)) {
+                                mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
+                            } else {
+                                mountPoint = MapUtil.getOrDefault(mountPointMap, partBsdName, "");
+                            }
+                            partitions.add(new HWPartition(partBsdName, name, type,
+                                    IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
+                                    IOKitUtil.getIORegistryLongProperty(sdService, "Size"),
+                                    IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major"),
+                                    IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"), mountPoint));
+                            IOKit.INSTANCE.IOObjectRelease(sdService);
+                            // iterate
+                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+                        }
+                        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
+
+                    } else {
+                        LOG.error("Unable to find properties for {}", bsdName);
+                    }
+                    Collections.sort(partitions);
+                    diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));
+                    IOKit.INSTANCE.IOObjectRelease(parent.getValue());
+                } else {
+                    LOG.error("Unable to find IOMedia device or parent for ", bsdName);
+                }
+                IOKit.INSTANCE.IOObjectRelease(drive);
+            }
+            IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
+        }
+    }
+
+    public static void updateDiskStats(HWDiskStore diskStore) {
+        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
+        if (session == null) {
+            LOG.error("Unable to open session to DiskArbitration framework.");
+            return;
+        }
+
+        updateDiskStats(diskStore, session);
+
+        CfUtil.release(session);
+    }
+
     @Override
     public HWDiskStore[] getDisks() {
         mountPointMap.clear();
@@ -211,161 +382,7 @@ public class MacDisks implements Disks {
 
                 // Now look up the device using the BSD Name to get its
                 // statistics
-                CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
-                if (matchingDict != null) {
-                    // search for all IOservices that match the bsd name
-                    IntByReference driveList = new IntByReference();
-                    IOKitUtil.getMatchingServices(matchingDict, driveList);
-                    // getMatchingServices releases matchingDict
-                    int drive = IOKit.INSTANCE.IOIteratorNext(driveList.getValue());
-                    // Should only match one drive
-                    if (drive != 0) {
-                        // Should be an IOMedia object with a parent
-                        // IOBlockStorageDriver object
-                        // Get the properties from the parent
-                        IntByReference parent = new IntByReference();
-                        if (IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
-                                && IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) == 0) {
-                            PointerByReference propsPtr = new PointerByReference();
-                            if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
-                                    && IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
-                                            CfUtil.ALLOCATOR, 0) == 0) {
-                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
-                                properties.setPointer(propsPtr.getValue());
-                                // We now have a properties object with the
-                                // statistics we need on it. Fetch them
-                                Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                        CfUtil.getCFString("Statistics"));
-                                diskStore.setTimeStamp(System.currentTimeMillis());
-                                CFDictionaryRef statistics = new CFDictionaryRef();
-                                statistics.setPointer(statsPtr);
-
-                                // Now get the stats we want
-                                Pointer stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Operations (Read)"));
-                                diskStore.setReads(CfUtil.cfPointerToLong(stat));
-                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Bytes (Read)"));
-                                diskStore.setReadBytes(CfUtil.cfPointerToLong(stat));
-
-                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Operations (Write)"));
-                                diskStore.setWrites(CfUtil.cfPointerToLong(stat));
-                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Bytes (Write)"));
-                                diskStore.setWriteBytes(CfUtil.cfPointerToLong(stat));
-
-                                // Total time is in nanoseconds. Add read+write
-                                // and convert total to ms
-                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Total Time (Read)"));
-                                xferTime = CfUtil.cfPointerToLong(stat);
-                                stat = CoreFoundation.INSTANCE.CFDictionaryGetValue(statistics,
-                                        CfUtil.getCFString("Total Time (Write)"));
-                                xferTime += CfUtil.cfPointerToLong(stat);
-                                diskStore.setTransferTime(xferTime / 1000000L);
-
-                                CfUtil.release(properties);
-                            } else {
-                                // This is normal for FileVault drives, Fusion
-                                // drives, and other virtual bsd names
-                                LOG.debug("Unable to find block storage driver properties for {}", bsdName);
-                            }
-                            // Now get partitions for this disk.
-                            List<HWPartition> partitions = new ArrayList<>();
-                            if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR,
-                                    0) == 0) {
-                                CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
-                                properties.setPointer(propsPtr.getValue());
-                                // Partitions will match BSD Unit property
-                                Pointer p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                        CfUtil.getCFString("BSD Unit"));
-                                CFNumberRef bsdUnit = new CFNumberRef();
-                                bsdUnit.setPointer(p);
-                                // We need a CFBoolean that's false.
-                                // Whole disk has 'true' for Whole and 'false'
-                                // for leaf; store the boolean false
-                                p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                        CfUtil.getCFString("Leaf"));
-                                CFBooleanRef cfFalse = new CFBooleanRef();
-                                cfFalse.setPointer(p);
-                                // create a matching dict for BSD Unit
-                                CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
-                                        .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
-                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,
-                                        CfUtil.getCFString("BSD Unit"), bsdUnit);
-                                CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Whole"),
-                                        cfFalse);
-                                matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
-                                        null, null);
-                                CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
-                                        CfUtil.getCFString("IOPropertyMatch"), propertyDict);
-
-                                // search for IOservices that match the BSD Unit
-                                // with whole=false; these are partitions
-                                IntByReference serviceIterator = new IntByReference();
-                                IOKitUtil.getMatchingServices(matchingDict, serviceIterator);
-                                // getMatchingServices releases matchingDict
-                                CfUtil.release(properties);
-                                CfUtil.release(propertyDict);
-                                int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-                                while (sdService != 0) {
-                                    // look up the BSD Name
-                                    String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, "BSD Name");
-                                    String name = partBsdName;
-                                    String type = "";
-                                    // Get the DiskArbitration dictionary for
-                                    // this partition
-                                    disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,
-                                            partBsdName);
-                                    if (disk != null) {
-                                        diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
-                                        if (diskInfo != null) {
-                                            // get volume name from its key
-                                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
-                                                    CfUtil.getCFString("DAMediaName"));
-                                            type = CfUtil.cfPointerToString(volumePtr);
-                                            volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
-                                                    CfUtil.getCFString("DAVolumeName"));
-                                            if (volumePtr == null) {
-                                                name = type;
-                                            } else {
-                                                name = CfUtil.cfPointerToString(volumePtr);
-                                            }
-                                            CfUtil.release(diskInfo);
-                                        }
-                                        CfUtil.release(disk);
-                                    }
-                                    String mountPoint;
-                                    if (logicalVolumeMap.containsKey(partBsdName)) {
-                                        mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
-                                    } else {
-                                        mountPoint = MapUtil.getOrDefault(mountPointMap, partBsdName, "");
-                                    }
-                                    partitions.add(new HWPartition(partBsdName, name, type,
-                                            IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
-                                            IOKitUtil.getIORegistryLongProperty(sdService, "Size"),
-                                            IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major"),
-                                            IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"), mountPoint));
-                                    IOKit.INSTANCE.IOObjectRelease(sdService);
-                                    // iterate
-                                    sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-                                }
-                                IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
-
-                            } else {
-                                LOG.error("Unable to find properties for {}", bsdName);
-                            }
-                            Collections.sort(partitions);
-                            diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));
-                            IOKit.INSTANCE.IOObjectRelease(parent.getValue());
-                        } else {
-                            LOG.error("Unable to find IOMedia device or parent for ", bsdName);
-                        }
-                        IOKit.INSTANCE.IOObjectRelease(drive);
-                    }
-                    IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
-                }
+                updateDiskStats(diskStore, session);
                 result.add(diskStore);
             }
         }
