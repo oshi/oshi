@@ -71,16 +71,23 @@ public class WindowsDisks implements Disks {
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         populateReadWriteMaps();
-        String diskStoreName = diskStore.getName();
-        
-        if(readMap.containsKey(diskStoreName)) {
+        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_DiskDrive",
+                "Index", "WHERE SerialNumber=" + diskStore.getSerial(), DRIVE_TYPES);
 
-            diskStore.setReads(MapUtil.getOrDefault(readMap, diskStoreName, 0L));
-            diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, diskStoreName, 0L));
-            diskStore.setWrites(MapUtil.getOrDefault(writeMap, diskStoreName, 0L));
-            diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, diskStoreName, 0L));
-            diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, diskStoreName, 0L));
-            diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, diskStoreName, 0L));
+        if(vals.get("Index").size() == 0) {
+            return false;
+        }
+
+        String index = vals.get("Index").get(0).toString();
+
+        if(readMap.containsKey(index)) {
+
+            diskStore.setReads(MapUtil.getOrDefault(readMap, index, 0L));
+            diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
+            diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
+            diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
+            diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
+            diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
 
             return true;
         } else {
