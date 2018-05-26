@@ -114,27 +114,29 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     /**
      * Update all the statistics about the drive without needing to recreate the drive list
      */
-    public void updateDiskStats() {
+    public boolean updateDiskStats() {
+        boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
             case WINDOWS:
-                WindowsDisks.updateDiskStats(this);
+                diskFound = WindowsDisks.updateDiskStats(this);
                 break;
             case LINUX:
-                LinuxDisks.updateDiskStats(this);
+                diskFound = LinuxDisks.updateDiskStats(this);
                 break;
             case MACOSX:
-                MacDisks.updateDiskStats(this);
+                diskFound = MacDisks.updateDiskStats(this);
                 break;
             case SOLARIS:
-                SolarisDisks.updateDiskStats(this);
+                diskFound = SolarisDisks.updateDiskStats(this);
                 break;
             case FREEBSD:
-                FreeBsdDisks.updateDiskStats(this);
+                diskFound = FreeBsdDisks.updateDiskStats(this);
                 break;
             default:
                 LOG.error("Unsupported platform. No update performed.");
                 break;
         }
+        return diskFound;
     }
 
     /**

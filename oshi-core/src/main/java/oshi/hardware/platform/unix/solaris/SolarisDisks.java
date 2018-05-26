@@ -18,12 +18,6 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -34,6 +28,12 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * Solaris hard disk implementation.
  *
@@ -43,7 +43,7 @@ public class SolarisDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 
-    public static void updateDiskStats(HWDiskStore diskStore) {
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
         Kstat ksp = KstatUtil.kstatLookup(null, 0, diskStore.getName());
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
             KstatIO data = new KstatIO(ksp.ks_data);
@@ -54,6 +54,9 @@ public class SolarisDisks implements Disks {
             // rtime and snaptime are nanoseconds, convert to millis
             diskStore.setTransferTime(data.rtime / 1000000L);
             diskStore.setTimeStamp(ksp.ks_snaptime / 1000000L);
+            return true;
+        } else {
+            return false;
         }
     }
 

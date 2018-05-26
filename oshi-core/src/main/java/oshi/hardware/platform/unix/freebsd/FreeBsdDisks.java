@@ -51,14 +51,16 @@ public class FreeBsdDisks implements Disks {
     // Map of partitions to mount points
     private static final Map<String, String> mountMap = new HashMap<>();
 
-    public static void updateDiskStats(HWDiskStore diskStore) {
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
         List<String> output = ExecutingCommand.runNative("iostat -Ix " + diskStore.getName());
         long timeStamp = System.currentTimeMillis();
+        boolean diskFound = false;
         for (String line : output) {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length < 7 || !split[0].equals(diskStore.getName())) {
                 continue;
             }
+            diskFound = true;
             diskStore.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
             diskStore.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
             // In KB
@@ -68,6 +70,7 @@ public class FreeBsdDisks implements Disks {
             diskStore.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
             diskStore.setTimeStamp(timeStamp);
         }
+        return diskFound;
     }
 
     @Override

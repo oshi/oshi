@@ -18,30 +18,16 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
-import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.*;
 import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
@@ -53,6 +39,8 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
+
+import java.util.*;
 
 /**
  * Mac hard disk implementation.
@@ -68,7 +56,9 @@ public class MacDisks implements Disks {
     private static final Map<String, String> mountPointMap = new HashMap<>();
     private static final Map<String, String> logicalVolumeMap = new HashMap<>();
 
-    public static void updateDiskStats(HWDiskStore diskStore, DASessionRef session) {
+    private static boolean updateDiskStats(HWDiskStore diskStore, DASessionRef session) {
+        // Now look up the device using the BSD Name to get its
+        // statistics
         String bsdName = diskStore.getName();
         CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
         if (matchingDict != null) {
@@ -224,19 +214,24 @@ public class MacDisks implements Disks {
                 IOKit.INSTANCE.IOObjectRelease(drive);
             }
             IOKit.INSTANCE.IOObjectRelease(driveList.getValue());
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public static void updateDiskStats(HWDiskStore diskStore) {
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
         if (session == null) {
             LOG.error("Unable to open session to DiskArbitration framework.");
-            return;
+            return false;
         }
 
-        updateDiskStats(diskStore, session);
+        boolean diskFound = updateDiskStats(diskStore, session);
 
         CfUtil.release(session);
+
+        return diskFound;
     }
 
     @Override
@@ -380,8 +375,6 @@ public class MacDisks implements Disks {
                 HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
                         new HWPartition[0], 0L);
 
-                // Now look up the device using the BSD Name to get its
-                // statistics
                 updateDiskStats(diskStore, session);
                 result.add(diskStore);
             }
