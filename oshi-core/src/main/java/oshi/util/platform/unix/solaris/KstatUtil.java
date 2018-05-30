@@ -42,13 +42,16 @@ import oshi.util.Util;
 public class KstatUtil {
     private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);
 
-    private static KstatCtl kc = LibKstat.INSTANCE.kstat_open();
+    // All active use of this variable must be synchronized
+    private static final KstatCtl kc = LibKstat.INSTANCE.kstat_open();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                LibKstat.INSTANCE.kstat_close(kc);
+                synchronized (kc) {
+                    LibKstat.INSTANCE.kstat_close(kc);
+                }
             }
         });
     }
@@ -154,13 +157,15 @@ public class KstatUtil {
      */
     public static boolean kstatRead(Kstat ksp) {
         int retry = 0;
-        while (0 > LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {
-            if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
-                LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
-                        new String(ksp.ks_name).trim());
-                return false;
+        synchronized (kc) {
+            while (0 > LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {
+                if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
+                    LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
+                            new String(ksp.ks_name).trim());
+                    return false;
+                }
+                Util.sleep(8 << retry);
             }
-            Util.sleep(8 << retry);
         }
         return true;
     }
@@ -182,12 +187,14 @@ public class KstatUtil {
      *         null
      */
     public static Kstat kstatLookup(String module, int instance, String name) {
-        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
-        if (ret < 0) {
-            LOG.error("Failed to update kstat chain");
-            return null;
+        synchronized (kc) {
+            int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
+            if (ret < 0) {
+                LOG.error("Failed to update kstat chain");
+                return null;
+            }
+            return LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);
         }
-        return LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);
     }
 
     /**
@@ -208,16 +215,19 @@ public class KstatUtil {
      */
     public static List<Kstat> kstatLookupAll(String module, int instance, String name) {
         List<Kstat> kstats = new ArrayList<>();
-        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
-        if (ret < 0) {
-            LOG.error("Failed to update kstat chain");
-            return kstats;
-        }
-        for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {
-            if ((module == null || module.equals(new String(ksp.ks_module).trim()))
-                    && (instance < 0 || instance == ksp.ks_instance)
-                    && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
-                kstats.add(ksp);
+        synchronized (kc) {
+            int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
+            if (ret < 0) {
+                LOG.error("Failed to update kstat chain");
+                return kstats;
+            }
+            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp
+                    .next()) {
+                if ((module == null || module.equals(new String(ksp.ks_module).trim()))
+                        && (instance < 0 || instance == ksp.ks_instance)
+                        && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
+                    kstats.add(ksp);
+                }
             }
         }
         return kstats;
