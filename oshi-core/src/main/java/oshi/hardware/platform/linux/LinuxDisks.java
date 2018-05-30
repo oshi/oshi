@@ -18,14 +18,8 @@
  */
 package oshi.hardware.platform.linux;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -33,6 +27,11 @@ import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Linux hard disk implementation.
@@ -48,6 +47,23 @@ public class LinuxDisks implements Disks {
     private static final int SECTORSIZE = 512;
 
     private final Map<String, String> mountsMap = new HashMap<>();
+
+    private static final Map<String, String> serialToPathMap = new HashMap<>();
+
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+        String path = serialToPathMap.get(diskStore.getSerial());
+
+        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
+
+        Udev.UdevDevice device = Udev.INSTANCE.udev_device_new_from_syspath(handle,path);
+
+        if(device == null) {
+            return false;
+        }
+
+        computeDiskStats(diskStore, device);
+        return true;
+    }
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -92,6 +108,8 @@ public class LinuxDisks implements Disks {
                             Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
                     store.setPartitions(new HWPartition[0]);
                     computeDiskStats(store, device);
+
+                    serialToPathMap.put(store.getSerial(), Udev.INSTANCE.udev_list_entry_get_name(entry));
                     result.add(store);
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
@@ -141,7 +159,7 @@ public class LinuxDisks implements Disks {
         }
     }
 
-    private void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
+    private static void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
         LinuxBlockDevStats stats;
         stats = new LinuxBlockDevStats(store.getName(), disk);
         store.setTimeStamp(System.currentTimeMillis());

@@ -18,15 +18,7 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.sun.jna.platform.win32.Kernel32;
-
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -34,6 +26,13 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Windows hard disk implementation.
@@ -69,6 +68,33 @@ public class WindowsDisks implements Disks {
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
     private static final int BUFSIZE = 255;
+
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+        populateReadWriteMaps();
+        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_DiskDrive",
+                "Index", "WHERE SerialNumber=" + diskStore.getSerial(), DRIVE_TYPES);
+
+        if(vals.get("Index").size() == 0) {
+            return false;
+        }
+
+        String index = vals.get("Index").get(0).toString();
+
+        if(readMap.containsKey(index)) {
+
+            diskStore.setReads(MapUtil.getOrDefault(readMap, index, 0L));
+            diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
+            diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
+            diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
+            diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
+            diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 
     @Override
     public HWDiskStore[] getDisks() {
@@ -109,7 +135,7 @@ public class WindowsDisks implements Disks {
         return result.toArray(new HWDiskStore[result.size()]);
     }
 
-    private void populateReadWriteMaps() {
+    private static void populateReadWriteMaps() {
         readMap.clear();
         readByteMap.clear();
         writeMap.clear();

@@ -51,6 +51,28 @@ public class FreeBsdDisks implements Disks {
     // Map of partitions to mount points
     private static final Map<String, String> mountMap = new HashMap<>();
 
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+        List<String> output = ExecutingCommand.runNative("iostat -Ix " + diskStore.getName());
+        long timeStamp = System.currentTimeMillis();
+        boolean diskFound = false;
+        for (String line : output) {
+            String[] split = ParseUtil.whitespaces.split(line);
+            if (split.length < 7 || !split[0].equals(diskStore.getName())) {
+                continue;
+            }
+            diskFound = true;
+            diskStore.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
+            diskStore.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
+            // In KB
+            diskStore.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
+            diskStore.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
+            // In seconds, multiply for ms
+            diskStore.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
+            diskStore.setTimeStamp(timeStamp);
+        }
+        return diskFound;
+    }
+
     @Override
     public HWDiskStore[] getDisks() {
         // Parse 'mount' to map partitions to mount point
