@@ -18,16 +18,30 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.*;
+import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
@@ -39,8 +53,6 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
-
-import java.util.*;
 
 /**
  * Mac hard disk implementation.
@@ -76,9 +88,8 @@ public class MacDisks implements Disks {
                 if (IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
                         && IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parent) == 0) {
                     PointerByReference propsPtr = new PointerByReference();
-                    if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver")
-                            && IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr,
-                            CfUtil.ALLOCATOR, 0) == 0) {
+                    if (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), "IOBlockStorageDriver") && IOKit.INSTANCE
+                            .IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr, CfUtil.ALLOCATOR, 0) == 0) {
                         CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
                         properties.setPointer(propsPtr.getValue());
                         // We now have a properties object with the
@@ -122,8 +133,7 @@ public class MacDisks implements Disks {
                     }
                     // Now get partitions for this disk.
                     List<HWPartition> partitions = new ArrayList<>();
-                    if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR,
-                            0) == 0) {
+                    if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR, 0) == 0) {
                         CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
                         properties.setPointer(propsPtr.getValue());
                         // Partitions will match BSD Unit property
@@ -134,19 +144,18 @@ public class MacDisks implements Disks {
                         // We need a CFBoolean that's false.
                         // Whole disk has 'true' for Whole and 'false'
                         // for leaf; store the boolean false
-                        p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
-                                CfUtil.getCFString("Leaf"));
+                        p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties, CfUtil.getCFString("Leaf"));
                         CFBooleanRef cfFalse = new CFBooleanRef();
                         cfFalse.setPointer(p);
                         // create a matching dict for BSD Unit
                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null, null);
-                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict,
-                                CfUtil.getCFString("BSD Unit"), bsdUnit);
+                        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("BSD Unit"),
+                                bsdUnit);
                         CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("Whole"),
                                 cfFalse);
-                        matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
-                                null, null);
+                        matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, null,
+                                null);
                         CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
                                 CfUtil.getCFString("IOPropertyMatch"), propertyDict);
 
@@ -209,7 +218,7 @@ public class MacDisks implements Disks {
                     diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));
                     IOKit.INSTANCE.IOObjectRelease(parent.getValue());
                 } else {
-                    LOG.error("Unable to find IOMedia device or parent for ", bsdName);
+                    LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                 }
                 IOKit.INSTANCE.IOObjectRelease(drive);
             }
@@ -264,12 +273,10 @@ public class MacDisks implements Disks {
                 // doesn't appear until the end we collect the keys in a list
                 physicalVolumes.clear();
                 logicalVolume = false;
-                continue;
             } else if (line.contains("Logical Volume Family")) {
                 // Done collecting physical volumes, prepare to store logical
                 // volume
                 logicalVolume = true;
-                continue;
             } else if (line.contains("Disk:")) {
                 String volume = ParseUtil.parseLastString(line);
                 if (logicalVolume) {
@@ -311,7 +318,6 @@ public class MacDisks implements Disks {
             String model = "";
             String serial = "";
             long size = 0L;
-            long xferTime;
 
             // Get a reference to the disk - only matching /dev/disk*
             String path = "/dev/" + bsdName;

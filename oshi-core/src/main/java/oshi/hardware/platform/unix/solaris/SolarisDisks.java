@@ -18,6 +18,12 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -27,12 +33,6 @@ import oshi.util.ExecutingCommand;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Solaris hard disk implementation.

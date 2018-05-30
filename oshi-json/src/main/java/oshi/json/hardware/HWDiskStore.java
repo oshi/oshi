@@ -26,6 +26,10 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.json.SystemInfo;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
@@ -43,6 +47,8 @@ import oshi.json.util.PropertiesUtil;
 public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HWDiskStore> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
     private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
@@ -91,6 +97,38 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      */
     public HWDiskStore() {
         this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
+    }
+
+    /**
+     * Update all the statistics about the drive without needing to recreate the
+     * drive list
+     * 
+     * @return True if the update was successful, false if the disk was not
+     *         found
+     */
+    public boolean updateDiskStats() {
+        boolean diskFound = false;
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+        case WINDOWS:
+            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.hwDiskStore);
+            break;
+        case LINUX:
+            diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.hwDiskStore);
+            break;
+        case MACOSX:
+            diskFound = oshi.hardware.platform.mac.MacDisks.updateDiskStats(this.hwDiskStore);
+            break;
+        case SOLARIS:
+            diskFound = oshi.hardware.platform.unix.solaris.SolarisDisks.updateDiskStats(this.hwDiskStore);
+            break;
+        case FREEBSD:
+            diskFound = oshi.hardware.platform.unix.freebsd.FreeBsdDisks.updateDiskStats(this.hwDiskStore);
+            break;
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+            break;
+        }
+        return diskFound;
     }
 
     /**

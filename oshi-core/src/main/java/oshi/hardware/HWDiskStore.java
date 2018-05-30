@@ -18,22 +18,18 @@
  */
 package oshi.hardware;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.SystemInfo;
-import oshi.hardware.platform.linux.LinuxDisks;
-import oshi.hardware.platform.linux.LinuxNetworks;
-import oshi.hardware.platform.mac.MacDisks;
-import oshi.hardware.platform.mac.MacNetworks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
-import oshi.hardware.platform.unix.solaris.SolarisDisks;
-import oshi.hardware.platform.unix.solaris.SolarisNetworks;
-import oshi.hardware.platform.windows.WindowsDisks;
-import oshi.hardware.platform.windows.WindowsNetworks;
-
 import java.io.Serializable;
 import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
+import oshi.hardware.platform.linux.LinuxDisks;
+import oshi.hardware.platform.mac.MacDisks;
+import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
+import oshi.hardware.platform.unix.solaris.SolarisDisks;
+import oshi.hardware.platform.windows.WindowsDisks;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
@@ -112,29 +108,33 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
-     * Update all the statistics about the drive without needing to recreate the drive list
+     * Update all the statistics about the drive without needing to recreate the
+     * drive list
+     * 
+     * @return True if the update was successful, false if the disk was not
+     *         found
      */
     public boolean updateDiskStats() {
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
-            case WINDOWS:
-                diskFound = WindowsDisks.updateDiskStats(this);
-                break;
-            case LINUX:
-                diskFound = LinuxDisks.updateDiskStats(this);
-                break;
-            case MACOSX:
-                diskFound = MacDisks.updateDiskStats(this);
-                break;
-            case SOLARIS:
-                diskFound = SolarisDisks.updateDiskStats(this);
-                break;
-            case FREEBSD:
-                diskFound = FreeBsdDisks.updateDiskStats(this);
-                break;
-            default:
-                LOG.error("Unsupported platform. No update performed.");
-                break;
+        case WINDOWS:
+            diskFound = WindowsDisks.updateDiskStats(this);
+            break;
+        case LINUX:
+            diskFound = LinuxDisks.updateDiskStats(this);
+            break;
+        case MACOSX:
+            diskFound = MacDisks.updateDiskStats(this);
+            break;
+        case SOLARIS:
+            diskFound = SolarisDisks.updateDiskStats(this);
+            break;
+        case FREEBSD:
+            diskFound = FreeBsdDisks.updateDiskStats(this);
+            break;
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+            break;
         }
         return diskFound;
     }

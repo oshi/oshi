@@ -79,6 +79,12 @@ public class DisksTest {
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
 
+            long oldReads = disk.getReads();
+            long oldReadBytes = disk.getReadBytes();
+            assertTrue(disk.updateDiskStats());
+            assertTrue(disk.getReads() >= oldReads);
+            assertTrue(disk.getReadBytes() >= oldReadBytes);
+
             lastDisk = new HWDiskStore();
             assertTrue(disk.compareTo(lastDisk) > 0);
 
