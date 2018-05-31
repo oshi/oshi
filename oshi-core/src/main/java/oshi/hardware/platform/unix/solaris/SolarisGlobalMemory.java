@@ -37,10 +37,11 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final long PAGESIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
-            4096L);
-
     private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
+
+    public SolarisGlobalMemory() {
+        this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
+    }
 
     /**
      * {@inheritDoc}
@@ -51,8 +52,8 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
         // Set values
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * PAGESIZE;
-            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * PAGESIZE;
+            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * this.pageSize;
+            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * this.pageSize;
         }
     }
 

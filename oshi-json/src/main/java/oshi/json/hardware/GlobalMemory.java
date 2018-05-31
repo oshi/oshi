@@ -56,7 +56,14 @@ public interface GlobalMemory extends OshiJsonObject {
     /**
      * The current memory committed to the paging/swap file(s), in bytes
      *
-     * @return Swap used in bytes
+     * @return Swap used in bytes.
      */
     long getSwapUsed();
+
+    /**
+     * The number of bytes in a memory page
+     * 
+     * @return Page size in bytes.
+     */
+    long getPageSize();
 }

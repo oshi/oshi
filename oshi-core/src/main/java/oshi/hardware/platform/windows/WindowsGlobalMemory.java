@@ -57,9 +57,10 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 return;
             }
-            this.memAvailable = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalAvailable.longValue();
-            this.memTotal = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalTotal.longValue();
-            this.swapTotal = this.perfInfo.PageSize.longValue()
+            this.pageSize = this.perfInfo.PageSize.longValue();
+            this.memAvailable = this.pageSize * this.perfInfo.PhysicalAvailable.longValue();
+            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();
+            this.swapTotal = this.pageSize
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
             this.lastUpdate = now;
         }

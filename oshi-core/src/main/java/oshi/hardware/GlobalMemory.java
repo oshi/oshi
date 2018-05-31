@@ -59,4 +59,11 @@ public interface GlobalMemory extends Serializable {
      * @return Swap used in bytes
      */
     long getSwapUsed();
+
+    /**
+     * The number of bytes in a memory page
+     * 
+     * @return Page size in bytes.
+     */
+    long getPageSize();
 }

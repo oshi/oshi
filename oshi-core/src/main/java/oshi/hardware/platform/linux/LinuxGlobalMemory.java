@@ -20,7 +20,14 @@ package oshi.hardware.platform.linux;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
+
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -34,6 +41,8 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
+
     // Values read from /proc/meminfo used for other calculations
     private long memFree = 0;
     private long activeFile = 0;
@@ -42,6 +51,19 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     private long swapFree = 0;
 
     private long lastUpdate = 0;
+
+    public LinuxGlobalMemory() {
+        try {
+            Sysinfo info = new Sysinfo();
+            if (0 == Libc.INSTANCE.sysinfo(info)) {
+                this.pageSize = info.mem_unit;
+            } else {
+                LOG.error("Failed to get sysinfo. Error code: {}", Native.getLastError());
+            }
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+            LOG.error("Failed to get mem_unit from sysinfo. {}", e);
+        }
+    }
 
     /**
      * Updates instance variables from reading /proc/meminfo no more frequently

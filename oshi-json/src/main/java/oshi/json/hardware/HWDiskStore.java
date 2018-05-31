@@ -48,7 +48,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
 
     private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
