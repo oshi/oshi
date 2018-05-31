@@ -43,6 +43,7 @@ public class GlobalMemoryTest {
         assertTrue(memory.getTotal() > 0);
         assertTrue(memory.getAvailable() >= 0);
         assertTrue(memory.getAvailable() <= memory.getTotal());
+        assertTrue(memory.getPageSize() > 0);
 
         // Swap tests
         assertTrue(memory.getSwapTotal() >= 0);

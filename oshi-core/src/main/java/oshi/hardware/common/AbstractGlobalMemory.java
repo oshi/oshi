@@ -34,6 +34,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = 0L;
     protected long swapTotal = 0L;
     protected long swapUsed = 0L;
+    protected long pageSize = 0L;
 
     /**
      * Updates physical memory instance variables.
@@ -81,5 +82,16 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     public long getSwapTotal() {
         updateSwap();
         return this.swapTotal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+        if (this.pageSize == 0) {
+            updateMeminfo();
+        }
+        return this.pageSize;
     }
 }

@@ -48,8 +48,6 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     private transient VMStatistics vmStats = new VMStatistics();
     private long lastUpdateAvail = 0;
 
-    private long pageSize = 4096;
-
     public MacGlobalMemory() {
         long memory = SysctlUtil.sysctl("hw.memsize", -1L);
         if (memory >= 0) {

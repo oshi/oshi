@@ -33,21 +33,20 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final long PAGESIZE = BsdSysctlUtil.sysctl("hw.pagesize", 4096);
+    public FreeBsdGlobalMemory() {
+        this.pageSize = BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+        this.memTotal = BsdSysctlUtil.sysctl("hw.physmem", 0L);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateMeminfo() {
-        if (this.memTotal == 0L) {
-            this.memTotal = BsdSysctlUtil.sysctl("hw.physmem", 0L);
-        }
-        // get pages of available memory
         long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
         long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
         long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
-        this.memAvailable = (inactive + cache + free) * PAGESIZE;
+        this.memAvailable = (inactive + cache + free) * this.pageSize;
     }
 
     /**
