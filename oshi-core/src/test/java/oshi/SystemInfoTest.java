@@ -158,7 +158,6 @@ public class SystemInfoTest {
         System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(processor.getSystemUptime()));
         System.out.println(
                 "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
-
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
