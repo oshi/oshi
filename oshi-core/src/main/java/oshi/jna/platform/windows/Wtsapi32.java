@@ -64,10 +64,12 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
         public LARGE_INTEGER KernelTime;
 
         public WTS_PROCESS_INFO_EX() {
+            super();
         }
 
         public WTS_PROCESS_INFO_EX(Pointer p) {
             super(p);
+            read();
         }
 
         @Override
