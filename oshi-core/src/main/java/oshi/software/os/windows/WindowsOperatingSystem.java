@@ -514,7 +514,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             perfObjectOffset += perfObject.TotalByteLength;
         }
         if (pids == null) {
-            for (Integer pid : this.processMap.keySet()) {
+            for (Integer pid : new HashSet<>(this.processMap.keySet())) {
                 if (!pidsToKeep.contains(pid)) {
                     this.processMap.remove(pid);
                 }
