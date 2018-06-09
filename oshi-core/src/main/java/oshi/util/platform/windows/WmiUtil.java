@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong;
+import com.sun.jna.NativeLong; // NOSONAR
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.OleAuto;
 import com.sun.jna.platform.win32.Variant.VARIANT;
@@ -45,6 +45,7 @@ import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 
 /**
  * Provides access to WMI queries
@@ -278,6 +279,34 @@ public class WmiUtil {
     }
 
     /**
+     * Get multiple individually typed values from WMI
+     *
+     * @param namespace
+     *            The namespace or null to use the default
+     * @param wmiClass
+     *            The class to query
+     * @param properties
+     *            An array of properties whose value to return
+     * @param whereClause
+     *            A WQL where clause matching properties and keywords
+     * @param propertyTypes
+     *            An array of types corresponding to the properties, or a single
+     *            element array
+     * @return A map, with each property as the key, containing Objects with the
+     *         value of the requested properties. Each list's order corresponds
+     *         to other lists. The type of the objects is identified by the
+     *         propertyTypes array. If only one propertyType is given, all
+     *         Objects will have that type. It is the responsibility of the
+     *         caller to cast the returned objects.
+     */
+    public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String[] properties,
+            String whereClause, ValueType[] propertyTypes) {
+        String propertiesStr = StringUtil.join(",", properties);
+        return queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, propertiesStr, wmiClass, whereClause,
+                propertyTypes);
+    }
+
+    /**
      * Query WMI for values
      *
      * @param namespace
@@ -362,7 +391,9 @@ public class WmiUtil {
                 securityInitialized = true;
                 return true;
             }
-            LOG.error(String.format("Failed to initialize COM library. Error code = 0x%08x", hres.intValue()));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Failed to initialize COM library. Error code = 0x%08x", hres.intValue()));
+            }
             return false;
         }
         comInitialized = true;
@@ -375,7 +406,9 @@ public class WmiUtil {
         hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,
                 Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
         if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
-            LOG.error(String.format("Failed to initialize security. Error code = 0x%08x", hres.intValue()));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Failed to initialize security. Error code = 0x%08x", hres.intValue()));
+            }
             Ole32.INSTANCE.CoUninitialize();
             return false;
         }
@@ -408,7 +441,7 @@ public class WmiUtil {
         HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);
         if (COMUtils.FAILED(hres)) {
             // Don't error on OpenHardwareMonitor
-            if (!"root\\OpenHardwareMonitor".equals(namespace)) {
+            if (!"root\\OpenHardwareMonitor".equals(namespace) && LOG.isErrorEnabled()) {
                 LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
                         hres.intValue()));
             }
@@ -424,7 +457,9 @@ public class WmiUtil {
         hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, null,
                 Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE);
         if (COMUtils.FAILED(hres)) {
-            LOG.error(String.format("Could not set proxy blanket. Error code = 0x%08x", hres.intValue()));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Could not set proxy blanket. Error code = 0x%08x", hres.intValue()));
+            }
             new WbemServices(pSvc.getValue()).Release();
             unInitCOM();
             return false;
@@ -463,7 +498,9 @@ public class WmiUtil {
                         EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
                 null, pEnumerator);
         if (COMUtils.FAILED(hres)) {
-            LOG.error(String.format("Query '%s' failed. Error code = 0x%08x", query, hres.intValue()));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Query '%s' failed. Error code = 0x%08x", query, hres.intValue()));
+            }
             svc.Release();
             unInitCOM();
             return false;
@@ -507,7 +544,7 @@ public class WmiUtil {
             if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {
                 // Enumerator will be released by calling method so no need to
                 // release it here.
-                LOG.debug(String.format("Returned %d results.", resultCount));
+                LOG.debug("Returned {} results.", resultCount);
                 return;
             }
             resultCount++;

@@ -157,7 +157,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             // gets the open files count -- only do for single-PID requests
             if (pid >= 0) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
-                fproc.setOpenFiles(openFilesList.size() - 1);
+                fproc.setOpenFiles(openFilesList.size() - 1L);
             }
             procs.add(fproc);
         }

@@ -155,7 +155,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             // gets the open files count -- only do for single-PID requests
             if (pid >= 0) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
-                sproc.setOpenFiles(openFilesList.size() - 1);
+                sproc.setOpenFiles(openFilesList.size() - 1L);
             }
             procs.add(sproc);
         }

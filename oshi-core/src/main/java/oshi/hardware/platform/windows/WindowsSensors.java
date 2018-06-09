@@ -42,6 +42,14 @@ public class WindowsSensors implements Sensors {
 
     private String wmiVoltProperty = null;
 
+    private static final String OHM_NAMESPACE = "root\\OpenHardwareMonitor";
+    private static final String HARDWARE_CLASS = "Hardware";
+    private static final String SENSOR_CLASS = "Sensor";
+    private static final String IDENTIFIER_PROPERTY = "Identifier";
+    private static final String VALUE_PROPERTY = "Value";
+    private static final String CPU_FILTER = "WHERE HardwareType=\"CPU\"";
+    private static final String CPU_SENSOR_FILTER = "WHERE Parent=\"%s\" AND SensorType=\"%s\"";
+
     /**
      * {@inheritDoc}
      */
@@ -51,17 +59,16 @@ public class WindowsSensors implements Sensors {
         double tempC = 0d;
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        String cpuIdentifier = WmiUtil.selectStringFrom("root\\OpenHardwareMonitor", "Hardware", "Identifier",
-                "WHERE HardwareType=\"CPU\"");
+        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);
         if (cpuIdentifier.length() > 0) {
-            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
-                    "WHERE Parent=\"" + cpuIdentifier + "\" AND SensorType=\"Temperature\"");
-            if (!vals.get("Value").isEmpty()) {
+            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
+                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, "Temperature"));
+            if (!vals.get(VALUE_PROPERTY).isEmpty()) {
                 double sum = 0;
-                for (double val : vals.get("Value")) {
+                for (double val : vals.get(VALUE_PROPERTY)) {
                     sum += val;
                 }
-                tempC = sum / vals.get("Value").size();
+                tempC = sum / vals.get(VALUE_PROPERTY).size();
             }
             return tempC;
         }
@@ -116,15 +123,14 @@ public class WindowsSensors implements Sensors {
         int[] fanSpeeds = new int[1];
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        String cpuIdentifier = WmiUtil.selectStringFrom("root\\OpenHardwareMonitor", "Hardware", "Identifier",
-                "WHERE HardwareType=\"CPU\"");
+        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);
         if (cpuIdentifier.length() > 0) {
-            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
-                    "WHERE Parent=\"" + cpuIdentifier + "\" AND SensorType=\"Fan\"");
-            if (!vals.get("Value").isEmpty()) {
-                fanSpeeds = new int[vals.get("Value").size()];
-                for (int i = 0; i < vals.get("Value").size(); i++) {
-                    fanSpeeds[i] = vals.get("Value").get(i).intValue();
+            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
+                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, "Fan"));
+            if (!vals.get(VALUE_PROPERTY).isEmpty()) {
+                fanSpeeds = new int[vals.get(VALUE_PROPERTY).size()];
+                for (int i = 0; i < vals.get(VALUE_PROPERTY).size(); i++) {
+                    fanSpeeds[i] = vals.get(VALUE_PROPERTY).get(i).intValue();
                 }
             }
             return fanSpeeds;
@@ -149,22 +155,22 @@ public class WindowsSensors implements Sensors {
         double volts = 0d;
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        Map<String, List<String>> voltIdentifiers = WmiUtil.selectStringsFrom("root\\OpenHardwareMonitor", "Hardware",
-                "Identifier", "WHERE SensorType=\"Voltage\"");
+        Map<String, List<String>> voltIdentifiers = WmiUtil.selectStringsFrom(OHM_NAMESPACE, HARDWARE_CLASS,
+                IDENTIFIER_PROPERTY, "WHERE SensorType=\"Voltage\"");
         // Look for identifier containing "cpu"
         String voltIdentifierStr = null;
-        for (String id : voltIdentifiers.get("Identifier")) {
+        for (String id : voltIdentifiers.get(IDENTIFIER_PROPERTY)) {
             if (id.toLowerCase().contains("cpu")) {
                 voltIdentifierStr = id;
                 break;
             }
         }
         // If none contain cpu just grab the first one
-        if (voltIdentifierStr == null && !voltIdentifiers.get("Identifier").isEmpty()) {
-            voltIdentifierStr = voltIdentifiers.get("Identifier").get(0);
+        if (voltIdentifierStr == null && !voltIdentifiers.get(IDENTIFIER_PROPERTY).isEmpty()) {
+            voltIdentifierStr = voltIdentifiers.get(IDENTIFIER_PROPERTY).get(0);
         }
         if (voltIdentifierStr != null) {
-            return WmiUtil.selectFloatFrom("root\\OpenHardwareMonitor", "Sensor", "Value",
+            return WmiUtil.selectFloatFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
                     "WHERE Parent=\"" + voltIdentifierStr + "\" AND SensorType=\"Voltage\"");
         }
 

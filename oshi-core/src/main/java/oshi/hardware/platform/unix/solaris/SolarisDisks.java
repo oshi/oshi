@@ -24,11 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
+import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
+
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
-import oshi.jna.platform.unix.solaris.LibKstat.KstatIO;
 import oshi.util.ExecutingCommand;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;

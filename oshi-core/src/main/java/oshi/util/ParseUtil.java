@@ -420,8 +420,7 @@ public class ParseUtil {
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-            BigInteger bi = new BigInteger(s);
-            return bi.longValue();
+            return (new BigInteger(s)).longValue();
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;

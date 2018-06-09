@@ -21,7 +21,7 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; //NOSONAR
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -49,7 +49,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
     // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
+    private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
     private String[][] pdhCounters = null;
     private String pdhIrqCounter = null;
@@ -76,10 +76,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * Initializes Class variables
      */
     private void initVars() {
-        final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor";
+        final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\";
         String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
         if (processorIds.length > 0) {
-            String cpuRegistryPath = cpuRegistryRoot + "\\" + processorIds[0];
+            String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
             setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                     "VendorIdentifier"));
             setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
@@ -171,7 +171,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
         WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
         if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
-            LOG.error("Failed to update system idle/kernel/user times. Error code: " + Native.getLastError());
+            LOG.error("Failed to update system idle/kernel/user times. Error code: {}", Native.getLastError());
             return ticks;
         }
         // IOwait:
@@ -246,7 +246,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getSystemUptime() {
         // GetTickCount64 requires Vista (6.0) or later
-        if (majorVersion >= 6) {
+        if (MAJOR_VERSION >= 6) {
             return Kernel32.INSTANCE.GetTickCount64() / 1000L;
         } else {
             // 32 bit rolls over at ~ 49 days

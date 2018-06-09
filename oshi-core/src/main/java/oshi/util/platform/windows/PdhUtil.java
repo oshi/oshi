@@ -91,17 +91,15 @@ public class PdhUtil {
      * 
      * @param counterString
      *            The counter to stop monitoring
-     * @return True if the counter is successfully removed or doesn't exist
      */
-    public static boolean removeCounter(String counterString) {
-        if (!queryMap.containsKey(counterString)) {
-            LOG.warn("Counter does not exist: {}", counterString);
-            return true;
+    public static void removeCounter(String counterString) {
+        if (queryMap.containsKey(counterString)) {
+          PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
+          counterMap.remove(counterString);
+          queryMap.remove(counterString);
+        } else {
+          LOG.warn("Counter does not exist: {}", counterString);          
         }
-        PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
-        counterMap.remove(counterString);
-        queryMap.remove(counterString);
-        return true;
     }
 
     /**

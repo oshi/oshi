@@ -91,7 +91,9 @@ public class EdidUtil {
      */
     public static String getSerialNo(byte[] edid) {
         // Bytes 12-15 are Serial number (last 4 characters)
-        LOG.debug("Serial number: {}", Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Serial number: {}", Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));
+        }
         return String.format("%s%s%s%s", getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),
                 getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));
     }

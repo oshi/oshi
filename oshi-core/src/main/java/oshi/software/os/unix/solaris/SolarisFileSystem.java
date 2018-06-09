@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;

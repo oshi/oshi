@@ -27,8 +27,7 @@ import oshi.util.ExecutingCommand;
 
 public class LinuxUserGroupInfo {
 
-    private static final long CACHE_REFRESH_TIME_MS = 3 * 60 * 1000; // 3
-                                                                     // minutes
+    private static final long CACHE_REFRESH_TIME_MS = 3L * 60000; // 3 minutes
     private static final UsersCache usersCache = new UsersCache();
     private static final GroupsCache groupsCache = new GroupsCache();
 

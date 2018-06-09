@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.software.os.FileSystem;

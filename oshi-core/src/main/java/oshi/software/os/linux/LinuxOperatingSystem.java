@@ -151,7 +151,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // etime close to 0 in case this command fails; the longer the system
         // has been up, the less impact this assumption will have
         if (!etime.isEmpty()) {
-            LOG.debug("Etime is {} seconds", etime.trim());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Etime is {} seconds", etime.trim());
+            }
             startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());
         }
         // By subtracting etime (secs) from uptime (secs) we get uptime (in
@@ -271,7 +273,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // gets the open files count
         List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
-        proc.setOpenFiles(openFilesList.size() - 1);
+        proc.setOpenFiles(openFilesList.size() - 1L);
 
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);

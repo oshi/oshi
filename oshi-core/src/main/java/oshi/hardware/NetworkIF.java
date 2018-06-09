@@ -97,19 +97,18 @@ public class NetworkIF implements Serializable {
             ArrayList<String> ipv4list = new ArrayList<>();
             ArrayList<String> ipv6list = new ArrayList<>();
             for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {
-                if (address.getHostAddress().length() == 0) {
-                    continue;
-                } else if (address.getHostAddress().contains(":")) {
-                    ipv6list.add(address.getHostAddress().split("%")[0]);
-                } else {
-                    ipv4list.add(address.getHostAddress());
+                if (address.getHostAddress().length() > 0) {
+                    if (address.getHostAddress().contains(":")) {
+                        ipv6list.add(address.getHostAddress().split("%")[0]);
+                    } else {
+                        ipv4list.add(address.getHostAddress());
+                    }
                 }
             }
             this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);
             this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);
         } catch (SocketException e) {
             LOG.error("Socket exception: {}", e);
-            return;
         }
     }
 

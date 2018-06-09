@@ -21,9 +21,10 @@ package oshi.hardware.platform.unix.solaris;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
@@ -110,8 +111,11 @@ public class SolarisPowerSource extends AbstractPowerSource {
 
         // Set up single battery in array
         SolarisPowerSource[] ps = new SolarisPowerSource[1];
-        ps[0] = new SolarisPowerSource("BAT0", (double) energyNow / energyFull,
-                isCharging ? -2d : powerNow > 0 ? 3600d * energyNow / powerNow : -1d);
+        double timeRemaining = -2d;
+        if (!isCharging) {
+            timeRemaining = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
+        }
+        ps[0] = new SolarisPowerSource("BAT0", (double) energyNow / energyFull, timeRemaining);
         return ps;
     }
 }

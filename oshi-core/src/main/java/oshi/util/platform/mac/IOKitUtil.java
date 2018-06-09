@@ -21,7 +21,7 @@ package oshi.util.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.IntByReference; //NOSONAR
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
@@ -53,7 +53,9 @@ public class IOKitUtil {
         if (masterPort.getValue() == 0) {
             int result = IOKit.INSTANCE.IOMasterPort(0, masterPort);
             if (result != 0) {
-                LOG.error(String.format("Error: IOMasterPort() = %08x", result));
+                if (LOG.isErrorEnabled()) {
+                    LOG.error(String.format("Error: IOMasterPort() = %08x", result));
+                }
                 return result;
             }
         }

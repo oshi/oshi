@@ -50,7 +50,9 @@ public class WbemLocator extends Unknown {
         HRESULT hres = Ole32.INSTANCE.CoCreateInstance(CLSID_WbemLocator, null, WTypes.CLSCTX_INPROC_SERVER,
                 IID_IWbemLocator, pbr);
         if (COMUtils.FAILED(hres)) {
-            LOG.error(String.format("Failed to create WbemLocator object. Error code = 0x%08x", hres.intValue()));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Failed to create WbemLocator object. Error code = 0x%08x", hres.intValue()));
+            }
             Ole32.INSTANCE.CoUninitialize();
             return null;
         }

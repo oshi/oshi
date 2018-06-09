@@ -30,7 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
@@ -79,8 +79,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Registry variables to persist
      */
     private int perfDataBufferSize = 8192;
-    private static final int PROCESSOR_INDEX = 230;
-    private static final String PROCESSOR_INDEX_STR = Integer.toString(PROCESSOR_INDEX);
+    private int processorIndex;
+    private String processorIndexStr;
 
     /*
      * Registry counter block offsets
@@ -127,14 +127,16 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_TEXT, "Counter", 0, null, pPerfText, lpcbData);
         // Text contans a sequence of string pairs, counter # and name
         int offset = 0;
-        while ((priorityBaseIndex == 0 || elapsedTimeIndex == 0 || idProcessIndex == 0 || creatingProcessIdIndex == 0
-                || ioReadIndex == 0 || ioWriteIndex == 0 || workingSetPrivateIndex == 0)
-                && offset < lpcbData.getValue()) {
+        while (offset < lpcbData.getValue()) {
             String index = pPerfText.getWideString(offset);
             offset += 2 * index.length() + 2;
             String title = pPerfText.getWideString(offset);
             offset += 2 * title.length() + 2;
             switch (title) {
+            case "Process":
+                processorIndex = ParseUtil.parseIntOrDefault(index, 0);
+                processorIndexStr = Integer.toString(processorIndex);
+                break;
             case "Priority Base":
                 priorityBaseIndex = ParseUtil.parseIntOrDefault(index, 0);
                 break;
@@ -167,7 +169,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
         while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                PROCESSOR_INDEX_STR, 0, null, pPerfData, lpcbData)) {
+                processorIndexStr, 0, null, pPerfData, lpcbData)) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
@@ -193,7 +195,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Identify where counter definitions start
             long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == PROCESSOR_INDEX) {
+            if (perfObject.ObjectNameTitleIndex == processorIndex) {
                 for (int counter = 0; counter < perfObject.NumCounters; counter++) {
                     PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(
                             pPerfData.share(perfCounterOffset));
@@ -433,7 +435,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
         while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                PROCESSOR_INDEX_STR, 0, null, pPerfData, lpcbData)) {
+                processorIndexStr, 0, null, pPerfData, lpcbData)) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
@@ -458,7 +460,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
             PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == PROCESSOR_INDEX) {
+            if (perfObject.ObjectNameTitleIndex == processorIndex) {
                 // Skip over counter definitions
                 // There will be many of these, this points to the first one
                 long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;

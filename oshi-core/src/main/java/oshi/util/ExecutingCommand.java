@@ -78,9 +78,12 @@ public class ExecutingCommand {
                 sa.add(line);
             }
             p.waitFor();
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException e) {
             LOG.trace("Problem reading output from {}: {}", cmdToRunWithArgs, e);
             return new ArrayList<>(0);
+        } catch (InterruptedException ie) {
+            LOG.trace("Interrupted while reading output from {}: {}", cmdToRunWithArgs, ie);
+            Thread.currentThread().interrupt();
         }
         return sa;
     }

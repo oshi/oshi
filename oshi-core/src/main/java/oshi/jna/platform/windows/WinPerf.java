@@ -74,7 +74,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
                     "HeaderLength", "NumObjectTypes", "DefaultObject", "SystemTime", "PerfTime", "PerfFreq",
                     "PerfTime100nSec", "SystemNameLength", "SystemNameOffset" });
         }
-    };
+    }
 
     /**
      * Describes object-specific performance information, for example, the
@@ -209,6 +209,6 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "ByteLength" });
         }
-    };
+    }
 
 }

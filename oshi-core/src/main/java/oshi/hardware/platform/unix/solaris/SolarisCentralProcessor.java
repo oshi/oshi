@@ -25,9 +25,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -197,12 +198,11 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
         StringBuilder flags = new StringBuilder();
         for (String line : isainfo) {
-            if (line.startsWith("64-bit")) {
-                continue;
-            } else if (line.startsWith("32-bit")) {
+            if (line.startsWith("32-bit")) {
                 break;
+            } else if (!line.startsWith("64-bit")) {
+                flags.append(' ').append(line.trim());
             }
-            flags.append(' ').append(line.trim());
         }
         return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
     }

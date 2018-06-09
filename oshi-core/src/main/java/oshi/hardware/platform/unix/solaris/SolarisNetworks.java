@@ -18,9 +18,10 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**

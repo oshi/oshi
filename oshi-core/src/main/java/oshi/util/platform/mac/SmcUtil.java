@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.IntByReference; // NOSONAR
 
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.IOConnect;
@@ -74,7 +74,9 @@ public class SmcUtil {
         int result = IOKit.INSTANCE.IOServiceOpen(service, SystemB.INSTANCE.mach_task_self(), 0, conn);
         IOKit.INSTANCE.IOObjectRelease(service);
         if (result != 0) {
-            LOG.error(String.format("Error: IOServiceOpen() = 0x%08x", result));
+            if (LOG.isErrorEnabled()) {
+                LOG.error(String.format("Error: IOServiceOpen() = 0x%08x", result));
+            }
             return result;
         }
         // Delay to improve success of next query
@@ -249,9 +251,6 @@ public class SmcUtil {
         if (result != 0) {
             // This frequently resulted in kIOReturnIPCError in testing. TODO
             // find out why!
-            // LOG.error(String.format("Error: IOConnectCallStructMethod() =
-            // 0x%08x", result));
-            return result;
         }
         // Success
         return result;

@@ -58,7 +58,9 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
         PointerByReference ptr = new PointerByReference();
         int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
-            LOG.error("Failed getaddrinfo(): {}", Libc.INSTANCE.gai_strerror(res));
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed getaddrinfo(): {}", Libc.INSTANCE.gai_strerror(res));
+            }
             return "";
         }
         Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());

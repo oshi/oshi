@@ -24,13 +24,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.unix.solaris.LibKstat;
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
+import com.sun.jna.platform.unix.solaris.LibKstat.KstatCtl;
+import com.sun.jna.platform.unix.solaris.LibKstat.KstatNamed;
 
-import oshi.jna.platform.unix.solaris.LibKstat;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
-import oshi.jna.platform.unix.solaris.LibKstat.KstatCtl;
-import oshi.jna.platform.unix.solaris.LibKstat.KstatNamed;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -121,8 +121,10 @@ public class KstatUtil {
         }
         Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
         if (p == null) {
-            LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}", new String(ksp.ks_module).trim(),
-                    ksp.ks_instance, new String(ksp.ks_name).trim(), name);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}", new String(ksp.ks_module).trim(),
+                        ksp.ks_instance, new String(ksp.ks_name).trim(), name);
+            }
             return 0L;
         }
         KstatNamed data = new KstatNamed(p);
@@ -157,8 +159,10 @@ public class KstatUtil {
         int retry = 0;
         while (0 > LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {
             if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
-                LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
-                        new String(ksp.ks_name).trim());
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
+                            new String(ksp.ks_name).trim());
+                }
                 return false;
             }
             Util.sleep(8 << retry);

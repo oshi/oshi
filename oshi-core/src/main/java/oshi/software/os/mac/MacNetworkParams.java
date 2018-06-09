@@ -59,7 +59,9 @@ public class MacNetworkParams extends AbstractNetworkParams {
         PointerByReference ptr = new PointerByReference();
         int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
-            LOG.error("Failed getaddrinfo(): {}", SystemB.INSTANCE.gai_strerror(res));
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed getaddrinfo(): {}", SystemB.INSTANCE.gai_strerror(res));
+            }
             return "";
         }
         SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());

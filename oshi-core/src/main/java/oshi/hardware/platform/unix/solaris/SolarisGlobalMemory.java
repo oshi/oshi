@@ -21,8 +21,9 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
