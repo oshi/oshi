@@ -25,7 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.PointerByReference; // NOSONAR
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractNetworkParams;
@@ -38,7 +38,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);
 
-    private static final String IPV4_DEFAULT_DEST = "0.0.0.0";
+    private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
     /**

@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
@@ -189,15 +189,16 @@ public class WindowsDisks implements Disks {
                 READ_WRITE_PROPERTIES, null, READ_WRITE_TYPES);
         for (int i = 0; i < vals.get(NAME_PROPERTY).size(); i++) {
             String name = ParseUtil.whitespaces.split((String) vals.get(NAME_PROPERTY).get(i))[0];
-            readMap.put(name, (long) vals.get("DiskReadsPerSec").get(i));
-            readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get("DiskReadBytesPerSec").get(i), 0L));
-            writeMap.put(name, (long) vals.get("DiskWritesPerSec").get(i));
-            writeByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get("DiskWriteBytesPerSec").get(i), 0L));
+            readMap.put(name, (long) vals.get(DISK_READS_PROPERTY).get(i));
+            readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(DISK_READ_BYTES_PROPERTY).get(i), 0L));
+            writeMap.put(name, (long) vals.get(DISK_WRITES_PROPERTY).get(i));
+            writeByteMap.put(name,
+                    ParseUtil.parseLongOrDefault((String) vals.get(DISK_WRITE_BYTES_PROPERTY).get(i), 0L));
             // Units are 100-ns, divide to get ms
             xferTimeMap.put(name,
-                    ParseUtil.parseLongOrDefault((String) vals.get("PercentDiskTime").get(i), 0L) / 10000L);
+                    ParseUtil.parseLongOrDefault((String) vals.get(PERCENT_DISK_TIME_PROPERTY).get(i), 0L) / 10000L);
             timeStampMap.put(name,
-                    ParseUtil.parseLongOrDefault((String) vals.get("Timestamp_Sys100NS").get(i), 0L) / 10000L);
+                    ParseUtil.parseLongOrDefault((String) vals.get(TIMESTAMP_PROPERTY).get(i), 0L) / 10000L);
         }
     }
 

@@ -74,7 +74,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Boot time in MS
     private static long bootTime = 0L;
 
-    private LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
+    private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
     static {
         init();
@@ -352,7 +352,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         try {
             Sysinfo info = new Sysinfo();
             if (0 != Libc.INSTANCE.sysinfo(info)) {
-                LOG.error("Failed to get process thread count. Error code: " + Native.getLastError());
+                LOG.error("Failed to get process thread count. Error code: {}", Native.getLastError());
                 return 0;
             }
             return info.procs;

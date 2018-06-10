@@ -29,6 +29,8 @@ import java.util.Map;
  */
 public class MapUtil {
 
+    private static final Object mapLock = new Object();
+
     private MapUtil() {
     }
 
@@ -50,7 +52,7 @@ public class MapUtil {
      *         if this map contains no mapping for the key
      */
     public static <K, V> V getOrDefault(Map<K, V> map, K key, V defaultValue) {
-        synchronized (map) {
+        synchronized (mapLock) {
             V value = map.get(key);
             if (value != null) {
                 return value;
@@ -80,7 +82,7 @@ public class MapUtil {
      *         the implementation supports null values.)
      */
     public static <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
-        synchronized (map) {
+        synchronized (mapLock) {
             V existingValue = map.get(key);
             if (existingValue != null) {
                 return existingValue;
@@ -107,7 +109,7 @@ public class MapUtil {
      *         list
      */
     public static <K, V> List<V> createNewListIfAbsent(Map<K, List<V>> map, K key) {
-        synchronized (map) {
+        synchronized (mapLock) {
             List<V> value = map.get(key);
             if (value != null) {
                 return value;

@@ -21,7 +21,7 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -114,7 +114,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
                 new IntByReference(cpuLoadInfo.size()))) {
-            LOG.error("Failed to get System CPU ticks. Error code: " + Native.getLastError());
+            LOG.error("Failed to get System CPU ticks. Error code: {} ", Native.getLastError());
             return ticks;
         }
 
@@ -158,7 +158,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         IntByReference procInfoCount = new IntByReference();
         if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
                 procCpuLoadInfo, procInfoCount)) {
-            LOG.error("Failed to update CPU Load. Error code: " + Native.getLastError());
+            LOG.error("Failed to update CPU Load. Error code: {}", Native.getLastError());
             return ticks;
         }
 
@@ -200,7 +200,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         VMMeter vmstats = new VMMeter();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
                 new IntByReference(vmstats.size()))) {
-            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            LOG.error("Failed to update vmstats. Error code: {}", Native.getLastError());
             return -1;
         }
         return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
@@ -215,7 +215,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         VMMeter vmstats = new VMMeter();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
                 new IntByReference(vmstats.size()))) {
-            LOG.error("Failed to update vmstats. Error code: " + Native.getLastError());
+            LOG.error("Failed to update vmstats. Error code: {}", Native.getLastError());
             return -1;
         }
         return ParseUtil.unsignedIntToLong(vmstats.v_intr);
