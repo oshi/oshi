@@ -2,16 +2,18 @@
 
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|com.github.oshi)
 [![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
-[![SonarQube Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
 [![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oshi/oshi&amp;utm_campaign=Badge_Grade)
-[![Dependency Status](https://www.versioneye.com/user/projects/58baedff01b5b7003d62096a/badge.svg)](https://www.versioneye.com/user/projects/58baedff01b5b7003d62096a)
-[![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Project Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
 It doesn't require the installation of any additional native libraries and aims to provide a 
@@ -20,6 +22,12 @@ memory & CPU usage, disks & partitions, devices, sensors, etc.
 
 OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
 and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
+
+Essentials
+----------
+* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
+* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
+* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
 Supported platforms 
 --------------------------- 
@@ -41,12 +49,6 @@ Supported features
 * Connected displays (with EDID info)
 * USB Devices
 * Sensors (temperature, fan speeds, voltage)
-
-Essentials
-----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
-* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
-* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
 Downloads
 ---------
