@@ -88,7 +88,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
                         isPresent = Integer.parseInt(psSplit[1]) > 0;
                     }
                     if (!isPresent) {
-                        continue;
+                        break;
                     }
                 } else if (checkLine.startsWith("POWER_SUPPLY_NAME")) {
                     // Name
@@ -127,8 +127,10 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     }
                 }
             }
-            psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
-                    isCharging ? -2d : 3600d * energyNow / powerNow));
+            if (isPresent) {
+                psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
+                        isCharging ? -2d : 3600d * energyNow / powerNow));
+            }
         }
 
         return psList.toArray(new LinuxPowerSource[psList.size()]);

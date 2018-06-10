@@ -21,7 +21,7 @@ package oshi.jna.platform.windows.COM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong;
+import com.sun.jna.NativeLong; // NOSONAR
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Guid.CLSID;
 import com.sun.jna.platform.win32.Guid.GUID;

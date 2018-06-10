@@ -18,9 +18,12 @@
  */
 package oshi;
 
+import static org.junit.Assert.assertFalse;
+
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +58,15 @@ import oshi.util.Util;
 public class SystemInfoTest {
 
     /**
-     * The main method.
+     * Test system info.
+     */
+    @Test
+    public void testCentralProcessor() {
+        assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
+    }
+
+    /**
+     * The main method, demonstrating use of classes.
      *
      * @param args
      *            the arguments

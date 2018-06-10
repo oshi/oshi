@@ -559,115 +559,115 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The Processor ID string
      */
     protected String createProcessorID(String stepping, String model, String family, String[] flags) {
-        long processorID = 0L;
+        long processorIdBytes = 0L;
         long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
         long modelL = ParseUtil.parseLongOrDefault(model, 0L);
         long familyL = ParseUtil.parseLongOrDefault(family, 0L);
         // 3:0 – Stepping
-        processorID |= steppingL & 0xf;
+        processorIdBytes |= steppingL & 0xf;
         // 19:16,7:4 – Model
-        processorID |= (modelL & 0x0f) << 4;
-        processorID |= (modelL & 0xf0) << 16;
+        processorIdBytes |= (modelL & 0x0f) << 4;
+        processorIdBytes |= (modelL & 0xf0) << 16;
         // 27:20,11:8 – Family
-        processorID |= (familyL & 0x0f) << 8;
-        processorID |= (familyL & 0xf0) << 20;
+        processorIdBytes |= (familyL & 0x0f) << 8;
+        processorIdBytes |= (familyL & 0xf0) << 20;
         // 13:12 – Processor Type, assume 0
         for (String flag : flags) {
             switch (flag) {
             case "fpu":
-                processorID |= 1L << 32;
+                processorIdBytes |= 1L << 32;
                 break;
             case "vme":
-                processorID |= 1L << 33;
+                processorIdBytes |= 1L << 33;
                 break;
             case "de":
-                processorID |= 1L << 34;
+                processorIdBytes |= 1L << 34;
                 break;
             case "pse":
-                processorID |= 1L << 35;
+                processorIdBytes |= 1L << 35;
                 break;
             case "tsc":
-                processorID |= 1L << 36;
+                processorIdBytes |= 1L << 36;
                 break;
             case "msr":
-                processorID |= 1L << 37;
+                processorIdBytes |= 1L << 37;
                 break;
             case "pae":
-                processorID |= 1L << 38;
+                processorIdBytes |= 1L << 38;
                 break;
             case "mce":
-                processorID |= 1L << 39;
+                processorIdBytes |= 1L << 39;
                 break;
             case "cx8":
-                processorID |= 1L << 40;
+                processorIdBytes |= 1L << 40;
                 break;
             case "apic":
-                processorID |= 1L << 41;
+                processorIdBytes |= 1L << 41;
                 break;
             case "sep":
-                processorID |= 1L << 43;
+                processorIdBytes |= 1L << 43;
                 break;
             case "mtrr":
-                processorID |= 1L << 44;
+                processorIdBytes |= 1L << 44;
                 break;
             case "pge":
-                processorID |= 1L << 45;
+                processorIdBytes |= 1L << 45;
                 break;
             case "mca":
-                processorID |= 1L << 46;
+                processorIdBytes |= 1L << 46;
                 break;
             case "cmov":
-                processorID |= 1L << 47;
+                processorIdBytes |= 1L << 47;
                 break;
             case "pat":
-                processorID |= 1L << 48;
+                processorIdBytes |= 1L << 48;
                 break;
             case "pse-36":
-                processorID |= 1L << 49;
+                processorIdBytes |= 1L << 49;
                 break;
             case "psn":
-                processorID |= 1L << 50;
+                processorIdBytes |= 1L << 50;
                 break;
             case "clfsh":
-                processorID |= 1L << 51;
+                processorIdBytes |= 1L << 51;
                 break;
             case "ds":
-                processorID |= 1L << 53;
+                processorIdBytes |= 1L << 53;
                 break;
             case "acpi":
-                processorID |= 1L << 54;
+                processorIdBytes |= 1L << 54;
                 break;
             case "mmx":
-                processorID |= 1L << 55;
+                processorIdBytes |= 1L << 55;
                 break;
             case "fxsr":
-                processorID |= 1L << 56;
+                processorIdBytes |= 1L << 56;
                 break;
             case "sse":
-                processorID |= 1L << 57;
+                processorIdBytes |= 1L << 57;
                 break;
             case "sse2":
-                processorID |= 1L << 58;
+                processorIdBytes |= 1L << 58;
                 break;
             case "ss":
-                processorID |= 1L << 59;
+                processorIdBytes |= 1L << 59;
                 break;
             case "htt":
-                processorID |= 1L << 60;
+                processorIdBytes |= 1L << 60;
                 break;
             case "tm":
-                processorID |= 1L << 61;
+                processorIdBytes |= 1L << 61;
                 break;
             case "ia64":
-                processorID |= 1L << 62;
+                processorIdBytes |= 1L << 62;
                 break;
             case "pbe":
-                processorID |= 1L << 63;
+                processorIdBytes |= 1L << 63;
                 break;
             default:
                 break;
             }
         }
-        return String.format("%016X", processorID);
+        return String.format("%016X", processorIdBytes);
     }
 }
