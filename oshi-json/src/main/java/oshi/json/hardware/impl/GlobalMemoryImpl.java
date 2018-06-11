@@ -89,6 +89,22 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      * {@inheritDoc}
      */
     @Override
+    public long getSwapPagesIn() {
+        return this.memory.getSwapPagesIn();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+        return this.memory.getSwapPagesOut();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public long getPageSize() {
         return this.memory.getPageSize();
     }
@@ -111,10 +127,15 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
         if (PropertiesUtil.getBoolean(properties, "hardware.memory.swapUsed")) {
             json.add("swapUsed", getSwapUsed());
         }
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.swapPagesIn")) {
+            json.add("swapPagesIn", getSwapPagesIn());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.memory.swapPagesOut")) {
+            json.add("swapPagesOut", getSwapPagesOut());
+        }
         if (PropertiesUtil.getBoolean(properties, "hardware.memory.pageSize")) {
             json.add("pageSize", getPageSize());
         }
         return json.build();
     }
-
 }

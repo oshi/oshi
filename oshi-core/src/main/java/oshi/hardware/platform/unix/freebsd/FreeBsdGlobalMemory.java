@@ -47,6 +47,8 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
         long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
         long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
         this.memAvailable = (inactive + cache + free) * this.pageSize;
+        this.swapPagesIn = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
+        this.swapPagesOut = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
     }
 
     /**

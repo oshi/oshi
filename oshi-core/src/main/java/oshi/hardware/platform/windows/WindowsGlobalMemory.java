@@ -18,9 +18,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +26,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.PdhUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -42,9 +39,32 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
+    private String pdhPagesInputPerSecCounter = null;
+    private String pdhPagesOutputPerSecCounter = null;
+    private String pdhPagingPercentUsageCounter = null;
+
     private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
 
     private long lastUpdate = 0;
+
+    public WindowsGlobalMemory() {
+        // Initialize pdh counters
+        initPdhCounters();
+    }
+
+    /**
+     * Initializes PDH Tick Counters
+     */
+    private void initPdhCounters() {
+        pdhPagesInputPerSecCounter = "\\Memory\\Pages Input/sec";
+        pdhPagesOutputPerSecCounter = "\\Memory\\Pages Out/sec";
+
+        PdhUtil.addCounter(pdhPagesInputPerSecCounter);
+        PdhUtil.addCounter(pdhPagesOutputPerSecCounter);
+
+        pdhPagingPercentUsageCounter = "\\Paging File(_Total)\\% Usage";
+        PdhUtil.addCounter(pdhPagingPercentUsageCounter);
+    }
 
     /**
      * Update the performance information no more frequently than every 100ms
@@ -62,6 +82,9 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();
             this.swapTotal = this.pageSize
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
+            this.swapPagesIn = PdhUtil.queryCounter(pdhPagesInputPerSecCounter);
+            this.swapPagesOut = PdhUtil.queryCounter(pdhPagesOutputPerSecCounter);
+
             this.lastUpdate = now;
         }
     }
@@ -72,10 +95,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
         updateMeminfo();
-        Map<String, List<Long>> usage = WmiUtil.selectUint32sFrom(null, "Win32_PerfRawData_PerfOS_PagingFile",
-                "PercentUsage,PercentUsage_Base", "WHERE Name=\"_Total\"");
-        if (!usage.get("PercentUsage").isEmpty()) {
-            this.swapUsed = this.swapTotal * usage.get("PercentUsage").get(0) / usage.get("PercentUsage_Base").get(0);
-        }
+        this.swapUsed = PdhUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
     }
 }
