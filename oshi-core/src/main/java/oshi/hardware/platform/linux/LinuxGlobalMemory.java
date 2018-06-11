@@ -23,7 +23,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.linux.Libc;
@@ -83,9 +83,6 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
             List<String> memInfo = FileUtil.readFile("/proc/meminfo");
-            if (memInfo.isEmpty()) {
-                return;
-            }
             boolean found = false;
             for (String checkLine : memInfo) {
                 String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
@@ -126,6 +123,24 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             // If no MemAvailable, calculate from other fields
             if (!found) {
                 this.memAvailable = this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;
+            }
+
+            memInfo = FileUtil.readFile("/proc/vmstat");
+            for (String checkLine : memInfo) {
+                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+                if (memorySplit.length > 1) {
+                    switch (memorySplit[0]) {
+                    case "pgpgin":
+                        swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    case "pgpgout":
+                        swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
+                }
             }
 
             this.lastUpdate = now;

@@ -21,7 +21,7 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
@@ -56,7 +56,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
         LongByReference pPageSize = new LongByReference();
         if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
-            LOG.error("Failed to get host page size. Error code: " + Native.getLastError());
+            LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
             return;
         }
         this.pageSize = pPageSize.getValue();
@@ -71,10 +71,12 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         if (now - this.lastUpdateAvail > 100) {
             if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,
                     this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {
-                LOG.error("Failed to get host VM info. Error code: " + Native.getLastError());
+                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
                 return;
             }
             this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;
+            this.swapPagesIn = this.vmStats.pageins;
+            this.swapPagesOut = this.vmStats.pageouts;
             this.lastUpdateAvail = now;
         }
     }

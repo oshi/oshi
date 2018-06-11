@@ -19,6 +19,7 @@
 package oshi.json;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.PlatformEnum;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.json.hardware.Baseboard;
 import oshi.json.hardware.CentralProcessor;
@@ -61,7 +63,15 @@ import oshi.util.Util;
 public class SystemInfoTest {
 
     /**
-     * The main method.
+     * Test system info.
+     */
+    @Test
+    public void testCentralProcessor() {
+        assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
+    }
+
+    /**
+     * The main method, demonstrating use of classes.
      *
      * @param args
      *            the arguments

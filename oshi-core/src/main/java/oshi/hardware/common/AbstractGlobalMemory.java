@@ -34,6 +34,8 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = 0L;
     protected long swapTotal = 0L;
     protected long swapUsed = 0L;
+    protected long swapPagesIn = 0L;
+    protected long swapPagesOut = 0L;
     protected long pageSize = 0L;
 
     /**
@@ -82,6 +84,24 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     public long getSwapTotal() {
         updateSwap();
         return this.swapTotal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesIn() {
+        updateMeminfo();
+        return this.swapPagesIn;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+        updateMeminfo();
+        return this.swapPagesOut;
     }
 
     /**

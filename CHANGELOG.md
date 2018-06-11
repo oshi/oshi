@@ -5,6 +5,7 @@
 * [#503](https://github.com/oshi/oshi/pull/503): Expose memory page size to API. - [@dbwiddis](https://github.com/dbwiddis).
 * [#507](https://github.com/oshi/oshi/pull/507): Replace WMI with (faster) PDH queries for WindowsCentralProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#508](https://github.com/oshi/oshi/pull/508): Replace WMI with (faster) registry data for Windows Processes. - [@dbwiddis](https://github.com/dbwiddis).
+* [#509](https://github.com/oshi/oshi/pull/509): Add pages swapped in/out to paging/swap file. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.5.0 (4/15/18)

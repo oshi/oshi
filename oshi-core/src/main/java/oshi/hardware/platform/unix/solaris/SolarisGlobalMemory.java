@@ -18,6 +18,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,18 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
             this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * this.pageSize;
             this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * this.pageSize;
+        }
+
+        this.swapPagesIn = 0L;
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin");
+        for (String s : kstat) {
+            this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);
+        }
+
+        this.swapPagesOut = 0L;
+        kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout");
+        for (String s : kstat) {
+            this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);
         }
     }
 
