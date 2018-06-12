@@ -67,6 +67,7 @@ Projects using OSHI
 * [sys-API](https://github.com/Krillsson/sys-API)
 * [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
 * [360Suite](https://360suite.io/)
+* [Stefan's OS](https://BotCompany.de/)
 
 Output
 -------------
