@@ -120,13 +120,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             this.pdhCounters[p][TickType.USER.getIndex()] = String.format(queryName[TickType.USER.getIndex()], p);
             this.pdhCounters[p][TickType.IRQ.getIndex()] = String.format(queryName[TickType.IRQ.getIndex()], p);
             this.pdhCounters[p][TickType.SOFTIRQ.getIndex()] = String.format(queryName[TickType.SOFTIRQ.getIndex()], p);
-
-            PdhUtil.addCounter(this.pdhCounters[p][TickType.IDLE.getIndex()]);
-            PdhUtil.addCounter(this.pdhCounters[p][TickType.SYSTEM.getIndex()]);
-            PdhUtil.addCounter(this.pdhCounters[p][TickType.USER.getIndex()]);
-            PdhUtil.addCounter(this.pdhCounters[p][TickType.IRQ.getIndex()]);
-            PdhUtil.addCounter(this.pdhCounters[p][TickType.SOFTIRQ.getIndex()]);
         }
+        PdhUtil.addCounter2DArray("pdhCounters", this.pdhCounters);
 
         pdhIrqCounter = "\\Processor(_Total)\\% Interrupt Time";
         pdhSoftIrqCounter = "\\Processor(_Total)\\% DPC Time";
@@ -214,28 +209,23 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
+        long[][] ticks = PdhUtil.queryCounter2DArray("pdhCounters", this.pdhCounters);
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            // Raw value is cumulative 100NS-ticks
-            // Divide by 10000 to get milliseconds
-            ticks[cpu][TickType.IDLE.getIndex()] = PdhUtil.queryCounter(this.pdhCounters[cpu][TickType.IDLE.getIndex()])
-                    / 10000L;
-            ticks[cpu][TickType.SYSTEM.getIndex()] = PdhUtil
-                    .queryCounter(this.pdhCounters[cpu][TickType.SYSTEM.getIndex()]) / 10000L;
-            ticks[cpu][TickType.USER.getIndex()] = PdhUtil.queryCounter(this.pdhCounters[cpu][TickType.USER.getIndex()])
-                    / 10000L;
-            ticks[cpu][TickType.IRQ.getIndex()] = PdhUtil.queryCounter(this.pdhCounters[cpu][TickType.IRQ.getIndex()])
-                    / 10000L;
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] = PdhUtil
-                    .queryCounter(this.pdhCounters[cpu][TickType.SOFTIRQ.getIndex()]) / 10000L;
-            // Skipping nice and IOWait, they'll stay 0
-
             // Decrement idle as it's really total
             ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]
                     + ticks[cpu][TickType.USER.getIndex()];
             // Decrement system to avoid double counting in the total array
             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
+
+            // Raw value is cumulative 100NS-ticks
+            // Divide by 10000 to get milliseconds
+            ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;
+            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;
+            ticks[cpu][TickType.USER.getIndex()] /= 10000L;
+            ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;
+            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;
+            // Skipping nice and IOWait, they'll stay 0
         }
         return ticks;
     }

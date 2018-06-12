@@ -24,7 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
+import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR; // NOSONAR
 import com.sun.jna.platform.win32.Pdh;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 import com.sun.jna.platform.win32.WinDef.DWORD;
@@ -46,6 +46,9 @@ public class PdhUtil {
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
     private static final PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
     private static final Pdh PDH = Pdh.INSTANCE;
+
+    private static final String HEX_ERROR_FMT = "0x%08X";
+    private static final String LOG_COUNTER_NOT_EXISTS = "Counter does not exist: {}";
 
     // Maps to hold pointers to the relevant counter information
     private static final Map<String, HANDLEByReference> counterMap = new HashMap<>();
@@ -76,11 +79,48 @@ public class PdhUtil {
             return true;
         }
         HANDLEByReference q = new HANDLEByReference();
-        if (PdhUtil.openQuery(q)) {
+        if (openQuery(q)) {
             HANDLEByReference p = new HANDLEByReference();
-            PdhUtil.addCounter(q, counterString, p);
+            addCounter(q, counterString, p);
             counterMap.put(counterString, p);
             queryMap.put(counterString, q);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Begin monitoring a 2D array of Performance Data counters
+     * 
+     * @param name
+     *            A unique name that will always correspond to the same String
+     *            array
+     * @param counterStringArray
+     *            A 2D array of string counter names to monitor
+     * @return True if the counters have been successfully added or already
+     *         exist
+     */
+    public static boolean addCounter2DArray(String name, String[][] counterStringArray) {
+        if (queryMap.containsKey(name)) {
+            LOG.warn("Counters already exists: {}", name);
+            return true;
+        }
+        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {
+            LOG.error("This array has a zero dimension: {}", name);
+            return false;
+        }
+        HANDLEByReference q = new HANDLEByReference();
+        if (openQuery(q)) {
+            for (int i = 0; i < counterStringArray.length; i++) {
+                for (int j = 0; j < counterStringArray[i].length; j++) {
+                    if (counterStringArray[i][j] != null) {
+                        HANDLEByReference p = new HANDLEByReference();
+                        addCounter(q, counterStringArray[i][j], p);
+                        counterMap.put(counterStringArray[i][j], p);
+                    }
+                }
+            }
+            queryMap.put(name, q);
             return true;
         }
         return false;
@@ -94,11 +134,11 @@ public class PdhUtil {
      */
     public static void removeCounter(String counterString) {
         if (queryMap.containsKey(counterString)) {
-          PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
-          counterMap.remove(counterString);
-          queryMap.remove(counterString);
+            PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
+            counterMap.remove(counterString);
+            queryMap.remove(counterString);
         } else {
-          LOG.warn("Counter does not exist: {}", counterString);          
+            LOG.warn(LOG_COUNTER_NOT_EXISTS, counterString);
         }
     }
 
@@ -112,11 +152,43 @@ public class PdhUtil {
      */
     public static long queryCounter(String counterString) {
         if (!queryMap.containsKey(counterString)) {
-            LOG.error("Counter does not exist: {}", counterString);
+            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);
             return 0;
         }
         updateCounters(queryMap.get(counterString));
         return queryCounter(counterMap.get(counterString));
+    }
+
+    /**
+     * Query the raw counter value of an array of Performance Data counters.
+     * Further mathematical manipulation/conversion is left to the caller.
+     * 
+     * @param name
+     *            A unique name that will always correspond to the same String
+     *            array
+     * @param counterStringArray
+     *            A 2D array of string counter names to monitor
+     * @return The raw values of the counters corresponding to the string
+     */
+    public static long[][] queryCounter2DArray(String name, String[][] counterStringArray) {
+        if (!queryMap.containsKey(name)) {
+            LOG.error(LOG_COUNTER_NOT_EXISTS, name);
+            return new long[0][0];
+        }
+        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {
+            LOG.error("This array has a zero dimension: {}", name);
+            return new long[0][0];
+        }
+        updateCounters(queryMap.get(name));
+        long[][] values = new long[counterStringArray.length][counterStringArray[0].length];
+        for (int i = 0; i < counterStringArray.length; i++) {
+            for (int j = 0; j < counterStringArray[i].length; j++) {
+                if (counterStringArray[i][j] != null) {
+                    values[i][j] = queryCounter(counterMap.get(counterStringArray[i][j]));
+                }
+            }
+        }
+        return values;
     }
 
     /**
@@ -128,8 +200,8 @@ public class PdhUtil {
      */
     private static boolean openQuery(HANDLEByReference p) {
         int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, p);
-        if (pdhOpenQueryError != WinError.ERROR_SUCCESS) {
-            LOG.error("Failed to open PDH Query. Error code: {}", String.format("0x$08X", pdhOpenQueryError));
+        if (pdhOpenQueryError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
+            LOG.error("Failed to open PDH Query. Error code: {}", String.format(HEX_ERROR_FMT, pdhOpenQueryError));
         }
         return pdhOpenQueryError == WinError.ERROR_SUCCESS;
     }
@@ -146,9 +218,9 @@ public class PdhUtil {
      */
     private static void addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
         int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
-        if (pdhAddCounterError != WinError.ERROR_SUCCESS) {
+        if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
             LOG.error("Failed to add PDH Counter: {}, Error code: {}", path,
-                    String.format("0x%08X", pdhAddCounterError));
+                    String.format(HEX_ERROR_FMT, pdhAddCounterError));
         }
     }
 
@@ -161,8 +233,8 @@ public class PdhUtil {
      */
     private static boolean updateCounters(WinNT.HANDLEByReference query) {
         int ret = PDH.PdhCollectQueryData(query.getValue());
-        if (ret != WinError.ERROR_SUCCESS) {
-            LOG.error("Failed to update counters. Error code: {}", String.format("0x%08X", ret));
+        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
+            LOG.error("Failed to update counters. Error code: {}", String.format(HEX_ERROR_FMT, ret));
             return false;
         }
         return true;
@@ -177,8 +249,8 @@ public class PdhUtil {
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-        if (ret != WinError.ERROR_SUCCESS) {
-            LOG.warn("Failed to get counter. Error code: {}", String.format("0x%08X", ret));
+        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
+            LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
             return 0L;
         }
         return counterValue.FirstValue;

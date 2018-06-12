@@ -57,7 +57,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      */
     private void initPdhCounters() {
         pdhPagesInputPerSecCounter = "\\Memory\\Pages Input/sec";
-        pdhPagesOutputPerSecCounter = "\\Memory\\Pages Out/sec";
+        pdhPagesOutputPerSecCounter = "\\Memory\\Pages Output/sec";
 
         PdhUtil.addCounter(pdhPagesInputPerSecCounter);
         PdhUtil.addCounter(pdhPagesOutputPerSecCounter);
