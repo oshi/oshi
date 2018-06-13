@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR; // NOSONAR
 import com.sun.jna.platform.win32.Pdh;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
+import com.sun.jna.platform.win32.WinBase.FILETIME;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
@@ -64,6 +65,17 @@ public class PdhUtil {
                 }
             }
         });
+    }
+
+    /**
+     * Report if a performance counter is being monitored
+     * 
+     * @param counterString
+     *            The counter to monitor
+     * @return True if the counter already exists
+     */
+    public static boolean isCounter(String counterString) {
+        return counterMap.containsKey(counterString);
     }
 
     /**
@@ -160,6 +172,23 @@ public class PdhUtil {
     }
 
     /**
+     * Get the timestamp of a raw counter value of a Performance Data counter.
+     * Does not update the counter, and should normally be called after querying
+     * the counter.
+     * 
+     * @param counterString
+     *            The counter to query
+     * @return The raw value of the counter
+     */
+    public static long queryCounterTimestamp(String counterString) {
+        if (!queryMap.containsKey(counterString)) {
+            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);
+            return 0;
+        }
+        return queryCounterTimestamp(counterMap.get(counterString)).toDWordLong().longValue() / 10000L;
+    }
+
+    /**
      * Query the raw counter value of an array of Performance Data counters.
      * Further mathematical manipulation/conversion is left to the caller.
      * 
@@ -245,7 +274,7 @@ public class PdhUtil {
      * 
      * @param counter
      *            The counter to get the value of
-     * @return long value of the counter x 1000
+     * @return long value of the counter
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
@@ -254,5 +283,22 @@ public class PdhUtil {
             return 0L;
         }
         return counterValue.FirstValue;
+    }
+
+    /**
+     * Get timestamp of pdh counter
+     * 
+     * @param counter
+     *            The counter to get the value of
+     * @return FILETIME value of the counter. This is in 100-ns increments and
+     *         uses the 1601 Epoch.
+     */
+    private static FILETIME queryCounterTimestamp(WinNT.HANDLEByReference counter) {
+        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
+        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
+            LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+            return new FILETIME();
+        }
+        return counterValue.TimeStamp;
     }
 }

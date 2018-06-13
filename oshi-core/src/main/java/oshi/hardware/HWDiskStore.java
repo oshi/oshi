@@ -108,11 +108,14 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
-     * Update all the statistics about the drive without needing to recreate the
-     * drive list
+     * Make a best effort to update all the statistics about the drive without
+     * needing to recreate the drive list. This method provides for more
+     * frequent periodic updates of drive statistics. It will not detect if a
+     * removable drive has been removed and replaced by a different drive in
+     * between method calls.
      * 
-     * @return True if the update was successful, false if the disk was not
-     *         found
+     * @return True if the update was (probably) successful, false if the disk
+     *         was not found
      */
     public boolean updateDiskStats() {
         boolean diskFound = false;

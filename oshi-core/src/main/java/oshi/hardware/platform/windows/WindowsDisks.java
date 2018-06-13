@@ -25,14 +25,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.platform.win32.Kernel32; // NOSONAR
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.jna.platform.windows.Pdh;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
+import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -44,6 +52,8 @@ import oshi.util.platform.windows.WmiUtil.ValueType;
 public class WindowsDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisks.class);
 
     /**
      * Maps to store read/write bytes per drive index
@@ -69,18 +79,12 @@ public class WindowsDisks implements Disks {
     private static final String DESCRIPTION_PROPERTY = "Description";
     private static final String DEVICE_ID_PROPERTY = "DeviceID";
     private static final String DISK_INDEX_PROPERTY = "DiskIndex";
-    private static final String DISK_READ_BYTES_PROPERTY = "DiskReadBytesPerSec";
-    private static final String DISK_READS_PROPERTY = "DiskReadsPerSec";
-    private static final String DISK_WRITE_BYTES_PROPERTY = "DiskWriteBytesPerSec";
-    private static final String DISK_WRITES_PROPERTY = "DiskWritesPerSec";
     private static final String INDEX_PROPERTY = "Index";
     private static final String MANUFACTURER_PROPERTY = "Manufacturer";
     private static final String MODEL_PROPERTY = "Model";
     private static final String NAME_PROPERTY = "Name";
-    private static final String PERCENT_DISK_TIME_PROPERTY = "PercentDiskTime";
     private static final String SERIALNUMBER_PROPERTY = "SerialNumber";
     private static final String SIZE_PROPERTY = "Size";
-    private static final String TIMESTAMP_PROPERTY = "Timestamp_Sys100NS";
     private static final String TYPE_PROPERTY = "Type";
 
     private static final String[] DRIVE_PROPERTIES = new String[] { NAME_PROPERTY, MANUFACTURER_PROPERTY,
@@ -93,37 +97,49 @@ public class WindowsDisks implements Disks {
     private static final String LOGICAL_DISK_TO_PARTITION_PROPERTIES = StringUtil.join(",",
             new String[] { ANTECEDENT_PROPERTY, DEPENDENT_PROPERTY });
 
-    private static final String[] READ_WRITE_PROPERTIES = new String[] { NAME_PROPERTY, DISK_READS_PROPERTY,
-            DISK_READ_BYTES_PROPERTY, DISK_WRITES_PROPERTY, DISK_WRITE_BYTES_PROPERTY, PERCENT_DISK_TIME_PROPERTY,
-            TIMESTAMP_PROPERTY };
-    private static final ValueType[] READ_WRITE_TYPES = { ValueType.STRING, ValueType.UINT32, ValueType.STRING,
-            ValueType.UINT32, ValueType.STRING, ValueType.STRING, ValueType.STRING };
-
     private static final String[] PARTITION_PROPERTIES = new String[] { NAME_PROPERTY, TYPE_PROPERTY,
             DESCRIPTION_PROPERTY, DEVICE_ID_PROPERTY, SIZE_PROPERTY, DISK_INDEX_PROPERTY, INDEX_PROPERTY };
     private static final ValueType[] PARTITION_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
             ValueType.STRING, ValueType.STRING, ValueType.UINT32, ValueType.UINT32 };
 
-    public static boolean updateDiskStats(HWDiskStore diskStore) {
-        Map<String, List<Long>> vals = WmiUtil.selectUint32sFrom(null, DISK_DRIVE_CLASS, INDEX_PROPERTY,
-                "WHERE SerialNumber=" + diskStore.getSerial());
+    private static final String PDH_DISK_READS_FORMAT = "\\PhysicalDisk(%s)\\Disk Reads/sec";
+    private static final String PDH_DISK_READ_BYTES_FORMAT = "\\PhysicalDisk(%s)\\Disk Read Bytes/sec";
+    private static final String PDH_DISK_WRITES_FORMAT = "\\PhysicalDisk(%s)\\Disk Writes/sec";
+    private static final String PDH_DISK_WRITE_BYTES_FORMAT = "\\PhysicalDisk(%s)\\Disk Write Bytes/sec";
+    private static final String PDH_DISK_TIME_FORMAT = "\\PhysicalDisk(%s)\\%% Disk Time";
 
-        if (vals.get(INDEX_PROPERTY).isEmpty()) {
+    private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
+
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+        String index = null;
+        HWPartition[] partitions = diskStore.getPartitions();
+        if (partitions.length > 0) {
+            // If a partition exists on this drive, the major property
+            // corresponds to the disk index, so use it.
+            index = Integer.toString(partitions[0].getMajor());
+        } else if (diskStore.getName().startsWith(PHYSICALDRIVE_PREFIX)) {
+            // If no partition exists, Windows reliably uses a name to match the
+            // disk index. That said, the skeptical person might wonder why a
+            // disk has read/write statistics without a partition, and wonder
+            // why this branch is even relevant as an option. The author of this
+            // comment does not have an answer for this valid question.
+            index = diskStore.getName().substring(PHYSICALDRIVE_PREFIX.length(), diskStore.getName().length());
+        } else {
+            // The author of this comment cannot fathom a circumstance in which
+            // the code reaches this point, but just in case it does, here's the
+            // correct response. If you get this log warning, the circumstances
+            // would be of great interest to the project's maintainers.
+            LOG.warn("Couldn't match index for {}", diskStore.getName());
             return false;
         }
-
-        String index = vals.get(INDEX_PROPERTY).get(0).toString();
-        populateReadWriteMaps();
-
+        populateReadWriteMaps(index);
         if (readMap.containsKey(index)) {
-
             diskStore.setReads(MapUtil.getOrDefault(readMap, index, 0L));
             diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
             diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
-
             return true;
         } else {
             return false;
@@ -135,7 +151,7 @@ public class WindowsDisks implements Disks {
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
         result = new ArrayList<>();
-        populateReadWriteMaps();
+        populateReadWriteMaps(null);
         populatePartitionMaps();
 
         Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, DISK_DRIVE_CLASS, DRIVE_PROPERTIES, null,
@@ -174,31 +190,65 @@ public class WindowsDisks implements Disks {
     /**
      * Populates the maps for the specified index. If the index is null,
      * populates all the maps
+     * 
+     * @param index
+     *            The index to populate/update maps for
      */
-    private static void populateReadWriteMaps() {
-        readMap.clear();
-        readByteMap.clear();
-        writeMap.clear();
-        writeByteMap.clear();
-        xferTimeMap.clear();
-        timeStampMap.clear();
-        // Although the field names say "PerSec" this is the Raw Data from which
-        // the associated fields are populated in the Formatted Data class, so
-        // in fact this is the data we want
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_PerfRawData_PerfDisk_PhysicalDisk",
-                READ_WRITE_PROPERTIES, null, READ_WRITE_TYPES);
-        for (int i = 0; i < vals.get(NAME_PROPERTY).size(); i++) {
-            String name = ParseUtil.whitespaces.split((String) vals.get(NAME_PROPERTY).get(i))[0];
-            readMap.put(name, (long) vals.get(DISK_READS_PROPERTY).get(i));
-            readByteMap.put(name, ParseUtil.parseLongOrDefault((String) vals.get(DISK_READ_BYTES_PROPERTY).get(i), 0L));
-            writeMap.put(name, (long) vals.get(DISK_WRITES_PROPERTY).get(i));
-            writeByteMap.put(name,
-                    ParseUtil.parseLongOrDefault((String) vals.get(DISK_WRITE_BYTES_PROPERTY).get(i), 0L));
-            // Units are 100-ns, divide to get ms
-            xferTimeMap.put(name,
-                    ParseUtil.parseLongOrDefault((String) vals.get(PERCENT_DISK_TIME_PROPERTY).get(i), 0L) / 10000L);
-            timeStampMap.put(name,
-                    ParseUtil.parseLongOrDefault((String) vals.get(TIMESTAMP_PROPERTY).get(i), 0L) / 10000L);
+    private static void populateReadWriteMaps(String index) {
+        // If index is null, start from scratch.
+        if (index == null) {
+            readMap.clear();
+            readByteMap.clear();
+            writeMap.clear();
+            writeByteMap.clear();
+            xferTimeMap.clear();
+            timeStampMap.clear();
+        }
+        // Fetch the instance names
+        // Call once to get string lengths
+        DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
+        DWORDByReference pcchInstanceListLength = new DWORDByReference(new DWORD(0));
+        Pdh.INSTANCE.PdhEnumObjectItems(null, null, "PhysicalDisk", null, pcchCounterListLength, null,
+                pcchInstanceListLength, 100, 0);
+        // Allocate memory and call again to populate strings
+        char[] mszCounterList = new char[pcchCounterListLength.getValue().intValue()];
+        char[] mszInstanceList = new char[pcchInstanceListLength.getValue().intValue()];
+        Pdh.INSTANCE.PdhEnumObjectItems(null, null, "PhysicalDisk", mszCounterList, pcchCounterListLength,
+                mszInstanceList, pcchInstanceListLength, 100, 0);
+        List<String> instances = Native.toStringList(mszInstanceList);
+        instances.remove("_Total");
+        // At this point we have a list of strings that PDH understands. Fetch
+        // the counters.
+        // Although the field names say "PerSec" this is the Raw Data/counters
+        // from which the associated fields are populated in the Formatted Data
+        for (String i : instances) {
+            String name = ParseUtil.whitespaces.split(i)[0];
+            String readString = String.format(PDH_DISK_READS_FORMAT, i);
+            if (!PdhUtil.isCounter(readString)) {
+                PdhUtil.addCounter(readString);
+            }
+            String readBytesString = String.format(PDH_DISK_READ_BYTES_FORMAT, i);
+            if (!PdhUtil.isCounter(readBytesString)) {
+                PdhUtil.addCounter(readBytesString);
+            }
+            String writeString = String.format(PDH_DISK_WRITES_FORMAT, i);
+            if (!PdhUtil.isCounter(writeString)) {
+                PdhUtil.addCounter(writeString);
+            }
+            String writeBytesString = String.format(PDH_DISK_WRITE_BYTES_FORMAT, i);
+            if (!PdhUtil.isCounter(writeBytesString)) {
+                PdhUtil.addCounter(writeBytesString);
+            }
+            String xferTimeString = String.format(PDH_DISK_TIME_FORMAT, i);
+            if (!PdhUtil.isCounter(xferTimeString)) {
+                PdhUtil.addCounter(xferTimeString);
+            }
+            readMap.put(name, PdhUtil.queryCounter(readString));
+            readByteMap.put(name, PdhUtil.queryCounter(readBytesString));
+            writeMap.put(name, PdhUtil.queryCounter(writeString));
+            writeByteMap.put(name, PdhUtil.queryCounter(writeBytesString));
+            xferTimeMap.put(name, PdhUtil.queryCounter(xferTimeString) / 10000L);
+            timeStampMap.put(name, PdhUtil.queryCounterTimestamp(xferTimeString));
         }
     }
 
