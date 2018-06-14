@@ -41,6 +41,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
@@ -50,6 +51,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Kernel32;
+import oshi.jna.platform.windows.Pdh;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_BLOCK;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_DEFINITION;
 import oshi.jna.platform.windows.WinPerf.PERF_DATA_BLOCK;
@@ -62,7 +64,6 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -79,8 +80,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Registry variables to persist
      */
     private int perfDataBufferSize = 8192;
-    private int processorIndex;
-    private String processorIndexStr;
+    private int processIndex;
+    private String processIndexStr;
 
     /*
      * Registry counter block offsets
@@ -110,66 +111,33 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void initRegistry() {
-        // Get the title indices from HKEY_PERFORMANCE_TEXT
-        int priorityBaseIndex = 0;
-        int elapsedTimeIndex = 0;
-        int idProcessIndex = 0;
-        int creatingProcessIdIndex = 0;
-        int ioReadIndex = 0;
-        int ioWriteIndex = 0;
-        int workingSetPrivateIndex = 0;
-        // Query with null pointer to get length
-        IntByReference lpcbData = new IntByReference(0);
-        Pointer pPerfText = null;
-        Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_TEXT, "Counter", 0, null, pPerfText, lpcbData);
-        // Now initialize buffer with length and call again
-        pPerfText = new Memory(lpcbData.getValue());
-        Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_TEXT, "Counter", 0, null, pPerfText, lpcbData);
-        // Text contans a sequence of string pairs, counter # and name
-        int offset = 0;
-        while (offset < lpcbData.getValue()) {
-            String index = pPerfText.getWideString(offset);
-            offset += 2 * index.length() + 2;
-            String title = pPerfText.getWideString(offset);
-            offset += 2 * title.length() + 2;
-            switch (title) {
-            case "Process":
-                processorIndex = ParseUtil.parseIntOrDefault(index, 0);
-                processorIndexStr = Integer.toString(processorIndex);
-                break;
-            case "Priority Base":
-                priorityBaseIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "Elapsed Time":
-                elapsedTimeIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "ID Process":
-                idProcessIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "Creating Process ID":
-                creatingProcessIdIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "IO Read Bytes/sec":
-                ioReadIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "IO Write Bytes/sec":
-                ioWriteIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            case "Working Set - Private":
-                workingSetPrivateIndex = ParseUtil.parseIntOrDefault(index, 0);
-                break;
-            default:
-                // Ignore other strings
-                break;
-            }
-        }
+        // Get the title indices
+        DWORDByReference index = new DWORDByReference();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Process", index);
+        processIndex = index.getValue().intValue();
+        processIndexStr = Integer.toString(processIndex);
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Priority Base", index);
+        int priorityBaseIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Elapsed Time", index);
+        int elapsedTimeIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "ID Process", index);
+        int idProcessIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Creating Process ID", index);
+        int creatingProcessIdIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Read Bytes/sec", index);
+        int ioReadIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Write Bytes/sec", index);
+        int ioWriteIndex = index.getValue().intValue();
+        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Working Set - Private", index);
+        int workingSetPrivateIndex = index.getValue().intValue();
+
         // now load the Process registry to match up the offsets
         // Sequentially increase the buffer until everything fits.
         // Save this buffer size for later use
-        lpcbData = new IntByReference(this.perfDataBufferSize);
+        IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
         while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                processorIndexStr, 0, null, pPerfData, lpcbData)) {
+                processIndexStr, 0, null, pPerfData, lpcbData)) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
@@ -195,7 +163,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Identify where counter definitions start
             long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == processorIndex) {
+            if (perfObject.ObjectNameTitleIndex == processIndex) {
                 for (int counter = 0; counter < perfObject.NumCounters; counter++) {
                     PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(
                             pPerfData.share(perfCounterOffset));
@@ -435,7 +403,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
         while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                processorIndexStr, 0, null, pPerfData, lpcbData)) {
+                processIndexStr, 0, null, pPerfData, lpcbData)) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
@@ -460,7 +428,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
             PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == processorIndex) {
+            if (perfObject.ObjectNameTitleIndex == processIndex) {
                 // Skip over counter definitions
                 // There will be many of these, this points to the first one
                 long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;
