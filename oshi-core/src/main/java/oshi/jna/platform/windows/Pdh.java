@@ -98,4 +98,22 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
     int PdhEnumObjectItems(String szDataSource, String szMachineName, String szObjectName, char[] mszCounterList,
             DWORDByReference pcchCounterListLength, char[] mszInstanceList, DWORDByReference pcchInstanceListLength,
             int dwDetailLevel, int dwFlags);
+
+    /**
+     * 
+     * Returns the counter index corresponding to the specified counter name.
+     * 
+     * @param szMachineName
+     *            Null-terminated string that specifies the name of the computer
+     *            where the specified counter is located. The computer name can
+     *            be specified by the DNS name or the IP address. If NULL, the
+     *            function uses the local computer.
+     * @param szNameBuffer
+     *            Null-terminated string that contains the counter name.
+     * @param pdwIndex
+     *            Index of the counter.
+     * @return
+     */
+    int PdhLookupPerfIndexByName(String szMachineName, String szNameBuffer, DWORDByReference pdwIndex);
+
 }
