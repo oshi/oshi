@@ -49,10 +49,10 @@ public class LinuxDisks implements Disks {
 
     private final Map<String, String> mountsMap = new HashMap<>();
 
-    private static final Map<String, String> serialToPathMap = new HashMap<>();
+    private static final Map<Integer, String> hashCodeToPathMap = new HashMap<>();
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        String path = serialToPathMap.get(diskStore.getSerial());
+        String path = hashCodeToPathMap.get(diskStore.hashCode());
 
         Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
 
@@ -110,7 +110,7 @@ public class LinuxDisks implements Disks {
                     store.setPartitions(new HWPartition[0]);
                     computeDiskStats(store, device);
 
-                    serialToPathMap.put(store.getSerial(), Udev.INSTANCE.udev_list_entry_get_name(entry));
+                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
                     result.add(store);
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
