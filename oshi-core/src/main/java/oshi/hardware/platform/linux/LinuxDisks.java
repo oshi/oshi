@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,8 @@ public class LinuxDisks implements Disks {
     private static final Map<Integer, String> hashCodeToPathMap = new HashMap<>();
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        String path = hashCodeToPathMap.get(diskStore.hashCode());
+        String path = hashCodeToPathMap.get(
+                Objects.hash(diskStore.getName(), diskStore.getModel(), diskStore.getSerial(), diskStore.getSize()));
 
         Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
 
@@ -110,7 +112,9 @@ public class LinuxDisks implements Disks {
                     store.setPartitions(new HWPartition[0]);
                     computeDiskStats(store, device);
 
-                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
+                    hashCodeToPathMap.put(
+                            Objects.hash(store.getName(), store.getModel(), store.getSerial(), store.getSize()),
+                            Udev.INSTANCE.udev_list_entry_get_name(entry));
                     result.add(store);
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
