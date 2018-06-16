@@ -47,10 +47,9 @@ public interface FileSystem extends Serializable {
      * connections. On UNIX-based systems there is a system-wide limit on the
      * number of open file descriptors.
      *
-     * On Windows systems, this method returns 0. While Windows handles are
-     * conceptually similar to file descriptors, they may also refer to a number
-     * of non-I/O related objects, and there does not appear to be a system-wide
-     * limit for open handles.
+     * On Windows systems, this method returns the total number of handles held
+     * by Processes. While Windows handles are conceptually similar to file
+     * descriptors, they may also refer to a number of non-I/O related objects.
      *
      * @return The number of open file descriptors if available, 0 otherwise.
      */
@@ -62,10 +61,10 @@ public interface FileSystem extends Serializable {
      * connections. On UNIX-based systems there is a system-wide limit on the
      * number of open file descriptors.
      *
-     * On Windows systems, this method returns 0. While Windows handles are
+     * On Windows systems, this method returns the theoretical system limit of
+     * 65536. There may be a lower per-process limit. While Windows handles are
      * conceptually similar to file descriptors, they may also refer to a number
-     * of non-I/O related objects, and there does not appear to be a system-wide
-     * limit for open handles.
+     * of non-I/O related objects.
      *
      * @return The maximum number of file descriptors if available, 0 otherwise.
      */

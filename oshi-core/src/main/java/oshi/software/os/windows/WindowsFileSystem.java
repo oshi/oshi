@@ -29,6 +29,7 @@ import com.sun.jna.platform.win32.WinNT;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -46,6 +47,8 @@ public class WindowsFileSystem implements FileSystem {
     private static final int BUFSIZE = 255;
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
+
+    private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";
 
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
@@ -224,11 +227,15 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return 0L;
+        if (!PdhUtil.isCounter(HANDLE_COUNT_COUNTER)) {
+            PdhUtil.addCounter(HANDLE_COUNT_COUNTER);
+        }
+        return PdhUtil.queryCounter(HANDLE_COUNT_COUNTER);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        return 0L;
+        // There is a theoretical limit of 65,536 user handles per session.
+        return 65536L;
     }
 }
