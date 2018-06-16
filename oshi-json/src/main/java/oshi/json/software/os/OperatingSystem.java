@@ -147,6 +147,13 @@ public interface OperatingSystem extends OshiJsonObject {
     int getThreadCount();
 
     /**
+     * Gets the bitness (32 or 64) of the operating system.
+     * 
+     * @return The number of bits supported by the operating system.
+     */
+    int getBitness();
+
+    /**
      * Instantiates a {@link NetworkParams} object.
      *
      * @return A {@link NetworkParams} object.

@@ -88,6 +88,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);
         this.memoryPageSize = getMemoryPageSize();
         init();
+        initBitness();
     }
 
     /**
@@ -171,6 +172,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // reset to default if value is invalid
         if (hz == 0)
             hz = 1000L;
+    }
+
+    private void initBitness() {
+        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
+            this.bitness = 64;
+        }
     }
 
     private static int getMemoryPageSize() {
