@@ -173,6 +173,14 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      * {@inheritDoc}
      */
     @Override
+    public int getBitness() {
+        return this.os.getBitness();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public NetworkParams getNetworkParams() {
         return new NetworkParamsImpl(this.os.getNetworkParams());
     }
@@ -203,6 +211,9 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.threadCount")) {
             json.add("threadCount", getThreadCount());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.bitness")) {
+            json.add("bitness", getBitness());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes")) {
             JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();

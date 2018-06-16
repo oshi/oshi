@@ -46,6 +46,13 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         this.manufacturer = "Oracle";
         this.family = "SunOS";
         this.version = new SolarisOSVersionInfoEx();
+        initBitness();
+    }
+
+    private void initBitness() {
+        if (this.bitness < 64) {
+            this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+        }
     }
 
     /**

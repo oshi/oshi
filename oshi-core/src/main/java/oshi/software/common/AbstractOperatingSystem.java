@@ -36,6 +36,9 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
+    // Initialize based on JVM Bitness. Individual OS implementations will test
+    // if 32-bit JVM running on 64-bit OS
+    protected int bitness = (System.getProperty("os.arch").indexOf("64") != -1) ? 64 : 32;
 
     /*
      * Comparators for use in processSort()
@@ -186,5 +189,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 returnValue.add(process);
         }
         return returnValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBitness() {
+        return bitness;
     }
 }

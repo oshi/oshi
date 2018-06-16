@@ -41,6 +41,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -71,6 +72,17 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                         : System.getProperty("os.name");
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
+        initBitness();
+    }
+
+    private void initBitness() {
+        if (bitness < 64) {
+            if (this.getVersion().getOsxVersionNumber() > 7) {
+                this.bitness = 64;
+            } else {
+                this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
+            }
+        }
     }
 
     /**

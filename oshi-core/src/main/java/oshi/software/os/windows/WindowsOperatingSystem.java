@@ -30,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Function;
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -108,6 +109,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         this.family = "Windows";
         this.version = new WindowsOSVersionInfoEx();
         initRegistry();
+        initBitness();
     }
 
     private void initRegistry() {
@@ -190,6 +192,31 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
             // Increment for next object (should never need this)
             perfObjectOffset += perfObject.TotalByteLength;
+        }
+    }
+
+    private void initBitness() {
+        // If bitness is 32 test if we are on 64-bit OS
+        if (bitness < 64) {
+            // Try the easy way
+            if (System.getenv("ProgramFiles(x86)") != null) {
+                this.bitness = 64;
+            } else {
+                // Try the native way
+                try {
+                    Function isWow64Function = Function.getFunction("Kernel32", "IsWow64Process");
+
+                    WinNT.HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
+                    IntByReference isWow64 = new IntByReference(0);
+                    Boolean returnType = false;
+                    Object[] inArgs = { hProcess, isWow64 };
+                    if ((Boolean) isWow64Function.invoke(returnType.getClass(), inArgs) && isWow64.getValue() == 1) {
+                        this.bitness = 64;
+                    }
+                } catch (UnsatisfiedLinkError e) {
+                    LOG.error("Can't find Kernel32.");
+                }
+            }
         }
     }
 
@@ -560,4 +587,5 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
+
 }
