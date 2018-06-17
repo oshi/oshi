@@ -58,10 +58,6 @@
 		</developer>
 	</developers>
 
-	<prerequisites>
-		<maven>${maven-min.version}</maven>
-	</prerequisites>
-
 	<modules>
 		<module>oshi-core</module>
 		<module>oshi-core-shaded</module>
@@ -162,7 +158,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0-M1</version>
+					<version>3.0.0-M2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -177,12 +173,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7</version>
+					<version>3.7.1</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
@@ -195,23 +191,23 @@
 							<version>2.0.3</version>
 							<!-- 2.0.4 does not work with ssh properly -->
 						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.wagon</groupId>
+							<artifactId>wagon-ssh</artifactId>
+							<version>3.1.0</version>
+						</dependency>
 						<!-- For reporting only of versions -->
 						<dependency>
 							<groupId>org.apache.maven.skins</groupId>
 							<artifactId>maven-fluido-skin</artifactId>
 							<version>1.7</version>
 						</dependency>
-						<dependency>
-							<groupId>org.apache.maven.wagon</groupId>
-							<artifactId>wagon-ssh</artifactId>
-							<version>3.0.0</version>
-						</dependency>
 					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version> <!-- Don't upgrade past this until junit5 is properly supported (memory leaks) -->
+					<version>2.21.0</version>
 				</plugin>
 				<!-- Build Plugins -->
 				<plugin>
@@ -252,7 +248,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.2.2</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -295,7 +291,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.0.1</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -318,7 +314,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-pmd-plugin</artifactId>
-					<version>3.9.0</version>
+					<version>3.10.0</version>
 				</plugin>
 				<!-- Tools -->
 				<plugin>
@@ -450,7 +446,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.19.1</version> <!-- Stay until memory leaks fixed -->
+					<version>2.21.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -466,12 +462,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.9.5</version>
+					<version>1.10.0</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.scm</groupId>
 							<artifactId>maven-scm-provider-jgit</artifactId>
-							<version>1.9.5</version>
+							<version>1.10.0</version>
 						</dependency>
 						<dependency>
 							<groupId>com.googlecode.javaewah</groupId>
@@ -486,7 +482,7 @@
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.9.2.201712150930-r</version>
+							<version>4.11.0.201803080745-r</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
@@ -522,7 +518,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>3.1.2</version>
+					<version>3.2.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -703,7 +699,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.9</version>
+                        <version>8.10.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -712,7 +708,7 @@
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.0</version>
 			</extension>
 		</extensions>
 	</build>
@@ -929,7 +925,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.apache.maven.plugins</groupId>
 												<artifactId>maven-enforcer-plugin</artifactId>
-												<versionRange>[3.0.0-M1,)</versionRange>
+												<versionRange>[3.0.0-M2,)</versionRange>
 												<goals>
 													<goal>enforce</goal>
 												</goals>
