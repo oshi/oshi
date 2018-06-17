@@ -194,7 +194,7 @@
 						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh</artifactId>
-							<version>3.0.0</version>
+							<version>3.1.0</version>
 						</dependency>
 						<!-- For reporting only of versions -->
 						<dependency>
@@ -708,7 +708,7 @@
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.0</version>
 			</extension>
 		</extensions>
 	</build>
