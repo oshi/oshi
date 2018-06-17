@@ -925,7 +925,7 @@
 											<pluginExecutionFilter>
 												<groupId>org.apache.maven.plugins</groupId>
 												<artifactId>maven-enforcer-plugin</artifactId>
-												<versionRange>[3.0.0-M1,)</versionRange>
+												<versionRange>[3.0.0-M2,)</versionRange>
 												<goals>
 													<goal>enforce</goal>
 												</goals>
