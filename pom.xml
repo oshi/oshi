@@ -191,16 +191,16 @@
 							<version>2.0.3</version>
 							<!-- 2.0.4 does not work with ssh properly -->
 						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.wagon</groupId>
+							<artifactId>wagon-ssh</artifactId>
+							<version>3.0.0</version>
+						</dependency>
 						<!-- For reporting only of versions -->
 						<dependency>
 							<groupId>org.apache.maven.skins</groupId>
 							<artifactId>maven-fluido-skin</artifactId>
 							<version>1.7</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.maven.wagon</groupId>
-							<artifactId>wagon-ssh</artifactId>
-							<version>3.0.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
