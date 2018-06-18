@@ -19,7 +19,6 @@
 package oshi.hardware;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,7 +324,6 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         int result = 1;
         result = prime * result + (this.model == null ? 0 : this.model.hashCode());
         result = prime * result + (this.name == null ? 0 : this.name.hashCode());
-        result = prime * result + Arrays.hashCode(this.partitions);
         result = prime * result + (this.serial == null ? 0 : this.serial.hashCode());
         result = prime * result + (int) (this.size ^ this.size >>> 32);
         return result;
@@ -358,9 +356,6 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
                 return false;
             }
         } else if (!this.name.equals(other.name)) {
-            return false;
-        }
-        if (!Arrays.equals(this.partitions, other.partitions)) {
             return false;
         }
         if (this.serial == null) {

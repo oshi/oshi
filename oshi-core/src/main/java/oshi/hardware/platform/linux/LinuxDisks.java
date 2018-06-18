@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,19 +52,19 @@ public class LinuxDisks implements Disks {
     private static final Map<Integer, String> hashCodeToPathMap = new HashMap<>();
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        String path = hashCodeToPathMap.get(
-                Objects.hash(diskStore.getName(), diskStore.getModel(), diskStore.getSerial(), diskStore.getSize()));
+        String path = hashCodeToPathMap.get(diskStore.hashCode());
 
         Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
-
         Udev.UdevDevice device = Udev.INSTANCE.udev_device_new_from_syspath(handle, path);
 
-        if (device == null) {
-            return false;
+        boolean update = false;
+        if (device != null) {
+            computeDiskStats(diskStore, device);
+            update = true;
+            Udev.INSTANCE.udev_device_unref(device);
         }
-
-        computeDiskStats(diskStore, device);
-        return true;
+        Udev.INSTANCE.udev_unref(handle);
+        return update;
     }
 
     @Override
@@ -74,6 +73,7 @@ public class LinuxDisks implements Disks {
         List<HWDiskStore> result;
 
         updateMountsMap();
+        hashCodeToPathMap.clear();
 
         Udev.UdevHandle handle = null;
         Udev.UdevDevice device = null;
@@ -112,9 +112,7 @@ public class LinuxDisks implements Disks {
                     store.setPartitions(new HWPartition[0]);
                     computeDiskStats(store, device);
 
-                    hashCodeToPathMap.put(
-                            Objects.hash(store.getName(), store.getModel(), store.getSerial(), store.getSize()),
-                            Udev.INSTANCE.udev_list_entry_get_name(entry));
+                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
                     result.add(store);
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
                     // `store` should still point to the HWDiskStore this
