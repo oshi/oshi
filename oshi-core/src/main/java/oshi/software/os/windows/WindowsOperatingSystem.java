@@ -30,7 +30,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Function;
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -196,26 +195,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void initBitness() {
-        // If bitness is 32 test if we are on 64-bit OS
+        // If bitness is 64 we are 64 bit.
+        // If 32 test if we are on 64-bit OS
         if (bitness < 64) {
             // Try the easy way
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
-                // Try the native way
-                try {
-                    Function isWow64Function = Function.getFunction("Kernel32", "IsWow64Process");
-
-                    WinNT.HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
-                    IntByReference isWow64 = new IntByReference(0);
-                    Boolean returnType = false;
-                    Object[] inArgs = { hProcess, isWow64 };
-                    if ((Boolean) isWow64Function.invoke(returnType.getClass(), inArgs) && isWow64.getValue() == 1) {
-                        this.bitness = 64;
-                    }
-                } catch (UnsatisfiedLinkError e) {
-                    LOG.error("Can't find Kernel32.");
-                }
+                // Fetch from WMI
+                this.bitness = (WmiUtil.selectUint32From(null, "Win32_Processor", "AddressWidth", null)).intValue();
             }
         }
     }
