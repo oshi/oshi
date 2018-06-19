@@ -21,8 +21,6 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Test;
 
 /*
@@ -54,7 +52,7 @@ public class EdidUtilTest {
     private final static String EDID_STR2 = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
             + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC5 + EDID_DESC6 + EDID_DESC7 + EDID_DESC8 + EDID_EXTS
             + EDID_CHKSUM;
-    private final static byte[] EDID = DatatypeConverter.parseHexBinary(EDID_STR);
+    private final static byte[] EDID = ParseUtil.hexStringToByteArray(EDID_STR);
 
     @Test
     public void testToHexString() {
@@ -112,7 +110,7 @@ public class EdidUtilTest {
     public void testToString() {
         String[] toString = EdidUtil.toString(EDID).split("\\n");
         assertEquals(6, toString.length);
-        toString = EdidUtil.toString(DatatypeConverter.parseHexBinary(EDID_STR2)).split("\\n");
+        toString = EdidUtil.toString(ParseUtil.hexStringToByteArray(EDID_STR2)).split("\\n");
         assertEquals(6, toString.length);
     };
 }
