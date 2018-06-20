@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          oshi.software.os.OSFileStore[] fs = <strong class="jxr_keyword">this</strong>.fileSystem.getFileStores();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <a href="../../../../../oshi/json/software/os/OSFileStore.html">OSFileStore</a>[] fileStores = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/OSFileStore.html">OSFileStore</a>[fs.length];
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fs.length; i++) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              fileStores[i] = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/OSFileStore.html">OSFileStore</a>(fs[i].getName(), fs[i].getVolume(),fs[i].getMount(),
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              fileStores[i] = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/OSFileStore.html">OSFileStore</a>(fs[i].getName(), fs[i].getVolume(), fs[i].getMount(),
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                      fs[i].getDescription(), fs[i].getType(), fs[i].getUUID(), fs[i].getUsableSpace(),
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                      fs[i].getTotalSpace());
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              fileStores[i].setLogicalvolume(fs[i].getLogicalVolume());

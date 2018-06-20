@@ -96,7 +96,7 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                          isPresent = Integer.parseInt(psSplit[1]) &gt; 0;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                      }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">if</strong> (!isPresent) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                      }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.startsWith(<span class="jxr_string">"POWER_SUPPLY_NAME"</span>)) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                      <em class="jxr_comment">// Name</em>
@@ -135,13 +135,15 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                     }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 }
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             psList.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxPowerSource.html">LinuxPowerSource</a>(name, (<strong class="jxr_keyword">double</strong>) energyNow / energyFull,
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                     isCharging ? -2d : 3600d * energyNow / powerNow));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">return</strong> psList.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxPowerSource.html">LinuxPowerSource</a>[psList.size()]);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">if</strong> (isPresent) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 psList.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxPowerSource.html">LinuxPowerSource</a>(name, (<strong class="jxr_keyword">double</strong>) energyNow / energyFull,
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                         isCharging ? -2d : 3600d * energyNow / powerNow));
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> psList.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxPowerSource.html">LinuxPowerSource</a>[psList.size()]);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

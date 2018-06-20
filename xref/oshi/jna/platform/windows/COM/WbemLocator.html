@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong; <em class="jxr_comment">// NOSONAR</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Guid.CLSID;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Guid.GUID;
@@ -58,21 +58,23 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          HRESULT hres = Ole32.INSTANCE.CoCreateInstance(CLSID_WbemLocator, <strong class="jxr_keyword">null</strong>, WTypes.CLSCTX_INPROC_SERVER,
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                  IID_IWbemLocator, pbr);
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres)) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              LOG.error(String.format(<span class="jxr_string">"Failed to create WbemLocator object. Error code = 0x%08x"</span>, hres.intValue()));
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              Ole32.INSTANCE.CoUninitialize();
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/jna/platform/windows/COM/WbemLocator.html">WbemLocator</a>(pbr.getValue());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              NativeLong lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// ConnectServier is 4th method of vtable for WbemLocator in WbemCli.h</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">return</strong> (HRESULT) _invokeNativeObject(3, <strong class="jxr_keyword">new</strong> Object[] { getPointer(), strNetworkResource, strUser, strPassword,
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  LOG.error(String.format(<span class="jxr_string">"Failed to create WbemLocator object. Error code = 0x%08x"</span>, hres.intValue()));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              Ole32.INSTANCE.CoUninitialize();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/jna/platform/windows/COM/WbemLocator.html">WbemLocator</a>(pbr.getValue());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              NativeLong lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// ConnectServier is 4th method of vtable for WbemLocator in WbemCli.h</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">return</strong> (HRESULT) _invokeNativeObject(3, <strong class="jxr_keyword">new</strong> Object[] { getPointer(), strNetworkResource, strUser, strPassword,
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
