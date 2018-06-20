@@ -173,8 +173,16 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      * {@inheritDoc}
      */
     @Override
+    public int getBitness() {
+<span class="nc" id="L177">        return this.os.getBitness();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L177">        return new NetworkParamsImpl(this.os.getNetworkParams());</span>
+<span class="nc" id="L185">        return new NetworkParamsImpl(this.os.getNetworkParams());</span>
     }
 
     /**
@@ -182,46 +190,49 @@ public class OperatingSystemImpl extends AbstractOshiJsonObject implements Opera
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L185">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.manufacturer&quot;)) {</span>
-<span class="nc" id="L187">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
+<span class="nc" id="L193">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.manufacturer&quot;)) {</span>
+<span class="nc" id="L195">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
         }
-<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.family&quot;)) {</span>
-<span class="nc" id="L190">            json.add(&quot;family&quot;, getFamily());</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.family&quot;)) {</span>
+<span class="nc" id="L198">            json.add(&quot;family&quot;, getFamily());</span>
         }
-<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version&quot;)) {</span>
-<span class="nc" id="L193">            json.add(&quot;version&quot;, getVersion().toJSON(properties));</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.version&quot;)) {</span>
+<span class="nc" id="L201">            json.add(&quot;version&quot;, getVersion().toJSON(properties));</span>
         }
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem&quot;)) {</span>
-<span class="nc" id="L196">            json.add(&quot;fileSystem&quot;, getFileSystem().toJSON(properties));</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem&quot;)) {</span>
+<span class="nc" id="L204">            json.add(&quot;fileSystem&quot;, getFileSystem().toJSON(properties));</span>
         }
-<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processID&quot;)) {</span>
-<span class="nc" id="L199">            json.add(&quot;processID&quot;, getProcessId());</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processID&quot;)) {</span>
+<span class="nc" id="L207">            json.add(&quot;processID&quot;, getProcessId());</span>
         }
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processCount&quot;)) {</span>
-<span class="nc" id="L202">            json.add(&quot;processCount&quot;, getProcessCount());</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processCount&quot;)) {</span>
+<span class="nc" id="L210">            json.add(&quot;processCount&quot;, getProcessCount());</span>
         }
-<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.threadCount&quot;)) {</span>
-<span class="nc" id="L205">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.threadCount&quot;)) {</span>
+<span class="nc" id="L213">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
-<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes&quot;)) {</span>
-<span class="nc" id="L208">            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">            for (OSProcess proc : getProcesses(</span>
-<span class="nc" id="L210">                    PropertiesUtil.getIntOrDefault(properties, &quot;operatingSystem.processes.limit&quot;, 0),</span>
-<span class="nc" id="L211">                    PropertiesUtil.getEnum(properties, &quot;operatingSystem.processes.sort&quot;, ProcessSort.class))) {</span>
-<span class="nc" id="L212">                processArrayBuilder.add(proc.toJSON(properties));</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.bitness&quot;)) {</span>
+<span class="nc" id="L216">            json.add(&quot;bitness&quot;, getBitness());</span>
+        }
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes&quot;)) {</span>
+<span class="nc" id="L219">            JsonArrayBuilder processArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            for (OSProcess proc : getProcesses(</span>
+<span class="nc" id="L221">                    PropertiesUtil.getIntOrDefault(properties, &quot;operatingSystem.processes.limit&quot;, 0),</span>
+<span class="nc" id="L222">                    PropertiesUtil.getEnum(properties, &quot;operatingSystem.processes.sort&quot;, ProcessSort.class))) {</span>
+<span class="nc" id="L223">                processArrayBuilder.add(proc.toJSON(properties));</span>
             }
-<span class="nc" id="L214">            json.add(&quot;processes&quot;, processArrayBuilder.build());</span>
+<span class="nc" id="L225">            json.add(&quot;processes&quot;, processArrayBuilder.build());</span>
         }
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams&quot;)) {</span>
-<span class="nc" id="L217">            json.add(&quot;networkParams&quot;, getNetworkParams().toJSON(properties));</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.networkParams&quot;)) {</span>
+<span class="nc" id="L228">            json.add(&quot;networkParams&quot;, getNetworkParams().toJSON(properties));</span>
         }
-<span class="nc" id="L219">        return json.build();</span>
+<span class="nc" id="L230">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L224">        return this.os.toString();</span>
+<span class="nc" id="L235">        return this.os.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

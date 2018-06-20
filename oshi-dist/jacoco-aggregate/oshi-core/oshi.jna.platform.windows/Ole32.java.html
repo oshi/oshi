@@ -40,9 +40,6 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
     int RPC_C_AUTHZ_NONE = 0;
     int RPC_C_AUTHN_LEVEL_CALL = 3;
 
-    int RPC_E_TOO_LATE = 0x80010119;
-    int RPC_E_CHANGED_MODE = 0x80010106;
-
     int EOAC_NONE = 0;
 
     // TODO: Submit this change to JNA Ole32 class

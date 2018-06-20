@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Wtsapi32.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Wtsapi32.java</span></div><h1>Wtsapi32.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
+import com.sun.jna.platform.win32.WinNT.PSID;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.win32.W32APIOptions;
+
+/**
+ * Windows Remote Desktop Services API. Formerly Terminal Services. This class
+ * should be considered non-API as it may be removed if/when its code is
+ * incorporated into the JNA project.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
+<span class="nc" id="L43">    Wtsapi32 INSTANCE = Native.loadLibrary(&quot;Wtsapi32&quot;, Wtsapi32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
+
+<span class="nc" id="L45">    HANDLE WTS_CURRENT_SERVER_HANDLE = new HANDLE(null);</span>
+    // DWORD WTS_CURRENT_SESSION = new DWORD(0xFFFFFFFFL);
+<span class="nc" id="L47">    DWORD WTS_ANY_SESSION = new DWORD(0xFFFFFFFEL);</span>
+
+    // IntByReference WTSTypeProcessInfoLevel0 = new IntByReference(0);
+<span class="nc" id="L50">    IntByReference WTSTypeProcessInfoLevel1 = new IntByReference(1);</span>
+
+    class WTS_PROCESS_INFO_EX extends Structure {
+        public DWORD SessionId;
+        public DWORD ProcessId;
+        public String pProcessName;
+        public PSID pUserSid;
+        public DWORD NumberOfThreads;
+        public DWORD HandleCount;
+        public DWORD PagefileUsage;
+        public DWORD PeakPagefileUsage;
+        public DWORD WorkingSetSize;
+        public DWORD PeakWorkingSetSize;
+        public LARGE_INTEGER UserTime;
+        public LARGE_INTEGER KernelTime;
+
+        public WTS_PROCESS_INFO_EX() {
+<span class="nc" id="L67">            super();</span>
+<span class="nc" id="L68">        }</span>
+
+        public WTS_PROCESS_INFO_EX(Pointer p) {
+<span class="nc" id="L71">            super(p);</span>
+<span class="nc" id="L72">            read();</span>
+<span class="nc" id="L73">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L77">            return Arrays.asList(new String[] { &quot;SessionId&quot;, &quot;ProcessId&quot;, &quot;pProcessName&quot;, &quot;pUserSid&quot;, &quot;NumberOfThreads&quot;,</span>
+                    &quot;HandleCount&quot;, &quot;PagefileUsage&quot;, &quot;PeakPagefileUsage&quot;, &quot;WorkingSetSize&quot;, &quot;PeakWorkingSetSize&quot;,
+                    &quot;UserTime&quot;, &quot;KernelTime&quot; });
+        }
+    }
+
+    /**
+     * Retrieves information about the active processes on the specified Remote
+     * Desktop Session Host (RD Session Host) server or Remote Desktop
+     * Virtualization Host (RD Virtualization Host) server.
+     * 
+     * @param hServer
+     *            A handle to an RD Session Host server. Specify a handle opened
+     *            by the WTSOpenServer function, or specify
+     *            WTS_CURRENT_SERVER_HANDLE to indicate the server on which your
+     *            application is running.
+     * @param pLevel
+     *            A pointer to a DWORD variable that, on input, specifies the
+     *            type of information to return. To return an array of
+     *            WTS_PROCESS_INFO structures, specify zero. To return an array
+     *            of WTS_PROCESS_INFO_EX structures, specify one. If you do not
+     *            specify a valid value for this parameter, on output,
+     *            WTSEnumerateProcessesEx sets this parameter to one and returns
+     *            an error. Otherwise, on output, WTSEnumerateProcessesEx does
+     *            not change the value of this parameter.
+     * @param SessionID
+     *            The session for which to enumerate processes. To enumerate
+     *            processes for all sessions on the server, specify
+     *            WTS_ANY_SESSION.
+     * @param ppProcessInfo
+     *            A pointer to a variable that receives a pointer to an array of
+     *            WTS_PROCESS_INFO or WTS_PROCESS_INFO_EX structures. The type
+     *            of structure is determined by the value passed to the pLevel
+     *            parameter. Each structure in the array contains information
+     *            about an active process. When you have finished using the
+     *            array, free it by calling the WTSFreeMemoryEx function. You
+     *            should also set the pointer to NULL.
+     * @param pCount
+     *            A pointer to a variable that receives the number of structures
+     *            returned in the buffer referenced by the ppProcessInfo
+     *            parameter.
+     * @return If the function succeeds, the return value is a nonzero value. If
+     *         the function fails, the return value is zero. To get extended
+     *         error information, call the GetLastError function.
+     */
+    boolean WTSEnumerateProcessesEx(HANDLE hServer, IntByReference pLevel, DWORD SessionID,
+            PointerByReference ppProcessInfo, IntByReference pCount);
+
+    /**
+     * Frees memory that contains WTS_PROCESS_INFO_EX or WTS_SESSION_INFO_1
+     * structures allocated by a Remote Desktop Services function.
+     * 
+     * @param WTSTypeClass
+     *            A value of the WTS_TYPE_CLASS enumeration type that specifies
+     *            the type of structures contained in the buffer referenced by
+     *            the pMemory parameter.
+     * @param pMemory
+     *            A pointer to the buffer to free.
+     * @param NumberOfEntries
+     *            The number of elements in the buffer referenced by the pMemory
+     *            parameter.
+     * @return If the function succeeds, the return value is a nonzero value. If
+     *         the function fails, the return value is zero. To get extended
+     *         error information, call the GetLastError function.
+     */
+    boolean WTSFreeMemoryEx(int WTSTypeClass, Pointer pMemory, long NumberOfEntries);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

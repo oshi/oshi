@@ -42,69 +42,76 @@ import oshi.util.platform.windows.WmiUtil;
 
 <span class="nc" id="L43">    private String wmiVoltProperty = null;</span>
 
+    private static final String OHM_NAMESPACE = &quot;root\\OpenHardwareMonitor&quot;;
+    private static final String HARDWARE_CLASS = &quot;Hardware&quot;;
+    private static final String SENSOR_CLASS = &quot;Sensor&quot;;
+    private static final String IDENTIFIER_PROPERTY = &quot;Identifier&quot;;
+    private static final String VALUE_PROPERTY = &quot;Value&quot;;
+    private static final String CPU_FILTER = &quot;WHERE HardwareType=\&quot;CPU\&quot;&quot;;
+    private static final String CPU_SENSOR_FILTER = &quot;WHERE Parent=\&quot;%s\&quot; AND SensorType=\&quot;%s\&quot;&quot;;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
         // Initialize
-<span class="nc" id="L51">        double tempC = 0d;</span>
+<span class="nc" id="L59">        double tempC = 0d;</span>
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-<span class="nc" id="L54">        String cpuIdentifier = WmiUtil.selectStringFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Hardware&quot;, &quot;Identifier&quot;,</span>
-                &quot;WHERE HardwareType=\&quot;CPU\&quot;&quot;);
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (cpuIdentifier.length() &gt; 0) {</span>
-<span class="nc" id="L57">            Map&lt;String, List&lt;Float&gt;&gt; vals = WmiUtil.selectFloatsFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Sensor&quot;, &quot;Value&quot;,</span>
-                    &quot;WHERE Parent=\&quot;&quot; + cpuIdentifier + &quot;\&quot; AND SensorType=\&quot;Temperature\&quot;&quot;);
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (!vals.get(&quot;Value&quot;).isEmpty()) {</span>
-<span class="nc" id="L60">                double sum = 0;</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                for (double val : vals.get(&quot;Value&quot;)) {</span>
-<span class="nc" id="L62">                    sum += val;</span>
-<span class="nc" id="L63">                }</span>
-<span class="nc" id="L64">                tempC = sum / vals.get(&quot;Value&quot;).size();</span>
+<span class="nc" id="L62">        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (cpuIdentifier.length() &gt; 0) {</span>
+<span class="nc" id="L64">            Map&lt;String, List&lt;Float&gt;&gt; vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,</span>
+<span class="nc" id="L65">                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, &quot;Temperature&quot;));</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (!vals.get(VALUE_PROPERTY).isEmpty()) {</span>
+<span class="nc" id="L67">                double sum = 0;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                for (double val : vals.get(VALUE_PROPERTY)) {</span>
+<span class="nc" id="L69">                    sum += val;</span>
+<span class="nc" id="L70">                }</span>
+<span class="nc" id="L71">                tempC = sum / vals.get(VALUE_PROPERTY).size();</span>
             }
-<span class="nc" id="L66">            return tempC;</span>
+<span class="nc" id="L73">            return tempC;</span>
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
         long tempK;
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (this.wmiTempClass == null) {</span>
-<span class="nc" id="L73">            this.wmiTempNamespace = &quot;root\\cimv2&quot;;</span>
-<span class="nc" id="L74">            this.wmiTempClass = &quot;Win32_Temperature&quot;;</span>
-<span class="nc" id="L75">            this.wmiTempProperty = &quot;CurrentReading&quot;;</span>
-<span class="nc" id="L76">            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (tempK == 0) {</span>
-<span class="nc" id="L78">                this.wmiTempClass = &quot;Win32_TemperatureProbe&quot;;</span>
-<span class="nc" id="L79">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.wmiTempClass == null) {</span>
+<span class="nc" id="L80">            this.wmiTempNamespace = &quot;root\\cimv2&quot;;</span>
+<span class="nc" id="L81">            this.wmiTempClass = &quot;Win32_Temperature&quot;;</span>
+<span class="nc" id="L82">            this.wmiTempProperty = &quot;CurrentReading&quot;;</span>
+<span class="nc" id="L83">            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (tempK == 0) {</span>
+<span class="nc" id="L85">                this.wmiTempClass = &quot;Win32_TemperatureProbe&quot;;</span>
+<span class="nc" id="L86">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
             }
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (tempK == 0) {</span>
-<span class="nc" id="L82">                this.wmiTempClass = &quot;Win32_PerfFormattedData_Counters_ThermalZoneInformation&quot;;</span>
-<span class="nc" id="L83">                this.wmiTempProperty = &quot;Temperature&quot;;</span>
-<span class="nc" id="L84">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (tempK == 0) {</span>
+<span class="nc" id="L89">                this.wmiTempClass = &quot;Win32_PerfFormattedData_Counters_ThermalZoneInformation&quot;;</span>
+<span class="nc" id="L90">                this.wmiTempProperty = &quot;Temperature&quot;;</span>
+<span class="nc" id="L91">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
             }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (tempK == 0) {</span>
-<span class="nc" id="L87">                this.wmiTempNamespace = &quot;root\\wmi&quot;;</span>
-<span class="nc" id="L88">                this.wmiTempClass = &quot;MSAcpi_ThermalZoneTemperature&quot;;</span>
-<span class="nc" id="L89">                this.wmiTempProperty = &quot;CurrentTemperature&quot;;</span>
-<span class="nc" id="L90">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (tempK == 0) {</span>
+<span class="nc" id="L94">                this.wmiTempNamespace = &quot;root\\wmi&quot;;</span>
+<span class="nc" id="L95">                this.wmiTempClass = &quot;MSAcpi_ThermalZoneTemperature&quot;;</span>
+<span class="nc" id="L96">                this.wmiTempProperty = &quot;CurrentTemperature&quot;;</span>
+<span class="nc" id="L97">                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM, so keep using same values
-<span class="nc" id="L95">            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
+<span class="nc" id="L102">            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);</span>
         }
         // Convert K to C and return result
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (tempK &gt; 2732) {</span>
-<span class="nc" id="L99">            tempC = tempK / 10d - 273.15;</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        } else if (tempK &gt; 274) {</span>
-<span class="nc" id="L101">            tempC = tempK - 273d;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (tempK &gt; 2732) {</span>
+<span class="nc" id="L106">            tempC = tempK / 10d - 273.15;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        } else if (tempK &gt; 274) {</span>
+<span class="nc" id="L108">            tempC = tempK - 273d;</span>
         }
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (tempC &lt;= 0d) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (tempC &lt;= 0d) {</span>
             // Unable to get temperature via WMI.
-<span class="nc" id="L105">            tempC = 0d;</span>
+<span class="nc" id="L112">            tempC = 0d;</span>
         }
-<span class="nc" id="L107">        return tempC;</span>
+<span class="nc" id="L114">        return tempC;</span>
     }
 
     /**
@@ -113,31 +120,30 @@ import oshi.util.platform.windows.WmiUtil;
     @Override
     public int[] getFanSpeeds() {
         // Initialize
-<span class="nc" id="L116">        int[] fanSpeeds = new int[1];</span>
+<span class="nc" id="L123">        int[] fanSpeeds = new int[1];</span>
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-<span class="nc" id="L119">        String cpuIdentifier = WmiUtil.selectStringFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Hardware&quot;, &quot;Identifier&quot;,</span>
-                &quot;WHERE HardwareType=\&quot;CPU\&quot;&quot;);
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (cpuIdentifier.length() &gt; 0) {</span>
-<span class="nc" id="L122">            Map&lt;String, List&lt;Float&gt;&gt; vals = WmiUtil.selectFloatsFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Sensor&quot;, &quot;Value&quot;,</span>
-                    &quot;WHERE Parent=\&quot;&quot; + cpuIdentifier + &quot;\&quot; AND SensorType=\&quot;Fan\&quot;&quot;);
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (!vals.get(&quot;Value&quot;).isEmpty()) {</span>
-<span class="nc" id="L125">                fanSpeeds = new int[vals.get(&quot;Value&quot;).size()];</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                for (int i = 0; i &lt; vals.get(&quot;Value&quot;).size(); i++) {</span>
-<span class="nc" id="L127">                    fanSpeeds[i] = vals.get(&quot;Value&quot;).get(i).intValue();</span>
+<span class="nc" id="L126">        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (cpuIdentifier.length() &gt; 0) {</span>
+<span class="nc" id="L128">            Map&lt;String, List&lt;Float&gt;&gt; vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,</span>
+<span class="nc" id="L129">                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, &quot;Fan&quot;));</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (!vals.get(VALUE_PROPERTY).isEmpty()) {</span>
+<span class="nc" id="L131">                fanSpeeds = new int[vals.get(VALUE_PROPERTY).size()];</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                for (int i = 0; i &lt; vals.get(VALUE_PROPERTY).size(); i++) {</span>
+<span class="nc" id="L133">                    fanSpeeds[i] = vals.get(VALUE_PROPERTY).get(i).intValue();</span>
                 }
             }
-<span class="nc" id="L130">            return fanSpeeds;</span>
+<span class="nc" id="L136">            return fanSpeeds;</span>
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
-<span class="nc" id="L135">        int rpm = WmiUtil.selectUint32From(null, &quot;Win32_Fan&quot;, &quot;DesiredSpeed&quot;, null).intValue();</span>
+<span class="nc" id="L141">        int rpm = WmiUtil.selectUint32From(null, &quot;Win32_Fan&quot;, &quot;DesiredSpeed&quot;, null).intValue();</span>
         // Set in array and return
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (rpm &gt; 0) {</span>
-<span class="nc" id="L138">            fanSpeeds[0] = rpm;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (rpm &gt; 0) {</span>
+<span class="nc" id="L144">            fanSpeeds[0] = rpm;</span>
         }
-<span class="nc" id="L140">        return fanSpeeds;</span>
+<span class="nc" id="L146">        return fanSpeeds;</span>
     }
 
     /**
@@ -146,70 +152,70 @@ import oshi.util.platform.windows.WmiUtil;
     @Override
     public double getCpuVoltage() {
         // Initialize
-<span class="nc" id="L149">        double volts = 0d;</span>
+<span class="nc" id="L155">        double volts = 0d;</span>
 
         // Attempt to fetch value from Open Hardware Monitor if it is running
-<span class="nc" id="L152">        Map&lt;String, List&lt;String&gt;&gt; voltIdentifiers = WmiUtil.selectStringsFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Hardware&quot;,</span>
-                &quot;Identifier&quot;, &quot;WHERE SensorType=\&quot;Voltage\&quot;&quot;);
+<span class="nc" id="L158">        Map&lt;String, List&lt;String&gt;&gt; voltIdentifiers = WmiUtil.selectStringsFrom(OHM_NAMESPACE, HARDWARE_CLASS,</span>
+                IDENTIFIER_PROPERTY, &quot;WHERE SensorType=\&quot;Voltage\&quot;&quot;);
         // Look for identifier containing &quot;cpu&quot;
-<span class="nc" id="L155">        String voltIdentifierStr = null;</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        for (String id : voltIdentifiers.get(&quot;Identifier&quot;)) {</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
-<span class="nc" id="L158">                voltIdentifierStr = id;</span>
-<span class="nc" id="L159">                break;</span>
+<span class="nc" id="L161">        String voltIdentifierStr = null;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        for (String id : voltIdentifiers.get(IDENTIFIER_PROPERTY)) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
+<span class="nc" id="L164">                voltIdentifierStr = id;</span>
+<span class="nc" id="L165">                break;</span>
             }
-<span class="nc" id="L161">        }</span>
+<span class="nc" id="L167">        }</span>
         // If none contain cpu just grab the first one
-<span class="nc bnc" id="L163" title="All 4 branches missed.">        if (voltIdentifierStr == null &amp;&amp; !voltIdentifiers.get(&quot;Identifier&quot;).isEmpty()) {</span>
-<span class="nc" id="L164">            voltIdentifierStr = voltIdentifiers.get(&quot;Identifier&quot;).get(0);</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">        if (voltIdentifierStr == null &amp;&amp; !voltIdentifiers.get(IDENTIFIER_PROPERTY).isEmpty()) {</span>
+<span class="nc" id="L170">            voltIdentifierStr = voltIdentifiers.get(IDENTIFIER_PROPERTY).get(0);</span>
         }
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (voltIdentifierStr != null) {</span>
-<span class="nc" id="L167">            return WmiUtil.selectFloatFrom(&quot;root\\OpenHardwareMonitor&quot;, &quot;Sensor&quot;, &quot;Value&quot;,</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (voltIdentifierStr != null) {</span>
+<span class="nc" id="L173">            return WmiUtil.selectFloatFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,</span>
                     &quot;WHERE Parent=\&quot;&quot; + voltIdentifierStr + &quot;\&quot; AND SensorType=\&quot;Voltage\&quot;&quot;);
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
         int decivolts;
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (this.wmiVoltClass == null) {</span>
-<span class="nc" id="L175">            this.wmiVoltNamespace = &quot;root\\cimv2&quot;;</span>
-<span class="nc" id="L176">            this.wmiVoltClass = &quot;Win32_Processor&quot;;</span>
-<span class="nc" id="L177">            this.wmiVoltProperty = &quot;CurrentVoltage&quot;;</span>
-<span class="nc" id="L178">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
-<span class="nc" id="L179">                    .intValue();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (this.wmiVoltClass == null) {</span>
+<span class="nc" id="L181">            this.wmiVoltNamespace = &quot;root\\cimv2&quot;;</span>
+<span class="nc" id="L182">            this.wmiVoltClass = &quot;Win32_Processor&quot;;</span>
+<span class="nc" id="L183">            this.wmiVoltProperty = &quot;CurrentVoltage&quot;;</span>
+<span class="nc" id="L184">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
+<span class="nc" id="L185">                    .intValue();</span>
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
-<span class="nc bnc" id="L183" title="All 4 branches missed.">            if ((decivolts &amp; 0x80) == 0 &amp;&amp; decivolts &gt; 0) {</span>
-<span class="nc" id="L184">                this.wmiVoltProperty = &quot;VoltageCaps&quot;;</span>
+<span class="nc bnc" id="L189" title="All 4 branches missed.">            if ((decivolts &amp; 0x80) == 0 &amp;&amp; decivolts &gt; 0) {</span>
+<span class="nc" id="L190">                this.wmiVoltProperty = &quot;VoltageCaps&quot;;</span>
                 // really a bit setting, not decivolts, test later
-<span class="nc" id="L186">                decivolts = WmiUtil</span>
-<span class="nc" id="L187">                        .selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
-<span class="nc" id="L188">                        .intValue();</span>
+<span class="nc" id="L192">                decivolts = WmiUtil</span>
+<span class="nc" id="L193">                        .selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
+<span class="nc" id="L194">                        .intValue();</span>
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM
-<span class="nc" id="L193">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
-<span class="nc" id="L194">                    .intValue();</span>
+<span class="nc" id="L199">            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)</span>
+<span class="nc" id="L200">                    .intValue();</span>
         }
         // Convert dV to V and return result
-<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (decivolts &gt; 0) {</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">            if (&quot;VoltageCaps&quot;.equals(this.wmiVoltProperty)) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        if (decivolts &gt; 0) {</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            if (&quot;VoltageCaps&quot;.equals(this.wmiVoltProperty)) {</span>
                 // decivolts are bits
-<span class="nc bnc" id="L200" title="All 2 branches missed.">                if ((decivolts &amp; 0x1) &gt; 0) {</span>
-<span class="nc" id="L201">                    volts = 5.0;</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
-<span class="nc" id="L203">                    volts = 3.3;</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
-<span class="nc" id="L205">                    volts = 2.9;</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                if ((decivolts &amp; 0x1) &gt; 0) {</span>
+<span class="nc" id="L207">                    volts = 5.0;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
+<span class="nc" id="L209">                    volts = 3.3;</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
+<span class="nc" id="L211">                    volts = 2.9;</span>
                 }
             } else {
                 // Value from bits 0-6
-<span class="nc" id="L209">                volts = (decivolts &amp; 0x7F) / 10d;</span>
+<span class="nc" id="L215">                volts = (decivolts &amp; 0x7F) / 10d;</span>
             }
         }
-<span class="nc" id="L212">        return volts;</span>
+<span class="nc" id="L218">        return volts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -89,22 +89,54 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      * {@inheritDoc}
      */
     @Override
-    public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L93">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
-<span class="nc" id="L95">            json.add(&quot;available&quot;, getAvailable());</span>
-        }
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
-<span class="nc" id="L98">            json.add(&quot;total&quot;, getTotal());</span>
-        }
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
-<span class="nc" id="L101">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
-        }
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
-<span class="nc" id="L104">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
-        }
-<span class="nc" id="L106">        return json.build();</span>
+    public long getSwapPagesIn() {
+<span class="nc" id="L93">        return this.memory.getSwapPagesIn();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+<span class="nc" id="L101">        return this.memory.getSwapPagesOut();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+<span class="nc" id="L109">        return this.memory.getPageSize();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonObject toJSON(Properties properties) {
+<span class="nc" id="L117">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
+<span class="nc" id="L119">            json.add(&quot;available&quot;, getAvailable());</span>
+        }
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
+<span class="nc" id="L122">            json.add(&quot;total&quot;, getTotal());</span>
+        }
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
+<span class="nc" id="L125">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
+        }
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
+<span class="nc" id="L128">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
+        }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesIn&quot;)) {</span>
+<span class="nc" id="L131">            json.add(&quot;swapPagesIn&quot;, getSwapPagesIn());</span>
+        }
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesOut&quot;)) {</span>
+<span class="nc" id="L134">            json.add(&quot;swapPagesOut&quot;, getSwapPagesOut());</span>
+        }
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.pageSize&quot;)) {</span>
+<span class="nc" id="L137">            json.add(&quot;pageSize&quot;, getPageSize());</span>
+        }
+<span class="nc" id="L139">        return json.build();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

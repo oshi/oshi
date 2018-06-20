@@ -171,38 +171,39 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L171">                description = &quot;Mount Point&quot;;</span>
             }
 
-            // Add in logical volume found at /dev/mapper, useful when linking file system with drive.
-<span class="nc" id="L175">            String logicalVolume = &quot;&quot;;</span>
-<span class="nc" id="L176">            String volumeMapperDirectory = &quot;/dev/mapper/&quot;;</span>
-<span class="nc" id="L177">            Path link = Paths.get(volume);</span>
-<span class="nc bnc" id="L178" title="All 4 branches missed.">            if (Files.exists(link) &amp;&amp; Files.isSymbolicLink(link)) {</span>
+            // Add in logical volume found at /dev/mapper, useful when linking
+            // file system with drive.
+<span class="nc" id="L176">            String logicalVolume = &quot;&quot;;</span>
+<span class="nc" id="L177">            String volumeMapperDirectory = &quot;/dev/mapper/&quot;;</span>
+<span class="nc" id="L178">            Path link = Paths.get(volume);</span>
+<span class="nc bnc" id="L179" title="All 4 branches missed.">            if (Files.exists(link) &amp;&amp; Files.isSymbolicLink(link)) {</span>
                 try {
-<span class="nc" id="L180">                    Path slink = Files.readSymbolicLink(link);</span>
-<span class="nc" id="L181">                    Path full = Paths.get(volumeMapperDirectory + slink.toString());</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                    if (Files.exists(full)) {</span>
-<span class="nc" id="L183">                        logicalVolume = full.normalize().toString();</span>
+<span class="nc" id="L181">                    Path slink = Files.readSymbolicLink(link);</span>
+<span class="nc" id="L182">                    Path full = Paths.get(volumeMapperDirectory + slink.toString());</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                    if (Files.exists(full)) {</span>
+<span class="nc" id="L184">                        logicalVolume = full.normalize().toString();</span>
                     }
-<span class="nc" id="L185">                } catch (IOException e) {</span>
-<span class="nc" id="L186">                    LOG.warn(&quot;Couldn't access symbolic path  {}. {}&quot;, link, e);</span>
-<span class="nc" id="L187">                }</span>
+<span class="nc" id="L186">                } catch (IOException e) {</span>
+<span class="nc" id="L187">                    LOG.warn(&quot;Couldn't access symbolic path  {}. {}&quot;, link, e);</span>
+<span class="nc" id="L188">                }</span>
             }
 
-<span class="nc" id="L190">            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);</span>
-<span class="nc" id="L191">            osStore.setLogicalVolume(logicalVolume);</span>
-<span class="nc" id="L192">            fsList.add(osStore);</span>
-<span class="nc" id="L193">        }</span>
+<span class="nc" id="L191">            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);</span>
+<span class="nc" id="L192">            osStore.setLogicalVolume(logicalVolume);</span>
+<span class="nc" id="L193">            fsList.add(osStore);</span>
+<span class="nc" id="L194">        }</span>
 
-<span class="nc" id="L195">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L196">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L200">        return getFileDescriptors(0);</span>
+<span class="nc" id="L201">        return getFileDescriptors(0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L205">        return getFileDescriptors(2);</span>
+<span class="nc" id="L206">        return getFileDescriptors(2);</span>
     }
 
     /**
@@ -217,16 +218,16 @@ import oshi.util.ParseUtil;
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
-<span class="nc" id="L220">        String filename = &quot;/proc/sys/fs/file-nr&quot;;</span>
-<span class="nc bnc" id="L221" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
-<span class="nc" id="L222">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
+<span class="nc" id="L221">        String filename = &quot;/proc/sys/fs/file-nr&quot;;</span>
+<span class="nc bnc" id="L222" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
+<span class="nc" id="L223">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
         }
-<span class="nc" id="L224">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
-<span class="nc" id="L226">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
-<span class="nc" id="L227">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
+<span class="nc" id="L225">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
+<span class="nc" id="L227">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
+<span class="nc" id="L228">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
         }
-<span class="nc" id="L229">        return 0L;</span>
+<span class="nc" id="L230">        return 0L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -34,6 +34,9 @@ import oshi.hardware.GlobalMemory;
 <span class="nc" id="L34">    protected long memAvailable = 0L;</span>
 <span class="nc" id="L35">    protected long swapTotal = 0L;</span>
 <span class="nc" id="L36">    protected long swapUsed = 0L;</span>
+<span class="nc" id="L37">    protected long swapPagesIn = 0L;</span>
+<span class="nc" id="L38">    protected long swapPagesOut = 0L;</span>
+<span class="nc" id="L39">    protected long pageSize = 0L;</span>
 
     /**
      * Updates physical memory instance variables.
@@ -50,8 +53,8 @@ import oshi.hardware.GlobalMemory;
      */
     @Override
     public long getAvailable() {
-<span class="nc" id="L53">        updateMeminfo();</span>
-<span class="nc" id="L54">        return this.memAvailable;</span>
+<span class="nc" id="L56">        updateMeminfo();</span>
+<span class="nc" id="L57">        return this.memAvailable;</span>
     }
 
     /**
@@ -59,10 +62,10 @@ import oshi.hardware.GlobalMemory;
      */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (this.memTotal == 0) {</span>
-<span class="nc" id="L63">            updateMeminfo();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.memTotal == 0) {</span>
+<span class="nc" id="L66">            updateMeminfo();</span>
         }
-<span class="nc" id="L65">        return this.memTotal;</span>
+<span class="nc" id="L68">        return this.memTotal;</span>
     }
 
     /**
@@ -70,8 +73,8 @@ import oshi.hardware.GlobalMemory;
      */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L73">        updateSwap();</span>
-<span class="nc" id="L74">        return this.swapUsed;</span>
+<span class="nc" id="L76">        updateSwap();</span>
+<span class="nc" id="L77">        return this.swapUsed;</span>
     }
 
     /**
@@ -79,8 +82,37 @@ import oshi.hardware.GlobalMemory;
      */
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L82">        updateSwap();</span>
-<span class="nc" id="L83">        return this.swapTotal;</span>
+<span class="nc" id="L85">        updateSwap();</span>
+<span class="nc" id="L86">        return this.swapTotal;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesIn() {
+<span class="nc" id="L94">        updateMeminfo();</span>
+<span class="nc" id="L95">        return this.swapPagesIn;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+<span class="nc" id="L103">        updateMeminfo();</span>
+<span class="nc" id="L104">        return this.swapPagesOut;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (this.pageSize == 0) {</span>
+<span class="nc" id="L113">            updateMeminfo();</span>
+        }
+<span class="nc" id="L115">        return this.pageSize;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -18,15 +18,16 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L29">public class SolarisNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L30">public class SolarisNetworks extends AbstractNetworks {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -38,18 +39,18 @@ import oshi.util.platform.unix.solaris.KstatUtil;
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L41">        Kstat ksp = KstatUtil.kstatLookup(&quot;link&quot;, -1, netIF.getName());</span>
-<span class="nc bnc" id="L42" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L43">            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, &quot;obytes64&quot;));</span>
-<span class="nc" id="L44">            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;rbytes64&quot;));</span>
-<span class="nc" id="L45">            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, &quot;opackets64&quot;));</span>
-<span class="nc" id="L46">            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;ipackets64&quot;));</span>
-<span class="nc" id="L47">            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;oerrors&quot;));</span>
-<span class="nc" id="L48">            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;ierrors&quot;));</span>
-<span class="nc" id="L49">            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, &quot;ifspeed&quot;));</span>
+<span class="nc" id="L42">        Kstat ksp = KstatUtil.kstatLookup(&quot;link&quot;, -1, netIF.getName());</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L44">            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, &quot;obytes64&quot;));</span>
+<span class="nc" id="L45">            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;rbytes64&quot;));</span>
+<span class="nc" id="L46">            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, &quot;opackets64&quot;));</span>
+<span class="nc" id="L47">            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;ipackets64&quot;));</span>
+<span class="nc" id="L48">            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;oerrors&quot;));</span>
+<span class="nc" id="L49">            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;ierrors&quot;));</span>
+<span class="nc" id="L50">            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, &quot;ifspeed&quot;));</span>
             // Snap time in ns; convert to ms
-<span class="nc" id="L51">            netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);</span>
+<span class="nc" id="L52">            netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);</span>
         }
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

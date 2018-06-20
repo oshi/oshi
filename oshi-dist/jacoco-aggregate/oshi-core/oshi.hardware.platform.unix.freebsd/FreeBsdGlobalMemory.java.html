@@ -29,39 +29,40 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * @author alessandro[at]perucchi[dot]org
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L32">public class FreeBsdGlobalMemory extends AbstractGlobalMemory {</span>
+public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L36">    private static final long PAGESIZE = BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096);</span>
+<span class="nc" id="L36">    public FreeBsdGlobalMemory() {</span>
+<span class="nc" id="L37">        this.pageSize = BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
+<span class="nc" id="L38">        this.memTotal = BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
+<span class="nc" id="L39">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateMeminfo() {
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (this.memTotal == 0L) {</span>
-<span class="nc" id="L44">            this.memTotal = BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
-        }
-        // get pages of available memory
-<span class="nc" id="L47">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
-<span class="nc" id="L48">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
-<span class="nc" id="L49">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
-<span class="nc" id="L50">        this.memAvailable = (inactive + cache + free) * PAGESIZE;</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L46">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
+<span class="nc" id="L47">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
+<span class="nc" id="L48">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
+<span class="nc" id="L49">        this.memAvailable = (inactive + cache + free) * this.pageSize;</span>
+<span class="nc" id="L50">        this.swapPagesIn = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
+<span class="nc" id="L51">        this.swapPagesOut = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
+<span class="nc" id="L52">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateSwap() {
-<span class="nc" id="L58">        this.swapTotal = BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
-<span class="nc" id="L59">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
-<span class="nc" id="L60">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
-<span class="nc" id="L62">            return;</span>
+<span class="nc" id="L59">        this.swapTotal = BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
+<span class="nc" id="L60">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
+<span class="nc" id="L61">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
+<span class="nc" id="L63">            return;</span>
         }
-<span class="nc" id="L64">        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L65">        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
+<span class="nc" id="L66">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
