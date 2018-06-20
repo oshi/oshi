@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WinPerf.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">WinPerf.java</span></div><h1>WinPerf.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.platform.win32.WinBase.SYSTEMTIME;
+import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
+
+/**
+ * Various performance counters structures and definitions
+ * 
+ * @author Daniel Widdis
+ * @see &lt;A HREF=
+ *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373093(v=vs.85).aspx&quot;&gt;
+ *      Performance Counters Structures&lt;/A&gt;
+ */
+public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
+    /**
+     * Describes the performance data block that you queried.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373157(v=vs.85).aspx&quot;&gt;
+     *      PERF_DATA_BLOCK&lt;/A&gt;
+     */
+    public class PERF_DATA_BLOCK extends Structure {
+<span class="nc" id="L47">        public char[] Signature = new char[4];</span>
+        public int LittleEndian;
+        public int Version;
+        public int Revision;
+        public int TotalByteLength;
+        public int HeaderLength;
+        public int NumObjectTypes;
+        public int DefaultObject;
+<span class="nc" id="L55">        public SYSTEMTIME SystemTime = new SYSTEMTIME();</span>
+<span class="nc" id="L56">        public LARGE_INTEGER PerfTime = new LARGE_INTEGER();</span>
+<span class="nc" id="L57">        public LARGE_INTEGER PerfFreq = new LARGE_INTEGER();</span>
+<span class="nc" id="L58">        public LARGE_INTEGER PerfTime100nSec = new LARGE_INTEGER();</span>
+        public int SystemNameLength;
+        public int SystemNameOffset;
+
+        public PERF_DATA_BLOCK() {
+<span class="nc" id="L63">            super();</span>
+<span class="nc" id="L64">        }</span>
+
+        public PERF_DATA_BLOCK(Pointer p) {
+<span class="nc" id="L67">            super(p);</span>
+<span class="nc" id="L68">            read();</span>
+<span class="nc" id="L69">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L73">            return Arrays.asList(new String[] { &quot;Signature&quot;, &quot;LittleEndian&quot;, &quot;Version&quot;, &quot;Revision&quot;, &quot;TotalByteLength&quot;,</span>
+                    &quot;HeaderLength&quot;, &quot;NumObjectTypes&quot;, &quot;DefaultObject&quot;, &quot;SystemTime&quot;, &quot;PerfTime&quot;, &quot;PerfFreq&quot;,
+                    &quot;PerfTime100nSec&quot;, &quot;SystemNameLength&quot;, &quot;SystemNameOffset&quot; });
+        }
+    }
+
+    /**
+     * Describes object-specific performance information, for example, the
+     * number of instances of the object and the number of counters that the
+     * object defines.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373160(v=vs.85).aspx&quot;&gt;
+     *      PERF_OBJECT_TYPE&lt;/A&gt;
+     */
+    public class PERF_OBJECT_TYPE extends Structure {
+        public int TotalByteLength;
+        public int DefinitionLength;
+        public int HeaderLength;
+        public int ObjectNameTitleIndex;
+        public int ObjectNameTitle; // always 32 bit
+        public int ObjectHelpTitleIndex;
+        public int ObjectHelpTitle; // always 32 bit
+        public int DetailLevel;
+        public int NumCounters;
+        public int DefaultCounter;
+        public int NumInstances;
+        public int CodePage;
+        public LARGE_INTEGER PerfTime;
+        public LARGE_INTEGER PerfFreq;
+
+        public PERF_OBJECT_TYPE() {
+<span class="nc" id="L105">            super();</span>
+<span class="nc" id="L106">        }</span>
+
+        public PERF_OBJECT_TYPE(Pointer p) {
+<span class="nc" id="L109">            super(p);</span>
+<span class="nc" id="L110">            read();</span>
+<span class="nc" id="L111">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L115">            return Arrays.asList(new String[] { &quot;TotalByteLength&quot;, &quot;DefinitionLength&quot;, &quot;HeaderLength&quot;,</span>
+                    &quot;ObjectNameTitleIndex&quot;, &quot;ObjectNameTitle&quot;, &quot;ObjectHelpTitleIndex&quot;, &quot;ObjectHelpTitle&quot;, &quot;DetailLevel&quot;,
+                    &quot;NumCounters&quot;, &quot;DefaultCounter&quot;, &quot;NumInstances&quot;, &quot;CodePage&quot;, &quot;PerfTime&quot;, &quot;PerfFreq&quot; });
+        }
+    }
+
+    /**
+     * Describes a performance counter.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373150(v=vs.85).aspx&quot;&gt;
+     *      PERF_COUNTER_DEFINITION&lt;/A&gt;
+     */
+    public class PERF_COUNTER_DEFINITION extends Structure {
+        public int ByteLength;
+        public int CounterNameTitleIndex;
+        public int CounterNameTitle; // always 32 bit
+        public int CounterHelpTitleIndex;
+        public int CounterHelpTitle; // always 32 bit
+        public NativeLong DefaultScale;
+        public int DetailLevel;
+        public int CounterType;
+        public int CounterSize;
+        public int CounterOffset;
+
+        public PERF_COUNTER_DEFINITION() {
+<span class="nc" id="L141">            super();</span>
+<span class="nc" id="L142">        }</span>
+
+        public PERF_COUNTER_DEFINITION(Pointer p) {
+<span class="nc" id="L145">            super(p);</span>
+<span class="nc" id="L146">            read();</span>
+<span class="nc" id="L147">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L151">            return Arrays.asList(new String[] { &quot;ByteLength&quot;, &quot;CounterNameTitleIndex&quot;, &quot;CounterNameTitle&quot;,</span>
+                    &quot;CounterHelpTitleIndex&quot;, &quot;CounterHelpTitle&quot;, &quot;DefaultScale&quot;, &quot;DetailLevel&quot;, &quot;CounterType&quot;,
+                    &quot;CounterSize&quot;, &quot;CounterOffset&quot;, });
+        }
+    }
+
+    /**
+     * Describes an instance of a performance object
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373159(v=vs.85).aspx&quot;&gt;
+     *      PERF_INSTANCE_DEFINITION&lt;/A&gt;
+     */
+    public class PERF_INSTANCE_DEFINITION extends Structure {
+        public int ByteLength;
+        public int ParentObjectTitleIndex;
+        public int ParentObjectInstance;
+        public int UniqueID;
+        public int NameOffset;
+        public int NameLength;
+
+        public PERF_INSTANCE_DEFINITION() {
+<span class="nc" id="L173">            super();</span>
+<span class="nc" id="L174">        }</span>
+
+        public PERF_INSTANCE_DEFINITION(Pointer p) {
+<span class="nc" id="L177">            super(p);</span>
+<span class="nc" id="L178">            read();</span>
+<span class="nc" id="L179">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L183">            return Arrays.asList(new String[] { &quot;ByteLength&quot;, &quot;ParentObjectTitleIndex&quot;, &quot;ParentObjectInstance&quot;,</span>
+                    &quot;UniqueID&quot;, &quot;NameOffset&quot;, &quot;NameLength&quot; });
+        }
+    }
+
+    /**
+     * Describes the block of memory that contains the raw performance counter
+     * data for an object's counters.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa373147(v=vs.85).aspx&quot;&gt;
+     *      PERF_INSTANCE_DEFINITION&lt;/A&gt;
+     */
+    public class PERF_COUNTER_BLOCK extends Structure {
+        public int ByteLength;
+
+        public PERF_COUNTER_BLOCK() {
+<span class="nc" id="L200">            super();</span>
+<span class="nc" id="L201">        }</span>
+
+        public PERF_COUNTER_BLOCK(Pointer p) {
+<span class="nc" id="L204">            super(p);</span>
+<span class="nc" id="L205">            read();</span>
+<span class="nc" id="L206">        }</span>
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L210">            return Arrays.asList(new String[] { &quot;ByteLength&quot; });</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

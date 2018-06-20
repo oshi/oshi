@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.PointerByReference; // NOSONAR
 
 import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.software.common.AbstractNetworkParams;
@@ -53,13 +53,15 @@ import oshi.util.ExecutingCommand;
 <span class="nc" id="L53">        PointerByReference ptr = new PointerByReference();</span>
 <span class="nc" id="L54">        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
 <span class="nc bnc" id="L55" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc" id="L56">            LOG.error(&quot;Failed getaddrinfo(): {}&quot;, Libc.INSTANCE.gai_strerror(res));</span>
-<span class="nc" id="L57">            return &quot;&quot;;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L57">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, Libc.INSTANCE.gai_strerror(res));</span>
+            }
+<span class="nc" id="L59">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L59">        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L60">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L61">        Libc.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L62">        return canonname;</span>
+<span class="nc" id="L61">        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L62">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L63">        Libc.INSTANCE.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L64">        return canonname;</span>
     }
 
     /**
@@ -67,7 +69,7 @@ import oshi.util.ExecutingCommand;
      */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L70">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
+<span class="nc" id="L72">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
     }
 
     /**
@@ -75,7 +77,7 @@ import oshi.util.ExecutingCommand;
      */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L78">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
+<span class="nc" id="L80">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

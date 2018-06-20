@@ -181,57 +181,68 @@
 <a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     @Override
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/json/software/os/NetworkParams.html">NetworkParams</a> getNetworkParams() {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/impl/NetworkParamsImpl.html">NetworkParamsImpl</a>(<strong class="jxr_keyword">this</strong>.os.getNetworkParams());
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBitness() {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.os.getBitness();
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> 
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     @Override
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.manufacturer"</span>)) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             json.add(<span class="jxr_string">"manufacturer"</span>, getManufacturer());
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.family"</span>)) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             json.add(<span class="jxr_string">"family"</span>, getFamily());
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.version"</span>)) {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             json.add(<span class="jxr_string">"version"</span>, getVersion().toJSON(properties));
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.fileSystem"</span>)) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             json.add(<span class="jxr_string">"fileSystem"</span>, getFileSystem().toJSON(properties));
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>         }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processID"</span>)) {
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             json.add(<span class="jxr_string">"processID"</span>, getProcessId());
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         }
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processCount"</span>)) {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             json.add(<span class="jxr_string">"processCount"</span>, getProcessCount());
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         }
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.threadCount"</span>)) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             json.add(<span class="jxr_string">"threadCount"</span>, getThreadCount());
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         }
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes"</span>)) {
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             JsonArrayBuilder processArrayBuilder = <strong class="jxr_keyword">this</strong>.jsonFactory.createArrayBuilder();
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">for</strong> (OSProcess proc : getProcesses(
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     PropertiesUtil.getIntOrDefault(properties, <span class="jxr_string">"operatingSystem.processes.limit"</span>, 0),
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     PropertiesUtil.getEnum(properties, <span class="jxr_string">"operatingSystem.processes.sort"</span>, ProcessSort.<strong class="jxr_keyword">class</strong>))) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>                 processArrayBuilder.add(proc.toJSON(properties));
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             }
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             json.add(<span class="jxr_string">"processes"</span>, processArrayBuilder.build());
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         }
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.networkParams"</span>)) {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             json.add(<span class="jxr_string">"networkParams"</span>, getNetworkParams().toJSON(properties));
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         }
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">return</strong> json.build();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     @Override
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.os.toString();
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/json/software/os/NetworkParams.html">NetworkParams</a> getNetworkParams() {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/json/software/os/impl/NetworkParamsImpl.html">NetworkParamsImpl</a>(<strong class="jxr_keyword">this</strong>.os.getNetworkParams());
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     @Override
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.manufacturer"</span>)) {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>             json.add(<span class="jxr_string">"manufacturer"</span>, getManufacturer());
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.family"</span>)) {
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             json.add(<span class="jxr_string">"family"</span>, getFamily());
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.version"</span>)) {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             json.add(<span class="jxr_string">"version"</span>, getVersion().toJSON(properties));
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         }
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.fileSystem"</span>)) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             json.add(<span class="jxr_string">"fileSystem"</span>, getFileSystem().toJSON(properties));
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processID"</span>)) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             json.add(<span class="jxr_string">"processID"</span>, getProcessId());
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         }
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processCount"</span>)) {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             json.add(<span class="jxr_string">"processCount"</span>, getProcessCount());
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         }
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.threadCount"</span>)) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             json.add(<span class="jxr_string">"threadCount"</span>, getThreadCount());
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.bitness"</span>)) {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             json.add(<span class="jxr_string">"bitness"</span>, getBitness());
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes"</span>)) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             JsonArrayBuilder processArrayBuilder = <strong class="jxr_keyword">this</strong>.jsonFactory.createArrayBuilder();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">for</strong> (OSProcess proc : getProcesses(
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>                     PropertiesUtil.getIntOrDefault(properties, <span class="jxr_string">"operatingSystem.processes.limit"</span>, 0),
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                     PropertiesUtil.getEnum(properties, <span class="jxr_string">"operatingSystem.processes.sort"</span>, ProcessSort.<strong class="jxr_keyword">class</strong>))) {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 processArrayBuilder.add(proc.toJSON(properties));
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             json.add(<span class="jxr_string">"processes"</span>, processArrayBuilder.build());
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.networkParams"</span>)) {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             json.add(<span class="jxr_string">"networkParams"</span>, getNetworkParams().toJSON(properties));
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">return</strong> json.build();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     }
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     @Override
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.os.toString();
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
