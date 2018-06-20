@@ -46,14 +46,21 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L46">        this.manufacturer = &quot;Oracle&quot;;</span>
 <span class="nc" id="L47">        this.family = &quot;SunOS&quot;;</span>
 <span class="nc" id="L48">        this.version = new SolarisOSVersionInfoEx();</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L49">        initBitness();</span>
+<span class="nc" id="L50">    }</span>
+
+    private void initBitness() {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (this.bitness &lt; 64) {</span>
+<span class="nc" id="L54">            this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;), 32);</span>
+        }
+<span class="nc" id="L56">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L56">        return new SolarisFileSystem();</span>
+<span class="nc" id="L63">        return new SolarisFileSystem();</span>
     }
 
     /**
@@ -61,10 +68,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L64">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
+<span class="nc" id="L71">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
                 &quot;ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args&quot;, -1);
-<span class="nc" id="L66">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L67">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L73">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L74">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     /**
@@ -72,12 +79,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L75">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
+<span class="nc" id="L82">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
                 &quot;ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p &quot;, pid);
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
-<span class="nc" id="L78">            return null;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
+<span class="nc" id="L85">            return null;</span>
         }
-<span class="nc" id="L80">        return procs.get(0);</span>
+<span class="nc" id="L87">        return procs.get(0);</span>
     }
 
     /**
@@ -85,81 +92,81 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-<span class="nc" id="L88">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
+<span class="nc" id="L95">        List&lt;OSProcess&gt; procs = getProcessListFromPS(</span>
                 &quot;ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args --ppid&quot;, parentPid);
-<span class="nc" id="L90">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L91">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L97">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L98">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     private List&lt;OSProcess&gt; getProcessListFromPS(String psCommand, int pid) {
-<span class="nc" id="L95">        Map&lt;Integer, String&gt; cwdMap = LsofUtil.getCwdMap(pid);</span>
-<span class="nc" id="L96">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand + (pid &lt; 0 ? &quot;&quot; : pid));</span>
-<span class="nc bnc" id="L98" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
-<span class="nc" id="L99">            return procs;</span>
+<span class="nc" id="L102">        Map&lt;Integer, String&gt; cwdMap = LsofUtil.getCwdMap(pid);</span>
+<span class="nc" id="L103">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand + (pid &lt; 0 ? &quot;&quot; : pid));</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
+<span class="nc" id="L106">            return procs;</span>
         }
         // remove header row
-<span class="nc" id="L102">        procList.remove(0);</span>
+<span class="nc" id="L109">        procList.remove(0);</span>
         // Fill list
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (String proc : procList) {</span>
-<span class="nc" id="L105">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (String proc : procList) {</span>
+<span class="nc" id="L112">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);</span>
             // Elements should match ps command order
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (split.length &lt; 15) {</span>
-<span class="nc" id="L108">                continue;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (split.length &lt; 15) {</span>
+<span class="nc" id="L115">                continue;</span>
             }
-<span class="nc" id="L110">            long now = System.currentTimeMillis();</span>
-<span class="nc" id="L111">            OSProcess sproc = new OSProcess();</span>
-<span class="nc bnc" id="L112" title="All 6 branches missed.">            switch (split[0].charAt(0)) {</span>
+<span class="nc" id="L117">            long now = System.currentTimeMillis();</span>
+<span class="nc" id="L118">            OSProcess sproc = new OSProcess();</span>
+<span class="nc bnc" id="L119" title="All 6 branches missed.">            switch (split[0].charAt(0)) {</span>
             case 'O':
-<span class="nc" id="L114">                sproc.setState(OSProcess.State.RUNNING);</span>
-<span class="nc" id="L115">                break;</span>
+<span class="nc" id="L121">                sproc.setState(OSProcess.State.RUNNING);</span>
+<span class="nc" id="L122">                break;</span>
             case 'S':
-<span class="nc" id="L117">                sproc.setState(OSProcess.State.SLEEPING);</span>
-<span class="nc" id="L118">                break;</span>
+<span class="nc" id="L124">                sproc.setState(OSProcess.State.SLEEPING);</span>
+<span class="nc" id="L125">                break;</span>
             case 'R':
             case 'W':
-<span class="nc" id="L121">                sproc.setState(OSProcess.State.WAITING);</span>
-<span class="nc" id="L122">                break;</span>
+<span class="nc" id="L128">                sproc.setState(OSProcess.State.WAITING);</span>
+<span class="nc" id="L129">                break;</span>
             case 'Z':
-<span class="nc" id="L124">                sproc.setState(OSProcess.State.ZOMBIE);</span>
-<span class="nc" id="L125">                break;</span>
+<span class="nc" id="L131">                sproc.setState(OSProcess.State.ZOMBIE);</span>
+<span class="nc" id="L132">                break;</span>
             case 'T':
-<span class="nc" id="L127">                sproc.setState(OSProcess.State.STOPPED);</span>
-<span class="nc" id="L128">                break;</span>
+<span class="nc" id="L134">                sproc.setState(OSProcess.State.STOPPED);</span>
+<span class="nc" id="L135">                break;</span>
             default:
-<span class="nc" id="L130">                sproc.setState(OSProcess.State.OTHER);</span>
+<span class="nc" id="L137">                sproc.setState(OSProcess.State.OTHER);</span>
                 break;
             }
-<span class="nc" id="L133">            sproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));</span>
-<span class="nc" id="L134">            sproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));</span>
-<span class="nc" id="L135">            sproc.setUser(split[3]);</span>
-<span class="nc" id="L136">            sproc.setUserID(split[4]);</span>
-<span class="nc" id="L137">            sproc.setGroup(split[5]);</span>
-<span class="nc" id="L138">            sproc.setGroupID(split[6]);</span>
-<span class="nc" id="L139">            sproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));</span>
-<span class="nc" id="L140">            sproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));</span>
+<span class="nc" id="L140">            sproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));</span>
+<span class="nc" id="L141">            sproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));</span>
+<span class="nc" id="L142">            sproc.setUser(split[3]);</span>
+<span class="nc" id="L143">            sproc.setUserID(split[4]);</span>
+<span class="nc" id="L144">            sproc.setGroup(split[5]);</span>
+<span class="nc" id="L145">            sproc.setGroupID(split[6]);</span>
+<span class="nc" id="L146">            sproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));</span>
+<span class="nc" id="L147">            sproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));</span>
             // These are in KB, multiply
-<span class="nc" id="L142">            sproc.setVirtualSize(ParseUtil.parseLongOrDefault(split[9], 0) * 1024);</span>
-<span class="nc" id="L143">            sproc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[10], 0) * 1024);</span>
+<span class="nc" id="L149">            sproc.setVirtualSize(ParseUtil.parseLongOrDefault(split[9], 0) * 1024);</span>
+<span class="nc" id="L150">            sproc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[10], 0) * 1024);</span>
             // Avoid divide by zero for processes up less than a second
-<span class="nc" id="L145">            long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            sproc.setUpTime(elapsedTime &lt; 1L ? 1L : elapsedTime);</span>
-<span class="nc" id="L147">            sproc.setStartTime(now - sproc.getUpTime());</span>
-<span class="nc" id="L148">            sproc.setUserTime(ParseUtil.parseDHMSOrDefault(split[12], 0L));</span>
-<span class="nc" id="L149">            sproc.setPath(split[13]);</span>
-<span class="nc" id="L150">            sproc.setName(sproc.getPath().substring(sproc.getPath().lastIndexOf('/') + 1));</span>
-<span class="nc" id="L151">            sproc.setCommandLine(split[14]);</span>
-<span class="nc" id="L152">            sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), &quot;&quot;));</span>
+<span class="nc" id="L152">            long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            sproc.setUpTime(elapsedTime &lt; 1L ? 1L : elapsedTime);</span>
+<span class="nc" id="L154">            sproc.setStartTime(now - sproc.getUpTime());</span>
+<span class="nc" id="L155">            sproc.setUserTime(ParseUtil.parseDHMSOrDefault(split[12], 0L));</span>
+<span class="nc" id="L156">            sproc.setPath(split[13]);</span>
+<span class="nc" id="L157">            sproc.setName(sproc.getPath().substring(sproc.getPath().lastIndexOf('/') + 1));</span>
+<span class="nc" id="L158">            sproc.setCommandLine(split[14]);</span>
+<span class="nc" id="L159">            sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), &quot;&quot;));</span>
             // bytes read/written not easily available
 
             // gets the open files count -- only do for single-PID requests
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (pid &gt;= 0) {</span>
-<span class="nc" id="L157">                List&lt;String&gt; openFilesList = ExecutingCommand.runNative(String.format(&quot;lsof -p %d&quot;, pid));</span>
-<span class="nc" id="L158">                sproc.setOpenFiles(openFilesList.size() - 1);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            if (pid &gt;= 0) {</span>
+<span class="nc" id="L164">                List&lt;String&gt; openFilesList = ExecutingCommand.runNative(String.format(&quot;lsof -p %d&quot;, pid));</span>
+<span class="nc" id="L165">                sproc.setOpenFiles(openFilesList.size() - 1L);</span>
             }
-<span class="nc" id="L160">            procs.add(sproc);</span>
-<span class="nc" id="L161">        }</span>
-<span class="nc" id="L162">        return procs;</span>
+<span class="nc" id="L167">            procs.add(sproc);</span>
+<span class="nc" id="L168">        }</span>
+<span class="nc" id="L169">        return procs;</span>
     }
 
     /**
@@ -167,7 +174,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L170">        return Libc.INSTANCE.getpid();</span>
+<span class="nc" id="L177">        return Libc.INSTANCE.getpid();</span>
     }
 
     /**
@@ -175,7 +182,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L178">        return ProcUtil.getPidFiles().length;</span>
+<span class="nc" id="L185">        return ProcUtil.getPidFiles().length;</span>
     }
 
     /**
@@ -183,12 +190,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getThreadCount() {
-<span class="nc" id="L186">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
+<span class="nc" id="L193">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L189">            return threadList.size() - 1;</span>
+<span class="nc" id="L196">            return threadList.size() - 1;</span>
         }
-<span class="nc" id="L191">        return getProcessCount();</span>
+<span class="nc" id="L198">        return getProcessCount();</span>
     }
 
     /**
@@ -196,7 +203,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L199">        return new SolarisNetworkParams();</span>
+<span class="nc" id="L206">        return new SolarisNetworkParams();</span>
     }
 
 }

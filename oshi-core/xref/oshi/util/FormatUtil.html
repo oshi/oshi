@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * @author dblock[at]dblock[dot]org</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../oshi/util/FormatUtil.html">FormatUtil</a> {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Logger LOG = LoggerFactory.getLogger(FormatUtil.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(FormatUtil.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * Binary prefixes, used in IEC Standard for naming bytes.</em>
@@ -253,7 +253,7 @@
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">return</strong> date == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : LocalDate.parse(date, DATE_FORMATTER);
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>         } <strong class="jxr_keyword">catch</strong> (DateTimeParseException dtpe) {
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             LOG.warn(<span class="jxr_string">"Date parse error: "</span> + dtpe);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             LOG.warn(<span class="jxr_string">"Date parse error: {}"</span>, dtpe);
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>         }
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     }

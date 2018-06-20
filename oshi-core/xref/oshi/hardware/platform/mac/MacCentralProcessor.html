@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native; <em class="jxr_comment">// NOSONAR</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
@@ -122,7 +122,7 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         HostCpuLoadInfo cpuLoadInfo = <strong class="jxr_keyword">new</strong> HostCpuLoadInfo();
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">new</strong> IntByReference(cpuLoadInfo.size()))) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             LOG.error(<span class="jxr_string">"Failed to get System CPU ticks. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             LOG.error(<span class="jxr_string">"Failed to get System CPU ticks. Error code: {} "</span>, Native.getLastError());
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> 
@@ -166,7 +166,7 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         IntByReference procInfoCount = <strong class="jxr_keyword">new</strong> IntByReference();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>                 procCpuLoadInfo, procInfoCount)) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: {}"</span>, Native.getLastError());
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
@@ -208,7 +208,7 @@
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">VMMeter</a> vmstats = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">VMMeter</a>();
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>                 <strong class="jxr_keyword">new</strong> IntByReference(vmstats.size()))) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             LOG.error(<span class="jxr_string">"Failed to update vmstats. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             LOG.error(<span class="jxr_string">"Failed to update vmstats. Error code: {}"</span>, Native.getLastError());
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">return</strong> -1;
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         }
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">return</strong> ParseUtil.unsignedIntToLong(vmstats.v_swtch);
@@ -223,7 +223,7 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">VMMeter</a> vmstats = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">VMMeter</a>();
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <strong class="jxr_keyword">new</strong> IntByReference(vmstats.size()))) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             LOG.error(<span class="jxr_string">"Failed to update vmstats. Error code: "</span> + Native.getLastError());
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             LOG.error(<span class="jxr_string">"Failed to update vmstats. Error code: {}"</span>, Native.getLastError());
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>             <strong class="jxr_keyword">return</strong> -1;
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>         }
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">return</strong> ParseUtil.unsignedIntToLong(vmstats.v_intr);

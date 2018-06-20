@@ -28,122 +28,159 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractGlobalMemory;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * Memory obtained by /proc/meminfo and sysinfo.totalram</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxGlobalMemory.html">LinuxGlobalMemory</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractGlobalMemory.html">AbstractGlobalMemory</a> {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_comment">// Values read from /proc/meminfo used for other calculations</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> memFree = 0;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> activeFile = 0;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> inactiveFile = 0;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> sReclaimable = 0;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> swapFree = 0;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native; <em class="jxr_comment">// NOSONAR</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractGlobalMemory;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Libc;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Libc.Sysinfo;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * Memory obtained by /proc/meminfo and sysinfo.totalram</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * @author alessandro[at]perucchi[dot]org</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxGlobalMemory.html">LinuxGlobalMemory</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractGlobalMemory.html">AbstractGlobalMemory</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> lastUpdate = 0;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * Updates instance variables from reading /proc/meminfo no more frequently</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * than every 100ms. While most of the information is available in the</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * sysinfo structure, the most accurate calculation of MemAvailable is only</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * available from reading this pseudo-file. The maintainers of the Linux</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * Kernel have indicated this location will be kept up to date if the</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * calculation changes: see</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * id=34e431b0ae398fc54ea69ff85ec700722c9da773</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Internally, reading /proc/meminfo is faster than sysinfo because it only</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * spends time populating the memory components of the sysinfo structure.</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateMeminfo() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">if</strong> (now - <strong class="jxr_keyword">this</strong>.lastUpdate &gt; 100) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              List&lt;String&gt; memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (memInfo.isEmpty()) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">boolean</strong> found = false;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 1) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">switch</strong> (memorySplit[0]) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemTotal:"</span>:
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                          <strong class="jxr_keyword">this</strong>.memTotal = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemFree:"</span>:
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                          <strong class="jxr_keyword">this</strong>.memFree = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemAvailable:"</span>:
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          <strong class="jxr_keyword">this</strong>.memAvailable = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          found = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Active(file):"</span>:
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                          <strong class="jxr_keyword">this</strong>.activeFile = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Inactive(file):"</span>:
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                          <strong class="jxr_keyword">this</strong>.inactiveFile = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SReclaimable:"</span>:
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                          <strong class="jxr_keyword">this</strong>.sReclaimable = parseMeminfo(memorySplit);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SwapTotal:"</span>:
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          <strong class="jxr_keyword">this</strong>.swapTotal = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_comment">// Values read from /proc/meminfo used for other calculations</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> memFree = 0;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> activeFile = 0;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> inactiveFile = 0;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> sReclaimable = 0;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> swapFree = 0;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> lastUpdate = 0;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/linux/LinuxGlobalMemory.html">LinuxGlobalMemory</a>() {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a> info = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/linux/Libc.html">Sysinfo</a>();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">if</strong> (0 == Libc.INSTANCE.sysinfo(info)) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  <strong class="jxr_keyword">this</strong>.pageSize = info.mem_unit;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  LOG.error(<span class="jxr_string">"Failed to get sysinfo. Error code: {}"</span>, Native.getLastError());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          } <strong class="jxr_keyword">catch</strong> (UnsatisfiedLinkError | NoClassDefFoundError e) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              LOG.error(<span class="jxr_string">"Failed to get mem_unit from sysinfo. {}"</span>, e);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * Updates instance variables from reading /proc/meminfo no more frequently</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     * than every 100ms. While most of the information is available in the</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * sysinfo structure, the most accurate calculation of MemAvailable is only</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * available from reading this pseudo-file. The maintainers of the Linux</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * Kernel have indicated this location will be kept up to date if the</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * calculation changes: see</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * id=34e431b0ae398fc54ea69ff85ec700722c9da773</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * Internally, reading /proc/meminfo is faster than sysinfo because it only</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * spends time populating the memory components of the sysinfo structure.</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Override
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateMeminfo() {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">if</strong> (now - <strong class="jxr_keyword">this</strong>.lastUpdate &gt; 100) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              List&lt;String&gt; memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/meminfo"</span>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">boolean</strong> found = false;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 1) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">switch</strong> (memorySplit[0]) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemTotal:"</span>:
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          <strong class="jxr_keyword">this</strong>.memTotal = parseMeminfo(memorySplit);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SwapFree:"</span>:
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                          <strong class="jxr_keyword">this</strong>.swapFree = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemFree:"</span>:
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                          <strong class="jxr_keyword">this</strong>.memFree = parseMeminfo(memorySplit);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                          <em class="jxr_comment">// do nothing with other lines</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">this</strong>.swapUsed = <strong class="jxr_keyword">this</strong>.swapTotal - <strong class="jxr_keyword">this</strong>.swapFree;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <em class="jxr_comment">// If no MemAvailable, calculate from other fields</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">if</strong> (!found) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">this</strong>.memAvailable = <strong class="jxr_keyword">this</strong>.memFree + <strong class="jxr_keyword">this</strong>.activeFile + <strong class="jxr_keyword">this</strong>.inactiveFile + <strong class="jxr_keyword">this</strong>.sReclaimable;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>             }
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">this</strong>.lastUpdate = now;
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Override
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateSwap() {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         updateMeminfo();
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * Parses lines from the display of /proc/meminfo</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @param memorySplit</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *            Array of Strings representing the 3 columns of /proc/meminfo</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return value, multiplied by 1024 if kB is specified</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> parseMeminfo(String[] memorySplit) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &lt; 2) {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">return</strong> 0l;
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">long</strong> memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; <span class="jxr_string">"kB"</span>.equals(memorySplit[2])) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             memory *= 1024;
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> memory;
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"MemAvailable:"</span>:
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                          <strong class="jxr_keyword">this</strong>.memAvailable = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                          found = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Active(file):"</span>:
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                         <strong class="jxr_keyword">this</strong>.activeFile = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Inactive(file):"</span>:
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                         <strong class="jxr_keyword">this</strong>.inactiveFile = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SReclaimable:"</span>:
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                         <strong class="jxr_keyword">this</strong>.sReclaimable = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SwapTotal:"</span>:
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                         <strong class="jxr_keyword">this</strong>.swapTotal = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"SwapFree:"</span>:
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                         <strong class="jxr_keyword">this</strong>.swapFree = parseMeminfo(memorySplit);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                     <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                         <em class="jxr_comment">// do nothing with other lines</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                     }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">this</strong>.swapUsed = <strong class="jxr_keyword">this</strong>.swapTotal - <strong class="jxr_keyword">this</strong>.swapFree;
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <em class="jxr_comment">// If no MemAvailable, calculate from other fields</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">if</strong> (!found) {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <strong class="jxr_keyword">this</strong>.memAvailable = <strong class="jxr_keyword">this</strong>.memFree + <strong class="jxr_keyword">this</strong>.activeFile + <strong class="jxr_keyword">this</strong>.inactiveFile + <strong class="jxr_keyword">this</strong>.sReclaimable;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             memInfo = FileUtil.readFile(<span class="jxr_string">"/proc/vmstat"</span>);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">for</strong> (String checkLine : memInfo) {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 1) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     <strong class="jxr_keyword">switch</strong> (memorySplit[0]) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pgpgin"</span>:
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                         swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"pgpgout"</span>:
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                         swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                     <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                         <em class="jxr_comment">// do nothing with other lines</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                     }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">this</strong>.lastUpdate = now;
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Override
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateSwap() {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         updateMeminfo();
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * Parses lines from the display of /proc/meminfo</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @param memorySplit</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     *            Array of Strings representing the 3 columns of /proc/meminfo</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * @return value, multiplied by 1024 if kB is specified</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> parseMeminfo(String[] memorySplit) {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &lt; 2) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">return</strong> 0l;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">long</strong> memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">if</strong> (memorySplit.length &gt; 2 &amp;&amp; <span class="jxr_string">"kB"</span>.equals(memorySplit[2])) {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             memory *= 1024;
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> memory;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

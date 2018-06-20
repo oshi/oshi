@@ -26,92 +26,93 @@ import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 
 <span class="nc" id="L28">public class LinuxUserGroupInfo {</span>
-	
-	private static final long CACHE_REFRESH_TIME_MS = 3*60*1000; //3 minutes
-<span class="nc" id="L31">	private static final UsersCache usersCache = new UsersCache();</span>
-<span class="nc" id="L32">	private static final GroupsCache groupsCache = new GroupsCache();</span>
 
-	public OSUser getUser(String userId) {
-<span class="nc" id="L35">		return usersCache.getUser(userId);</span>
-	}
-	
-	public String getGroupName(String groupId) {
-<span class="nc" id="L39">		return groupsCache.getGroup(groupId);</span>
-	}
+    private static final long CACHE_REFRESH_TIME_MS = 3L * 60000; // 3 minutes
+<span class="nc" id="L31">    private static final UsersCache usersCache = new UsersCache();</span>
+<span class="nc" id="L32">    private static final GroupsCache groupsCache = new GroupsCache();</span>
 
-<span class="nc" id="L42">	private static class UsersCache {</span>
-		
-<span class="nc" id="L44">		private Map&lt;String, OSUser&gt; usersIdMap = new HashMap&lt;&gt;();</span>
-		private long lastRefreshedTimestamp;
-		
-		public OSUser getUser(String userId) {
-<span class="nc bnc" id="L48" title="All 2 branches missed.">			if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
-<span class="nc" id="L49">				refresh();</span>
-			}
-<span class="nc" id="L51">			OSUser osUser = usersIdMap.get(userId);</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">			if (osUser == null) {</span>
-<span class="nc" id="L53">				refresh();</span>
-<span class="nc" id="L54">				return usersIdMap.get(userId);</span>
-			}
-<span class="nc" id="L56">			return osUser;</span>
-		}
-		
-		private void refresh() {
-<span class="nc" id="L60">			usersIdMap.clear();</span>
-<span class="nc" id="L61">			List&lt;String&gt; passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
-			// see man 5 passwd for the fields
-<span class="nc bnc" id="L63" title="All 2 branches missed.">			for (String entry : passwd) {</span>
-<span class="nc" id="L64">				String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">				if (split.length &lt; 3 ){</span>
-<span class="nc" id="L66">					continue;</span>
-				}
-<span class="nc" id="L68">				String userName = split[0];</span>
-<span class="nc" id="L69">				String uid = split[2];</span>
-				// it is allowed to have multiple entries for the same userId, we use the first one
-<span class="nc bnc" id="L71" title="All 2 branches missed.">				if (!usersIdMap.containsKey(uid)){</span>
-<span class="nc" id="L72">					OSUser user = new OSUser();</span>
-<span class="nc" id="L73">					user.setUserId(uid);</span>
-<span class="nc" id="L74">					user.setUserName(userName);</span>
-<span class="nc" id="L75">					usersIdMap.put(uid, user); </span>
-				}
-<span class="nc" id="L77">			}</span>
-<span class="nc" id="L78">			lastRefreshedTimestamp = System.currentTimeMillis();</span>
-<span class="nc" id="L79">		}</span>
-	}
-	
-<span class="nc" id="L82">	private static class GroupsCache {</span>
-<span class="nc" id="L83">		private Map&lt;String, String&gt; groupsIdMap = new HashMap&lt;&gt;();</span>
-		private long lastRefreshedTimestamp;
-		
-		public String getGroup(String groupId){
-<span class="nc bnc" id="L87" title="All 2 branches missed.">			if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
-<span class="nc" id="L88">				refresh();</span>
-			}
-<span class="nc" id="L90">			String groupName = groupsIdMap.get(groupId);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (groupName == null) {</span>
-<span class="nc" id="L92">				refresh();</span>
-<span class="nc" id="L93">				return groupsIdMap.get(groupId);</span>
-			}
-<span class="nc" id="L95">			return groupName;</span>
-		}
-		
-		private void refresh() {
-<span class="nc" id="L99">			groupsIdMap.clear();</span>
-<span class="nc" id="L100">			List&lt;String&gt; group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
-			// see man 5 group for the fields
-<span class="nc bnc" id="L102" title="All 2 branches missed.">			for (String entry : group) {</span>
-<span class="nc" id="L103">				String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">				if (split.length &lt; 3) {</span>
-<span class="nc" id="L105">					continue;</span>
-				}
-<span class="nc" id="L107">				String groupName = split[0];</span>
-<span class="nc" id="L108">				String gid = split[2];</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">				if (!groupsIdMap.containsKey(gid)) {</span>
-<span class="nc" id="L110">					groupsIdMap.put(gid, groupName);</span>
-				}
-<span class="nc" id="L112">			}</span>
-<span class="nc" id="L113">			lastRefreshedTimestamp = System.currentTimeMillis();</span>
-<span class="nc" id="L114">		}</span>
-	}
+    public OSUser getUser(String userId) {
+<span class="nc" id="L35">        return usersCache.getUser(userId);</span>
+    }
+
+    public String getGroupName(String groupId) {
+<span class="nc" id="L39">        return groupsCache.getGroup(groupId);</span>
+    }
+
+<span class="nc" id="L42">    private static class UsersCache {</span>
+
+<span class="nc" id="L44">        private Map&lt;String, OSUser&gt; usersIdMap = new HashMap&lt;&gt;();</span>
+        private long lastRefreshedTimestamp;
+
+        public OSUser getUser(String userId) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
+<span class="nc" id="L49">                refresh();</span>
+            }
+<span class="nc" id="L51">            OSUser osUser = usersIdMap.get(userId);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            if (osUser == null) {</span>
+<span class="nc" id="L53">                refresh();</span>
+<span class="nc" id="L54">                return usersIdMap.get(userId);</span>
+            }
+<span class="nc" id="L56">            return osUser;</span>
+        }
+
+        private void refresh() {
+<span class="nc" id="L60">            usersIdMap.clear();</span>
+<span class="nc" id="L61">            List&lt;String&gt; passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
+            // see man 5 passwd for the fields
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            for (String entry : passwd) {</span>
+<span class="nc" id="L64">                String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                if (split.length &lt; 3) {</span>
+<span class="nc" id="L66">                    continue;</span>
+                }
+<span class="nc" id="L68">                String userName = split[0];</span>
+<span class="nc" id="L69">                String uid = split[2];</span>
+                // it is allowed to have multiple entries for the same userId,
+                // we use the first one
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (!usersIdMap.containsKey(uid)) {</span>
+<span class="nc" id="L73">                    OSUser user = new OSUser();</span>
+<span class="nc" id="L74">                    user.setUserId(uid);</span>
+<span class="nc" id="L75">                    user.setUserName(userName);</span>
+<span class="nc" id="L76">                    usersIdMap.put(uid, user);</span>
+                }
+<span class="nc" id="L78">            }</span>
+<span class="nc" id="L79">            lastRefreshedTimestamp = System.currentTimeMillis();</span>
+<span class="nc" id="L80">        }</span>
+    }
+
+<span class="nc" id="L83">    private static class GroupsCache {</span>
+<span class="nc" id="L84">        private Map&lt;String, String&gt; groupsIdMap = new HashMap&lt;&gt;();</span>
+        private long lastRefreshedTimestamp;
+
+        public String getGroup(String groupId) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
+<span class="nc" id="L89">                refresh();</span>
+            }
+<span class="nc" id="L91">            String groupName = groupsIdMap.get(groupId);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (groupName == null) {</span>
+<span class="nc" id="L93">                refresh();</span>
+<span class="nc" id="L94">                return groupsIdMap.get(groupId);</span>
+            }
+<span class="nc" id="L96">            return groupName;</span>
+        }
+
+        private void refresh() {
+<span class="nc" id="L100">            groupsIdMap.clear();</span>
+<span class="nc" id="L101">            List&lt;String&gt; group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
+            // see man 5 group for the fields
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (String entry : group) {</span>
+<span class="nc" id="L104">                String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (split.length &lt; 3) {</span>
+<span class="nc" id="L106">                    continue;</span>
+                }
+<span class="nc" id="L108">                String groupName = split[0];</span>
+<span class="nc" id="L109">                String gid = split[2];</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (!groupsIdMap.containsKey(gid)) {</span>
+<span class="nc" id="L111">                    groupsIdMap.put(gid, groupName);</span>
+                }
+<span class="nc" id="L113">            }</span>
+<span class="nc" id="L114">            lastRefreshedTimestamp = System.currentTimeMillis();</span>
+<span class="nc" id="L115">        }</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

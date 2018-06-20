@@ -263,7 +263,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     private String getProcessorID(String stepping, String model, String family, String[] flags) {
 <span class="nc" id="L264">        boolean procInfo = false;</span>
 <span class="nc" id="L265">        String marker = &quot;Processor Information&quot;;</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t 4&quot;)) {</span>
 <span class="nc bnc" id="L267" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
 <span class="nc" id="L268">                marker = &quot;ID:&quot;;</span>
 <span class="nc" id="L269">                procInfo = true;</span>

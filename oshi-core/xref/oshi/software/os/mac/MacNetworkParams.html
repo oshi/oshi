@@ -33,7 +33,7 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference; <em class="jxr_comment">// NOSONAR</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractNetworkParams;
@@ -67,43 +67,45 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          PointerByReference ptr = <strong class="jxr_keyword">new</strong> PointerByReference();
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">int</strong> res = SystemB.INSTANCE.getaddrinfo(hostname, <strong class="jxr_keyword">null</strong>, hint, ptr);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">if</strong> (res &gt; 0) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              LOG.error(<span class="jxr_string">"Failed getaddrinfo(): {}"</span>, SystemB.INSTANCE.gai_strerror(res));
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          SystemB.Addrinfo info = <strong class="jxr_keyword">new</strong> SystemB.Addrinfo(ptr.getValue());
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          String canonname = info.ai_canonname.trim();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          SystemB.INSTANCE.freeaddrinfo(ptr.getValue());
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> canonname;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Override
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      @Override
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          List&lt;String&gt; lines = ExecutingCommand.runNative(<span class="jxr_string">"netstat -nr"</span>);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">boolean</strong> v6Table = false;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">if</strong> (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  String[] fields = ParseUtil.whitespaces.split(line);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <strong class="jxr_keyword">if</strong> (fields.length &gt; 2 &amp;&amp; fields[2].contains(<span class="jxr_string">"G"</span>)) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">return</strong> fields[1].split(<span class="jxr_string">"%"</span>)[0];
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(IPV6_ROUTE_HEADER)) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  v6Table = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          }
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  LOG.error(<span class="jxr_string">"Failed getaddrinfo(): {}"</span>, SystemB.INSTANCE.gai_strerror(res));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          SystemB.Addrinfo info = <strong class="jxr_keyword">new</strong> SystemB.Addrinfo(ptr.getValue());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          String canonname = info.ai_canonname.trim();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          SystemB.INSTANCE.freeaddrinfo(ptr.getValue());
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> canonname;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Override
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      @Override
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          List&lt;String&gt; lines = ExecutingCommand.runNative(<span class="jxr_string">"netstat -nr"</span>);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">boolean</strong> v6Table = false;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">if</strong> (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  String[] fields = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">if</strong> (fields.length &gt; 2 &amp;&amp; fields[2].contains(<span class="jxr_string">"G"</span>)) {
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                      <strong class="jxr_keyword">return</strong> fields[1].split(<span class="jxr_string">"%"</span>)[0];
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(IPV6_ROUTE_HEADER)) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  v6Table = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
