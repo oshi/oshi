@@ -1,4 +1,4 @@
-3.6.0 (in progress)
+3.7.0 (in progress)
 ================
 * Your contribution here.
 
