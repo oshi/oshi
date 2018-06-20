@@ -35,7 +35,7 @@ import org.threeten.bp.format.DateTimeParseException;
  * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
-<span class="fc" id="L38">    private static Logger LOG = LoggerFactory.getLogger(FormatUtil.class);</span>
+<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(FormatUtil.class);</span>
 
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
@@ -245,7 +245,7 @@ public class FormatUtil {
         try {
 <span class="fc bfc" id="L246" title="All 2 branches covered.">            return date == null ? null : LocalDate.parse(date, DATE_FORMATTER);</span>
 <span class="fc" id="L247">        } catch (DateTimeParseException dtpe) {</span>
-<span class="fc" id="L248">            LOG.warn(&quot;Date parse error: &quot; + dtpe);</span>
+<span class="fc" id="L248">            LOG.warn(&quot;Date parse error: {}&quot;, dtpe);</span>
 <span class="fc" id="L249">            return null;</span>
         }
     }

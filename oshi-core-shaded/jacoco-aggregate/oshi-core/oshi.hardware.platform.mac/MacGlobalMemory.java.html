@@ -21,7 +21,7 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
@@ -48,35 +48,35 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L48">    private transient VMStatistics vmStats = new VMStatistics();</span>
 <span class="nc" id="L49">    private long lastUpdateAvail = 0;</span>
 
-<span class="nc" id="L51">    private long pageSize = 4096;</span>
-
-<span class="nc" id="L53">    public MacGlobalMemory() {</span>
-<span class="nc" id="L54">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (memory &gt;= 0) {</span>
-<span class="nc" id="L56">            this.memTotal = memory;</span>
+<span class="nc" id="L51">    public MacGlobalMemory() {</span>
+<span class="nc" id="L52">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (memory &gt;= 0) {</span>
+<span class="nc" id="L54">            this.memTotal = memory;</span>
         }
 
-<span class="nc" id="L59">        LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
-<span class="nc" id="L61">            LOG.error(&quot;Failed to get host page size. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L62">            return;</span>
+<span class="nc" id="L57">        LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L59">            LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L60">            return;</span>
         }
-<span class="nc" id="L64">        this.pageSize = pPageSize.getValue();</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L62">        this.pageSize = pPageSize.getValue();</span>
+<span class="nc" id="L63">    }</span>
 
     /**
      * Updates available memory no more often than every 100ms
      */
     @Override
     protected void updateMeminfo() {
-<span class="nc" id="L72">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (now - this.lastUpdateAvail &gt; 100) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,</span>
-<span class="nc" id="L75">                    this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L76">                LOG.error(&quot;Failed to get host VM info. Error code: &quot; + Native.getLastError());</span>
-<span class="nc" id="L77">                return;</span>
+<span class="nc" id="L70">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (now - this.lastUpdateAvail &gt; 100) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,</span>
+<span class="nc" id="L73">                    this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L74">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L75">                return;</span>
             }
-<span class="nc" id="L79">            this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;</span>
+<span class="nc" id="L77">            this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;</span>
+<span class="nc" id="L78">            this.swapPagesIn = this.vmStats.pageins;</span>
+<span class="nc" id="L79">            this.swapPagesOut = this.vmStats.pageouts;</span>
 <span class="nc" id="L80">            this.lastUpdateAvail = now;</span>
         }
 <span class="nc" id="L82">    }</span>

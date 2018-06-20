@@ -25,7 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.PointerByReference; // NOSONAR
 
 import oshi.jna.platform.mac.SystemB;
 import oshi.software.common.AbstractNetworkParams;
@@ -59,13 +59,15 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L59">        PointerByReference ptr = new PointerByReference();</span>
 <span class="nc" id="L60">        int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
 <span class="nc bnc" id="L61" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc" id="L62">            LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
-<span class="nc" id="L63">            return &quot;&quot;;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L63">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
+            }
+<span class="nc" id="L65">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L65">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L66">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L67">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L68">        return canonname;</span>
+<span class="nc" id="L67">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L68">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L69">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L70">        return canonname;</span>
     }
 
     /**
@@ -73,7 +75,7 @@ import oshi.util.ParseUtil;
      */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L76">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L78">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 
     /**
@@ -81,19 +83,19 @@ import oshi.util.ParseUtil;
      */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L84">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
-<span class="nc" id="L85">        boolean v6Table = false;</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
-<span class="nc" id="L88">                String[] fields = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L89" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
-<span class="nc" id="L90">                    return fields[1].split(&quot;%&quot;)[0];</span>
+<span class="nc" id="L86">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
+<span class="nc" id="L87">        boolean v6Table = false;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
+<span class="nc" id="L90">                String[] fields = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
+<span class="nc" id="L92">                    return fields[1].split(&quot;%&quot;)[0];</span>
                 }
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
-<span class="nc" id="L93">                v6Table = true;</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
+<span class="nc" id="L95">                v6Table = true;</span>
             }
-<span class="nc" id="L95">        }</span>
-<span class="nc" id="L96">        return &quot;&quot;;</span>
+<span class="nc" id="L97">        }</span>
+<span class="nc" id="L98">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

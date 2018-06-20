@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Kernel32.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Kernel32.java</span></div><h1>Kernel32.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Native;
+import com.sun.jna.Structure;
+
+/**
+ * Windows Kernel32
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
+<span class="nc" id="L33">    Kernel32 INSTANCE = Native.loadLibrary(&quot;Kernel32&quot;, Kernel32.class);</span>
+
+<span class="nc" id="L35">    class IO_COUNTERS extends Structure {</span>
+        public long ReadOperationCount;
+        public long WriteOperationCount;
+        public long OtherOperationCount;
+        public long ReadTransferCount;
+        public long WriteTransferCount;
+        public long OtherTransferCount;
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L45">            return Arrays.asList(new String[] { &quot;ReadOperationCount&quot;, &quot;WriteOperationCount&quot;, &quot;OtherOperationCount&quot;,</span>
+                    &quot;ReadTransferCount&quot;, &quot;WriteTransferCount&quot;, &quot;OtherTransferCount&quot; });
+        }
+    }
+
+    /**
+     * Retrieves timing information for the specified process.
+     * 
+     * @param hProcess
+     *            A handle to the process whose timing information is sought.
+     *            The handle must have the PROCESS_QUERY_INFORMATION or
+     *            PROCESS_QUERY_LIMITED_INFORMATION access right.
+     * @param lpCreationTime
+     *            A pointer to a FILETIME structure that receives the creation
+     *            time of the process.
+     * @param lpExitTime
+     *            A pointer to a FILETIME structure that receives the exit time
+     *            of the process. If the process has not exited, the content of
+     *            this structure is undefined.
+     * @param lpKernelTime
+     *            A pointer to a FILETIME structure that receives the amount of
+     *            time that the process has executed in kernel mode. The time
+     *            that each of the threads of the process has executed in kernel
+     *            mode is determined, and then all of those times are summed
+     *            together to obtain this value.
+     * @param lpUserTime
+     *            A pointer to a FILETIME structure that receives the amount of
+     *            time that the process has executed in user mode. The time that
+     *            each of the threads of the process has executed in user mode
+     *            is determined, and then all of those times are summed together
+     *            to obtain this value. Note that this value can exceed the
+     *            amount of real time elapsed (between lpCreationTime and
+     *            lpExitTime) if the process executes across multiple CPU cores.
+     * @return If the function succeeds, the return value is nonzero. If the
+     *         function fails, the return value is zero. To get extended error
+     *         information, call GetLastError.
+     */
+    boolean GetProcessTimes(HANDLE hProcess, FILETIME lpCreationTime, FILETIME lpExitTime, FILETIME lpKernelTime,
+            FILETIME lpUserTime);
+
+    /**
+     * Retrieves accounting information for all I/O operations performed by the
+     * specified process.
+     * 
+     * @param hProcess
+     *            A handle to the process. The handle must have the
+     *            PROCESS_QUERY_INFORMATION or PROCESS_QUERY_LIMITED_INFORMATION
+     *            access right.
+     * @param lpIoCounters
+     *            A pointer to an IO_COUNTERS structure that receives the I/O
+     *            accounting information for the process.
+     * @return If the function succeeds, the return value is nonzero. If the
+     *         function fails, the return value is zero. To get extended error
+     *         information, call GetLastError.
+     */
+    boolean GetProcessIoCounters(HANDLE hProcess, IO_COUNTERS lpIoCounters);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -97,27 +97,26 @@ import oshi.util.FormatUtil;
 <span class="fc" id="L97">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
 <span class="fc" id="L98">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
 <span class="fc bfc" id="L99" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
-<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                if (address.getHostAddress().length() == 0) {</span>
-<span class="nc" id="L101">                    continue;</span>
-<span class="fc bfc" id="L102" title="All 2 branches covered.">                } else if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="fc" id="L103">                    ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
-                } else {
-<span class="fc" id="L105">                    ipv4list.add(address.getHostAddress());</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L102">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+                    } else {
+<span class="fc" id="L104">                        ipv4list.add(address.getHostAddress());</span>
+                    }
                 }
 <span class="fc" id="L107">            }</span>
 <span class="fc" id="L108">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
 <span class="fc" id="L109">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
 <span class="nc" id="L110">        } catch (SocketException e) {</span>
 <span class="nc" id="L111">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
-<span class="nc" id="L112">            return;</span>
-<span class="fc" id="L113">        }</span>
-<span class="fc" id="L114">    }</span>
+<span class="fc" id="L112">        }</span>
+<span class="fc" id="L113">    }</span>
 
     /**
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L120">        return this.networkInterface.getName();</span>
+<span class="fc" id="L119">        return this.networkInterface.getName();</span>
     }
 
     /**
@@ -125,7 +124,7 @@ import oshi.util.FormatUtil;
      *         is identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L128">        return this.networkInterface.getDisplayName();</span>
+<span class="fc" id="L127">        return this.networkInterface.getDisplayName();</span>
     }
 
     /**
@@ -135,7 +134,7 @@ import oshi.util.FormatUtil;
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L138">        return this.mtu;</span>
+<span class="fc" id="L137">        return this.mtu;</span>
     }
 
     /**
@@ -144,7 +143,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L147">        return this.mac;</span>
+<span class="fc" id="L146">        return this.mac;</span>
     }
 
     /**
@@ -153,7 +152,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L156">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
+<span class="fc" id="L155">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     /**
@@ -162,7 +161,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L165">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
+<span class="fc" id="L164">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     /**
@@ -171,7 +170,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L174">        return this.bytesRecv;</span>
+<span class="fc" id="L173">        return this.bytesRecv;</span>
     }
 
     /**
@@ -179,8 +178,8 @@ import oshi.util.FormatUtil;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L182">        this.bytesRecv = bytesRecv &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L183">    }</span>
+<span class="fc" id="L181">        this.bytesRecv = bytesRecv &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L182">    }</span>
 
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
@@ -188,7 +187,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
-<span class="fc" id="L191">        return this.bytesSent;</span>
+<span class="fc" id="L190">        return this.bytesSent;</span>
     }
 
     /**
@@ -196,8 +195,8 @@ import oshi.util.FormatUtil;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L199">        this.bytesSent = bytesSent &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L200">    }</span>
+<span class="fc" id="L198">        this.bytesSent = bytesSent &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L199">    }</span>
 
     /**
      * @return The Packets Received. This value is set when the
@@ -206,7 +205,7 @@ import oshi.util.FormatUtil;
      *         method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L209">        return this.packetsRecv;</span>
+<span class="fc" id="L208">        return this.packetsRecv;</span>
     }
 
     /**
@@ -214,8 +213,8 @@ import oshi.util.FormatUtil;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L217">        this.packetsRecv = packetsRecv &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L218">    }</span>
+<span class="fc" id="L216">        this.packetsRecv = packetsRecv &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L217">    }</span>
 
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
@@ -223,7 +222,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L226">        return this.packetsSent;</span>
+<span class="fc" id="L225">        return this.packetsSent;</span>
     }
 
     /**
@@ -231,8 +230,8 @@ import oshi.util.FormatUtil;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L234">        this.packetsSent = packetsSent &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L235">    }</span>
+<span class="fc" id="L233">        this.packetsSent = packetsSent &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L234">    }</span>
 
     /**
      * @return Input Errors. This value is set when the {@link NetworkIF} is
@@ -240,7 +239,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getInErrors() {
-<span class="fc" id="L243">        return this.inErrors;</span>
+<span class="fc" id="L242">        return this.inErrors;</span>
     }
 
     /**
@@ -248,8 +247,8 @@ import oshi.util.FormatUtil;
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-<span class="fc" id="L251">        this.inErrors = inErrors &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L252">    }</span>
+<span class="fc" id="L250">        this.inErrors = inErrors &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L251">    }</span>
 
     /**
      * @return The Output Errors. This value is set when the {@link NetworkIF}
@@ -257,7 +256,7 @@ import oshi.util.FormatUtil;
      *         execute the {@link #updateNetworkStats()} method
      */
     public long getOutErrors() {
-<span class="fc" id="L260">        return this.outErrors;</span>
+<span class="fc" id="L259">        return this.outErrors;</span>
     }
 
     /**
@@ -265,8 +264,8 @@ import oshi.util.FormatUtil;
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-<span class="fc" id="L268">        this.outErrors = outErrors &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L269">    }</span>
+<span class="fc" id="L267">        this.outErrors = outErrors &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L268">    }</span>
 
     /**
      * @return The speed of the network interface in bits per second. This value
@@ -275,7 +274,7 @@ import oshi.util.FormatUtil;
      *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
-<span class="fc" id="L278">        return this.speed;</span>
+<span class="fc" id="L277">        return this.speed;</span>
     }
 
     /**
@@ -283,14 +282,14 @@ import oshi.util.FormatUtil;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L286">        this.speed = speed &amp; 0x7fffffffffffffffL;</span>
-<span class="fc" id="L287">    }</span>
+<span class="fc" id="L285">        this.speed = speed &amp; 0x7fffffffffffffffL;</span>
+<span class="fc" id="L286">    }</span>
 
     /**
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L293">        return this.timeStamp;</span>
+<span class="fc" id="L292">        return this.timeStamp;</span>
     }
 
     /**
@@ -298,35 +297,35 @@ import oshi.util.FormatUtil;
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L301">        this.timeStamp = timeStamp;</span>
-<span class="fc" id="L302">    }</span>
+<span class="fc" id="L300">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L301">    }</span>
 
     /**
      * Updates interface network statistics on this interface. Statistics
      * include packets and bytes sent and received, and interface speed.
      */
     public void updateNetworkStats() {
-<span class="pc bpc" id="L309" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L308" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L311">            WindowsNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L312">            break;</span>
+<span class="nc" id="L310">            WindowsNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L311">            break;</span>
         case LINUX:
-<span class="nc" id="L314">            LinuxNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L315">            break;</span>
+<span class="nc" id="L313">            LinuxNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L314">            break;</span>
         case MACOSX:
-<span class="fc" id="L317">            MacNetworks.updateNetworkStats(this);</span>
-<span class="fc" id="L318">            break;</span>
+<span class="fc" id="L316">            MacNetworks.updateNetworkStats(this);</span>
+<span class="fc" id="L317">            break;</span>
         case SOLARIS:
-<span class="nc" id="L320">            SolarisNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L321">            break;</span>
+<span class="nc" id="L319">            SolarisNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L320">            break;</span>
         case FREEBSD:
-<span class="nc" id="L323">            FreeBsdNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L324">            break;</span>
+<span class="nc" id="L322">            FreeBsdNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L323">            break;</span>
         default:
-<span class="nc" id="L326">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L325">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
             break;
         }
-<span class="fc" id="L329">    }</span>
+<span class="fc" id="L328">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

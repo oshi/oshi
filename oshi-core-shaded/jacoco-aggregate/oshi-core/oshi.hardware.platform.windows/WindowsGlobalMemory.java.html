@@ -18,64 +18,84 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR
+import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.windows.Psapi;
-import oshi.jna.platform.windows.Psapi.PERFORMANCE_INFORMATION;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.PdhUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
  *
  * @author dblock[at]dblock[dot]org
  */
-<span class="nc" id="L39">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L45">    private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc" id="L42">    private String pdhPagesInputPerSecCounter = null;</span>
+<span class="nc" id="L43">    private String pdhPagesOutputPerSecCounter = null;</span>
+<span class="nc" id="L44">    private String pdhPagingPercentUsageCounter = null;</span>
 
-<span class="nc" id="L47">    private long lastUpdate = 0;</span>
+<span class="nc" id="L46">    private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+
+<span class="nc" id="L48">    private long lastUpdate = 0;</span>
+
+<span class="nc" id="L50">    public WindowsGlobalMemory() {</span>
+        // Initialize pdh counters
+<span class="nc" id="L52">        initPdhCounters();</span>
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * Initializes PDH Tick Counters
+     */
+    private void initPdhCounters() {
+<span class="nc" id="L59">        pdhPagesInputPerSecCounter = &quot;\\Memory\\Pages Input/sec&quot;;</span>
+<span class="nc" id="L60">        pdhPagesOutputPerSecCounter = &quot;\\Memory\\Pages Output/sec&quot;;</span>
+
+<span class="nc" id="L62">        PdhUtil.addCounter(pdhPagesInputPerSecCounter);</span>
+<span class="nc" id="L63">        PdhUtil.addCounter(pdhPagesOutputPerSecCounter);</span>
+
+<span class="nc" id="L65">        pdhPagingPercentUsageCounter = &quot;\\Paging File(_Total)\\% Usage&quot;;</span>
+<span class="nc" id="L66">        PdhUtil.addCounter(pdhPagingPercentUsageCounter);</span>
+<span class="nc" id="L67">    }</span>
 
     /**
      * Update the performance information no more frequently than every 100ms
      */
     @Override
     protected void updateMeminfo() {
-<span class="nc" id="L54">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {</span>
-<span class="nc" id="L57">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L58">                return;</span>
+<span class="nc" id="L74">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {</span>
+<span class="nc" id="L77">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L78">                return;</span>
             }
-<span class="nc" id="L60">            this.memAvailable = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L61">            this.memTotal = this.perfInfo.PageSize.longValue() * this.perfInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L62">            this.swapTotal = this.perfInfo.PageSize.longValue()</span>
-<span class="nc" id="L63">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
-<span class="nc" id="L64">            this.lastUpdate = now;</span>
+<span class="nc" id="L80">            this.pageSize = this.perfInfo.PageSize.longValue();</span>
+<span class="nc" id="L81">            this.memAvailable = this.pageSize * this.perfInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L82">            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L83">            this.swapTotal = this.pageSize</span>
+<span class="nc" id="L84">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
+<span class="nc" id="L85">            this.swapPagesIn = PdhUtil.queryCounter(pdhPagesInputPerSecCounter);</span>
+<span class="nc" id="L86">            this.swapPagesOut = PdhUtil.queryCounter(pdhPagesOutputPerSecCounter);</span>
+
+<span class="nc" id="L88">            this.lastUpdate = now;</span>
         }
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L90">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateSwap() {
-<span class="nc" id="L73">        updateMeminfo();</span>
-<span class="nc" id="L74">        Map&lt;String, List&lt;Long&gt;&gt; usage = WmiUtil.selectUint32sFrom(null, &quot;Win32_PerfRawData_PerfOS_PagingFile&quot;,</span>
-                &quot;PercentUsage,PercentUsage_Base&quot;, &quot;WHERE Name=\&quot;_Total\&quot;&quot;);
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (!usage.get(&quot;PercentUsage&quot;).isEmpty()) {</span>
-<span class="nc" id="L77">            this.swapUsed = this.swapTotal * usage.get(&quot;PercentUsage&quot;).get(0) / usage.get(&quot;PercentUsage_Base&quot;).get(0);</span>
-        }
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L97">        updateMeminfo();</span>
+<span class="nc" id="L98">        this.swapUsed = PdhUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;</span>
+<span class="nc" id="L99">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

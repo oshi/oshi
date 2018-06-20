@@ -21,7 +21,7 @@ package oshi.jna.platform.windows.COM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong;
+import com.sun.jna.NativeLong; // NOSONAR
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Guid.CLSID;
 import com.sun.jna.platform.win32.Guid.GUID;
@@ -50,18 +50,20 @@ public class WbemLocator extends Unknown {
 <span class="nc" id="L50">        HRESULT hres = Ole32.INSTANCE.CoCreateInstance(CLSID_WbemLocator, null, WTypes.CLSCTX_INPROC_SERVER,</span>
                 IID_IWbemLocator, pbr);
 <span class="nc bnc" id="L52" title="All 2 branches missed.">        if (COMUtils.FAILED(hres)) {</span>
-<span class="nc" id="L53">            LOG.error(String.format(&quot;Failed to create WbemLocator object. Error code = 0x%08x&quot;, hres.intValue()));</span>
-<span class="nc" id="L54">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L55">            return null;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L54">                LOG.error(String.format(&quot;Failed to create WbemLocator object. Error code = 0x%08x&quot;, hres.intValue()));</span>
+            }
+<span class="nc" id="L56">            Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L57">            return null;</span>
         }
 
-<span class="nc" id="L58">        return new WbemLocator(pbr.getValue());</span>
+<span class="nc" id="L60">        return new WbemLocator(pbr.getValue());</span>
     }
 
     public HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
             NativeLong lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
         // ConnectServier is 4th method of vtable for WbemLocator in WbemCli.h
-<span class="nc" id="L64">        return (HRESULT) _invokeNativeObject(3, new Object[] { getPointer(), strNetworkResource, strUser, strPassword,</span>
+<span class="nc" id="L66">        return (HRESULT) _invokeNativeObject(3, new Object[] { getPointer(), strNetworkResource, strUser, strPassword,</span>
                 strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.class);
     }
 }

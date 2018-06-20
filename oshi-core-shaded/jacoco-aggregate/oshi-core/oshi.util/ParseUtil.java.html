@@ -420,11 +420,10 @@ public class ParseUtil {
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-<span class="fc" id="L423">            BigInteger bi = new BigInteger(s);</span>
-<span class="fc" id="L424">            return bi.longValue();</span>
-<span class="fc" id="L425">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L426">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L427">            return defaultLong;</span>
+<span class="fc" id="L423">            return (new BigInteger(s)).longValue();</span>
+<span class="fc" id="L424">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L425">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L426">            return defaultLong;</span>
         }
     }
 
@@ -439,10 +438,10 @@ public class ParseUtil {
      */
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
         try {
-<span class="fc" id="L442">            return Double.parseDouble(s);</span>
-<span class="fc" id="L443">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L444">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="fc" id="L445">            return defaultDouble;</span>
+<span class="fc" id="L441">            return Double.parseDouble(s);</span>
+<span class="fc" id="L442">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L443">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="fc" id="L444">            return defaultDouble;</span>
         }
     }
 
@@ -457,21 +456,21 @@ public class ParseUtil {
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
-<span class="fc" id="L460">        Matcher m = DHMS.matcher(s);</span>
-<span class="fc bfc" id="L461" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc" id="L462">            long milliseconds = 0L;</span>
-<span class="fc bfc" id="L463" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
-<span class="fc" id="L464">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
+<span class="fc" id="L459">        Matcher m = DHMS.matcher(s);</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L461">            long milliseconds = 0L;</span>
+<span class="fc bfc" id="L462" title="All 2 branches covered.">            if (m.group(1) != null) {</span>
+<span class="fc" id="L463">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;</span>
             }
-<span class="fc bfc" id="L466" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
-<span class="fc" id="L467">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
+<span class="fc bfc" id="L465" title="All 2 branches covered.">            if (m.group(2) != null) {</span>
+<span class="fc" id="L466">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;</span>
             }
-<span class="fc" id="L469">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
-<span class="fc" id="L470">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
-<span class="fc" id="L471">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
-<span class="fc" id="L472">            return milliseconds;</span>
+<span class="fc" id="L468">            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;</span>
+<span class="fc" id="L469">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
+<span class="fc" id="L470">            milliseconds += 1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d);</span>
+<span class="fc" id="L471">            return milliseconds;</span>
         }
-<span class="fc" id="L474">        return defaultLong;</span>
+<span class="fc" id="L473">        return defaultLong;</span>
     }
 
     /**
@@ -484,11 +483,11 @@ public class ParseUtil {
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
-<span class="fc" id="L487">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
-<span class="fc bfc" id="L488" title="All 2 branches covered.">        if (m.matches()) {</span>
-<span class="fc" id="L489">            return m.group(1);</span>
+<span class="fc" id="L486">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">        if (m.matches()) {</span>
+<span class="fc" id="L488">            return m.group(1);</span>
         }
-<span class="fc" id="L491">        return defaultStr;</span>
+<span class="fc" id="L490">        return defaultStr;</span>
     }
 
     /**
@@ -499,11 +498,11 @@ public class ParseUtil {
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-<span class="fc" id="L502">        String[] split = line.split(&quot;'&quot;);</span>
-<span class="fc bfc" id="L503" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
-<span class="fc" id="L504">            return &quot;&quot;;</span>
+<span class="fc" id="L501">        String[] split = line.split(&quot;'&quot;);</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">        if (split.length &lt; 2) {</span>
+<span class="fc" id="L503">            return &quot;&quot;;</span>
         }
-<span class="fc" id="L506">        return split[1];</span>
+<span class="fc" id="L505">        return split[1];</span>
     }
 
     /**
@@ -515,7 +514,7 @@ public class ParseUtil {
      * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-<span class="fc" id="L518">        return getNthIntValue(line, 1);</span>
+<span class="fc" id="L517">        return getNthIntValue(line, 1);</span>
     }
 
     /**
@@ -530,11 +529,11 @@ public class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-<span class="fc" id="L533">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
-<span class="fc bfc" id="L534" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
-<span class="fc" id="L535">            return parseIntOrDefault(split[n - 1], 0);</span>
+<span class="fc" id="L532">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
+<span class="fc bfc" id="L533" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
+<span class="fc" id="L534">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="fc" id="L537">        return 0;</span>
+<span class="fc" id="L536">        return 0;</span>
     }
 
     /**
@@ -548,23 +547,23 @@ public class ParseUtil {
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
-<span class="pc bpc" id="L551" title="2 of 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())</span>
-<span class="fc" id="L552">            return original;</span>
+<span class="pc bpc" id="L550" title="2 of 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())</span>
+<span class="fc" id="L551">            return original;</span>
 
-<span class="fc" id="L554">        int matchIndex = original.indexOf(toRemove, 0);</span>
-<span class="fc bfc" id="L555" title="All 2 branches covered.">        if (matchIndex == -1)</span>
-<span class="fc" id="L556">            return original;</span>
+<span class="fc" id="L553">        int matchIndex = original.indexOf(toRemove, 0);</span>
+<span class="fc bfc" id="L554" title="All 2 branches covered.">        if (matchIndex == -1)</span>
+<span class="fc" id="L555">            return original;</span>
 
-<span class="fc" id="L558">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
-<span class="fc" id="L559">        int currIndex = 0;</span>
+<span class="fc" id="L557">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
+<span class="fc" id="L558">        int currIndex = 0;</span>
         do {
-<span class="fc" id="L561">            buffer.append(original.substring(currIndex, matchIndex));</span>
-<span class="fc" id="L562">            currIndex = matchIndex + toRemove.length();</span>
-<span class="fc" id="L563">            matchIndex = original.indexOf(toRemove, currIndex);</span>
-<span class="fc bfc" id="L564" title="All 2 branches covered.">        } while (matchIndex != -1);</span>
+<span class="fc" id="L560">            buffer.append(original.substring(currIndex, matchIndex));</span>
+<span class="fc" id="L561">            currIndex = matchIndex + toRemove.length();</span>
+<span class="fc" id="L562">            matchIndex = original.indexOf(toRemove, currIndex);</span>
+<span class="fc bfc" id="L563" title="All 2 branches covered.">        } while (matchIndex != -1);</span>
 
-<span class="fc" id="L566">        buffer.append(original.substring(currIndex));</span>
-<span class="fc" id="L567">        return buffer.toString();</span>
+<span class="fc" id="L565">        buffer.append(original.substring(currIndex));</span>
+<span class="fc" id="L566">        return buffer.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
