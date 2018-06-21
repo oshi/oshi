@@ -272,8 +272,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *            A collection of pids to query. If null, the entire process
-     *            list will be queried.
+     *         A collection of pids to query. If null, the entire process
+     *         list will be queried.
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids) {
@@ -374,11 +374,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         // Get the rest of the data we don't already have from the registry
         updateRegistryStats(pids, tempProcessMap, now);
+
         // Command Line only accessible via WMI.
         // Utilize cache to only update new processes
         Set<Integer> emptyCommandLines = new HashSet<>();
         for (Integer pid : tempProcessMap.keySet()) {
-            if (this.processMap.containsKey(pid) && this.processMap.get(pid).getCommandLine().isEmpty()) {
+            // If the process is not in the cache yet, or it's in the cache but has an empty command line.
+            OSProcess cachedProcess = this.processMap.get(pid);
+            if (cachedProcess == null || cachedProcess.getCommandLine().isEmpty()) {
                 emptyCommandLines.add(pid);
             }
         }
@@ -411,7 +414,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void updateRegistryStats(Collection<Integer> pids, Map<Integer, OSProcess> tempProcessMap, long now) {
-
         List<Integer> pidsToKeep = new ArrayList<>(tempProcessMap.keySet().size());
 
         // Sequentially increase the buffer until everything fits.
@@ -470,7 +472,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
                         proc.setUpTime(
                                 (perfTime100nSec - pPerfData.getLong(perfCounterBlockOffset + this.elapsedTimeOffset))
-                                        / 10000L);
+                                        / 10_000L);
                         proc.setStartTime(now - proc.getUpTime());
                         proc.setBytesRead(pPerfData.getLong(perfCounterBlockOffset + this.ioReadOffset));
                         proc.setBytesWritten(pPerfData.getLong(perfCounterBlockOffset + this.ioWriteOffset));
@@ -480,10 +482,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                                 pPerfData.getInt(perfCounterBlockOffset + this.creatingProcessIdOffset));
                         proc.setPriority(pPerfData.getInt(perfCounterBlockOffset + this.priorityBaseOffset));
 
-                        // If start time is newer than cached version, delete
-                        // cache
-                        if (this.processMap.containsKey(proc.getProcessID())
-                                && this.processMap.get(proc.getProcessID()).getStartTime() < proc.getStartTime()) {
+                        // If there is a cached version that isn't this version and the start time is newer than cached
+                        // version by an error margin of 200ms, delete the cache
+                        OSProcess cachedProcess = this.processMap.get(proc.getProcessID());
+                        if (cachedProcess != null && cachedProcess != proc &&
+                                Math.abs(cachedProcess.getStartTime() - proc.getStartTime()) > 200) {
                             this.processMap.remove(proc.getProcessID());
                         }
                     }

@@ -20,9 +20,11 @@ package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,19 @@ import oshi.SystemInfo;
  * Test OS
  */
 public class OperatingSystemTest {
+
+    @Test
+    public void testGetCommandLine() {
+        int processesWithNonEmptyCmdLine = 0;
+
+        for (OSProcess process : new SystemInfo().getOperatingSystem().getProcesses(0, null)) {
+            if (!process.getCommandLine().trim().isEmpty()) {
+                processesWithNonEmptyCmdLine++;
+            }
+        }
+
+        assertTrue(processesWithNonEmptyCmdLine >= 1);
+    }
 
     /**
      * Test operating system
