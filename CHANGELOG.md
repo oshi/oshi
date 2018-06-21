@@ -1,6 +1,7 @@
 3.7.0 (in progress)
 ================
 * Your contribution here.
+* [#527](https://github.com/oshi/oshi/pull/527): Correct process information caching and command line retrieval under Windows - [@dustin-johnson](https://github.com/dustin-johnson).
 
 3.6.0 (6/20/2018)
 ================
