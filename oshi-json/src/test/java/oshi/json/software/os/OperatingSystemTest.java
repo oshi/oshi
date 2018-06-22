@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import oshi.json.SystemInfo;
 
+
 /**
  * Test OS
  */
@@ -236,5 +237,20 @@ public class OperatingSystemTest {
         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
+    }
+
+    @Test
+    public void testGetCommandLine() {
+        int processesWithNonEmptyCmdLine = 0;
+
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess process : os.getProcesses(0, null)) {
+            if (!process.getCommandLine().trim().isEmpty()) {
+                processesWithNonEmptyCmdLine++;
+            }
+        }
+
+        assertTrue(processesWithNonEmptyCmdLine >= 1);
     }
 }

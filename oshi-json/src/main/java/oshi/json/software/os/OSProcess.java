@@ -528,10 +528,10 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
             json.add("path", getPath());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.commandLine")) {
-            json.add("commandLine", getPath());
+            json.add("commandLine", getCommandLine());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.currentWorkingDirectory")) {
-            json.add("currentWorkingDirectory", getPath());
+            json.add("currentWorkingDirectory", getCurrentWorkingDirectory());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.user")) {
             json.add("user", getUser());
