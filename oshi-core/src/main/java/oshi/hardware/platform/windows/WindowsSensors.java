@@ -28,12 +28,11 @@ public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    // Successful (?) WMI namespace, path and property
+    // Successful (?) WMI namespace, path, property, and filter
     private String wmiTempNamespace = null;
-
     private String wmiTempClass = null;
-
     private String wmiTempProperty = null;
+    private String wmiTempFilter = null;
 
     // Successful (?) WMI path and property
     private String wmiVoltNamespace = null;
@@ -80,26 +79,37 @@ public class WindowsSensors implements Sensors {
             this.wmiTempNamespace = "root\\cimv2";
             this.wmiTempClass = "Win32_Temperature";
             this.wmiTempProperty = "CurrentReading";
-            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                    this.wmiTempFilter);
             if (tempK == 0) {
                 this.wmiTempClass = "Win32_TemperatureProbe";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                        this.wmiTempFilter);
             }
             if (tempK == 0) {
                 this.wmiTempClass = "Win32_PerfFormattedData_Counters_ThermalZoneInformation";
                 this.wmiTempProperty = "Temperature";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                this.wmiTempFilter = "WHERE Name LIKE \"%CPU%\"";
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                        this.wmiTempFilter);
+            }
+            if (tempK == 0) {
+                this.wmiTempFilter = null;
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                        this.wmiTempFilter);
             }
             if (tempK == 0) {
                 this.wmiTempNamespace = "root\\wmi";
                 this.wmiTempClass = "MSAcpi_ThermalZoneTemperature";
                 this.wmiTempProperty = "CurrentTemperature";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                        this.wmiTempFilter);
             }
         } else {
             // We've successfully read a previous time, or failed both here and
             // with OHM, so keep using same values
-            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                    this.wmiTempFilter);
         }
         // Convert K to C and return result
         if (tempK > 2732) {
