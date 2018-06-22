@@ -20,11 +20,9 @@ package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -39,24 +37,13 @@ import oshi.SystemInfo;
  */
 public class OperatingSystemTest {
 
-    @Test
-    public void testGetCommandLine() {
-        int processesWithNonEmptyCmdLine = 0;
-
-        for (OSProcess process : new SystemInfo().getOperatingSystem().getProcesses(0, null)) {
-            if (!process.getCommandLine().trim().isEmpty()) {
-                processesWithNonEmptyCmdLine++;
-            }
-        }
-
-        assertTrue(processesWithNonEmptyCmdLine >= 1);
-    }
-
     /**
      * Test operating system
+     * 
+     * @throws CloneNotSupportedException
      */
     @Test
-    public void testOperatingSystem() {
+    public void testOperatingSystem() throws CloneNotSupportedException {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os.getFamily());
@@ -96,6 +83,10 @@ public class OperatingSystemTest {
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
         assertTrue(proc.getOpenFiles() >= -1);
+
+        OSProcess clone = (OSProcess) proc.clone();
+        assertEquals(proc.getProcessID(), clone.getProcessID());
+        assertEquals(proc.getName(), clone.getName());
     }
 
     /**
@@ -253,5 +244,20 @@ public class OperatingSystemTest {
         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
+    }
+
+    @Test
+    public void testGetCommandLine() {
+        int processesWithNonEmptyCmdLine = 0;
+
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess process : os.getProcesses(0, null)) {
+            if (!process.getCommandLine().trim().isEmpty()) {
+                processesWithNonEmptyCmdLine++;
+            }
+        }
+
+        assertTrue(processesWithNonEmptyCmdLine >= 1);
     }
 }
