@@ -31,6 +31,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PdhUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
 
 /**
  * The Windows File System contains {@link OSFileStore}s which are a storage
@@ -48,11 +49,37 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
 
+    private static final String NAME_PROPERTY = "Name";
+    private static final String DESCRIPTION_PROPERTY = "Description";
+    private static final String PROVIDER_NAME_PROPERTY = "ProviderName";
+    private static final String FILESYSTEM_PROPERTY = "FileSystem";
+    private static final String FREESPACE_PROPERTY = "Freespace";
+    private static final String SIZE_PROPERTY = "Size";
+    private static final String DRIVE_TYPE_PROPERTY = "DriveType";
+
+    private static final String[] FS_PROPERTIES = new String[] { NAME_PROPERTY, DESCRIPTION_PROPERTY,
+            PROVIDER_NAME_PROPERTY, FILESYSTEM_PROPERTY, FREESPACE_PROPERTY, SIZE_PROPERTY, DRIVE_TYPE_PROPERTY };
+    private static final ValueType[] FS_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
+            ValueType.STRING, ValueType.UINT64, ValueType.UINT64, ValueType.UINT32 };
+
     private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";
+
+    private static final long maxWindowsHandles;
+    static {
+        // Determine whether 32-bit or 64-bit handle limit, although both are
+        // essentially infinite for practical purposes. See
+        // https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
+        if (System.getenv("ProgramFiles(x86)") == null) {
+            maxWindowsHandles = 16_777_216L - 32_768L;
+        } else {
+            maxWindowsHandles = 16_777_216L - 65_536L;
+        }
+    }
 
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
+
     }
 
     /**
@@ -163,7 +190,7 @@ public class WindowsFileSystem implements FileSystem {
      *         mounted volumes
      */
     private List<OSFileStore> getWmiVolumes() {
-        Map<String, List<String>> drives;
+        Map<String, List<Object>> drives;
         List<OSFileStore> fs;
         String volume;
         long free;
@@ -171,32 +198,28 @@ public class WindowsFileSystem implements FileSystem {
 
         fs = new ArrayList<>();
 
-        drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
-                "Name,Description,ProviderName,FileSystem,Freespace,Size", null);
+        drives = WmiUtil.selectObjectsFrom(null, "Win32_LogicalDisk", FS_PROPERTIES, null, FS_TYPES);
 
-        for (int i = 0; i < drives.get("Name").size(); i++) {
-            free = ParseUtil.parseLongOrDefault(drives.get("Freespace").get(i), 0L);
-            total = ParseUtil.parseLongOrDefault(drives.get("Size").get(i), 0L);
-            String description = drives.get("Description").get(i);
-
-            long type = WmiUtil.selectUint32From(null, "Win32_LogicalDisk", "DriveType",
-                    "WHERE Name = '" + drives.get("Name").get(i) + "'");
+        for (int i = 0; i < drives.get(NAME_PROPERTY).size(); i++) {
+            free = (Long) drives.get(FREESPACE_PROPERTY).get(i);
+            total = (Long) drives.get(SIZE_PROPERTY).get(i);
+            String description = (String) drives.get(DESCRIPTION_PROPERTY).get(i);
+            String name = (String) drives.get(NAME_PROPERTY).get(i);
+            long type = (Long) drives.get(DRIVE_TYPE_PROPERTY).get(i);
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
-                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get("Name").get(i) + "\\", chrVolume,
-                        BUFSIZE);
+                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
-                volume = drives.get("ProviderName").get(i);
+                volume = (String) drives.get(PROVIDER_NAME_PROPERTY).get(i);
                 String[] split = volume.split("\\\\");
                 if (split.length > 1 && split[split.length - 1].length() > 0) {
                     description = split[split.length - 1];
                 }
             }
 
-            fs.add(new OSFileStore(String.format("%s (%s)", description, drives.get("Name").get(i)), volume,
-                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
-                    drives.get("FileSystem").get(i), "", free, total));
+            fs.add(new OSFileStore(String.format("%s (%s)", description, name), volume, name + "\\", getDriveType(name),
+                    (String) drives.get(FILESYSTEM_PROPERTY).get(i), "", free, total));
         }
         return fs;
     }
@@ -235,7 +258,6 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getMaxFileDescriptors() {
-        // There is a theoretical limit of 65,536 user handles per session.
-        return 65536L;
+        return maxWindowsHandles;
     }
 }
