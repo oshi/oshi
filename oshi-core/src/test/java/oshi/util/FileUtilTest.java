@@ -88,9 +88,6 @@ public class FileUtilTest {
 
         assertEquals("123", FileUtil.getStringFromFile(INT_FILE));
         assertEquals("", FileUtil.getStringFromFile(NO_FILE));
-
-        assertEquals(5, FileUtil.getSplitFromFile(STRING_FILE).length);
-        assertEquals(0, FileUtil.getSplitFromFile(NO_FILE).length);
     }
 
     @Test

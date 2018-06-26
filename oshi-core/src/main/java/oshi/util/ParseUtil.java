@@ -94,12 +94,18 @@ public class ParseUtil {
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
-        multipliers.put(KHZ, 1000L);
-        multipliers.put(MHZ, 1000000L);
-        multipliers.put(GHZ, 1000000000L);
-        multipliers.put(THZ, 1000000000000L);
-        multipliers.put(PHZ, 1000000000000000L);
+        multipliers.put(KHZ, 1_000L);
+        multipliers.put(MHZ, 1_000_000L);
+        multipliers.put(GHZ, 1_000_000_000L);
+        multipliers.put(THZ, 1_000_000_000_000L);
+        multipliers.put(PHZ, 1_000_000_000_000_000L);
     }
+
+    // Fast decimal exponentiation: pow(10,y) --> POWERS_OF_10[y]
+    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L,
+            100_000_000L, 1_000_000_000L, 10_000_000_000L, 100_000_000_000L, 1_000_000_000_000L, 10_000_000_000_000L,
+            100_000_000_000_000L, 1_000_000_000_000_000L, 10_000_000_000_000_000L, 100_000_000_000_000_000L,
+            1_000_000_000_000_000_000L };
 
     private ParseUtil() {
     }
@@ -564,5 +570,73 @@ public class ParseUtil {
 
         buffer.append(original.substring(currIndex));
         return buffer.toString();
+    }
+
+    /**
+     * Parses a delimited string to an array of longs. Optimized for processing
+     * predictable-length arrays such as outputs of reliably formatted Linux
+     * proc or sys filesystem, minimizing new object creation. Users should
+     * perform other sanity checks of data.
+     * 
+     * The indices parameters are referenced assuming the length as specified,
+     * and leading characters are ignored. For example, if the string is
+     * "foo 12 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and
+     * index 2 is 5.
+     * 
+     * @param s
+     *            The string to parse
+     * @param indices
+     *            An array indicating which indexes should be populated in the
+     *            final array; other values will be skipped. This idex is
+     *            zero-referenced assuming the rightmost delimited fields of the
+     *            string contain the array.
+     * @param length
+     *            The total number of elements in the string array. It is
+     *            permissible for the string to have more elements than this;
+     *            leading elements will be ignored.
+     * @param delimiter
+     *            The character to delimit by
+     * @return If successful, an array of parsed longs. If parsing errors
+     *         occurred, will be an array of zeros.
+     */
+    public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
+        long[] parsed = new long[indices.length];
+        // Iterate from right-to-left of String
+        // Fill right to left of result array using index array
+        int charIndex = s.length() - 1;
+        int parsedIndex = indices.length - 1;
+        int stringIndex = length - 1;
+
+        int power = 0;
+        int c;
+        while (charIndex > 0 && parsedIndex >= 0) {
+            c = s.charAt(charIndex--);
+            if (c == delimiter) {
+                power = 0;
+                if (indices[parsedIndex] == stringIndex--) {
+                    parsedIndex--;
+                }
+            } else if (indices[parsedIndex] != stringIndex || c == '+') {
+                // Doesn't impact parsing, ignore
+                continue;
+            } else if (c >= '0' && c <= '9') {
+                if (power > 18) {
+                    LOG.error("Number is too big for a long parsing string '{}' to long array", s);
+                    return new long[indices.length];
+                }
+                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
+            } else if (c == '-') {
+                parsed[parsedIndex] *= -1L;
+            } else {
+                // error on everything else
+                LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
+                return new long[indices.length];
+            }
+        }
+        if (parsedIndex > 0) {
+            LOG.error("Not enough fields in string '{}' parsing to long array: {}", s, indices.length - parsedIndex);
+            return new long[indices.length];
+        }
+        return parsed;
     }
 }
