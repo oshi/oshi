@@ -19,7 +19,6 @@
 package oshi.software.os.windows;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +31,7 @@ import com.sun.jna.platform.win32.WinUser;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -41,16 +41,45 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
-    private static final ValueType[] queryTypes = { ValueType.STRING, ValueType.UINT32, ValueType.STRING,
-            ValueType.STRING, ValueType.UINT32 };
+    enum WmiProperty {
+        VERSION(ValueType.STRING), //
+        PRODUCTTYPE(ValueType.UINT32), //
+        BUILDNUMBER(ValueType.STRING), //
+        CSDVERSION(ValueType.STRING), //
+        SUITEMASK(ValueType.UINT32);
 
-    private transient Map<String, List<Object>> versionInfo = new HashMap<>();
+        private ValueType type;
+
+        public ValueType getType() {
+            return this.type;
+        }
+
+        WmiProperty(ValueType type) {
+            this.type = type;
+        }
+    }
+
+    // Win32_OperatingSystem
+    private static final WmiProperty[] OS_PROPERTIES = new WmiProperty[] { WmiProperty.VERSION, WmiProperty.PRODUCTTYPE,
+            WmiProperty.BUILDNUMBER, WmiProperty.CSDVERSION, WmiProperty.SUITEMASK };
+    private static final String[] OS_STRINGS = new String[OS_PROPERTIES.length];
+    static {
+        for (int i = 0; i < OS_PROPERTIES.length; i++) {
+            OS_STRINGS[i] = OS_PROPERTIES[i].name();
+        }
+    }
+    private static final ValueType[] OS_TYPES = new ValueType[OS_PROPERTIES.length];
+    static {
+        for (int i = 0; i < OS_PROPERTIES.length; i++) {
+            OS_TYPES[i] = OS_PROPERTIES[i].getType();
+        }
+    }
 
     public WindowsOSVersionInfoEx() {
         // Populate a key-value map from WMI
-        this.versionInfo = WmiUtil.selectObjectsFrom(null, "Win32_OperatingSystem",
-                "Version,ProductType,BuildNumber,CSDVersion,SuiteMask", null, queryTypes);
-        if (this.versionInfo.get("Version").isEmpty()) {
+        Map<String, List<Object>> versionInfo = WmiUtil.selectObjectsFrom(null, "Win32_OperatingSystem", OS_STRINGS,
+                null, OS_TYPES);
+        if (versionInfo.get(WmiProperty.VERSION.name()).isEmpty()) {
             LOG.warn("No version data available.");
             setVersion(System.getProperty("os.version"));
             setCodeName("");
@@ -58,32 +87,35 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
-            setVersion(parseVersion());
-            setCodeName(parseCodeName());
-            setBuildNumber(parseBuildNumber());
+            int suiteMask = (int) ((Long) versionInfo.get(WmiProperty.SUITEMASK.name()).get(0)).longValue();
+            setVersion(parseVersion(versionInfo, suiteMask));
+            setCodeName(parseCodeName(suiteMask));
+            setBuildNumber((String) versionInfo.get(WmiProperty.BUILDNUMBER.name()).get(0));
             LOG.debug("Initialized OSVersionInfoEx");
         }
     }
 
     /**
      * Gets the operating system version
+     * 
+     * @param suiteMask
      *
      * @return Version
      */
-    private String parseVersion() {
+    private String parseVersion(Map<String, List<Object>> versionInfo, int suiteMask) {
 
         // Initialize a default, sane value
         String version = System.getProperty("os.version");
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-        String[] verSplit = ((String) this.versionInfo.get("Version").get(0)).split("\\D");
+        String[] verSplit = ((String) versionInfo.get(WmiProperty.VERSION.name()).get(0)).split("\\D");
         int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
         int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = (long) this.versionInfo.get("ProductType").get(0) == WinNT.VER_NT_WORKSTATION;
+        boolean ntWorkstation = (long) versionInfo.get(WmiProperty.PRODUCTTYPE.name()).get(0) == WinNT.VER_NT_WORKSTATION;
         if (major == 10) {
             if (minor == 0) {
                 version = ntWorkstation ? "10" : "Server 2016";
@@ -100,7 +132,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             }
         } else if (major == 5) {
             if (minor == 2) {
-                if ((getSuiteMask() & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
+                if ((suiteMask & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
                     version = "Home Server";
                 } else if (ntWorkstation) {
                     version = "XP"; // 64 bits
@@ -115,7 +147,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             }
         }
 
-        String sp = (String) this.versionInfo.get("CSDVersion").get(0);
+        String sp = (String) versionInfo.get(WmiProperty.CSDVERSION.name()).get(0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
             version = version + " " + sp.replace("Service Pack ", "SP");
         }
@@ -125,65 +157,37 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Gets suites available on the system and return as a codename
+     * @param suiteMask 
      *
      * @return Suites
      */
-    private String parseCodeName() {
+    private String parseCodeName(int suiteMask) {
         List<String> suites = new ArrayList<>();
-        int bitmask = getSuiteMask();
-        if ((bitmask & 0x00000002) != 0) {
+        if ((suiteMask & 0x00000002) != 0) {
             suites.add("Enterprise");
         }
-        if ((bitmask & 0x00000004) != 0) {
+        if ((suiteMask & 0x00000004) != 0) {
             suites.add("BackOffice");
         }
-        if ((bitmask & 0x00000008) != 0) {
+        if ((suiteMask & 0x00000008) != 0) {
             suites.add("Communication Server");
         }
-        if ((bitmask & 0x00000080) != 0) {
+        if ((suiteMask & 0x00000080) != 0) {
             suites.add("Datacenter");
         }
-        if ((bitmask & 0x00000200) != 0) {
+        if ((suiteMask & 0x00000200) != 0) {
             suites.add("Home");
         }
-        if ((bitmask & 0x00000400) != 0) {
+        if ((suiteMask & 0x00000400) != 0) {
             suites.add("Web Server");
         }
-        if ((bitmask & 0x00002000) != 0) {
+        if ((suiteMask & 0x00002000) != 0) {
             suites.add("Storage Server");
         }
-        if ((bitmask & 0x00004000) != 0) {
+        if ((suiteMask & 0x00004000) != 0) {
             suites.add("Compute Cluster");
         }
         // 0x8000, Home Server, is included in main version name
-        String separator = "";
-        StringBuilder sb = new StringBuilder();
-        for (String s : suites) {
-            sb.append(separator).append(s);
-            separator = ",";
-        }
-        return sb.toString();
+        return StringUtil.join(",", suites);
     }
-
-    /**
-     * A bit mask that identifies the product suites available on the system.
-     *
-     * @return Suite mask.
-     */
-    private int getSuiteMask() {
-        // Although this object is 64 bits, it originates from
-        // a UINT32 bit mask and can safely be cast directly
-        // to int, which preserves the low 32 bits
-        return (int) ((Long) this.versionInfo.get("SuiteMask").get(0)).longValue();
-    }
-
-    /**
-     * Gets the build number
-     *
-     * @return A string representing the Build Number
-     */
-    private String parseBuildNumber() {
-        return (String) this.versionInfo.get("BuildNumber").get(0);
-    }
-
 }

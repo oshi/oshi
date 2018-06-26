@@ -18,6 +18,8 @@
  */
 package oshi.util;
 
+import java.util.List;
+
 /**
  * String utilities
  *
@@ -47,5 +49,19 @@ public class StringUtil {
         } else {
             return "";
         }
+    }
+
+    /**
+     * Returns a new String composed of copies of the list elements joined
+     * together with a copy of the specified delimiter.
+     * 
+     * @param delimiter
+     *            The character to separate the strings
+     * @param stringList
+     *            The strings to join
+     * @return A string containing the elements and specified delimiter
+     */
+    public static String join(String delimiter, List<String> stringList) {
+        return join(delimiter, stringList.toArray(new String[stringList.size()]));
     }
 }
