@@ -37,8 +37,39 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    private static final ValueType[] BIOS_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.DATETIME };
+    enum WmiProperty {
+        MANUFACTURER(ValueType.STRING), //
+        NAME(ValueType.STRING), //
+        DESCRIPTION(ValueType.STRING), //
+        VERSION(ValueType.STRING), //
+        RELEASEDATE(ValueType.DATETIME);
+
+        private ValueType type;
+
+        public ValueType getType() {
+            return this.type;
+        }
+
+        WmiProperty(ValueType type) {
+            this.type = type;
+        }
+    }
+
+    // BIOS
+    private static final WmiProperty[] BIOS_PROPERTIES = new WmiProperty[] { WmiProperty.MANUFACTURER, WmiProperty.NAME,
+            WmiProperty.DESCRIPTION, WmiProperty.VERSION, WmiProperty.RELEASEDATE };
+    private static final String[] BIOS_STRINGS = new String[BIOS_PROPERTIES.length];
+    static {
+        for (int i = 0; i < BIOS_PROPERTIES.length; i++) {
+            BIOS_STRINGS[i] = BIOS_PROPERTIES[i].name();
+        }
+    }
+    private static final ValueType[] BIOS_TYPES = new ValueType[BIOS_PROPERTIES.length];
+    static {
+        for (int i = 0; i < BIOS_PROPERTIES.length; i++) {
+            BIOS_TYPES[i] = BIOS_PROPERTIES[i].getType();
+        }
+    }
 
     WindowsFirmware() {
         init();
@@ -47,29 +78,29 @@ final class WindowsFirmware extends AbstractFirmware {
     private void init() {
 
         final Map<String, List<Object>> win32BIOS = WmiUtil.selectObjectsFrom(null, "Win32_BIOS",
-                "Manufacturer,Name,Description,Version,ReleaseDate", "where PrimaryBIOS=true", BIOS_TYPES);
+                BIOS_STRINGS, "where PrimaryBIOS=true", BIOS_TYPES);
 
-        final List<Object> manufacturers = win32BIOS.get("Manufacturer");
+        final List<Object> manufacturers = win32BIOS.get(WmiProperty.MANUFACTURER.name());
         if (manufacturers != null && manufacturers.size() == 1) {
             setManufacturer((String) manufacturers.get(0));
         }
 
-        final List<Object> names = win32BIOS.get("Name");
+        final List<Object> names = win32BIOS.get(WmiProperty.NAME.name());
         if (names != null && names.size() == 1) {
             setName((String) names.get(0));
         }
 
-        final List<Object> descriptions = win32BIOS.get("Description");
+        final List<Object> descriptions = win32BIOS.get(WmiProperty.DESCRIPTION.name());
         if (descriptions != null && descriptions.size() == 1) {
             setDescription((String) descriptions.get(0));
         }
 
-        final List<Object> version = win32BIOS.get("Version");
+        final List<Object> version = win32BIOS.get(WmiProperty.VERSION.name());
         if (version != null && version.size() == 1) {
             setVersion((String) version.get(0));
         }
 
-        final List<Object> releaseDate = win32BIOS.get("ReleaseDate");
+        final List<Object> releaseDate = win32BIOS.get(WmiProperty.RELEASEDATE.name());
         if (releaseDate != null && releaseDate.size() == 1) {
             setReleaseDate(Instant.ofEpochMilli((Long) releaseDate.get(0)).atZone(ZoneOffset.UTC).toLocalDate());
         }

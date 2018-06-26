@@ -20,6 +20,9 @@ package oshi.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 /**
@@ -37,5 +40,8 @@ public class StringUtilTest {
 
         String[] multiple = new String[] { "foo", "bar" };
         assertEquals("foo,bar", StringUtil.join(",", multiple));
+
+        List<String> list = Arrays.asList(multiple);
+        assertEquals("foo,bar", StringUtil.join(",", list));
     }
 }
