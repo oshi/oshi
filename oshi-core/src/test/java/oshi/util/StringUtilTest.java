@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * Test String utility methods
  */
-public class SringUtilTest {
+public class StringUtilTest {
 
     @Test
     public void testJoin() {
