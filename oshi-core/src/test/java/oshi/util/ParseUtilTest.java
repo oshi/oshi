@@ -40,11 +40,12 @@ public class ParseUtilTest {
         assertEquals(Long.MAX_VALUE, ParseUtil.parseHertz("10000000000000000000 Hz"));
         assertEquals(1L, ParseUtil.parseHertz("1Hz"));
         assertEquals(500L, ParseUtil.parseHertz("500 Hz"));
-        assertEquals(1000L, ParseUtil.parseHertz("1kHz"));
-        assertEquals(1000000L, ParseUtil.parseHertz("1MHz"));
-        assertEquals(1000000000L, ParseUtil.parseHertz("1GHz"));
-        assertEquals(1500000000L, ParseUtil.parseHertz("1.5GHz"));
-        assertEquals(1000000000000L, ParseUtil.parseHertz("1THz"));
+        assertEquals(1_000L, ParseUtil.parseHertz("1kHz"));
+        assertEquals(1_000_000L, ParseUtil.parseHertz("1MHz"));
+        assertEquals(1_000_000_000L, ParseUtil.parseHertz("1GHz"));
+        assertEquals(1_500_000_000L, ParseUtil.parseHertz("1.5GHz"));
+        assertEquals(1_000_000_000_000L, ParseUtil.parseHertz("1THz"));
+        // GHz exceeds max double
     }
 
     /**
@@ -280,5 +281,40 @@ public class ParseUtilTest {
         assertEquals("", ParseUtil.removeMatchingString("", "10.12.2"));
         assertEquals(null, ParseUtil.removeMatchingString(null, "10.12.2"));
         assertEquals("2", ParseUtil.removeMatchingString("10.12.2", "10.12."));
+    }
+
+    /**
+     * Test parse string to array
+     */
+    @Test
+    public void testParseStringToLongArray() {
+        int[] indices = { 1, 3 };
+        long now = System.currentTimeMillis();
+
+        String foo = String.format("The numbers are %d %d %d %d", 123, 456, 789, now);
+        long[] result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertEquals(456L, result[0]);
+        assertEquals(now, result[1]);
+
+        foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertEquals(-456L, result[0]);
+        assertEquals(now, result[1]);
+
+        foo = String.format("Invalid character %d %s %d %d", 123, "4v6", 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertEquals(0, result[1]);
+
+        foo = String.format("Exceeds max long %d %d %d %d0", 123, 456, 789, Long.MAX_VALUE);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertEquals(0, result[1]);
+
+        foo = String.format("String too short %d %d %d %d", 123, 456, 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
+        assertEquals(0, result[1]);
+
+        foo = String.format("Array too short %d %d %d %d", 123, 456, 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
+        assertEquals(0, result[1]);
     }
 }

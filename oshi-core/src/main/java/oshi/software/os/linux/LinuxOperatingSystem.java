@@ -74,6 +74,37 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Boot time in MS
     private static long bootTime = 0L;
 
+    // Order the field is in /proc/pid/stat
+    enum ProcPidStat {
+        // The parsing implementation in ParseUtil requires these to be declared
+        // in increasing order
+        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+
+        private int order;
+
+        public int getOrder() {
+            return this.order;
+        }
+
+        ProcPidStat(int order) {
+            this.order = order;
+        }
+    }
+
+    // Get a list of orders to pass to ParseUtil
+    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
+    static {
+        for (ProcPidStat stat : ProcPidStat.values()) {
+            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
+        }
+    }
+
+    // There are 52 elements in /proc/pid/stat output. To make the orders behave
+    // like 0-indexed array indices, which the parsing method assumes, length is
+    // one bigger. The method will return when all of the enum indices have been
+    // iterated.
+    private static final int PROC_PID_STAT_LENGTH = 53;
+
     private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
     static {
@@ -222,10 +253,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
-        if (split.length < 24) {
-            return null;
-        }
         String path = "";
         Pointer buf = new Memory(1024);
         int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
@@ -234,17 +261,38 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         long now = System.currentTimeMillis();
-        OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
-        int nameOffset = 0;
-        StringBuilder name = new StringBuilder(split[1].replaceFirst("\\(", ""));
-        while (!split[1 + nameOffset].endsWith(")")) {
-            nameOffset++;
-            name.append(' ').append(split[1 + nameOffset]);
+        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        // A race condition may leave us with an empty string
+        if (stat.isEmpty()) {
+            return null;
         }
-        proc.setName(name.substring(0, name.length() - 1));
+        OSProcess proc = new OSProcess();
+        // We can get name and status more easily from /proc/pid/status which we
+        // call later, so just get the numeric bits here
+        proc.setProcessID(pid);
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
+        proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
+        proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
+        proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);
+        proc.setVirtualSize(statArray[ProcPidStat.VSZ.ordinal()]);
+        proc.setResidentSetSize(statArray[ProcPidStat.RSS.ordinal()] * this.memoryPageSize);
+        proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / hz);
+        proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / hz);
+        proc.setStartTime(bootTime + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / hz);
+        proc.setUpTime(now - proc.getStartTime());
+        // See man proc for how to parse /proc/[pid]/io
+        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
+        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
+
+        // gets the open files count
+        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+        proc.setOpenFiles(openFilesList.size() - 1L);
+
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        proc.setName(MapUtil.getOrDefault(status, "Name", ""));
         proc.setPath(path);
-        switch (split[2 + nameOffset].charAt(0)) {
+        switch (MapUtil.getOrDefault(status, "State", "U").charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -264,25 +312,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             proc.setState(OSProcess.State.OTHER);
             break;
         }
-        proc.setProcessID(pid);
-        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3 + nameOffset], 0));
-        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19 + nameOffset], 0));
-        proc.setPriority(ParseUtil.parseIntOrDefault(split[17 + nameOffset], 0));
-        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22 + nameOffset], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23 + nameOffset], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14 + nameOffset], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13 + nameOffset], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21 + nameOffset], 0L) * 1000L / hz);
-        proc.setUpTime(now - proc.getStartTime());
-        // See man proc for how to parse /proc/[pid]/io
-        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
-        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-
-        // gets the open files count
-        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
-        proc.setOpenFiles(openFilesList.size() - 1L);
-
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
         OSUser user = userGroupInfo.getUser(proc.getUserID());
@@ -328,11 +357,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static int getParentPidFromProcFile(int pid) {
-        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
-        if (split.length < 24) {
-            return 0;
-        }
-        return ParseUtil.parseIntOrDefault(split[3], 0);
+        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
+        return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 
     /**

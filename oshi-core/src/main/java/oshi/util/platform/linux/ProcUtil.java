@@ -41,15 +41,18 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static float getSystemUptimeFromProc() {
-        String[] split = FileUtil.getSplitFromFile("/proc/uptime");
-        if (split.length > 0) {
-            try {
-                return Float.parseFloat(split[0]);
-            } catch (NumberFormatException nfe) {
-                return 0f;
+        String uptime = FileUtil.getStringFromFile("/proc/uptime");
+        int spaceIndex = uptime.indexOf(' ');
+        try {
+            if (spaceIndex < 0) {
+                // No space, just parse
+                return Float.parseFloat(uptime);
+            } else {
+                return Float.parseFloat(uptime.substring(0, spaceIndex));
             }
+        } catch (NumberFormatException nfe) {
+            return 0f;
         }
-        return 0f;
     }
 
     /**
