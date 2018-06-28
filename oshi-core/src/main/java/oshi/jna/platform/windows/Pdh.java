@@ -19,6 +19,7 @@
 package oshi.jna.platform.windows;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.win32.W32APIOptions;
 
@@ -94,13 +95,15 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
      * @return If the function succeeds, it returns ERROR_SUCCESS. If the
      *         function fails, the return value is a system error code or a PDH
      *         error code.
+     * @see <A HREF=
+     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa372677(v=vs.85).aspx">
+     *      PdhEnumObjectItems</A>
      */
-    int PdhEnumObjectItems(String szDataSource, String szMachineName, String szObjectName, char[] mszCounterList,
-            DWORDByReference pcchCounterListLength, char[] mszInstanceList, DWORDByReference pcchInstanceListLength,
+    int PdhEnumObjectItems(String szDataSource, String szMachineName, String szObjectName, Pointer mszCounterList,
+            DWORDByReference pcchCounterListLength, Pointer mszInstanceList, DWORDByReference pcchInstanceListLength,
             int dwDetailLevel, int dwFlags);
 
     /**
-     * 
      * Returns the counter index corresponding to the specified counter name.
      * 
      * @param szMachineName
@@ -112,8 +115,46 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
      *            Null-terminated string that contains the counter name.
      * @param pdwIndex
      *            Index of the counter.
-     * @return
+     * @return If the function succeeds, it returns ERROR_SUCCESS. If the
+     *         function fails, the return value is a system error code or a PDH
+     *         error code.
+     * @see <A HREF=
+     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa372647(v=vs.85).aspx">
+     *      PdhLookupPerfIndexByName</A>
      */
     int PdhLookupPerfIndexByName(String szMachineName, String szNameBuffer, DWORDByReference pdwIndex);
 
+    /**
+     * Returns the performance object name or counter name corresponding to the
+     * specified index.
+     * 
+     * @param szMachineName
+     *            Null-terminated string that specifies the name of the computer
+     *            where the specified performance object or counter is located.
+     *            The computer name can be specified by the DNS name or the IP
+     *            address. If NULL, the function uses the local computer.
+     * @param dwNameIndex
+     *            Index of the performance object or counter.
+     * @param szNameBuffer
+     *            Caller-allocated buffer that receives the null-terminated name
+     *            of the performance object or counter. Set to NULL if
+     *            pcchNameBufferSize is zero.
+     * @param pcchNameBufferSize
+     *            Size of the szNameBuffer buffer, in TCHARs. If zero on input,
+     *            the function returns PDH_MORE_DATA and sets this parameter to
+     *            the required buffer size. If the buffer is larger than the
+     *            required size, the function sets this parameter to the actual
+     *            size of the buffer that was used. If the specified size on
+     *            input is greater than zero but less than the required size,
+     *            you should not rely on the returned size to reallocate the
+     *            buffer.
+     * @return If the function succeeds, it returns ERROR_SUCCESS. If the
+     *         function fails, the return value is a system error code or a PDH
+     *         error code.
+     * @see <A HREF=
+     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa372648(v=vs.85).aspx">
+     *      PdhLookupPerfNameByIndex</A>
+     */
+    int PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex, Pointer szNameBuffer,
+            DWORDByReference pcchNameBufferSize);
 }

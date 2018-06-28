@@ -28,15 +28,12 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinDef.DWORD;
-import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.PdhUtilJNA;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PdhUtil;
@@ -252,17 +249,7 @@ public class WindowsDisks implements Disks {
             timeStampMap.clear();
         }
         // Fetch the instance names
-        // Call once to get string lengths
-        DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
-        DWORDByReference pcchInstanceListLength = new DWORDByReference(new DWORD(0));
-        Pdh.INSTANCE.PdhEnumObjectItems(null, null, "PhysicalDisk", null, pcchCounterListLength, null,
-                pcchInstanceListLength, 100, 0);
-        // Allocate memory and call again to populate strings
-        char[] mszCounterList = new char[pcchCounterListLength.getValue().intValue()];
-        char[] mszInstanceList = new char[pcchInstanceListLength.getValue().intValue()];
-        Pdh.INSTANCE.PdhEnumObjectItems(null, null, "PhysicalDisk", mszCounterList, pcchCounterListLength,
-                mszInstanceList, pcchInstanceListLength, 100, 0);
-        List<String> instances = Native.toStringList(mszInstanceList);
+        List<String> instances = PdhUtilJNA.PdhEnumObjectItemInstances(null, null, "PhysicalDisk", 100);
         instances.remove("_Total");
         // At this point we have a list of strings that PDH understands. Fetch
         // the counters.
