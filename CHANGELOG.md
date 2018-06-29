@@ -1,6 +1,9 @@
 3.7.0 (in progress)
 ================
 * Your contribution here.
+
+3.6.1 (6/28/2018)
+================
 * [#527](https://github.com/oshi/oshi/pull/527): Correct process information caching and command line retrieval under Windows - [@dustin-johnson](https://github.com/dustin-johnson).
 * [#533](https://github.com/oshi/oshi/pull/533): Filter to CPU zone if multiple Windows Thermal sensors. - [@dbwiddis](https://github.com/dbwiddis).
 
