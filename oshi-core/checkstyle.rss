@@ -26,7 +26,7 @@ under the License.
     <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
       <title>File: 186,
-             Errors: 5409,
+             Errors: 5530,
              Warnings: 0,
              Infos: 0
       </title>
@@ -209,7 +209,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  15
                 </td>
               </tr>
                           <tr>
@@ -363,7 +363,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  54
                 </td>
               </tr>
                           <tr>
@@ -489,7 +489,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  11
                 </td>
               </tr>
                           <tr>
@@ -671,7 +671,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  58
                 </td>
               </tr>
                           <tr>
@@ -937,7 +937,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  44
                 </td>
               </tr>
                           <tr>
@@ -951,7 +951,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  27
                 </td>
               </tr>
                           <tr>
@@ -1012,20 +1012,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.LinuxBlockDevStats.java">oshi/hardware/platform/linux/LinuxBlockDevStats.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  63
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisDisplay.java">oshi/hardware/platform/unix/solaris/SolarisDisplay.java</a>
                 </td>
                 <td>
@@ -1049,7 +1035,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  113
+                  118
                 </td>
               </tr>
                           <tr>
@@ -1133,7 +1119,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
+                  48
                 </td>
               </tr>
                           <tr>
@@ -1399,7 +1385,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  125
+                  142
                 </td>
               </tr>
                           <tr>
@@ -1441,7 +1427,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  16
                 </td>
               </tr>
                           <tr>
@@ -1554,6 +1540,20 @@ under the License.
                 </td>
                 <td>
                   10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.PdhUtilJNA.java">oshi/jna/platform/windows/PdhUtilJNA.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  43
                 </td>
               </tr>
                           <tr>
@@ -1917,7 +1917,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  115
+                  122
                 </td>
               </tr>
                           <tr>
@@ -2449,7 +2449,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  42
+                  63
                 </td>
               </tr>
                           <tr>

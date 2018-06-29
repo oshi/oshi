@@ -28,7 +28,7 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L31">public class OSProcess implements Serializable {</span>
+<span class="fc" id="L31">public class OSProcess implements Serializable, Cloneable {</span>
 
     private static final long serialVersionUID = 3L;
 
@@ -548,6 +548,14 @@ import java.io.Serializable;
      */
     public long getOpenFiles() {
 <span class="fc" id="L550">        return openFiles;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object clone() throws CloneNotSupportedException {
+        // Only primitives and immutable Strings
+<span class="fc" id="L558">        return (OSProcess) super.clone();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
