@@ -49,34 +49,37 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @return Seconds since boot</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">float</strong> getSystemUptimeFromProc() {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String[] split = FileUtil.getSplitFromFile(<span class="jxr_string">"/proc/uptime"</span>);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">if</strong> (split.length &gt; 0) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <strong class="jxr_keyword">return</strong> Float.parseFloat(split[0]);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              } <strong class="jxr_keyword">catch</strong> (NumberFormatException nfe) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <strong class="jxr_keyword">return</strong> 0f;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">return</strong> 0f;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Gets an array of files in the /proc directory with only numeric digit</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * filenames, corresponding to processes</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @return An array of File objects for the process files</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> File[] getPidFiles() {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          File procdir = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/proc"</span>);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          File[] pids = procdir.listFiles(<strong class="jxr_keyword">new</strong> FileFilter() {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              @Override
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> accept(File file) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">return</strong> DIGITS.matcher(file.getName()).matches();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          });
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> pids != <strong class="jxr_keyword">null</strong> ? pids : <strong class="jxr_keyword">new</strong> File[0];
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String uptime = FileUtil.getStringFromFile(<span class="jxr_string">"/proc/uptime"</span>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">int</strong> spaceIndex = uptime.indexOf(' ');
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">if</strong> (spaceIndex &lt; 0) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <em class="jxr_comment">// No space, just parse</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <strong class="jxr_keyword">return</strong> Float.parseFloat(uptime);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  <strong class="jxr_keyword">return</strong> Float.parseFloat(uptime.substring(0, spaceIndex));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          } <strong class="jxr_keyword">catch</strong> (NumberFormatException nfe) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">return</strong> 0f;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * Gets an array of files in the /proc directory with only numeric digit</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * filenames, corresponding to processes</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @return An array of File objects for the process files</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> File[] getPidFiles() {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          File procdir = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/proc"</span>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          File[] pids = procdir.listFiles(<strong class="jxr_keyword">new</strong> FileFilter() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              @Override
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> accept(File file) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  <strong class="jxr_keyword">return</strong> DIGITS.matcher(file.getName()).matches();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          });
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> pids != <strong class="jxr_keyword">null</strong> ? pids : <strong class="jxr_keyword">new</strong> File[0];
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

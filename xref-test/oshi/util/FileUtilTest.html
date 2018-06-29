@@ -96,28 +96,25 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(<span class="jxr_string">"123"</span>, FileUtil.getStringFromFile(INT_FILE));
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertEquals(<span class="jxr_string">""</span>, FileUtil.getStringFromFile(NO_FILE));
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertEquals(5, FileUtil.getSplitFromFile(STRING_FILE).length);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertEquals(0, FileUtil.getSplitFromFile(NO_FILE).length);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Test
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testReadProcIo() {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          Map&lt;String, String&gt; expected = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          expected.put(<span class="jxr_string">"rchar"</span>, <span class="jxr_string">"124788352"</span>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         expected.put(<span class="jxr_string">"wchar"</span>, <span class="jxr_string">"124802481"</span>);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         expected.put(<span class="jxr_string">"syscr"</span>, <span class="jxr_string">"135"</span>);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         expected.put(<span class="jxr_string">"syscw"</span>, <span class="jxr_string">"1547"</span>);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         expected.put(<span class="jxr_string">"read_bytes"</span>, <span class="jxr_string">"40304640"</span>);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         expected.put(<span class="jxr_string">"write_bytes"</span>, <span class="jxr_string">"124780544"</span>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         expected.put(<span class="jxr_string">"cancelled_write_bytes"</span>, <span class="jxr_string">"42"</span>);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Map&lt;String, String&gt; actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertEquals(expected.size(), actual.size());
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">for</strong> (String key : expected.keySet()) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             assertEquals(expected.get(key), actual.get(key));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      @Test
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testReadProcIo() {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          Map&lt;String, String&gt; expected = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          expected.put(<span class="jxr_string">"rchar"</span>, <span class="jxr_string">"124788352"</span>);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          expected.put(<span class="jxr_string">"wchar"</span>, <span class="jxr_string">"124802481"</span>);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          expected.put(<span class="jxr_string">"syscr"</span>, <span class="jxr_string">"135"</span>);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          expected.put(<span class="jxr_string">"syscw"</span>, <span class="jxr_string">"1547"</span>);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         expected.put(<span class="jxr_string">"read_bytes"</span>, <span class="jxr_string">"40304640"</span>);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         expected.put(<span class="jxr_string">"write_bytes"</span>, <span class="jxr_string">"124780544"</span>);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         expected.put(<span class="jxr_string">"cancelled_write_bytes"</span>, <span class="jxr_string">"42"</span>);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Map&lt;String, String&gt; actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertEquals(expected.size(), actual.size());
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">for</strong> (String key : expected.keySet()) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             assertEquals(expected.get(key), actual.get(key));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

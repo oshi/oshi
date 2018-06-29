@@ -63,30 +63,33 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              assertNotNull(store.getMount());
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>              assertNotNull(store.getUUID());
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              assertTrue(store.getTotalSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              assertTrue(store.getUsableSpace() &lt;= store.getTotalSpace());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              store.setName(<span class="jxr_string">"name"</span>);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              store.setVolume(<span class="jxr_string">"volume"</span>);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              store.setLogicalVolume(<span class="jxr_string">"logical volume"</span>);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              store.setDescription(<span class="jxr_string">"desc"</span>);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              store.setType(<span class="jxr_string">"type"</span>);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              store.setMount(<span class="jxr_string">"mount"</span>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              store.setUUID(<span class="jxr_string">"uuid"</span>);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              store.setTotalSpace(12345L);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              store.setUsableSpace(1234L);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              assertEquals(<span class="jxr_string">"name"</span>, store.getName());
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              assertEquals(<span class="jxr_string">"volume"</span>, store.getVolume());
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              assertEquals(<span class="jxr_string">"logical volume"</span>, store.getLogicalVolume());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              assertEquals(<span class="jxr_string">"desc"</span>, store.getDescription());
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              assertEquals(<span class="jxr_string">"type"</span>, store.getType());
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              assertEquals(<span class="jxr_string">"mount"</span>, store.getMount());
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              assertEquals(<span class="jxr_string">"uuid"</span>, store.getUUID());
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              assertEquals(12345L, store.getTotalSpace());
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              assertEquals(1234L, store.getUsableSpace());
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              assertTrue(store.getUsableSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">if</strong> (!store.getDescription().equals(<span class="jxr_string">"Network drive"</span>)) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  assertTrue(store.getUsableSpace() &lt;= store.getTotalSpace());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              store.setName(<span class="jxr_string">"name"</span>);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              store.setVolume(<span class="jxr_string">"volume"</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              store.setLogicalVolume(<span class="jxr_string">"logical volume"</span>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              store.setDescription(<span class="jxr_string">"desc"</span>);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              store.setType(<span class="jxr_string">"type"</span>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              store.setMount(<span class="jxr_string">"mount"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              store.setUUID(<span class="jxr_string">"uuid"</span>);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              store.setTotalSpace(12345L);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              store.setUsableSpace(1234L);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              assertEquals(<span class="jxr_string">"name"</span>, store.getName());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              assertEquals(<span class="jxr_string">"volume"</span>, store.getVolume());
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              assertEquals(<span class="jxr_string">"logical volume"</span>, store.getLogicalVolume());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              assertEquals(<span class="jxr_string">"desc"</span>, store.getDescription());
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              assertEquals(<span class="jxr_string">"type"</span>, store.getType());
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              assertEquals(<span class="jxr_string">"mount"</span>, store.getMount());
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              assertEquals(<span class="jxr_string">"uuid"</span>, store.getUUID());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              assertEquals(12345L, store.getTotalSpace());
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              assertEquals(1234L, store.getUsableSpace());
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
