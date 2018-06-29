@@ -528,10 +528,10 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
 <span class="fc" id="L528">            json.add(&quot;path&quot;, getPath());</span>
         }
 <span class="pc bpc" id="L530" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
-<span class="fc" id="L531">            json.add(&quot;commandLine&quot;, getPath());</span>
+<span class="fc" id="L531">            json.add(&quot;commandLine&quot;, getCommandLine());</span>
         }
 <span class="pc bpc" id="L533" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.currentWorkingDirectory&quot;)) {</span>
-<span class="fc" id="L534">            json.add(&quot;currentWorkingDirectory&quot;, getPath());</span>
+<span class="fc" id="L534">            json.add(&quot;currentWorkingDirectory&quot;, getCurrentWorkingDirectory());</span>
         }
 <span class="pc bpc" id="L536" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
 <span class="fc" id="L537">            json.add(&quot;user&quot;, getUser());</span>
