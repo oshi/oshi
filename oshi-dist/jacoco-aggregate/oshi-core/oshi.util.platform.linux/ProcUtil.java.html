@@ -41,15 +41,18 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static float getSystemUptimeFromProc() {
-<span class="nc" id="L44">        String[] split = FileUtil.getSplitFromFile(&quot;/proc/uptime&quot;);</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (split.length &gt; 0) {</span>
-            try {
-<span class="nc" id="L47">                return Float.parseFloat(split[0]);</span>
-<span class="nc" id="L48">            } catch (NumberFormatException nfe) {</span>
-<span class="nc" id="L49">                return 0f;</span>
+<span class="nc" id="L44">        String uptime = FileUtil.getStringFromFile(&quot;/proc/uptime&quot;);</span>
+<span class="nc" id="L45">        int spaceIndex = uptime.indexOf(' ');</span>
+        try {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
+                // No space, just parse
+<span class="nc" id="L49">                return Float.parseFloat(uptime);</span>
+            } else {
+<span class="nc" id="L51">                return Float.parseFloat(uptime.substring(0, spaceIndex));</span>
             }
+<span class="nc" id="L53">        } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L54">            return 0f;</span>
         }
-<span class="nc" id="L52">        return 0f;</span>
     }
 
     /**
@@ -59,14 +62,14 @@ public class ProcUtil {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-<span class="nc" id="L62">        File procdir = new File(&quot;/proc&quot;);</span>
-<span class="nc" id="L63">        File[] pids = procdir.listFiles(new FileFilter() {</span>
+<span class="nc" id="L65">        File procdir = new File(&quot;/proc&quot;);</span>
+<span class="nc" id="L66">        File[] pids = procdir.listFiles(new FileFilter() {</span>
             @Override
             public boolean accept(File file) {
-<span class="nc" id="L66">                return DIGITS.matcher(file.getName()).matches();</span>
+<span class="nc" id="L69">                return DIGITS.matcher(file.getName()).matches();</span>
             }
         });
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

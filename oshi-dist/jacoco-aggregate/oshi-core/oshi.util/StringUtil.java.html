@@ -18,6 +18,8 @@
  */
 package oshi.util;
 
+import java.util.List;
+
 /**
  * String utilities
  *
@@ -38,15 +40,29 @@ public class StringUtil {
      * @return A string containing the elements and specified delimiter
      */
     public static String join(String delimiter, String[] stringArray) {
-<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (stringArray.length &gt; 0) {</span>
-<span class="fc" id="L42">            StringBuilder sb = new StringBuilder(stringArray[0]);</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">            for (int i = 1; i &lt; stringArray.length; i++) {</span>
-<span class="fc" id="L44">                sb.append(delimiter).append(stringArray[i]);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (stringArray.length &gt; 0) {</span>
+<span class="fc" id="L44">            StringBuilder sb = new StringBuilder(stringArray[0]);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            for (int i = 1; i &lt; stringArray.length; i++) {</span>
+<span class="fc" id="L46">                sb.append(delimiter).append(stringArray[i]);</span>
             }
-<span class="fc" id="L46">            return sb.toString();</span>
+<span class="fc" id="L48">            return sb.toString();</span>
         } else {
-<span class="fc" id="L48">            return &quot;&quot;;</span>
+<span class="fc" id="L50">            return &quot;&quot;;</span>
         }
+    }
+
+    /**
+     * Returns a new String composed of copies of the list elements joined
+     * together with a copy of the specified delimiter.
+     * 
+     * @param delimiter
+     *            The character to separate the strings
+     * @param stringList
+     *            The strings to join
+     * @return A string containing the elements and specified delimiter
+     */
+    public static String join(String delimiter, List&lt;String&gt; stringList) {
+<span class="fc" id="L65">        return join(delimiter, stringList.toArray(new String[stringList.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
