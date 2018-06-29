@@ -161,24 +161,6 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return an array of whitespaces-delimited string values
-     * contained therein. Intended primarily for Linux /proc
-     *
-     * @param filename
-     *            The file to read
-     * @return An array of strings containing delimited values
-     */
-    public static String[] getSplitFromFile(String filename) {
-<span class="fc" id="L172">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="fc" id="L173">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="fc" id="L175">            LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
-<span class="fc" id="L176">            return ParseUtil.whitespaces.split(read.get(0));</span>
-        }
-<span class="fc" id="L178">        return new String[0];</span>
-    }
-
-    /**
      * Read a file and return a map of string keys to string values contained
      * therein. Intended primarily for Linux /proc/[pid]/io
      *
@@ -190,16 +172,16 @@ public class FileUtil {
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map&lt;String, String&gt; getKeyValueMapFromFile(String filename, String separator) {
-<span class="fc" id="L193">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L194">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
-<span class="fc" id="L195">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L196" title="All 2 branches covered.">        for (String line : lines) {</span>
-<span class="fc" id="L197">            String[] parts = line.split(separator);</span>
-<span class="pc bpc" id="L198" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
-<span class="fc" id="L199">                map.put(parts[0], parts[1].trim());</span>
+<span class="fc" id="L175">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L176">        LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L177">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L179">            String[] parts = line.split(separator);</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="fc" id="L181">                map.put(parts[0], parts[1].trim());</span>
             }
-<span class="fc" id="L201">        }</span>
-<span class="fc" id="L202">        return map;</span>
+<span class="fc" id="L183">        }</span>
+<span class="fc" id="L184">        return map;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
