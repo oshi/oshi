@@ -26,10 +26,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.Guid.GUID;
-import com.sun.jna.platform.win32.WinDef.UCHAR;
-import com.sun.jna.platform.win32.WinDef.UINT;
-import com.sun.jna.platform.win32.WinDef.ULONG;
-import com.sun.jna.platform.win32.WinDef.ULONGByReference;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows IP Helper API. This class should be considered non-API as it may be
@@ -49,8 +46,12 @@ public interface IPHlpAPI extends Library {
     int MAX_DOMAIN_NAME_LEN = 128;
     int MAX_SCOPE_ID_LEN = 256;
 
-    int ERROR_BUFFER_OVERFLOW = 0x6f;
-
+    /**
+     * The MIB_IFROW structure stores information about a particular interface.
+     * 
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/previous-versions/windows/desktop/api/ifmib/ns-ifmib-_mib_ifrow">MIB_IFROW</A>
+     */
     class MIB_IFROW extends Structure {
         public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];
         public int dwIndex;
@@ -87,17 +88,24 @@ public interface IPHlpAPI extends Library {
         }
     }
 
-    class MIB_IFROW2 extends Structure {
-        public long InterfaceLuid; // 64-bit union
-        public ULONG InterfaceIndex;
+    /**
+     * The MIB_IF_ROW2 structure stores information about a particular
+     * interface.
+     * 
+     * @see <A HREF=
+     *      "https://msdn.microsoft.com/library/windows/hardware/ff559214">MIB_IF_ROW2</A>
+     */
+    class MIB_IF_ROW2 extends Structure {
+        public long InterfaceLuid; // 64-bit union NET_LUID
+        public int InterfaceIndex;
         public GUID InterfaceGuid;
         public char[] Alias = new char[IF_MAX_STRING_SIZE + 1];
         public char[] Description = new char[IF_MAX_STRING_SIZE + 1];
-        public ULONG PhysicalAddressLength;
-        public UCHAR[] PhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];
-        public UCHAR[] PermanentPhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];
-        public ULONG Mtu;
-        public ULONG Type;
+        public int PhysicalAddressLength;
+        public byte[] PhysicalAddress = new byte[IF_MAX_PHYS_ADDRESS_LENGTH];
+        public byte[] PermanentPhysicalAddress = new byte[IF_MAX_PHYS_ADDRESS_LENGTH];
+        public int Mtu;
+        public int Type;
         // enums
         public int TunnelType;
         public int MediaType;
@@ -146,7 +154,18 @@ public interface IPHlpAPI extends Library {
         }
     }
 
+    /**
+     * The IP_ADDRESS_STRING structure stores an IPv4 address in dotted decimal
+     * notation. The IP_ADDRESS_STRING structure definition is also the type
+     * definition for the IP_MASK_STRING structure.
+     * 
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-ip_address_string">IP_ADDRESS_STRING</A>
+     */
     class IP_ADDRESS_STRING extends Structure {
+        // Null terminated string
+        // up to 3 chars (decimal 0-255) and dot
+        // ending with null
         public byte[] String = new byte[16];
 
         @Override
@@ -155,8 +174,15 @@ public interface IPHlpAPI extends Library {
         }
     }
 
+    /**
+     * The IP_ADDR_STRING structure represents a node in a linked-list of IPv4
+     * addresses.
+     * 
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_addr_string">IP_ADDR_STRING</A>
+     */
     class IP_ADDR_STRING extends Structure {
-        public ByReference Next;
+        public IP_ADDR_STRING.ByReference Next;
         public IP_ADDRESS_STRING IpAddress;
         public IP_ADDRESS_STRING IpMask;
         public int Context;
@@ -170,25 +196,37 @@ public interface IPHlpAPI extends Library {
         }
     }
 
+    /**
+     * The FIXED_INFO structure contains information that is the same across all
+     * the interfaces on a computer.
+     * 
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-fixed_info_w2ksp1">FIXED_INFO</A>
+     */
     class FIXED_INFO extends Structure {
         public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];
         public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];
         public IP_ADDR_STRING.ByReference CurrentDnsServer; // IP_ADDR_STRING
         public IP_ADDR_STRING DnsServerList;
-        public UINT NodeType;
+        public int NodeType;
         public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];
-        public UINT EnableRouting;
-        public UINT EnableProxy;
-        public UINT EnableDns;
+        public int EnableRouting;
+        public int EnableProxy;
+        public int EnableDns;
+
+        public FIXED_INFO(Pointer p) {
+            super(p);
+            read();
+        }
+
+        public FIXED_INFO() {
+            super();
+        }
 
         @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "HostName", "DomainName", "CurrentDnsServer", "DnsServerList",
                     "NodeType", "ScopeId", "EnableRouting", "EnableProxy", "EnableDns" });
-        }
-
-        public FIXED_INFO(Pointer p) {
-            super(p);
         }
     }
 
@@ -233,7 +271,7 @@ public interface IPHlpAPI extends Library {
      *            which to retrieve information.
      * @return If the function succeeds, the return value is NO_ERROR.
      */
-    int GetIfEntry2(MIB_IFROW2 pIfRow2);
+    int GetIfEntry2(MIB_IF_ROW2 pIfRow2);
 
     /**
      * The GetNetworkParams function retrieves network parameters for the local
@@ -252,5 +290,5 @@ public interface IPHlpAPI extends Library {
      *            ERROR_BUFFER_OVERFLOW.
      * @return If the function succeeds, the return value is ERROR_SUCCESS.
      */
-    int GetNetworkParams(FIXED_INFO pFixedInfo, ULONGByReference pOutBufLen);
+    int GetNetworkParams(FIXED_INFO pFixedInfo, IntByReference pOutBufLen);
 }

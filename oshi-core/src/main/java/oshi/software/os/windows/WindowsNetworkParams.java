@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; //NOSONAR
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.windows.IPHlpAPI;
@@ -121,14 +121,14 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         // then sort by IPConnectionMetric, but current JNA release does not
         // have string array support
         // for Variant (it's merged but not release yet).
-        WinDef.ULONGByReference bufferSize = new WinDef.ULONGByReference();
+        IntByReference bufferSize = new IntByReference();
         int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);
-        if (ret != IPHlpAPI.ERROR_BUFFER_OVERFLOW) {
+        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {
             LOG.error("Failed to get network parameters buffer size. Error code: {}", ret);
             return new String[0];
         }
 
-        FIXED_INFO buffer = new FIXED_INFO(new Memory(bufferSize.getValue().longValue()));
+        FIXED_INFO buffer = new FIXED_INFO(new Memory(bufferSize.getValue()));
         ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
         if (ret != 0) {
             LOG.error("Failed to get network parameters. Error code: {}", ret);

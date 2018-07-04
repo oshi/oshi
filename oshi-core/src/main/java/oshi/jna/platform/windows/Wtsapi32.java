@@ -24,13 +24,13 @@ import java.util.List;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
 import com.sun.jna.platform.win32.WinNT.PSID;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.W32APIOptions;
+import com.sun.jna.win32.W32APITypeMapper;
 
 /**
  * Windows Remote Desktop Services API. Formerly Terminal Services. This class
@@ -42,33 +42,55 @@ import com.sun.jna.win32.W32APIOptions;
 public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
     Wtsapi32 INSTANCE = Native.loadLibrary("Wtsapi32", Wtsapi32.class, W32APIOptions.DEFAULT_OPTIONS);
 
+    /**
+     * Specifies the current server
+     */
     HANDLE WTS_CURRENT_SERVER_HANDLE = new HANDLE(null);
-    // DWORD WTS_CURRENT_SESSION = new DWORD(0xFFFFFFFFL);
-    DWORD WTS_ANY_SESSION = new DWORD(0xFFFFFFFEL);
 
-    // IntByReference WTSTypeProcessInfoLevel0 = new IntByReference(0);
-    IntByReference WTSTypeProcessInfoLevel1 = new IntByReference(1);
+    /**
+     * Specifies the current session (SessionId)
+     */
+    int WTS_CURRENT_SESSION = -1;
 
+    /**
+     * Specifies any-session (SessionId)
+     */
+    int WTS_ANY_SESSION = -2;
+
+    int WTS_PROCESS_INFO_LEVEL_0 = 0;
+    int WTS_PROCESS_INFO_LEVEL_1 = 1;
+
+    /**
+     * Contains extended information about a process running on a Remote Desktop
+     * Session Host (RD Session Host) server. This structure is returned by the
+     * WTSEnumerateProcessesEx function when you set the pLevel parameter to
+     * one.
+     * 
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/windows/desktop/api/wtsapi32/ns-wtsapi32-_wts_process_info_exa">WTS_PROCESS_INFO_EXA</A>
+     * @see <A HREF=
+     *      "https://docs.microsoft.com/en-us/windows/desktop/api/wtsapi32/ns-wtsapi32-_wts_process_info_exw">WTS_PROCESS_INFO_EXW</A>
+     */
     class WTS_PROCESS_INFO_EX extends Structure {
-        public DWORD SessionId;
-        public DWORD ProcessId;
-        public String pProcessName;
+        public int SessionId;
+        public int ProcessId;
+        public String pProcessName; // Either LPSTR or LPWSTR
         public PSID pUserSid;
-        public DWORD NumberOfThreads;
-        public DWORD HandleCount;
-        public DWORD PagefileUsage;
-        public DWORD PeakPagefileUsage;
-        public DWORD WorkingSetSize;
-        public DWORD PeakWorkingSetSize;
+        public int NumberOfThreads;
+        public int HandleCount;
+        public int PagefileUsage;
+        public int PeakPagefileUsage;
+        public int WorkingSetSize;
+        public int PeakWorkingSetSize;
         public LARGE_INTEGER UserTime;
         public LARGE_INTEGER KernelTime;
 
         public WTS_PROCESS_INFO_EX() {
-            super();
+            super(W32APITypeMapper.DEFAULT);
         }
 
         public WTS_PROCESS_INFO_EX(Pointer p) {
-            super(p);
+            super(p, Structure.ALIGN_DEFAULT, W32APITypeMapper.DEFAULT);
             read();
         }
 
@@ -119,7 +141,7 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
      *         the function fails, the return value is zero. To get extended
      *         error information, call the GetLastError function.
      */
-    boolean WTSEnumerateProcessesEx(HANDLE hServer, IntByReference pLevel, DWORD SessionID,
+    boolean WTSEnumerateProcessesEx(HANDLE hServer, IntByReference pLevel, int SessionID,
             PointerByReference ppProcessInfo, IntByReference pCount);
 
     /**
@@ -139,6 +161,5 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
      *         the function fails, the return value is zero. To get extended
      *         error information, call the GetLastError function.
      */
-    boolean WTSFreeMemoryEx(int WTSTypeClass, Pointer pMemory, long NumberOfEntries);
-
+    boolean WTSFreeMemoryEx(int WTSTypeClass, Pointer pMemory, int NumberOfEntries);
 }
