@@ -300,8 +300,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *         A collection of pids to query. If null, the entire process
-     *         list will be queried.
+     *            A collection of pids to query. If null, the entire process
+     *            list will be queried.
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids) {
@@ -317,7 +317,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         final PointerByReference ppProcessInfo = new PointerByReference();
         IntByReference pCount = new IntByReference(0);
         if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
-                Wtsapi32.WTSTypeProcessInfoLevel1, Wtsapi32.WTS_ANY_SESSION, ppProcessInfo, pCount)) {
+                new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
+                pCount)) {
             LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new LinkedList<OSProcess>();
         }
@@ -333,7 +334,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Skip if only updating a subset of pids, or if not in cache.
             // (Cache should have just been updated from registry so this will
             // only occur in a race condition for a just-started process.)
-            int pid = procInfo.ProcessId.intValue();
+            int pid = procInfo.ProcessId;
             if (!this.processMap.containsKey(pid) || (pids != null && !pids.contains(pid))) {
                 continue;
             }
@@ -391,15 +392,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // State and possibly roll up.
             proc.setState(OSProcess.State.RUNNING);
 
-            proc.setThreadCount(procInfo.NumberOfThreads.intValue());
-            proc.setVirtualSize(procInfo.PagefileUsage.longValue());
+            proc.setThreadCount(procInfo.NumberOfThreads);
+            proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
 
-            proc.setOpenFiles(procInfo.HandleCount.intValue());
+            proc.setOpenFiles(procInfo.HandleCount);
             tempProcessList.add(proc);
         }
         // Clean up memory allocated in C
-        if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTSTypeProcessInfoLevel1.getValue(), pProcessInfo,
-                pCount.getValue())) {
+        if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new LinkedList<OSProcess>();
         }
@@ -517,7 +517,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                             // Adds or replaces previous
                             this.processMap.put(pid, proc);
                         }
-                        
+
                         // Update stats
                         proc.setBytesRead(pPerfData.getLong(perfCounterBlockOffset + this.ioReadOffset));
                         proc.setBytesWritten(pPerfData.getLong(perfCounterBlockOffset + this.ioWriteOffset));

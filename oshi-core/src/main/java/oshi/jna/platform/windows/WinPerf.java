@@ -21,7 +21,6 @@ package oshi.jna.platform.windows;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.WinBase.SYSTEMTIME;
@@ -37,11 +36,10 @@ import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
  */
 public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
     /**
-     * Describes the performance data block that you queried.
+     * Describes the performance data block that you queried
      * 
      * @see <A HREF=
-     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373157(v=vs.85).aspx">
-     *      PERF_DATA_BLOCK</A>
+     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373157(v=vs.85).aspx">PERF_DATA_BLOCK</A>
      */
     public class PERF_DATA_BLOCK extends Structure {
         public char[] Signature = new char[4];
@@ -73,6 +71,36 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
             return Arrays.asList(new String[] { "Signature", "LittleEndian", "Version", "Revision", "TotalByteLength",
                     "HeaderLength", "NumObjectTypes", "DefaultObject", "SystemTime", "PerfTime", "PerfFreq",
                     "PerfTime100nSec", "SystemNameLength", "SystemNameOffset" });
+        }
+    }
+
+    /**
+     * Describes an instance of a performance object
+     * 
+     * @see <A HREF=
+     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373159(v=vs.85).aspx">PERF_INSTANCE_DEFINITION</A>
+     */
+    public class PERF_INSTANCE_DEFINITION extends Structure {
+        public int ByteLength;
+        public int ParentObjectTitleIndex;
+        public int ParentObjectInstance;
+        public int UniqueID;
+        public int NameOffset;
+        public int NameLength;
+
+        public PERF_INSTANCE_DEFINITION() {
+            super();
+        }
+
+        public PERF_INSTANCE_DEFINITION(Pointer p) {
+            super(p);
+            read();
+        }
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList(new String[] { "ByteLength", "ParentObjectTitleIndex", "ParentObjectInstance",
+                    "UniqueID", "NameOffset", "NameLength" });
         }
     }
 
@@ -131,7 +159,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
         public int CounterNameTitle; // always 32 bit
         public int CounterHelpTitleIndex;
         public int CounterHelpTitle; // always 32 bit
-        public NativeLong DefaultScale;
+        public int DefaultScale;
         public int DetailLevel;
         public int CounterType;
         public int CounterSize;
@@ -150,38 +178,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
         protected List<String> getFieldOrder() {
             return Arrays.asList(new String[] { "ByteLength", "CounterNameTitleIndex", "CounterNameTitle",
                     "CounterHelpTitleIndex", "CounterHelpTitle", "DefaultScale", "DetailLevel", "CounterType",
-                    "CounterSize", "CounterOffset", });
-        }
-    }
-
-    /**
-     * Describes an instance of a performance object
-     * 
-     * @see <A HREF=
-     *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373159(v=vs.85).aspx">
-     *      PERF_INSTANCE_DEFINITION</A>
-     */
-    public class PERF_INSTANCE_DEFINITION extends Structure {
-        public int ByteLength;
-        public int ParentObjectTitleIndex;
-        public int ParentObjectInstance;
-        public int UniqueID;
-        public int NameOffset;
-        public int NameLength;
-
-        public PERF_INSTANCE_DEFINITION() {
-            super();
-        }
-
-        public PERF_INSTANCE_DEFINITION(Pointer p) {
-            super(p);
-            read();
-        }
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "ByteLength", "ParentObjectTitleIndex", "ParentObjectInstance",
-                    "UniqueID", "NameOffset", "NameLength" });
+                    "CounterSize", "CounterOffset" });
         }
     }
 
@@ -191,7 +188,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      * 
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373147(v=vs.85).aspx">
-     *      PERF_INSTANCE_DEFINITION</A>
+     *      PERF_COUNTER_BLOCK</A>
      */
     public class PERF_COUNTER_BLOCK extends Structure {
         public int ByteLength;
@@ -210,5 +207,4 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
             return Arrays.asList(new String[] { "ByteLength" });
         }
     }
-
 }
