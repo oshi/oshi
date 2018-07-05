@@ -1,5 +1,6 @@
 3.7.0 (in progress)
 ================
+* [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
 * Your contribution here.
 
 3.6.1 (6/28/2018)
