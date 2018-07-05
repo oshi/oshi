@@ -334,11 +334,25 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Skip if only updating a subset of pids, or if not in cache.
             // (Cache should have just been updated from registry so this will
             // only occur in a race condition for a just-started process.)
+            // However, when the cache is empty, there was a problem with filling
+            // the cache using performance information. When this happens, we ignore
+            // the cache completely.
+
             int pid = procInfo.ProcessId;
-            if (!this.processMap.containsKey(pid) || (pids != null && !pids.contains(pid))) {
-                continue;
+            OSProcess proc = null;
+            if (this.processMap.isEmpty()) {
+                if (pids != null && !pids.contains(pid)) {
+                    continue;
+                }
+                proc = new OSProcess();
+                proc.setProcessID(pid);
+                proc.setName(procInfo.pProcessName);
+            } else {
+                proc = this.processMap.get(pid);
+                if (proc == null || (pids != null && !pids.contains(pid))) {
+                    continue;
+                }
             }
-            OSProcess proc = this.processMap.get(pid);
             // For my own process, set CWD
             if (pid == myPid) {
                 String cwd = new File(".").getAbsolutePath();
