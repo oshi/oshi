@@ -32,6 +32,7 @@ import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
+import oshi.jna.platform.windows.IPHlpAPI.IP_ADDR_STRING;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -136,7 +137,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         }
 
         List<String> list = new ArrayList<>();
-        IPHlpAPI.IP_ADDR_STRING dns = buffer.DnsServerList;
+        IP_ADDR_STRING dns = buffer.DnsServerList;
         while (dns != null) {
             String addr = new String(dns.IpAddress.String);
             int nullPos = addr.indexOf(0);
@@ -144,9 +145,8 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
                 addr = addr.substring(0, nullPos);
             }
             list.add(addr);
-            dns = dns.Next;
+            dns = dns.Next == null ? null : new IP_ADDR_STRING(dns.Next);
         }
-
         return list.toArray(new String[list.size()]);
     }
 
