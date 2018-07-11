@@ -75,12 +75,13 @@ public class ParseUtilTest {
     }
 
     /**
-     * Test hex string to byte array.
+     * Test hex string to byte array (and back).
      */
     @Test
     public void testHexStringToByteArray() {
         byte[] temp = { (byte) 0x12, (byte) 0xaf };
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("12af")));
+        assertEquals("12AF", ParseUtil.byteArrayToHexString(temp));
         temp = new byte[0];
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("expected error abcde")));
         assertTrue(Arrays.equals(temp, ParseUtil.hexStringToByteArray("abcde")));
