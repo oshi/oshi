@@ -29,7 +29,7 @@ import oshi.json.hardware.Display;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
-import oshi.util.EdidUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Wrapper class to implement Display interface with platform-specific objects
@@ -68,7 +68,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
     public JsonObject toJSON(Properties properties) {
 <span class="nc" id="L69">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="nc bnc" id="L70" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.displays.edid&quot;)) {</span>
-<span class="nc" id="L71">            json.add(&quot;edid&quot;, EdidUtil.toHexString(getEdid()));</span>
+<span class="nc" id="L71">            json.add(&quot;edid&quot;, ParseUtil.byteArrayToHexString(getEdid()));</span>
         }
 <span class="nc" id="L73">        return json.build();</span>
     }
