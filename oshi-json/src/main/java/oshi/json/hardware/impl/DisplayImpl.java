@@ -29,7 +29,7 @@ import oshi.json.hardware.Display;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
-import oshi.util.EdidUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Wrapper class to implement Display interface with platform-specific objects
@@ -68,7 +68,7 @@ public class DisplayImpl extends AbstractOshiJsonObject implements Display {
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.displays.edid")) {
-            json.add("edid", EdidUtil.toHexString(getEdid()));
+            json.add("edid", ParseUtil.byteArrayToHexString(getEdid()));
         }
         return json.build();
     }
