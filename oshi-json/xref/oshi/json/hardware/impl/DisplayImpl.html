@@ -37,7 +37,7 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.json.json.AbstractOshiJsonObject;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.json.json.NullAwareJsonObjectBuilder;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.json.util.PropertiesUtil;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.EdidUtil;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * Wrapper class to implement Display interface with platform-specific objects</em>
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"hardware.displays.edid"</span>)) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              json.add(<span class="jxr_string">"edid"</span>, EdidUtil.toHexString(getEdid()));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              json.add(<span class="jxr_string">"edid"</span>, ParseUtil.byteArrayToHexString(getEdid()));
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          }
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> json.build();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }

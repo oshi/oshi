@@ -26,10 +26,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.Guid.GUID;
-import com.sun.jna.platform.win32.WinDef.UCHAR;
-import com.sun.jna.platform.win32.WinDef.UINT;
-import com.sun.jna.platform.win32.WinDef.ULONG;
-import com.sun.jna.platform.win32.WinDef.ULONGByReference;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows IP Helper API. This class should be considered non-API as it may be
@@ -38,7 +35,7 @@ import com.sun.jna.platform.win32.WinDef.ULONGByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface IPHlpAPI extends Library {
-<span class="nc" id="L41">    IPHlpAPI INSTANCE = Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
+<span class="nc" id="L38">    IPHlpAPI INSTANCE = Native.loadLibrary(&quot;IPHlpAPI&quot;, IPHlpAPI.class);</span>
 
     int IF_MAX_STRING_SIZE = 256;
     int IF_MAX_PHYS_ADDRESS_LENGTH = 32;
@@ -49,16 +46,20 @@ public interface IPHlpAPI extends Library {
     int MAX_DOMAIN_NAME_LEN = 128;
     int MAX_SCOPE_ID_LEN = 256;
 
-    int ERROR_BUFFER_OVERFLOW = 0x6f;
-
-<span class="nc" id="L54">    class MIB_IFROW extends Structure {</span>
-<span class="nc" id="L55">        public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];</span>
+    /**
+     * The MIB_IFROW structure stores information about a particular interface.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://docs.microsoft.com/en-us/previous-versions/windows/desktop/api/ifmib/ns-ifmib-_mib_ifrow&quot;&gt;MIB_IFROW&lt;/A&gt;
+     */
+<span class="nc" id="L55">    class MIB_IFROW extends Structure {</span>
+<span class="nc" id="L56">        public char[] wszName = new char[MAX_INTERFACE_NAME_LEN];</span>
         public int dwIndex;
         public int dwType;
         public int dwMtu;
         public int dwSpeed;
         public int dwPhysAddrLen;
-<span class="nc" id="L61">        public byte[] bPhysAddr = new byte[MAXLEN_PHYSADDR];</span>
+<span class="nc" id="L62">        public byte[] bPhysAddr = new byte[MAXLEN_PHYSADDR];</span>
         public int dwAdminStatus;
         public int dwOperStatus;
         public int dwLastChange;
@@ -75,11 +76,11 @@ public interface IPHlpAPI extends Library {
         public int dwOutErrors;
         public int dwOutQLen;
         public int dwDescrLen;
-<span class="nc" id="L78">        public byte[] bDescr = new byte[MAXLEN_IFDESCR];</span>
+<span class="nc" id="L79">        public byte[] bDescr = new byte[MAXLEN_IFDESCR];</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L82">            return Arrays.asList(new String[] { &quot;wszName&quot;, &quot;dwIndex&quot;, &quot;dwType&quot;, &quot;dwMtu&quot;, &quot;dwSpeed&quot;, &quot;dwPhysAddrLen&quot;,</span>
+<span class="nc" id="L83">            return Arrays.asList(new String[] { &quot;wszName&quot;, &quot;dwIndex&quot;, &quot;dwType&quot;, &quot;dwMtu&quot;, &quot;dwSpeed&quot;, &quot;dwPhysAddrLen&quot;,</span>
                     &quot;bPhysAddr&quot;, &quot;dwAdminStatus&quot;, &quot;dwOperStatus&quot;, &quot;dwLastChange&quot;, &quot;dwInOctets&quot;, &quot;dwInUcastPkts&quot;,
                     &quot;dwInNUcastPkts&quot;, &quot;dwInDiscards&quot;, &quot;dwInErrors&quot;, &quot;dwInUnknownProtos&quot;, &quot;dwOutOctets&quot;,
                     &quot;dwOutUcastPkts&quot;, &quot;dwOutNUcastPkts&quot;, &quot;dwOutDiscards&quot;, &quot;dwOutErrors&quot;, &quot;dwOutQLen&quot;, &quot;dwDescrLen&quot;,
@@ -87,17 +88,24 @@ public interface IPHlpAPI extends Library {
         }
     }
 
-<span class="nc" id="L90">    class MIB_IFROW2 extends Structure {</span>
-        public long InterfaceLuid; // 64-bit union
-        public ULONG InterfaceIndex;
+    /**
+     * The MIB_IF_ROW2 structure stores information about a particular
+     * interface.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://msdn.microsoft.com/library/windows/hardware/ff559214&quot;&gt;MIB_IF_ROW2&lt;/A&gt;
+     */
+<span class="nc" id="L98">    class MIB_IF_ROW2 extends Structure {</span>
+        public long InterfaceLuid; // 64-bit union NET_LUID
+        public int InterfaceIndex;
         public GUID InterfaceGuid;
-<span class="nc" id="L94">        public char[] Alias = new char[IF_MAX_STRING_SIZE + 1];</span>
-<span class="nc" id="L95">        public char[] Description = new char[IF_MAX_STRING_SIZE + 1];</span>
-        public ULONG PhysicalAddressLength;
-<span class="nc" id="L97">        public UCHAR[] PhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
-<span class="nc" id="L98">        public UCHAR[] PermanentPhysicalAddress = new UCHAR[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
-        public ULONG Mtu;
-        public ULONG Type;
+<span class="nc" id="L102">        public char[] Alias = new char[IF_MAX_STRING_SIZE + 1];</span>
+<span class="nc" id="L103">        public char[] Description = new char[IF_MAX_STRING_SIZE + 1];</span>
+        public int PhysicalAddressLength;
+<span class="nc" id="L105">        public byte[] PhysicalAddress = new byte[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
+<span class="nc" id="L106">        public byte[] PermanentPhysicalAddress = new byte[IF_MAX_PHYS_ADDRESS_LENGTH];</span>
+        public int Mtu;
+        public int Type;
         // enums
         public int TunnelType;
         public int MediaType;
@@ -135,7 +143,7 @@ public interface IPHlpAPI extends Library {
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L138">            return Arrays.asList(new String[] { &quot;InterfaceLuid&quot;, &quot;InterfaceIndex&quot;, &quot;InterfaceGuid&quot;, &quot;Alias&quot;,</span>
+<span class="nc" id="L146">            return Arrays.asList(new String[] { &quot;InterfaceLuid&quot;, &quot;InterfaceIndex&quot;, &quot;InterfaceGuid&quot;, &quot;Alias&quot;,</span>
                     &quot;Description&quot;, &quot;PhysicalAddressLength&quot;, &quot;PhysicalAddress&quot;, &quot;PermanentPhysicalAddress&quot;, &quot;Mtu&quot;,
                     &quot;Type&quot;, &quot;TunnelType&quot;, &quot;MediaType&quot;, &quot;PhysicalMediumType&quot;, &quot;AccessType&quot;, &quot;DirectionType&quot;,
                     &quot;InterfaceAndOperStatusFlags&quot;, &quot;OperStatus&quot;, &quot;AdminStatus&quot;, &quot;MediaConnectState&quot;, &quot;NetworkGuid&quot;,
@@ -146,50 +154,86 @@ public interface IPHlpAPI extends Library {
         }
     }
 
-<span class="nc" id="L149">    class IP_ADDRESS_STRING extends Structure {</span>
-<span class="nc" id="L150">        public byte[] String = new byte[16];</span>
+    /**
+     * The IP_ADDRESS_STRING structure stores an IPv4 address in dotted decimal
+     * notation. The IP_ADDRESS_STRING structure definition is also the type
+     * definition for the IP_MASK_STRING structure.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-ip_address_string&quot;&gt;IP_ADDRESS_STRING&lt;/A&gt;
+     */
+<span class="nc" id="L165">    class IP_ADDRESS_STRING extends Structure {</span>
+        // Null terminated string
+        // up to 3 chars (decimal 0-255) and dot
+        // ending with null
+<span class="nc" id="L169">        public byte[] String = new byte[16];</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L154">            return Arrays.asList(new String[] { &quot;String&quot; });</span>
+<span class="nc" id="L173">            return Arrays.asList(new String[] { &quot;String&quot; });</span>
         }
     }
 
-<span class="nc" id="L158">    class IP_ADDR_STRING extends Structure {</span>
-        public ByReference Next;
+    /**
+     * The IP_ADDR_STRING structure represents a node in a linked-list of IPv4
+     * addresses.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_addr_string&quot;&gt;IP_ADDR_STRING&lt;/A&gt;
+     */
+    class IP_ADDR_STRING extends Structure {
+        public Pointer Next; // IP_ADDR_STRING
         public IP_ADDRESS_STRING IpAddress;
         public IP_ADDRESS_STRING IpMask;
         public int Context;
 
-<span class="nc" id="L164">        public static class ByReference extends IP_ADDR_STRING implements Structure.ByReference {</span>
-        }
+        public IP_ADDR_STRING(Pointer p) {
+<span class="nc" id="L191">            super(p);</span>
+<span class="nc" id="L192">            read();</span>
+<span class="nc" id="L193">        }</span>
+
+        public IP_ADDR_STRING() {
+<span class="nc" id="L196">            super();</span>
+<span class="nc" id="L197">        }</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L169">            return Arrays.asList(new String[] { &quot;Next&quot;, &quot;IpAddress&quot;, &quot;IpMask&quot;, &quot;Context&quot; });</span>
+<span class="nc" id="L201">            return Arrays.asList(new String[] { &quot;Next&quot;, &quot;IpAddress&quot;, &quot;IpMask&quot;, &quot;Context&quot; });</span>
         }
     }
 
+    /**
+     * The FIXED_INFO structure contains information that is the same across all
+     * the interfaces on a computer.
+     * 
+     * @see &lt;A HREF=
+     *      &quot;https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-fixed_info_w2ksp1&quot;&gt;FIXED_INFO&lt;/A&gt;
+     */
     class FIXED_INFO extends Structure {
-<span class="nc" id="L174">        public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];</span>
-<span class="nc" id="L175">        public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];</span>
-        public IP_ADDR_STRING.ByReference CurrentDnsServer; // IP_ADDR_STRING
+<span class="nc" id="L213">        public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];</span>
+<span class="nc" id="L214">        public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];</span>
+        public Pointer CurrentDnsServer; // IP_ADDR_STRING
         public IP_ADDR_STRING DnsServerList;
-        public UINT NodeType;
-<span class="nc" id="L179">        public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];</span>
-        public UINT EnableRouting;
-        public UINT EnableProxy;
-        public UINT EnableDns;
+        public int NodeType;
+<span class="nc" id="L218">        public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];</span>
+        public int EnableRouting;
+        public int EnableProxy;
+        public int EnableDns;
+
+        public FIXED_INFO(Pointer p) {
+<span class="nc" id="L224">            super(p);</span>
+<span class="nc" id="L225">            read();</span>
+<span class="nc" id="L226">        }</span>
+
+        public FIXED_INFO() {
+<span class="nc" id="L229">            super();</span>
+<span class="nc" id="L230">        }</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L186">            return Arrays.asList(new String[] { &quot;HostName&quot;, &quot;DomainName&quot;, &quot;CurrentDnsServer&quot;, &quot;DnsServerList&quot;,</span>
+<span class="nc" id="L234">            return Arrays.asList(new String[] { &quot;HostName&quot;, &quot;DomainName&quot;, &quot;CurrentDnsServer&quot;, &quot;DnsServerList&quot;,</span>
                     &quot;NodeType&quot;, &quot;ScopeId&quot;, &quot;EnableRouting&quot;, &quot;EnableProxy&quot;, &quot;EnableDns&quot; });
         }
-
-        public FIXED_INFO(Pointer p) {
-<span class="nc" id="L191">            super(p);</span>
-<span class="nc" id="L192">        }</span>
     }
 
     /**
@@ -233,7 +277,7 @@ public interface IPHlpAPI extends Library {
      *            which to retrieve information.
      * @return If the function succeeds, the return value is NO_ERROR.
      */
-    int GetIfEntry2(MIB_IFROW2 pIfRow2);
+    int GetIfEntry2(MIB_IF_ROW2 pIfRow2);
 
     /**
      * The GetNetworkParams function retrieves network parameters for the local
@@ -252,6 +296,6 @@ public interface IPHlpAPI extends Library {
      *            ERROR_BUFFER_OVERFLOW.
      * @return If the function succeeds, the return value is ERROR_SUCCESS.
      */
-    int GetNetworkParams(FIXED_INFO pFixedInfo, ULONGByReference pOutBufLen);
+    int GetNetworkParams(FIXED_INFO pFixedInfo, IntByReference pOutBufLen);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
