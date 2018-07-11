@@ -1,6 +1,11 @@
 3.7.0 (in progress)
 ================
+* Your contribution here.
+
+3.6.2 (7/10/18)
+================
 * [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
+* [#547](https://github.com/oshi/oshi/pull/547): Remove DataTypeConverter dependency so OSHI builds on Java 9+ - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.6.1 (6/28/2018)
