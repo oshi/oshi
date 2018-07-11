@@ -55,13 +55,6 @@ public class EdidUtilTest {
     private final static byte[] EDID = ParseUtil.hexStringToByteArray(EDID_STR);
 
     @Test
-    public void testToHexString() {
-        byte[] temp = { (byte) 0xab, (byte) 0xcd, (byte) 0xef };
-        assertEquals("ABCDEF", EdidUtil.toHexString(temp));
-        assertEquals(EDID_STR, EdidUtil.toHexString(EDID));
-    }
-
-    @Test
     public void testGetEdidAttrs() {
         assertEquals("A", EdidUtil.getManufacturerID(EDID));
         assertEquals("9227", EdidUtil.getProductID(EDID));
@@ -95,7 +88,7 @@ public class EdidUtilTest {
             case 2:
                 assertEquals(0xFF, type);
                 assertEquals("C02JM2PFF2GC", EdidUtil.getDescriptorText(descs[i]));
-                assertEquals(EDID_DESC3, EdidUtil.getDescriptorHex(descs[i]));
+                assertEquals(EDID_DESC3, ParseUtil.byteArrayToHexString(descs[i]));
                 break;
             case 3:
                 assertEquals(0xFC, type);
