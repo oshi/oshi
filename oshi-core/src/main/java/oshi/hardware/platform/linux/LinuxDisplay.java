@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.hardware.platform.unix.solaris.SolarisDisplay;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -72,7 +71,7 @@ public class LinuxDisplay extends AbstractDisplay {
                 LOG.debug("Parsed EDID: {}", edidStr);
                 byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
                 if (edid.length >= 128) {
-                    displays.add(new SolarisDisplay(edid));
+                    displays.add(new LinuxDisplay(edid));
                 }
                 sb = null;
             }
