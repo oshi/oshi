@@ -40,8 +40,8 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
  * 
  * @author widdis[at]gmail[dot]com
  */
-public class PdhUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(PdhUtil.class);
+public class PerfDataUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);
 
     private static final DWORD_PTR PZERO = new DWORD_PTR(0);
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
@@ -55,7 +55,7 @@ public class PdhUtil {
     private static final Map<String, HANDLEByReference> counterMap = new HashMap<>();
     private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
 
-    private PdhUtil() {
+    private PerfDataUtil() {
         // Set up hook to close all queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

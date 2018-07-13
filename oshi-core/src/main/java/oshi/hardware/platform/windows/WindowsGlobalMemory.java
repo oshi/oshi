@@ -26,7 +26,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.PerfDataUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -59,11 +59,11 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         pdhPagesInputPerSecCounter = "\\Memory\\Pages Input/sec";
         pdhPagesOutputPerSecCounter = "\\Memory\\Pages Output/sec";
 
-        PdhUtil.addCounter(pdhPagesInputPerSecCounter);
-        PdhUtil.addCounter(pdhPagesOutputPerSecCounter);
+        PerfDataUtil.addCounter(pdhPagesInputPerSecCounter);
+        PerfDataUtil.addCounter(pdhPagesOutputPerSecCounter);
 
         pdhPagingPercentUsageCounter = "\\Paging File(_Total)\\% Usage";
-        PdhUtil.addCounter(pdhPagingPercentUsageCounter);
+        PerfDataUtil.addCounter(pdhPagingPercentUsageCounter);
     }
 
     /**
@@ -82,8 +82,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();
             this.swapTotal = this.pageSize
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
-            this.swapPagesIn = PdhUtil.queryCounter(pdhPagesInputPerSecCounter);
-            this.swapPagesOut = PdhUtil.queryCounter(pdhPagesOutputPerSecCounter);
+            this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);
+            this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);
 
             this.lastUpdate = now;
         }
@@ -95,6 +95,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
         updateMeminfo();
-        this.swapUsed = PdhUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
+        this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
     }
 }
