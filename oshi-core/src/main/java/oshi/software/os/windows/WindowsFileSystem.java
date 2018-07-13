@@ -29,7 +29,7 @@ import com.sun.jna.platform.win32.WinNT;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -274,10 +274,10 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        if (!PdhUtil.isCounter(HANDLE_COUNT_COUNTER)) {
-            PdhUtil.addCounter(HANDLE_COUNT_COUNTER);
+        if (!PerfDataUtil.isCounter(HANDLE_COUNT_COUNTER)) {
+            PerfDataUtil.addCounter(HANDLE_COUNT_COUNTER);
         }
-        return PdhUtil.queryCounter(HANDLE_COUNT_COUNTER);
+        return PerfDataUtil.queryCounter(HANDLE_COUNT_COUNTER);
     }
 
     @Override

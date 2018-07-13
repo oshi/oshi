@@ -32,7 +32,7 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -121,17 +121,17 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             this.pdhCounters[p][TickType.IRQ.getIndex()] = String.format(queryName[TickType.IRQ.getIndex()], p);
             this.pdhCounters[p][TickType.SOFTIRQ.getIndex()] = String.format(queryName[TickType.SOFTIRQ.getIndex()], p);
         }
-        PdhUtil.addCounter2DArray("pdhCounters", this.pdhCounters);
+        PerfDataUtil.addCounter2DArray("pdhCounters", this.pdhCounters);
 
         pdhIrqCounter = "\\Processor(_Total)\\% Interrupt Time";
         pdhSoftIrqCounter = "\\Processor(_Total)\\% DPC Time";
         pdhContextSwitchesPerSecCounter = "\\System\\Context Switches/sec";
         pdhInterruptsPerSecCounter = "\\Processor(_Total)\\Interrupts/sec";
 
-        PdhUtil.addCounter(pdhIrqCounter);
-        PdhUtil.addCounter(pdhSoftIrqCounter);
-        PdhUtil.addCounter(pdhContextSwitchesPerSecCounter);
-        PdhUtil.addCounter(pdhInterruptsPerSecCounter);
+        PerfDataUtil.addCounter(pdhIrqCounter);
+        PerfDataUtil.addCounter(pdhSoftIrqCounter);
+        PerfDataUtil.addCounter(pdhContextSwitchesPerSecCounter);
+        PerfDataUtil.addCounter(pdhInterruptsPerSecCounter);
     }
 
     /**
@@ -175,8 +175,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10000 to get milliseconds
-        ticks[TickType.IRQ.getIndex()] = PdhUtil.queryCounter(this.pdhIrqCounter) / 10000L;
-        ticks[TickType.SOFTIRQ.getIndex()] = PdhUtil.queryCounter(this.pdhSoftIrqCounter) / 10000L;
+        ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.pdhIrqCounter) / 10000L;
+        ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.pdhSoftIrqCounter) / 10000L;
 
         ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
         ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
@@ -209,7 +209,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = PdhUtil.queryCounter2DArray("pdhCounters", this.pdhCounters);
+        long[][] ticks = PerfDataUtil.queryCounter2DArray("pdhCounters", this.pdhCounters);
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
             // Decrement idle as it's really total
             ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]
@@ -258,7 +258,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        return PdhUtil.queryCounter(pdhContextSwitchesPerSecCounter) / 10000L;
+        return PerfDataUtil.queryCounter(pdhContextSwitchesPerSecCounter) / 10000L;
     }
 
     /**
@@ -266,6 +266,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        return PdhUtil.queryCounter(pdhInterruptsPerSecCounter) / 10000L;
+        return PerfDataUtil.queryCounter(pdhInterruptsPerSecCounter) / 10000L;
     }
 }

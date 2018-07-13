@@ -34,7 +34,7 @@ import com.sun.jna.platform.win32.WinDef.DWORDByReference;
  *
  * @author widdis[at]gmail[dot]com
  */
-public abstract class PdhUtilJNA {
+public abstract class PdhUtil {
 
     /**
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
@@ -57,6 +57,10 @@ public abstract class PdhUtilJNA {
         DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));
         Pdh.INSTANCE.PdhLookupPerfNameByIndex(null, dwNameIndex, null, pcchNameBufferSize);
 
+        // Can't allocate 0 memory
+        if (pcchNameBufferSize.getValue().intValue() < 1) {
+            return "";
+        }
         // Allocate buffer and call again
         Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * charToBytes);
         Pdh.INSTANCE.PdhLookupPerfNameByIndex(null, dwNameIndex, mem, pcchNameBufferSize);
@@ -98,6 +102,7 @@ public abstract class PdhUtilJNA {
     public static List<String> PdhEnumObjectItemCounters(String szDataSource, String szMachineName, String szObjectName,
             int dwDetailLevel) {
         int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
+        List<String> counters = new ArrayList<String>();
 
         // Call once to get string lengths
         DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
@@ -105,6 +110,10 @@ public abstract class PdhUtilJNA {
         Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, null, pcchCounterListLength, null,
                 pcchInstanceListLength, dwDetailLevel, 0);
 
+        // Can't allocate 0 memory
+        if (pcchCounterListLength.getValue().intValue() < 1 || pcchInstanceListLength.getValue().intValue() < 1) {
+            return counters;
+        }
         // Allocate memory and call again to populate strings
         Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * charToBytes);
         Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * charToBytes);
@@ -112,7 +121,6 @@ public abstract class PdhUtilJNA {
                 pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
 
         // Fetch counters
-        List<String> counters = new ArrayList<String>();
         int offset = 0;
         while (offset < mszCounterList.size()) {
             String s = null;
@@ -157,11 +165,12 @@ public abstract class PdhUtilJNA {
      *            Detail level of the performance items to return. All items
      *            that are of the specified detail level or less will be
      *            returned.
-     * @return Returns a Lists of Strings of the instances of the object.
+     * @return Returns a List of Strings of the instances of the object.
      */
     public static List<String> PdhEnumObjectItemInstances(String szDataSource, String szMachineName,
             String szObjectName, int dwDetailLevel) {
         int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
+        List<String> instances = new ArrayList<String>();
 
         // Call once to get string lengths
         DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
@@ -169,13 +178,16 @@ public abstract class PdhUtilJNA {
         Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, null, pcchCounterListLength, null,
                 pcchInstanceListLength, dwDetailLevel, 0);
 
+        // Can't allocate 0 memory
+        if (pcchCounterListLength.getValue().intValue() < 1 || pcchInstanceListLength.getValue().intValue() < 1) {
+            return instances;
+        }
         // Allocate memory and call again to populate strings
         Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * charToBytes);
         Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * charToBytes);
         Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,
                 pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
 
-        List<String> instances = new ArrayList<String>();
         int offset = 0;
         while (offset < mszInstanceList.size()) {
             String s = null;
