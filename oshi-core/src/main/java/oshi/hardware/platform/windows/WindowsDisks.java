@@ -33,10 +33,10 @@ import com.sun.jna.platform.win32.Kernel32;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.jna.platform.windows.PdhUtilJNA;
+import oshi.jna.platform.windows.PdhUtil;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 
@@ -249,7 +249,7 @@ public class WindowsDisks implements Disks {
             timeStampMap.clear();
         }
         // Fetch the instance names
-        List<String> instances = PdhUtilJNA.PdhEnumObjectItemInstances(null, null, "PhysicalDisk", 100);
+        List<String> instances = PdhUtil.PdhEnumObjectItemInstances(null, null, "PhysicalDisk", 100);
         instances.remove("_Total");
         // At this point we have a list of strings that PDH understands. Fetch
         // the counters.
@@ -258,31 +258,31 @@ public class WindowsDisks implements Disks {
         for (String i : instances) {
             String name = ParseUtil.whitespaces.split(i)[0];
             String readString = String.format(PDH_DISK_READS_FORMAT, i);
-            if (!PdhUtil.isCounter(readString)) {
-                PdhUtil.addCounter(readString);
+            if (!PerfDataUtil.isCounter(readString)) {
+                PerfDataUtil.addCounter(readString);
             }
             String readBytesString = String.format(PDH_DISK_READ_BYTES_FORMAT, i);
-            if (!PdhUtil.isCounter(readBytesString)) {
-                PdhUtil.addCounter(readBytesString);
+            if (!PerfDataUtil.isCounter(readBytesString)) {
+                PerfDataUtil.addCounter(readBytesString);
             }
             String writeString = String.format(PDH_DISK_WRITES_FORMAT, i);
-            if (!PdhUtil.isCounter(writeString)) {
-                PdhUtil.addCounter(writeString);
+            if (!PerfDataUtil.isCounter(writeString)) {
+                PerfDataUtil.addCounter(writeString);
             }
             String writeBytesString = String.format(PDH_DISK_WRITE_BYTES_FORMAT, i);
-            if (!PdhUtil.isCounter(writeBytesString)) {
-                PdhUtil.addCounter(writeBytesString);
+            if (!PerfDataUtil.isCounter(writeBytesString)) {
+                PerfDataUtil.addCounter(writeBytesString);
             }
             String xferTimeString = String.format(PDH_DISK_TIME_FORMAT, i);
-            if (!PdhUtil.isCounter(xferTimeString)) {
-                PdhUtil.addCounter(xferTimeString);
+            if (!PerfDataUtil.isCounter(xferTimeString)) {
+                PerfDataUtil.addCounter(xferTimeString);
             }
-            readMap.put(name, PdhUtil.queryCounter(readString));
-            readByteMap.put(name, PdhUtil.queryCounter(readBytesString));
-            writeMap.put(name, PdhUtil.queryCounter(writeString));
-            writeByteMap.put(name, PdhUtil.queryCounter(writeBytesString));
-            xferTimeMap.put(name, PdhUtil.queryCounter(xferTimeString) / 10000L);
-            timeStampMap.put(name, PdhUtil.queryCounterTimestamp(xferTimeString));
+            readMap.put(name, PerfDataUtil.queryCounter(readString));
+            readByteMap.put(name, PerfDataUtil.queryCounter(readBytesString));
+            writeMap.put(name, PerfDataUtil.queryCounter(writeString));
+            writeByteMap.put(name, PerfDataUtil.queryCounter(writeBytesString));
+            xferTimeMap.put(name, PerfDataUtil.queryCounter(xferTimeString) / 10000L);
+            timeStampMap.put(name, PerfDataUtil.queryCounterTimestamp(xferTimeString));
         }
     }
 

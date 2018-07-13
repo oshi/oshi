@@ -34,7 +34,7 @@ import com.sun.jna.platform.win32.WinDef.DWORDByReference;
  *
  * @author widdis[at]gmail[dot]com
  */
-public abstract class PdhUtilJNA {
+public abstract class PdhUtil {
 
     /**
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
