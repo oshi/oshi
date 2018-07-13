@@ -22,8 +22,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +35,6 @@ public class EdidUtil {
     private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);
 
     private EdidUtil() {
-    }
-
-    /**
-     * Converts a byte array to a hexadecimal string
-     *
-     * @param edid
-     *            The EDID byte array
-     * @return A string representation of the byte array
-     */
-    public static String toHexString(byte[] edid) {
-        return DatatypeConverter.printHexBinary(edid);
     }
 
     /**
@@ -242,17 +229,6 @@ public class EdidUtil {
     }
 
     /**
-     * Parse descriptor hex
-     *
-     * @param desc
-     *            An 18-byte VESA descriptor
-     * @return A string showing the 18 bytes as hexadecimals
-     */
-    public static String getDescriptorHex(byte[] desc) {
-        return DatatypeConverter.printHexBinary(desc);
-    }
-
-    /**
      * Parse an EDID byte array into user-readable information
      *
      * @param edid
@@ -286,14 +262,14 @@ public class EdidUtil {
                 sb.append("\n  Monitor Name: ").append(EdidUtil.getDescriptorText(b));
                 break;
             case 0xfb:
-                sb.append("\n  White Point Data: ").append(EdidUtil.getDescriptorHex(b));
+                sb.append("\n  White Point Data: ").append(ParseUtil.byteArrayToHexString(b));
                 break;
             case 0xfa:
-                sb.append("\n  Standard Timing ID: ").append(EdidUtil.getDescriptorHex(b));
+                sb.append("\n  Standard Timing ID: ").append(ParseUtil.byteArrayToHexString(b));
                 break;
             default:
                 if (EdidUtil.getDescriptorType(b) <= 0x0f && EdidUtil.getDescriptorType(b) >= 0x00) {
-                    sb.append("\n  Manufacturer Data: ").append(EdidUtil.getDescriptorHex(b));
+                    sb.append("\n  Manufacturer Data: ").append(ParseUtil.byteArrayToHexString(b));
                 } else {
                     sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(b));
                 }
