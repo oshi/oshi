@@ -87,7 +87,7 @@ public class WindowsSensors implements Sensors {
                         this.wmiTempFilter);
             }
             if (tempK == 0) {
-                this.wmiTempClass = "Win32_PerfFormattedData_Counters_ThermalZoneInformation";
+                this.wmiTempClass = "Win32_PerfRawData_Counters_ThermalZoneInformation";
                 this.wmiTempProperty = "Temperature";
                 this.wmiTempFilter = "WHERE Name LIKE \"%CPU%\"";
                 tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
