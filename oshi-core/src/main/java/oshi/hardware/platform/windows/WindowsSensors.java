@@ -77,24 +77,19 @@ public class WindowsSensors implements Sensors {
         long tempK;
         if (this.wmiTempClass == null) {
             this.wmiTempNamespace = "root\\cimv2";
-            this.wmiTempClass = "Win32_Temperature";
-            this.wmiTempProperty = "CurrentReading";
+            this.wmiTempClass = "Win32_PerfRawData_Counters_ThermalZoneInformation";
+            this.wmiTempProperty = "Temperature";
+            this.wmiTempFilter = "WHERE Name LIKE \"%CPU%\"";
             tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
                     this.wmiTempFilter);
             if (tempK == 0) {
-                this.wmiTempClass = "Win32_TemperatureProbe";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
-                        this.wmiTempFilter);
-            }
-            if (tempK == 0) {
-                this.wmiTempClass = "Win32_PerfFormattedData_Counters_ThermalZoneInformation";
-                this.wmiTempProperty = "Temperature";
-                this.wmiTempFilter = "WHERE Name LIKE \"%CPU%\"";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
-                        this.wmiTempFilter);
-            }
-            if (tempK == 0) {
                 this.wmiTempFilter = null;
+                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
+                        this.wmiTempFilter);
+            }
+            if (tempK == 0) {
+                this.wmiTempClass = "Win32_TemperatureProbe";
+                this.wmiTempProperty = "CurrentReading";
                 tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty,
                         this.wmiTempFilter);
             }
