@@ -34,6 +34,8 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
+import oshi.jna.platform.windows.PdhUtil;
+
 /**
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
@@ -65,6 +67,17 @@ public class PerfDataUtil {
                 }
             }
         });
+    }
+
+    /**
+     * Translate an English counter name to its locale-specific string
+     * 
+     * @param englishName
+     *            The english name of the counter
+     * @return The name of the counter in the machine's locale
+     */
+    public static String localizeCounterName(String englishName) {
+        return PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(englishName));
     }
 
     /**

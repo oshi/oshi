@@ -23,18 +23,25 @@ import java.util.List;
 
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
+import com.sun.jna.platform.win32.WinReg;
 
 /**
- * This class has already been submitted to the JNA project as PDHUtil.java. It
- * is named differently here to prevent confusion with the same-name class in
- * the oshi.util package. This class should be considered non-API as it WILL be
- * removed when its code is incorporated into the JNA project.
+ * This class has already been submitted to the JNA project. This class should
+ * be considered non-API as it WILL be removed when its code is incorporated
+ * into the JNA project.
  *
  * @author widdis[at]gmail[dot]com
  */
 public abstract class PdhUtil {
+    private static final int CHAR_TO_BYTES = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
+
+    // This REG_MULTI_SZ value in HKLM provides English counters regardless of
+    // the current locale setting
+    private static final String ENGLISH_COUNTER_KEY = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009";
+    private static final String ENGLISH_COUNTER_VALUE = "Counter";
 
     /**
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
@@ -51,26 +58,56 @@ public abstract class PdhUtil {
      * @return Returns the name of the performance object or counter.
      */
     public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
-        int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
-
         // Call once to get required buffer size
         DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));
-        Pdh.INSTANCE.PdhLookupPerfNameByIndex(null, dwNameIndex, null, pcchNameBufferSize);
+        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);
 
         // Can't allocate 0 memory
         if (pcchNameBufferSize.getValue().intValue() < 1) {
             return "";
         }
         // Allocate buffer and call again
-        Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * charToBytes);
-        Pdh.INSTANCE.PdhLookupPerfNameByIndex(null, dwNameIndex, mem, pcchNameBufferSize);
+        Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
 
         // Convert buffer to Java String
-        if (charToBytes == 1) {
+        if (CHAR_TO_BYTES == 1) {
             return mem.getString(0);
         } else {
             return mem.getWideString(0);
         }
+    }
+
+    /**
+     * Utility method similar to Pdh's PdhLookupPerfIndexByName that returns the
+     * counter index corresponding to the specified counter name in English.
+     * Uses the registry on the local machine to find the index in the English
+     * locale, regardless of the current language setting on the machine.
+     * 
+     * @param szNameBuffer
+     *            The English name of the performance counter
+     * @return The counter's index if it exists, or 0 otherwise.
+     */
+    public static int PdhLookupPerfIndexByEnglishName(String szNameBuffer) {
+        // Look up list of english names and ids
+        String[] counters = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, ENGLISH_COUNTER_KEY,
+                ENGLISH_COUNTER_VALUE);
+        // Array contains alternating index/name pairs
+        // {"1", "1847", "2", "System", "4", "Memory", ... }
+        // Get position of name in the array (odd index), return parsed value of
+        // previous even index
+        for (int i = 1; i < counters.length; i += 2) {
+            if (counters[i].equals(szNameBuffer)) {
+                try {
+                    return Integer.parseInt(counters[i - 1]);
+                } catch (NumberFormatException e) {
+                    // Unexpected but handle anyway
+                    return 0;
+                }
+            }
+        }
+        // Didn't find the String
+        return 0;
     }
 
     /**
@@ -101,8 +138,7 @@ public abstract class PdhUtil {
      */
     public static List<String> PdhEnumObjectItemCounters(String szDataSource, String szMachineName, String szObjectName,
             int dwDetailLevel) {
-        int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
-        List<String> counters = new ArrayList<String>();
+        List<String> counters = new ArrayList<>();
 
         // Call once to get string lengths
         DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
@@ -115,8 +151,8 @@ public abstract class PdhUtil {
             return counters;
         }
         // Allocate memory and call again to populate strings
-        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * charToBytes);
-        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * charToBytes);
+        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);
+        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);
         Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,
                 pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
 
@@ -124,7 +160,7 @@ public abstract class PdhUtil {
         int offset = 0;
         while (offset < mszCounterList.size()) {
             String s = null;
-            if (charToBytes == 1) {
+            if (CHAR_TO_BYTES == 1) {
                 s = mszCounterList.getString(offset);
             } else {
                 s = mszCounterList.getWideString(offset);
@@ -135,7 +171,7 @@ public abstract class PdhUtil {
             }
             counters.add(s);
             // Increment for string + null terminator
-            offset += (s.length() + 1) * charToBytes;
+            offset += (s.length() + 1) * CHAR_TO_BYTES;
         }
 
         return counters;
@@ -165,12 +201,11 @@ public abstract class PdhUtil {
      *            Detail level of the performance items to return. All items
      *            that are of the specified detail level or less will be
      *            returned.
-     * @return Returns a List of Strings of the instances of the object.
+     * @return Returns a Lists of Strings of the instances of the object.
      */
     public static List<String> PdhEnumObjectItemInstances(String szDataSource, String szMachineName,
             String szObjectName, int dwDetailLevel) {
-        int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
-        List<String> instances = new ArrayList<String>();
+        List<String> instances = new ArrayList<>();
 
         // Call once to get string lengths
         DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
@@ -183,15 +218,15 @@ public abstract class PdhUtil {
             return instances;
         }
         // Allocate memory and call again to populate strings
-        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * charToBytes);
-        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * charToBytes);
+        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);
+        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);
         Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,
                 pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
 
         int offset = 0;
         while (offset < mszInstanceList.size()) {
             String s = null;
-            if (charToBytes == 1) {
+            if (CHAR_TO_BYTES == 1) {
                 s = mszInstanceList.getString(offset);
             } else {
                 s = mszInstanceList.getWideString(offset);
@@ -202,7 +237,7 @@ public abstract class PdhUtil {
             }
             instances.add(s);
             // Increment for string + null terminator
-            offset += (s.length() + 1) * charToBytes;
+            offset += (s.length() + 1) * CHAR_TO_BYTES;
         }
 
         return instances;
