@@ -37,11 +37,4 @@ public class WbemServices extends Unknown {
         return (HRESULT) _invokeNativeObject(20,
                 new Object[] { getPointer(), strQueryLanguage, strQuery, lFlags, pCtx, ppEnum }, HRESULT.class);
     }
-
-    public HRESULT ExecMethod(BSTR strObjectPath, BSTR strMethodName, NativeLong lFlags, Pointer pCtx,
-            Pointer pInParams, PointerByReference ppOutParams, PointerByReference ppCallResult) {
-        // ExecMethod is 25th method of vtable for WbemServices in WbemCli.h
-        return (HRESULT) _invokeNativeObject(24, new Object[] { getPointer(), strObjectPath, strMethodName, lFlags,
-                pCtx, pInParams, ppOutParams, ppCallResult }, HRESULT.class);
-    }
 }

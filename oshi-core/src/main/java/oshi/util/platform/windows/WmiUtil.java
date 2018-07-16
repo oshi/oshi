@@ -43,7 +43,6 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
 
@@ -65,9 +64,7 @@ public class WmiUtil {
      */
     public enum ValueType {
         // Properties
-        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64, UINT16,
-        // Methods (use "__PATH" for property)
-        PROCESS_GETOWNER, PROCESS_GETOWNERSID
+        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64, UINT16
     }
 
     /**
@@ -406,13 +403,7 @@ public class WmiUtil {
         Map<String, List<Object>> values = new HashMap<>();
         String[] props = properties.split(",");
         for (int i = 0; i < props.length; i++) {
-            if ("__PATH".equals(props[i])) {
-                // Methods will query __PATH
-                values.put(propertyTypes[i].name(), new ArrayList<>());
-            } else {
-                // Properties are named
-                values.put(props[i], new ArrayList<>());
-            }
+            values.put(props[i], new ArrayList<>());
         }
 
         // Initialize COM
@@ -677,17 +668,6 @@ public class WmiUtil {
                 case BOOLEAN:
                     values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.booleanValue());
                     break;
-                case PROCESS_GETOWNER:
-                    // Win32_Process object GetOwner method
-                    String owner = FormatUtil.join("\\",
-                            execMethod(svc, vtProp.stringValue(), "GetOwner", "Domain", "User"));
-                    values.get(propertyType.name()).add("\\".equals(owner) ? "N/A" : owner);
-                    break;
-                case PROCESS_GETOWNERSID:
-                    // Win32_Process object GetOwnerSid method
-                    String[] ownerSid = execMethod(svc, vtProp.stringValue(), "GetOwnerSid", "Sid");
-                    values.get(propertyType.name()).add(ownerSid.length < 1 ? "" : ownerSid[0]);
-                    break;
                 default:
                     // Should never get here! If you get this exception you've
                     // added something to the enum without adding it here. Tsk.
@@ -711,39 +691,4 @@ public class WmiUtil {
             comInitialized = false;
         }
     }
-
-    /**
-     * Convenience method for executing WMI methods without any input parameters
-     *
-     * @param svc
-     *            The WbemServices object
-     * @param clsObj
-     *            The full path to the class object to execute (result of WMI
-     *            "__PATH" query)
-     * @param method
-     *            The name of the method to execute
-     * @param properties
-     *            One or more properties returned as a result of the query
-     * @return An array of the properties returned from the method
-     */
-    private static String[] execMethod(WbemServices svc, String clsObj, String method, String... properties) {
-        List<String> result = new ArrayList<>();
-        PointerByReference ppOutParams = new PointerByReference();
-        HRESULT hres = svc.ExecMethod(new BSTR(clsObj), new BSTR(method), new NativeLong(0L), null, null, ppOutParams,
-                null);
-        if (COMUtils.FAILED(hres)) {
-            return new String[0];
-        }
-        WbemClassObject obj = new WbemClassObject(ppOutParams.getValue());
-        VARIANT.ByReference vtProp = new VARIANT.ByReference();
-        for (String prop : properties) {
-            hres = obj.Get(new BSTR(prop), new NativeLong(0L), vtProp, null, null);
-            if (!COMUtils.FAILED(hres)) {
-                result.add(vtProp.getValue() == null ? "" : vtProp.stringValue());
-            }
-        }
-        obj.Release();
-        return result.toArray(new String[result.size()]);
-    }
-
 }
