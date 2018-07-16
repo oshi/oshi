@@ -67,42 +67,39 @@ import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    enum WmiProperty {
+    enum OSProperty implements WmiProperty {
         PROCESSID(ValueType.UINT32), //
         COMMANDLINE(ValueType.STRING);
 
         private ValueType type;
 
+        OSProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
         public ValueType getType() {
             return this.type;
         }
 
-        WmiProperty(ValueType type) {
-            this.type = type;
+        @Override
+        public String getName() {
+            return this.name();
         }
     }
 
     // Win32_Process
-    private static final WmiProperty[] PROCESS_PROPERTIES = new WmiProperty[] { WmiProperty.PROCESSID,
-            WmiProperty.COMMANDLINE };
-    private static final String[] PROCESS_STRINGS = new String[PROCESS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < PROCESS_PROPERTIES.length; i++) {
-            PROCESS_STRINGS[i] = PROCESS_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] PROCESS_TYPES = new ValueType[PROCESS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < PROCESS_PROPERTIES.length; i++) {
-            PROCESS_TYPES[i] = PROCESS_PROPERTIES[i].getType();
-        }
-    }
+    private static final OSProperty[] PROCESS_PROPERTIES = new OSProperty[] { OSProperty.PROCESSID,
+            OSProperty.COMMANDLINE };
+    private static final String[] PROCESS_STRINGS = WmiUtil.getPropertyStrings(PROCESS_PROPERTIES);
+    private static final ValueType[] PROCESS_TYPES = WmiUtil.getPropertyTypes(PROCESS_PROPERTIES);
 
     /*
      * Registry variables to persist
@@ -435,14 +432,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             query.setLength(query.length() - 3);
             Map<String, List<Object>> commandLineProcs = WmiUtil.selectObjectsFrom(null, "Win32_Process",
                     PROCESS_STRINGS, query.toString(), PROCESS_TYPES);
-            for (int p = 0; p < commandLineProcs.get(WmiProperty.PROCESSID.name()).size(); p++) {
-                int pid = ((Long) commandLineProcs.get(WmiProperty.PROCESSID.name()).get(p)).intValue();
+            for (int p = 0; p < commandLineProcs.get(OSProperty.PROCESSID.name()).size(); p++) {
+                int pid = ((Long) commandLineProcs.get(OSProperty.PROCESSID.name()).get(p)).intValue();
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
                 if (this.processMap.containsKey(pid)) {
                     OSProcess proc = this.processMap.get(pid);
-                    proc.setCommandLine((String) commandLineProcs.get(WmiProperty.COMMANDLINE.name()).get(p));
+                    proc.setCommandLine((String) commandLineProcs.get(OSProperty.COMMANDLINE.name()).get(p));
                 }
             }
         }

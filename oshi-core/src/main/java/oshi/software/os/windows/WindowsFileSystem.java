@@ -32,6 +32,7 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
 
 /**
  * The Windows File System contains {@link OSFileStore}s which are a storage
@@ -49,7 +50,7 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
 
-    enum WmiProperty {
+    enum FileSystemProperty implements WmiProperty {
         DESCRIPTION(ValueType.STRING), //
         DRIVETYPE(ValueType.UINT32), //
         FILESYSTEM(ValueType.STRING), //
@@ -60,31 +61,27 @@ public class WindowsFileSystem implements FileSystem {
 
         private ValueType type;
 
+        FileSystemProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
         public ValueType getType() {
             return this.type;
         }
 
-        WmiProperty(ValueType type) {
-            this.type = type;
+        @Override
+        public String getName() {
+            return this.name();
         }
     }
 
     // Win32_DiskDrive
-    private static final WmiProperty[] FS_PROPERTIES = new WmiProperty[] { WmiProperty.NAME, WmiProperty.DESCRIPTION,
-            WmiProperty.PROVIDERNAME, WmiProperty.FILESYSTEM, WmiProperty.FREESPACE, WmiProperty.SIZE,
-            WmiProperty.DRIVETYPE };
-    private static final String[] FS_STRINGS = new String[FS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < FS_PROPERTIES.length; i++) {
-            FS_STRINGS[i] = FS_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] FS_TYPES = new ValueType[FS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < FS_PROPERTIES.length; i++) {
-            FS_TYPES[i] = FS_PROPERTIES[i].getType();
-        }
-    }
+    private static final FileSystemProperty[] FS_PROPERTIES = new FileSystemProperty[] { FileSystemProperty.NAME,
+            FileSystemProperty.DESCRIPTION, FileSystemProperty.PROVIDERNAME, FileSystemProperty.FILESYSTEM,
+            FileSystemProperty.FREESPACE, FileSystemProperty.SIZE, FileSystemProperty.DRIVETYPE };
+    private static final String[] FS_STRINGS = WmiUtil.getPropertyStrings(FS_PROPERTIES);
+    private static final ValueType[] FS_TYPES = WmiUtil.getPropertyTypes(FS_PROPERTIES);
 
     private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";
 
@@ -224,18 +221,18 @@ public class WindowsFileSystem implements FileSystem {
 
         drives = WmiUtil.selectObjectsFrom(null, "Win32_LogicalDisk", FS_STRINGS, null, FS_TYPES);
 
-        for (int i = 0; i < drives.get(WmiProperty.NAME.name()).size(); i++) {
-            free = (Long) drives.get(WmiProperty.FREESPACE.name()).get(i);
-            total = (Long) drives.get(WmiProperty.SIZE.name()).get(i);
-            String description = (String) drives.get(WmiProperty.DESCRIPTION.name()).get(i);
-            String name = (String) drives.get(WmiProperty.NAME.name()).get(i);
-            long type = (Long) drives.get(WmiProperty.DRIVETYPE.name()).get(i);
+        for (int i = 0; i < drives.get(FileSystemProperty.NAME.name()).size(); i++) {
+            free = (Long) drives.get(FileSystemProperty.FREESPACE.name()).get(i);
+            total = (Long) drives.get(FileSystemProperty.SIZE.name()).get(i);
+            String description = (String) drives.get(FileSystemProperty.DESCRIPTION.name()).get(i);
+            String name = (String) drives.get(FileSystemProperty.NAME.name()).get(i);
+            long type = (Long) drives.get(FileSystemProperty.DRIVETYPE.name()).get(i);
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
-                volume = (String) drives.get(WmiProperty.PROVIDERNAME.name()).get(i);
+                volume = (String) drives.get(FileSystemProperty.PROVIDERNAME.name()).get(i);
                 String[] split = volume.split("\\\\");
                 if (split.length > 1 && split[split.length - 1].length() > 0) {
                     description = split[split.length - 1];
@@ -243,7 +240,7 @@ public class WindowsFileSystem implements FileSystem {
             }
 
             fs.add(new OSFileStore(String.format("%s (%s)", description, name), volume, name + "\\", getDriveType(name),
-                    (String) drives.get(WmiProperty.FILESYSTEM.name()).get(i), "", free, total));
+                    (String) drives.get(FileSystemProperty.FILESYSTEM.name()).get(i), "", free, total));
         }
         return fs;
     }

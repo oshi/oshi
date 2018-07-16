@@ -71,6 +71,55 @@ public class WmiUtil {
     }
 
     /**
+     * Interface contract for WMI EnumMaps
+     */
+    public interface WmiProperty {
+        /**
+         * Gets the ValueType
+         * 
+         * @return The type of value this property returns
+         */
+        public ValueType getType();
+
+        /**
+         * Gets the Name
+         * 
+         * @return The name of the property
+         */
+        public String getName();
+    }
+
+    /**
+     * Creates a String array representing the properties.
+     * 
+     * @param properties
+     *            The properties
+     * @return A String array representing the property names
+     */
+    public static String[] getPropertyStrings(WmiProperty[] properties) {
+        String[] strings = new String[properties.length];
+        for (int i = 0; i < properties.length; i++) {
+            strings[i] = properties[i].getName();
+        }
+        return strings;
+    }
+
+    /**
+     * Creates a ValueType array representing the properties
+     * 
+     * @param properties
+     *            The properties
+     * @return A ValueType array representing the property types
+     */
+    public static ValueType[] getPropertyTypes(WmiProperty[] properties) {
+        ValueType[] types = new ValueType[properties.length];
+        for (int i = 0; i < properties.length; i++) {
+            types[i] = properties[i].getType();
+        }
+        return types;
+    }
+
+    /**
      * For WMI queries requiring array input
      */
     private static final ValueType[] STRING_TYPE = { ValueType.STRING };
