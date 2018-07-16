@@ -307,7 +307,7 @@ public class WmiUtil {
     }
 
     /**
-     * Query WMI for values
+     * Query WMI for values.
      *
      * @param namespace
      *            The namespace to query
@@ -326,6 +326,33 @@ public class WmiUtil {
      */
     private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
             String whereClause, ValueType[] propertyTypes) {
+        return queryWMI(namespace, properties, wmiClass, whereClause, propertyTypes, -1);
+    }
+
+    /**
+     * Query WMI for values with a timeout.
+     *
+     * @param namespace
+     *            The namespace to query
+     * @param properties
+     *            A single property or comma-delimited list of properties to
+     *            enumerate
+     * @param wmiClass
+     *            The WMI class to query
+     * @param propertyTypes
+     *            An array corresponding to the properties, containing the type
+     *            of data being queried, to control how VARIANT is parsed
+     * @param timeout
+     *            Number of milliseconds to wait for results before timing out.
+     *            If -1, will always wait for results. If 0, will always return
+     *            immediately without waiting.
+     * @return A map, with the string value of each property as the key,
+     *         containing a list of Objects which can be cast appropriately per
+     *         valType. The order of objects in each list corresponds to the
+     *         other lists.
+     */
+    private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
+            String whereClause, ValueType[] propertyTypes, int timeout) {
         // Set up empty map
         Map<String, List<Object>> values = new HashMap<>();
         String[] props = properties.split(",");
@@ -360,7 +387,7 @@ public class WmiUtil {
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
 
-        enumerateProperties(values, enumerator, props, propertyTypes, svc);
+        enumerateProperties(values, enumerator, props, propertyTypes, svc, timeout);
 
         // Cleanup
         enumerator.Release();
@@ -526,9 +553,15 @@ public class WmiUtil {
      *            property type which will be used for all properties
      * @param svc
      *            The WbemServices object
+     * @param timeout
+     *            Number of milliseconds to wait for results before timing out.
+     *            If -1, will always wait for results. If 0, will always return
+     *            immediately without waiting.
+     * @return True if the query completed successfully, false if the query
+     *         failed or timed out.
      */
-    private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
-            String[] properties, ValueType[] propertyTypes, WbemServices svc) {
+    private static boolean enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
+            String[] properties, ValueType[] propertyTypes, WbemServices svc, int timeout) {
         if (propertyTypes.length > 1 && properties.length != propertyTypes.length) {
             throw new IllegalArgumentException("Property type array size must be 1 or equal to properties array size.");
         }
@@ -537,15 +570,22 @@ public class WmiUtil {
         PointerByReference pclsObj = new PointerByReference();
         LongByReference uReturn = new LongByReference(0L);
         int resultCount = 0;
+        boolean success = true;
         while (enumerator.getPointer() != Pointer.NULL) {
-            HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),
-                    pclsObj, uReturn);
+            HRESULT hres = enumerator.Next(new NativeLong(timeout), new NativeLong(1), pclsObj, uReturn);
+            // Warn user of timeout
+            if (COMUtils.FAILED(hres) || hres.intValue() == EnumWbemClassObject.WBEM_S_TIMEDOUT) {
+                LOG.warn("WMI query timed out or failed. Returned {} results.", resultCount);
+                success = false;
+                break;
+            }
             // Requested 1; if 0 objects returned, we're done
-            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {
+            // Error values are hres < 0
+            if (0L == uReturn.getValue() || hres.intValue() == EnumWbemClassObject.WBEM_S_NO_MORE_DATA) {
                 // Enumerator will be released by calling method so no need to
                 // release it here.
                 LOG.debug("Returned {} results.", resultCount);
-                return;
+                break;
             }
             resultCount++;
             VARIANT.ByReference vtProp = new VARIANT.ByReference();
@@ -554,7 +594,6 @@ public class WmiUtil {
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
             for (int p = 0; p < properties.length; p++) {
                 String property = properties[p];
-                // hres =
                 clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
 
                 ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
@@ -610,6 +649,7 @@ public class WmiUtil {
 
             clsObj.Release();
         }
+        return success;
     }
 
     /**

@@ -26,9 +26,16 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 public class EnumWbemClassObject extends Unknown {
+
     public static final int WBEM_FLAG_RETURN_IMMEDIATELY = 0x00000010;
     public static final int WBEM_FLAG_FORWARD_ONLY = 0x00000020;
     public static final int WBEM_INFINITE = 0xFFFFFFFF;
+
+    // Non-error constants
+    // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-non-error-constants
+    public static final int WBEM_S_NO_ERROR = 0x0;
+    public static final int WBEM_S_NO_MORE_DATA = 0x40001;
+    public static final int WBEM_S_TIMEDOUT = 0x40004;
 
     public EnumWbemClassObject(Pointer pvInstance) {
         super(pvInstance);
