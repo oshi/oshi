@@ -37,7 +37,14 @@ public class WindowsOSSystemInfo {
     private SYSTEM_INFO _si = null;
 
     public WindowsOSSystemInfo() {
+        init();
+    }
 
+    public WindowsOSSystemInfo(SYSTEM_INFO si) {
+        this._si = si;
+    }
+
+    private void init() {
         SYSTEM_INFO si = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(si);
 
@@ -54,10 +61,6 @@ public class WindowsOSSystemInfo {
 
         this._si = si;
         LOG.debug("Initialized OSNativeSystemInfo");
-    }
-
-    public WindowsOSSystemInfo(SYSTEM_INFO si) {
-        this._si = si;
     }
 
     /**

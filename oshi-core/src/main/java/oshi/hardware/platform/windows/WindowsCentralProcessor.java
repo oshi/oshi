@@ -34,6 +34,10 @@ import com.sun.jna.platform.win32.WinReg;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * A CPU as defined in Windows registry.
@@ -47,6 +51,21 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
+
+    enum ProcessorProperty implements WmiProperty {
+        PROCESSORID(ValueType.STRING);
+
+        private ValueType type;
+
+        ProcessorProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
 
     // Save Windows version info for 32 bit/64 bit branch later
     private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
@@ -95,7 +114,12 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
             setCpu64(false);
         }
-        setProcessorID(WmiUtil.selectStringFrom(null, "Win32_Processor", "ProcessorID", null));
+
+        WmiQuery<ProcessorProperty> processorIdQuery = WmiUtil.createQuery("Win32_Processor", ProcessorProperty.class);
+        WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
+        if (processorId.getResultCount() > 0) {
+            setProcessorID((String) processorId.get(ProcessorProperty.PROCESSORID).get(0));
+        }
     }
 
     /**
@@ -196,8 +220,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        // TODO: If Windows ever actually implements a laod average for 1/5/15,
-        // return it
+        // Windows doesn't have load average
         for (int i = 0; i < average.length; i++) {
             average[i] = -1;
         }

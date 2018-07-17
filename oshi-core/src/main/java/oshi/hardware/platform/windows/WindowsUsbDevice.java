@@ -44,12 +44,75 @@ import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
+
+    enum PnPEntityProperty implements WmiProperty {
+        NAME(ValueType.STRING), //
+        MANUFACTURER(ValueType.STRING), //
+        PNPDEVICEID(ValueType.STRING);
+
+        private ValueType type;
+
+        PnPEntityProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = WmiUtil.createQuery("Win32_PnPEntity",
+            PnPEntityProperty.class);
+
+    enum DiskDriveProperty implements WmiProperty {
+        PNPDEVICEID(ValueType.STRING), //
+        SERIALNUMBER(ValueType.STRING);
+
+        private ValueType type;
+
+        DiskDriveProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = WmiUtil.createQuery("Win32_DiskDrive",
+            DiskDriveProperty.class);
+    private static final WmiQuery<DiskDriveProperty> PHYSICALMEDIA_QUERY = WmiUtil.createQuery("Win32_PhysicalMedia",
+            DiskDriveProperty.class);
+
+    enum USBControllerProperty implements WmiProperty {
+        PNPDEVICEID(ValueType.STRING);
+
+        private ValueType type;
+
+        USBControllerProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    private static final WmiQuery<USBControllerProperty> USB_CONTROLLER_QUERY = WmiUtil
+            .createQuery("Win32_USBController", USBControllerProperty.class);
 
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
@@ -105,33 +168,35 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         hubMap.clear();
 
         // Query Win32_PnPEntity to populate the maps
-        Map<String, List<String>> usbMap = WmiUtil.selectStringsFrom(null, "Win32_PnPEntity",
-                "Name,Manufacturer,PnPDeviceID", null);
-        for (int i = 0; i < usbMap.get("Name").size(); i++) {
-            String pnpDeviceID = usbMap.get("PnPDeviceID").get(i);
-            nameMap.put(pnpDeviceID, usbMap.get("Name").get(i));
-            if (usbMap.get("Manufacturer").get(i).length() > 0) {
-                vendorMap.put(pnpDeviceID, usbMap.get("Manufacturer").get(i));
+        WmiResult<PnPEntityProperty> pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
+        for (int i = 0; i < pnpEntity.getResultCount(); i++) {
+            String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID).get(i);
+            nameMap.put(pnpDeviceID, (String) pnpEntity.get(PnPEntityProperty.NAME).get(i));
+            String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER).get(i);
+            if (!vendor.isEmpty()) {
+                vendorMap.put(pnpDeviceID, vendor);
             }
         }
 
         // Get serial # for disk drives or other physical media
-        usbMap = WmiUtil.selectStringsFrom(null, "Win32_DiskDrive", "PNPDeviceID,SerialNumber", null);
-        for (int i = 0; i < usbMap.get("PNPDeviceID").size(); i++) {
-            serialMap.put(usbMap.get("PNPDeviceID").get(i),
-                    ParseUtil.hexStringToString(usbMap.get("PNPDeviceID").get(i)));
+        WmiResult<DiskDriveProperty> serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
+        for (int i = 0; i < serialNumber.getResultCount(); i++) {
+            serialMap.put((String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i),
+                    ParseUtil.hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i)));
         }
-        usbMap = WmiUtil.selectStringsFrom(null, "Win32_PhysicalMedia", "PNPDeviceID,SerialNumber", null);
-        for (int i = 0; i < usbMap.get("PNPDeviceID").size(); i++) {
-            serialMap.put(usbMap.get("PNPDeviceID").get(i),
-                    ParseUtil.hexStringToString(usbMap.get("PNPDeviceID").get(i)));
+        serialNumber = WmiUtil.queryWMI(PHYSICALMEDIA_QUERY);
+        for (int i = 0; i < serialNumber.getResultCount(); i++) {
+            serialMap.put((String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i),
+                    ParseUtil.hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i)));
         }
 
         // Build the device tree. Start with the USB Controllers
         // and recurse downward to devices as needed
-        usbMap = WmiUtil.selectStringsFrom(null, "Win32_USBController", "PNPDeviceID", null);
+        WmiResult<USBControllerProperty> usbController = WmiUtil.queryWMI(USB_CONTROLLER_QUERY);
+
         List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controllerDeviceId : usbMap.get("PNPDeviceID")) {
+        for (int i = 0; i < usbController.getResultCount(); i++) {
+            String controllerDeviceId = (String) usbController.get(USBControllerProperty.PNPDEVICEID).get(i);
             putChildrenInDeviceTree(controllerDeviceId, 0);
             controllerDevices.add(getDeviceAndChildren(controllerDeviceId, "0000", "0000"));
         }
