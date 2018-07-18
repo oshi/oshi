@@ -2,6 +2,7 @@
 ================
 * [#551](https://github.com/oshi/oshi/pull/551): Check for zero-length PDH counter lists to avoid exceptions - [@dbwiddis](https://github.com/dbwiddis).
 * [#556](https://github.com/oshi/oshi/pull/556): WMI timeouts, standardization, and simplification. - [@dbwiddis](https://github.com/dbwiddis).
+* [#557](https://github.com/oshi/oshi/pull/557): Localize PDH Counter paths. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.6.2 (7/10/18)
