@@ -61,11 +61,6 @@ public class WmiUtil {
      * Private instance to generate the WmiQuery class
      */
     private static final WmiUtil INSTANCE = new WmiUtil();
-    /**
-     * Private constructor so this class can't be instantiated from the outside
-     */
-    private WmiUtil() {
-    }
 
     /**
      * Enum for the value type of WMI queries for proper parsing from the
@@ -79,6 +74,24 @@ public class WmiUtil {
         STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64, UINT16
     }
 
+    enum NamespaceProperty implements WmiProperty {
+        NAME(ValueType.STRING);
+
+        private ValueType type;
+
+        NamespaceProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT", "__NAMESPACE",
+            NamespaceProperty.class);
+
     /**
      * Interface contract for WMI Property Enums.
      */
@@ -88,13 +101,12 @@ public class WmiUtil {
          * 
          * @return The type of value this property returns
          */
-        public ValueType getType();
+        ValueType getType();
     }
 
     /**
      * Helper class wrapping information required for the WMI query.
-     */
-    /**
+     * 
      * @author widdisd
      *
      * @param <T>
@@ -223,23 +235,11 @@ public class WmiUtil {
         }
     }
 
-    enum NamespaceProperty implements WmiProperty {
-        NAME(ValueType.STRING);
-
-        private ValueType type;
-
-        NamespaceProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    /**
+     * Private constructor so this class can't be instantiated from the outside
+     */
+    private WmiUtil() {
     }
-
-    private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT",
-            "__NAMESPACE", NamespaceProperty.class);
 
     /**
      * Create a WMI Query
@@ -355,7 +355,7 @@ public class WmiUtil {
             return values;
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
-        enumerateProperties(values, enumerator, query.getPropertyEnum(), svc, query.getTimeout());
+        enumerateProperties(values, enumerator, query.getPropertyEnum(), query.getTimeout());
 
         // Cleanup
         enumerator.Release();
@@ -520,8 +520,6 @@ public class WmiUtil {
      * @param propertyEnum
      *            The enum containing the properties to enumerate, which are the
      *            keys to the WmiResult map
-     * @param svc
-     *            The WbemServices object
      * @param timeout
      *            Number of milliseconds to wait for results before timing out.
      *            If -1, will always wait for results. If 0, will always return
@@ -530,7 +528,7 @@ public class WmiUtil {
      *         timed out.
      */
     private static <T extends Enum<T> & WmiProperty> boolean enumerateProperties(WmiResult<T> values,
-            EnumWbemClassObject enumerator, Class<T> propertyEnum, WbemServices svc, int timeout) {
+            EnumWbemClassObject enumerator, Class<T> propertyEnum, int timeout) {
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();

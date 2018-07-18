@@ -170,7 +170,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private String getNextHop(String dest) {
         StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);
-        sb.append(" WHERE DestinationPrefix=\"").append(dest).append("\"");
+        sb.append(" WHERE DestinationPrefix=\"").append(dest).append('\"');
         NETROUTE_QUERY.setWmiClassName(sb.toString());
         WmiResult<NetRouteProperty> vals = WmiUtil.queryWMI(NETROUTE_QUERY);
 
@@ -192,7 +192,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private String getNextHopWin7(String dest) {
         StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);
-        sb.append(" WHERE Destination=\"").append(dest).append("\"");
+        sb.append(" WHERE Destination=\"").append(dest).append('\"');
         IP4ROUTE_QUERY.setWmiClassName(sb.toString());
         WmiResult<IP4RouteProperty> vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);
 
