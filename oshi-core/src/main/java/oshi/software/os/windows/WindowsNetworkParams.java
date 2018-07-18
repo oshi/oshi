@@ -20,7 +20,6 @@ package oshi.software.os.windows;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsNetworkParams extends AbstractNetworkParams {
 
@@ -50,53 +52,44 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-    enum WmiProperty {
+    enum NetRouteProperty implements WmiProperty {
         NEXTHOP(ValueType.STRING), //
-        ROUTEMETRIC(ValueType.UINT16), //
+        ROUTEMETRIC(ValueType.UINT16);
+
+        private ValueType type;
+
+        NetRouteProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    private static final String NETROUTE_BASE_CLASS = "MSFT_NetRoute";
+    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = WmiUtil.createQuery("ROOT\\StandardCimv2", null,
+            NetRouteProperty.class);
+
+    enum IP4RouteProperty implements WmiProperty {
+        NEXTHOP(ValueType.STRING), //
         METRIC1(ValueType.UINT16);
 
         private ValueType type;
 
+        IP4RouteProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
         public ValueType getType() {
             return this.type;
         }
-
-        WmiProperty(ValueType type) {
-            this.type = type;
-        }
     }
 
-    // MSFT_NetRoute
-    private static final WmiProperty[] NETROUTE_PROPERTIES = new WmiProperty[] { WmiProperty.NEXTHOP,
-            WmiProperty.ROUTEMETRIC };
-    private static final String[] NETROUTE_STRINGS = new String[NETROUTE_PROPERTIES.length];
-    static {
-        for (int i = 0; i < NETROUTE_PROPERTIES.length; i++) {
-            NETROUTE_STRINGS[i] = NETROUTE_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] NETROUTE_TYPES = new ValueType[NETROUTE_PROPERTIES.length];
-    static {
-        for (int i = 0; i < NETROUTE_PROPERTIES.length; i++) {
-            NETROUTE_TYPES[i] = NETROUTE_PROPERTIES[i].getType();
-        }
-    }
-
-    // IP4RouteTable
-    private static final WmiProperty[] IP4ROUTE_PROPERTIES = new WmiProperty[] { WmiProperty.NEXTHOP,
-            WmiProperty.METRIC1 };
-    private static final String[] IP4ROUTE_STRINGS = new String[IP4ROUTE_PROPERTIES.length];
-    static {
-        for (int i = 0; i < IP4ROUTE_PROPERTIES.length; i++) {
-            IP4ROUTE_STRINGS[i] = IP4ROUTE_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] IP4ROUTE_TYPES = new ValueType[IP4ROUTE_PROPERTIES.length];
-    static {
-        for (int i = 0; i < IP4ROUTE_PROPERTIES.length; i++) {
-            IP4ROUTE_TYPES[i] = IP4ROUTE_PROPERTIES[i].getType();
-        }
-    }
+    private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";
+    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = WmiUtil.createQuery(null, IP4RouteProperty.class);
 
     /**
      * {@inheritDoc}
@@ -176,10 +169,13 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     }
 
     private String getNextHop(String dest) {
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
-                NETROUTE_STRINGS, "WHERE DestinationPrefix=\"" + dest + "\"", NETROUTE_TYPES);
-        List<Object> metrics = vals.get(WmiProperty.ROUTEMETRIC.name());
-        if (vals.get(WmiProperty.ROUTEMETRIC.name()).isEmpty()) {
+        StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);
+        sb.append(" WHERE DestinationPrefix=\"").append(dest).append("\"");
+        NETROUTE_QUERY.setWmiClassName(sb.toString());
+        WmiResult<NetRouteProperty> vals = WmiUtil.queryWMI(NETROUTE_QUERY);
+
+        List<Object> metrics = vals.get(NetRouteProperty.ROUTEMETRIC);
+        if (vals.get(NetRouteProperty.ROUTEMETRIC).isEmpty()) {
             return "";
         }
         int index = 0;
@@ -191,14 +187,17 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
                 index = i;
             }
         }
-        return (String) vals.get(WmiProperty.NEXTHOP.name()).get(index);
+        return (String) vals.get(NetRouteProperty.NEXTHOP).get(index);
     }
 
     private String getNextHopWin7(String dest) {
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_IP4RouteTable", IP4ROUTE_STRINGS,
-                "WHERE Destination=\"" + dest + "\"", IP4ROUTE_TYPES);
-        List<Object> metrics = vals.get(WmiProperty.METRIC1.name());
-        if (vals.get(WmiProperty.METRIC1.name()).isEmpty()) {
+        StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);
+        sb.append(" WHERE Destination=\"").append(dest).append("\"");
+        IP4ROUTE_QUERY.setWmiClassName(sb.toString());
+        WmiResult<IP4RouteProperty> vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);
+
+        List<Object> metrics = vals.get(IP4RouteProperty.METRIC1);
+        if (vals.get(IP4RouteProperty.METRIC1).isEmpty()) {
             return "";
         }
         int index = 0;
@@ -210,7 +209,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
                 index = i;
             }
         }
-        return (String) vals.get(WmiProperty.NEXTHOP.name()).get(index);
+        return (String) vals.get(IP4RouteProperty.NEXTHOP).get(index);
     }
 
     private String parseIpv6Route() {

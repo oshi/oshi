@@ -67,42 +67,48 @@ import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    enum WmiProperty {
+    enum BitnessProperty implements WmiProperty {
+        ADDRESSWIDTH(ValueType.UINT32);
+
+        private ValueType type;
+
+        BitnessProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
+    enum ProcessProperty implements WmiProperty {
         PROCESSID(ValueType.UINT32), //
         COMMANDLINE(ValueType.STRING);
 
         private ValueType type;
 
+        ProcessProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
         public ValueType getType() {
             return this.type;
         }
-
-        WmiProperty(ValueType type) {
-            this.type = type;
-        }
     }
 
-    // Win32_Process
-    private static final WmiProperty[] PROCESS_PROPERTIES = new WmiProperty[] { WmiProperty.PROCESSID,
-            WmiProperty.COMMANDLINE };
-    private static final String[] PROCESS_STRINGS = new String[PROCESS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < PROCESS_PROPERTIES.length; i++) {
-            PROCESS_STRINGS[i] = PROCESS_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] PROCESS_TYPES = new ValueType[PROCESS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < PROCESS_PROPERTIES.length; i++) {
-            PROCESS_TYPES[i] = PROCESS_PROPERTIES[i].getType();
-        }
-    }
+    private static final String PROCESS_BASE_CLASS = "Win32_Process";
+    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = WmiUtil.createQuery(null, ProcessProperty.class);
 
     /*
      * Registry variables to persist
@@ -223,6 +229,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void initBitness() {
+        WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
         // If bitness is 64 we are 64 bit.
         // If 32 test if we are on 64-bit OS
         if (bitness < 64) {
@@ -230,8 +237,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
-                // Fetch from WMI
-                this.bitness = (WmiUtil.selectUint32From(null, "Win32_Processor", "AddressWidth", null)).intValue();
+                WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
+                if (bitnessMap.getResultCount() > 0) {
+                    this.bitness = (Integer) bitnessMap.get(BitnessProperty.ADDRESSWIDTH).get(0);
+                }
             }
         }
     }
@@ -334,8 +343,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Skip if only updating a subset of pids, or if not in cache.
             // (Cache should have just been updated from registry so this will
             // only occur in a race condition for a just-started process.)
-            // However, when the cache is empty, there was a problem with filling
-            // the cache using performance information. When this happens, we ignore
+            // However, when the cache is empty, there was a problem with
+            // filling
+            // the cache using performance information. When this happens, we
+            // ignore
             // the cache completely.
 
             int pid = procInfo.ProcessId;
@@ -428,21 +439,28 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
         }
         if (!emptyCommandLines.isEmpty()) {
-            StringBuilder query = new StringBuilder("WHERE ");
+            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+            boolean first = true;
             for (Integer pid : emptyCommandLines) {
-                query.append(String.format("ProcessID=%d OR ", pid));
+                if (first) {
+                    sb.append(" WHERE ProcessID=");
+                    first = false;
+                } else {
+                    sb.append(" OR ProcessID=");
+                }
+                sb.append(pid);
             }
-            query.setLength(query.length() - 3);
-            Map<String, List<Object>> commandLineProcs = WmiUtil.selectObjectsFrom(null, "Win32_Process",
-                    PROCESS_STRINGS, query.toString(), PROCESS_TYPES);
-            for (int p = 0; p < commandLineProcs.get(WmiProperty.PROCESSID.name()).size(); p++) {
-                int pid = ((Long) commandLineProcs.get(WmiProperty.PROCESSID.name()).get(p)).intValue();
+            PROCESS_QUERY.setWmiClassName(sb.toString());
+            WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
+
+            for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
+                int pid = ((Long) commandLineProcs.get(ProcessProperty.PROCESSID).get(p)).intValue();
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
                 if (this.processMap.containsKey(pid)) {
                     OSProcess proc = this.processMap.get(pid);
-                    proc.setCommandLine((String) commandLineProcs.get(WmiProperty.COMMANDLINE.name()).get(p));
+                    proc.setCommandLine((String) commandLineProcs.get(ProcessProperty.COMMANDLINE).get(p));
                 }
             }
         }

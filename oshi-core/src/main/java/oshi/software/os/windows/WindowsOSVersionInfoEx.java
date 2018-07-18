@@ -20,7 +20,6 @@ package oshi.software.os.windows;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,9 @@ import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
@@ -41,7 +43,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
-    enum WmiProperty {
+    enum OSVersionProperty implements WmiProperty {
         VERSION(ValueType.STRING), //
         PRODUCTTYPE(ValueType.UINT32), //
         BUILDNUMBER(ValueType.STRING), //
@@ -50,36 +52,26 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
         private ValueType type;
 
-        public ValueType getType() {
-            return this.type;
-        }
-
-        WmiProperty(ValueType type) {
+        OSVersionProperty(ValueType type) {
             this.type = type;
         }
-    }
 
-    // Win32_OperatingSystem
-    private static final WmiProperty[] OS_PROPERTIES = new WmiProperty[] { WmiProperty.VERSION, WmiProperty.PRODUCTTYPE,
-            WmiProperty.BUILDNUMBER, WmiProperty.CSDVERSION, WmiProperty.SUITEMASK };
-    private static final String[] OS_STRINGS = new String[OS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < OS_PROPERTIES.length; i++) {
-            OS_STRINGS[i] = OS_PROPERTIES[i].name();
-        }
-    }
-    private static final ValueType[] OS_TYPES = new ValueType[OS_PROPERTIES.length];
-    static {
-        for (int i = 0; i < OS_PROPERTIES.length; i++) {
-            OS_TYPES[i] = OS_PROPERTIES[i].getType();
+        @Override
+        public ValueType getType() {
+            return this.type;
         }
     }
 
     public WindowsOSVersionInfoEx() {
+        init();
+    }
+
+    private void init() {
         // Populate a key-value map from WMI
-        Map<String, List<Object>> versionInfo = WmiUtil.selectObjectsFrom(null, "Win32_OperatingSystem", OS_STRINGS,
-                null, OS_TYPES);
-        if (versionInfo.get(WmiProperty.VERSION.name()).isEmpty()) {
+        WmiQuery<OSVersionProperty> osVersionQuery = WmiUtil.createQuery("Win32_OperatingSystem",
+                OSVersionProperty.class);
+        WmiResult<OSVersionProperty> versionInfo = WmiUtil.queryWMI(osVersionQuery);
+        if (versionInfo.getResultCount() < 1) {
             LOG.warn("No version data available.");
             setVersion(System.getProperty("os.version"));
             setCodeName("");
@@ -87,10 +79,10 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
-            int suiteMask = (int) ((Long) versionInfo.get(WmiProperty.SUITEMASK.name()).get(0)).longValue();
+            int suiteMask = (int) ((Long) versionInfo.get(OSVersionProperty.SUITEMASK).get(0)).longValue();
             setVersion(parseVersion(versionInfo, suiteMask));
             setCodeName(parseCodeName(suiteMask));
-            setBuildNumber((String) versionInfo.get(WmiProperty.BUILDNUMBER.name()).get(0));
+            setBuildNumber((String) versionInfo.get(OSVersionProperty.BUILDNUMBER).get(0));
             LOG.debug("Initialized OSVersionInfoEx");
         }
     }
@@ -102,20 +94,21 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      *
      * @return Version
      */
-    private String parseVersion(Map<String, List<Object>> versionInfo, int suiteMask) {
+    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask) {
 
         // Initialize a default, sane value
         String version = System.getProperty("os.version");
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-        String[] verSplit = ((String) versionInfo.get(WmiProperty.VERSION.name()).get(0)).split("\\D");
+        String[] verSplit = ((String) versionInfo.get(OSVersionProperty.VERSION).get(0)).split("\\D");
         int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
         int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = (long) versionInfo.get(WmiProperty.PRODUCTTYPE.name()).get(0) == WinNT.VER_NT_WORKSTATION;
+        boolean ntWorkstation = (long) versionInfo.get(OSVersionProperty.PRODUCTTYPE)
+                .get(0) == WinNT.VER_NT_WORKSTATION;
         if (major == 10) {
             if (minor == 0) {
                 version = ntWorkstation ? "10" : "Server 2016";
@@ -147,7 +140,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             }
         }
 
-        String sp = (String) versionInfo.get(WmiProperty.CSDVERSION.name()).get(0);
+        String sp = (String) versionInfo.get(OSVersionProperty.CSDVERSION).get(0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
             version = version + " " + sp.replace("Service Pack ", "SP");
         }
@@ -157,7 +150,8 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
      * Gets suites available on the system and return as a codename
-     * @param suiteMask 
+     * 
+     * @param suiteMask
      *
      * @return Suites
      */

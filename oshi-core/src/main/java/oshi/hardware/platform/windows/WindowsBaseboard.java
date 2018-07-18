@@ -18,11 +18,12 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Baseboard data obtained from WMI
@@ -33,33 +34,36 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
+    enum BaseboardProperty implements WmiProperty {
+        MANUFACTURER(ValueType.STRING), //
+        MODEL(ValueType.STRING), //
+        VERSION(ValueType.STRING), //
+        SERIALNUMBER(ValueType.STRING);
+
+        private ValueType type;
+
+        BaseboardProperty(ValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public ValueType getType() {
+            return this.type;
+        }
+    }
+
     WindowsBaseboard() {
         init();
     }
 
     private void init() {
-
-        final Map<String, List<String>> win32BaseBoard = WmiUtil.selectStringsFrom(null, "Win32_BaseBoard",
-                "Manufacturer,Model,Version,SerialNumber", null);
-
-        final List<String> baseboardManufacturers = win32BaseBoard.get("Manufacturer");
-        if (baseboardManufacturers != null && !baseboardManufacturers.isEmpty()) {
-            setManufacturer(baseboardManufacturers.get(0));
-        }
-
-        final List<String> baseboardModels = win32BaseBoard.get("Model");
-        if (baseboardModels != null && !baseboardModels.isEmpty()) {
-            setModel(baseboardModels.get(0));
-        }
-
-        final List<String> baseboardVersions = win32BaseBoard.get("Version");
-        if (baseboardVersions != null && !baseboardVersions.isEmpty()) {
-            setVersion(baseboardVersions.get(0));
-        }
-
-        final List<String> baseboardSerials = win32BaseBoard.get("SerialNumber");
-        if (baseboardSerials != null && !baseboardSerials.isEmpty()) {
-            setSerialNumber(baseboardSerials.get(0));
+        WmiQuery<BaseboardProperty> baseboardQuery = WmiUtil.createQuery("Win32_BaseBoard", BaseboardProperty.class);
+        WmiResult<BaseboardProperty> win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);
+        if (win32BaseBoard.getResultCount() > 0) {
+            setManufacturer((String) win32BaseBoard.get(BaseboardProperty.MANUFACTURER).get(0));
+            setModel((String) win32BaseBoard.get(BaseboardProperty.MODEL).get(0));
+            setVersion((String) win32BaseBoard.get(BaseboardProperty.VERSION).get(0));
+            setSerialNumber((String) win32BaseBoard.get(BaseboardProperty.SERIALNUMBER).get(0));
         }
     }
 }
