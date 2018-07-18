@@ -20,6 +20,8 @@ package oshi.util.platform.windows;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,11 @@ public class PerfDataUtil {
     private static final Map<String, HANDLEByReference> counterMap = new HashMap<>();
     private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
 
+    // Regexp to match PDH counter string
+    // Format is \Path(Instance)\Counter or \Path\Counter
+    private static Pattern COUNTER_PATTERN = Pattern.compile("\\\\(.*?)(\\(.*\\))?\\\\(.*)");
+
+
     private PerfDataUtil() {
         // Set up hook to close all queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -70,14 +77,26 @@ public class PerfDataUtil {
     }
 
     /**
-     * Translate an English counter name to its locale-specific string
+     * Translate an English counter path to its locale-specific string
      * 
-     * @param englishName
-     *            The english name of the counter
-     * @return The name of the counter in the machine's locale
+     * @param englishPath
+     *            The english path of the counter
+     * @return The path of the counter in the machine's locale
      */
-    public static String localizeCounterName(String englishName) {
-        return PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(englishName));
+    private static String localizeCounterPath(String englishPath) {
+        Matcher match = COUNTER_PATTERN.matcher(englishPath);
+        if (match.matches()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append('\\');
+            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(1))));
+            if (match.group(2) != null) {
+                sb.append(match.group(2));
+            }
+            sb.append('\\');
+            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(3))));
+            return sb.toString();
+        }
+        return englishPath;
     }
 
     /**
@@ -106,7 +125,7 @@ public class PerfDataUtil {
         HANDLEByReference q = new HANDLEByReference();
         if (openQuery(q)) {
             HANDLEByReference p = new HANDLEByReference();
-            addCounter(q, counterString, p);
+            addCounter(q, localizeCounterPath(counterString), p);
             counterMap.put(counterString, p);
             queryMap.put(counterString, q);
             return true;
