@@ -20,6 +20,7 @@ package oshi.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -208,7 +209,7 @@ public class FormatUtil {
      * @return rounded result
      */
     public static float round(float d, int decimalPlace) {
-        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);
         return bd.floatValue();
     }
 
