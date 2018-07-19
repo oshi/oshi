@@ -110,11 +110,6 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String[] getDnsServers() {
-        // this may be done by iterating WMI instances
-        // ROOT\CIMV2\Win32_NetworkAdapterConfiguration
-        // then sort by IPConnectionMetric, but current JNA release does not
-        // have string array support
-        // for Variant (it's merged but not release yet).
         IntByReference bufferSize = new IntByReference();
         int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);
         if (ret != WinError.ERROR_BUFFER_OVERFLOW) {
@@ -122,15 +117,16 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             return new String[0];
         }
 
-        FIXED_INFO buffer = new FIXED_INFO(new Memory(bufferSize.getValue()));
+        Memory buffer = new Memory(bufferSize.getValue());
         ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
         if (ret != 0) {
             LOG.error("Failed to get network parameters. Error code: {}", ret);
             return new String[0];
         }
+        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
 
         List<String> list = new ArrayList<>();
-        IP_ADDR_STRING dns = buffer.DnsServerList;
+        IP_ADDR_STRING dns = fixedInfo.DnsServerList;
         while (dns != null) {
             String addr = new String(dns.IpAddress.String);
             int nullPos = addr.indexOf(0);
@@ -138,7 +134,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
                 addr = addr.substring(0, nullPos);
             }
             list.add(addr);
-            dns = dns.Next == null ? null : new IP_ADDR_STRING(dns.Next);
+            dns = dns.Next;
         }
         return list.toArray(new String[list.size()]);
     }
