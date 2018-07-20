@@ -83,10 +83,6 @@ public class OperatingSystemTest {
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
         assertTrue(proc.getOpenFiles() >= -1);
-
-        OSProcess clone = (OSProcess) proc.clone();
-        assertEquals(proc.getProcessID(), clone.getProcessID());
-        assertEquals(proc.getName(), clone.getName());
     }
 
     /**

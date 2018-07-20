@@ -28,7 +28,7 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-public class OSProcess implements Serializable, Cloneable {
+public class OSProcess implements Serializable {
 
     private static final long serialVersionUID = 3L;
 
@@ -548,13 +548,5 @@ public class OSProcess implements Serializable, Cloneable {
      */
     public long getOpenFiles() {
         return openFiles;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object clone() throws CloneNotSupportedException {
-        // Only primitives and immutable Strings
-        return (OSProcess) super.clone();
     }
 }

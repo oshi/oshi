@@ -19,7 +19,6 @@
 package oshi.software.os.windows;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -337,7 +336,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         final WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
 
         // Store a subset of processes in a list to later return.
-        List<OSProcess> tempProcessList = new LinkedList<>();
+        List<OSProcess> processList = new LinkedList<>();
 
         for (WTS_PROCESS_INFO_EX procInfo : processInfo) {
             // Skip if only updating a subset of pids, or if not in cache.
@@ -421,7 +420,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
 
             proc.setOpenFiles(procInfo.HandleCount);
-            tempProcessList.add(proc);
+            processList.add(proc);
         }
         // Clean up memory allocated in C
         if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
@@ -432,7 +431,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Command Line only accessible via WMI.
         // Utilize cache to only update new processes
         Set<Integer> emptyCommandLines = new HashSet<>();
-        for (OSProcess cachedProcess : tempProcessList) {
+        for (OSProcess cachedProcess : processList) {
             // If the process in the cache has an empty command line.
             if (cachedProcess.getCommandLine().isEmpty()) {
                 emptyCommandLines.add(cachedProcess.getProcessID());
@@ -465,16 +464,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
         }
 
-        // Deep copy for return
-        List<OSProcess> procList = new ArrayList<>(tempProcessList.size());
-        for (OSProcess proc : tempProcessList) {
-            try {
-                procList.add((OSProcess) proc.clone());
-            } catch (CloneNotSupportedException e) {
-                LOG.error("Unable to clone process ID {}", proc.getProcessID());
-            }
-        }
-        return procList;
+        return processList;
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {
