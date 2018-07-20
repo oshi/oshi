@@ -24,6 +24,9 @@ memory & CPU usage, disks & partitions, devices, sensors, etc.
 OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
 and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
 
+Many thanks to the authors of the [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) 
+for their support of Open Source projects including OSHI.
+
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
