@@ -46,8 +46,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> CPU_DESC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Double.compare((p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
-                    (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
+            return Double.compare(p2.calculateCpuPercent(), p1.calculateCpuPercent());
         }
     };
     private static final Comparator<OSProcess> RSS_DESC_SORT = new Comparator<OSProcess>() {
