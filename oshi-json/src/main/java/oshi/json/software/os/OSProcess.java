@@ -516,6 +516,16 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
     }
 
     /**
+     * Calculates CPU usage of this process.
+     * 
+     * @return The proportion of up time that the process was executing in
+     *         kernel or user mode.
+     */
+    public double calculateCpuPercent() {
+        return this.osProcess.calculateCpuPercent();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

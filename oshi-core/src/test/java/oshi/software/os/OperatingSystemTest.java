@@ -79,6 +79,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getKernelTime() >= 0);
         assertTrue(proc.getUserTime() >= 0);
         assertTrue(proc.getUpTime() >= 0);
+        assertTrue(proc.calculateCpuPercent() >= 0d);
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
