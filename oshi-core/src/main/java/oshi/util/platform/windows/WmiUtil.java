@@ -20,8 +20,13 @@ package oshi.util.platform.windows;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -58,15 +63,17 @@ public class WmiUtil {
      */
     public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
 
-    // Not a built-in Windows namespace, so requires special treatment a few
-    // places in the code.
-    public static final String OHM_NAMESPACE = "root\\OpenHardwareMonitor";
+    // Not a built in manespace, failed connections are normal and don't need
+    // error logging
+    public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
 
     // COM may already have been initialized outside this class. Keep this
     // boolean as a flag whether we need to un-initialize it
     private static boolean comInitialized = false;
     // Security only needs to be initialized once
     private static boolean securityInitialized = false;
+
+    // Cache open WMI namespace connections
 
     /**
      * Private instance to generate the WmiQuery class.
@@ -95,7 +102,7 @@ public class WmiUtil {
          * a String. With the UINT64 type mapping, OSHI will parse the object to
          * a (signed) long which may incorrectly represent large values. If true
          * unsigned longs are required, users may prefer to map UINT64 variables
-         * to the String type and then parse the returned string to a
+         * to the String type and then parse the returned String to a
          * BigInteger.
          */
         UINT64,
@@ -269,6 +276,50 @@ public class WmiUtil {
             NamespaceProperty.class);
 
     /**
+     * Helper class for WMI connection caching
+     */
+    private class WmiConnection {
+        // Connection invalid after this long
+        public static final long STALE_CONNECTION = 300_000L;
+
+        private long staleAfter;
+        private WbemServices svc;
+
+        public WmiConnection(PointerByReference pSvc) {
+            this.svc = new WbemServices(pSvc.getValue());
+            refresh();
+        }
+
+        public WbemServices getService() {
+            return this.svc;
+        }
+
+        public boolean isStale() {
+            return System.currentTimeMillis() > staleAfter;
+        }
+
+        public void refresh() {
+            this.staleAfter = STALE_CONNECTION + System.currentTimeMillis();
+        }
+
+        public void close() {
+            this.svc.Release();
+        }
+    }
+
+    /**
+     * The connection cache
+     */
+    private static Map<String, WmiConnection> connectionCache = new HashMap<>();
+    private static long nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
+
+    /**
+     * Namespace cache
+     */
+    private static Set<String> hasNamespaceCache = new HashSet<>();
+    private static Set<String> hasNotNamespaceCache = new HashSet<>();
+
+    /**
      * Private constructor so this class can't be instantiated from the outside.
      * Also initializes COM and sets up hooks to uninit if necessary.
      */
@@ -329,10 +380,14 @@ public class WmiUtil {
      * @return true if the namespace exists, false otherwise
      */
     public static boolean hasNamespace(String namespace) {
-        WmiResult<NamespaceProperty> namespaces;
-        namespaces = queryWMI(NAMESPACE_QUERY);
+        if (hasNamespaceCache.contains(namespace)) {
+            return true;
+        } else if (hasNotNamespaceCache.contains(namespace)) {
+            return false;
+        }
+        WmiResult<NamespaceProperty> namespaces = queryWMI(NAMESPACE_QUERY);
         for (int i = 0; i < namespaces.getResultCount(); i++) {
-            if (namespace.equals((String) namespaces.get(NamespaceProperty.NAME).get(i))) {
+            if (namespace.equals(namespaces.get(NamespaceProperty.NAME).get(i))) {
                 return true;
             }
         }
@@ -389,18 +444,15 @@ public class WmiUtil {
         }
 
         // Connect to the server
-        PointerByReference pSvc = new PointerByReference();
-        if (!connectServer(query.getNameSpace(), pSvc)) {
-            unInitCOM();
+        WmiConnection conn = connectToNamespace(query.getNameSpace());
+        if (conn == null) {
             return values;
         }
-        WbemServices svc = new WbemServices(pSvc.getValue());
 
         // Send query
         PointerByReference pEnumerator = new PointerByReference();
-        if (!selectProperties(svc, pEnumerator, query)) {
-            svc.Release();
-            unInitCOM();
+        if (!selectProperties(conn.getService(), pEnumerator, query)) {
+            conn.close();
             return values;
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
@@ -411,7 +463,6 @@ public class WmiUtil {
         } finally {
             // Cleanup
             enumerator.Release();
-            svc.Release();
         }
         return values;
     }
@@ -464,6 +515,45 @@ public class WmiUtil {
         }
         securityInitialized = true;
         return true;
+    }
+
+    /**
+     * Find an existing open connection to a namespace if one exists, otherwise
+     * set up a new one
+     * 
+     * @param namespace
+     *            The namespace to connect to
+     * @return The new or cached connection if successful; null if connection
+     *         failed
+     */
+    private static WmiConnection connectToNamespace(String namespace) {
+        // Every once in a while clear any other stale connections
+        if (System.currentTimeMillis() > nextCacheClear) {
+            closeStaleConnections();
+            nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
+        }
+        // Check if connection already open
+        if (connectionCache.containsKey(namespace)) {
+            WmiConnection conn = connectionCache.get(namespace);
+            if (conn.isStale()) {
+                // Connection expired. Close it.
+                conn.close();
+                connectionCache.remove(namespace);
+            } else {
+                return conn;
+            }
+        }
+        // Connect to the server
+        PointerByReference pSvc = new PointerByReference();
+        if (!connectServer(namespace, pSvc)) {
+            // TODO add to failed connection set
+            return null;
+        }
+        // TODO add to success connection set
+        WmiConnection conn = INSTANCE.new WmiConnection(pSvc);
+        // Add to cache
+        connectionCache.put(namespace, conn);
+        return conn;
     }
 
     /**
@@ -660,9 +750,27 @@ public class WmiUtil {
      * method. Otherwise, does nothing.
      */
     private static void unInitCOM() {
+        for (Entry<String, WmiConnection> entry : connectionCache.entrySet()) {
+            entry.getValue().close();
+        }
+        connectionCache.clear();
         if (comInitialized) {
             Ole32.INSTANCE.CoUninitialize();
             comInitialized = false;
+        }
+    }
+
+    /**
+     * Closes WMI connections that haven't been used recently, freeing up
+     * resources.
+     */
+    private static void closeStaleConnections() {
+        for (Iterator<Map.Entry<String, WmiConnection>> iter = connectionCache.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<String, WmiConnection> entry = iter.next();
+            if (entry.getValue().isStale()) {
+                entry.getValue().close();
+                iter.remove();
+            }
         }
     }
 }
