@@ -18,6 +18,11 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.Sensors;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
@@ -29,7 +34,8 @@ public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String OHM_NAMESPACE = "root\\OpenHardwareMonitor";
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
+
     private static final String BASE_SENSOR_CLASS = "Sensor";
 
     enum OhmHardwareProperty implements WmiProperty {
@@ -47,9 +53,9 @@ public class WindowsSensors implements Sensors {
         }
     }
 
-    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WmiUtil.createQuery(OHM_NAMESPACE,
+    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WmiUtil.createQuery(OHM_NAMESPACE,
+    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty implements WmiProperty {
@@ -67,7 +73,7 @@ public class WindowsSensors implements Sensors {
         }
     }
 
-    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WmiUtil.createQuery(OHM_NAMESPACE, null,
+    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
 
     enum ThermalZoneProperty implements WmiProperty {
@@ -86,10 +92,8 @@ public class WindowsSensors implements Sensors {
         }
     }
 
-    // This query is notoriously slow so we specify a 2-second timeout
     private static final WmiQuery<ThermalZoneProperty> THERMAL_ZONE_QUERY = WmiUtil.createQuery(
-            WmiUtil.DEFAULT_NAMESPACE, "Win32_PerfRawData_Counters_ThermalZoneInformation", ThermalZoneProperty.class,
-            2000);
+            WmiUtil.DEFAULT_NAMESPACE, "Win32_PerfRawData_Counters_ThermalZoneInformation", ThermalZoneProperty.class);
 
     enum FanProperty implements WmiProperty {
         DESIREDSPEED(ValueType.UINT32);
@@ -163,26 +167,35 @@ public class WindowsSensors implements Sensors {
         // Have removed attempts for:
         // Win32_TemperatureProbe CurrentReating is "reserved for future use"
         // MSAcpi_ThermalZoneTemperature CurrentTemperature is not on the CPU
-        long tempK = 0L;
-        WmiResult<ThermalZoneProperty> thermalZone = WmiUtil.queryWMI(THERMAL_ZONE_QUERY);
-        if (thermalZone.getResultCount() > 0) {
-            // Default to the first result
-            tempK = (Long) thermalZone.get(ThermalZoneProperty.TEMPERATURE).get(0);
-            // If multiple results, pick the one that's a CPU
-            if (thermalZone.getResultCount() > 1) {
-                for (int i = 0; i < thermalZone.getResultCount(); i++) {
-                    if (((String) thermalZone.get(ThermalZoneProperty.NAME).get(i)).toLowerCase().contains("cpu")) {
-                        tempK = (Long) thermalZone.get(ThermalZoneProperty.TEMPERATURE).get(i);
-                        break;
+
+        // This query is notoriously slow so we specify a 2-second timeout
+        try {
+            long tempK = 0L;
+
+            WmiResult<ThermalZoneProperty> thermalZone = WmiUtil.queryWMI(THERMAL_ZONE_QUERY, 2000);
+            if (thermalZone.getResultCount() > 0) {
+                // Default to the first result
+                tempK = (Long) thermalZone.get(ThermalZoneProperty.TEMPERATURE).get(0);
+                // If multiple results, pick the one that's a CPU
+                if (thermalZone.getResultCount() > 1) {
+                    for (int i = 0; i < thermalZone.getResultCount(); i++) {
+                        if (((String) thermalZone.get(ThermalZoneProperty.NAME).get(i)).toLowerCase().contains("cpu")) {
+                            tempK = (Long) thermalZone.get(ThermalZoneProperty.TEMPERATURE).get(i);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        // Convert K to C and return result
-        if (tempK > 2732L) {
-            tempC = tempK / 10d - 273.15;
-        } else if (tempK > 274L) {
-            tempC = tempK - 273d;
+            // Convert K to C
+            if (tempK > 2732L) {
+                tempC = tempK / 10d - 273.15;
+            } else if (tempK > 274L) {
+                tempC = tempK - 273d;
+            }
+        } catch (TimeoutException e) {
+            LOG.warn("Temperature query timed out. {}", e.getMessage());
+            // WMI timed out.
+            return 0d;
         }
         if (tempC < 0d) {
             tempC = 0d;
