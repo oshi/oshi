@@ -20,8 +20,14 @@ package oshi.util.platform.windows;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,36 +51,102 @@ import oshi.jna.platform.windows.COM.WbemServices;
 import oshi.util.ParseUtil;
 
 /**
- * Provides access to WMI queries via COM
+ * Utility class providing access to Windows Management Interface (WMI) via COM.
  *
  * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
     private static final Logger LOG = LoggerFactory.getLogger(WmiUtil.class);
 
+    /**
+     * Private instance to generate the WmiQuery class.
+     */
+    private static WmiUtil INSTANCE = new WmiUtil();
+
+    /**
+     * The default namespace for most WMI queries.
+     */
     public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
 
+    // Not a built in manespace, failed connections are normal and don't need
+    // error logging
+    public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    // COM may already have been initialized outside this class. Keep this
+    // boolean as a flag whether we need to un-initialize it
     private static boolean comInitialized = false;
+    // Security only needs to be initialized once
     private static boolean securityInitialized = false;
 
-    /**
-     * Private instance to generate the WmiQuery class
-     */
-    private static final WmiUtil INSTANCE = new WmiUtil();
+    // Cache open WMI namespace connections
+    private static Map<String, WmiConnection> connectionCache = new HashMap<>();
+    private static long nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
+    private static Set<String> hasNamespaceCache = new HashSet<>();
+    private static Set<String> hasNotNamespaceCache = new HashSet<>();
 
     /**
-     * Enum for the value type of WMI queries for proper parsing from the
-     * returned VARIANT, using the same name as the WMI documentation. Note WMI
-     * UINT64s return from WMI as Strings. With the UINT64 mapping, OSHI will
-     * parse the object to a Long. If true unsigned longs are required, users
-     * may prefer to use the String type to parse to a BigInteger.
+     * Enum for the value type of WMI queries, used to properly parse/cast the
+     * returned VARIANT. Names are intended to match the WMI documentation and
+     * do not actually represent types (e.g., unsigned). Options are
+     * {@link #STRING}, {@link #UINT64}, {@link #UINT32}, {@link #UINT16},
+     * {@link #FLOAT}, {@link #DATETIME}, {@link #BOOLEAN}
      */
     public enum ValueType {
-        // Properties
-        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64, UINT16
+        /**
+         * String type. Returns from WMI as a BSTR. Parsed to a String.
+         */
+        STRING,
+        /**
+         * Unsigned 64-bit Integer. UINT64s return from WMI as a BSTR, parsed to
+         * a String. With the UINT64 type mapping, OSHI will parse the object to
+         * a (signed) long which may incorrectly represent large values. If true
+         * unsigned longs are required, users may prefer to map UINT64 variables
+         * to the String type and then parse the returned String to a
+         * BigInteger.
+         */
+        UINT64,
+        /**
+         * Unsigned 32-bit Integer. Parsed to a long.
+         */
+        UINT32,
+        /**
+         * Unsigned 16-bit Integer. Parsed to an int.
+         */
+        UINT16,
+        /**
+         * Single precision Float. Parsed to a float.
+         */
+        FLOAT,
+        /**
+         * Date/time. Returns from WMI as a String in the CIM_DATETIME format.
+         * Parsed to a long, number of milliseconds since the 1970 epoch.
+         */
+        DATETIME,
+        /**
+         * Boolean. Parsed to a boolean.
+         */
+        BOOLEAN
+        // If more values are added here, add the appropriate parsing as a case
+        // in the enumerateProperties method.
     }
 
-    enum NamespaceProperty implements WmiProperty {
+    /**
+     * Interface contract for WMI Property Enums used with the {@link WmiQuery}
+     * and {@link WmiResult} classes.
+     */
+    public interface WmiProperty {
+        /**
+         * Gets the ValueType.
+         * 
+         * @return The type of value this property returns
+         */
+        ValueType getType();
+    }
+
+    /**
+     * Enum used for WMI namespace query.
+     */
+    private enum NamespaceProperty implements WmiProperty {
         NAME(ValueType.STRING);
 
         private ValueType type;
@@ -89,33 +161,19 @@ public class WmiUtil {
         }
     }
 
+    /**
+     * Creates the WMI namespace query
+     */
     private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT", "__NAMESPACE",
             NamespaceProperty.class);
 
     /**
-     * Interface contract for WMI Property Enums.
-     */
-    public interface WmiProperty {
-        /**
-         * Gets the ValueType.
-         * 
-         * @return The type of value this property returns
-         */
-        ValueType getType();
-    }
-
-    /**
-     * Helper class wrapping information required for the WMI query.
-     * 
-     * @author widdisd
-     *
-     * @param <T>
+     * Helper class wrapping information required for a WMI query.
      */
     public class WmiQuery<T extends Enum<T> & WmiProperty> {
         private String nameSpace;
         private String wmiClassName;
         private Class<T> propertyEnum;
-        private int timeout;
 
         /**
          * Instantiate a WmiQuery.
@@ -123,21 +181,17 @@ public class WmiUtil {
          * @param nameSpace
          *            The WMI namespace to use.
          * @param wmiClassName
-         *            The WMI class to use. Optionally include a WHERE clause
-         *            with filters.
+         *            The WMI class to use. Optionally include a WQL WHERE
+         *            clause with filters results to properties matching the
+         *            input.
          * @param propertyEnum
          *            An enum implementing WmiProperty for type mapping.
-         * @param timeout
-         *            Number of milliseconds to wait for results before timing
-         *            out. If -1, will always wait for results. If 0, will
-         *            always return immediately without waiting.
          */
-        public WmiQuery(String nameSpace, String wmiClassName, Class<T> propertyEnum, int timeout) {
+        public WmiQuery(String nameSpace, String wmiClassName, Class<T> propertyEnum) {
             super();
             this.nameSpace = nameSpace;
             this.wmiClassName = wmiClassName;
             this.propertyEnum = propertyEnum;
-            this.timeout = timeout;
         }
 
         /**
@@ -175,21 +229,6 @@ public class WmiUtil {
          */
         public void setWmiClassName(String wmiClassName) {
             this.wmiClassName = wmiClassName;
-        }
-
-        /**
-         * @return the timeout
-         */
-        public int getTimeout() {
-            return timeout;
-        }
-
-        /**
-         * @param timeout
-         *            The timeout to set
-         */
-        public void setTimeout(int timeout) {
-            this.timeout = timeout;
         }
     }
 
@@ -236,36 +275,60 @@ public class WmiUtil {
     }
 
     /**
-     * Private constructor so this class can't be instantiated from the outside
+     * Helper class for WMI connection caching
+     */
+    private class WmiConnection {
+        // Connection invalid after this long
+        public static final long STALE_CONNECTION = 300_000L;
+
+        private long staleAfter;
+        private WbemServices svc;
+
+        WmiConnection(PointerByReference pSvc) {
+            this.svc = new WbemServices(pSvc.getValue());
+            refresh();
+        }
+
+        public WbemServices getService() {
+            return this.svc;
+        }
+
+        public boolean isStale() {
+            return System.currentTimeMillis() > staleAfter;
+        }
+
+        public void refresh() {
+            this.staleAfter = STALE_CONNECTION + System.currentTimeMillis();
+        }
+
+        public void close() {
+            this.svc.Release();
+        }
+    }
+
+    /**
+     * Private constructor so this class can't be instantiated from the outside.
+     * Also initializes COM and sets up hooks to uninit if necessary.
      */
     private WmiUtil() {
+        // Initialize COM
+        if (!initCOM()) {
+            unInitCOM();
+        }
+        // Set up hook to uninit on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                unInitCOM();
+            }
+        });
     }
 
     /**
      * Create a WMI Query
      * 
-     * @param nameSpace
-     *            The WMI Namespace to use
-     * @param wmiClassName
-     *            The WMI Class to use. May include a WHERE clause with
-     *            filtering conditions.
-     * @param propertyEnum
-     *            An Enum implementing WmiProperty that contains the properties
-     *            and types to query
-     * @param timeout
-     *            Number of milliseconds to wait for results before timing out.
-     *            If -1, will always wait for results. If 0, will always return
-     *            immediately without waiting.
-     * @return A WmiQuery object wrapping the parameters
-     */
-    public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
-            Class<T> propertyEnum, int timeout) {
-        return INSTANCE.new WmiQuery<>(nameSpace, wmiClassName, propertyEnum, timeout);
-    }
-
-    /**
-     * Create a WMI Query with no timeout
-     * 
+     * @param <T>
+     *            an enum implementing WmiProperty
      * @param nameSpace
      *            The WMI Namespace to use
      * @param wmiClassName
@@ -278,12 +341,14 @@ public class WmiUtil {
      */
     public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
             Class<T> propertyEnum) {
-        return createQuery(nameSpace, wmiClassName, propertyEnum, EnumWbemClassObject.WBEM_INFINITE);
+        return INSTANCE.new WmiQuery<>(nameSpace, wmiClassName, propertyEnum);
     }
 
     /**
-     * Create a WMI Query in the default namespace with no timeout
+     * Create a WMI Query in the default namespace
      * 
+     * @param <T>
+     *            an enum implementing WmiProperty
      * @param wmiClassName
      *            The WMI Class to use. May include a WHERE clause with
      *            filtering conditions.
@@ -306,9 +371,14 @@ public class WmiUtil {
      * @return true if the namespace exists, false otherwise
      */
     public static boolean hasNamespace(String namespace) {
+        if (hasNamespaceCache.contains(namespace)) {
+            return true;
+        } else if (hasNotNamespaceCache.contains(namespace)) {
+            return false;
+        }
         WmiResult<NamespaceProperty> namespaces = queryWMI(NAMESPACE_QUERY);
         for (int i = 0; i < namespaces.getResultCount(); i++) {
-            if (namespace.equals((String) namespaces.get(NamespaceProperty.NAME).get(i))) {
+            if (namespace.equals(namespaces.get(NamespaceProperty.NAME).get(i))) {
                 return true;
             }
         }
@@ -316,8 +386,10 @@ public class WmiUtil {
     }
 
     /**
-     * Query WMI for values
+     * Query WMI for values, with no timeout.
      * 
+     * @param <T>
+     *            an enum implementing WmiProperty
      * @param query
      *            A WmiQuery object encapsulating the namespace, class,
      *            properties, and timeout
@@ -325,6 +397,34 @@ public class WmiUtil {
      *         EnumMap
      */
     public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query) {
+        try {
+            return queryWMI(query, EnumWbemClassObject.WBEM_INFINITE);
+        } catch (TimeoutException e) {
+            LOG.error("Got a WMI timeout when infinite wait specified. This should never happen.", e);
+            return INSTANCE.new WmiResult<>(query.getPropertyEnum());
+        }
+    }
+
+    /**
+     * Query WMI for values, with a specified timeout.
+     * 
+     * @param <T>
+     *            an enum implementing WmiProperty
+     * @param query
+     *            A WmiQuery object encapsulating the namespace, class,
+     *            properties, and timeout
+     * @param timeout
+     *            Number of milliseconds to wait for results before timing out.
+     *            If {@link EnumWbemClassObject#WBEM_INFINITE} (-1), will always
+     *            wait for results. If a timeout occurs, throws a
+     *            {@link TimeoutException}.
+     * @return a WmiResult object containing the query results, wrapping an
+     *         EnumMap
+     * @throws TimeoutException
+     *             if the query times out before completion
+     */
+    public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout)
+            throws TimeoutException {
         // Idiot check
         if (query.getPropertyEnum().getEnumConstants().length < 1) {
             throw new IllegalArgumentException("The query's property enum has no values.");
@@ -333,42 +433,44 @@ public class WmiUtil {
         // Set up empty map
         WmiResult<T> values = INSTANCE.new WmiResult<>(query.getPropertyEnum());
 
-        // Initialize COM
-        if (!initCOM()) {
+        // Initialize COM if not already done
+        if (!comInitialized && !initCOM()) {
             unInitCOM();
             return values;
         }
 
         // Connect to the server
-        PointerByReference pSvc = new PointerByReference();
-        if (!connectServer(query.getNameSpace(), pSvc)) {
-            unInitCOM();
+        WmiConnection conn = connectToNamespace(query.getNameSpace());
+        if (conn == null) {
             return values;
         }
-        WbemServices svc = new WbemServices(pSvc.getValue());
 
         // Send query
         PointerByReference pEnumerator = new PointerByReference();
-        if (!selectProperties(svc, pEnumerator, query)) {
-            svc.Release();
-            unInitCOM();
+        if (!selectProperties(conn.getService(), pEnumerator, query)) {
+            conn.close();
             return values;
         }
         EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
-        enumerateProperties(values, enumerator, query.getPropertyEnum(), query.getTimeout());
-
-        // Cleanup
-        enumerator.Release();
-        svc.Release();
-        unInitCOM();
+        try {
+            enumerateProperties(values, enumerator, query.getPropertyEnum(), timeout);
+        } catch (TimeoutException e) {
+            throw new TimeoutException(e.getMessage());
+        } finally {
+            // Cleanup
+            enumerator.Release();
+        }
         return values;
     }
 
-    /*
+    /**
      * Below methods ported from: Getting WMI Data from Local Computer
-     * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
+     * https://docs.microsoft.com/en-us/windows/desktop/WmiSdk/example--getting-
+     * wmi-data-from-the-local-computer
      *
-     * Steps 1 - 7 in the comments correspond to the above link.
+     * Steps 1 - 7 in the comments correspond to the above link. Steps 1 through
+     * 5 contain all the steps required to set up and connect to WMI, and steps
+     * 6 and 7 are where data is queried and received.
      */
     /**
      * Initializes COM library and sets security to impersonate the local user
@@ -412,6 +514,43 @@ public class WmiUtil {
     }
 
     /**
+     * Find an existing open connection to a namespace if one exists, otherwise
+     * set up a new one
+     * 
+     * @param namespace
+     *            The namespace to connect to
+     * @return The new or cached connection if successful; null if connection
+     *         failed
+     */
+    private static WmiConnection connectToNamespace(String namespace) {
+        // Every once in a while clear any other stale connections
+        if (System.currentTimeMillis() > nextCacheClear) {
+            closeStaleConnections();
+            nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
+        }
+        // Check if connection already open
+        if (connectionCache.containsKey(namespace)) {
+            WmiConnection conn = connectionCache.get(namespace);
+            if (conn.isStale()) {
+                // Connection expired. Close it.
+                conn.close();
+                connectionCache.remove(namespace);
+            } else {
+                return conn;
+            }
+        }
+        // Connect to the server
+        PointerByReference pSvc = new PointerByReference();
+        if (!connectServer(namespace, pSvc)) {
+            return null;
+        }
+        WmiConnection conn = INSTANCE.new WmiConnection(pSvc);
+        // Add to cache
+        connectionCache.put(namespace, conn);
+        return conn;
+    }
+
+    /**
      * Obtains a locator to the WMI server and connects to the specified
      * namespace
      *
@@ -436,7 +575,7 @@ public class WmiUtil {
         HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);
         if (COMUtils.FAILED(hres)) {
             // Don't error on OpenHardwareMonitor
-            if (!"root\\OpenHardwareMonitor".equals(namespace) && LOG.isErrorEnabled()) {
+            if (!OHM_NAMESPACE.equals(namespace) && LOG.isErrorEnabled()) {
                 LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
                         hres.intValue()));
             }
@@ -522,35 +661,29 @@ public class WmiUtil {
      *            keys to the WmiResult map
      * @param timeout
      *            Number of milliseconds to wait for results before timing out.
-     *            If -1, will always wait for results. If 0, will always return
-     *            immediately without waiting.
-     * @return True if the query completed successfully, false if the query
-     *         timed out.
+     *            If {@link EnumWbemClassObject#WBEM_INFINITE} (-1), will always
+     *            wait for results.
+     * @throws TimeoutException
+     *             if the query times out before completion
      */
-    private static <T extends Enum<T> & WmiProperty> boolean enumerateProperties(WmiResult<T> values,
-            EnumWbemClassObject enumerator, Class<T> propertyEnum, int timeout) {
+    private static <T extends Enum<T> & WmiProperty> void enumerateProperties(WmiResult<T> values,
+            EnumWbemClassObject enumerator, Class<T> propertyEnum, int timeout) throws TimeoutException {
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
         LongByReference uReturn = new LongByReference(0L);
-        boolean success = true;
         while (enumerator.getPointer() != Pointer.NULL) {
             // Enumerator will be released by calling method so no need to
             // release it here.
             HRESULT hres = enumerator.Next(new NativeLong(timeout), new NativeLong(1), pclsObj, uReturn);
-            // Warn user of timeout
+            // Warn user of timeout and abort. This should never happen if
+            // timeout is set to infinite.
             if (hres.intValue() == EnumWbemClassObject.WBEM_S_TIMEDOUT) {
-                LOG.warn("WMI query timed out. Returned {} results.", values.getResultCount());
-                success = false;
-                break;
-            }
-            // Error values are hres < 0
-            if (COMUtils.FAILED(hres)) {
-                LOG.debug("WMI query failed. Returned {} results.", values.getResultCount());
-                break;
+                throw new TimeoutException("No results after " + timeout + " ms.");
             }
             // Requested 1; if 0 objects returned, we're done
-            if (0L == uReturn.getValue() || hres.intValue() == EnumWbemClassObject.WBEM_S_NO_MORE_DATA) {
+            if (COMUtils.FAILED(hres) || 0L == uReturn.getValue()
+                    || hres.intValue() == EnumWbemClassObject.WBEM_S_NO_MORE_DATA) {
                 LOG.debug("Returned {} results.", values.getResultCount());
                 break;
             }
@@ -605,7 +738,6 @@ public class WmiUtil {
 
             values.incrementResultCount();
         }
-        return success;
     }
 
     /**
@@ -613,9 +745,27 @@ public class WmiUtil {
      * method. Otherwise, does nothing.
      */
     private static void unInitCOM() {
+        for (Entry<String, WmiConnection> entry : connectionCache.entrySet()) {
+            entry.getValue().close();
+        }
+        connectionCache.clear();
         if (comInitialized) {
             Ole32.INSTANCE.CoUninitialize();
             comInitialized = false;
+        }
+    }
+
+    /**
+     * Closes WMI connections that haven't been used recently, freeing up
+     * resources.
+     */
+    private static void closeStaleConnections() {
+        for (Iterator<Map.Entry<String, WmiConnection>> iter = connectionCache.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<String, WmiConnection> entry = iter.next();
+            if (entry.getValue().isStale()) {
+                entry.getValue().close();
+                iter.remove();
+            }
         }
     }
 }
