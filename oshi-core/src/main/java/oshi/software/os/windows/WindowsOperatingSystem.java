@@ -228,7 +228,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void initBitness() {
-        WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
         // If bitness is 64 we are 64 bit.
         // If 32 test if we are on 64-bit OS
         if (bitness < 64) {
@@ -236,9 +235,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
+                WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = (Integer) bitnessMap.get(BitnessProperty.ADDRESSWIDTH).get(0);
+                    this.bitness = ((Long) bitnessMap.get(BitnessProperty.ADDRESSWIDTH).get(0)).intValue();
                 }
             }
         }
@@ -640,5 +640,4 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
-
 }
