@@ -40,6 +40,7 @@ import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
@@ -379,7 +380,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     proc.getProcessID());
             if (pHandle != null) {
                 // Full path
-                proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
+                try {
+                    proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
+                } catch (Win32Exception e) {
+                    LOG.warn("Failed to set path on PID {}. It may have terminated.", proc.getProcessID());
+                }
 
                 final HANDLEByReference phToken = new HANDLEByReference();
                 if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
