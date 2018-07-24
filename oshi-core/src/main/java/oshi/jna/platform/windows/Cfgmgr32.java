@@ -42,4 +42,7 @@ public interface Cfgmgr32 extends Library {
     int CM_Get_Device_ID(int devInst, char[] Buffer, int BufferLen, int ulFlags);
 
     int CM_Get_Device_ID_Size(NativeLongByReference pulLen, int dnDevInst, int ulFlags);
+
+    int CM_Locate_DevNode(IntByReference pdnDevInst, String pDeviceID, int ulFlags);
+
 }
