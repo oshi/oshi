@@ -21,8 +21,10 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.NativeLongByReference;
 
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.jna.platform.windows.Cfgmgr32;
+import oshi.jna.platform.windows.Cfgmgr32Util;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -93,8 +94,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         }
     }
 
-    // TODO replace this with "Base"
-    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = WmiUtil.createQuery("Win32_PnPEntity",
+    private static final String PNPENTITY_BASE_CLASS = "Win32_PnPEntity";
+    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = WmiUtil.createQuery(null,
             PnPEntityProperty.class);
 
     enum DiskDriveProperty implements WmiProperty {
@@ -113,10 +114,11 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         }
     }
 
-    // TODO replace these with "Base"
-    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = WmiUtil.createQuery("Win32_DiskDrive",
+    private static final String DISKDRIVE_BASE_CLASS = "Win32_DiskDrive";
+    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = WmiUtil.createQuery(null,
             DiskDriveProperty.class);
-    private static final WmiQuery<DiskDriveProperty> PHYSICALMEDIA_QUERY = WmiUtil.createQuery("Win32_PhysicalMedia",
+    private static final String PHYSICALMEDIA_BASE_CLASS = "Win32_PhysicalMedia";
+    private static final WmiQuery<DiskDriveProperty> PHYSICALMEDIA_QUERY = WmiUtil.createQuery(null,
             DiskDriveProperty.class);
 
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
@@ -126,6 +128,12 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * Map to store information using PNPDeviceID as the key
      */
     private static Map<String, WindowsUsbDevice> usbDeviceCache = new HashMap<>();
+
+    /*
+     * Sets to track USB devices in cache
+     */
+    private static Set<String> devicesToAdd = new HashSet<>();
+    private static Set<String> devicesToRemove = null;
 
     /*
      * Map to build the recursive tree structure
@@ -157,7 +165,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
         for (UsbDevice device : connectedDevices) {
             deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), new UsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
     }
@@ -170,50 +178,78 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         // Navigate the device tree to see what's present: remove from cache if
         // no longer present and add to cache if not present
 
-        // TODO: use base to add additional filters with StringBuilder
-        // Change the _QUERY to _BASE and append list of PNP IDs that we need
-        // Query Win32_PnPEntity to populate the maps
-        WmiResult<PnPEntityProperty> pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
-        for (int i = 0; i < pnpEntity.getResultCount(); i++) {
-            String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID).get(i);
-            String name = (String) pnpEntity.get(PnPEntityProperty.NAME).get(i);
-            String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER).get(i);
-            WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", new WindowsUsbDevice[0]);
-            usbDeviceCache.put(pnpDeviceID, device);
-        }
-
-        // Get serial # for disk drives or other physical media
-        WmiResult<DiskDriveProperty> serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
-        for (int i = 0; i < serialNumber.getResultCount(); i++) {
-            String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
-            if (usbDeviceCache.containsKey(pnpDeviceID)) {
-                WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
-                device.serialNumber = ParseUtil
-                        .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
-            }
-        }
-        serialNumber = WmiUtil.queryWMI(PHYSICALMEDIA_QUERY);
-        for (int i = 0; i < serialNumber.getResultCount(); i++) {
-            String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
-            if (usbDeviceCache.containsKey(pnpDeviceID)) {
-                WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
-                device.serialNumber = ParseUtil
-                        .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
-            }
-        }
-
-        // Clear recursive ID map
+        // Clear recursive ID map and set up sets
         deviceTreeMap.clear();
-        // TODO create a collection of "seen" PNPIds during this
-        // Check vs. devicemap and query to add any not seen
-        // Also remove from devicemap
+        // Add any seen in tree that aren't in cache
+        devicesToAdd.clear();
+        // Also remove from cache if not seen in tree
+        devicesToRemove = new HashSet<String>(usbDeviceCache.keySet());
+
         List<WindowsUsbDevice> controllerDevices = new ArrayList<>();
         for (String controllerDeviceId : controllerDeviceIdList) {
             putChildrenInDeviceTree(controllerDeviceId, 0);
+            updateDeviceCache();
             controllerDevices.add(getDeviceAndChildren(controllerDeviceId, "0000", "0000"));
         }
         return controllerDevices.toArray(new WindowsUsbDevice[controllerDevices.size()]);
 
+    }
+
+    private static void updateDeviceCache() {
+
+        // Remove devices no longer in tree
+        for (String deviceID : devicesToRemove) {
+            usbDeviceCache.remove(deviceID);
+            LOG.debug("Removing {} from USB device cache.", deviceID);
+        }
+        devicesToRemove = null;
+        // Create list to add
+        if (!devicesToAdd.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (String deviceID : devicesToAdd) {
+                if (first) {
+                    sb.append(" WHERE (PnPDeviceID=\"");
+                    first = false;
+                } else {
+                    sb.append(" OR (PnPDeviceID=\"");
+                }
+                sb.append(deviceID).append("\")");
+            }
+            String whereClause = sb.toString();
+            // Query Win32_PnPEntity to populate the maps
+            PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
+            WmiResult<PnPEntityProperty> pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
+            for (int i = 0; i < pnpEntity.getResultCount(); i++) {
+                String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID).get(i);
+                String name = (String) pnpEntity.get(PnPEntityProperty.NAME).get(i);
+                String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER).get(i);
+                WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", new WindowsUsbDevice[0]);
+                usbDeviceCache.put(pnpDeviceID, device);
+                LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
+            }
+            // Get serial # for disk drives or other physical media
+            DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
+            WmiResult<DiskDriveProperty> serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
+            for (int i = 0; i < serialNumber.getResultCount(); i++) {
+                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                if (usbDeviceCache.containsKey(pnpDeviceID)) {
+                    WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
+                    device.serialNumber = ParseUtil
+                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                }
+            }
+            PHYSICALMEDIA_QUERY.setWmiClassName(PHYSICALMEDIA_BASE_CLASS + whereClause);
+            serialNumber = WmiUtil.queryWMI(PHYSICALMEDIA_QUERY);
+            for (int i = 0; i < serialNumber.getResultCount(); i++) {
+                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                if (usbDeviceCache.containsKey(pnpDeviceID)) {
+                    WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
+                    device.serialNumber = ParseUtil
+                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                }
+            }
+        }
     }
 
     /**
@@ -227,8 +263,13 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      *            the code will search for a match.
      */
     private static void putChildrenInDeviceTree(String deviceId, int deviceInstance) {
-        int devInst = deviceInstance;
+        // Track deviceIDs to add/remove from cache
+        devicesToRemove.remove(deviceId);
+        if (!usbDeviceCache.containsKey(deviceId)) {
+            devicesToAdd.add(deviceId);
+        }
         // If no devInst provided, find it
+        int devInst = deviceInstance;
         if (devInst == 0) {
             IntByReference pdnDevInst = new IntByReference();
             Cfgmgr32.INSTANCE.CM_Locate_DevNode(pdnDevInst, deviceId, 0);
@@ -239,7 +280,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         if (0 == Cfgmgr32.INSTANCE.CM_Get_Child(child, devInst, 0)) {
             // Add first child to a list
             List<String> childList = new ArrayList<>();
-            String childId = getDeviceId(child.getValue());
+            String childId = Cfgmgr32Util.CM_Get_Device_ID(child.getValue());
             childList.add(childId);
             deviceTreeMap.put(deviceId, childList);
             putChildrenInDeviceTree(childId, child.getValue());
@@ -247,36 +288,13 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             IntByReference sibling = new IntByReference();
             while (0 == Cfgmgr32.INSTANCE.CM_Get_Sibling(sibling, child.getValue(), 0)) {
                 // Add to the list
-                String siblingId = getDeviceId(sibling.getValue());
+                String siblingId = Cfgmgr32Util.CM_Get_Device_ID(sibling.getValue());
                 deviceTreeMap.get(deviceId).add(siblingId);
                 putChildrenInDeviceTree(siblingId, sibling.getValue());
                 // Make this sibling the new child to find other siblings
                 child = sibling;
             }
         }
-    }
-
-    /**
-     * Gets the device id for a devnode
-     *
-     * @param devInst
-     *            the handle to the devnode
-     * @return The PNPDeviceID
-     */
-    private static String getDeviceId(int devInst) {
-        NativeLongByReference ulLen = new NativeLongByReference();
-        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(ulLen, devInst, 0)) {
-            LOG.error("Couldn't get device string for device instance {}", devInst);
-            return "";
-        }
-        // Add 1 for null terminator
-        int size = ulLen.getValue().intValue() + 1;
-        char[] buffer = new char[size];
-        if (0 != Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, size, 0)) {
-            LOG.error("Couldn't get device string for device instance {} with size {}", devInst, size);
-            return "";
-        }
-        return new String(buffer).trim();
     }
 
     /**

@@ -631,7 +631,7 @@ public class WmiUtil {
         LOG.debug("Query: {}", sb);
         // Send the query. The flags allow us to return immediately and begin
         // enumerating in the forward direction as results come in.
-        HRESULT hres = svc.ExecQuery(new BSTR("WQL"), new BSTR(sb.toString()),
+        HRESULT hres = svc.ExecQuery(new BSTR("WQL"), new BSTR(sb.toString().replaceAll("\\\\", "\\\\\\\\")),
                 new NativeLong(
                         EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
                 null, pEnumerator);
