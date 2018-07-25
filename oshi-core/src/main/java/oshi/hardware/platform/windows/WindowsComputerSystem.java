@@ -84,7 +84,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static final WmiQuery<CsProductProperty> IDENTIFYINGNUMBER_QUERY = WmiUtil.createQuery("Win32_Csproduct",
             CsProductProperty.class);
 
-    private String systemSerialNumber;
+    private String systemSerialNumber = "";
 
     WindowsComputerSystem() {
         init();
