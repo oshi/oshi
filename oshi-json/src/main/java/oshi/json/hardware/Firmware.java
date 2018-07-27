@@ -18,7 +18,7 @@
  */
 package oshi.json.hardware;
 
-import org.threeten.bp.LocalDate;
+import java.util.Date;
 
 import oshi.json.json.OshiJsonObject;
 
@@ -37,5 +37,5 @@ public interface Firmware extends OshiJsonObject {
 
     String getVersion();
 
-    LocalDate getReleaseDate();
+    Date getReleaseDate();
 }

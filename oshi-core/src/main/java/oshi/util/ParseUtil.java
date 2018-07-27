@@ -20,18 +20,15 @@ package oshi.util;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * String parsing utility.
@@ -52,13 +49,6 @@ public class ParseUtil {
      * Used to check validity of a hexadecimal string
      */
     private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
-
-    /*
-     * Format for parsing DATETIME originally 20160513072950.782000-420,
-     * modified to 20160513072950.782000-07:00
-     */
-    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ",
-            Locale.US);
 
     /*
      * Pattern for [dd-[hh:[mm:ss]]]
@@ -108,7 +98,7 @@ public class ParseUtil {
             1_000_000_000_000_000_000L };
 
     // Fast hex character lookup
-    private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     private ParseUtil() {
     }
@@ -352,17 +342,20 @@ public class ParseUtil {
      *         epoch
      */
     public static long cimDateTimeToMillis(String cimDate) {
-        // Keep first 22 characters: digits, decimal, and + or - sign of
-        // time zone. Parse last 3 digits from minutes to HH:mm
         try {
-            int tzInMinutes = Integer.parseInt(cimDate.substring(22));
-            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);
-            OffsetDateTime dateTime = OffsetDateTime.parse(
-                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);
-            return dateTime.toInstant().toEpochMilli();
-        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
-                | NumberFormatException // if TZ minutes doesn't parse
-                | DateTimeParseException e) {
+            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            c.set(Calendar.YEAR, Integer.parseInt(cimDate.substring(0, 4)));
+            // Calendar uses 0-indexed months
+            c.set(Calendar.MONTH, Integer.parseInt(cimDate.substring(4, 6)) - 1);
+            c.set(Calendar.DATE, Integer.parseInt(cimDate.substring(6, 8)));
+            c.set(Calendar.HOUR, Integer.parseInt(cimDate.substring(8, 10)));
+            c.set(Calendar.MINUTE, Integer.parseInt(cimDate.substring(10, 12)));
+            c.set(Calendar.SECOND, Integer.parseInt(cimDate.substring(12, 14)));
+            c.set(Calendar.MILLISECOND, Integer.parseInt(cimDate.substring(15, 18)));
+            // Offset from UTC is in minutes
+            return c.getTimeInMillis() + Integer.parseInt(cimDate.substring(22)) * 60_000L;
+        } catch (StringIndexOutOfBoundsException | // If cimDate not 22+ chars
+                NumberFormatException e) { // If the fields didn't parse
             LOG.trace(DEFAULT_LOG_MSG, cimDate, e);
             return 0L;
         }

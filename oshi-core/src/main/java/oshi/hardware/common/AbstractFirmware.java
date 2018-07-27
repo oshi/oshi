@@ -18,7 +18,7 @@
  */
 package oshi.hardware.common;
 
-import org.threeten.bp.LocalDate;
+import java.util.Date;
 
 import oshi.hardware.Firmware;
 
@@ -36,7 +36,7 @@ public abstract class AbstractFirmware implements Firmware {
     private String name;
     private String description;
     private String version;
-    private LocalDate releaseDate;
+    private Date releaseDate;
 
     public AbstractFirmware() {
         this.manufacturer = "unknown";
@@ -82,7 +82,7 @@ public abstract class AbstractFirmware implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public LocalDate getReleaseDate() {
+    public Date getReleaseDate() {
         return this.releaseDate;
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractFirmware implements Firmware {
      * @param releaseDate
      *            The releaseDate to set.
      */
-    public void setReleaseDate(LocalDate releaseDate) {
+    public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
     }
 

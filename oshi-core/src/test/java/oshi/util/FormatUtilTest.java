@@ -21,12 +21,13 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.threeten.bp.LocalDate;
 
 /**
  * The Class FormatUtilTest.
@@ -156,14 +157,17 @@ public class FormatUtilTest {
 
     /**
      * Test format date.
+     * 
+     * @throws ParseException
      */
     @Test
-    public void testFormatDate() {
+    public void testFormatDate() throws ParseException {
         assertEquals("null", FormatUtil.formatDate(null));
-        assertEquals("01/01/2017", FormatUtil.formatDate(LocalDate.parse("2017-01-01")));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        assertEquals("01/01/2017", FormatUtil.formatDate(formatter.parse("2017-01-01")));
         assertEquals(null, FormatUtil.formatStringDate(null));
         assertEquals(null, FormatUtil.formatStringDate("Unparseable"));
-        assertEquals(LocalDate.parse("2017-01-01"), FormatUtil.formatStringDate("01/01/2017"));
+        assertEquals(formatter.parse("2017-01-01"), FormatUtil.formatStringDate("01/01/2017"));
     }
 
     /**

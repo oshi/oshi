@@ -46,10 +46,5 @@
 			<artifactId>jna-platform</artifactId>
 			<version>4.5.2</version>
 		</dependency>
-		<dependency>
-			<groupId>org.threeten</groupId>
-			<artifactId>threetenbp</artifactId>
-			<version>1.3.6</version>
-		</dependency>
 	</dependencies>
 </project>
