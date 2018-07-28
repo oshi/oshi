@@ -1,7 +1,10 @@
 3.8.0 (in progress)
 ================
-* [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
+
+3.7.1 (07/28/2018)
+================
+* [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.7.0 (07/28/2018)
 ================
