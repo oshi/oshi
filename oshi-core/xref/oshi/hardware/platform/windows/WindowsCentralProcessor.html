@@ -40,243 +40,266 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinReg;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.PdhUtil;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.PerfDataUtil;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * A CPU as defined in Windows registry.</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * @author dblock[at]dblock[dot]org</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * @author alessio.fachechi[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">WindowsCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractCentralProcessor.html">AbstractCentralProcessor</a> {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.ValueType;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.WmiProperty;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.WmiQuery;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil.WmiResult;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * A CPU as defined in Windows registry.</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * @author dblock[at]dblock[dot]org</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author alessio.fachechi[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">WindowsCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/hardware/common/AbstractCentralProcessor.html">AbstractCentralProcessor</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// Save Windows version info for 32 bit/64 bit branch later</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> String[][] pdhCounters = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> String pdhIrqCounter = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> String pdhSoftIrqCounter = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> String pdhContextSwitchesPerSecCounter = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> String pdhInterruptsPerSecCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      enum <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">ProcessorProperty</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiProperty</a> {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          PROCESSORID(ValueType.STRING);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">private</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">ValueType</a> type;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * Create a Processor</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">WindowsCentralProcessor</a>() {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Initialize class variables</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          initVars();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Initialize pdh counters</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          initPdhCounters();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Initialize tick arrays</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          initTicks();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          LOG.debug(<span class="jxr_string">"Initialized Processor"</span>);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * Initializes Class variables</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initVars() {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor&#92;&#92;"</span>;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">if</strong> (processorIds.length &gt; 0) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      <span class="jxr_string">"VendorIdentifier"</span>));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      <span class="jxr_string">"ProcessorNameString"</span>));
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              setIdentifier(
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, <span class="jxr_string">"Identifier"</span>));
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          SYSTEM_INFO sysinfo = <strong class="jxr_keyword">new</strong> SYSTEM_INFO();
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong> (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_AMD64</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_IA64</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              setCpu64(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_INTEL</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              setCpu64(false);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          setProcessorID(WmiUtil.selectStringFrom(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Win32_Processor"</span>, <span class="jxr_string">"ProcessorID"</span>, <strong class="jxr_keyword">null</strong>));
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * Initializes PDH Tick Counters</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initPdhCounters() {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// Set up counters.</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">this</strong>.pdhCounters = <strong class="jxr_keyword">new</strong> String[<strong class="jxr_keyword">this</strong>.logicalProcessorCount][TickType.values().length];
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         String[] queryName = <strong class="jxr_keyword">new</strong> String[TickType.values().length];
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <em class="jxr_comment">// The Idle time counter is inconsistent across Windows versions and vs.</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// WMI, but the Processor Time matches. Subtract User+Privileged from</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// Processor to get Idle.</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         queryName[TickType.IDLE.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Processor Time"</span>;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         queryName[TickType.SYSTEM.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Privileged Time"</span>;
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         queryName[TickType.USER.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% User Time"</span>;
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         queryName[TickType.IRQ.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Interrupt Time"</span>;
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         queryName[TickType.SOFTIRQ.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% DPC Time"</span>;
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = 0; p &lt; <strong class="jxr_keyword">this</strong>.logicalProcessorCount; p++) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.IDLE.getIndex()] = String.format(queryName[TickType.IDLE.getIndex()], p);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.SYSTEM.getIndex()] = String.format(queryName[TickType.SYSTEM.getIndex()], p);
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.USER.getIndex()] = String.format(queryName[TickType.USER.getIndex()], p);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.IRQ.getIndex()] = String.format(queryName[TickType.IRQ.getIndex()], p);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.SOFTIRQ.getIndex()] = String.format(queryName[TickType.SOFTIRQ.getIndex()], p);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         PdhUtil.addCounter2DArray(<span class="jxr_string">"pdhCounters"</span>, <strong class="jxr_keyword">this</strong>.pdhCounters);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         pdhIrqCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;% Interrupt Time"</span>;
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         pdhSoftIrqCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;% DPC Time"</span>;
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         pdhContextSwitchesPerSecCounter = <span class="jxr_string">"&#92;&#92;System&#92;&#92;Context Switches/sec"</span>;
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         pdhInterruptsPerSecCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;Interrupts/sec"</span>;
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         PdhUtil.addCounter(pdhIrqCounter);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         PdhUtil.addCounter(pdhSoftIrqCounter);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         PdhUtil.addCounter(pdhContextSwitchesPerSecCounter);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         PdhUtil.addCounter(pdhInterruptsPerSecCounter);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * Updates logical and physical processor counts</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     @Override
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> calculateProcessorCounts() {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Get number of logical processors</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         SYSTEM_INFO sysinfo = <strong class="jxr_keyword">new</strong> SYSTEM_INFO();
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Kernel32.INSTANCE.GetSystemInfo(sysinfo);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">this</strong>.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <em class="jxr_comment">// Get number of physical processors</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">for</strong> (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             <strong class="jxr_keyword">if</strong> (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 <strong class="jxr_keyword">this</strong>.physicalPackageCount++;
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">if</strong> (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 <strong class="jxr_keyword">this</strong>.physicalProcessorCount++;
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     @Override
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] getSystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         WinBase.FILETIME lpIdleTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         WinBase.FILETIME lpKernelTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         WinBase.FILETIME lpUserTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">if</strong> (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             LOG.error(<span class="jxr_string">"Failed to update system idle/kernel/user times. Error code: {}"</span>, Native.getLastError());
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// IOwait:</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <em class="jxr_comment">// Windows does not measure IOWait.</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <em class="jxr_comment">// IRQ:</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <em class="jxr_comment">// Percent time raw value is cumulative 100NS-ticks</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <em class="jxr_comment">// Divide by 10000 to get milliseconds</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         ticks[TickType.IRQ.getIndex()] = PdhUtil.queryCounter(<strong class="jxr_keyword">this</strong>.pdhIrqCounter) / 10000L;
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         ticks[TickType.SOFTIRQ.getIndex()] = PdhUtil.queryCounter(<strong class="jxr_keyword">this</strong>.pdhSoftIrqCounter) / 10000L;
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 - ticks[TickType.IDLE.getIndex()];
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <em class="jxr_comment">// Additional decrement to avoid double counting in the total array</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> 
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     @Override
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>         }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// TODO: If Windows ever actually implements a laod average for 1/5/15,</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_comment">// return it</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; average.length; i++) {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             average[i] = -1;
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         }
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     @Override
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">long</strong>[][] ticks = PdhUtil.queryCounter2DArray(<span class="jxr_string">"pdhCounters"</span>, <strong class="jxr_keyword">this</strong>.pdhCounters);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; <strong class="jxr_keyword">this</strong>.logicalProcessorCount; cpu++) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <em class="jxr_comment">// Decrement idle as it's really total</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                     + ticks[cpu][TickType.USER.getIndex()];
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <em class="jxr_comment">// Decrement system to avoid double counting in the total array</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <em class="jxr_comment">// Raw value is cumulative 100NS-ticks</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <em class="jxr_comment">// Divide by 10000 to get milliseconds</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             ticks[cpu][TickType.USER.getIndex()] /= 10000L;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>             ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <em class="jxr_comment">// Skipping nice and IOWait, they'll stay 0</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     @Override
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <em class="jxr_comment">// GetTickCount64 requires Vista (6.0) or later</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">if</strong> (MAJOR_VERSION &gt;= 6) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetTickCount64() / 1000L;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             <em class="jxr_comment">// 32 bit rolls over at ~ 49 days</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetTickCount() / 1000L;
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         }
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     }
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     @Override
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     @Deprecated
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsComputerSystem.html">WindowsComputerSystem</a>().getSerialNumber();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">ProcessorProperty</a>(<a href="../../../../oshi/util/platform/windows/WmiUtil.html">ValueType</a> type) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">this</strong>.type = type;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          @Override
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">ValueType</a> getType() {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.type;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_comment">// Save Windows version info for 32 bit/64 bit branch later</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> String[][] pdhCounters = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> String pdhIrqCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> String pdhSoftIrqCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> String pdhContextSwitchesPerSecCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> String pdhInterruptsPerSecCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * Create a Processor</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html">WindowsCentralProcessor</a>() {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// Initialize class variables</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          initVars();
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// Initialize pdh counters</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          initPdhCounters();
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// Initialize tick arrays</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          initTicks();
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          LOG.debug(<span class="jxr_string">"Initialized Processor"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * Initializes Class variables</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initVars() {
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor&#92;&#92;"</span>;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">if</strong> (processorIds.length &gt; 0) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     <span class="jxr_string">"VendorIdentifier"</span>));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                     <span class="jxr_string">"ProcessorNameString"</span>));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             setIdentifier(
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, <span class="jxr_string">"Identifier"</span>));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         SYSTEM_INFO sysinfo = <strong class="jxr_keyword">new</strong> SYSTEM_INFO();
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">if</strong> (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_AMD64</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_IA64</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             setCpu64(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_INTEL</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             setCpu64(false);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         WmiQuery&lt;ProcessorProperty&gt; processorIdQuery = WmiUtil.createQuery(<span class="jxr_string">"Win32_Processor"</span>, ProcessorProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         WmiResult&lt;ProcessorProperty&gt; processorId = WmiUtil.queryWMI(processorIdQuery);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">if</strong> (processorId.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             setProcessorID((String) processorId.get(ProcessorProperty.PROCESSORID).get(0));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * Initializes PDH Tick Counters</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initPdhCounters() {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">// Set up counters.</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">this</strong>.pdhCounters = <strong class="jxr_keyword">new</strong> String[<strong class="jxr_keyword">this</strong>.logicalProcessorCount][TickType.values().length];
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         String[] queryName = <strong class="jxr_keyword">new</strong> String[TickType.values().length];
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <em class="jxr_comment">// The Idle time counter is inconsistent across Windows versions and vs.</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <em class="jxr_comment">// WMI, but the Processor Time matches. Subtract User+Privileged from</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <em class="jxr_comment">// Processor to get Idle.</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         queryName[TickType.IDLE.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Processor Time"</span>;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         queryName[TickType.SYSTEM.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Privileged Time"</span>;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         queryName[TickType.USER.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% User Time"</span>;
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         queryName[TickType.IRQ.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% Interrupt Time"</span>;
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         queryName[TickType.SOFTIRQ.getIndex()] = <span class="jxr_string">"&#92;&#92;Processor(%d)&#92;&#92;%% DPC Time"</span>;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = 0; p &lt; <strong class="jxr_keyword">this</strong>.logicalProcessorCount; p++) {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.IDLE.getIndex()] = String.format(queryName[TickType.IDLE.getIndex()], p);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.SYSTEM.getIndex()] = String.format(queryName[TickType.SYSTEM.getIndex()], p);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.USER.getIndex()] = String.format(queryName[TickType.USER.getIndex()], p);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.IRQ.getIndex()] = String.format(queryName[TickType.IRQ.getIndex()], p);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">this</strong>.pdhCounters[p][TickType.SOFTIRQ.getIndex()] = String.format(queryName[TickType.SOFTIRQ.getIndex()], p);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         PerfDataUtil.addCounter2DArray(<span class="jxr_string">"pdhCounters"</span>, <strong class="jxr_keyword">this</strong>.pdhCounters);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         pdhIrqCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;% Interrupt Time"</span>;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         pdhSoftIrqCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;% DPC Time"</span>;
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         pdhContextSwitchesPerSecCounter = <span class="jxr_string">"&#92;&#92;System&#92;&#92;Context Switches/sec"</span>;
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         pdhInterruptsPerSecCounter = <span class="jxr_string">"&#92;&#92;Processor(_Total)&#92;&#92;Interrupts/sec"</span>;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         PerfDataUtil.addCounter(pdhIrqCounter);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         PerfDataUtil.addCounter(pdhSoftIrqCounter);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         PerfDataUtil.addCounter(pdhContextSwitchesPerSecCounter);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         PerfDataUtil.addCounter(pdhInterruptsPerSecCounter);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     * Updates logical and physical processor counts</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     @Override
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> calculateProcessorCounts() {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// Get number of logical processors</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         SYSTEM_INFO sysinfo = <strong class="jxr_keyword">new</strong> SYSTEM_INFO();
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         Kernel32.INSTANCE.GetSystemInfo(sysinfo);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">this</strong>.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <em class="jxr_comment">// Get number of physical processors</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">for</strong> (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>             <strong class="jxr_keyword">if</strong> (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 <strong class="jxr_keyword">this</strong>.physicalPackageCount++;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">if</strong> (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 <strong class="jxr_keyword">this</strong>.physicalProcessorCount++;
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>             }
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     @Override
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] getSystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         WinBase.FILETIME lpIdleTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         WinBase.FILETIME lpKernelTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         WinBase.FILETIME lpUserTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME();
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             LOG.error(<span class="jxr_string">"Failed to update system idle/kernel/user times. Error code: {}"</span>, Native.getLastError());
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <em class="jxr_comment">// IOwait:</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <em class="jxr_comment">// Windows does not measure IOWait.</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// IRQ:</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_comment">// Percent time raw value is cumulative 100NS-ticks</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// Divide by 10000 to get milliseconds</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.pdhIrqCounter) / 10000L;
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.pdhSoftIrqCounter) / 10000L;
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                 - ticks[TickType.IDLE.getIndex()];
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <em class="jxr_comment">// Additional decrement to avoid double counting in the total array</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     @Override
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <em class="jxr_comment">// Windows doesn't have load average</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; average.length; i++) {
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             average[i] = -1;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     @Override
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] getProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">long</strong>[][] ticks = PerfDataUtil.queryCounter2DArray(<span class="jxr_string">"pdhCounters"</span>, <strong class="jxr_keyword">this</strong>.pdhCounters);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; <strong class="jxr_keyword">this</strong>.logicalProcessorCount; cpu++) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>             <em class="jxr_comment">// Decrement idle as it's really total</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                     + ticks[cpu][TickType.USER.getIndex()];
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             <em class="jxr_comment">// Decrement system to avoid double counting in the total array</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <em class="jxr_comment">// Raw value is cumulative 100NS-ticks</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             <em class="jxr_comment">// Divide by 10000 to get milliseconds</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             ticks[cpu][TickType.USER.getIndex()] /= 10000L;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <em class="jxr_comment">// Skipping nice and IOWait, they'll stay 0</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>     @Override
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">return</strong> PdhUtil.queryCounter(pdhContextSwitchesPerSecCounter) / 10000L;
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     @Override
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInterrupts() {
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">return</strong> PdhUtil.queryCounter(pdhInterruptsPerSecCounter) / 10000L;
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     }
-<a class="jxr_linenumber" name="L271" href="#L271">271</a> }
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSystemUptime() {
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <em class="jxr_comment">// GetTickCount64 requires Vista (6.0) or later</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">if</strong> (MAJOR_VERSION &gt;= 6) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetTickCount64() / 1000L;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <em class="jxr_comment">// 32 bit rolls over at ~ 49 days</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">return</strong> Kernel32.INSTANCE.GetTickCount() / 1000L;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     @Override
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Deprecated
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsComputerSystem.html">WindowsComputerSystem</a>().getSerialNumber();
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     @Override
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">return</strong> PerfDataUtil.queryCounter(pdhContextSwitchesPerSecCounter) / 10000L;
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     @Override
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInterrupts() {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> PerfDataUtil.queryCounter(pdhInterruptsPerSecCounter) / 10000L;
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

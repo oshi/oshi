@@ -18,15 +18,14 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
+import java.util.Calendar;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Firmware data obtained from WMI
@@ -37,73 +36,43 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L40">    enum WmiProperty {</span>
-<span class="nc" id="L41">        MANUFACTURER(ValueType.STRING), //</span>
-<span class="nc" id="L42">        NAME(ValueType.STRING), //</span>
-<span class="nc" id="L43">        DESCRIPTION(ValueType.STRING), //</span>
-<span class="nc" id="L44">        VERSION(ValueType.STRING), //</span>
-<span class="nc" id="L45">        RELEASEDATE(ValueType.DATETIME);</span>
+<span class="nc" id="L39">    enum BiosProperty implements WmiProperty {</span>
+<span class="nc" id="L40">        MANUFACTURER(ValueType.STRING), //</span>
+<span class="nc" id="L41">        NAME(ValueType.STRING), //</span>
+<span class="nc" id="L42">        DESCRIPTION(ValueType.STRING), //</span>
+<span class="nc" id="L43">        VERSION(ValueType.STRING), //</span>
+<span class="nc" id="L44">        RELEASEDATE(ValueType.DATETIME);</span>
 
         private ValueType type;
 
+<span class="nc" id="L48">        BiosProperty(ValueType type) {</span>
+<span class="nc" id="L49">            this.type = type;</span>
+<span class="nc" id="L50">        }</span>
+
+        @Override
         public ValueType getType() {
-<span class="nc" id="L50">            return this.type;</span>
-        }
-
-<span class="nc" id="L53">        WmiProperty(ValueType type) {</span>
-<span class="nc" id="L54">            this.type = type;</span>
-<span class="nc" id="L55">        }</span>
-    }
-
-    // BIOS
-<span class="nc" id="L59">    private static final WmiProperty[] BIOS_PROPERTIES = new WmiProperty[] { WmiProperty.MANUFACTURER, WmiProperty.NAME,</span>
-            WmiProperty.DESCRIPTION, WmiProperty.VERSION, WmiProperty.RELEASEDATE };
-<span class="nc" id="L61">    private static final String[] BIOS_STRINGS = new String[BIOS_PROPERTIES.length];</span>
-    static {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i = 0; i &lt; BIOS_PROPERTIES.length; i++) {</span>
-<span class="nc" id="L64">            BIOS_STRINGS[i] = BIOS_PROPERTIES[i].name();</span>
+<span class="nc" id="L54">            return this.type;</span>
         }
     }
-<span class="nc" id="L67">    private static final ValueType[] BIOS_TYPES = new ValueType[BIOS_PROPERTIES.length];</span>
-    static {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (int i = 0; i &lt; BIOS_PROPERTIES.length; i++) {</span>
-<span class="nc" id="L70">            BIOS_TYPES[i] = BIOS_PROPERTIES[i].getType();</span>
-        }
-<span class="nc" id="L72">    }</span>
 
-<span class="nc" id="L74">    WindowsFirmware() {</span>
-<span class="nc" id="L75">        init();</span>
-<span class="nc" id="L76">    }</span>
+<span class="nc" id="L58">    WindowsFirmware() {</span>
+<span class="nc" id="L59">        init();</span>
+<span class="nc" id="L60">    }</span>
 
     private void init() {
+<span class="nc" id="L63">        WmiQuery&lt;BiosProperty&gt; biosQuery = WmiUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
 
-<span class="nc" id="L80">        final Map&lt;String, List&lt;Object&gt;&gt; win32BIOS = WmiUtil.selectObjectsFrom(null, &quot;Win32_BIOS&quot;,</span>
-                BIOS_STRINGS, &quot;where PrimaryBIOS=true&quot;, BIOS_TYPES);
-
-<span class="nc" id="L83">        final List&lt;Object&gt; manufacturers = win32BIOS.get(WmiProperty.MANUFACTURER.name());</span>
-<span class="nc bnc" id="L84" title="All 4 branches missed.">        if (manufacturers != null &amp;&amp; manufacturers.size() == 1) {</span>
-<span class="nc" id="L85">            setManufacturer((String) manufacturers.get(0));</span>
+<span class="nc" id="L65">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L67">            setManufacturer((String) win32BIOS.get(BiosProperty.MANUFACTURER).get(0));</span>
+<span class="nc" id="L68">            setName((String) win32BIOS.get(BiosProperty.NAME).get(0));</span>
+<span class="nc" id="L69">            setDescription((String) win32BIOS.get(BiosProperty.DESCRIPTION).get(0));</span>
+<span class="nc" id="L70">            setVersion((String) win32BIOS.get(BiosProperty.VERSION).get(0));</span>
+<span class="nc" id="L71">            Calendar c = Calendar.getInstance();</span>
+<span class="nc" id="L72">            c.setTimeInMillis((Long) win32BIOS.get(BiosProperty.RELEASEDATE).get(0));</span>
+<span class="nc" id="L73">            setReleaseDate(String.format(&quot;%04d-%02d-%02d&quot;, c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,</span>
+<span class="nc" id="L74">                    c.get(Calendar.DATE)));</span>
         }
-
-<span class="nc" id="L88">        final List&lt;Object&gt; names = win32BIOS.get(WmiProperty.NAME.name());</span>
-<span class="nc bnc" id="L89" title="All 4 branches missed.">        if (names != null &amp;&amp; names.size() == 1) {</span>
-<span class="nc" id="L90">            setName((String) names.get(0));</span>
-        }
-
-<span class="nc" id="L93">        final List&lt;Object&gt; descriptions = win32BIOS.get(WmiProperty.DESCRIPTION.name());</span>
-<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (descriptions != null &amp;&amp; descriptions.size() == 1) {</span>
-<span class="nc" id="L95">            setDescription((String) descriptions.get(0));</span>
-        }
-
-<span class="nc" id="L98">        final List&lt;Object&gt; version = win32BIOS.get(WmiProperty.VERSION.name());</span>
-<span class="nc bnc" id="L99" title="All 4 branches missed.">        if (version != null &amp;&amp; version.size() == 1) {</span>
-<span class="nc" id="L100">            setVersion((String) version.get(0));</span>
-        }
-
-<span class="nc" id="L103">        final List&lt;Object&gt; releaseDate = win32BIOS.get(WmiProperty.RELEASEDATE.name());</span>
-<span class="nc bnc" id="L104" title="All 4 branches missed.">        if (releaseDate != null &amp;&amp; releaseDate.size() == 1) {</span>
-<span class="nc" id="L105">            setReleaseDate(Instant.ofEpochMilli((Long) releaseDate.get(0)).atZone(ZoneOffset.UTC).toLocalDate());</span>
-        }
-<span class="nc" id="L107">    }</span>
+<span class="nc" id="L76">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

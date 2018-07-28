@@ -56,22 +56,31 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Override
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>[] getNetworks() {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;NetworkIF&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              Enumeration&lt;NetworkInterface&gt; interfaces = NetworkInterface.getNetworkInterfaces();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">for</strong> (NetworkInterface netint : Collections.list(interfaces)) {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">if</strong> (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                      <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a> netIF = <strong class="jxr_keyword">new</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                      netIF.setNetworkInterface(netint);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                      netIF.updateNetworkStats();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                      result.add(netIF);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          } <strong class="jxr_keyword">catch</strong> (SocketException ex) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              LOG.error(<span class="jxr_string">"Socket exception when retrieving network interfaces: {}"</span>, ex);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>[result.size()]);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          Enumeration&lt;NetworkInterface&gt; interfaces;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              interfaces = NetworkInterface.getNetworkInterfaces();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          } <strong class="jxr_keyword">catch</strong> (SocketException ex) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              LOG.error(<span class="jxr_string">"Socket exception when retrieving interfaces: {}"</span>, ex);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>[0];
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">for</strong> (NetworkInterface netint : Collections.list(interfaces)) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">if</strong> (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a> netIF = <strong class="jxr_keyword">new</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>();
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                      netIF.setNetworkInterface(netint);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      netIF.updateNetworkStats();
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      result.add(netIF);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              } <strong class="jxr_keyword">catch</strong> (SocketException ex) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  LOG.error(<span class="jxr_string">"Socket exception when retrieving interface \&quot;{}\&quot;: {}"</span>, netint.getName(), ex);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../oshi/hardware/NetworkIF.html">NetworkIF</a>[result.size()]);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

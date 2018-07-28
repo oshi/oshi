@@ -18,8 +18,6 @@
  */
 package oshi.hardware.common;
 
-import org.threeten.bp.LocalDate;
-
 import oshi.hardware.Firmware;
 
 /**
@@ -36,14 +34,16 @@ public abstract class AbstractFirmware implements Firmware {
     private String name;
     private String description;
     private String version;
-    private LocalDate releaseDate;
+    private String releaseDate;
+
+    private static final String UNKNOWN = &quot;unknown&quot;;
 
 <span class="nc" id="L41">    public AbstractFirmware() {</span>
-<span class="nc" id="L42">        this.manufacturer = &quot;unknown&quot;;</span>
-<span class="nc" id="L43">        this.name = &quot;unknown&quot;;</span>
-<span class="nc" id="L44">        this.description = &quot;unknown&quot;;</span>
-<span class="nc" id="L45">        this.version = &quot;unknown&quot;;</span>
-<span class="nc" id="L46">        this.releaseDate = null;</span>
+<span class="nc" id="L42">        this.manufacturer = UNKNOWN;</span>
+<span class="nc" id="L43">        this.name = UNKNOWN;</span>
+<span class="nc" id="L44">        this.description = UNKNOWN;</span>
+<span class="nc" id="L45">        this.version = UNKNOWN;</span>
+<span class="nc" id="L46">        this.releaseDate = UNKNOWN;</span>
 <span class="nc" id="L47">    }</span>
 
     /**
@@ -82,7 +82,7 @@ public abstract class AbstractFirmware implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public LocalDate getReleaseDate() {
+    public String getReleaseDate() {
 <span class="nc" id="L86">        return this.releaseDate;</span>
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractFirmware implements Firmware {
      * @param releaseDate
      *            The releaseDate to set.
      */
-    public void setReleaseDate(LocalDate releaseDate) {
+    public void setReleaseDate(String releaseDate) {
 <span class="nc" id="L126">        this.releaseDate = releaseDate;</span>
 <span class="nc" id="L127">    }</span>
 

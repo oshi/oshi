@@ -20,14 +20,9 @@ package oshi.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -35,8 +30,6 @@ import org.threeten.bp.format.DateTimeParseException;
  * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
-<span class="fc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(FormatUtil.class);</span>
-
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
@@ -61,12 +54,10 @@ public class FormatUtil {
     private static final long PETA = 1000000000000000L;
     private static final long EXA = 1000000000000000000L;
 
-<span class="fc" id="L64">    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(&quot;MM/dd/yyyy&quot;);</span>
-
     /*
      * Two's complement reference: 2^64.
      */
-<span class="fc" id="L69">    private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);</span>
+<span class="fc" id="L60">    private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);</span>
 
     private FormatUtil() {
     }
@@ -83,22 +74,22 @@ public class FormatUtil {
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytes(long bytes) {
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
-<span class="fc" id="L87">            return String.format(&quot;%d byte&quot;, bytes);</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        } else if (bytes &lt; KIBI) { // bytes</span>
-<span class="fc" id="L89">            return String.format(&quot;%d bytes&quot;, bytes);</span>
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        } else if (bytes &lt; MEBI) { // KiB</span>
-<span class="fc" id="L91">            return formatUnits(bytes, KIBI, &quot;KiB&quot;);</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        } else if (bytes &lt; GIBI) { // MiB</span>
-<span class="fc" id="L93">            return formatUnits(bytes, MEBI, &quot;MiB&quot;);</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
-<span class="fc" id="L95">            return formatUnits(bytes, GIBI, &quot;GiB&quot;);</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        } else if (bytes &lt; PEBI) { // TiB</span>
-<span class="fc" id="L97">            return formatUnits(bytes, TEBI, &quot;TiB&quot;);</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">        } else if (bytes &lt; EXBI) { // PiB</span>
-<span class="fc" id="L99">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L78">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        } else if (bytes &lt; KIBI) { // bytes</span>
+<span class="fc" id="L80">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        } else if (bytes &lt; MEBI) { // KiB</span>
+<span class="fc" id="L82">            return formatUnits(bytes, KIBI, &quot;KiB&quot;);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        } else if (bytes &lt; GIBI) { // MiB</span>
+<span class="fc" id="L84">            return formatUnits(bytes, MEBI, &quot;MiB&quot;);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
+<span class="fc" id="L86">            return formatUnits(bytes, GIBI, &quot;GiB&quot;);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        } else if (bytes &lt; PEBI) { // TiB</span>
+<span class="fc" id="L88">            return formatUnits(bytes, TEBI, &quot;TiB&quot;);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        } else if (bytes &lt; EXBI) { // PiB</span>
+<span class="fc" id="L90">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
         } else { // EiB
-<span class="fc" id="L101">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
+<span class="fc" id="L92">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
         }
     }
 
@@ -115,10 +106,10 @@ public class FormatUtil {
      * @return A string with the value
      */
     private static String formatUnits(long value, long prefix, String unit) {
-<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (value % prefix == 0) {</span>
-<span class="fc" id="L119">            return String.format(&quot;%d %s&quot;, value / prefix, unit);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (value % prefix == 0) {</span>
+<span class="fc" id="L110">            return String.format(&quot;%d %s&quot;, value / prefix, unit);</span>
         }
-<span class="fc" id="L121">        return String.format(&quot;%.1f %s&quot;, (double) value / prefix, unit);</span>
+<span class="fc" id="L112">        return String.format(&quot;%.1f %s&quot;, (double) value / prefix, unit);</span>
     }
 
     /**
@@ -131,12 +122,12 @@ public class FormatUtil {
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytesDecimal(long bytes) {
-<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
-<span class="fc" id="L135">            return String.format(&quot;%d byte&quot;, bytes);</span>
-<span class="fc bfc" id="L136" title="All 2 branches covered.">        } else if (bytes &lt; KILO) { // bytes</span>
-<span class="fc" id="L137">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L126">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        } else if (bytes &lt; KILO) { // bytes</span>
+<span class="fc" id="L128">            return String.format(&quot;%d bytes&quot;, bytes);</span>
         } else {
-<span class="fc" id="L139">            return formatValue(bytes, &quot;B&quot;);</span>
+<span class="fc" id="L130">            return formatValue(bytes, &quot;B&quot;);</span>
         }
     }
 
@@ -148,7 +139,7 @@ public class FormatUtil {
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
-<span class="fc" id="L151">        return formatValue(hertz, &quot;Hz&quot;);</span>
+<span class="fc" id="L142">        return formatValue(hertz, &quot;Hz&quot;);</span>
     }
 
     /**
@@ -162,20 +153,20 @@ public class FormatUtil {
      *         extension
      */
     public static String formatValue(long value, String unit) {
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (value &lt; KILO) {</span>
-<span class="fc" id="L166">            return String.format(&quot;%d %s&quot;, value, unit);</span>
-<span class="fc bfc" id="L167" title="All 2 branches covered.">        } else if (value &lt; MEGA) { // K</span>
-<span class="fc" id="L168">            return formatUnits(value, KILO, &quot;K&quot; + unit);</span>
-<span class="fc bfc" id="L169" title="All 2 branches covered.">        } else if (value &lt; GIGA) { // M</span>
-<span class="fc" id="L170">            return formatUnits(value, MEGA, &quot;M&quot; + unit);</span>
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        } else if (value &lt; TERA) { // G</span>
-<span class="fc" id="L172">            return formatUnits(value, GIGA, &quot;G&quot; + unit);</span>
-<span class="fc bfc" id="L173" title="All 2 branches covered.">        } else if (value &lt; PETA) { // T</span>
-<span class="fc" id="L174">            return formatUnits(value, TERA, &quot;T&quot; + unit);</span>
-<span class="fc bfc" id="L175" title="All 2 branches covered.">        } else if (value &lt; EXA) { // P</span>
-<span class="fc" id="L176">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (value &lt; KILO) {</span>
+<span class="fc" id="L157">            return String.format(&quot;%d %s&quot;, value, unit);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        } else if (value &lt; MEGA) { // K</span>
+<span class="fc" id="L159">            return formatUnits(value, KILO, &quot;K&quot; + unit);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        } else if (value &lt; GIGA) { // M</span>
+<span class="fc" id="L161">            return formatUnits(value, MEGA, &quot;M&quot; + unit);</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        } else if (value &lt; TERA) { // G</span>
+<span class="fc" id="L163">            return formatUnits(value, GIGA, &quot;G&quot; + unit);</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        } else if (value &lt; PETA) { // T</span>
+<span class="fc" id="L165">            return formatUnits(value, TERA, &quot;T&quot; + unit);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        } else if (value &lt; EXA) { // P</span>
+<span class="fc" id="L167">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
         } else { // E
-<span class="fc" id="L178">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
+<span class="fc" id="L169">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
         }
     }
 
@@ -187,15 +178,15 @@ public class FormatUtil {
      * @return A string representation of elapsed time
      */
     public static String formatElapsedSecs(long secs) {
-<span class="fc" id="L190">        long eTime = secs;</span>
-<span class="fc" id="L191">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
-<span class="fc" id="L192">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
-<span class="fc" id="L193">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
-<span class="fc" id="L194">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
-<span class="fc" id="L195">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
-<span class="fc" id="L196">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
-<span class="fc" id="L197">        final long sec = eTime;</span>
-<span class="fc" id="L198">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
+<span class="fc" id="L181">        long eTime = secs;</span>
+<span class="fc" id="L182">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
+<span class="fc" id="L183">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
+<span class="fc" id="L184">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
+<span class="fc" id="L185">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
+<span class="fc" id="L186">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
+<span class="fc" id="L187">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
+<span class="fc" id="L188">        final long sec = eTime;</span>
+<span class="fc" id="L189">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
     }
 
     /**
@@ -208,8 +199,8 @@ public class FormatUtil {
      * @return rounded result
      */
     public static float round(float d, int decimalPlace) {
-<span class="fc" id="L211">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);</span>
-<span class="fc" id="L212">        return bd.floatValue();</span>
+<span class="fc" id="L202">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L203">        return bd.floatValue();</span>
     }
 
     /**
@@ -220,34 +211,7 @@ public class FormatUtil {
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
-<span class="fc" id="L223">        return x &amp; 0x00000000ffffffffL;</span>
-    }
-
-    /**
-     * Convert a java date to a MM-dd-yyyy string representation
-     *
-     * @param date
-     *            the date to convert
-     * @return a string in the form MM/dd/yyyy
-     */
-    public static String formatDate(LocalDate date) {
-<span class="fc bfc" id="L234" title="All 2 branches covered.">        return date == null ? &quot;null&quot; : date.format(DATE_FORMATTER);</span>
-    }
-
-    /**
-     * Convert a MM-dd-yyyy string representation to a java LocalDate
-     *
-     * @param date
-     *            a string in the form MM/dd/yyyy
-     * @return the corresponding LocalDate
-     */
-    public static LocalDate formatStringDate(String date) {
-        try {
-<span class="fc bfc" id="L246" title="All 2 branches covered.">            return date == null ? null : LocalDate.parse(date, DATE_FORMATTER);</span>
-<span class="fc" id="L247">        } catch (DateTimeParseException dtpe) {</span>
-<span class="fc" id="L248">            LOG.warn(&quot;Date parse error: {}&quot;, dtpe);</span>
-<span class="fc" id="L249">            return null;</span>
-        }
+<span class="fc" id="L214">        return x &amp; 0x00000000ffffffffL;</span>
     }
 
     /**
@@ -260,10 +224,10 @@ public class FormatUtil {
      * @return the string representation of the unsigned integer
      */
     public static String toUnsignedString(int i) {
-<span class="fc bfc" id="L263" title="All 2 branches covered.">        if (i &gt;= 0) {</span>
-<span class="fc" id="L264">            return Integer.toString(i);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (i &gt;= 0) {</span>
+<span class="fc" id="L228">            return Integer.toString(i);</span>
         }
-<span class="fc" id="L266">        return Long.toString(getUnsignedInt(i));</span>
+<span class="fc" id="L230">        return Long.toString(getUnsignedInt(i));</span>
     }
 
     /**
@@ -276,10 +240,10 @@ public class FormatUtil {
      * @return the string representation of the unsigned long
      */
     public static String toUnsignedString(long l) {
-<span class="fc bfc" id="L279" title="All 2 branches covered.">        if (l &gt;= 0) {</span>
-<span class="fc" id="L280">            return Long.toString(l);</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        if (l &gt;= 0) {</span>
+<span class="fc" id="L244">            return Long.toString(l);</span>
         }
-<span class="fc" id="L282">        return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();</span>
+<span class="fc" id="L246">        return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();</span>
     }
 
     /**
@@ -296,17 +260,17 @@ public class FormatUtil {
      *         delimiter
      */
     public static String join(CharSequence delimiter, CharSequence... elements) {
-<span class="fc" id="L299">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L300">        boolean first = true;</span>
-<span class="fc bfc" id="L301" title="All 2 branches covered.">        for (CharSequence cs : elements) {</span>
-<span class="fc bfc" id="L302" title="All 2 branches covered.">            if (first) {</span>
-<span class="fc" id="L303">                first = false;</span>
+<span class="fc" id="L263">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L264">        boolean first = true;</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        for (CharSequence cs : elements) {</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            if (first) {</span>
+<span class="fc" id="L267">                first = false;</span>
             } else {
-<span class="fc" id="L305">                sb.append(delimiter);</span>
+<span class="fc" id="L269">                sb.append(delimiter);</span>
             }
-<span class="fc" id="L307">            sb.append(cs);</span>
+<span class="fc" id="L271">            sb.append(cs);</span>
         }
-<span class="fc" id="L309">        return sb.toString();</span>
+<span class="fc" id="L273">        return sb.toString();</span>
     }
 
     /**
@@ -323,16 +287,16 @@ public class FormatUtil {
      * @return a new String that is composed from the elements argument
      */
     public static String join(CharSequence delimiter, Iterable&lt;? extends CharSequence&gt; elements) {
-<span class="fc" id="L326">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L327">        Iterator&lt;?&gt; iter = elements.iterator();</span>
-<span class="pc bpc" id="L328" title="1 of 2 branches missed.">        if (iter.hasNext()) {</span>
-<span class="fc" id="L329">            sb.append(iter.next().toString());</span>
+<span class="fc" id="L290">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L291">        Iterator&lt;?&gt; iter = elements.iterator();</span>
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">        if (iter.hasNext()) {</span>
+<span class="fc" id="L293">            sb.append(iter.next().toString());</span>
         }
-<span class="fc bfc" id="L331" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
-<span class="fc" id="L332">            sb.append(delimiter);</span>
-<span class="fc" id="L333">            sb.append(iter.next().toString());</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L296">            sb.append(delimiter);</span>
+<span class="fc" id="L297">            sb.append(iter.next().toString());</span>
         }
-<span class="fc" id="L335">        return sb.toString();</span>
+<span class="fc" id="L299">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

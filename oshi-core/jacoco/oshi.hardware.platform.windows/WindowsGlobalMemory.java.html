@@ -26,7 +26,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.platform.windows.PdhUtil;
+import oshi.util.platform.windows.PerfDataUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -59,11 +59,11 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L59">        pdhPagesInputPerSecCounter = &quot;\\Memory\\Pages Input/sec&quot;;</span>
 <span class="nc" id="L60">        pdhPagesOutputPerSecCounter = &quot;\\Memory\\Pages Output/sec&quot;;</span>
 
-<span class="nc" id="L62">        PdhUtil.addCounter(pdhPagesInputPerSecCounter);</span>
-<span class="nc" id="L63">        PdhUtil.addCounter(pdhPagesOutputPerSecCounter);</span>
+<span class="nc" id="L62">        PerfDataUtil.addCounter(pdhPagesInputPerSecCounter);</span>
+<span class="nc" id="L63">        PerfDataUtil.addCounter(pdhPagesOutputPerSecCounter);</span>
 
 <span class="nc" id="L65">        pdhPagingPercentUsageCounter = &quot;\\Paging File(_Total)\\% Usage&quot;;</span>
-<span class="nc" id="L66">        PdhUtil.addCounter(pdhPagingPercentUsageCounter);</span>
+<span class="nc" id="L66">        PerfDataUtil.addCounter(pdhPagingPercentUsageCounter);</span>
 <span class="nc" id="L67">    }</span>
 
     /**
@@ -82,8 +82,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L82">            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();</span>
 <span class="nc" id="L83">            this.swapTotal = this.pageSize</span>
 <span class="nc" id="L84">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
-<span class="nc" id="L85">            this.swapPagesIn = PdhUtil.queryCounter(pdhPagesInputPerSecCounter);</span>
-<span class="nc" id="L86">            this.swapPagesOut = PdhUtil.queryCounter(pdhPagesOutputPerSecCounter);</span>
+<span class="nc" id="L85">            this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);</span>
+<span class="nc" id="L86">            this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);</span>
 
 <span class="nc" id="L88">            this.lastUpdate = now;</span>
         }
@@ -95,7 +95,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
 <span class="nc" id="L97">        updateMeminfo();</span>
-<span class="nc" id="L98">        this.swapUsed = PdhUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;</span>
+<span class="nc" id="L98">        this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;</span>
 <span class="nc" id="L99">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
