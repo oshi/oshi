@@ -26,18 +26,25 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 public class EnumWbemClassObject extends Unknown {
+
     public static final int WBEM_FLAG_RETURN_IMMEDIATELY = 0x00000010;
     public static final int WBEM_FLAG_FORWARD_ONLY = 0x00000020;
     public static final int WBEM_INFINITE = 0xFFFFFFFF;
 
+    // Non-error constants
+    // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-non-error-constants
+    public static final int WBEM_S_NO_ERROR = 0x0;
+    public static final int WBEM_S_NO_MORE_DATA = 0x40001;
+    public static final int WBEM_S_TIMEDOUT = 0x40004;
+
     public EnumWbemClassObject(Pointer pvInstance) {
-<span class="nc" id="L34">        super(pvInstance);</span>
-<span class="nc" id="L35">    }</span>
+<span class="nc" id="L41">        super(pvInstance);</span>
+<span class="nc" id="L42">    }</span>
 
     public HRESULT Next(NativeLong lTimeOut, NativeLong uCount, PointerByReference ppObjects,
             LongByReference puReturned) {
         // Next is 5th method of vtable for EnumWbemClassObject in WbemCli.h
-<span class="nc" id="L40">        return (HRESULT) _invokeNativeObject(4, new Object[] { getPointer(), lTimeOut, uCount, ppObjects, puReturned },</span>
+<span class="nc" id="L47">        return (HRESULT) _invokeNativeObject(4, new Object[] { getPointer(), lTimeOut, uCount, ppObjects, puReturned },</span>
                 HRESULT.class);
     }
 }

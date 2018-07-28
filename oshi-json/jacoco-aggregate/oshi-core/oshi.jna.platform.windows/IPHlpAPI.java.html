@@ -181,24 +181,18 @@ public interface IPHlpAPI extends Library {
      * @see &lt;A HREF=
      *      &quot;https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_addr_string&quot;&gt;IP_ADDR_STRING&lt;/A&gt;
      */
-    class IP_ADDR_STRING extends Structure {
-        public Pointer Next; // IP_ADDR_STRING
+<span class="nc" id="L184">    class IP_ADDR_STRING extends Structure {</span>
+        public IP_ADDR_STRING.ByReference Next;
         public IP_ADDRESS_STRING IpAddress;
         public IP_ADDRESS_STRING IpMask;
         public int Context;
 
-        public IP_ADDR_STRING(Pointer p) {
-<span class="nc" id="L191">            super(p);</span>
-<span class="nc" id="L192">            read();</span>
-<span class="nc" id="L193">        }</span>
-
-        public IP_ADDR_STRING() {
-<span class="nc" id="L196">            super();</span>
-<span class="nc" id="L197">        }</span>
+<span class="nc" id="L190">        public static class ByReference extends IP_ADDR_STRING implements Structure.ByReference {</span>
+        }
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L201">            return Arrays.asList(new String[] { &quot;Next&quot;, &quot;IpAddress&quot;, &quot;IpMask&quot;, &quot;Context&quot; });</span>
+<span class="nc" id="L195">            return Arrays.asList(new String[] { &quot;Next&quot;, &quot;IpAddress&quot;, &quot;IpMask&quot;, &quot;Context&quot; });</span>
         }
     }
 
@@ -210,28 +204,28 @@ public interface IPHlpAPI extends Library {
      *      &quot;https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-fixed_info_w2ksp1&quot;&gt;FIXED_INFO&lt;/A&gt;
      */
     class FIXED_INFO extends Structure {
-<span class="nc" id="L213">        public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];</span>
-<span class="nc" id="L214">        public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];</span>
-        public Pointer CurrentDnsServer; // IP_ADDR_STRING
+<span class="nc" id="L207">        public byte[] HostName = new byte[MAX_HOSTNAME_LEN + 4];</span>
+<span class="nc" id="L208">        public byte[] DomainName = new byte[MAX_DOMAIN_NAME_LEN + 4];</span>
+        public IP_ADDR_STRING.ByReference CurrentDnsServer;
         public IP_ADDR_STRING DnsServerList;
         public int NodeType;
-<span class="nc" id="L218">        public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];</span>
+<span class="nc" id="L212">        public byte[] ScopeId = new byte[MAX_SCOPE_ID_LEN + 4];</span>
         public int EnableRouting;
         public int EnableProxy;
         public int EnableDns;
 
         public FIXED_INFO(Pointer p) {
-<span class="nc" id="L224">            super(p);</span>
-<span class="nc" id="L225">            read();</span>
-<span class="nc" id="L226">        }</span>
+<span class="nc" id="L218">            super(p);</span>
+<span class="nc" id="L219">            read();</span>
+<span class="nc" id="L220">        }</span>
 
         public FIXED_INFO() {
-<span class="nc" id="L229">            super();</span>
-<span class="nc" id="L230">        }</span>
+<span class="nc" id="L223">            super();</span>
+<span class="nc" id="L224">        }</span>
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L234">            return Arrays.asList(new String[] { &quot;HostName&quot;, &quot;DomainName&quot;, &quot;CurrentDnsServer&quot;, &quot;DnsServerList&quot;,</span>
+<span class="nc" id="L228">            return Arrays.asList(new String[] { &quot;HostName&quot;, &quot;DomainName&quot;, &quot;CurrentDnsServer&quot;, &quot;DnsServerList&quot;,</span>
                     &quot;NodeType&quot;, &quot;ScopeId&quot;, &quot;EnableRouting&quot;, &quot;EnableProxy&quot;, &quot;EnableDns&quot; });
         }
     }
@@ -296,6 +290,6 @@ public interface IPHlpAPI extends Library {
      *            ERROR_BUFFER_OVERFLOW.
      * @return If the function succeeds, the return value is ERROR_SUCCESS.
      */
-    int GetNetworkParams(FIXED_INFO pFixedInfo, IntByReference pOutBufLen);
+    int GetNetworkParams(Pointer pFixedInfo, IntByReference pOutBufLen);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -18,11 +18,12 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiUtil.ValueType;
+import oshi.util.platform.windows.WmiUtil.WmiProperty;
+import oshi.util.platform.windows.WmiUtil.WmiQuery;
+import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Baseboard data obtained from WMI
@@ -33,34 +34,37 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L36">    WindowsBaseboard() {</span>
-<span class="nc" id="L37">        init();</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L37">    enum BaseboardProperty implements WmiProperty {</span>
+<span class="nc" id="L38">        MANUFACTURER(ValueType.STRING), //</span>
+<span class="nc" id="L39">        MODEL(ValueType.STRING), //</span>
+<span class="nc" id="L40">        VERSION(ValueType.STRING), //</span>
+<span class="nc" id="L41">        SERIALNUMBER(ValueType.STRING);</span>
+
+        private ValueType type;
+
+<span class="nc" id="L45">        BaseboardProperty(ValueType type) {</span>
+<span class="nc" id="L46">            this.type = type;</span>
+<span class="nc" id="L47">        }</span>
+
+        @Override
+        public ValueType getType() {
+<span class="nc" id="L51">            return this.type;</span>
+        }
+    }
+
+<span class="nc" id="L55">    WindowsBaseboard() {</span>
+<span class="nc" id="L56">        init();</span>
+<span class="nc" id="L57">    }</span>
 
     private void init() {
-
-<span class="nc" id="L42">        final Map&lt;String, List&lt;String&gt;&gt; win32BaseBoard = WmiUtil.selectStringsFrom(null, &quot;Win32_BaseBoard&quot;,</span>
-                &quot;Manufacturer,Model,Version,SerialNumber&quot;, null);
-
-<span class="nc" id="L45">        final List&lt;String&gt; baseboardManufacturers = win32BaseBoard.get(&quot;Manufacturer&quot;);</span>
-<span class="nc bnc" id="L46" title="All 4 branches missed.">        if (baseboardManufacturers != null &amp;&amp; !baseboardManufacturers.isEmpty()) {</span>
-<span class="nc" id="L47">            setManufacturer(baseboardManufacturers.get(0));</span>
+<span class="nc" id="L60">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = WmiUtil.createQuery(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
+<span class="nc" id="L61">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L63">            setManufacturer((String) win32BaseBoard.get(BaseboardProperty.MANUFACTURER).get(0));</span>
+<span class="nc" id="L64">            setModel((String) win32BaseBoard.get(BaseboardProperty.MODEL).get(0));</span>
+<span class="nc" id="L65">            setVersion((String) win32BaseBoard.get(BaseboardProperty.VERSION).get(0));</span>
+<span class="nc" id="L66">            setSerialNumber((String) win32BaseBoard.get(BaseboardProperty.SERIALNUMBER).get(0));</span>
         }
-
-<span class="nc" id="L50">        final List&lt;String&gt; baseboardModels = win32BaseBoard.get(&quot;Model&quot;);</span>
-<span class="nc bnc" id="L51" title="All 4 branches missed.">        if (baseboardModels != null &amp;&amp; !baseboardModels.isEmpty()) {</span>
-<span class="nc" id="L52">            setModel(baseboardModels.get(0));</span>
-        }
-
-<span class="nc" id="L55">        final List&lt;String&gt; baseboardVersions = win32BaseBoard.get(&quot;Version&quot;);</span>
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (baseboardVersions != null &amp;&amp; !baseboardVersions.isEmpty()) {</span>
-<span class="nc" id="L57">            setVersion(baseboardVersions.get(0));</span>
-        }
-
-<span class="nc" id="L60">        final List&lt;String&gt; baseboardSerials = win32BaseBoard.get(&quot;SerialNumber&quot;);</span>
-<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (baseboardSerials != null &amp;&amp; !baseboardSerials.isEmpty()) {</span>
-<span class="nc" id="L62">            setSerialNumber(baseboardSerials.get(0));</span>
-        }
-<span class="nc" id="L64">    }</span>
+<span class="nc" id="L68">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
