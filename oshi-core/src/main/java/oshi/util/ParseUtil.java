@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.SimpleTimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,6 +99,9 @@ public class ParseUtil {
 
     // Fast hex character lookup
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    // UTC
+    private static final SimpleTimeZone UTC = new SimpleTimeZone(0, "UTC");
 
     private ParseUtil() {
     }
@@ -348,13 +351,13 @@ public class ParseUtil {
             // Calendar uses 0-indexed months
             c.set(Calendar.MONTH, Integer.parseInt(cimDate.substring(4, 6)) - 1);
             c.set(Calendar.DATE, Integer.parseInt(cimDate.substring(6, 8)));
-            c.set(Calendar.HOUR, Integer.parseInt(cimDate.substring(8, 10)));
+            c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cimDate.substring(8, 10)));
             c.set(Calendar.MINUTE, Integer.parseInt(cimDate.substring(10, 12)));
             c.set(Calendar.SECOND, Integer.parseInt(cimDate.substring(12, 14)));
             c.set(Calendar.MILLISECOND, Integer.parseInt(cimDate.substring(15, 18)));
             // Offset from UTC is in minutes
-            c.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return c.getTimeInMillis() + Integer.parseInt(cimDate.substring(22)) * 60_000L;
+            c.setTimeZone(UTC);
+            return c.getTimeInMillis() - Integer.parseInt(cimDate.substring(21)) * 60_000L;
         } catch (StringIndexOutOfBoundsException | // If cimDate not 22+ chars
                 NumberFormatException e) { // If the fields didn't parse
             LOG.trace(DEFAULT_LOG_MSG, cimDate, e);
