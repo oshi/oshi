@@ -497,30 +497,29 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // through branch prediction if it doesn't
 <span class="nc bnc" id="L498" title="All 2 branches missed.">        for (long[] tick : ticks) {</span>
 <span class="nc bnc" id="L499" title="All 2 branches missed.">            for (long element : tick) {</span>
-<span class="nc bnc" id="L500" title="All 2 branches missed.">                if (element == 0L) {</span>
-<span class="nc" id="L501">                    continue;</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">                if (element != 0L) {</span>
+                    // We have a nonzero tick array, update and return!
+<span class="nc" id="L502">                    this.procTickTime = System.currentTimeMillis();</span>
+                    // Copy to previous
+<span class="nc bnc" id="L504" title="All 2 branches missed.">                    for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L505">                        System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,</span>
+                                this.curProcTicks[cpu].length);
+                    }
+<span class="nc bnc" id="L508" title="All 2 branches missed.">                    for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L509">                        System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);</span>
+                    }
+<span class="nc" id="L511">                    return;</span>
                 }
-                // We have a nonzero tick array, update and return!
-<span class="nc" id="L504">                this.procTickTime = System.currentTimeMillis();</span>
-                // Copy to previous
-<span class="nc bnc" id="L506" title="All 2 branches missed.">                for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L507">                    System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,</span>
-                            this.curProcTicks[cpu].length);
-                }
-<span class="nc bnc" id="L510" title="All 2 branches missed.">                for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L511">                    System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);</span>
-                }
-<span class="nc" id="L513">                return;</span>
             }
         }
-<span class="nc" id="L516">    }</span>
+<span class="nc" id="L515">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public int getLogicalProcessorCount() {
-<span class="nc" id="L523">        return this.logicalProcessorCount;</span>
+<span class="nc" id="L522">        return this.logicalProcessorCount;</span>
     }
 
     /**
@@ -528,7 +527,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public int getPhysicalProcessorCount() {
-<span class="nc" id="L531">        return this.physicalProcessorCount;</span>
+<span class="nc" id="L530">        return this.physicalProcessorCount;</span>
     }
 
     /**
@@ -536,12 +535,12 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public int getPhysicalPackageCount() {
-<span class="nc" id="L539">        return this.physicalPackageCount;</span>
+<span class="nc" id="L538">        return this.physicalPackageCount;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L544">        return getName();</span>
+<span class="nc" id="L543">        return getName();</span>
     }
 
     /**
@@ -559,116 +558,116 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The Processor ID string
      */
     protected String createProcessorID(String stepping, String model, String family, String[] flags) {
-<span class="nc" id="L562">        long processorIdBytes = 0L;</span>
-<span class="nc" id="L563">        long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);</span>
-<span class="nc" id="L564">        long modelL = ParseUtil.parseLongOrDefault(model, 0L);</span>
-<span class="nc" id="L565">        long familyL = ParseUtil.parseLongOrDefault(family, 0L);</span>
+<span class="nc" id="L561">        long processorIdBytes = 0L;</span>
+<span class="nc" id="L562">        long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);</span>
+<span class="nc" id="L563">        long modelL = ParseUtil.parseLongOrDefault(model, 0L);</span>
+<span class="nc" id="L564">        long familyL = ParseUtil.parseLongOrDefault(family, 0L);</span>
         // 3:0 – Stepping
-<span class="nc" id="L567">        processorIdBytes |= steppingL &amp; 0xf;</span>
+<span class="nc" id="L566">        processorIdBytes |= steppingL &amp; 0xf;</span>
         // 19:16,7:4 – Model
-<span class="nc" id="L569">        processorIdBytes |= (modelL &amp; 0x0f) &lt;&lt; 4;</span>
-<span class="nc" id="L570">        processorIdBytes |= (modelL &amp; 0xf0) &lt;&lt; 16;</span>
+<span class="nc" id="L568">        processorIdBytes |= (modelL &amp; 0x0f) &lt;&lt; 4;</span>
+<span class="nc" id="L569">        processorIdBytes |= (modelL &amp; 0xf0) &lt;&lt; 16;</span>
         // 27:20,11:8 – Family
-<span class="nc" id="L572">        processorIdBytes |= (familyL &amp; 0x0f) &lt;&lt; 8;</span>
-<span class="nc" id="L573">        processorIdBytes |= (familyL &amp; 0xf0) &lt;&lt; 20;</span>
+<span class="nc" id="L571">        processorIdBytes |= (familyL &amp; 0x0f) &lt;&lt; 8;</span>
+<span class="nc" id="L572">        processorIdBytes |= (familyL &amp; 0xf0) &lt;&lt; 20;</span>
         // 13:12 – Processor Type, assume 0
-<span class="nc bnc" id="L575" title="All 2 branches missed.">        for (String flag : flags) {</span>
-<span class="nc bnc" id="L576" title="All 31 branches missed.">            switch (flag) {</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">        for (String flag : flags) {</span>
+<span class="nc bnc" id="L575" title="All 31 branches missed.">            switch (flag) {</span>
             case &quot;fpu&quot;:
-<span class="nc" id="L578">                processorIdBytes |= 1L &lt;&lt; 32;</span>
-<span class="nc" id="L579">                break;</span>
+<span class="nc" id="L577">                processorIdBytes |= 1L &lt;&lt; 32;</span>
+<span class="nc" id="L578">                break;</span>
             case &quot;vme&quot;:
-<span class="nc" id="L581">                processorIdBytes |= 1L &lt;&lt; 33;</span>
-<span class="nc" id="L582">                break;</span>
+<span class="nc" id="L580">                processorIdBytes |= 1L &lt;&lt; 33;</span>
+<span class="nc" id="L581">                break;</span>
             case &quot;de&quot;:
-<span class="nc" id="L584">                processorIdBytes |= 1L &lt;&lt; 34;</span>
-<span class="nc" id="L585">                break;</span>
+<span class="nc" id="L583">                processorIdBytes |= 1L &lt;&lt; 34;</span>
+<span class="nc" id="L584">                break;</span>
             case &quot;pse&quot;:
-<span class="nc" id="L587">                processorIdBytes |= 1L &lt;&lt; 35;</span>
-<span class="nc" id="L588">                break;</span>
+<span class="nc" id="L586">                processorIdBytes |= 1L &lt;&lt; 35;</span>
+<span class="nc" id="L587">                break;</span>
             case &quot;tsc&quot;:
-<span class="nc" id="L590">                processorIdBytes |= 1L &lt;&lt; 36;</span>
-<span class="nc" id="L591">                break;</span>
+<span class="nc" id="L589">                processorIdBytes |= 1L &lt;&lt; 36;</span>
+<span class="nc" id="L590">                break;</span>
             case &quot;msr&quot;:
-<span class="nc" id="L593">                processorIdBytes |= 1L &lt;&lt; 37;</span>
-<span class="nc" id="L594">                break;</span>
+<span class="nc" id="L592">                processorIdBytes |= 1L &lt;&lt; 37;</span>
+<span class="nc" id="L593">                break;</span>
             case &quot;pae&quot;:
-<span class="nc" id="L596">                processorIdBytes |= 1L &lt;&lt; 38;</span>
-<span class="nc" id="L597">                break;</span>
+<span class="nc" id="L595">                processorIdBytes |= 1L &lt;&lt; 38;</span>
+<span class="nc" id="L596">                break;</span>
             case &quot;mce&quot;:
-<span class="nc" id="L599">                processorIdBytes |= 1L &lt;&lt; 39;</span>
-<span class="nc" id="L600">                break;</span>
+<span class="nc" id="L598">                processorIdBytes |= 1L &lt;&lt; 39;</span>
+<span class="nc" id="L599">                break;</span>
             case &quot;cx8&quot;:
-<span class="nc" id="L602">                processorIdBytes |= 1L &lt;&lt; 40;</span>
-<span class="nc" id="L603">                break;</span>
+<span class="nc" id="L601">                processorIdBytes |= 1L &lt;&lt; 40;</span>
+<span class="nc" id="L602">                break;</span>
             case &quot;apic&quot;:
-<span class="nc" id="L605">                processorIdBytes |= 1L &lt;&lt; 41;</span>
-<span class="nc" id="L606">                break;</span>
+<span class="nc" id="L604">                processorIdBytes |= 1L &lt;&lt; 41;</span>
+<span class="nc" id="L605">                break;</span>
             case &quot;sep&quot;:
-<span class="nc" id="L608">                processorIdBytes |= 1L &lt;&lt; 43;</span>
-<span class="nc" id="L609">                break;</span>
+<span class="nc" id="L607">                processorIdBytes |= 1L &lt;&lt; 43;</span>
+<span class="nc" id="L608">                break;</span>
             case &quot;mtrr&quot;:
-<span class="nc" id="L611">                processorIdBytes |= 1L &lt;&lt; 44;</span>
-<span class="nc" id="L612">                break;</span>
+<span class="nc" id="L610">                processorIdBytes |= 1L &lt;&lt; 44;</span>
+<span class="nc" id="L611">                break;</span>
             case &quot;pge&quot;:
-<span class="nc" id="L614">                processorIdBytes |= 1L &lt;&lt; 45;</span>
-<span class="nc" id="L615">                break;</span>
+<span class="nc" id="L613">                processorIdBytes |= 1L &lt;&lt; 45;</span>
+<span class="nc" id="L614">                break;</span>
             case &quot;mca&quot;:
-<span class="nc" id="L617">                processorIdBytes |= 1L &lt;&lt; 46;</span>
-<span class="nc" id="L618">                break;</span>
+<span class="nc" id="L616">                processorIdBytes |= 1L &lt;&lt; 46;</span>
+<span class="nc" id="L617">                break;</span>
             case &quot;cmov&quot;:
-<span class="nc" id="L620">                processorIdBytes |= 1L &lt;&lt; 47;</span>
-<span class="nc" id="L621">                break;</span>
+<span class="nc" id="L619">                processorIdBytes |= 1L &lt;&lt; 47;</span>
+<span class="nc" id="L620">                break;</span>
             case &quot;pat&quot;:
-<span class="nc" id="L623">                processorIdBytes |= 1L &lt;&lt; 48;</span>
-<span class="nc" id="L624">                break;</span>
+<span class="nc" id="L622">                processorIdBytes |= 1L &lt;&lt; 48;</span>
+<span class="nc" id="L623">                break;</span>
             case &quot;pse-36&quot;:
-<span class="nc" id="L626">                processorIdBytes |= 1L &lt;&lt; 49;</span>
-<span class="nc" id="L627">                break;</span>
+<span class="nc" id="L625">                processorIdBytes |= 1L &lt;&lt; 49;</span>
+<span class="nc" id="L626">                break;</span>
             case &quot;psn&quot;:
-<span class="nc" id="L629">                processorIdBytes |= 1L &lt;&lt; 50;</span>
-<span class="nc" id="L630">                break;</span>
+<span class="nc" id="L628">                processorIdBytes |= 1L &lt;&lt; 50;</span>
+<span class="nc" id="L629">                break;</span>
             case &quot;clfsh&quot;:
-<span class="nc" id="L632">                processorIdBytes |= 1L &lt;&lt; 51;</span>
-<span class="nc" id="L633">                break;</span>
+<span class="nc" id="L631">                processorIdBytes |= 1L &lt;&lt; 51;</span>
+<span class="nc" id="L632">                break;</span>
             case &quot;ds&quot;:
-<span class="nc" id="L635">                processorIdBytes |= 1L &lt;&lt; 53;</span>
-<span class="nc" id="L636">                break;</span>
+<span class="nc" id="L634">                processorIdBytes |= 1L &lt;&lt; 53;</span>
+<span class="nc" id="L635">                break;</span>
             case &quot;acpi&quot;:
-<span class="nc" id="L638">                processorIdBytes |= 1L &lt;&lt; 54;</span>
-<span class="nc" id="L639">                break;</span>
+<span class="nc" id="L637">                processorIdBytes |= 1L &lt;&lt; 54;</span>
+<span class="nc" id="L638">                break;</span>
             case &quot;mmx&quot;:
-<span class="nc" id="L641">                processorIdBytes |= 1L &lt;&lt; 55;</span>
-<span class="nc" id="L642">                break;</span>
+<span class="nc" id="L640">                processorIdBytes |= 1L &lt;&lt; 55;</span>
+<span class="nc" id="L641">                break;</span>
             case &quot;fxsr&quot;:
-<span class="nc" id="L644">                processorIdBytes |= 1L &lt;&lt; 56;</span>
-<span class="nc" id="L645">                break;</span>
+<span class="nc" id="L643">                processorIdBytes |= 1L &lt;&lt; 56;</span>
+<span class="nc" id="L644">                break;</span>
             case &quot;sse&quot;:
-<span class="nc" id="L647">                processorIdBytes |= 1L &lt;&lt; 57;</span>
-<span class="nc" id="L648">                break;</span>
+<span class="nc" id="L646">                processorIdBytes |= 1L &lt;&lt; 57;</span>
+<span class="nc" id="L647">                break;</span>
             case &quot;sse2&quot;:
-<span class="nc" id="L650">                processorIdBytes |= 1L &lt;&lt; 58;</span>
-<span class="nc" id="L651">                break;</span>
+<span class="nc" id="L649">                processorIdBytes |= 1L &lt;&lt; 58;</span>
+<span class="nc" id="L650">                break;</span>
             case &quot;ss&quot;:
-<span class="nc" id="L653">                processorIdBytes |= 1L &lt;&lt; 59;</span>
-<span class="nc" id="L654">                break;</span>
+<span class="nc" id="L652">                processorIdBytes |= 1L &lt;&lt; 59;</span>
+<span class="nc" id="L653">                break;</span>
             case &quot;htt&quot;:
-<span class="nc" id="L656">                processorIdBytes |= 1L &lt;&lt; 60;</span>
-<span class="nc" id="L657">                break;</span>
+<span class="nc" id="L655">                processorIdBytes |= 1L &lt;&lt; 60;</span>
+<span class="nc" id="L656">                break;</span>
             case &quot;tm&quot;:
-<span class="nc" id="L659">                processorIdBytes |= 1L &lt;&lt; 61;</span>
-<span class="nc" id="L660">                break;</span>
+<span class="nc" id="L658">                processorIdBytes |= 1L &lt;&lt; 61;</span>
+<span class="nc" id="L659">                break;</span>
             case &quot;ia64&quot;:
-<span class="nc" id="L662">                processorIdBytes |= 1L &lt;&lt; 62;</span>
-<span class="nc" id="L663">                break;</span>
+<span class="nc" id="L661">                processorIdBytes |= 1L &lt;&lt; 62;</span>
+<span class="nc" id="L662">                break;</span>
             case &quot;pbe&quot;:
-<span class="nc" id="L665">                processorIdBytes |= 1L &lt;&lt; 63;</span>
-<span class="nc" id="L666">                break;</span>
+<span class="nc" id="L664">                processorIdBytes |= 1L &lt;&lt; 63;</span>
+<span class="nc" id="L665">                break;</span>
             default:
                 break;
             }
         }
-<span class="nc" id="L671">        return String.format(&quot;%016X&quot;, processorIdBytes);</span>
+<span class="nc" id="L670">        return String.format(&quot;%016X&quot;, processorIdBytes);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
