@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         System.out.println(<span class="jxr_string">"  description: "</span> + firmware.getDescription());
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>         System.out.println(<span class="jxr_string">"  version: "</span> + firmware.getVersion());
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         System.out.println(<span class="jxr_string">"  release date: "</span> + (firmware.getReleaseDate() == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"unknown"</span>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 : firmware.getReleaseDate() == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"unknown"</span> : FormatUtil.formatDate(firmware.getReleaseDate())));
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 : firmware.getReleaseDate() == firmware.getReleaseDate()));
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">final</strong> Baseboard baseboard = computerSystem.getBaseboard();
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         System.out.println(<span class="jxr_string">"baseboard:"</span>);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         System.out.println(<span class="jxr_string">"  manufacturer: "</span> + baseboard.getManufacturer());

@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractGlobalMemory;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.PdhUtil;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.PerfDataUtil;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * Memory obtained by GlobalMemoryStatusEx.</em>
@@ -67,11 +67,11 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          pdhPagesInputPerSecCounter = <span class="jxr_string">"&#92;&#92;Memory&#92;&#92;Pages Input/sec"</span>;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          pdhPagesOutputPerSecCounter = <span class="jxr_string">"&#92;&#92;Memory&#92;&#92;Pages Output/sec"</span>;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          PdhUtil.addCounter(pdhPagesInputPerSecCounter);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          PdhUtil.addCounter(pdhPagesOutputPerSecCounter);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          PerfDataUtil.addCounter(pdhPagesInputPerSecCounter);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          PerfDataUtil.addCounter(pdhPagesOutputPerSecCounter);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          pdhPagingPercentUsageCounter = <span class="jxr_string">"&#92;&#92;Paging File(_Total)&#92;&#92;% Usage"</span>;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          PdhUtil.addCounter(pdhPagingPercentUsageCounter);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          PerfDataUtil.addCounter(pdhPagingPercentUsageCounter);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
@@ -90,8 +90,8 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">this</strong>.memTotal = <strong class="jxr_keyword">this</strong>.pageSize * <strong class="jxr_keyword">this</strong>.perfInfo.PhysicalTotal.longValue();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">this</strong>.swapTotal = <strong class="jxr_keyword">this</strong>.pageSize
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                      * (<strong class="jxr_keyword">this</strong>.perfInfo.CommitLimit.longValue() - <strong class="jxr_keyword">this</strong>.perfInfo.PhysicalTotal.longValue());
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">this</strong>.swapPagesIn = PdhUtil.queryCounter(pdhPagesInputPerSecCounter);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">this</strong>.swapPagesOut = PdhUtil.queryCounter(pdhPagesOutputPerSecCounter);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">this</strong>.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">this</strong>.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">this</strong>.lastUpdate = now;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
@@ -103,7 +103,7 @@
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      @Override
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateSwap() {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          updateMeminfo();
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">this</strong>.swapUsed = PdhUtil.queryCounter(pdhPagingPercentUsageCounter) * <strong class="jxr_keyword">this</strong>.pageSize;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">this</strong>.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * <strong class="jxr_keyword">this</strong>.pageSize;
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> }
 </pre>

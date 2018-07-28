@@ -524,80 +524,90 @@
 <a class="jxr_linenumber" name="L516" href="#L516">516</a>     }
 <a class="jxr_linenumber" name="L517" href="#L517">517</a> 
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     @Override
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.name"</span>)) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>             json.add(<span class="jxr_string">"name"</span>, getName());
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.path"</span>)) {
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>             json.add(<span class="jxr_string">"path"</span>, getPath());
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>         }
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.commandLine"</span>)) {
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>             json.add(<span class="jxr_string">"commandLine"</span>, getCommandLine());
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         }
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.currentWorkingDirectory"</span>)) {
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>             json.add(<span class="jxr_string">"currentWorkingDirectory"</span>, getCurrentWorkingDirectory());
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         }
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.user"</span>)) {
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>             json.add(<span class="jxr_string">"user"</span>, getUser());
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         }
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.userID"</span>)) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>             json.add(<span class="jxr_string">"userID"</span>, getUserID());
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.group"</span>)) {
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>             json.add(<span class="jxr_string">"group"</span>, getGroup());
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>         }
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.groupID"</span>)) {
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>             json.add(<span class="jxr_string">"groupID"</span>, getGroupID());
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         }
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.state"</span>)) {
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>             json.add(<span class="jxr_string">"state"</span>, getState().name());
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         }
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.processID"</span>)) {
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>             json.add(<span class="jxr_string">"processID"</span>, getProcessID());
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         }
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.parentProcessID"</span>)) {
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>             json.add(<span class="jxr_string">"parentProcessID"</span>, getParentProcessID());
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         }
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.threadCount"</span>)) {
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>             json.add(<span class="jxr_string">"threadCount"</span>, getThreadCount());
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         }
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.priority"</span>)) {
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>             json.add(<span class="jxr_string">"priority"</span>, getPriority());
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>         }
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.virtualSize"</span>)) {
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>             json.add(<span class="jxr_string">"virtualSize"</span>, getVirtualSize());
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>         }
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.residentSetSize"</span>)) {
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>             json.add(<span class="jxr_string">"residentSetSize"</span>, getResidentSetSize());
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>         }
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.kernelTime"</span>)) {
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>             json.add(<span class="jxr_string">"kernelTime"</span>, getKernelTime());
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>         }
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.userTime"</span>)) {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>             json.add(<span class="jxr_string">"userTime"</span>, getUserTime());
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         }
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.upTime"</span>)) {
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>             json.add(<span class="jxr_string">"upTime"</span>, getUpTime());
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.startTime"</span>)) {
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>             json.add(<span class="jxr_string">"startTime"</span>, getStartTime());
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>         }
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.bytesRead"</span>)) {
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>             json.add(<span class="jxr_string">"bytesRead"</span>, getBytesRead());
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>         }
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.bytesWritten"</span>)) {
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>             json.add(<span class="jxr_string">"bytesWritten"</span>, getBytesWritten());
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>         }
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.handles"</span>)) {
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>             json.add(<span class="jxr_string">"handles"</span>, getOpenFiles());
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>         }
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <strong class="jxr_keyword">return</strong> json.build();
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
-<a class="jxr_linenumber" name="L592" href="#L592">592</a> }
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     * Calculates CPU usage of this process.</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">     * @return The proportion of up time that the process was executing in</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">     *         kernel or user mode.</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> calculateCpuPercent() {
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.osProcess.calculateCpuPercent();
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>     @Override
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>     <strong class="jxr_keyword">public</strong> JsonObject toJSON(Properties properties) {
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(<strong class="jxr_keyword">this</strong>.jsonFactory.createObjectBuilder());
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.name"</span>)) {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>             json.add(<span class="jxr_string">"name"</span>, getName());
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>         }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.path"</span>)) {
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>             json.add(<span class="jxr_string">"path"</span>, getPath());
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         }
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.commandLine"</span>)) {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             json.add(<span class="jxr_string">"commandLine"</span>, getCommandLine());
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         }
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.currentWorkingDirectory"</span>)) {
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>             json.add(<span class="jxr_string">"currentWorkingDirectory"</span>, getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         }
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.user"</span>)) {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>             json.add(<span class="jxr_string">"user"</span>, getUser());
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         }
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.userID"</span>)) {
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>             json.add(<span class="jxr_string">"userID"</span>, getUserID());
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         }
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.group"</span>)) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>             json.add(<span class="jxr_string">"group"</span>, getGroup());
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         }
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.groupID"</span>)) {
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>             json.add(<span class="jxr_string">"groupID"</span>, getGroupID());
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.state"</span>)) {
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>             json.add(<span class="jxr_string">"state"</span>, getState().name());
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>         }
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.processID"</span>)) {
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>             json.add(<span class="jxr_string">"processID"</span>, getProcessID());
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         }
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.parentProcessID"</span>)) {
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>             json.add(<span class="jxr_string">"parentProcessID"</span>, getParentProcessID());
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         }
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.threadCount"</span>)) {
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>             json.add(<span class="jxr_string">"threadCount"</span>, getThreadCount());
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>         }
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.priority"</span>)) {
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>             json.add(<span class="jxr_string">"priority"</span>, getPriority());
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         }
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.virtualSize"</span>)) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>             json.add(<span class="jxr_string">"virtualSize"</span>, getVirtualSize());
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.residentSetSize"</span>)) {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>             json.add(<span class="jxr_string">"residentSetSize"</span>, getResidentSetSize());
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         }
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.kernelTime"</span>)) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>             json.add(<span class="jxr_string">"kernelTime"</span>, getKernelTime());
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>         }
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.userTime"</span>)) {
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>             json.add(<span class="jxr_string">"userTime"</span>, getUserTime());
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         }
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.upTime"</span>)) {
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>             json.add(<span class="jxr_string">"upTime"</span>, getUpTime());
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         }
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.startTime"</span>)) {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>             json.add(<span class="jxr_string">"startTime"</span>, getStartTime());
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.bytesRead"</span>)) {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>             json.add(<span class="jxr_string">"bytesRead"</span>, getBytesRead());
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         }
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.bytesWritten"</span>)) {
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>             json.add(<span class="jxr_string">"bytesWritten"</span>, getBytesWritten());
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>         }
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <strong class="jxr_keyword">if</strong> (PropertiesUtil.getBoolean(properties, <span class="jxr_string">"operatingSystem.processes.handles"</span>)) {
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>             json.add(<span class="jxr_string">"handles"</span>, getOpenFiles());
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>         }
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">return</strong> json.build();
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>     }
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
