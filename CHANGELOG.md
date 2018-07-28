@@ -6,6 +6,7 @@
 * [#561](https://github.com/oshi/oshi/pull/561): Optimize Process CPU sort. - [@dbwiddis](https://github.com/dbwiddis).
 * [#564](https://github.com/oshi/oshi/pull/564): Cache WMI connections. - [@dbwiddis](https://github.com/dbwiddis).
 * [#567](https://github.com/oshi/oshi/pull/567): Cache USB devices. - [@dbwiddis](https://github.com/dbwiddis).
+* [#569](https://github.com/oshi/oshi/pull/569): Remove threetenbp dependency. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.6.2 (7/10/18)

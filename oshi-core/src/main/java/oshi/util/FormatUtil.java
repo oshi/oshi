@@ -21,8 +21,6 @@ package oshi.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -214,34 +212,6 @@ public class FormatUtil {
      */
     public static long getUnsignedInt(int x) {
         return x & 0x00000000ffffffffL;
-    }
-
-    /**
-     * Convert a MM/dd/yyyy string representation to a java Date
-     *
-     * @param date
-     *            a string in the form MM/dd/yyyy
-     * @return the corresponding Date, or null if it's unparseable
-     */
-    public static Date formatStringDate(String date) {
-        if (date == null) {
-            return null;
-        }
-        try {
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.YEAR, Integer.parseInt(date.substring(6, 10)));
-            // Calendar uses 0-indexed months
-            c.set(Calendar.MONTH, Integer.parseInt(date.substring(0, 2)) - 1);
-            c.set(Calendar.DATE, Integer.parseInt(date.substring(3, 5)));
-            c.set(Calendar.HOUR, 0);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            c.set(Calendar.MILLISECOND, 0);
-            return new Date(c.getTimeInMillis());
-        } catch (StringIndexOutOfBoundsException | // If date not 22+ chars
-                NumberFormatException e) { // If the fields didn't parse
-            return null;
-        }
     }
 
     /**

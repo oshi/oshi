@@ -133,7 +133,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * Sets to track USB devices in cache
      */
     private static Set<String> devicesToAdd = new HashSet<>();
-    private static Set<String> devicesToRemove = null;
+    private static Set<String> devicesToRemove = new HashSet<>();
 
     /*
      * Map to build the recursive tree structure
@@ -202,7 +202,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             usbDeviceCache.remove(deviceID);
             LOG.debug("Removing {} from USB device cache.", deviceID);
         }
-        devicesToRemove = null;
+        devicesToRemove.clear();
         // Create list to add
         if (!devicesToAdd.isEmpty()) {
             StringBuilder sb = new StringBuilder();
