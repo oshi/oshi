@@ -19,9 +19,6 @@
 package oshi.hardware;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
 
 import org.junit.Test;
 
@@ -49,7 +46,7 @@ public class ComputerSystemTest {
         assertNotNull(fw.getName());
         assertNotNull(fw.getDescription());
         assertNotNull(fw.getVersion());
-        assertTrue(fw.getReleaseDate() == null || !fw.getReleaseDate().after(new Date(System.currentTimeMillis())));
+        assertNotNull(fw.getReleaseDate());
 
         Baseboard bb = cs.getBaseboard();
         assertNotNull(bb);

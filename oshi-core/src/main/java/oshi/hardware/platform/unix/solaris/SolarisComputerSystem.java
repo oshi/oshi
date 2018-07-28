@@ -20,7 +20,6 @@ package oshi.hardware.platform.unix.solaris;
 
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -158,7 +157,13 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             firmware.setVersion(biosVersion);
         }
         if (!biosDate.isEmpty()) {
-            firmware.setReleaseDate(FormatUtil.formatStringDate(biosDate));
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+                firmware.setReleaseDate(String.format("%s-%s-%s", biosDate.substring(6, 10), biosDate.substring(0, 2),
+                        biosDate.substring(3, 5)));
+            } catch (StringIndexOutOfBoundsException e) {
+                firmware.setReleaseDate(biosDate);
+            }
         }
 
         if (!manufacturer.isEmpty()) {

@@ -18,8 +18,6 @@
  */
 package oshi.hardware.common;
 
-import java.util.Date;
-
 import oshi.hardware.Firmware;
 
 /**
@@ -36,14 +34,16 @@ public abstract class AbstractFirmware implements Firmware {
     private String name;
     private String description;
     private String version;
-    private Date releaseDate;
+    private String releaseDate;
+
+    private static final String UNKNOWN = "unknown";
 
     public AbstractFirmware() {
-        this.manufacturer = "unknown";
-        this.name = "unknown";
-        this.description = "unknown";
-        this.version = "unknown";
-        this.releaseDate = null;
+        this.manufacturer = UNKNOWN;
+        this.name = UNKNOWN;
+        this.description = UNKNOWN;
+        this.version = UNKNOWN;
+        this.releaseDate = UNKNOWN;
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class AbstractFirmware implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public Date getReleaseDate() {
+    public String getReleaseDate() {
         return this.releaseDate;
     }
 
@@ -119,10 +119,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
-     * @param releaseDate
+     * @param string
      *            The releaseDate to set.
      */
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
 

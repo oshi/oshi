@@ -217,23 +217,7 @@ public class FormatUtil {
     }
 
     /**
-     * Convert a java date to a MM/dd/yyyy string representation
-     *
-     * @param date
-     *            the date to convert
-     * @return a string in the form MM/dd/yyyy
-     */
-    public static String formatDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) {
-            return "null";
-        }
-        c.setTime(date);
-        return String.format("%02d/%02d/%04d", c.get(Calendar.MONTH) + 1, c.get(Calendar.DATE), c.get(Calendar.YEAR));
-    }
-
-    /**
-     * Convert a MM-dd-yyyy string representation to a java Date
+     * Convert a MM/dd/yyyy string representation to a java Date
      *
      * @param date
      *            a string in the form MM/dd/yyyy

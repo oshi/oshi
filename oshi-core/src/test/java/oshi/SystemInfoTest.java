@@ -139,7 +139,7 @@ public class SystemInfoTest {
         System.out.println("  description: " + firmware.getDescription());
         System.out.println("  version: " + firmware.getVersion());
         System.out.println("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
-                : firmware.getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(firmware.getReleaseDate())));
+                : firmware.getReleaseDate() == null ? "unknown" : firmware.getReleaseDate()));
         final Baseboard baseboard = computerSystem.getBaseboard();
         System.out.println("baseboard:");
         System.out.println("  manufacturer: " + baseboard.getManufacturer());

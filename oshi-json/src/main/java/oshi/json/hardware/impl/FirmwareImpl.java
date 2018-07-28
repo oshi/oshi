@@ -18,7 +18,6 @@
  */
 package oshi.json.hardware.impl;
 
-import java.util.Date;
 import java.util.Properties;
 
 import javax.json.Json;
@@ -30,7 +29,6 @@ import oshi.json.hardware.Firmware;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
-import oshi.util.FormatUtil;
 
 /**
  * Wrapper class to implement Firmware interface with platform-specific objects
@@ -90,7 +88,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public Date getReleaseDate() {
+    public String getReleaseDate() {
         return this.firmware.getReleaseDate();
     }
 
@@ -113,7 +111,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
             json.add("version", getVersion());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.computerSystem.firmware.releaseDate")) {
-            json.add("releaseDate", getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(getReleaseDate()));
+            json.add("releaseDate", getReleaseDate());
         }
         return json.build();
     }

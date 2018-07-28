@@ -18,7 +18,7 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.Date;
+import java.util.Calendar;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.platform.windows.WmiUtil;
@@ -68,7 +68,10 @@ final class WindowsFirmware extends AbstractFirmware {
             setName((String) win32BIOS.get(BiosProperty.NAME).get(0));
             setDescription((String) win32BIOS.get(BiosProperty.DESCRIPTION).get(0));
             setVersion((String) win32BIOS.get(BiosProperty.VERSION).get(0));
-            setReleaseDate(new Date((Long) win32BIOS.get(BiosProperty.RELEASEDATE).get(0)));
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis((Long) win32BIOS.get(BiosProperty.RELEASEDATE).get(0));
+            setReleaseDate(String.format("%04d-%02d-%02d", c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,
+                    c.get(Calendar.DATE)));
         }
     }
 }
