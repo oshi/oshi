@@ -28,7 +28,7 @@ import java.io.Serializable;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="fc" id="L31">public class OSProcess implements Serializable, Cloneable {</span>
+<span class="fc" id="L31">public class OSProcess implements Serializable {</span>
 
     private static final long serialVersionUID = 3L;
 
@@ -54,53 +54,55 @@ import java.io.Serializable;
     private long bytesRead;
     private long bytesWritten;
     private long openFiles;
+    // cache calculation for sorting
+<span class="fc" id="L58">    private transient double cpuPercent = -1d;</span>
 
     /**
      * Process Execution States
      */
-<span class="fc" id="L61">    public enum State {</span>
+<span class="fc" id="L63">    public enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L65">        NEW,</span>
+<span class="fc" id="L67">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L69">        RUNNING,</span>
+<span class="fc" id="L71">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L73">        SLEEPING,</span>
+<span class="fc" id="L75">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L77">        WAITING,</span>
+<span class="fc" id="L79">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L81">        ZOMBIE,</span>
+<span class="fc" id="L83">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L85">        STOPPED,</span>
+<span class="fc" id="L87">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L89">        OTHER</span>
+<span class="fc" id="L91">        OTHER</span>
     }
 
     /**
      * @return Returns the name of the process.
      */
     public String getName() {
-<span class="fc" id="L96">        return this.name;</span>
+<span class="fc" id="L98">        return this.name;</span>
     }
 
     /**
      * @return Returns the full path of the executing process.
      */
     public String getPath() {
-<span class="fc" id="L103">        return this.path;</span>
+<span class="fc" id="L105">        return this.path;</span>
     }
 
     /**
@@ -116,7 +118,7 @@ import java.io.Serializable;
      *         characters.
      */
     public String getCommandLine() {
-<span class="fc" id="L119">        return this.commandLine;</span>
+<span class="fc" id="L121">        return this.commandLine;</span>
     }
 
     /**
@@ -125,7 +127,7 @@ import java.io.Serializable;
      *         On Windows, this value is only populated for the current process.
      */
     public String getCurrentWorkingDirectory() {
-<span class="fc" id="L128">        return this.currentWorkingDirectory;</span>
+<span class="fc" id="L130">        return this.currentWorkingDirectory;</span>
     }
 
     /**
@@ -133,7 +135,7 @@ import java.io.Serializable;
      *         domain prepended to the username.
      */
     public String getUser() {
-<span class="fc" id="L136">        return this.user;</span>
+<span class="fc" id="L138">        return this.user;</span>
     }
 
     /**
@@ -141,7 +143,7 @@ import java.io.Serializable;
      *         (SID)
      */
     public String getUserID() {
-<span class="fc" id="L144">        return this.userID;</span>
+<span class="fc" id="L146">        return this.userID;</span>
     }
 
     /**
@@ -157,7 +159,7 @@ import java.io.Serializable;
      *         {@link #getGroupID()}.
      */
     public String getGroup() {
-<span class="fc" id="L160">        return this.group;</span>
+<span class="fc" id="L162">        return this.group;</span>
     }
 
     /**
@@ -173,35 +175,35 @@ import java.io.Serializable;
      *         {@link #getGroup()}.
      */
     public String getGroupID() {
-<span class="fc" id="L176">        return this.groupID;</span>
+<span class="fc" id="L178">        return this.groupID;</span>
     }
 
     /**
      * @return Returns the execution state of the process.
      */
     public State getState() {
-<span class="fc" id="L183">        return this.state;</span>
+<span class="fc" id="L185">        return this.state;</span>
     }
 
     /**
      * @return Returns the processID.
      */
     public int getProcessID() {
-<span class="fc" id="L190">        return this.processID;</span>
+<span class="fc" id="L192">        return this.processID;</span>
     }
 
     /**
      * @return Returns the parentProcessID, if any; 0 otherwise.
      */
     public int getParentProcessID() {
-<span class="fc" id="L197">        return this.parentProcessID;</span>
+<span class="fc" id="L199">        return this.parentProcessID;</span>
     }
 
     /**
      * @return Returns the number of threads in this process.
      */
     public int getThreadCount() {
-<span class="fc" id="L204">        return this.threadCount;</span>
+<span class="fc" id="L206">        return this.threadCount;</span>
     }
 
     /**
@@ -223,7 +225,7 @@ import java.io.Serializable;
      *         differently than other threads by the scheduler.
      */
     public int getPriority() {
-<span class="fc" id="L226">        return this.priority;</span>
+<span class="fc" id="L228">        return this.priority;</span>
     }
 
     /**
@@ -232,7 +234,7 @@ import java.io.Serializable;
      *         and memory that is from shared libraries.
      */
     public long getVirtualSize() {
-<span class="fc" id="L235">        return this.virtualSize;</span>
+<span class="fc" id="L237">        return this.virtualSize;</span>
     }
 
     /**
@@ -244,7 +246,7 @@ import java.io.Serializable;
      *         in memory. It does include all stack and heap memory.
      */
     public long getResidentSetSize() {
-<span class="fc" id="L247">        return this.residentSetSize;</span>
+<span class="fc" id="L249">        return this.residentSetSize;</span>
     }
 
     /**
@@ -252,7 +254,7 @@ import java.io.Serializable;
      *         kernel/system mode.
      */
     public long getKernelTime() {
-<span class="fc" id="L255">        return this.kernelTime;</span>
+<span class="fc" id="L257">        return this.kernelTime;</span>
     }
 
     /**
@@ -260,17 +262,17 @@ import java.io.Serializable;
      *         user mode.
      */
     public long getUserTime() {
-<span class="fc" id="L263">        return this.userTime;</span>
+<span class="fc" id="L265">        return this.userTime;</span>
     }
 
     /**
      * @return Returns the number of milliseconds since the process started.
      */
     public long getUpTime() {
-<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
-<span class="fc" id="L271">            return this.kernelTime + this.userTime;</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        if (this.upTime &lt; this.kernelTime + this.userTime) {</span>
+<span class="fc" id="L273">            return this.kernelTime + this.userTime;</span>
         }
-<span class="fc" id="L273">        return this.upTime;</span>
+<span class="fc" id="L275">        return this.upTime;</span>
     }
 
     /**
@@ -278,21 +280,21 @@ import java.io.Serializable;
      *         since January 1, 1970.
      */
     public long getStartTime() {
-<span class="fc" id="L281">        return this.startTime;</span>
+<span class="fc" id="L283">        return this.startTime;</span>
     }
 
     /**
      * @return Returns the number of bytes the process has read from disk.
      */
     public long getBytesRead() {
-<span class="fc" id="L288">        return this.bytesRead;</span>
+<span class="fc" id="L290">        return this.bytesRead;</span>
     }
 
     /**
      * @return Returns the number of bytes the process has written to disk.
      */
     public long getBytesWritten() {
-<span class="fc" id="L295">        return this.bytesWritten;</span>
+<span class="fc" id="L297">        return this.bytesWritten;</span>
     }
 
     /**
@@ -302,8 +304,8 @@ import java.io.Serializable;
      *            process name
      */
     public void setName(String name) {
-<span class="fc" id="L305">        this.name = name;</span>
-<span class="fc" id="L306">    }</span>
+<span class="fc" id="L307">        this.name = name;</span>
+<span class="fc" id="L308">    }</span>
 
     /**
      * Set the full path of the executing process.
@@ -312,8 +314,8 @@ import java.io.Serializable;
      *            process path
      */
     public void setPath(String path) {
-<span class="fc" id="L315">        this.path = path;</span>
-<span class="fc" id="L316">    }</span>
+<span class="fc" id="L317">        this.path = path;</span>
+<span class="fc" id="L318">    }</span>
 
     /**
      * Sets the process command line.
@@ -322,8 +324,8 @@ import java.io.Serializable;
      *            The commandLine to set.
      */
     public void setCommandLine(String commandLine) {
-<span class="fc" id="L325">        this.commandLine = commandLine;</span>
-<span class="fc" id="L326">    }</span>
+<span class="fc" id="L327">        this.commandLine = commandLine;</span>
+<span class="fc" id="L328">    }</span>
 
     /**
      * Sets the process current working directory
@@ -332,8 +334,8 @@ import java.io.Serializable;
      *            The currentWorkingDirectory to set.
      */
     public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
-<span class="fc" id="L335">        this.currentWorkingDirectory = currentWorkingDirectory;</span>
-<span class="fc" id="L336">    }</span>
+<span class="fc" id="L337">        this.currentWorkingDirectory = currentWorkingDirectory;</span>
+<span class="fc" id="L338">    }</span>
 
     /**
      * Sets the user.
@@ -342,8 +344,8 @@ import java.io.Serializable;
      *            The user to set.
      */
     public void setUser(String user) {
-<span class="fc" id="L345">        this.user = user;</span>
-<span class="fc" id="L346">    }</span>
+<span class="fc" id="L347">        this.user = user;</span>
+<span class="fc" id="L348">    }</span>
 
     /**
      * Sets the User ID.
@@ -352,8 +354,8 @@ import java.io.Serializable;
      *            The userID to set.
      */
     public void setUserID(String userID) {
-<span class="fc" id="L355">        this.userID = userID;</span>
-<span class="fc" id="L356">    }</span>
+<span class="fc" id="L357">        this.userID = userID;</span>
+<span class="fc" id="L358">    }</span>
 
     /**
      * Sets the group.
@@ -362,8 +364,8 @@ import java.io.Serializable;
      *            The group to set.
      */
     public void setGroup(String group) {
-<span class="fc" id="L365">        this.group = group;</span>
-<span class="fc" id="L366">    }</span>
+<span class="fc" id="L367">        this.group = group;</span>
+<span class="fc" id="L368">    }</span>
 
     /**
      * Sets the Group ID.
@@ -372,8 +374,8 @@ import java.io.Serializable;
      *            The groupID to set.
      */
     public void setGroupID(String groupID) {
-<span class="fc" id="L375">        this.groupID = groupID;</span>
-<span class="fc" id="L376">    }</span>
+<span class="fc" id="L377">        this.groupID = groupID;</span>
+<span class="fc" id="L378">    }</span>
 
     /**
      * Set the execution state of the process.
@@ -382,8 +384,8 @@ import java.io.Serializable;
      *            execution state
      */
     public void setState(State state) {
-<span class="fc" id="L385">        this.state = state;</span>
-<span class="fc" id="L386">    }</span>
+<span class="fc" id="L387">        this.state = state;</span>
+<span class="fc" id="L388">    }</span>
 
     /**
      * Set the processID.
@@ -392,8 +394,8 @@ import java.io.Serializable;
      *            process ID
      */
     public void setProcessID(int processID) {
-<span class="fc" id="L395">        this.processID = processID;</span>
-<span class="fc" id="L396">    }</span>
+<span class="fc" id="L397">        this.processID = processID;</span>
+<span class="fc" id="L398">    }</span>
 
     /**
      * Set the parentProcessID.
@@ -402,8 +404,8 @@ import java.io.Serializable;
      *            parent process ID
      */
     public void setParentProcessID(int parentProcessID) {
-<span class="fc" id="L405">        this.parentProcessID = parentProcessID;</span>
-<span class="fc" id="L406">    }</span>
+<span class="fc" id="L407">        this.parentProcessID = parentProcessID;</span>
+<span class="fc" id="L408">    }</span>
 
     /**
      * Set the number of threads in this process.
@@ -412,8 +414,8 @@ import java.io.Serializable;
      *            number of threads
      */
     public void setThreadCount(int threadCount) {
-<span class="fc" id="L415">        this.threadCount = threadCount;</span>
-<span class="fc" id="L416">    }</span>
+<span class="fc" id="L417">        this.threadCount = threadCount;</span>
+<span class="fc" id="L418">    }</span>
 
     /**
      * Set the priority of this process.
@@ -436,8 +438,8 @@ import java.io.Serializable;
      *            priority
      */
     public void setPriority(int priority) {
-<span class="fc" id="L439">        this.priority = priority;</span>
-<span class="fc" id="L440">    }</span>
+<span class="fc" id="L441">        this.priority = priority;</span>
+<span class="fc" id="L442">    }</span>
 
     /**
      * Set the Virtual Memory Size (VSZ). It includes all memory that the
@@ -448,8 +450,8 @@ import java.io.Serializable;
      *            virtual size
      */
     public void setVirtualSize(long virtualSize) {
-<span class="fc" id="L451">        this.virtualSize = virtualSize;</span>
-<span class="fc" id="L452">    }</span>
+<span class="fc" id="L453">        this.virtualSize = virtualSize;</span>
+<span class="fc" id="L454">    }</span>
 
     /**
      * Set the Resident Set Size (RSS). It is used to show how much memory is
@@ -462,8 +464,8 @@ import java.io.Serializable;
      *            resident set size
      */
     public void setResidentSetSize(long residentSetSize) {
-<span class="fc" id="L465">        this.residentSetSize = residentSetSize;</span>
-<span class="fc" id="L466">    }</span>
+<span class="fc" id="L467">        this.residentSetSize = residentSetSize;</span>
+<span class="fc" id="L468">    }</span>
 
     /**
      * Set the number of milliseconds the process has executed in kernel mode.
@@ -472,8 +474,8 @@ import java.io.Serializable;
      *            kernel time
      */
     public void setKernelTime(long kernelTime) {
-<span class="fc" id="L475">        this.kernelTime = kernelTime;</span>
-<span class="fc" id="L476">    }</span>
+<span class="fc" id="L477">        this.kernelTime = kernelTime;</span>
+<span class="fc" id="L478">    }</span>
 
     /**
      * Set the number of milliseconds the process has executed in user mode.
@@ -482,8 +484,8 @@ import java.io.Serializable;
      *            user time
      */
     public void setUserTime(long userTime) {
-<span class="fc" id="L485">        this.userTime = userTime;</span>
-<span class="fc" id="L486">    }</span>
+<span class="fc" id="L487">        this.userTime = userTime;</span>
+<span class="fc" id="L488">    }</span>
 
     /**
      * Set the start time of the process in number of milliseconds since January
@@ -493,8 +495,8 @@ import java.io.Serializable;
      *            start time
      */
     public void setStartTime(long startTime) {
-<span class="fc" id="L496">        this.startTime = startTime;</span>
-<span class="fc" id="L497">    }</span>
+<span class="fc" id="L498">        this.startTime = startTime;</span>
+<span class="fc" id="L499">    }</span>
 
     /**
      * Set the number of milliseconds since the process started.
@@ -503,8 +505,8 @@ import java.io.Serializable;
      *            up time
      */
     public void setUpTime(long upTime) {
-<span class="fc" id="L506">        this.upTime = upTime;</span>
-<span class="fc" id="L507">    }</span>
+<span class="fc" id="L508">        this.upTime = upTime;</span>
+<span class="fc" id="L509">    }</span>
 
     /**
      * Set the number of bytes the process has read from disk.
@@ -513,8 +515,8 @@ import java.io.Serializable;
      *            number of bytes read
      */
     public void setBytesRead(long bytesRead) {
-<span class="fc" id="L516">        this.bytesRead = bytesRead;</span>
-<span class="fc" id="L517">    }</span>
+<span class="fc" id="L518">        this.bytesRead = bytesRead;</span>
+<span class="fc" id="L519">    }</span>
 
     /**
      * Set the number of bytes the process has written to disk.
@@ -523,8 +525,8 @@ import java.io.Serializable;
      *            number of bytes written
      */
     public void setBytesWritten(long bytesWritten) {
-<span class="fc" id="L526">        this.bytesWritten = bytesWritten;</span>
-<span class="fc" id="L527">    }</span>
+<span class="fc" id="L528">        this.bytesWritten = bytesWritten;</span>
+<span class="fc" id="L529">    }</span>
 
     /**
      * Sets the number of open file handles (or network connections) that
@@ -534,8 +536,8 @@ import java.io.Serializable;
      *            The number of handles
      */
     public void setOpenFiles(long count) {
-<span class="fc" id="L537">        this.openFiles = count;</span>
-<span class="fc" id="L538">    }</span>
+<span class="fc" id="L539">        this.openFiles = count;</span>
+<span class="fc" id="L540">    }</span>
 
     /**
      * Sets the number of open file handles (or network connections) that
@@ -547,15 +549,20 @@ import java.io.Serializable;
      * @return open files or -1 if unknown or not supported
      */
     public long getOpenFiles() {
-<span class="fc" id="L550">        return openFiles;</span>
+<span class="fc" id="L552">        return openFiles;</span>
     }
 
     /**
-     * {@inheritDoc}
+     * Calculates CPU usage of this process.
+     * 
+     * @return The proportion of up time that the process was executing in
+     *         kernel or user mode.
      */
-    public Object clone() throws CloneNotSupportedException {
-        // Only primitives and immutable Strings
-<span class="fc" id="L558">        return (OSProcess) super.clone();</span>
+    public double calculateCpuPercent() {
+<span class="pc bpc" id="L562" title="1 of 2 branches missed.">        if (this.cpuPercent &lt; 0d) {</span>
+<span class="fc" id="L563">            this.cpuPercent = (getKernelTime() + getUserTime()) / (double) getUpTime();</span>
+        }
+<span class="fc" id="L565">        return this.cpuPercent;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

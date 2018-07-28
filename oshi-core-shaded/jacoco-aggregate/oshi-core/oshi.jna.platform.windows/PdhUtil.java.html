@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PdhUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">PdhUtil.java</span></div><h1>PdhUtil.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinDef.DWORDByReference;
+import com.sun.jna.platform.win32.WinReg;
+
+/**
+ * This class has already been submitted to the JNA project. This class should
+ * be considered non-API as it WILL be removed when its code is incorporated
+ * into the JNA project.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+<span class="nc" id="L38">public abstract class PdhUtil {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    private static final int CHAR_TO_BYTES = Boolean.getBoolean(&quot;w32.ascii&quot;) ? 1 : Native.WCHAR_SIZE;</span>
+
+    // This REG_MULTI_SZ value in HKLM provides English counters regardless of
+    // the current locale setting
+    private static final String ENGLISH_COUNTER_KEY = &quot;SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009&quot;;
+    private static final String ENGLISH_COUNTER_VALUE = &quot;Counter&quot;;
+
+    /**
+     * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
+     * required memory for the szNameBuffer parameter based on the type mapping
+     * used, calls to PdhLookupPerfNameByIndex, and returns the received string.
+     * 
+     * @param szMachineName
+     *            Null-terminated string that specifies the name of the computer
+     *            where the specified performance object or counter is located.
+     *            The computer name can be specified by the DNS name or the IP
+     *            address. If NULL, the function uses the local computer.
+     * @param dwNameIndex
+     *            Index of the performance object or counter.
+     * @return Returns the name of the performance object or counter.
+     */
+    public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
+        // Call once to get required buffer size
+<span class="nc" id="L62">        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));</span>
+<span class="nc" id="L63">        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);</span>
+
+        // Can't allocate 0 memory
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (pcchNameBufferSize.getValue().intValue() &lt; 1) {</span>
+<span class="nc" id="L67">            return &quot;&quot;;</span>
+        }
+        // Allocate buffer and call again
+<span class="nc" id="L70">        Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L71">        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);</span>
+
+        // Convert buffer to Java String
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (CHAR_TO_BYTES == 1) {</span>
+<span class="nc" id="L75">            return mem.getString(0);</span>
+        } else {
+<span class="nc" id="L77">            return mem.getWideString(0);</span>
+        }
+    }
+
+    /**
+     * Utility method similar to Pdh's PdhLookupPerfIndexByName that returns the
+     * counter index corresponding to the specified counter name in English.
+     * Uses the registry on the local machine to find the index in the English
+     * locale, regardless of the current language setting on the machine.
+     * 
+     * @param szNameBuffer
+     *            The English name of the performance counter
+     * @return The counter's index if it exists, or 0 otherwise.
+     */
+    public static int PdhLookupPerfIndexByEnglishName(String szNameBuffer) {
+        // Look up list of english names and ids
+<span class="nc" id="L93">        String[] counters = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, ENGLISH_COUNTER_KEY,</span>
+                ENGLISH_COUNTER_VALUE);
+        // Array contains alternating index/name pairs
+        // {&quot;1&quot;, &quot;1847&quot;, &quot;2&quot;, &quot;System&quot;, &quot;4&quot;, &quot;Memory&quot;, ... }
+        // Get position of name in the array (odd index), return parsed value of
+        // previous even index
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (int i = 1; i &lt; counters.length; i += 2) {</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (counters[i].equals(szNameBuffer)) {</span>
+                try {
+<span class="nc" id="L102">                    return Integer.parseInt(counters[i - 1]);</span>
+<span class="nc" id="L103">                } catch (NumberFormatException e) {</span>
+                    // Unexpected but handle anyway
+<span class="nc" id="L105">                    return 0;</span>
+                }
+            }
+        }
+        // Didn't find the String
+<span class="nc" id="L110">        return 0;</span>
+    }
+
+    /**
+     * Utility method to call Pdh's PdhEnumObjectItems that allocates the
+     * required memory for the mszCounterList parameter based on the type
+     * mapping used, calls to PdhEnumObjectItems, and returns the received lists
+     * of strings.
+     * 
+     * @param szDataSource
+     *            String that specifies the name of the log file used to
+     *            enumerate the counter and instance names. If NULL, the
+     *            function uses the computer specified in the szMachineName
+     *            parameter to enumerate the names.
+     * @param szMachineName
+     *            String that specifies the name of the computer that contains
+     *            the counter and instance names that you want to enumerate.
+     *            Include the leading slashes in the computer name, for example,
+     *            \\computername. If the szDataSource parameter is NULL, you can
+     *            set szMachineName to NULL to specify the local computer.
+     * @param szObjectName
+     *            String that specifies the name of the object whose counter and
+     *            instance names you want to enumerate.
+     * @param dwDetailLevel
+     *            Detail level of the performance items to return. All items
+     *            that are of the specified detail level or less will be
+     *            returned.
+     * @return Returns a List of Strings of the counters for the object.
+     */
+    public static List&lt;String&gt; PdhEnumObjectItemCounters(String szDataSource, String szMachineName, String szObjectName,
+            int dwDetailLevel) {
+<span class="nc" id="L141">        List&lt;String&gt; counters = new ArrayList&lt;&gt;();</span>
+
+        // Call once to get string lengths
+<span class="nc" id="L144">        DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));</span>
+<span class="nc" id="L145">        DWORDByReference pcchInstanceListLength = new DWORDByReference(new DWORD(0));</span>
+<span class="nc" id="L146">        Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, null, pcchCounterListLength, null,</span>
+                pcchInstanceListLength, dwDetailLevel, 0);
+
+        // Can't allocate 0 memory
+<span class="nc bnc" id="L150" title="All 4 branches missed.">        if (pcchCounterListLength.getValue().intValue() &lt; 1 || pcchInstanceListLength.getValue().intValue() &lt; 1) {</span>
+<span class="nc" id="L151">            return counters;</span>
+        }
+        // Allocate memory and call again to populate strings
+<span class="nc" id="L154">        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L155">        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L156">        Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,</span>
+                pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
+
+        // Fetch counters
+<span class="nc" id="L160">        int offset = 0;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        while (offset &lt; mszCounterList.size()) {</span>
+<span class="nc" id="L162">            String s = null;</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            if (CHAR_TO_BYTES == 1) {</span>
+<span class="nc" id="L164">                s = mszCounterList.getString(offset);</span>
+            } else {
+<span class="nc" id="L166">                s = mszCounterList.getWideString(offset);</span>
+            }
+            // list ends with double null
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (s.isEmpty()) {</span>
+<span class="nc" id="L170">                break;</span>
+            }
+<span class="nc" id="L172">            counters.add(s);</span>
+            // Increment for string + null terminator
+<span class="nc" id="L174">            offset += (s.length() + 1) * CHAR_TO_BYTES;</span>
+<span class="nc" id="L175">        }</span>
+
+<span class="nc" id="L177">        return counters;</span>
+    }
+
+    /**
+     * Utility method to call Pdh's PdhEnumObjectItems that allocates the
+     * required memory for the mszInstanceList parameters based on the type
+     * mapping used, calls to PdhEnumObjectItems, and returns the received lists
+     * of strings.
+     * 
+     * @param szDataSource
+     *            String that specifies the name of the log file used to
+     *            enumerate the counter and instance names. If NULL, the
+     *            function uses the computer specified in the szMachineName
+     *            parameter to enumerate the names.
+     * @param szMachineName
+     *            String that specifies the name of the computer that contains
+     *            the counter and instance names that you want to enumerate.
+     *            Include the leading slashes in the computer name, for example,
+     *            \\computername. If the szDataSource parameter is NULL, you can
+     *            set szMachineName to NULL to specify the local computer.
+     * @param szObjectName
+     *            String that specifies the name of the object whose counter and
+     *            instance names you want to enumerate.
+     * @param dwDetailLevel
+     *            Detail level of the performance items to return. All items
+     *            that are of the specified detail level or less will be
+     *            returned.
+     * @return Returns a Lists of Strings of the instances of the object.
+     */
+    public static List&lt;String&gt; PdhEnumObjectItemInstances(String szDataSource, String szMachineName,
+            String szObjectName, int dwDetailLevel) {
+<span class="nc" id="L208">        List&lt;String&gt; instances = new ArrayList&lt;&gt;();</span>
+
+        // Call once to get string lengths
+<span class="nc" id="L211">        DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));</span>
+<span class="nc" id="L212">        DWORDByReference pcchInstanceListLength = new DWORDByReference(new DWORD(0));</span>
+<span class="nc" id="L213">        Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, null, pcchCounterListLength, null,</span>
+                pcchInstanceListLength, dwDetailLevel, 0);
+
+        // Can't allocate 0 memory
+<span class="nc bnc" id="L217" title="All 4 branches missed.">        if (pcchCounterListLength.getValue().intValue() &lt; 1 || pcchInstanceListLength.getValue().intValue() &lt; 1) {</span>
+<span class="nc" id="L218">            return instances;</span>
+        }
+        // Allocate memory and call again to populate strings
+<span class="nc" id="L221">        Memory mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L222">        Memory mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L223">        Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,</span>
+                pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
+
+<span class="nc" id="L226">        int offset = 0;</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        while (offset &lt; mszInstanceList.size()) {</span>
+<span class="nc" id="L228">            String s = null;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">            if (CHAR_TO_BYTES == 1) {</span>
+<span class="nc" id="L230">                s = mszInstanceList.getString(offset);</span>
+            } else {
+<span class="nc" id="L232">                s = mszInstanceList.getWideString(offset);</span>
+            }
+            // list ends with double null
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (s.isEmpty()) {</span>
+<span class="nc" id="L236">                break;</span>
+            }
+<span class="nc" id="L238">            instances.add(s);</span>
+            // Increment for string + null terminator
+<span class="nc" id="L240">            offset += (s.length() + 1) * CHAR_TO_BYTES;</span>
+<span class="nc" id="L241">        }</span>
+
+<span class="nc" id="L243">        return instances;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -20,15 +20,14 @@ package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
-import oshi.util.FormatUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L29">    FreeBsdFirmware() {</span>
-<span class="nc" id="L30">        init();</span>
-<span class="nc" id="L31">    }</span>
+<span class="nc" id="L28">    FreeBsdFirmware() {</span>
+<span class="nc" id="L29">        init();</span>
+<span class="nc" id="L30">    }</span>
 
     private void init() {
 
@@ -46,32 +45,38 @@ final class FreeBsdFirmware extends AbstractFirmware {
         // BIOS Revision: 11.2
         // Firmware Revision: 11.2
 
-<span class="nc" id="L49">        String manufacturer = &quot;&quot;;</span>
-<span class="nc" id="L50">        final String manufacturerMarker = &quot;Vendor:&quot;;</span>
-<span class="nc" id="L51">        String version = &quot;&quot;;</span>
-<span class="nc" id="L52">        final String versionMarker = &quot;Version:&quot;;</span>
-<span class="nc" id="L53">        String releaseDate = &quot;&quot;;</span>
-<span class="nc" id="L54">        final String releaseDateMarker = &quot;Release Date:&quot;;</span>
+<span class="nc" id="L48">        String manufacturer = &quot;&quot;;</span>
+<span class="nc" id="L49">        final String manufacturerMarker = &quot;Vendor:&quot;;</span>
+<span class="nc" id="L50">        String version = &quot;&quot;;</span>
+<span class="nc" id="L51">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L52">        String releaseDate = &quot;&quot;;</span>
+<span class="nc" id="L53">        final String releaseDateMarker = &quot;Release Date:&quot;;</span>
 
         // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L59">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L61">                version = checkLine.split(versionMarker)[1].trim();</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            } else if (checkLine.contains(releaseDateMarker)) {</span>
-<span class="nc" id="L63">                releaseDate = checkLine.split(releaseDateMarker)[1].trim();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L58">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L60">                version = checkLine.split(versionMarker)[1].trim();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            } else if (checkLine.contains(releaseDateMarker)) {</span>
+<span class="nc" id="L62">                releaseDate = checkLine.split(releaseDateMarker)[1].trim();</span>
             }
-<span class="nc" id="L65">        }</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
-<span class="nc" id="L67">            setManufacturer(manufacturer);</span>
+<span class="nc" id="L64">        }</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L66">            setManufacturer(manufacturer);</span>
         }
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
-<span class="nc" id="L70">            setVersion(version);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
+<span class="nc" id="L69">            setVersion(version);</span>
         }
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!releaseDate.isEmpty()) {</span>
-<span class="nc" id="L73">            setReleaseDate(FormatUtil.formatStringDate(releaseDate));</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (!releaseDate.isEmpty()) {</span>
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+<span class="nc" id="L74">                setReleaseDate(String.format(&quot;%s-%s-%s&quot;, releaseDate.substring(6, 10), releaseDate.substring(0, 2),</span>
+<span class="nc" id="L75">                        releaseDate.substring(3, 5)));</span>
+<span class="nc" id="L76">            } catch (StringIndexOutOfBoundsException e) {</span>
+<span class="nc" id="L77">                setReleaseDate(releaseDate);</span>
+<span class="nc" id="L78">            }</span>
         }
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L80">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

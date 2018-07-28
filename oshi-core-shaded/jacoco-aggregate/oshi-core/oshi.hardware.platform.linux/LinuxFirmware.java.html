@@ -21,7 +21,6 @@ package oshi.hardware.platform.linux;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.FormatUtil;
 
 /**
  * Firmware data obtained by sysfs
@@ -37,9 +36,9 @@ final class LinuxFirmware extends AbstractFirmware {
     // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = &quot;/sys/devices/virtual/dmi/id/&quot;;
 
-<span class="nc" id="L40">    LinuxFirmware() {</span>
-<span class="nc" id="L41">        init();</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L39">    LinuxFirmware() {</span>
+<span class="nc" id="L40">        init();</span>
+<span class="nc" id="L41">    }</span>
 
     private void init() {
 
@@ -88,40 +87,46 @@ final class LinuxFirmware extends AbstractFirmware {
         // board_name chassis_type product_serial
         // board_serial chassis_vendor product_uuid
 
-<span class="nc" id="L91">        final String biosVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_vendor&quot;);</span>
-<span class="nc bnc" id="L92" title="All 4 branches missed.">        if (biosVendor != null &amp;&amp; !biosVendor.trim().isEmpty()) {</span>
-<span class="nc" id="L93">            setManufacturer(biosVendor.trim());</span>
+<span class="nc" id="L90">        final String biosVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_vendor&quot;);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (biosVendor != null &amp;&amp; !biosVendor.trim().isEmpty()) {</span>
+<span class="nc" id="L92">            setManufacturer(biosVendor.trim());</span>
         }
 
-<span class="nc" id="L96">        final String modalias = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;modalias&quot;);</span>
-<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (modalias != null &amp;&amp; !modalias.trim().isEmpty()) {</span>
-<span class="nc" id="L98">            setDescription(modalias.trim());</span>
+<span class="nc" id="L95">        final String modalias = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;modalias&quot;);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">        if (modalias != null &amp;&amp; !modalias.trim().isEmpty()) {</span>
+<span class="nc" id="L97">            setDescription(modalias.trim());</span>
         }
 
-<span class="nc" id="L101">        final String biosVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_version&quot;);</span>
-<span class="nc bnc" id="L102" title="All 4 branches missed.">        if (biosVersion != null &amp;&amp; !biosVersion.trim().isEmpty()) {</span>
-<span class="nc" id="L103">            final String marker = &quot;Bios Revision:&quot;;</span>
-<span class="nc" id="L104">            String biosRevision = null;</span>
+<span class="nc" id="L100">        final String biosVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_version&quot;);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (biosVersion != null &amp;&amp; !biosVersion.trim().isEmpty()) {</span>
+<span class="nc" id="L102">            final String marker = &quot;Bios Revision:&quot;;</span>
+<span class="nc" id="L103">            String biosRevision = null;</span>
             // Requires root, may not return anything
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L108">                    biosRevision = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L109">                    break;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L107">                    biosRevision = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L108">                    break;</span>
                 }
-<span class="nc" id="L111">            }</span>
-<span class="nc bnc" id="L112" title="All 4 branches missed.">            if (biosRevision != null &amp;&amp; !biosRevision.trim().isEmpty()) {</span>
-<span class="nc" id="L113">                setVersion(biosVersion.trim() + &quot; (revision &quot; + biosRevision + &quot;)&quot;);</span>
+<span class="nc" id="L110">            }</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">            if (biosRevision != null &amp;&amp; !biosRevision.trim().isEmpty()) {</span>
+<span class="nc" id="L112">                setVersion(biosVersion.trim() + &quot; (revision &quot; + biosRevision + &quot;)&quot;);</span>
             } else {
-<span class="nc" id="L115">                setVersion(biosVersion.trim());</span>
+<span class="nc" id="L114">                setVersion(biosVersion.trim());</span>
             }
         }
 
-<span class="nc" id="L119">        final String biosDate = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_date&quot;);</span>
-<span class="nc bnc" id="L120" title="All 4 branches missed.">        if (biosDate != null &amp;&amp; !biosDate.trim().isEmpty()) {</span>
-<span class="nc" id="L121">            setReleaseDate(FormatUtil.formatStringDate(biosDate.trim()));</span>
+<span class="nc" id="L118">        final String biosDate = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;bios_date&quot;);</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">        if (biosDate != null &amp;&amp; !biosDate.trim().isEmpty()) {</span>
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+<span class="nc" id="L122">                setReleaseDate(String.format(&quot;%s-%s-%s&quot;, biosDate.substring(6, 10), biosDate.substring(0, 2),</span>
+<span class="nc" id="L123">                        biosDate.substring(3, 5)));</span>
+<span class="nc" id="L124">            } catch (StringIndexOutOfBoundsException e) {</span>
+<span class="nc" id="L125">                setReleaseDate(biosDate);</span>
+<span class="nc" id="L126">            }</span>
         }
 
         // name --&gt; not set
-<span class="nc" id="L125">    }</span>
+<span class="nc" id="L130">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
