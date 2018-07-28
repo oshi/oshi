@@ -41,7 +41,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373157(v=vs.85).aspx">PERF_DATA_BLOCK</A>
      */
-    public class PERF_DATA_BLOCK extends Structure {
+    class PERF_DATA_BLOCK extends Structure {
         public char[] Signature = new char[4];
         public int LittleEndian;
         public int Version;
@@ -80,7 +80,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373159(v=vs.85).aspx">PERF_INSTANCE_DEFINITION</A>
      */
-    public class PERF_INSTANCE_DEFINITION extends Structure {
+    class PERF_INSTANCE_DEFINITION extends Structure {
         public int ByteLength;
         public int ParentObjectTitleIndex;
         public int ParentObjectInstance;
@@ -113,7 +113,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373160(v=vs.85).aspx">
      *      PERF_OBJECT_TYPE</A>
      */
-    public class PERF_OBJECT_TYPE extends Structure {
+    class PERF_OBJECT_TYPE extends Structure {
         public int TotalByteLength;
         public int DefinitionLength;
         public int HeaderLength;
@@ -153,7 +153,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373150(v=vs.85).aspx">
      *      PERF_COUNTER_DEFINITION</A>
      */
-    public class PERF_COUNTER_DEFINITION extends Structure {
+    class PERF_COUNTER_DEFINITION extends Structure {
         public int ByteLength;
         public int CounterNameTitleIndex;
         public int CounterNameTitle; // always 32 bit
@@ -190,7 +190,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373147(v=vs.85).aspx">
      *      PERF_COUNTER_BLOCK</A>
      */
-    public class PERF_COUNTER_BLOCK extends Structure {
+    class PERF_COUNTER_BLOCK extends Structure {
         public int ByteLength;
 
         public PERF_COUNTER_BLOCK() {

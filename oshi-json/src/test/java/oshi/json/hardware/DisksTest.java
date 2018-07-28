@@ -19,7 +19,6 @@
 package oshi.json.hardware;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -48,11 +47,11 @@ public class DisksTest {
 
         HWDiskStore lastDisk = new HWDiskStore();
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
-            assertTrue(disk.equals(disk));
-            assertFalse(disk.equals(null));
-            assertFalse(disk.equals("A String"));
-            assertFalse(disk.equals(lastDisk));
-            assertFalse(disk.hashCode() == lastDisk.hashCode());
+            assertEquals(disk, disk);
+            assertNotEquals(disk, null);
+            assertNotEquals(disk, "A String");
+            assertNotEquals(disk, lastDisk);
+            assertNotEquals(disk.hashCode(), lastDisk.hashCode());
             HWPartition[] parts = disk.getPartitions();
             HWPartition[] partArray = new HWPartition[parts.length];
             for (int i = 0; i < partArray.length; i++) {

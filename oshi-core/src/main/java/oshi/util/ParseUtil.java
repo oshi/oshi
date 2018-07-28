@@ -343,7 +343,7 @@ public class ParseUtil {
      */
     public static long cimDateTimeToMillis(String cimDate) {
         try {
-            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            Calendar c = Calendar.getInstance();
             c.set(Calendar.YEAR, Integer.parseInt(cimDate.substring(0, 4)));
             // Calendar uses 0-indexed months
             c.set(Calendar.MONTH, Integer.parseInt(cimDate.substring(4, 6)) - 1);
@@ -353,6 +353,7 @@ public class ParseUtil {
             c.set(Calendar.SECOND, Integer.parseInt(cimDate.substring(12, 14)));
             c.set(Calendar.MILLISECOND, Integer.parseInt(cimDate.substring(15, 18)));
             // Offset from UTC is in minutes
+            c.setTimeZone(TimeZone.getTimeZone("UTC"));
             return c.getTimeInMillis() + Integer.parseInt(cimDate.substring(22)) * 60_000L;
         } catch (StringIndexOutOfBoundsException | // If cimDate not 22+ chars
                 NumberFormatException e) { // If the fields didn't parse

@@ -24,6 +24,9 @@ memory & CPU usage, disks & partitions, devices, sensors, etc.
 OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
 and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
 
+Many thanks to the authors of the [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) 
+for their support of Open Source projects including OSHI.
+
 Essentials
 ----------
 * [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
@@ -55,8 +58,8 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.6.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.6.2&amp;e=jar)  | [oshi-core-3.7.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.7.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/) |
-| [oshi-json-3.6.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.6.2&amp;e=jar)   | [oshi-json-3.7.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.7.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.7.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.7.0&amp;e=jar)  | [oshi-core-3.8.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.8.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.7.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.7.0&amp;e=jar)   | [oshi-json-3.8.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.8.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Projects using OSHI
 -------------------

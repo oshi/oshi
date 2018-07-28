@@ -119,7 +119,7 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
-     * @param string
+     * @param releaseDate
      *            The releaseDate to set.
      */
     public void setReleaseDate(String releaseDate) {

@@ -131,19 +131,6 @@ public class WmiUtil {
     }
 
     /**
-     * Interface contract for WMI Property Enums used with the {@link WmiQuery}
-     * and {@link WmiResult} classes.
-     */
-    public interface WmiProperty {
-        /**
-         * Gets the ValueType.
-         * 
-         * @return The type of value this property returns
-         */
-        ValueType getType();
-    }
-
-    /**
      * Enum used for WMI namespace query.
      */
     private enum NamespaceProperty implements WmiProperty {
@@ -166,6 +153,19 @@ public class WmiUtil {
      */
     private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT", "__NAMESPACE",
             NamespaceProperty.class);
+
+    /**
+     * Interface contract for WMI Property Enums used with the {@link WmiQuery}
+     * and {@link WmiResult} classes.
+     */
+    public interface WmiProperty {
+        /**
+         * Gets the ValueType.
+         * 
+         * @return The type of value this property returns
+         */
+        ValueType getType();
+    }
 
     /**
      * Helper class wrapping information required for a WMI query.

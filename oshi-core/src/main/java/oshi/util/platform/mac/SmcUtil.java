@@ -201,6 +201,8 @@ public class SmcUtil {
 
         inputStructure.key = (int) ParseUtil.strToLong(key, 4);
         int result;
+        // These calls frequently result in kIOReturnIPCError so retry multiple
+        // times with small delay
         int retry = 0;
         do {
             result = smcGetKeyInfo(inputStructure, outputStructure);
@@ -243,16 +245,7 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-        int structureInputSize = inputStructure.size();
-        IntByReference structureOutputSizePtr = new IntByReference(outputStructure.size());
-
-        int result = IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure,
-                structureInputSize, outputStructure, structureOutputSizePtr);
-        if (result != 0) {
-            // This frequently resulted in kIOReturnIPCError in testing. TODO
-            // find out why!
-        }
-        // Success
-        return result;
+        return IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure, inputStructure.size(),
+                outputStructure, new IntByReference(outputStructure.size()));
     }
 }
