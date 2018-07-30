@@ -73,7 +73,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 USBControllerProperty.class);
         WmiResult<USBControllerProperty> usbController = WmiUtil.queryWMI(usbControllerQuery);
         for (int i = 0; i < usbController.getResultCount(); i++) {
-            controllerDeviceIdList.add((String) usbController.get(USBControllerProperty.PNPDEVICEID).get(i));
+            controllerDeviceIdList.add((String) usbController.get(USBControllerProperty.PNPDEVICEID, i));
         }
     }
 
@@ -221,9 +221,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
             WmiResult<PnPEntityProperty> pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
-                String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID).get(i);
-                String name = (String) pnpEntity.get(PnPEntityProperty.NAME).get(i);
-                String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER).get(i);
+                String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID, i);
+                String name = (String) pnpEntity.get(PnPEntityProperty.NAME, i);
+                String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER, i);
                 WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", new WindowsUsbDevice[0]);
                 usbDeviceCache.put(pnpDeviceID, device);
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
@@ -232,21 +232,21 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
             WmiResult<DiskDriveProperty> serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
-                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
                     WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
                     device.serialNumber = ParseUtil
-                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER, i));
                 }
             }
             PHYSICALMEDIA_QUERY.setWmiClassName(PHYSICALMEDIA_BASE_CLASS + whereClause);
             serialNumber = WmiUtil.queryWMI(PHYSICALMEDIA_QUERY);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
-                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
                     WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
                     device.serialNumber = ParseUtil
-                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER, i));
                 }
             }
         }

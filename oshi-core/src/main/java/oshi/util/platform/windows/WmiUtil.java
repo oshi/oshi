@@ -251,12 +251,29 @@ public class WmiUtil {
         }
 
         /**
-         * @param item
-         *            An element of the Enum
-         * @return the list associated with that enum
+         * Gets a value from the WmiResult
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The object containing the specified value. Casting according
+         *         to the variable type is left to the user.
          */
-        public List<Object> get(final T item) {
-            return this.propertyMap.get(item);
+        public Object get(T property, int index) {
+            return this.propertyMap.get(property).get(index);
+        }
+
+        /**
+         * Adds a value to the WmiResult at the next index for that property
+         * 
+         * @param property
+         *            The property (column) to store
+         * @param o
+         *            The object to store
+         */
+        private void add(T property, Object o) {
+            this.propertyMap.get(property).add(o);
         }
 
         /**
@@ -378,7 +395,7 @@ public class WmiUtil {
         }
         WmiResult<NamespaceProperty> namespaces = queryWMI(NAMESPACE_QUERY);
         for (int i = 0; i < namespaces.getResultCount(); i++) {
-            if (namespace.equals(namespaces.get(NamespaceProperty.NAME).get(i))) {
+            if (namespace.equals(namespaces.get(NamespaceProperty.NAME, i))) {
                 return true;
             }
         }
@@ -697,34 +714,34 @@ public class WmiUtil {
 
                 switch (property.getType()) {
                 case STRING:
-                    values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
+                    values.add(property, vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
                     break;
                 // uint16 == VT_I4, a 32-bit number
                 case UINT16:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.intValue());
+                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.intValue());
                     break;
                 // WMI Uint32s will return as longs
                 case UINT32:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.longValue());
+                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.longValue());
                     break;
                 // WMI Longs will return as strings so we have the option of
                 // calling a string and parsing later, or calling UINT64 and
                 // letting this method do the parsing
                 case UINT64:
-                    values.get(property).add(
+                    values.add(property,
                             vtProp.getValue() == null ? 0L : ParseUtil.parseLongOrDefault(vtProp.stringValue(), 0L));
                     break;
                 case FLOAT:
-                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
+                    values.add(property, vtProp.getValue() == null ? 0f : vtProp.floatValue());
                     break;
                 case DATETIME:
                     // Read a string in format 20160513072950.782000-420 and
                     // parse to a long representing ms since eopch
-                    values.get(property)
-                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
+                    values.add(property,
+                            vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
                     break;
                 case BOOLEAN:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.booleanValue());
+                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.booleanValue());
                     break;
                 default:
                     // Should never get here! If you get this exception you've

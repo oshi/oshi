@@ -211,18 +211,18 @@ public class WindowsFileSystem implements FileSystem {
         WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
-            free = (Long) drives.get(LogicalDiskProperty.FREESPACE).get(i);
-            total = (Long) drives.get(LogicalDiskProperty.SIZE).get(i);
-            String description = (String) drives.get(LogicalDiskProperty.DESCRIPTION).get(i);
-            String name = (String) drives.get(LogicalDiskProperty.NAME).get(i);
-            long type = (Long) drives.get(LogicalDiskProperty.DRIVETYPE).get(i);
+            free = (Long) drives.get(LogicalDiskProperty.FREESPACE, i);
+            total = (Long) drives.get(LogicalDiskProperty.SIZE, i);
+            String description = (String) drives.get(LogicalDiskProperty.DESCRIPTION, i);
+            String name = (String) drives.get(LogicalDiskProperty.NAME, i);
+            long type = (Long) drives.get(LogicalDiskProperty.DRIVETYPE, i);
             String volume;
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
-                volume = (String) drives.get(LogicalDiskProperty.PROVIDERNAME).get(i);
+                volume = (String) drives.get(LogicalDiskProperty.PROVIDERNAME, i);
                 String[] split = volume.split("\\\\");
                 if (split.length > 1 && split[split.length - 1].length() > 0) {
                     description = split[split.length - 1];
@@ -230,7 +230,7 @@ public class WindowsFileSystem implements FileSystem {
             }
 
             fs.add(new OSFileStore(String.format("%s (%s)", description, name), volume, name + "\\", getDriveType(name),
-                    (String) drives.get(LogicalDiskProperty.FILESYSTEM).get(i), "", free, total));
+                    (String) drives.get(LogicalDiskProperty.FILESYSTEM, i), "", free, total));
         }
 
         return fs;

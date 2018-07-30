@@ -169,21 +169,19 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         sb.append(" WHERE DestinationPrefix=\"").append(dest).append('\"');
         NETROUTE_QUERY.setWmiClassName(sb.toString());
         WmiResult<NetRouteProperty> vals = WmiUtil.queryWMI(NETROUTE_QUERY);
-
-        List<Object> metrics = vals.get(NetRouteProperty.ROUTEMETRIC);
-        if (vals.get(NetRouteProperty.ROUTEMETRIC).isEmpty()) {
+        if (vals.getResultCount() < 1) {
             return "";
         }
         int index = 0;
-        Long min = Long.MAX_VALUE;
-        for (int i = 0; i < metrics.size(); i++) {
-            Long metric = (Long) metrics.get(i);
+        long min = Long.MAX_VALUE;
+        for (int i = 0; i < vals.getResultCount(); i++) {
+            long metric = (Long) vals.get(NetRouteProperty.ROUTEMETRIC, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get(NetRouteProperty.NEXTHOP).get(index);
+        return (String) vals.get(NetRouteProperty.NEXTHOP, index);
     }
 
     private String getNextHopWin7(String dest) {
@@ -191,21 +189,19 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         sb.append(" WHERE Destination=\"").append(dest).append('\"');
         IP4ROUTE_QUERY.setWmiClassName(sb.toString());
         WmiResult<IP4RouteProperty> vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);
-
-        List<Object> metrics = vals.get(IP4RouteProperty.METRIC1);
-        if (vals.get(IP4RouteProperty.METRIC1).isEmpty()) {
+        if (vals.getResultCount() < 1) {
             return "";
         }
         int index = 0;
-        Long min = Long.MAX_VALUE;
-        for (int i = 0; i < metrics.size(); i++) {
-            Long metric = (Long) metrics.get(i);
+        long min = Long.MAX_VALUE;
+        for (int i = 0; i < vals.getResultCount(); i++) {
+            long metric = (Long) vals.get(IP4RouteProperty.METRIC1, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get(IP4RouteProperty.NEXTHOP).get(index);
+        return (String) vals.get(IP4RouteProperty.NEXTHOP, index);
     }
 
     private String parseIpv6Route() {

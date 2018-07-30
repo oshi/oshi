@@ -195,19 +195,20 @@ public class WindowsDisks implements Disks {
 
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
-            ds.setName((String) vals.get(DiskDriveProperty.NAME).get(i));
-            ds.setModel(String.format("%s %s", vals.get(DiskDriveProperty.MODEL).get(i),
-                    vals.get(DiskDriveProperty.MANUFACTURER).get(i)).trim());
+            ds.setName((String) vals.get(DiskDriveProperty.NAME, i));
+            ds.setModel(String
+                    .format("%s %s", vals.get(DiskDriveProperty.MODEL, i), vals.get(DiskDriveProperty.MANUFACTURER, i))
+                    .trim());
             // Most vendors store serial # as a hex string; convert
-            ds.setSerial(ParseUtil.hexStringToString((String) vals.get(DiskDriveProperty.SERIALNUMBER).get(i)));
-            String index = vals.get(DiskDriveProperty.INDEX).get(i).toString();
+            ds.setSerial(ParseUtil.hexStringToString((String) vals.get(DiskDriveProperty.SERIALNUMBER, i)));
+            String index = vals.get(DiskDriveProperty.INDEX, i).toString();
             ds.setReads(MapUtil.getOrDefault(readMap, index, 0L));
             ds.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
             ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
-            ds.setSize((Long) vals.get(DiskDriveProperty.SIZE).get(i));
+            ds.setSize((Long) vals.get(DiskDriveProperty.SIZE, i));
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
             List<String> partList = driveToPartitionMap.get(ds.getName());
@@ -291,8 +292,8 @@ public class WindowsDisks implements Disks {
         // Map drives to partitions
         WmiResult<DriveToPartitionProperty> drivePartitionMap = WmiUtil.queryWMI(DRIVE_TO_PARTITION_QUERY);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
-            mAnt = DEVICE_ID.matcher((String) drivePartitionMap.get(DriveToPartitionProperty.ANTECEDENT).get(i));
-            mDep = DEVICE_ID.matcher((String) drivePartitionMap.get(DriveToPartitionProperty.DEPENDENT).get(i));
+            mAnt = DEVICE_ID.matcher((String) drivePartitionMap.get(DriveToPartitionProperty.ANTECEDENT, i));
+            mDep = DEVICE_ID.matcher((String) drivePartitionMap.get(DriveToPartitionProperty.DEPENDENT, i));
             if (mAnt.matches() && mDep.matches()) {
                 MapUtil.createNewListIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"))
                         .add(mDep.group(1));
@@ -302,8 +303,8 @@ public class WindowsDisks implements Disks {
         // Map partitions to logical disks
         WmiResult<DriveToPartitionProperty> diskPartitionMap = WmiUtil.queryWMI(DISK_TO_PARTITION_QUERY);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
-            mAnt = DEVICE_ID.matcher((String) diskPartitionMap.get(DriveToPartitionProperty.ANTECEDENT).get(i));
-            mDep = DEVICE_ID.matcher((String) diskPartitionMap.get(DriveToPartitionProperty.DEPENDENT).get(i));
+            mAnt = DEVICE_ID.matcher((String) diskPartitionMap.get(DriveToPartitionProperty.ANTECEDENT, i));
+            mDep = DEVICE_ID.matcher((String) diskPartitionMap.get(DriveToPartitionProperty.DEPENDENT, i));
             if (mAnt.matches() && mDep.matches()) {
                 partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + "\\");
             }
@@ -312,7 +313,7 @@ public class WindowsDisks implements Disks {
         // Next, get all partitions and create objects
         WmiResult<DiskPartitionProperty> hwPartitionQueryMap = WmiUtil.queryWMI(PARTITION_QUERY);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
-            String deviceID = (String) hwPartitionQueryMap.get(DiskPartitionProperty.DEVICEID).get(i);
+            String deviceID = (String) hwPartitionQueryMap.get(DiskPartitionProperty.DEVICEID, i);
             String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, "");
             String uuid = "";
             if (!logicalDrive.isEmpty()) {
@@ -322,12 +323,12 @@ public class WindowsDisks implements Disks {
                 uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
             }
             partitionMap.put(deviceID,
-                    new HWPartition((String) hwPartitionQueryMap.get(DiskPartitionProperty.NAME).get(i),
-                            (String) hwPartitionQueryMap.get(DiskPartitionProperty.TYPE).get(i),
-                            (String) hwPartitionQueryMap.get(DiskPartitionProperty.DESCRIPTION).get(i), uuid,
-                            (Long) hwPartitionQueryMap.get(DiskPartitionProperty.SIZE).get(i),
-                            ((Long) hwPartitionQueryMap.get(DiskPartitionProperty.DISKINDEX).get(i)).intValue(),
-                            ((Long) hwPartitionQueryMap.get(DiskPartitionProperty.INDEX).get(i)).intValue(),
+                    new HWPartition((String) hwPartitionQueryMap.get(DiskPartitionProperty.NAME, i),
+                            (String) hwPartitionQueryMap.get(DiskPartitionProperty.TYPE, i),
+                            (String) hwPartitionQueryMap.get(DiskPartitionProperty.DESCRIPTION, i), uuid,
+                            (Long) hwPartitionQueryMap.get(DiskPartitionProperty.SIZE, i),
+                            ((Long) hwPartitionQueryMap.get(DiskPartitionProperty.DISKINDEX, i)).intValue(),
+                            ((Long) hwPartitionQueryMap.get(DiskPartitionProperty.INDEX, i)).intValue(),
                             logicalDrive));
         }
     }
