@@ -1,5 +1,6 @@
 3.8.0 (in progress)
 ================
+* [#574](https://github.com/oshi/oshi/pull/574): Suppress repeat updates of failed PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.7.1 (07/28/2018)
