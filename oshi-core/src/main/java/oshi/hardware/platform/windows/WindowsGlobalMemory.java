@@ -82,9 +82,10 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();
             this.swapTotal = this.pageSize
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
-            this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);
-            this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);
-
+            if (this.swapTotal > 0) {
+                this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);
+                this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);
+            }
             this.lastUpdate = now;
         }
     }
@@ -95,6 +96,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     @Override
     protected void updateSwap() {
         updateMeminfo();
-        this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
+        if (this.swapTotal > 0) {
+            this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
+        }
     }
 }

@@ -1,5 +1,6 @@
 3.8.0 (in progress)
 ================
+* [#573](https://github.com/oshi/oshi/pull/573): Don't get PDH swap stats if no swap. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.7.1 (07/28/2018)
