@@ -19,7 +19,9 @@
 package oshi.util.platform.windows;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +60,7 @@ public class PerfDataUtil {
     // Maps to hold pointers to the relevant counter information
     private static final Map<String, HANDLEByReference> counterMap = new HashMap<>();
     private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
+    private static final Set<String> disabledCounters = new HashSet<>();
 
     // Regexp to match PDH counter string
     // Format is \Path(Instance)\Counter or \Path\Counter
@@ -181,6 +184,7 @@ public class PerfDataUtil {
             PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
             counterMap.remove(counterString);
             queryMap.remove(counterString);
+            disabledCounters.remove(counterString);
         } else {
             LOG.warn(LOG_COUNTER_NOT_EXISTS, counterString);
         }
@@ -199,7 +203,12 @@ public class PerfDataUtil {
             LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);
             return 0;
         }
-        updateCounters(queryMap.get(counterString));
+        if (!disabledCounters.contains(counterString) && !updateCounters(queryMap.get(counterString))) {
+            LOG.error("Disabling future updates for {}. Call removeCounter and addCounter again to reset.",
+                    counterString);
+            disabledCounters.add(counterString);
+            return 0L;
+        }
         return queryCounter(counterMap.get(counterString));
     }
 
@@ -294,8 +303,10 @@ public class PerfDataUtil {
      */
     private static boolean updateCounters(WinNT.HANDLEByReference query) {
         int ret = PDH.PdhCollectQueryData(query.getValue());
-        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
-            LOG.error("Failed to update counters. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+        if (ret != WinError.ERROR_SUCCESS) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to update counters. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+            }
             return false;
         }
         return true;
@@ -310,8 +321,10 @@ public class PerfDataUtil {
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
-            LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+        if (ret != WinError.ERROR_SUCCESS) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+            }
             return 0L;
         }
         return counterValue.FirstValue;
@@ -327,8 +340,10 @@ public class PerfDataUtil {
      */
     private static FILETIME queryCounterTimestamp(WinNT.HANDLEByReference counter) {
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-        if (ret != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
-            LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+        if (ret != WinError.ERROR_SUCCESS) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+            }
             return new FILETIME();
         }
         return counterValue.TimeStamp;
