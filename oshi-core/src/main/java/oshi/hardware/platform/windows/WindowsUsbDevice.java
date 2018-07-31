@@ -40,8 +40,6 @@ import oshi.jna.platform.windows.Cfgmgr32Util;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -51,19 +49,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
 
-    enum USBControllerProperty implements WmiProperty {
-        PNPDEVICEID(ValueType.STRING);
-
-        private ValueType type;
-
-        USBControllerProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum USBControllerProperty {
+        PNPDEVICEID;
     }
 
     private static List<String> controllerDeviceIdList = new ArrayList<>();
@@ -73,45 +60,20 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 USBControllerProperty.class);
         WmiResult<USBControllerProperty> usbController = WmiUtil.queryWMI(usbControllerQuery);
         for (int i = 0; i < usbController.getResultCount(); i++) {
-            controllerDeviceIdList.add((String) usbController.get(USBControllerProperty.PNPDEVICEID).get(i));
+            controllerDeviceIdList.add(usbController.getString(USBControllerProperty.PNPDEVICEID, i));
         }
     }
 
-    enum PnPEntityProperty implements WmiProperty {
-        NAME(ValueType.STRING), //
-        MANUFACTURER(ValueType.STRING), //
-        PNPDEVICEID(ValueType.STRING);
-
-        private ValueType type;
-
-        PnPEntityProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum PnPEntityProperty {
+        NAME, MANUFACTURER, PNPDEVICEID;
     }
 
     private static final String PNPENTITY_BASE_CLASS = "Win32_PnPEntity";
     private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = WmiUtil.createQuery(null,
             PnPEntityProperty.class);
 
-    enum DiskDriveProperty implements WmiProperty {
-        PNPDEVICEID(ValueType.STRING), //
-        SERIALNUMBER(ValueType.STRING);
-
-        private ValueType type;
-
-        DiskDriveProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum DiskDriveProperty {
+        PNPDEVICEID, SERIALNUMBER;
     }
 
     private static final String DISKDRIVE_BASE_CLASS = "Win32_DiskDrive";
@@ -183,7 +145,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         // Add any seen in tree that aren't in cache
         devicesToAdd.clear();
         // Also remove from cache if not seen in tree
-        devicesToRemove = new HashSet<String>(usbDeviceCache.keySet());
+        devicesToRemove = new HashSet<>(usbDeviceCache.keySet());
 
         List<WindowsUsbDevice> controllerDevices = new ArrayList<>();
         for (String controllerDeviceId : controllerDeviceIdList) {
@@ -221,9 +183,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
             WmiResult<PnPEntityProperty> pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
-                String pnpDeviceID = (String) pnpEntity.get(PnPEntityProperty.PNPDEVICEID).get(i);
-                String name = (String) pnpEntity.get(PnPEntityProperty.NAME).get(i);
-                String vendor = (String) pnpEntity.get(PnPEntityProperty.MANUFACTURER).get(i);
+                String pnpDeviceID = pnpEntity.getString(PnPEntityProperty.PNPDEVICEID, i);
+                String name = pnpEntity.getString(PnPEntityProperty.NAME, i);
+                String vendor = pnpEntity.getString(PnPEntityProperty.MANUFACTURER, i);
                 WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", new WindowsUsbDevice[0]);
                 usbDeviceCache.put(pnpDeviceID, device);
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
@@ -232,21 +194,21 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
             WmiResult<DiskDriveProperty> serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
-                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                String pnpDeviceID = serialNumber.getString(DiskDriveProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
                     WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
                     device.serialNumber = ParseUtil
-                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                            .hexStringToString(serialNumber.getString(DiskDriveProperty.SERIALNUMBER, i));
                 }
             }
             PHYSICALMEDIA_QUERY.setWmiClassName(PHYSICALMEDIA_BASE_CLASS + whereClause);
             serialNumber = WmiUtil.queryWMI(PHYSICALMEDIA_QUERY);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
-                String pnpDeviceID = (String) serialNumber.get(DiskDriveProperty.PNPDEVICEID).get(i);
+                String pnpDeviceID = serialNumber.getString(DiskDriveProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
                     WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);
                     device.serialNumber = ParseUtil
-                            .hexStringToString((String) serialNumber.get(DiskDriveProperty.SERIALNUMBER).get(i));
+                            .hexStringToString(serialNumber.getString(DiskDriveProperty.SERIALNUMBER, i));
                 }
             }
         }

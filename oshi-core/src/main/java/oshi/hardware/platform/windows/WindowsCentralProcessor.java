@@ -34,8 +34,6 @@ import com.sun.jna.platform.win32.WinReg;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -52,19 +50,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
-    enum ProcessorProperty implements WmiProperty {
-        PROCESSORID(ValueType.STRING);
-
-        private ValueType type;
-
-        ProcessorProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum ProcessorProperty {
+        PROCESSORID;
     }
 
     // Save Windows version info for 32 bit/64 bit branch later
@@ -118,7 +105,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         WmiQuery<ProcessorProperty> processorIdQuery = WmiUtil.createQuery("Win32_Processor", ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
-            setProcessorID((String) processorId.get(ProcessorProperty.PROCESSORID).get(0));
+            setProcessorID(processorId.getString(ProcessorProperty.PROCESSORID, 0));
         }
     }
 

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.NativeLong; // NOSONAR
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.OleAuto;
+import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.Variant.VARIANT;
 import com.sun.jna.platform.win32.WTypes.BSTR;
 import com.sun.jna.platform.win32.WinError;
@@ -48,7 +49,6 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
-import oshi.util.ParseUtil;
 
 /**
  * Utility class providing access to Windows Management Interface (WMI) via COM.
@@ -61,7 +61,7 @@ public class WmiUtil {
     /**
      * Private instance to generate the WmiQuery class.
      */
-    private static WmiUtil INSTANCE = new WmiUtil();
+    private static final WmiUtil INSTANCE = new WmiUtil();
 
     /**
      * The default namespace for most WMI queries.
@@ -71,6 +71,13 @@ public class WmiUtil {
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    // Constants for WMI used often
+    private static final BSTR WQL = new BSTR("WQL");
+    private static final NativeLong ZERO = new NativeLong(0L);
+    private static final NativeLong ONE = new NativeLong(1L);
+    private static final NativeLong ASYNCH_FORWARD_FLAGS = new NativeLong(
+            EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY);
 
     // COM may already have been initialized outside this class. Keep this
     // boolean as a flag whether we need to un-initialize it
@@ -84,93 +91,17 @@ public class WmiUtil {
     private static Set<String> hasNamespaceCache = new HashSet<>();
     private static Set<String> hasNotNamespaceCache = new HashSet<>();
 
-    /**
-     * Enum for the value type of WMI queries, used to properly parse/cast the
-     * returned VARIANT. Names are intended to match the WMI documentation and
-     * do not actually represent types (e.g., unsigned). Options are
-     * {@link #STRING}, {@link #UINT64}, {@link #UINT32}, {@link #UINT16},
-     * {@link #FLOAT}, {@link #DATETIME}, {@link #BOOLEAN}
-     */
-    public enum ValueType {
-        /**
-         * String type. Returns from WMI as a BSTR. Parsed to a String.
-         */
-        STRING,
-        /**
-         * Unsigned 64-bit Integer. UINT64s return from WMI as a BSTR, parsed to
-         * a String. With the UINT64 type mapping, OSHI will parse the object to
-         * a (signed) long which may incorrectly represent large values. If true
-         * unsigned longs are required, users may prefer to map UINT64 variables
-         * to the String type and then parse the returned String to a
-         * BigInteger.
-         */
-        UINT64,
-        /**
-         * Unsigned 32-bit Integer. Parsed to a long.
-         */
-        UINT32,
-        /**
-         * Unsigned 16-bit Integer. Parsed to an int.
-         */
-        UINT16,
-        /**
-         * Single precision Float. Parsed to a float.
-         */
-        FLOAT,
-        /**
-         * Date/time. Returns from WMI as a String in the CIM_DATETIME format.
-         * Parsed to a long, number of milliseconds since the 1970 epoch.
-         */
-        DATETIME,
-        /**
-         * Boolean. Parsed to a boolean.
-         */
-        BOOLEAN
-        // If more values are added here, add the appropriate parsing as a case
-        // in the enumerateProperties method.
+    private enum NamespaceProperty {
+        NAME;
     }
 
-    /**
-     * Enum used for WMI namespace query.
-     */
-    private enum NamespaceProperty implements WmiProperty {
-        NAME(ValueType.STRING);
-
-        private ValueType type;
-
-        NamespaceProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
-    }
-
-    /**
-     * Creates the WMI namespace query
-     */
     private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT", "__NAMESPACE",
             NamespaceProperty.class);
 
     /**
-     * Interface contract for WMI Property Enums used with the {@link WmiQuery}
-     * and {@link WmiResult} classes.
-     */
-    public interface WmiProperty {
-        /**
-         * Gets the ValueType.
-         * 
-         * @return The type of value this property returns
-         */
-        ValueType getType();
-    }
-
-    /**
      * Helper class wrapping information required for a WMI query.
      */
-    public class WmiQuery<T extends Enum<T> & WmiProperty> {
+    public class WmiQuery<T extends Enum<T>> {
         private String nameSpace;
         private String wmiClassName;
         private Class<T> propertyEnum;
@@ -235,8 +166,9 @@ public class WmiUtil {
     /**
      * Helper class wrapping an EnumMap containing the results of a query.
      */
-    public class WmiResult<T extends Enum<T> & WmiProperty> {
+    public class WmiResult<T extends Enum<T>> {
         private Map<T, List<Object>> propertyMap;
+        private Map<T, Integer> vtTypeMap;
         private int resultCount = 0;
 
         /**
@@ -245,18 +177,95 @@ public class WmiUtil {
          */
         public WmiResult(Class<T> propertyEnum) {
             propertyMap = new EnumMap<>(propertyEnum);
+            vtTypeMap = new EnumMap<>(propertyEnum);
             for (T type : propertyEnum.getEnumConstants()) {
                 propertyMap.put(type, new ArrayList<>());
+                vtTypeMap.put(type, Variant.VT_NULL);
             }
         }
 
         /**
-         * @param item
-         *            An element of the Enum
-         * @return the list associated with that enum
+         * Gets a String value from the WmiResult. This is the return type when
+         * the WMI result is mapped to a BSTR, including results of UINT64 and
+         * DATETIME type which must be further parsed by the user.
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The String containing the specified value.
          */
-        public List<Object> get(final T item) {
-            return this.propertyMap.get(item);
+        public String getString(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return "unknown";
+            } else if (vtTypeMap.get(property).equals(Variant.VT_BSTR)) {
+                return (String) o;
+            }
+            throw new IllegalArgumentException(
+                    property.name() + " is not a String type. Type is: " + vtTypeMap.get(property));
+        }
+
+        /**
+         * Gets an Integer value from the WmiResult. This is the return type
+         * when the WMI result is mapped to a VT_I4 (4-byte integer) value,
+         * including results of UINT32, UINT16, and BOOLEAN. If an unsigned
+         * result is desired, it may require further processing by the user.
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The Integer containing the specified value.
+         */
+        public Integer getInteger(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return 0;
+            } else if (vtTypeMap.get(property).equals(Variant.VT_I4)) {
+                return (Integer) o;
+            }
+            throw new IllegalArgumentException(
+                    property.name() + " is not an Integer type. Type is: " + vtTypeMap.get(property));
+        }
+
+        /**
+         * Gets a Float value from the WmiResult. This is the return type when
+         * the WMI result is mapped to a VT_R4 (4-byte real) value, including
+         * results of FLOAT.
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The Float containing the specified value.
+         */
+        public Float getFloat(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return 0f;
+            } else if (vtTypeMap.get(property).equals(Variant.VT_R4)) {
+                return (Float) o;
+            }
+            throw new IllegalArgumentException(
+                    property.name() + " is not a Float type. Type is: " + vtTypeMap.get(property));
+        }
+
+        /**
+         * Adds a value to the WmiResult at the next index for that property
+         * 
+         * @param vtType
+         *            The Variant type of this object
+         * @param property
+         *            The property (column) to store
+         * @param o
+         *            The object to store
+         */
+        private void add(int vtType, T property, Object o) {
+            this.propertyMap.get(property).add(o);
+            if (vtType != Variant.VT_NULL && this.vtTypeMap.get(property).equals(Variant.VT_NULL)) {
+                this.vtTypeMap.put(property, vtType);
+            }
         }
 
         /**
@@ -339,7 +348,7 @@ public class WmiUtil {
      *            and types to query
      * @return A WmiQuery object wrapping the parameters
      */
-    public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
+    public static <T extends Enum<T>> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
             Class<T> propertyEnum) {
         return INSTANCE.new WmiQuery<>(nameSpace, wmiClassName, propertyEnum);
     }
@@ -357,8 +366,7 @@ public class WmiUtil {
      *            and types to query
      * @return A WmiQuery object wrapping the parameters
      */
-    public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String wmiClassName,
-            Class<T> propertyEnum) {
+    public static <T extends Enum<T>> WmiQuery<T> createQuery(String wmiClassName, Class<T> propertyEnum) {
         return createQuery(DEFAULT_NAMESPACE, wmiClassName, propertyEnum);
     }
 
@@ -378,7 +386,7 @@ public class WmiUtil {
         }
         WmiResult<NamespaceProperty> namespaces = queryWMI(NAMESPACE_QUERY);
         for (int i = 0; i < namespaces.getResultCount(); i++) {
-            if (namespace.equals(namespaces.get(NamespaceProperty.NAME).get(i))) {
+            if (namespace.equals(namespaces.getString(NamespaceProperty.NAME, i))) {
                 return true;
             }
         }
@@ -396,7 +404,7 @@ public class WmiUtil {
      * @return a WmiResult object containing the query results, wrapping an
      *         EnumMap
      */
-    public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query) {
+    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
         try {
             return queryWMI(query, EnumWbemClassObject.WBEM_INFINITE);
         } catch (TimeoutException e) {
@@ -423,8 +431,7 @@ public class WmiUtil {
      * @throws TimeoutException
      *             if the query times out before completion
      */
-    public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout)
-            throws TimeoutException {
+    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout) throws TimeoutException {
         // Idiot check
         if (query.getPropertyEnum().getEnumConstants().length < 1) {
             throw new IllegalArgumentException("The query's property enum has no values.");
@@ -616,8 +623,8 @@ public class WmiUtil {
      * @return True if successful. The enumerator will allow enumeration of
      *         results of the query
      */
-    private static <T extends Enum<T> & WmiProperty> boolean selectProperties(WbemServices svc,
-            PointerByReference pEnumerator, WmiQuery<T> query) {
+    private static <T extends Enum<T>> boolean selectProperties(WbemServices svc, PointerByReference pEnumerator,
+            WmiQuery<T> query) {
         // Step 6: --------------------------------------------------
         // Use the IWbemServices pointer to make requests of WMI ----
         T[] props = query.getPropertyEnum().getEnumConstants();
@@ -631,9 +638,7 @@ public class WmiUtil {
         LOG.debug("Query: {}", sb);
         // Send the query. The flags allow us to return immediately and begin
         // enumerating in the forward direction as results come in.
-        HRESULT hres = svc.ExecQuery(new BSTR("WQL"), new BSTR(sb.toString().replaceAll("\\\\", "\\\\\\\\")),
-                new NativeLong(
-                        EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
+        HRESULT hres = svc.ExecQuery(WQL, new BSTR(sb.toString().replaceAll("\\\\", "\\\\\\\\")), ASYNCH_FORWARD_FLAGS,
                 null, pEnumerator);
         if (COMUtils.FAILED(hres)) {
             if (LOG.isErrorEnabled()) {
@@ -666,16 +671,20 @@ public class WmiUtil {
      * @throws TimeoutException
      *             if the query times out before completion
      */
-    private static <T extends Enum<T> & WmiProperty> void enumerateProperties(WmiResult<T> values,
-            EnumWbemClassObject enumerator, Class<T> propertyEnum, int timeout) throws TimeoutException {
+    private static <T extends Enum<T>> void enumerateProperties(WmiResult<T> values, EnumWbemClassObject enumerator,
+            Class<T> propertyEnum, int timeout) throws TimeoutException {
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
         LongByReference uReturn = new LongByReference(0L);
+        Map<T, BSTR> bstrMap = new HashMap<>();
+        for (T property : propertyEnum.getEnumConstants()) {
+            bstrMap.put(property, new BSTR(property.name()));
+        }
         while (enumerator.getPointer() != Pointer.NULL) {
             // Enumerator will be released by calling method so no need to
             // release it here.
-            HRESULT hres = enumerator.Next(new NativeLong(timeout), new NativeLong(1), pclsObj, uReturn);
+            HRESULT hres = enumerator.Next(new NativeLong(timeout), ONE, pclsObj, uReturn);
             // Warn user of timeout and abort. This should never happen if
             // timeout is set to infinite.
             if (hres.intValue() == EnumWbemClassObject.WBEM_S_TIMEDOUT) {
@@ -688,51 +697,30 @@ public class WmiUtil {
                 break;
             }
 
-            VARIANT.ByReference vtProp = new VARIANT.ByReference();
+            VARIANT.ByReference pVal = new VARIANT.ByReference();
 
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
             for (T property : propertyEnum.getEnumConstants()) {
-                clsObj.Get(new BSTR(property.name()), new NativeLong(0L), vtProp, null, null);
-
-                switch (property.getType()) {
-                case STRING:
-                    values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
+                clsObj.Get(bstrMap.get(property), ZERO, pVal, null, null);
+                int type = (pVal.getValue() == null ? Variant.VT_NULL : pVal.getVarType()).intValue();
+                switch (type) {
+                case Variant.VT_BSTR:
+                    values.add(type, property, pVal.stringValue());
                     break;
-                // uint16 == VT_I4, a 32-bit number
-                case UINT16:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.intValue());
+                case Variant.VT_I4:
+                    values.add(type, property, pVal.intValue());
                     break;
-                // WMI Uint32s will return as longs
-                case UINT32:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.longValue());
+                case Variant.VT_R4:
+                    values.add(type, property, pVal.floatValue());
                     break;
-                // WMI Longs will return as strings so we have the option of
-                // calling a string and parsing later, or calling UINT64 and
-                // letting this method do the parsing
-                case UINT64:
-                    values.get(property).add(
-                            vtProp.getValue() == null ? 0L : ParseUtil.parseLongOrDefault(vtProp.stringValue(), 0L));
-                    break;
-                case FLOAT:
-                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
-                    break;
-                case DATETIME:
-                    // Read a string in format 20160513072950.782000-420 and
-                    // parse to a long representing ms since eopch
-                    values.get(property)
-                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
-                    break;
-                case BOOLEAN:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.booleanValue());
+                case Variant.VT_NULL:
+                    values.add(type, property, null);
                     break;
                 default:
-                    // Should never get here! If you get this exception you've
-                    // added something to the ValueType enum without adding a
-                    // case for it here. Tsk.
-                    throw new IllegalArgumentException("Unimplemented enum type: " + property.getType().toString());
+                    throw new IllegalArgumentException("Unimplemented Variant type: " + type);
                 }
-                OleAuto.INSTANCE.VariantClear(vtProp);
+                OleAuto.INSTANCE.VariantClear(pVal);
             }
             clsObj.Release();
 

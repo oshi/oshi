@@ -20,8 +20,6 @@ package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -35,50 +33,16 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    enum ComputerSystemProperty implements WmiProperty {
-        MANUFACTURER(ValueType.STRING), //
-        MODEL(ValueType.STRING);
-
-        private ValueType type;
-
-        ComputerSystemProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum ComputerSystemProperty {
+        MANUFACTURER, MODEL;
     }
 
-    enum BiosProperty implements WmiProperty {
-        SERIALNUMBER(ValueType.STRING);
-
-        private ValueType type;
-
-        BiosProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum BiosProperty {
+        SERIALNUMBER;
     }
 
-    enum CsProductProperty implements WmiProperty {
-        IDENTIFYINGNUMBER(ValueType.STRING);
-
-        private ValueType type;
-
-        CsProductProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum CsProductProperty {
+        IDENTIFYINGNUMBER;
     }
 
     private static final WmiQuery<CsProductProperty> IDENTIFYINGNUMBER_QUERY = WmiUtil.createQuery("Win32_Csproduct",
@@ -95,8 +59,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
-            setManufacturer((String) win32ComputerSystem.get(ComputerSystemProperty.MANUFACTURER).get(0));
-            setModel((String) win32ComputerSystem.get(ComputerSystemProperty.MODEL).get(0));
+            setManufacturer(win32ComputerSystem.getString(ComputerSystemProperty.MANUFACTURER, 0));
+            setModel(win32ComputerSystem.getString(ComputerSystemProperty.MODEL, 0));
         }
 
         setSerialNumber(getSystemSerialNumber());
@@ -113,13 +77,13 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 BiosProperty.class);
         WmiResult<BiosProperty> serialNumber = WmiUtil.queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {
-            this.systemSerialNumber = (String) serialNumber.get(BiosProperty.SERIALNUMBER).get(0);
+            this.systemSerialNumber = serialNumber.getString(BiosProperty.SERIALNUMBER, 0);
         }
         // If the above doesn't work, this might
         if (!"".equals(this.systemSerialNumber)) {
             WmiResult<CsProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
             if (identifyingNumber.getResultCount() > 0) {
-                this.systemSerialNumber = (String) identifyingNumber.get(CsProductProperty.IDENTIFYINGNUMBER).get(0);
+                this.systemSerialNumber = identifyingNumber.getString(CsProductProperty.IDENTIFYINGNUMBER, 0);
             }
         }
         // Nothing worked. Default.

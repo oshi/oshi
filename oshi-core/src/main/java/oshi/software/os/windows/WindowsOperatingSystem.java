@@ -19,6 +19,7 @@
 package oshi.software.os.windows;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,8 +67,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -76,35 +75,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    enum BitnessProperty implements WmiProperty {
-        ADDRESSWIDTH(ValueType.UINT32);
-
-        private ValueType type;
-
-        BitnessProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum BitnessProperty {
+        ADDRESSWIDTH;
     }
 
-    enum ProcessProperty implements WmiProperty {
-        PROCESSID(ValueType.UINT32), //
-        COMMANDLINE(ValueType.STRING);
-
-        private ValueType type;
-
-        ProcessProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum ProcessProperty {
+        PROCESSID, COMMANDLINE;
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
@@ -239,7 +215,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = ((Long) bitnessMap.get(BitnessProperty.ADDRESSWIDTH).get(0)).intValue();
+                    this.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);
                 }
             }
         }
@@ -329,7 +305,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
                 pCount)) {
             LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new LinkedList<OSProcess>();
+            return new ArrayList<>(0);
         }
         // extract the pointed-to pointer and create array
         final Pointer pProcessInfo = ppProcessInfo.getValue();
@@ -430,7 +406,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Clean up memory allocated in C
         if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new LinkedList<OSProcess>();
+            return new ArrayList<>(0);
         }
 
         // Command Line only accessible via WMI.
@@ -458,13 +434,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = ((Long) commandLineProcs.get(ProcessProperty.PROCESSID).get(p)).intValue();
+                int pid = commandLineProcs.getInteger(ProcessProperty.PROCESSID, p);
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
                 if (this.processMap.containsKey(pid)) {
                     OSProcess proc = this.processMap.get(pid);
-                    proc.setCommandLine((String) commandLineProcs.get(ProcessProperty.COMMANDLINE).get(p));
+                    proc.setCommandLine(commandLineProcs.getString(ProcessProperty.COMMANDLINE, p));
                 }
             }
         }
