@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.NativeLong; // NOSONAR
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.OleAuto;
+import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.Variant.VARIANT;
 import com.sun.jna.platform.win32.WTypes.BSTR;
 import com.sun.jna.platform.win32.WinError;
@@ -48,7 +49,6 @@ import oshi.jna.platform.windows.COM.EnumWbemClassObject;
 import oshi.jna.platform.windows.COM.WbemClassObject;
 import oshi.jna.platform.windows.COM.WbemLocator;
 import oshi.jna.platform.windows.COM.WbemServices;
-import oshi.util.ParseUtil;
 
 /**
  * Utility class providing access to Windows Management Interface (WMI) via COM.
@@ -71,6 +71,13 @@ public class WmiUtil {
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    // Constants for WMI used often
+    private static final BSTR WQL = new BSTR("WQL");
+    private static final NativeLong ZERO = new NativeLong(0L);
+    private static final NativeLong ONE = new NativeLong(1L);
+    private static final NativeLong ASYNCH_FORWARD_FLAGS = new NativeLong(
+            EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY);
 
     // COM may already have been initialized outside this class. Keep this
     // boolean as a flag whether we need to un-initialize it
@@ -237,6 +244,7 @@ public class WmiUtil {
      */
     public class WmiResult<T extends Enum<T> & WmiProperty> {
         private Map<T, List<Object>> propertyMap;
+        private Map<T, Integer> vtTypeMap;
         private int resultCount = 0;
 
         /**
@@ -245,35 +253,88 @@ public class WmiUtil {
          */
         public WmiResult(Class<T> propertyEnum) {
             propertyMap = new EnumMap<>(propertyEnum);
+            vtTypeMap = new EnumMap<>(propertyEnum);
             for (T type : propertyEnum.getEnumConstants()) {
                 propertyMap.put(type, new ArrayList<>());
+                vtTypeMap.put(type, Variant.VT_NULL);
             }
         }
 
         /**
-         * Gets a value from the WmiResult
+         * Gets a String value from the WmiResult
          * 
          * @param property
          *            The property (column) to fetch
          * @param index
          *            The index (row) to fetch
-         * @return The object containing the specified value. Casting according
-         *         to the variable type is left to the user.
+         * @return The String containing the specified value.
          */
-        public Object get(T property, int index) {
-            return this.propertyMap.get(property).get(index);
+        public String getString(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return "unknown";
+            } else if (vtTypeMap.get(property).equals(Variant.VT_BSTR)) {
+                return (String) o;
+            }
+            throw new IllegalArgumentException(
+                    "Property " + property.name() + " is not a String type. Type is: " + vtTypeMap.get(property));
+        }
+
+        /**
+         * Gets a 4-byte Integer value from the WmiResult
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The Integer containing the specified value.
+         */
+        public Integer getInteger(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return 0;
+            } else if (vtTypeMap.get(property).equals(Variant.VT_I4)) {
+                return (Integer) o;
+            }
+            throw new IllegalArgumentException(
+                    "Property " + property.name() + " is not an Integer type. Type is: " + vtTypeMap.get(property));
+        }
+
+        /**
+         * Gets a 4-byte Real (Float) value from the WmiResult
+         * 
+         * @param property
+         *            The property (column) to fetch
+         * @param index
+         *            The index (row) to fetch
+         * @return The Float containing the specified value.
+         */
+        public Float getFloat(T property, int index) {
+            Object o = this.propertyMap.get(property).get(index);
+            if (o == null) {
+                return 0f;
+            } else if (vtTypeMap.get(property).equals(Variant.VT_R4)) {
+                return (Float) o;
+            }
+            throw new IllegalArgumentException(
+                    "Property " + property.name() + " is not a Float type. Type is: " + vtTypeMap.get(property));
         }
 
         /**
          * Adds a value to the WmiResult at the next index for that property
          * 
+         * @param vtType
+         *            The Variant type of this object
          * @param property
          *            The property (column) to store
          * @param o
          *            The object to store
          */
-        private void add(T property, Object o) {
+        private void add(int vtType, T property, Object o) {
             this.propertyMap.get(property).add(o);
+            if (vtType != Variant.VT_NULL && this.vtTypeMap.get(property).equals(Variant.VT_NULL)) {
+                this.vtTypeMap.put(property, vtType);
+            }
         }
 
         /**
@@ -395,7 +456,7 @@ public class WmiUtil {
         }
         WmiResult<NamespaceProperty> namespaces = queryWMI(NAMESPACE_QUERY);
         for (int i = 0; i < namespaces.getResultCount(); i++) {
-            if (namespace.equals(namespaces.get(NamespaceProperty.NAME, i))) {
+            if (namespace.equals(namespaces.getString(NamespaceProperty.NAME, i))) {
                 return true;
             }
         }
@@ -648,9 +709,7 @@ public class WmiUtil {
         LOG.debug("Query: {}", sb);
         // Send the query. The flags allow us to return immediately and begin
         // enumerating in the forward direction as results come in.
-        HRESULT hres = svc.ExecQuery(new BSTR("WQL"), new BSTR(sb.toString().replaceAll("\\\\", "\\\\\\\\")),
-                new NativeLong(
-                        EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
+        HRESULT hres = svc.ExecQuery(WQL, new BSTR(sb.toString().replaceAll("\\\\", "\\\\\\\\")), ASYNCH_FORWARD_FLAGS,
                 null, pEnumerator);
         if (COMUtils.FAILED(hres)) {
             if (LOG.isErrorEnabled()) {
@@ -689,10 +748,14 @@ public class WmiUtil {
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();
         LongByReference uReturn = new LongByReference(0L);
+        Map<T, BSTR> bstrMap = new HashMap<>();
+        for (T property : propertyEnum.getEnumConstants()) {
+            bstrMap.put(property, new BSTR(property.name()));
+        }
         while (enumerator.getPointer() != Pointer.NULL) {
             // Enumerator will be released by calling method so no need to
             // release it here.
-            HRESULT hres = enumerator.Next(new NativeLong(timeout), new NativeLong(1), pclsObj, uReturn);
+            HRESULT hres = enumerator.Next(new NativeLong(timeout), ONE, pclsObj, uReturn);
             // Warn user of timeout and abort. This should never happen if
             // timeout is set to infinite.
             if (hres.intValue() == EnumWbemClassObject.WBEM_S_TIMEDOUT) {
@@ -710,44 +773,23 @@ public class WmiUtil {
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
             for (T property : propertyEnum.getEnumConstants()) {
-                clsObj.Get(new BSTR(property.name()), new NativeLong(0L), vtProp, null, null);
-
-                switch (property.getType()) {
-                case STRING:
-                    values.add(property, vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
+                clsObj.Get(bstrMap.get(property), ZERO, vtProp, null, null);
+                int type = (vtProp.getValue() == null ? Variant.VT_NULL : vtProp.getVarType()).intValue();
+                switch (type) {
+                case Variant.VT_BSTR:
+                    values.add(type, property, vtProp.stringValue());
                     break;
-                // uint16 == VT_I4, a 32-bit number
-                case UINT16:
-                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.intValue());
+                case Variant.VT_I4:
+                    values.add(type, property, vtProp.intValue());
                     break;
-                // WMI Uint32s will return as longs
-                case UINT32:
-                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.longValue());
+                case Variant.VT_R4:
+                    values.add(type, property, vtProp.floatValue());
                     break;
-                // WMI Longs will return as strings so we have the option of
-                // calling a string and parsing later, or calling UINT64 and
-                // letting this method do the parsing
-                case UINT64:
-                    values.add(property,
-                            vtProp.getValue() == null ? 0L : ParseUtil.parseLongOrDefault(vtProp.stringValue(), 0L));
-                    break;
-                case FLOAT:
-                    values.add(property, vtProp.getValue() == null ? 0f : vtProp.floatValue());
-                    break;
-                case DATETIME:
-                    // Read a string in format 20160513072950.782000-420 and
-                    // parse to a long representing ms since eopch
-                    values.add(property,
-                            vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
-                    break;
-                case BOOLEAN:
-                    values.add(property, vtProp.getValue() == null ? 0L : vtProp.booleanValue());
+                case Variant.VT_NULL:
+                    values.add(type, property, null);
                     break;
                 default:
-                    // Should never get here! If you get this exception you've
-                    // added something to the ValueType enum without adding a
-                    // case for it here. Tsk.
-                    throw new IllegalArgumentException("Unimplemented enum type: " + property.getType().toString());
+                    throw new IllegalArgumentException("Unimplemented Variant type: " + type);
                 }
                 OleAuto.INSTANCE.VariantClear(vtProp);
             }

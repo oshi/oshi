@@ -19,6 +19,7 @@
 package oshi.software.os.windows;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -239,7 +240,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = ((Long) bitnessMap.get(BitnessProperty.ADDRESSWIDTH, 0)).intValue();
+                    this.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);
                 }
             }
         }
@@ -329,7 +330,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
                 pCount)) {
             LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new LinkedList<OSProcess>();
+            return new ArrayList<>(0);
         }
         // extract the pointed-to pointer and create array
         final Pointer pProcessInfo = ppProcessInfo.getValue();
@@ -430,7 +431,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Clean up memory allocated in C
         if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new LinkedList<OSProcess>();
+            return new ArrayList<>(0);
         }
 
         // Command Line only accessible via WMI.
@@ -458,13 +459,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = ((Long) commandLineProcs.get(ProcessProperty.PROCESSID, p)).intValue();
+                int pid = commandLineProcs.getInteger(ProcessProperty.PROCESSID, p);
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
                 if (this.processMap.containsKey(pid)) {
                     OSProcess proc = this.processMap.get(pid);
-                    proc.setCommandLine((String) commandLineProcs.get(ProcessProperty.COMMANDLINE, p));
+                    proc.setCommandLine(commandLineProcs.getString(ProcessProperty.COMMANDLINE, p));
                 }
             }
         }

@@ -118,7 +118,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         WmiQuery<ProcessorProperty> processorIdQuery = WmiUtil.createQuery("Win32_Processor", ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
-            setProcessorID((String) processorId.get(ProcessorProperty.PROCESSORID, 0));
+            setProcessorID((String) processorId.getString(ProcessorProperty.PROCESSORID, 0));
         }
     }
 

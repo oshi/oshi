@@ -21,6 +21,7 @@ package oshi.hardware.platform.windows;
 import java.util.Calendar;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.ValueType;
 import oshi.util.platform.windows.WmiUtil.WmiProperty;
@@ -64,12 +65,13 @@ final class WindowsFirmware extends AbstractFirmware {
 
         WmiResult<BiosProperty> win32BIOS = WmiUtil.queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {
-            setManufacturer((String) win32BIOS.get(BiosProperty.MANUFACTURER, 0));
-            setName((String) win32BIOS.get(BiosProperty.NAME, 0));
-            setDescription((String) win32BIOS.get(BiosProperty.DESCRIPTION, 0));
-            setVersion((String) win32BIOS.get(BiosProperty.VERSION, 0));
+            setManufacturer(win32BIOS.getString(BiosProperty.MANUFACTURER, 0));
+            setName(win32BIOS.getString(BiosProperty.NAME, 0));
+            setDescription(win32BIOS.getString(BiosProperty.DESCRIPTION, 0));
+            setVersion(win32BIOS.getString(BiosProperty.VERSION, 0));
             Calendar c = Calendar.getInstance();
-            c.setTimeInMillis((Long) win32BIOS.get(BiosProperty.RELEASEDATE, 0));
+            // TODO switch to simple string parsing
+            c.setTimeInMillis(ParseUtil.cimDateTimeToMillis(win32BIOS.getString(BiosProperty.RELEASEDATE, 0)));
             setReleaseDate(String.format("%04d-%02d-%02d", c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,
                     c.get(Calendar.DATE)));
         }

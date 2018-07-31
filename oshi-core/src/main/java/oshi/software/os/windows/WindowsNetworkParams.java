@@ -173,15 +173,15 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             return "";
         }
         int index = 0;
-        long min = Long.MAX_VALUE;
+        int min = Integer.MAX_VALUE;
         for (int i = 0; i < vals.getResultCount(); i++) {
-            long metric = (Long) vals.get(NetRouteProperty.ROUTEMETRIC, i);
+            int metric = vals.getInteger(NetRouteProperty.ROUTEMETRIC, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get(NetRouteProperty.NEXTHOP, index);
+        return vals.getString(NetRouteProperty.NEXTHOP, index);
     }
 
     private String getNextHopWin7(String dest) {
@@ -193,15 +193,15 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             return "";
         }
         int index = 0;
-        long min = Long.MAX_VALUE;
+        int min = Integer.MAX_VALUE;
         for (int i = 0; i < vals.getResultCount(); i++) {
-            long metric = (Long) vals.get(IP4RouteProperty.METRIC1, i);
+            int metric = vals.getInteger(IP4RouteProperty.METRIC1, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get(IP4RouteProperty.NEXTHOP, index);
+        return vals.getString(IP4RouteProperty.NEXTHOP, index);
     }
 
     private String parseIpv6Route() {

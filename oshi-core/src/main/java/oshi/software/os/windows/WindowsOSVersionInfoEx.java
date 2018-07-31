@@ -79,10 +79,10 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
-            int suiteMask = (int) ((Long) versionInfo.get(OSVersionProperty.SUITEMASK, 0)).longValue();
+            int suiteMask = versionInfo.getInteger(OSVersionProperty.SUITEMASK, 0);
             setVersion(parseVersion(versionInfo, suiteMask));
             setCodeName(parseCodeName(suiteMask));
-            setBuildNumber((String) versionInfo.get(OSVersionProperty.BUILDNUMBER, 0));
+            setBuildNumber(versionInfo.getString(OSVersionProperty.BUILDNUMBER, 0));
             LOG.debug("Initialized OSVersionInfoEx");
         }
     }
@@ -101,13 +101,14 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-        String[] verSplit = ((String) versionInfo.get(OSVersionProperty.VERSION, 0)).split("\\D");
+        String[] verSplit = (versionInfo.getString(OSVersionProperty.VERSION, 0)).split("\\D");
         int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
         int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = (long) versionInfo.get(OSVersionProperty.PRODUCTTYPE, 0) == WinNT.VER_NT_WORKSTATION;
+        boolean ntWorkstation = versionInfo.getInteger(OSVersionProperty.PRODUCTTYPE, 0)
+                .equals(WinNT.VER_NT_WORKSTATION);
         if (major == 10) {
             if (minor == 0) {
                 version = ntWorkstation ? "10" : "Server 2016";
@@ -139,7 +140,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             }
         }
 
-        String sp = (String) versionInfo.get(OSVersionProperty.CSDVERSION, 0);
+        String sp = versionInfo.getString(OSVersionProperty.CSDVERSION, 0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
             version = version + " " + sp.replace("Service Pack ", "SP");
         }
