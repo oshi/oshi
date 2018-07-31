@@ -34,6 +34,7 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.PdhUtil;
+import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -196,13 +197,16 @@ public class WindowsDisks implements Disks {
             timeStampMap.clear();
         }
         // Fetch the instance names
-        List<String> instances = PdhUtil.PdhEnumObjectItemInstances(null, null, "PhysicalDisk", 100);
-        instances.remove("_Total");
+        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, "PhysicalDisk", 100);
+        List<String> instances = objectItems.getInstances();
         // At this point we have a list of strings that PDH understands. Fetch
         // the counters.
         // Although the field names say "PerSec" this is the Raw Data/counters
         // from which the associated fields are populated in the Formatted Data
         for (String i : instances) {
+            if ("_Total".equals(i)) {
+                continue;
+            }
             String name = ParseUtil.whitespaces.split(i)[0];
             String readString = String.format(PDH_DISK_READS_FORMAT, i);
             if (!PerfDataUtil.isCounter(readString)) {
