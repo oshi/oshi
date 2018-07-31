@@ -153,17 +153,6 @@ public class ParseUtilTest {
     }
 
     /**
-     * Test CIM date to long.
-     */
-    @Test
-    public void testCimDateTimeToDate() {
-        assertEquals(1463149790782L, ParseUtil.cimDateTimeToMillis("20160513072950.782000-420"));
-        assertEquals(0L, ParseUtil.cimDateTimeToMillis("20160513072950.782000"));
-        assertEquals(0L, ParseUtil.cimDateTimeToMillis("20160513072950.782000-ABC"));
-        assertEquals(0L, ParseUtil.cimDateTimeToMillis("NotAValidDateString00-000"));
-    }
-
-    /**
      * Test hex string to string
      */
     @Test

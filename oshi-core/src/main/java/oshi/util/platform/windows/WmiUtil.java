@@ -91,16 +91,10 @@ public class WmiUtil {
     private static Set<String> hasNamespaceCache = new HashSet<>();
     private static Set<String> hasNotNamespaceCache = new HashSet<>();
 
-    /**
-     * Enum used for WMI namespace query.
-     */
     private enum NamespaceProperty {
         NAME;
     }
 
-    /**
-     * Creates the WMI namespace query
-     */
     private static final WmiQuery<NamespaceProperty> NAMESPACE_QUERY = createQuery("ROOT", "__NAMESPACE",
             NamespaceProperty.class);
 
@@ -191,7 +185,9 @@ public class WmiUtil {
         }
 
         /**
-         * Gets a String value from the WmiResult
+         * Gets a String value from the WmiResult. This is the return type when
+         * the WMI result is mapped to a BSTR, including results of UINT64 and
+         * DATETIME type which must be further parsed by the user.
          * 
          * @param property
          *            The property (column) to fetch
@@ -211,7 +207,10 @@ public class WmiUtil {
         }
 
         /**
-         * Gets a 4-byte Integer value from the WmiResult
+         * Gets an Integer value from the WmiResult. This is the return type
+         * when the WMI result is mapped to a VT_I4 (4-byte integer) value,
+         * including results of UINT32, UINT16, and BOOLEAN. If an unsigned
+         * result is desired, it may require further processing by the user.
          * 
          * @param property
          *            The property (column) to fetch
@@ -231,7 +230,9 @@ public class WmiUtil {
         }
 
         /**
-         * Gets a 4-byte Real (Float) value from the WmiResult
+         * Gets a Float value from the WmiResult. This is the return type when
+         * the WMI result is mapped to a VT_R4 (4-byte real) value, including
+         * results of FLOAT.
          * 
          * @param property
          *            The property (column) to fetch
@@ -696,22 +697,22 @@ public class WmiUtil {
                 break;
             }
 
-            VARIANT.ByReference vtProp = new VARIANT.ByReference();
+            VARIANT.ByReference pVal = new VARIANT.ByReference();
 
             // Get the value of the properties
             WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
             for (T property : propertyEnum.getEnumConstants()) {
-                clsObj.Get(bstrMap.get(property), ZERO, vtProp, null, null);
-                int type = (vtProp.getValue() == null ? Variant.VT_NULL : vtProp.getVarType()).intValue();
+                clsObj.Get(bstrMap.get(property), ZERO, pVal, null, null);
+                int type = (pVal.getValue() == null ? Variant.VT_NULL : pVal.getVarType()).intValue();
                 switch (type) {
                 case Variant.VT_BSTR:
-                    values.add(type, property, vtProp.stringValue());
+                    values.add(type, property, pVal.stringValue());
                     break;
                 case Variant.VT_I4:
-                    values.add(type, property, vtProp.intValue());
+                    values.add(type, property, pVal.intValue());
                     break;
                 case Variant.VT_R4:
-                    values.add(type, property, vtProp.floatValue());
+                    values.add(type, property, pVal.floatValue());
                     break;
                 case Variant.VT_NULL:
                     values.add(type, property, null);
@@ -719,7 +720,7 @@ public class WmiUtil {
                 default:
                     throw new IllegalArgumentException("Unimplemented Variant type: " + type);
                 }
-                OleAuto.INSTANCE.VariantClear(vtProp);
+                OleAuto.INSTANCE.VariantClear(pVal);
             }
             clsObj.Release();
 
