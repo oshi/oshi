@@ -36,8 +36,6 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -52,40 +50,16 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-    enum NetRouteProperty implements WmiProperty {
-        NEXTHOP(ValueType.STRING), //
-        ROUTEMETRIC(ValueType.UINT16);
-
-        private ValueType type;
-
-        NetRouteProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum NetRouteProperty {
+        NEXTHOP, ROUTEMETRIC;
     }
 
     private static final String NETROUTE_BASE_CLASS = "MSFT_NetRoute";
     private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = WmiUtil.createQuery("ROOT\\StandardCimv2", null,
             NetRouteProperty.class);
 
-    enum IP4RouteProperty implements WmiProperty {
-        NEXTHOP(ValueType.STRING), //
-        METRIC1(ValueType.UINT16);
-
-        private ValueType type;
-
-        IP4RouteProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum IP4RouteProperty {
+        NEXTHOP, METRIC1;
     }
 
     private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";

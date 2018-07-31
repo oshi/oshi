@@ -31,8 +31,6 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -52,25 +50,8 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
 
-    enum LogicalDiskProperty implements WmiProperty {
-        DESCRIPTION(ValueType.STRING), //
-        DRIVETYPE(ValueType.UINT32), //
-        FILESYSTEM(ValueType.STRING), //
-        FREESPACE(ValueType.UINT64), //
-        NAME(ValueType.STRING), //
-        PROVIDERNAME(ValueType.STRING), //
-        SIZE(ValueType.UINT64);
-
-        private ValueType type;
-
-        LogicalDiskProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum LogicalDiskProperty {
+        DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
     private static final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WmiUtil.createQuery("Win32_LogicalDisk",
@@ -78,15 +59,15 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";
 
-    private static final long maxWindowsHandles;
+    private static final long MAX_WINDOWS_HANDLES;
     static {
         // Determine whether 32-bit or 64-bit handle limit, although both are
         // essentially infinite for practical purposes. See
         // https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
         if (System.getenv("ProgramFiles(x86)") == null) {
-            maxWindowsHandles = 16_777_216L - 32_768L;
+            MAX_WINDOWS_HANDLES = 16_777_216L - 32_768L;
         } else {
-            maxWindowsHandles = 16_777_216L - 65_536L;
+            MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
         }
     }
 
@@ -270,6 +251,6 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getMaxFileDescriptors() {
-        return maxWindowsHandles;
+        return MAX_WINDOWS_HANDLES;
     }
 }

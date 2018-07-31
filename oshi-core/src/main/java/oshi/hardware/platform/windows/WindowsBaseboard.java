@@ -20,8 +20,6 @@ package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -34,22 +32,8 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    enum BaseboardProperty implements WmiProperty {
-        MANUFACTURER(ValueType.STRING), //
-        MODEL(ValueType.STRING), //
-        VERSION(ValueType.STRING), //
-        SERIALNUMBER(ValueType.STRING);
-
-        private ValueType type;
-
-        BaseboardProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum BaseboardProperty {
+        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }
 
     WindowsBaseboard() {

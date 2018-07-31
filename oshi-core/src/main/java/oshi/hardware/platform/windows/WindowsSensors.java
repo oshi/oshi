@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Sensors;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -38,19 +36,8 @@ public class WindowsSensors implements Sensors {
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
 
-    enum OhmHardwareProperty implements WmiProperty {
-        IDENTIFIER(ValueType.STRING);
-
-        private ValueType type;
-
-        OhmHardwareProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum OhmHardwareProperty {
+        IDENTIFIER;
     }
 
     private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
@@ -58,74 +45,28 @@ public class WindowsSensors implements Sensors {
     private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
-    enum OhmSensorProperty implements WmiProperty {
-        VALUE(ValueType.FLOAT);
-
-        private ValueType type;
-
-        OhmSensorProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum OhmSensorProperty {
+        VALUE;
     }
 
     private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
 
-    enum ThermalZoneProperty implements WmiProperty {
-        NAME(ValueType.STRING), //
-        TEMPERATURE(ValueType.UINT32);
-
-        private ValueType type;
-
-        ThermalZoneProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum ThermalZoneProperty {
+        NAME, TEMPERATURE;
     }
 
     private static final WmiQuery<ThermalZoneProperty> THERMAL_ZONE_QUERY = WmiUtil.createQuery(
             WmiUtil.DEFAULT_NAMESPACE, "Win32_PerfRawData_Counters_ThermalZoneInformation", ThermalZoneProperty.class);
 
-    enum FanProperty implements WmiProperty {
-        DESIREDSPEED(ValueType.UINT32);
-
-        private ValueType type;
-
-        FanProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum FanProperty {
+        DESIREDSPEED;
     }
 
     private static final WmiQuery<FanProperty> FAN_QUERY = WmiUtil.createQuery("Win32_Fan", FanProperty.class);
 
-    enum VoltProperty implements WmiProperty {
-        CURRENTVOLTAGE(ValueType.UINT32), //
-        VOLTAGECAPS(ValueType.UINT32);
-
-        private ValueType type;
-
-        VoltProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum VoltProperty {
+        CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
     private static final WmiQuery<VoltProperty> VOLT_QUERY = WmiUtil.createQuery("Win32_Processor", VoltProperty.class);

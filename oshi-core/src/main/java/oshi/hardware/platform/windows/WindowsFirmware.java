@@ -23,8 +23,6 @@ import java.util.Calendar;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -37,23 +35,8 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    enum BiosProperty implements WmiProperty {
-        MANUFACTURER(ValueType.STRING), //
-        NAME(ValueType.STRING), //
-        DESCRIPTION(ValueType.STRING), //
-        VERSION(ValueType.STRING), //
-        RELEASEDATE(ValueType.DATETIME);
-
-        private ValueType type;
-
-        BiosProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum BiosProperty {
+        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
     WindowsFirmware() {

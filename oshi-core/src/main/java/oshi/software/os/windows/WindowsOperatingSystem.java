@@ -67,8 +67,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -77,35 +75,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    enum BitnessProperty implements WmiProperty {
-        ADDRESSWIDTH(ValueType.UINT32);
-
-        private ValueType type;
-
-        BitnessProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum BitnessProperty {
+        ADDRESSWIDTH;
     }
 
-    enum ProcessProperty implements WmiProperty {
-        PROCESSID(ValueType.UINT32), //
-        COMMANDLINE(ValueType.STRING);
-
-        private ValueType type;
-
-        ProcessProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum ProcessProperty {
+        PROCESSID, COMMANDLINE;
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";

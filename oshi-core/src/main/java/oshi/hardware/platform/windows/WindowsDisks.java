@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
@@ -38,8 +38,6 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -71,43 +69,15 @@ public class WindowsDisks implements Disks {
 
     private static final int BUFSIZE = 255;
 
-    enum DiskDriveProperty implements WmiProperty {
-        INDEX(ValueType.UINT32), //
-        MANUFACTURER(ValueType.STRING), //
-        MODEL(ValueType.STRING), //
-        NAME(ValueType.STRING), //
-        SERIALNUMBER(ValueType.STRING), //
-        SIZE(ValueType.UINT64);
-
-        private ValueType type;
-
-        DiskDriveProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum DiskDriveProperty {
+        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
     private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = WmiUtil.createQuery("Win32_DiskDrive",
             DiskDriveProperty.class);
 
-    enum DriveToPartitionProperty implements WmiProperty {
-        ANTECEDENT(ValueType.STRING), //
-        DEPENDENT(ValueType.STRING);
-
-        private ValueType type;
-
-        DriveToPartitionProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum DriveToPartitionProperty {
+        ANTECEDENT, DEPENDENT;
     }
 
     private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = WmiUtil
@@ -115,25 +85,8 @@ public class WindowsDisks implements Disks {
     private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = WmiUtil
             .createQuery("Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
-    enum DiskPartitionProperty implements WmiProperty {
-        DESCRIPTION(ValueType.STRING), //
-        DEVICEID(ValueType.STRING), //
-        DISKINDEX(ValueType.UINT32), //
-        INDEX(ValueType.UINT32), //
-        NAME(ValueType.STRING), //
-        SIZE(ValueType.UINT64), //
-        TYPE(ValueType.STRING);
-
-        private ValueType type;
-
-        DiskPartitionProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum DiskPartitionProperty {
+        DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
     }
 
     private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = WmiUtil.createQuery("Win32_DiskPartition",

@@ -61,7 +61,7 @@ public class WmiUtil {
     /**
      * Private instance to generate the WmiQuery class.
      */
-    private static WmiUtil INSTANCE = new WmiUtil();
+    private static final WmiUtil INSTANCE = new WmiUtil();
 
     /**
      * The default namespace for most WMI queries.
@@ -92,67 +92,10 @@ public class WmiUtil {
     private static Set<String> hasNotNamespaceCache = new HashSet<>();
 
     /**
-     * Enum for the value type of WMI queries, used to properly parse/cast the
-     * returned VARIANT. Names are intended to match the WMI documentation and
-     * do not actually represent types (e.g., unsigned). Options are
-     * {@link #STRING}, {@link #UINT64}, {@link #UINT32}, {@link #UINT16},
-     * {@link #FLOAT}, {@link #DATETIME}, {@link #BOOLEAN}
-     */
-    public enum ValueType {
-        /**
-         * String type. Returns from WMI as a BSTR. Parsed to a String.
-         */
-        STRING,
-        /**
-         * Unsigned 64-bit Integer. UINT64s return from WMI as a BSTR, parsed to
-         * a String. With the UINT64 type mapping, OSHI will parse the object to
-         * a (signed) long which may incorrectly represent large values. If true
-         * unsigned longs are required, users may prefer to map UINT64 variables
-         * to the String type and then parse the returned String to a
-         * BigInteger.
-         */
-        UINT64,
-        /**
-         * Unsigned 32-bit Integer. Parsed to a long.
-         */
-        UINT32,
-        /**
-         * Unsigned 16-bit Integer. Parsed to an int.
-         */
-        UINT16,
-        /**
-         * Single precision Float. Parsed to a float.
-         */
-        FLOAT,
-        /**
-         * Date/time. Returns from WMI as a String in the CIM_DATETIME format.
-         * Parsed to a long, number of milliseconds since the 1970 epoch.
-         */
-        DATETIME,
-        /**
-         * Boolean. Parsed to a boolean.
-         */
-        BOOLEAN
-        // If more values are added here, add the appropriate parsing as a case
-        // in the enumerateProperties method.
-    }
-
-    /**
      * Enum used for WMI namespace query.
      */
-    private enum NamespaceProperty implements WmiProperty {
-        NAME(ValueType.STRING);
-
-        private ValueType type;
-
-        NamespaceProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    private enum NamespaceProperty {
+        NAME;
     }
 
     /**
@@ -162,22 +105,9 @@ public class WmiUtil {
             NamespaceProperty.class);
 
     /**
-     * Interface contract for WMI Property Enums used with the {@link WmiQuery}
-     * and {@link WmiResult} classes.
-     */
-    public interface WmiProperty {
-        /**
-         * Gets the ValueType.
-         * 
-         * @return The type of value this property returns
-         */
-        ValueType getType();
-    }
-
-    /**
      * Helper class wrapping information required for a WMI query.
      */
-    public class WmiQuery<T extends Enum<T> & WmiProperty> {
+    public class WmiQuery<T extends Enum<T>> {
         private String nameSpace;
         private String wmiClassName;
         private Class<T> propertyEnum;
@@ -242,7 +172,7 @@ public class WmiUtil {
     /**
      * Helper class wrapping an EnumMap containing the results of a query.
      */
-    public class WmiResult<T extends Enum<T> & WmiProperty> {
+    public class WmiResult<T extends Enum<T>> {
         private Map<T, List<Object>> propertyMap;
         private Map<T, Integer> vtTypeMap;
         private int resultCount = 0;
@@ -277,7 +207,7 @@ public class WmiUtil {
                 return (String) o;
             }
             throw new IllegalArgumentException(
-                    "Property " + property.name() + " is not a String type. Type is: " + vtTypeMap.get(property));
+                    property.name() + " is not a String type. Type is: " + vtTypeMap.get(property));
         }
 
         /**
@@ -297,7 +227,7 @@ public class WmiUtil {
                 return (Integer) o;
             }
             throw new IllegalArgumentException(
-                    "Property " + property.name() + " is not an Integer type. Type is: " + vtTypeMap.get(property));
+                    property.name() + " is not an Integer type. Type is: " + vtTypeMap.get(property));
         }
 
         /**
@@ -317,7 +247,7 @@ public class WmiUtil {
                 return (Float) o;
             }
             throw new IllegalArgumentException(
-                    "Property " + property.name() + " is not a Float type. Type is: " + vtTypeMap.get(property));
+                    property.name() + " is not a Float type. Type is: " + vtTypeMap.get(property));
         }
 
         /**
@@ -417,7 +347,7 @@ public class WmiUtil {
      *            and types to query
      * @return A WmiQuery object wrapping the parameters
      */
-    public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
+    public static <T extends Enum<T>> WmiQuery<T> createQuery(String nameSpace, String wmiClassName,
             Class<T> propertyEnum) {
         return INSTANCE.new WmiQuery<>(nameSpace, wmiClassName, propertyEnum);
     }
@@ -435,8 +365,7 @@ public class WmiUtil {
      *            and types to query
      * @return A WmiQuery object wrapping the parameters
      */
-    public static <T extends Enum<T> & WmiProperty> WmiQuery<T> createQuery(String wmiClassName,
-            Class<T> propertyEnum) {
+    public static <T extends Enum<T>> WmiQuery<T> createQuery(String wmiClassName, Class<T> propertyEnum) {
         return createQuery(DEFAULT_NAMESPACE, wmiClassName, propertyEnum);
     }
 
@@ -474,7 +403,7 @@ public class WmiUtil {
      * @return a WmiResult object containing the query results, wrapping an
      *         EnumMap
      */
-    public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query) {
+    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
         try {
             return queryWMI(query, EnumWbemClassObject.WBEM_INFINITE);
         } catch (TimeoutException e) {
@@ -501,8 +430,7 @@ public class WmiUtil {
      * @throws TimeoutException
      *             if the query times out before completion
      */
-    public static <T extends Enum<T> & WmiProperty> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout)
-            throws TimeoutException {
+    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout) throws TimeoutException {
         // Idiot check
         if (query.getPropertyEnum().getEnumConstants().length < 1) {
             throw new IllegalArgumentException("The query's property enum has no values.");
@@ -694,8 +622,8 @@ public class WmiUtil {
      * @return True if successful. The enumerator will allow enumeration of
      *         results of the query
      */
-    private static <T extends Enum<T> & WmiProperty> boolean selectProperties(WbemServices svc,
-            PointerByReference pEnumerator, WmiQuery<T> query) {
+    private static <T extends Enum<T>> boolean selectProperties(WbemServices svc, PointerByReference pEnumerator,
+            WmiQuery<T> query) {
         // Step 6: --------------------------------------------------
         // Use the IWbemServices pointer to make requests of WMI ----
         T[] props = query.getPropertyEnum().getEnumConstants();
@@ -742,8 +670,8 @@ public class WmiUtil {
      * @throws TimeoutException
      *             if the query times out before completion
      */
-    private static <T extends Enum<T> & WmiProperty> void enumerateProperties(WmiResult<T> values,
-            EnumWbemClassObject enumerator, Class<T> propertyEnum, int timeout) throws TimeoutException {
+    private static <T extends Enum<T>> void enumerateProperties(WmiResult<T> values, EnumWbemClassObject enumerator,
+            Class<T> propertyEnum, int timeout) throws TimeoutException {
         // Step 7: -------------------------------------------------
         // Get the data from the query in step 6 -------------------
         PointerByReference pclsObj = new PointerByReference();

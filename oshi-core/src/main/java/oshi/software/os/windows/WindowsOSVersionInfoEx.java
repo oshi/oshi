@@ -32,8 +32,6 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -43,23 +41,8 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
-    enum OSVersionProperty implements WmiProperty {
-        VERSION(ValueType.STRING), //
-        PRODUCTTYPE(ValueType.UINT32), //
-        BUILDNUMBER(ValueType.STRING), //
-        CSDVERSION(ValueType.STRING), //
-        SUITEMASK(ValueType.UINT32);
-
-        private ValueType type;
-
-        OSVersionProperty(ValueType type) {
-            this.type = type;
-        }
-
-        @Override
-        public ValueType getType() {
-            return this.type;
-        }
+    enum OSVersionProperty {
+        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
     public WindowsOSVersionInfoEx() {
