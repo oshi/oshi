@@ -18,12 +18,8 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.Calendar;
-
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -36,43 +32,30 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L39">    enum BiosProperty implements WmiProperty {</span>
-<span class="nc" id="L40">        MANUFACTURER(ValueType.STRING), //</span>
-<span class="nc" id="L41">        NAME(ValueType.STRING), //</span>
-<span class="nc" id="L42">        DESCRIPTION(ValueType.STRING), //</span>
-<span class="nc" id="L43">        VERSION(ValueType.STRING), //</span>
-<span class="nc" id="L44">        RELEASEDATE(ValueType.DATETIME);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L48">        BiosProperty(ValueType type) {</span>
-<span class="nc" id="L49">            this.type = type;</span>
-<span class="nc" id="L50">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L54">            return this.type;</span>
-        }
+<span class="nc" id="L35">    enum BiosProperty {</span>
+<span class="nc" id="L36">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
     }
 
-<span class="nc" id="L58">    WindowsFirmware() {</span>
-<span class="nc" id="L59">        init();</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L39">    WindowsFirmware() {</span>
+<span class="nc" id="L40">        init();</span>
+<span class="nc" id="L41">    }</span>
 
     private void init() {
-<span class="nc" id="L63">        WmiQuery&lt;BiosProperty&gt; biosQuery = WmiUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
+<span class="nc" id="L44">        WmiQuery&lt;BiosProperty&gt; biosQuery = WmiUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
 
-<span class="nc" id="L65">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L67">            setManufacturer((String) win32BIOS.get(BiosProperty.MANUFACTURER).get(0));</span>
-<span class="nc" id="L68">            setName((String) win32BIOS.get(BiosProperty.NAME).get(0));</span>
-<span class="nc" id="L69">            setDescription((String) win32BIOS.get(BiosProperty.DESCRIPTION).get(0));</span>
-<span class="nc" id="L70">            setVersion((String) win32BIOS.get(BiosProperty.VERSION).get(0));</span>
-<span class="nc" id="L71">            Calendar c = Calendar.getInstance();</span>
-<span class="nc" id="L72">            c.setTimeInMillis((Long) win32BIOS.get(BiosProperty.RELEASEDATE).get(0));</span>
-<span class="nc" id="L73">            setReleaseDate(String.format(&quot;%04d-%02d-%02d&quot;, c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,</span>
-<span class="nc" id="L74">                    c.get(Calendar.DATE)));</span>
+<span class="nc" id="L46">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L48">            setManufacturer(win32BIOS.getString(BiosProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L49">            setName(win32BIOS.getString(BiosProperty.NAME, 0));</span>
+<span class="nc" id="L50">            setDescription(win32BIOS.getString(BiosProperty.DESCRIPTION, 0));</span>
+<span class="nc" id="L51">            setVersion(win32BIOS.getString(BiosProperty.VERSION, 0));</span>
+
+<span class="nc" id="L53">            String releaseDate = win32BIOS.getString(BiosProperty.RELEASEDATE, 0);</span>
+<span class="nc" id="L54">            StringBuilder sb = new StringBuilder(releaseDate.substring(0, 4));</span>
+<span class="nc" id="L55">            sb.append('-').append(releaseDate.substring(4, 6));</span>
+<span class="nc" id="L56">            sb.append('-').append(releaseDate.substring(6, 8));</span>
+<span class="nc" id="L57">            setReleaseDate(sb.toString());</span>
         }
-<span class="nc" id="L76">    }</span>
+<span class="nc" id="L59">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

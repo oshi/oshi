@@ -36,73 +36,47 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
-<span class="nc" id="L44">public class WindowsNetworkParams extends AbstractNetworkParams {</span>
+<span class="nc" id="L42">public class WindowsNetworkParams extends AbstractNetworkParams {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
 
     private static final String IPV4_DEFAULT_DEST = &quot;0.0.0.0/0&quot;; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = &quot;::/0&quot;;
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-<span class="nc" id="L55">    enum NetRouteProperty implements WmiProperty {</span>
-<span class="nc" id="L56">        NEXTHOP(ValueType.STRING), //</span>
-<span class="nc" id="L57">        ROUTEMETRIC(ValueType.UINT16);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L61">        NetRouteProperty(ValueType type) {</span>
-<span class="nc" id="L62">            this.type = type;</span>
-<span class="nc" id="L63">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L67">            return this.type;</span>
-        }
+<span class="nc" id="L53">    enum NetRouteProperty {</span>
+<span class="nc" id="L54">        NEXTHOP, ROUTEMETRIC;</span>
     }
 
     private static final String NETROUTE_BASE_CLASS = &quot;MSFT_NetRoute&quot;;
-<span class="nc" id="L72">    private static final WmiQuery&lt;NetRouteProperty&gt; NETROUTE_QUERY = WmiUtil.createQuery(&quot;ROOT\\StandardCimv2&quot;, null,</span>
+<span class="nc" id="L58">    private static final WmiQuery&lt;NetRouteProperty&gt; NETROUTE_QUERY = WmiUtil.createQuery(&quot;ROOT\\StandardCimv2&quot;, null,</span>
             NetRouteProperty.class);
 
-<span class="nc" id="L75">    enum IP4RouteProperty implements WmiProperty {</span>
-<span class="nc" id="L76">        NEXTHOP(ValueType.STRING), //</span>
-<span class="nc" id="L77">        METRIC1(ValueType.UINT16);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L81">        IP4RouteProperty(ValueType type) {</span>
-<span class="nc" id="L82">            this.type = type;</span>
-<span class="nc" id="L83">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L87">            return this.type;</span>
-        }
+<span class="nc" id="L61">    enum IP4RouteProperty {</span>
+<span class="nc" id="L62">        NEXTHOP, METRIC1;</span>
     }
 
     private static final String IP4ROUTE_BASE_CLASS = &quot;Win32_IP4RouteTable&quot;;
-<span class="nc" id="L92">    private static final WmiQuery&lt;IP4RouteProperty&gt; IP4ROUTE_QUERY = WmiUtil.createQuery(null, IP4RouteProperty.class);</span>
+<span class="nc" id="L66">    private static final WmiQuery&lt;IP4RouteProperty&gt; IP4ROUTE_QUERY = WmiUtil.createQuery(null, IP4RouteProperty.class);</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getDomainName() {
-<span class="nc" id="L99">        char[] buffer = new char[256];</span>
-<span class="nc" id="L100">        IntByReference bufferSize = new IntByReference(buffer.length);</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {</span>
-<span class="nc" id="L102">            LOG.error(&quot;Failed to get dns domain name. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L103">            return &quot;&quot;;</span>
+<span class="nc" id="L73">        char[] buffer = new char[256];</span>
+<span class="nc" id="L74">        IntByReference bufferSize = new IntByReference(buffer.length);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {</span>
+<span class="nc" id="L76">            LOG.error(&quot;Failed to get dns domain name. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L77">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L105">        return new String(buffer).trim();</span>
+<span class="nc" id="L79">        return new String(buffer).trim();</span>
     }
 
     /**
@@ -110,33 +84,33 @@ import oshi.util.platform.windows.WmiUtil.WmiResult;
      */
     @Override
     public String[] getDnsServers() {
-<span class="nc" id="L113">        IntByReference bufferSize = new IntByReference();</span>
-<span class="nc" id="L114">        int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {</span>
-<span class="nc" id="L116">            LOG.error(&quot;Failed to get network parameters buffer size. Error code: {}&quot;, ret);</span>
-<span class="nc" id="L117">            return new String[0];</span>
+<span class="nc" id="L87">        IntByReference bufferSize = new IntByReference();</span>
+<span class="nc" id="L88">        int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {</span>
+<span class="nc" id="L90">            LOG.error(&quot;Failed to get network parameters buffer size. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L91">            return new String[0];</span>
         }
 
-<span class="nc" id="L120">        Memory buffer = new Memory(bufferSize.getValue());</span>
-<span class="nc" id="L121">        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (ret != 0) {</span>
-<span class="nc" id="L123">            LOG.error(&quot;Failed to get network parameters. Error code: {}&quot;, ret);</span>
-<span class="nc" id="L124">            return new String[0];</span>
+<span class="nc" id="L94">        Memory buffer = new Memory(bufferSize.getValue());</span>
+<span class="nc" id="L95">        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (ret != 0) {</span>
+<span class="nc" id="L97">            LOG.error(&quot;Failed to get network parameters. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L98">            return new String[0];</span>
         }
-<span class="nc" id="L126">        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);</span>
+<span class="nc" id="L100">        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);</span>
 
-<span class="nc" id="L128">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L129">        IP_ADDR_STRING dns = fixedInfo.DnsServerList;</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        while (dns != null) {</span>
-<span class="nc" id="L131">            String addr = new String(dns.IpAddress.String);</span>
-<span class="nc" id="L132">            int nullPos = addr.indexOf(0);</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (nullPos != -1) {</span>
-<span class="nc" id="L134">                addr = addr.substring(0, nullPos);</span>
+<span class="nc" id="L102">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L103">        IP_ADDR_STRING dns = fixedInfo.DnsServerList;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        while (dns != null) {</span>
+<span class="nc" id="L105">            String addr = new String(dns.IpAddress.String);</span>
+<span class="nc" id="L106">            int nullPos = addr.indexOf(0);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (nullPos != -1) {</span>
+<span class="nc" id="L108">                addr = addr.substring(0, nullPos);</span>
             }
-<span class="nc" id="L136">            list.add(addr);</span>
-<span class="nc" id="L137">            dns = dns.Next;</span>
-<span class="nc" id="L138">        }</span>
-<span class="nc" id="L139">        return list.toArray(new String[list.size()]);</span>
+<span class="nc" id="L110">            list.add(addr);</span>
+<span class="nc" id="L111">            dns = dns.Next;</span>
+<span class="nc" id="L112">        }</span>
+<span class="nc" id="L113">        return list.toArray(new String[list.size()]);</span>
     }
 
     /**
@@ -145,11 +119,11 @@ import oshi.util.platform.windows.WmiUtil.WmiResult;
     @Override
     public String getIpv4DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
-<span class="nc" id="L149">            return getNextHop(IPV4_DEFAULT_DEST);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
+<span class="nc" id="L123">            return getNextHop(IPV4_DEFAULT_DEST);</span>
         }
         // IPv4 info available in Win32_IP4RouteTable
-<span class="nc" id="L152">        return getNextHopWin7(IPV4_DEFAULT_DEST.split(&quot;/&quot;)[0]);</span>
+<span class="nc" id="L126">        return getNextHopWin7(IPV4_DEFAULT_DEST.split(&quot;/&quot;)[0]);</span>
     }
 
     /**
@@ -158,65 +132,61 @@ import oshi.util.platform.windows.WmiUtil.WmiResult;
     @Override
     public String getIpv6DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
-<span class="nc" id="L162">            return getNextHop(IPV6_DEFAULT_DEST);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (WmiUtil.hasNamespace(&quot;StandardCimv2&quot;)) {</span>
+<span class="nc" id="L136">            return getNextHop(IPV6_DEFAULT_DEST);</span>
         }
-<span class="nc" id="L164">        return parseIpv6Route();</span>
+<span class="nc" id="L138">        return parseIpv6Route();</span>
     }
 
     private String getNextHop(String dest) {
-<span class="nc" id="L168">        StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);</span>
-<span class="nc" id="L169">        sb.append(&quot; WHERE DestinationPrefix=\&quot;&quot;).append(dest).append('\&quot;');</span>
-<span class="nc" id="L170">        NETROUTE_QUERY.setWmiClassName(sb.toString());</span>
-<span class="nc" id="L171">        WmiResult&lt;NetRouteProperty&gt; vals = WmiUtil.queryWMI(NETROUTE_QUERY);</span>
-
-<span class="nc" id="L173">        List&lt;Object&gt; metrics = vals.get(NetRouteProperty.ROUTEMETRIC);</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (vals.get(NetRouteProperty.ROUTEMETRIC).isEmpty()) {</span>
-<span class="nc" id="L175">            return &quot;&quot;;</span>
+<span class="nc" id="L142">        StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);</span>
+<span class="nc" id="L143">        sb.append(&quot; WHERE DestinationPrefix=\&quot;&quot;).append(dest).append('\&quot;');</span>
+<span class="nc" id="L144">        NETROUTE_QUERY.setWmiClassName(sb.toString());</span>
+<span class="nc" id="L145">        WmiResult&lt;NetRouteProperty&gt; vals = WmiUtil.queryWMI(NETROUTE_QUERY);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (vals.getResultCount() &lt; 1) {</span>
+<span class="nc" id="L147">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L177">        int index = 0;</span>
-<span class="nc" id="L178">        Long min = Long.MAX_VALUE;</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; metrics.size(); i++) {</span>
-<span class="nc" id="L180">            Long metric = (Long) metrics.get(i);</span>
-<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (metric &lt; min) {</span>
-<span class="nc" id="L182">                min = metric;</span>
-<span class="nc" id="L183">                index = i;</span>
+<span class="nc" id="L149">        int index = 0;</span>
+<span class="nc" id="L150">        int min = Integer.MAX_VALUE;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.getResultCount(); i++) {</span>
+<span class="nc" id="L152">            int metric = vals.getInteger(NetRouteProperty.ROUTEMETRIC, i);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (metric &lt; min) {</span>
+<span class="nc" id="L154">                min = metric;</span>
+<span class="nc" id="L155">                index = i;</span>
             }
         }
-<span class="nc" id="L186">        return (String) vals.get(NetRouteProperty.NEXTHOP).get(index);</span>
+<span class="nc" id="L158">        return vals.getString(NetRouteProperty.NEXTHOP, index);</span>
     }
 
     private String getNextHopWin7(String dest) {
-<span class="nc" id="L190">        StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);</span>
-<span class="nc" id="L191">        sb.append(&quot; WHERE Destination=\&quot;&quot;).append(dest).append('\&quot;');</span>
-<span class="nc" id="L192">        IP4ROUTE_QUERY.setWmiClassName(sb.toString());</span>
-<span class="nc" id="L193">        WmiResult&lt;IP4RouteProperty&gt; vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);</span>
-
-<span class="nc" id="L195">        List&lt;Object&gt; metrics = vals.get(IP4RouteProperty.METRIC1);</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (vals.get(IP4RouteProperty.METRIC1).isEmpty()) {</span>
-<span class="nc" id="L197">            return &quot;&quot;;</span>
+<span class="nc" id="L162">        StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);</span>
+<span class="nc" id="L163">        sb.append(&quot; WHERE Destination=\&quot;&quot;).append(dest).append('\&quot;');</span>
+<span class="nc" id="L164">        IP4ROUTE_QUERY.setWmiClassName(sb.toString());</span>
+<span class="nc" id="L165">        WmiResult&lt;IP4RouteProperty&gt; vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (vals.getResultCount() &lt; 1) {</span>
+<span class="nc" id="L167">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L199">        int index = 0;</span>
-<span class="nc" id="L200">        Long min = Long.MAX_VALUE;</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (int i = 0; i &lt; metrics.size(); i++) {</span>
-<span class="nc" id="L202">            Long metric = (Long) metrics.get(i);</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">            if (metric &lt; min) {</span>
-<span class="nc" id="L204">                min = metric;</span>
-<span class="nc" id="L205">                index = i;</span>
+<span class="nc" id="L169">        int index = 0;</span>
+<span class="nc" id="L170">        int min = Integer.MAX_VALUE;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.getResultCount(); i++) {</span>
+<span class="nc" id="L172">            int metric = vals.getInteger(IP4RouteProperty.METRIC1, i);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            if (metric &lt; min) {</span>
+<span class="nc" id="L174">                min = metric;</span>
+<span class="nc" id="L175">                index = i;</span>
             }
         }
-<span class="nc" id="L208">        return (String) vals.get(IP4RouteProperty.NEXTHOP).get(index);</span>
+<span class="nc" id="L178">        return vals.getString(IP4RouteProperty.NEXTHOP, index);</span>
     }
 
     private String parseIpv6Route() {
-<span class="nc" id="L212">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L214">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
-<span class="nc bnc" id="L215" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; &quot;::/0&quot;.equals(fields[2])) {</span>
-<span class="nc" id="L216">                return fields[3];</span>
+<span class="nc" id="L182">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L184">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
+<span class="nc bnc" id="L185" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; &quot;::/0&quot;.equals(fields[2])) {</span>
+<span class="nc" id="L186">                return fields[3];</span>
             }
-<span class="nc" id="L218">        }</span>
-<span class="nc" id="L219">        return &quot;&quot;;</span>
+<span class="nc" id="L188">        }</span>
+<span class="nc" id="L189">        return &quot;&quot;;</span>
     }
 
 }

@@ -19,7 +19,9 @@
 package oshi.util.platform.windows;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,36 +47,37 @@ import oshi.jna.platform.windows.PdhUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class PerfDataUtil {
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);</span>
+<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);</span>
 
-<span class="nc" id="L50">    private static final DWORD_PTR PZERO = new DWORD_PTR(0);</span>
-<span class="nc" id="L51">    private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));</span>
-<span class="nc" id="L52">    private static final PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();</span>
-<span class="nc" id="L53">    private static final Pdh PDH = Pdh.INSTANCE;</span>
+<span class="nc" id="L52">    private static final DWORD_PTR PZERO = new DWORD_PTR(0);</span>
+<span class="nc" id="L53">    private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));</span>
+<span class="nc" id="L54">    private static final PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();</span>
+<span class="nc" id="L55">    private static final Pdh PDH = Pdh.INSTANCE;</span>
 
     private static final String HEX_ERROR_FMT = &quot;0x%08X&quot;;
     private static final String LOG_COUNTER_NOT_EXISTS = &quot;Counter does not exist: {}&quot;;
 
     // Maps to hold pointers to the relevant counter information
-<span class="nc" id="L59">    private static final Map&lt;String, HANDLEByReference&gt; counterMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L60">    private static final Map&lt;String, HANDLEByReference&gt; queryMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L61">    private static final Map&lt;String, HANDLEByReference&gt; counterMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">    private static final Map&lt;String, HANDLEByReference&gt; queryMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L63">    private static final Set&lt;String&gt; disabledCounters = new HashSet&lt;&gt;();</span>
 
     // Regexp to match PDH counter string
     // Format is \Path(Instance)\Counter or \Path\Counter
-<span class="nc" id="L64">    private static Pattern COUNTER_PATTERN = Pattern.compile(&quot;\\\\(.*?)(\\(.*\\))?\\\\(.*)&quot;);</span>
+<span class="nc" id="L67">    private static Pattern COUNTER_PATTERN = Pattern.compile(&quot;\\\\(.*?)(\\(.*\\))?\\\\(.*)&quot;);</span>
 
 
-<span class="nc" id="L67">    private PerfDataUtil() {</span>
+<span class="nc" id="L70">    private PerfDataUtil() {</span>
         // Set up hook to close all queries on shutdown
-<span class="nc" id="L69">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+<span class="nc" id="L72">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
             @Override
             public void run() {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                for (HANDLEByReference query : queryMap.values()) {</span>
-<span class="nc" id="L73">                    PDH.PdhCloseQuery(query.getValue());</span>
-<span class="nc" id="L74">                }</span>
-<span class="nc" id="L75">            }</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                for (HANDLEByReference query : queryMap.values()) {</span>
+<span class="nc" id="L76">                    PDH.PdhCloseQuery(query.getValue());</span>
+<span class="nc" id="L77">                }</span>
+<span class="nc" id="L78">            }</span>
         });
-<span class="nc" id="L77">    }</span>
+<span class="nc" id="L80">    }</span>
 
     /**
      * Translate an English counter path to its locale-specific string
@@ -84,19 +87,19 @@ public class PerfDataUtil {
      * @return The path of the counter in the machine's locale
      */
     private static String localizeCounterPath(String englishPath) {
-<span class="nc" id="L87">        Matcher match = COUNTER_PATTERN.matcher(englishPath);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (match.matches()) {</span>
-<span class="nc" id="L89">            StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L90">            sb.append('\\');</span>
-<span class="nc" id="L91">            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(1))));</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (match.group(2) != null) {</span>
-<span class="nc" id="L93">                sb.append(match.group(2));</span>
+<span class="nc" id="L90">        Matcher match = COUNTER_PATTERN.matcher(englishPath);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (match.matches()) {</span>
+<span class="nc" id="L92">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L93">            sb.append('\\');</span>
+<span class="nc" id="L94">            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(1))));</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (match.group(2) != null) {</span>
+<span class="nc" id="L96">                sb.append(match.group(2));</span>
             }
-<span class="nc" id="L95">            sb.append('\\');</span>
-<span class="nc" id="L96">            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(3))));</span>
-<span class="nc" id="L97">            return sb.toString();</span>
+<span class="nc" id="L98">            sb.append('\\');</span>
+<span class="nc" id="L99">            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(3))));</span>
+<span class="nc" id="L100">            return sb.toString();</span>
         }
-<span class="nc" id="L99">        return englishPath;</span>
+<span class="nc" id="L102">        return englishPath;</span>
     }
 
     /**
@@ -107,7 +110,7 @@ public class PerfDataUtil {
      * @return True if the counter already exists
      */
     public static boolean isCounter(String counterString) {
-<span class="nc" id="L110">        return counterMap.containsKey(counterString);</span>
+<span class="nc" id="L113">        return counterMap.containsKey(counterString);</span>
     }
 
     /**
@@ -118,19 +121,19 @@ public class PerfDataUtil {
      * @return True if the counter has been successfully added or already exists
      */
     public static boolean addCounter(String counterString) {
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (queryMap.containsKey(counterString)) {</span>
-<span class="nc" id="L122">            LOG.warn(&quot;Counter already exists: {}&quot;, counterString);</span>
-<span class="nc" id="L123">            return true;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (queryMap.containsKey(counterString)) {</span>
+<span class="nc" id="L125">            LOG.warn(&quot;Counter already exists: {}&quot;, counterString);</span>
+<span class="nc" id="L126">            return true;</span>
         }
-<span class="nc" id="L125">        HANDLEByReference q = new HANDLEByReference();</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (openQuery(q)) {</span>
-<span class="nc" id="L127">            HANDLEByReference p = new HANDLEByReference();</span>
-<span class="nc" id="L128">            addCounter(q, localizeCounterPath(counterString), p);</span>
-<span class="nc" id="L129">            counterMap.put(counterString, p);</span>
-<span class="nc" id="L130">            queryMap.put(counterString, q);</span>
-<span class="nc" id="L131">            return true;</span>
+<span class="nc" id="L128">        HANDLEByReference q = new HANDLEByReference();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (openQuery(q)) {</span>
+<span class="nc" id="L130">            HANDLEByReference p = new HANDLEByReference();</span>
+<span class="nc" id="L131">            addCounter(q, localizeCounterPath(counterString), p);</span>
+<span class="nc" id="L132">            counterMap.put(counterString, p);</span>
+<span class="nc" id="L133">            queryMap.put(counterString, q);</span>
+<span class="nc" id="L134">            return true;</span>
         }
-<span class="nc" id="L133">        return false;</span>
+<span class="nc" id="L136">        return false;</span>
     }
 
     /**
@@ -145,29 +148,29 @@ public class PerfDataUtil {
      *         exist
      */
     public static boolean addCounter2DArray(String name, String[][] counterStringArray) {
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (queryMap.containsKey(name)) {</span>
-<span class="nc" id="L149">            LOG.warn(&quot;Counters already exists: {}&quot;, name);</span>
-<span class="nc" id="L150">            return true;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (queryMap.containsKey(name)) {</span>
+<span class="nc" id="L152">            LOG.warn(&quot;Counters already exists: {}&quot;, name);</span>
+<span class="nc" id="L153">            return true;</span>
         }
-<span class="nc bnc" id="L152" title="All 4 branches missed.">        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {</span>
-<span class="nc" id="L153">            LOG.error(&quot;This array has a zero dimension: {}&quot;, name);</span>
-<span class="nc" id="L154">            return false;</span>
+<span class="nc bnc" id="L155" title="All 4 branches missed.">        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {</span>
+<span class="nc" id="L156">            LOG.error(&quot;This array has a zero dimension: {}&quot;, name);</span>
+<span class="nc" id="L157">            return false;</span>
         }
-<span class="nc" id="L156">        HANDLEByReference q = new HANDLEByReference();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (openQuery(q)) {</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            for (int i = 0; i &lt; counterStringArray.length; i++) {</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                for (int j = 0; j &lt; counterStringArray[i].length; j++) {</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">                    if (counterStringArray[i][j] != null) {</span>
-<span class="nc" id="L161">                        HANDLEByReference p = new HANDLEByReference();</span>
-<span class="nc" id="L162">                        addCounter(q, counterStringArray[i][j], p);</span>
-<span class="nc" id="L163">                        counterMap.put(counterStringArray[i][j], p);</span>
+<span class="nc" id="L159">        HANDLEByReference q = new HANDLEByReference();</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (openQuery(q)) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            for (int i = 0; i &lt; counterStringArray.length; i++) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                for (int j = 0; j &lt; counterStringArray[i].length; j++) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                    if (counterStringArray[i][j] != null) {</span>
+<span class="nc" id="L164">                        HANDLEByReference p = new HANDLEByReference();</span>
+<span class="nc" id="L165">                        addCounter(q, counterStringArray[i][j], p);</span>
+<span class="nc" id="L166">                        counterMap.put(counterStringArray[i][j], p);</span>
                     }
                 }
             }
-<span class="nc" id="L167">            queryMap.put(name, q);</span>
-<span class="nc" id="L168">            return true;</span>
+<span class="nc" id="L170">            queryMap.put(name, q);</span>
+<span class="nc" id="L171">            return true;</span>
         }
-<span class="nc" id="L170">        return false;</span>
+<span class="nc" id="L173">        return false;</span>
     }
 
     /**
@@ -177,14 +180,15 @@ public class PerfDataUtil {
      *            The counter to stop monitoring
      */
     public static void removeCounter(String counterString) {
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (queryMap.containsKey(counterString)) {</span>
-<span class="nc" id="L181">            PDH.PdhCloseQuery(queryMap.get(counterString).getValue());</span>
-<span class="nc" id="L182">            counterMap.remove(counterString);</span>
-<span class="nc" id="L183">            queryMap.remove(counterString);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (queryMap.containsKey(counterString)) {</span>
+<span class="nc" id="L184">            PDH.PdhCloseQuery(queryMap.get(counterString).getValue());</span>
+<span class="nc" id="L185">            counterMap.remove(counterString);</span>
+<span class="nc" id="L186">            queryMap.remove(counterString);</span>
+<span class="nc" id="L187">            disabledCounters.remove(counterString);</span>
         } else {
-<span class="nc" id="L185">            LOG.warn(LOG_COUNTER_NOT_EXISTS, counterString);</span>
+<span class="nc" id="L189">            LOG.warn(LOG_COUNTER_NOT_EXISTS, counterString);</span>
         }
-<span class="nc" id="L187">    }</span>
+<span class="nc" id="L191">    }</span>
 
     /**
      * Query the raw counter value of a Performance Data counter. Further
@@ -195,12 +199,17 @@ public class PerfDataUtil {
      * @return The raw value of the counter
      */
     public static long queryCounter(String counterString) {
-<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (!queryMap.containsKey(counterString)) {</span>
-<span class="nc" id="L199">            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);</span>
-<span class="nc" id="L200">            return 0;</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (!queryMap.containsKey(counterString)) {</span>
+<span class="nc" id="L203">            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);</span>
+<span class="nc" id="L204">            return 0;</span>
         }
-<span class="nc" id="L202">        updateCounters(queryMap.get(counterString));</span>
-<span class="nc" id="L203">        return queryCounter(counterMap.get(counterString));</span>
+<span class="nc bnc" id="L206" title="All 4 branches missed.">        if (!disabledCounters.contains(counterString) &amp;&amp; !updateCounters(queryMap.get(counterString))) {</span>
+<span class="nc" id="L207">            LOG.error(&quot;Disabling future updates for {}. Call removeCounter and addCounter again to reset.&quot;,</span>
+                    counterString);
+<span class="nc" id="L209">            disabledCounters.add(counterString);</span>
+<span class="nc" id="L210">            return 0L;</span>
+        }
+<span class="nc" id="L212">        return queryCounter(counterMap.get(counterString));</span>
     }
 
     /**
@@ -213,11 +222,11 @@ public class PerfDataUtil {
      * @return The raw value of the counter
      */
     public static long queryCounterTimestamp(String counterString) {
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (!queryMap.containsKey(counterString)) {</span>
-<span class="nc" id="L217">            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);</span>
-<span class="nc" id="L218">            return 0;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (!queryMap.containsKey(counterString)) {</span>
+<span class="nc" id="L226">            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);</span>
+<span class="nc" id="L227">            return 0;</span>
         }
-<span class="nc" id="L220">        return queryCounterTimestamp(counterMap.get(counterString)).toDWordLong().longValue() / 10000L;</span>
+<span class="nc" id="L229">        return queryCounterTimestamp(counterMap.get(counterString)).toDWordLong().longValue() / 10000L;</span>
     }
 
     /**
@@ -232,24 +241,24 @@ public class PerfDataUtil {
      * @return The raw values of the counters corresponding to the string
      */
     public static long[][] queryCounter2DArray(String name, String[][] counterStringArray) {
-<span class="nc bnc" id="L235" title="All 2 branches missed.">        if (!queryMap.containsKey(name)) {</span>
-<span class="nc" id="L236">            LOG.error(LOG_COUNTER_NOT_EXISTS, name);</span>
-<span class="nc" id="L237">            return new long[0][0];</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (!queryMap.containsKey(name)) {</span>
+<span class="nc" id="L245">            LOG.error(LOG_COUNTER_NOT_EXISTS, name);</span>
+<span class="nc" id="L246">            return new long[0][0];</span>
         }
-<span class="nc bnc" id="L239" title="All 4 branches missed.">        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {</span>
-<span class="nc" id="L240">            LOG.error(&quot;This array has a zero dimension: {}&quot;, name);</span>
-<span class="nc" id="L241">            return new long[0][0];</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {</span>
+<span class="nc" id="L249">            LOG.error(&quot;This array has a zero dimension: {}&quot;, name);</span>
+<span class="nc" id="L250">            return new long[0][0];</span>
         }
-<span class="nc" id="L243">        updateCounters(queryMap.get(name));</span>
-<span class="nc" id="L244">        long[][] values = new long[counterStringArray.length][counterStringArray[0].length];</span>
-<span class="nc bnc" id="L245" title="All 2 branches missed.">        for (int i = 0; i &lt; counterStringArray.length; i++) {</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">            for (int j = 0; j &lt; counterStringArray[i].length; j++) {</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (counterStringArray[i][j] != null) {</span>
-<span class="nc" id="L248">                    values[i][j] = queryCounter(counterMap.get(counterStringArray[i][j]));</span>
+<span class="nc" id="L252">        updateCounters(queryMap.get(name));</span>
+<span class="nc" id="L253">        long[][] values = new long[counterStringArray.length][counterStringArray[0].length];</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">        for (int i = 0; i &lt; counterStringArray.length; i++) {</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            for (int j = 0; j &lt; counterStringArray[i].length; j++) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                if (counterStringArray[i][j] != null) {</span>
+<span class="nc" id="L257">                    values[i][j] = queryCounter(counterMap.get(counterStringArray[i][j]));</span>
                 }
             }
         }
-<span class="nc" id="L252">        return values;</span>
+<span class="nc" id="L261">        return values;</span>
     }
 
     /**
@@ -260,11 +269,11 @@ public class PerfDataUtil {
      * @return true if successful
      */
     private static boolean openQuery(HANDLEByReference p) {
-<span class="nc" id="L263">        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, p);</span>
-<span class="nc bnc" id="L264" title="All 4 branches missed.">        if (pdhOpenQueryError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L265">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(HEX_ERROR_FMT, pdhOpenQueryError));</span>
+<span class="nc" id="L272">        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, p);</span>
+<span class="nc bnc" id="L273" title="All 4 branches missed.">        if (pdhOpenQueryError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L274">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(HEX_ERROR_FMT, pdhOpenQueryError));</span>
         }
-<span class="nc bnc" id="L267" title="All 2 branches missed.">        return pdhOpenQueryError == WinError.ERROR_SUCCESS;</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        return pdhOpenQueryError == WinError.ERROR_SUCCESS;</span>
     }
 
     /**
@@ -278,12 +287,12 @@ public class PerfDataUtil {
      *            Pointer to the counter
      */
     private static void addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-<span class="nc" id="L281">        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);</span>
-<span class="nc bnc" id="L282" title="All 4 branches missed.">        if (pdhAddCounterError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L283">            LOG.error(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L284">                    String.format(HEX_ERROR_FMT, pdhAddCounterError));</span>
+<span class="nc" id="L290">        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);</span>
+<span class="nc bnc" id="L291" title="All 4 branches missed.">        if (pdhAddCounterError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L292">            LOG.error(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L293">                    String.format(HEX_ERROR_FMT, pdhAddCounterError));</span>
         }
-<span class="nc" id="L286">    }</span>
+<span class="nc" id="L295">    }</span>
 
     /**
      * Update counters to values since the last call
@@ -293,12 +302,14 @@ public class PerfDataUtil {
      * @return True if successful
      */
     private static boolean updateCounters(WinNT.HANDLEByReference query) {
-<span class="nc" id="L296">        int ret = PDH.PdhCollectQueryData(query.getValue());</span>
-<span class="nc bnc" id="L297" title="All 4 branches missed.">        if (ret != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L298">            LOG.error(&quot;Failed to update counters. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
-<span class="nc" id="L299">            return false;</span>
+<span class="nc" id="L305">        int ret = PDH.PdhCollectQueryData(query.getValue());</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L308">                LOG.error(&quot;Failed to update counters. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
+            }
+<span class="nc" id="L310">            return false;</span>
         }
-<span class="nc" id="L301">        return true;</span>
+<span class="nc" id="L312">        return true;</span>
     }
 
     /**
@@ -309,12 +320,14 @@ public class PerfDataUtil {
      * @return long value of the counter
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
-<span class="nc" id="L312">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
-<span class="nc bnc" id="L313" title="All 4 branches missed.">        if (ret != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L314">            LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
-<span class="nc" id="L315">            return 0L;</span>
+<span class="nc" id="L323">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L326">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
+            }
+<span class="nc" id="L328">            return 0L;</span>
         }
-<span class="nc" id="L317">        return counterValue.FirstValue;</span>
+<span class="nc" id="L330">        return counterValue.FirstValue;</span>
     }
 
     /**
@@ -326,12 +339,14 @@ public class PerfDataUtil {
      *         uses the 1601 Epoch.
      */
     private static FILETIME queryCounterTimestamp(WinNT.HANDLEByReference counter) {
-<span class="nc" id="L329">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
-<span class="nc bnc" id="L330" title="All 4 branches missed.">        if (ret != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L331">            LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
-<span class="nc" id="L332">            return new FILETIME();</span>
+<span class="nc" id="L342">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L345">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
+            }
+<span class="nc" id="L347">            return new FILETIME();</span>
         }
-<span class="nc" id="L334">        return counterValue.TimeStamp;</span>
+<span class="nc" id="L349">        return counterValue.TimeStamp;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
