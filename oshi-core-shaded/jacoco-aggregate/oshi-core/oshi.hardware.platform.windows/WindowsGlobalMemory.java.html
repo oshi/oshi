@@ -82,20 +82,23 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L82">            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();</span>
 <span class="nc" id="L83">            this.swapTotal = this.pageSize</span>
 <span class="nc" id="L84">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
-<span class="nc" id="L85">            this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);</span>
-<span class="nc" id="L86">            this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);</span>
-
-<span class="nc" id="L88">            this.lastUpdate = now;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (this.swapTotal &gt; 0) {</span>
+<span class="nc" id="L86">                this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);</span>
+<span class="nc" id="L87">                this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);</span>
+            }
+<span class="nc" id="L89">            this.lastUpdate = now;</span>
         }
-<span class="nc" id="L90">    }</span>
+<span class="nc" id="L91">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateSwap() {
-<span class="nc" id="L97">        updateMeminfo();</span>
-<span class="nc" id="L98">        this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;</span>
-<span class="nc" id="L99">    }</span>
+<span class="nc" id="L98">        updateMeminfo();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.swapTotal &gt; 0) {</span>
+<span class="nc" id="L100">            this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;</span>
+        }
+<span class="nc" id="L102">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
