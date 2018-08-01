@@ -199,14 +199,12 @@ public class WindowsDisks implements Disks {
         // Fetch the instance names
         PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, "PhysicalDisk", 100);
         List<String> instances = objectItems.getInstances();
+        instances.remove("_Total");
         // At this point we have a list of strings that PDH understands. Fetch
         // the counters.
         // Although the field names say "PerSec" this is the Raw Data/counters
         // from which the associated fields are populated in the Formatted Data
         for (String i : instances) {
-            if ("_Total".equals(i)) {
-                continue;
-            }
             String name = ParseUtil.whitespaces.split(i)[0];
             String readString = String.format(PDH_DISK_READS_FORMAT, i);
             if (!PerfDataUtil.isCounter(readString)) {
