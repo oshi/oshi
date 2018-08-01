@@ -32,6 +32,11 @@ import com.sun.jna.win32.W32APIOptions;
  */
 public interface Pdh extends com.sun.jna.platform.win32.Pdh {
     Pdh INSTANCE = Native.loadLibrary("Pdh", Pdh.class, W32APIOptions.DEFAULT_OPTIONS);
+    int PDH_MORE_DATA = 0x800007D2;
+    int PDH_INVALID_ARGUMENT = 0xC0000BBD;
+    int PDH_MEMORY_ALLOCATION_FAILURE = 0xC0000BBB;
+    int PDH_CSTATUS_NO_MACHINE = 0x800007D0;
+    int PDH_CSTATUS_NO_OBJECT = 0xC0000BB8;
 
     /**
      * Returns the specified object's counter and instance names that exist on

@@ -18,12 +18,14 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.concurrent.TimeoutException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Sensors;
+import oshi.jna.platform.windows.PdhUtil;
+import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
+import oshi.jna.platform.windows.PdhUtil.PdhException;
+import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
@@ -35,6 +37,7 @@ public class WindowsSensors implements Sensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
+    private static final String THERMAL_ZONE_INFO = "Thermal Zone Information";
 
     enum OhmHardwareProperty {
         IDENTIFIER;
@@ -52,13 +55,6 @@ public class WindowsSensors implements Sensors {
     private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
 
-    enum ThermalZoneProperty {
-        NAME, TEMPERATURE;
-    }
-
-    private static final WmiQuery<ThermalZoneProperty> THERMAL_ZONE_QUERY = WmiUtil.createQuery(
-            WmiUtil.DEFAULT_NAMESPACE, "Win32_PerfRawData_Counters_ThermalZoneInformation", ThermalZoneProperty.class);
-
     enum FanProperty {
         DESIREDSPEED;
     }
@@ -71,15 +67,42 @@ public class WindowsSensors implements Sensors {
 
     private static final WmiQuery<VoltProperty> VOLT_QUERY = WmiUtil.createQuery("Win32_Processor", VoltProperty.class);
 
+    private String thermalZoneQueryString = "";
+
+    public WindowsSensors() {
+        try {
+            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, THERMAL_ZONE_INFO, 100);
+            if (!objectItems.getInstances().isEmpty()) {
+                // Default to first value
+                thermalZoneQueryString = objectItems.getInstances().get(0);
+                // Prefer a value with "CPU" in it
+                for (String instance : objectItems.getInstances()) {
+                    if (instance.toLowerCase().contains("cpu")) {
+                        thermalZoneQueryString = instance;
+                    }
+                }
+            }
+            if (!thermalZoneQueryString.isEmpty()) {
+                thermalZoneQueryString = String.format("\\%s(%s)\\Temperature", THERMAL_ZONE_INFO,
+                        thermalZoneQueryString);
+                PerfDataUtil.addCounter(thermalZoneQueryString);
+            }
+        } catch (PdhException e) {
+            LOG.warn("Unable to enumerate performance counter instances for " + THERMAL_ZONE_INFO);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
-        // Initialize
+        // Initialize default
         double tempC = 0d;
 
-        // Attempt to fetch value from Open Hardware Monitor if it is running
+        // Attempt to fetch value from Open Hardware Monitor if it is running,
+        // as it will give the most accurate results and the time to query (or
+        // attempt) is trivial
         WmiResult<OhmHardwareProperty> ohmHardware = WmiUtil.queryWMI(OHM_HARDWARE_QUERY);
         if (ohmHardware.getResultCount() > 0) {
             String cpuIdentifier = ohmHardware.getString(OhmHardwareProperty.IDENTIFIER, 0);
@@ -101,46 +124,24 @@ public class WindowsSensors implements Sensors {
             }
         }
 
-        // If we get this far, OHM is not running.
-        // Try to get from conventional WMI.
-        // Previously OSHI checked multiple sources but now only looks at
-        // PerfCounters
-        // Have removed attempts for:
-        // Win32_TemperatureProbe CurrentReating is "reserved for future use"
-        // MSAcpi_ThermalZoneTemperature CurrentTemperature is not on the CPU
-
-        // This query is notoriously slow so we specify a 2-second timeout
-        try {
-            int tempK = 0;
-
-            WmiResult<ThermalZoneProperty> thermalZone = WmiUtil.queryWMI(THERMAL_ZONE_QUERY, 2000);
-            if (thermalZone.getResultCount() > 0) {
-                // Default to the first result
-                tempK = thermalZone.getInteger(ThermalZoneProperty.TEMPERATURE, 0);
-                // If multiple results, pick the one that's a CPU
-                if (thermalZone.getResultCount() > 1) {
-                    for (int i = 0; i < thermalZone.getResultCount(); i++) {
-                        if ((thermalZone.getString(ThermalZoneProperty.NAME, i)).toLowerCase().contains("cpu")) {
-                            tempK = thermalZone.getInteger(ThermalZoneProperty.TEMPERATURE, i);
-                            break;
-                        }
-                    }
-                }
-            }
-            // Convert K to C
-            if (tempK > 2732) {
+        // If we get this far, OHM is not running. Try from PDH
+        if (PerfDataUtil.isCounter(thermalZoneQueryString)) {
+            long tempK = PerfDataUtil.queryCounter(thermalZoneQueryString);
+            if (tempK > 2732L) {
                 tempC = tempK / 10d - 273.15;
-            } else if (tempK > 274) {
+            } else if (tempK > 274L) {
                 tempC = tempK - 273d;
             }
-        } catch (TimeoutException e) {
-            LOG.warn("Temperature query timed out. {}", e.getMessage());
-            // WMI timed out.
-            return 0d;
+            if (tempC < 0d) {
+                tempC = 0d;
+            }
         }
-        if (tempC < 0d) {
-            tempC = 0d;
-        }
+
+        // Other fallbacks to WMI are unreliable so we omit them
+        // Win32_TemperatureProbe is the official location but is not currently
+        // populated and is "reserved for future use"
+        // MSAcpu_ThermalZoneTemperature only updates during a high temperature
+        // event and is otherwise unchanged/misleading.
         return tempC;
     }
 
