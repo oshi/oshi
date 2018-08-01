@@ -20,8 +20,6 @@ package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -35,98 +33,64 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L38">    enum ComputerSystemProperty implements WmiProperty {</span>
-<span class="nc" id="L39">        MANUFACTURER(ValueType.STRING), //</span>
-<span class="nc" id="L40">        MODEL(ValueType.STRING);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L44">        ComputerSystemProperty(ValueType type) {</span>
-<span class="nc" id="L45">            this.type = type;</span>
-<span class="nc" id="L46">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L50">            return this.type;</span>
-        }
+<span class="nc" id="L36">    enum ComputerSystemProperty {</span>
+<span class="nc" id="L37">        MANUFACTURER, MODEL;</span>
     }
 
-<span class="nc" id="L54">    enum BiosProperty implements WmiProperty {</span>
-<span class="nc" id="L55">        SERIALNUMBER(ValueType.STRING);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L59">        BiosProperty(ValueType type) {</span>
-<span class="nc" id="L60">            this.type = type;</span>
-<span class="nc" id="L61">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L65">            return this.type;</span>
-        }
+<span class="nc" id="L40">    enum BiosProperty {</span>
+<span class="nc" id="L41">        SERIALNUMBER;</span>
     }
 
-<span class="nc" id="L69">    enum CsProductProperty implements WmiProperty {</span>
-<span class="nc" id="L70">        IDENTIFYINGNUMBER(ValueType.STRING);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L74">        CsProductProperty(ValueType type) {</span>
-<span class="nc" id="L75">            this.type = type;</span>
-<span class="nc" id="L76">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L80">            return this.type;</span>
-        }
+<span class="nc" id="L44">    enum CsProductProperty {</span>
+<span class="nc" id="L45">        IDENTIFYINGNUMBER;</span>
     }
 
-<span class="nc" id="L84">    private static final WmiQuery&lt;CsProductProperty&gt; IDENTIFYINGNUMBER_QUERY = WmiUtil.createQuery(&quot;Win32_Csproduct&quot;,</span>
+<span class="nc" id="L48">    private static final WmiQuery&lt;CsProductProperty&gt; IDENTIFYINGNUMBER_QUERY = WmiUtil.createQuery(&quot;Win32_Csproduct&quot;,</span>
             CsProductProperty.class);
 
-<span class="nc" id="L87">    private String systemSerialNumber = &quot;&quot;;</span>
+<span class="nc" id="L51">    private String systemSerialNumber = &quot;&quot;;</span>
 
-<span class="nc" id="L89">    WindowsComputerSystem() {</span>
-<span class="nc" id="L90">        init();</span>
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L53">    WindowsComputerSystem() {</span>
+<span class="nc" id="L54">        init();</span>
+<span class="nc" id="L55">    }</span>
 
     private void init() {
-<span class="nc" id="L94">        WmiQuery&lt;ComputerSystemProperty&gt; computerSystemQuery = WmiUtil.createQuery(&quot;Win32_ComputerSystem&quot;,</span>
+<span class="nc" id="L58">        WmiQuery&lt;ComputerSystemProperty&gt; computerSystemQuery = WmiUtil.createQuery(&quot;Win32_ComputerSystem&quot;,</span>
                 ComputerSystemProperty.class);
-<span class="nc" id="L96">        WmiResult&lt;ComputerSystemProperty&gt; win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (win32ComputerSystem.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L98">            setManufacturer((String) win32ComputerSystem.get(ComputerSystemProperty.MANUFACTURER).get(0));</span>
-<span class="nc" id="L99">            setModel((String) win32ComputerSystem.get(ComputerSystemProperty.MODEL).get(0));</span>
+<span class="nc" id="L60">        WmiResult&lt;ComputerSystemProperty&gt; win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (win32ComputerSystem.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L62">            setManufacturer(win32ComputerSystem.getString(ComputerSystemProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L63">            setModel(win32ComputerSystem.getString(ComputerSystemProperty.MODEL, 0));</span>
         }
 
-<span class="nc" id="L102">        setSerialNumber(getSystemSerialNumber());</span>
-<span class="nc" id="L103">        setFirmware(new WindowsFirmware());</span>
-<span class="nc" id="L104">        setBaseboard(new WindowsBaseboard());</span>
-<span class="nc" id="L105">    }</span>
+<span class="nc" id="L66">        setSerialNumber(getSystemSerialNumber());</span>
+<span class="nc" id="L67">        setFirmware(new WindowsFirmware());</span>
+<span class="nc" id="L68">        setBaseboard(new WindowsBaseboard());</span>
+<span class="nc" id="L69">    }</span>
 
     private String getSystemSerialNumber() {
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
-<span class="nc" id="L109">            return this.systemSerialNumber;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
+<span class="nc" id="L73">            return this.systemSerialNumber;</span>
         }
         // This should always work
-<span class="nc" id="L112">        WmiQuery&lt;BiosProperty&gt; serialNumberQuery = WmiUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;,</span>
+<span class="nc" id="L76">        WmiQuery&lt;BiosProperty&gt; serialNumberQuery = WmiUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;,</span>
                 BiosProperty.class);
-<span class="nc" id="L114">        WmiResult&lt;BiosProperty&gt; serialNumber = WmiUtil.queryWMI(serialNumberQuery);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (serialNumber.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L116">            this.systemSerialNumber = (String) serialNumber.get(BiosProperty.SERIALNUMBER).get(0);</span>
+<span class="nc" id="L78">        WmiResult&lt;BiosProperty&gt; serialNumber = WmiUtil.queryWMI(serialNumberQuery);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (serialNumber.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L80">            this.systemSerialNumber = serialNumber.getString(BiosProperty.SERIALNUMBER, 0);</span>
         }
         // If the above doesn't work, this might
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
-<span class="nc" id="L120">            WmiResult&lt;CsProductProperty&gt; identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (identifyingNumber.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L122">                this.systemSerialNumber = (String) identifyingNumber.get(CsProductProperty.IDENTIFYINGNUMBER).get(0);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
+<span class="nc" id="L84">            WmiResult&lt;CsProductProperty&gt; identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (identifyingNumber.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L86">                this.systemSerialNumber = identifyingNumber.getString(CsProductProperty.IDENTIFYINGNUMBER, 0);</span>
             }
         }
         // Nothing worked. Default.
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
-<span class="nc" id="L127">            this.systemSerialNumber = &quot;unknown&quot;;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!&quot;&quot;.equals(this.systemSerialNumber)) {</span>
+<span class="nc" id="L91">            this.systemSerialNumber = &quot;unknown&quot;;</span>
         }
-<span class="nc" id="L129">        return this.systemSerialNumber;</span>
+<span class="nc" id="L93">        return this.systemSerialNumber;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
