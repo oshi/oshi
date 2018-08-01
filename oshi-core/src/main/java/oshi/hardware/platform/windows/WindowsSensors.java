@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Sensors;
 import oshi.jna.platform.windows.PdhUtil;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsSensors implements Sensors {
 
@@ -43,29 +44,32 @@ public class WindowsSensors implements Sensors {
         IDENTIFIER;
     }
 
-    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
+    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WbemcliUtil.createQuery(
+            WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE,
+    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WbemcliUtil.createQuery(
+            WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
     }
 
-    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WmiUtil.createQuery(WmiUtil.OHM_NAMESPACE, null,
+    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WbemcliUtil.createQuery(WmiUtil.OHM_NAMESPACE,
+            null,
             OhmSensorProperty.class);
 
     enum FanProperty {
         DESIREDSPEED;
     }
 
-    private static final WmiQuery<FanProperty> FAN_QUERY = WmiUtil.createQuery("Win32_Fan", FanProperty.class);
+    private static final WmiQuery<FanProperty> FAN_QUERY = WbemcliUtil.createQuery("Win32_Fan", FanProperty.class);
 
     enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    private static final WmiQuery<VoltProperty> VOLT_QUERY = WmiUtil.createQuery("Win32_Processor", VoltProperty.class);
+    private static final WmiQuery<VoltProperty> VOLT_QUERY = WbemcliUtil.createQuery("Win32_Processor", VoltProperty.class);
 
     private String thermalZoneQueryString = "";
 

@@ -34,14 +34,15 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.PdhUtil;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Windows hard disk implementation.
@@ -75,24 +76,24 @@ public class WindowsDisks implements Disks {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
-    private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = WmiUtil.createQuery("Win32_DiskDrive",
+    private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = WbemcliUtil.createQuery("Win32_DiskDrive",
             DiskDriveProperty.class);
 
     enum DriveToPartitionProperty {
         ANTECEDENT, DEPENDENT;
     }
 
-    private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = WmiUtil
+    private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = WbemcliUtil
             .createQuery("Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
-    private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = WmiUtil
+    private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = WbemcliUtil
             .createQuery("Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
     enum DiskPartitionProperty {
         DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
     }
 
-    private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = WmiUtil.createQuery("Win32_DiskPartition",
-            DiskPartitionProperty.class);
+    private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = WbemcliUtil
+            .createQuery("Win32_DiskPartition", DiskPartitionProperty.class);
 
     private static final String PDH_DISK_READS_FORMAT = "\\PhysicalDisk(%s)\\Disk Reads/sec";
     private static final String PDH_DISK_READ_BYTES_FORMAT = "\\PhysicalDisk(%s)\\Disk Read Bytes/sec";
