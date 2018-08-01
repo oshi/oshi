@@ -1,10 +1,13 @@
 3.8.0 (in progress)
 ================
+* Your contribution here.
+
+3.7.2 (08/01/2018)
+================
 * [#573](https://github.com/oshi/oshi/pull/573): Don't get PDH swap stats if no swap. - [@dbwiddis](https://github.com/dbwiddis).
 * [#574](https://github.com/oshi/oshi/pull/574): Suppress repeat updates of failed PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
 * [#575](https://github.com/oshi/oshi/pull/575): Replace WMI value types with Variant types. - [@dbwiddis](https://github.com/dbwiddis).
 * [#577](https://github.com/oshi/oshi/pull/577): Get Windows temperature from PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.7.1 (07/28/2018)
 ================
