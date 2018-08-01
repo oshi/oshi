@@ -20,8 +20,6 @@ package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
-import oshi.util.platform.windows.WmiUtil.WmiProperty;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
 import oshi.util.platform.windows.WmiUtil.WmiResult;
 
@@ -34,37 +32,23 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L37">    enum BaseboardProperty implements WmiProperty {</span>
-<span class="nc" id="L38">        MANUFACTURER(ValueType.STRING), //</span>
-<span class="nc" id="L39">        MODEL(ValueType.STRING), //</span>
-<span class="nc" id="L40">        VERSION(ValueType.STRING), //</span>
-<span class="nc" id="L41">        SERIALNUMBER(ValueType.STRING);</span>
-
-        private ValueType type;
-
-<span class="nc" id="L45">        BaseboardProperty(ValueType type) {</span>
-<span class="nc" id="L46">            this.type = type;</span>
-<span class="nc" id="L47">        }</span>
-
-        @Override
-        public ValueType getType() {
-<span class="nc" id="L51">            return this.type;</span>
-        }
+<span class="nc" id="L35">    enum BaseboardProperty {</span>
+<span class="nc" id="L36">        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;</span>
     }
 
-<span class="nc" id="L55">    WindowsBaseboard() {</span>
-<span class="nc" id="L56">        init();</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L39">    WindowsBaseboard() {</span>
+<span class="nc" id="L40">        init();</span>
+<span class="nc" id="L41">    }</span>
 
     private void init() {
-<span class="nc" id="L60">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = WmiUtil.createQuery(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
-<span class="nc" id="L61">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L63">            setManufacturer((String) win32BaseBoard.get(BaseboardProperty.MANUFACTURER).get(0));</span>
-<span class="nc" id="L64">            setModel((String) win32BaseBoard.get(BaseboardProperty.MODEL).get(0));</span>
-<span class="nc" id="L65">            setVersion((String) win32BaseBoard.get(BaseboardProperty.VERSION).get(0));</span>
-<span class="nc" id="L66">            setSerialNumber((String) win32BaseBoard.get(BaseboardProperty.SERIALNUMBER).get(0));</span>
+<span class="nc" id="L44">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = WmiUtil.createQuery(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
+<span class="nc" id="L45">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L47">            setManufacturer(win32BaseBoard.getString(BaseboardProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L48">            setModel(win32BaseBoard.getString(BaseboardProperty.MODEL, 0));</span>
+<span class="nc" id="L49">            setVersion(win32BaseBoard.getString(BaseboardProperty.VERSION, 0));</span>
+<span class="nc" id="L50">            setSerialNumber(win32BaseBoard.getString(BaseboardProperty.SERIALNUMBER, 0));</span>
         }
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L52">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
