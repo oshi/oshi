@@ -19,13 +19,11 @@
 package oshi.jna.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
@@ -61,7 +59,10 @@ public abstract class PdhUtil {
     public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
         // Call once to get required buffer size
         DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));
-        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);
+        int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);
+        if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA) {
+            throw new PdhException(result);
+        }
 
         // Can't allocate 0 memory
         if (pcchNameBufferSize.getValue().intValue() < 1) {
@@ -69,7 +70,11 @@ public abstract class PdhUtil {
         }
         // Allocate buffer and call again
         Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
-        Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+        result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+
+        if (result != WinError.ERROR_SUCCESS) {
+            throw new PdhException(result);
+        }
 
         // Convert buffer to Java String
         if (CHAR_TO_BYTES == 1) {
@@ -138,8 +143,8 @@ public abstract class PdhUtil {
      */
     public static PdhEnumObjectItems PdhEnumObjectItems(String szDataSource, String szMachineName, String szObjectName,
             int dwDetailLevel) {
-        List<String> counters = new ArrayList<String>();
-        List<String> instances = new ArrayList<String>();
+        List<String> counters = new ArrayList<>();
+        List<String> instances = new ArrayList<>();
 
         // Call once to get string lengths
         DWORDByReference pcchCounterListLength = new DWORDByReference(new DWORD(0));
@@ -147,7 +152,7 @@ public abstract class PdhUtil {
         int result = Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, null,
                 pcchCounterListLength, null, pcchInstanceListLength, dwDetailLevel, 0);
         if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA) {
-            throw new Win32Exception(result);
+            throw new PdhException(result);
         }
 
         Memory mszCounterList = null;
@@ -165,7 +170,7 @@ public abstract class PdhUtil {
                 pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, 0);
 
         if (result != WinError.ERROR_SUCCESS) {
-            throw new Win32Exception(result);
+            throw new PdhException(result);
         }
 
         // Fetch counters
@@ -210,28 +215,41 @@ public abstract class PdhUtil {
         return new PdhEnumObjectItems(counters, instances);
     }
 
+    /**
+     * Holder Object for PdhEnumObjectsItems. The embedded lists are modifiable
+     * lists and can be accessed through the {@link #getCounters()} and
+     * {@link #getInstances()} accessors.
+     */
     public static class PdhEnumObjectItems {
         private final List<String> counters;
         private final List<String> instances;
 
         public PdhEnumObjectItems(List<String> counters, List<String> instances) {
-            this.counters = Collections.unmodifiableList(emptyListForNullList(counters));
-            this.instances = Collections.unmodifiableList(emptyListForNullList(instances));
+            this.counters = copyAndEmptyListForNullList(counters);
+            this.instances = copyAndEmptyListForNullList(instances);
         }
 
+        /**
+         * @return the embedded counters list, all calls to this function
+         *         receive the same list and thus share modifications
+         */
         public List<String> getCounters() {
             return counters;
         }
 
+        /**
+         * @return the embedded instances list, all calls to this function
+         *         receive the same list and thus share modifications
+         */
         public List<String> getInstances() {
             return instances;
         }
 
-        private List<String> emptyListForNullList(List<String> inputList) {
+        private List<String> copyAndEmptyListForNullList(List<String> inputList) {
             if (inputList == null) {
-                return Collections.<String> emptyList();
+                return new ArrayList<>();
             } else {
-                return inputList;
+                return new ArrayList<>(inputList);
             }
         }
 
@@ -239,6 +257,19 @@ public abstract class PdhUtil {
         public String toString() {
             return "PdhEnumObjectItems{" + "counters=" + counters + ", instances=" + instances + '}';
         }
+    }
 
+    @SuppressWarnings("serial")
+    public static final class PdhException extends RuntimeException {
+        private final int errorCode;
+
+        public PdhException(int errorCode) {
+            super(String.format("Pdh call failed with error code 0x%08X", errorCode));
+            this.errorCode = errorCode;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
     }
 }

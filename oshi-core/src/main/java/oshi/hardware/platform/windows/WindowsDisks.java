@@ -35,6 +35,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
+import oshi.jna.platform.windows.PdhUtil.PdhException;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -197,7 +198,13 @@ public class WindowsDisks implements Disks {
             timeStampMap.clear();
         }
         // Fetch the instance names
-        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, "PhysicalDisk", 100);
+        PdhEnumObjectItems objectItems;
+        try {
+            objectItems = PdhUtil.PdhEnumObjectItems(null, null, "PhysicalDisk", 100);
+        } catch (PdhException e) {
+            LOG.error("Unable to enumerate instances for PhysicalDisk.");
+            return;
+        }
         List<String> instances = objectItems.getInstances();
         instances.remove("_Total");
         // At this point we have a list of strings that PDH understands. Fetch

@@ -18,9 +18,13 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.hardware.Sensors;
 import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
+import oshi.jna.platform.windows.PdhUtil.PdhException;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtil.WmiQuery;
@@ -29,6 +33,8 @@ import oshi.util.platform.windows.WmiUtil.WmiResult;
 public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
     private static final String THERMAL_ZONE_INFO = "Thermal Zone Information";
@@ -64,21 +70,25 @@ public class WindowsSensors implements Sensors {
     private String thermalZoneQueryString = "";
 
     public WindowsSensors() {
-        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, THERMAL_ZONE_INFO, 100);
-        if (!objectItems.getInstances().isEmpty()) {
-            // Default to first value
-            thermalZoneQueryString = objectItems.getInstances().get(0);
-            // Prefer a value with "CPU" in it
-            for (String instance : objectItems.getInstances()) {
-                if (instance.toLowerCase().contains("cpu")) {
-                    thermalZoneQueryString = instance;
+        try {
+            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, THERMAL_ZONE_INFO, 100);
+            if (!objectItems.getInstances().isEmpty()) {
+                // Default to first value
+                thermalZoneQueryString = objectItems.getInstances().get(0);
+                // Prefer a value with "CPU" in it
+                for (String instance : objectItems.getInstances()) {
+                    if (instance.toLowerCase().contains("cpu")) {
+                        thermalZoneQueryString = instance;
+                    }
                 }
             }
-        }
-        if (!thermalZoneQueryString.isEmpty()) {
-            thermalZoneQueryString = String.format("\\%s(%s)\\Temperature", THERMAL_ZONE_INFO,
-                    thermalZoneQueryString);
-            PerfDataUtil.addCounter(thermalZoneQueryString);
+            if (!thermalZoneQueryString.isEmpty()) {
+                thermalZoneQueryString = String.format("\\%s(%s)\\Temperature", THERMAL_ZONE_INFO,
+                        thermalZoneQueryString);
+                PerfDataUtil.addCounter(thermalZoneQueryString);
+            }
+        } catch (PdhException e) {
+            LOG.warn("Unable to enumerate performance counter instances for " + THERMAL_ZONE_INFO);
         }
     }
 

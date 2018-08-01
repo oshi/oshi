@@ -85,9 +85,6 @@ public class SystemInfoTest {
         LOG.info("Initializing System...");
         SystemInfo si = new SystemInfo();
 
-        for (int i = 0; i < 10000000; i++) {
-            si.toCompactJSON();
-        }
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
         System.out.println(os);
