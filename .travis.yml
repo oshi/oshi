@@ -27,10 +27,14 @@ addons:
     - oshi
   hostname: oshi
 matrix:
-  include:
+  include:  
+    - os: linux
+      jdk: oraclejdk10
+      env: AFTER_SUCCESS="jacoco"
+    - os: linux
+      jdk: openjdk10
     - os: linux
       jdk: oraclejdk9
-      env: AFTER_SUCCESS="jacoco"
     - os: linux
       jdk: oraclejdk8
     - os: linux
