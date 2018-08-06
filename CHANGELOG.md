@@ -1,5 +1,6 @@
 3.8.0 (in progress)
 ================
+* [#580](https://github.com/oshi/oshi/pull/580): Windows process uptime wasn't updating. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.7.2 (08/01/2018)
