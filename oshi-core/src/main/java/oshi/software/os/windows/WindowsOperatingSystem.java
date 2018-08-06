@@ -514,7 +514,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         if (proc == null || Math.abs(startTime - proc.getStartTime()) > 200) {
                             proc = new OSProcess();
                             proc.setProcessID(pid);
-                            proc.setUpTime(upTime);
                             proc.setStartTime(startTime);
                             proc.setName(pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
                             // Adds or replaces previous
@@ -522,6 +521,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         }
 
                         // Update stats
+                        proc.setUpTime(upTime);
                         proc.setBytesRead(pPerfData.getLong(perfCounterBlockOffset + this.ioReadOffset));
                         proc.setBytesWritten(pPerfData.getLong(perfCounterBlockOffset + this.ioWriteOffset));
                         proc.setResidentSetSize(
