@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.Sensors;
 import oshi.jna.platform.windows.PdhUtil;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -38,26 +38,24 @@ public class WindowsSensors implements Sensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
-    private static final String THERMAL_ZONE_INFO = "Thermal Zone Information";
+    private static final String THERMAL_ZONE_INFO = PdhUtil.PdhLookupPerfNameByIndex(null,
+            PdhUtil.PdhLookupPerfIndexByEnglishName("Thermal Zone Information"));
 
     enum OhmHardwareProperty {
         IDENTIFIER;
     }
 
-    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WbemcliUtil.createQuery(
-            WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WbemcliUtil.createQuery(
-            WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
+    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WbemcliUtil
+            .createQuery(WmiUtil.OHM_NAMESPACE, "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
+    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WbemcliUtil
+            .createQuery(WmiUtil.OHM_NAMESPACE, "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
     }
 
     private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WbemcliUtil.createQuery(WmiUtil.OHM_NAMESPACE,
-            null,
-            OhmSensorProperty.class);
+            null, OhmSensorProperty.class);
 
     enum FanProperty {
         DESIREDSPEED;
@@ -69,7 +67,8 @@ public class WindowsSensors implements Sensors {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    private static final WmiQuery<VoltProperty> VOLT_QUERY = WbemcliUtil.createQuery("Win32_Processor", VoltProperty.class);
+    private static final WmiQuery<VoltProperty> VOLT_QUERY = WbemcliUtil.createQuery("Win32_Processor",
+            VoltProperty.class);
 
     private String thermalZoneQueryString = "";
 
@@ -87,12 +86,12 @@ public class WindowsSensors implements Sensors {
                 }
             }
             if (!thermalZoneQueryString.isEmpty()) {
-                thermalZoneQueryString = String.format("\\%s(%s)\\Temperature", THERMAL_ZONE_INFO,
+                thermalZoneQueryString = String.format("\\Thermal Zone Information(%s)\\Temperature",
                         thermalZoneQueryString);
                 PerfDataUtil.addCounter(thermalZoneQueryString);
             }
         } catch (PdhException e) {
-            LOG.warn("Unable to enumerate performance counter instances for " + THERMAL_ZONE_INFO);
+            LOG.warn("Unable to enumerate performance counter instances for {}.", THERMAL_ZONE_INFO);
         }
     }
 
