@@ -54,12 +54,15 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_BLOCK;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_DEFINITION;
 import oshi.jna.platform.windows.WinPerf.PERF_DATA_BLOCK;
 import oshi.jna.platform.windows.WinPerf.PERF_INSTANCE_DEFINITION;
 import oshi.jna.platform.windows.WinPerf.PERF_OBJECT_TYPE;
 import oshi.jna.platform.windows.Wtsapi32;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.jna.platform.windows.Wtsapi32.WTS_PROCESS_INFO_EX;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -67,8 +70,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
@@ -84,7 +85,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
-    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = WmiUtil.createQuery(null, ProcessProperty.class);
+    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = WbemcliUtil.createQuery(null, ProcessProperty.class);
 
     /*
      * Registry variables to persist
@@ -212,7 +213,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
-                WmiQuery<BitnessProperty> bitnessQuery = WmiUtil.createQuery("Win32_Processor", BitnessProperty.class);
+                WmiQuery<BitnessProperty> bitnessQuery = WbemcliUtil.createQuery("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);

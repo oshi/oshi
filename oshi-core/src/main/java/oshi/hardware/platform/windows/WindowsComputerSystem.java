@@ -19,9 +19,10 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Hardware data obtained from WMI
@@ -45,7 +46,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         IDENTIFYINGNUMBER;
     }
 
-    private static final WmiQuery<CsProductProperty> IDENTIFYINGNUMBER_QUERY = WmiUtil.createQuery("Win32_Csproduct",
+    private static final WmiQuery<CsProductProperty> IDENTIFYINGNUMBER_QUERY = WbemcliUtil.createQuery("Win32_Csproduct",
             CsProductProperty.class);
 
     private String systemSerialNumber = "";
@@ -55,7 +56,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private void init() {
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = WmiUtil.createQuery("Win32_ComputerSystem",
+        WmiQuery<ComputerSystemProperty> computerSystemQuery = WbemcliUtil.createQuery("Win32_ComputerSystem",
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
@@ -73,7 +74,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             return this.systemSerialNumber;
         }
         // This should always work
-        WmiQuery<BiosProperty> serialNumberQuery = WmiUtil.createQuery("Win32_BIOS where PrimaryBIOS=true",
+        WmiQuery<BiosProperty> serialNumberQuery = WbemcliUtil.createQuery("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
         WmiResult<BiosProperty> serialNumber = WmiUtil.queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {

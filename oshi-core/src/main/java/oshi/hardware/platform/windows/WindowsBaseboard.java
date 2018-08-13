@@ -19,9 +19,10 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * Baseboard data obtained from WMI
@@ -41,7 +42,7 @@ public class WindowsBaseboard extends AbstractBaseboard {
     }
 
     private void init() {
-        WmiQuery<BaseboardProperty> baseboardQuery = WmiUtil.createQuery("Win32_BaseBoard", BaseboardProperty.class);
+        WmiQuery<BaseboardProperty> baseboardQuery = WbemcliUtil.createQuery("Win32_BaseBoard", BaseboardProperty.class);
         WmiResult<BaseboardProperty> win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);
         if (win32BaseBoard.getResultCount() > 0) {
             setManufacturer(win32BaseBoard.getString(BaseboardProperty.MANUFACTURER, 0));

@@ -26,13 +26,14 @@ import java.util.Map;
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinNT;
 
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * The Windows File System contains {@link OSFileStore}s which are a storage
@@ -54,7 +55,7 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private static final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WmiUtil.createQuery("Win32_LogicalDisk",
+    private static final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WbemcliUtil.createQuery("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
     private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";

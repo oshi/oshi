@@ -32,10 +32,11 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.WmiQuery;
-import oshi.util.platform.windows.WmiUtil.WmiResult;
 
 /**
  * A CPU as defined in Windows registry.
@@ -102,7 +103,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             setCpu64(false);
         }
 
-        WmiQuery<ProcessorProperty> processorIdQuery = WmiUtil.createQuery("Win32_Processor", ProcessorProperty.class);
+        WmiQuery<ProcessorProperty> processorIdQuery = WbemcliUtil.createQuery("Win32_Processor", ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
             setProcessorID(processorId.getString(ProcessorProperty.PROCESSORID, 0));
