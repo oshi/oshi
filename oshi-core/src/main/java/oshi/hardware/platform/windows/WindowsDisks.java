@@ -34,9 +34,9 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.PdhUtil;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.MapUtil;
@@ -71,6 +71,9 @@ public class WindowsDisks implements Disks {
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
     private static final int BUFSIZE = 255;
+
+    private static final String physicalDiskPerfObject = PdhUtil.PdhLookupPerfNameByIndex(null,
+            PdhUtil.PdhLookupPerfIndexByEnglishName("PhysicalDisk"));
 
     enum DiskDriveProperty {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
@@ -201,9 +204,9 @@ public class WindowsDisks implements Disks {
         // Fetch the instance names
         PdhEnumObjectItems objectItems;
         try {
-            objectItems = PdhUtil.PdhEnumObjectItems(null, null, "PhysicalDisk", 100);
+            objectItems = PdhUtil.PdhEnumObjectItems(null, null, physicalDiskPerfObject, 100);
         } catch (PdhException e) {
-            LOG.error("Unable to enumerate instances for PhysicalDisk.");
+            LOG.error("Unable to enumerate instances for {}.", physicalDiskPerfObject);
             return;
         }
         List<String> instances = objectItems.getInstances();
