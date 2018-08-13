@@ -20,7 +20,9 @@ package oshi.util.platform.windows;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,15 +68,12 @@ public class PerfDataUtil {
     // Format is \Path(Instance)\Counter or \Path\Counter
     private static Pattern COUNTER_PATTERN = Pattern.compile("\\\\(.*?)(\\(.*\\))?\\\\(.*)");
 
-
     private PerfDataUtil() {
         // Set up hook to close all queries on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                for (HANDLEByReference query : queryMap.values()) {
-                    PDH.PdhCloseQuery(query.getValue());
-                }
+                removeAllCounters();
             }
         });
     }
@@ -171,6 +170,20 @@ public class PerfDataUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Stop monitoring all Performance Data counters and release their resources
+     */
+    public static void removeAllCounters() {
+        Iterator<Entry<String, HANDLEByReference>> it = queryMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<String, HANDLEByReference> entry = it.next();
+            PDH.PdhCloseQuery(entry.getValue().getValue());
+            counterMap.remove(entry.getKey());
+            disabledCounters.remove(entry.getKey());
+            it.remove();
+        }
     }
 
     /**
