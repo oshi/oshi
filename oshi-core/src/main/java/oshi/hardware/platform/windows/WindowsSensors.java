@@ -29,6 +29,7 @@ import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsSensors implements Sensors {
@@ -38,8 +39,6 @@ public class WindowsSensors implements Sensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
-    private static final String THERMAL_ZONE_INFO = PdhUtil.PdhLookupPerfNameByIndex(null,
-            PdhUtil.PdhLookupPerfIndexByEnglishName("Thermal Zone Information"));
 
     enum OhmHardwareProperty {
         IDENTIFIER;
@@ -70,28 +69,47 @@ public class WindowsSensors implements Sensors {
     private static final WmiQuery<VoltProperty> VOLT_QUERY = WbemcliUtil.createQuery("Win32_Processor",
             VoltProperty.class);
 
-    private String thermalZoneQueryString = "";
+    /*
+     * For temperature query
+     */
+    enum ThermalZoneProperty {
+        NAME, TEMPERATURE;
+    }
+
+    // Only one of these will be used
+    private PerfCounter thermalZoneCounter = null;
+    private WmiQuery<ThermalZoneProperty> thermalZoneQuery = null;
 
     public WindowsSensors() {
-        try {
-            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, THERMAL_ZONE_INFO, 100);
-            if (!objectItems.getInstances().isEmpty()) {
+        initPdhCounters();
+    }
+
+    private void initPdhCounters() {
+        String thermalZoneInfo = PdhUtil.PdhLookupPerfNameByIndex(null,
+                PdhUtil.PdhLookupPerfIndexByEnglishName("Thermal Zone Information"));
+        boolean enumeration = false;
+        if (!thermalZoneInfo.isEmpty()) {
+            try {
+                PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, thermalZoneInfo, 100);
                 // Default to first value
-                thermalZoneQueryString = objectItems.getInstances().get(0);
                 // Prefer a value with "CPU" in it
+                String cpuInstance = "";
                 for (String instance : objectItems.getInstances()) {
-                    if (instance.toLowerCase().contains("cpu")) {
-                        thermalZoneQueryString = instance;
+                    if (cpuInstance.isEmpty() || instance.toLowerCase().contains("cpu")) {
+                        cpuInstance = instance;
+                        enumeration = true;
                     }
                 }
+                this.thermalZoneCounter = PerfDataUtil.createCounter("Thermal Zone Information", cpuInstance,
+                        "Temperature");
+            } catch (PdhException e) {
+                LOG.warn("Unable to enumerate performance counter instances for {}.", thermalZoneInfo);
             }
-            if (!thermalZoneQueryString.isEmpty()) {
-                thermalZoneQueryString = String.format("\\Thermal Zone Information(%s)\\Temperature",
-                        thermalZoneQueryString);
-                PerfDataUtil.addCounter(thermalZoneQueryString);
-            }
-        } catch (PdhException e) {
-            LOG.warn("Unable to enumerate performance counter instances for {}.", THERMAL_ZONE_INFO);
+        }
+        if (!enumeration || !PerfDataUtil.addCounterToQuery(this.thermalZoneCounter)) {
+            this.thermalZoneCounter = null;
+            this.thermalZoneQuery = WbemcliUtil.createQuery("Win32_PerfRawData_Counters_ThermalZoneInformation",
+                    ThermalZoneProperty.class);
         }
     }
 
@@ -123,21 +141,35 @@ public class WindowsSensors implements Sensors {
                     }
                     tempC = sum / ohmSensors.getResultCount();
                 }
-                return tempC;
+                if (tempC > 0) {
+                    return tempC;
+                }
             }
         }
 
         // If we get this far, OHM is not running. Try from PDH
-        if (PerfDataUtil.isCounter(thermalZoneQueryString)) {
-            long tempK = PerfDataUtil.queryCounter(thermalZoneQueryString);
-            if (tempK > 2732L) {
-                tempC = tempK / 10d - 273.15;
-            } else if (tempK > 274L) {
-                tempC = tempK - 273d;
+        long tempK = 0L;
+        if (this.thermalZoneQuery == null) {
+            PerfDataUtil.updateQuery(thermalZoneCounter);
+            tempK = PerfDataUtil.queryCounter(thermalZoneCounter);
+        } else {
+            // No counter, use WMI
+            WmiResult<ThermalZoneProperty> result = WmiUtil.queryWMI(this.thermalZoneQuery);
+            // Default to first value
+            // Prefer a value with "CPU" in name
+            for (int i = 0; i < result.getResultCount(); i++) {
+                if (tempK == 0L || result.getString(ThermalZoneProperty.NAME, i).toLowerCase().contains("cpu")) {
+                    tempK = result.getInteger(ThermalZoneProperty.TEMPERATURE, i);
+                }
             }
-            if (tempC < 0d) {
-                tempC = 0d;
-            }
+        }
+        if (tempK > 2732L) {
+            tempC = tempK / 10d - 273.15;
+        } else if (tempK > 274L) {
+            tempC = tempK - 273d;
+        }
+        if (tempC < 0d) {
+            tempC = 0d;
         }
 
         // Other fallbacks to WMI are unreliable so we omit them

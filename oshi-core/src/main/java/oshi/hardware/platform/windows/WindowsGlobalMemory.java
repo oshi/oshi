@@ -26,7 +26,12 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -39,13 +44,32 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    private String pdhPagesInputPerSecCounter = null;
-    private String pdhPagesOutputPerSecCounter = null;
-    private String pdhPagingPercentUsageCounter = null;
-
     private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
 
-    private long lastUpdate = 0;
+    private long lastUpdate = 0L;
+
+    /*
+     * For pages in/out
+     */
+    enum PageSwapProperty {
+        PAGESINPUTPERSEC, PAGESOUTPUTPERSEC;
+    }
+
+    // Only one of these will be used
+    private transient PerfCounter pagesInputPerSecCounter = null;
+    private transient PerfCounter pagesOutputPerSecCounter = null;
+    private transient WmiQuery<PageSwapProperty> pageSwapsQuery = null;
+
+    /*
+     * For swap file usage
+     */
+    enum PagingPercentProperty {
+        PERCENTUSAGE;
+    }
+
+    // Only one of these will be used
+    private transient PerfCounter pagingPercentUsageCounter = null;
+    private transient WmiQuery<PagingPercentProperty> pagingPercentQuery = null;
 
     public WindowsGlobalMemory() {
         // Initialize pdh counters
@@ -56,14 +80,21 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      * Initializes PDH Tick Counters
      */
     private void initPdhCounters() {
-        pdhPagesInputPerSecCounter = "\\Memory\\Pages Input/sec";
-        pdhPagesOutputPerSecCounter = "\\Memory\\Pages Output/sec";
+        this.pagesInputPerSecCounter = PerfDataUtil.createCounter("Memory", null, "Pages Input/sec");
+        this.pagesOutputPerSecCounter = PerfDataUtil.createCounter("Memory", null, "Pages Output/sec");
+        if (!PerfDataUtil.addCounterToQuery(pagesInputPerSecCounter)
+                || !PerfDataUtil.addCounterToQuery(pagesOutputPerSecCounter)) {
+            this.pagesInputPerSecCounter = null;
+            this.pagesOutputPerSecCounter = null;
+            this.pageSwapsQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_Memory", PageSwapProperty.class);
+        }
 
-        PerfDataUtil.addCounter(pdhPagesInputPerSecCounter);
-        PerfDataUtil.addCounter(pdhPagesOutputPerSecCounter);
-
-        pdhPagingPercentUsageCounter = "\\Paging File(_Total)\\% Usage";
-        PerfDataUtil.addCounter(pdhPagingPercentUsageCounter);
+        this.pagingPercentUsageCounter = PerfDataUtil.createCounter("Paging File", "_Total", "% Usage");
+        if (!PerfDataUtil.addCounterToQuery(pagingPercentUsageCounter)) {
+            this.pagingPercentUsageCounter = null;
+            this.pagingPercentQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_PagingFile",
+                    PagingPercentProperty.class);
+        }
     }
 
     /**
@@ -83,8 +114,17 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             this.swapTotal = this.pageSize
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
             if (this.swapTotal > 0) {
-                this.swapPagesIn = PerfDataUtil.queryCounter(pdhPagesInputPerSecCounter);
-                this.swapPagesOut = PerfDataUtil.queryCounter(pdhPagesOutputPerSecCounter);
+                if (this.pageSwapsQuery == null) {
+                    PerfDataUtil.updateQuery(pagesInputPerSecCounter);
+                    this.swapPagesIn = PerfDataUtil.queryCounter(pagesInputPerSecCounter);
+                    this.swapPagesOut = PerfDataUtil.queryCounter(pagesOutputPerSecCounter);
+                } else {
+                    WmiResult<PageSwapProperty> result = WmiUtil.queryWMI(this.pageSwapsQuery);
+                    if (result.getResultCount() > 0) {
+                        this.swapPagesIn = result.getInteger(PageSwapProperty.PAGESINPUTPERSEC, 0);
+                        this.swapPagesOut = result.getInteger(PageSwapProperty.PAGESOUTPUTPERSEC, 0);
+                    }
+                }
             }
             this.lastUpdate = now;
         }
@@ -97,7 +137,15 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     protected void updateSwap() {
         updateMeminfo();
         if (this.swapTotal > 0) {
-            this.swapUsed = PerfDataUtil.queryCounter(pdhPagingPercentUsageCounter) * this.pageSize;
+            if (this.pagingPercentQuery == null) {
+                PerfDataUtil.updateQuery(pagingPercentUsageCounter);
+                this.swapUsed = PerfDataUtil.queryCounter(pagingPercentUsageCounter) * this.pageSize;
+            } else {
+                WmiResult<PagingPercentProperty> result = WmiUtil.queryWMI(this.pagingPercentQuery);
+                if (result.getResultCount() > 0) {
+                    this.swapUsed = result.getInteger(PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;
+                }
+            }
         }
     }
 }

@@ -20,8 +20,10 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,7 @@ import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -68,12 +71,15 @@ public class WindowsDisks implements Disks {
     private static Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
     private static Map<String, HWPartition> partitionMap = new HashMap<>();
 
+    private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
+    private static final String PHYSICAL_DISK = "PhysicalDisk";
+    private static final String PHYSICAL_DISK_LOCALIZED = PdhUtil.PdhLookupPerfNameByIndex(null,
+            PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
+    private static final String TOTAL_INSTANCE = "_Total";
+
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
     private static final int BUFSIZE = 255;
-
-    private static final String physicalDiskPerfObject = PdhUtil.PdhLookupPerfNameByIndex(null,
-            PdhUtil.PdhLookupPerfIndexByEnglishName("PhysicalDisk"));
 
     enum DiskDriveProperty {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
@@ -98,13 +104,80 @@ public class WindowsDisks implements Disks {
     private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = WbemcliUtil
             .createQuery("Win32_DiskPartition", DiskPartitionProperty.class);
 
-    private static final String PDH_DISK_READS_FORMAT = "\\PhysicalDisk(%s)\\Disk Reads/sec";
-    private static final String PDH_DISK_READ_BYTES_FORMAT = "\\PhysicalDisk(%s)\\Disk Read Bytes/sec";
-    private static final String PDH_DISK_WRITES_FORMAT = "\\PhysicalDisk(%s)\\Disk Writes/sec";
-    private static final String PDH_DISK_WRITE_BYTES_FORMAT = "\\PhysicalDisk(%s)\\Disk Write Bytes/sec";
-    private static final String PDH_DISK_TIME_FORMAT = "\\PhysicalDisk(%s)\\%% Disk Time";
+    /*
+     * For disk query
+     */
+    enum PhysicalDiskProperty {
+        NAME, DISKREADSPERSEC, DISKREADBYTESPERSEC, DISKWRITESPERSEC, DISKWRITEBYTESPERSEC, PERCENTDISKTIME, TIMESTAMP_SYS100NS;
+    }
 
-    private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
+    // Only one of counter or query will be used
+    private static Map<String, PerfCounter> diskReadsCounterMap = new HashMap<>();
+    private static Map<String, PerfCounter> diskReadBytesCounterMap = new HashMap<>();
+    private static Map<String, PerfCounter> diskWritesCounterMap = new HashMap<>();
+    private static Map<String, PerfCounter> diskWriteBytesCounterMap = new HashMap<>();
+    private static Map<String, PerfCounter> diskXferTimeCounterMap = new HashMap<>();
+
+    private static WmiQuery<PhysicalDiskProperty> physicalDiskQuery = null;
+
+    static {
+        String physicalDisk = PdhUtil.PdhLookupPerfNameByIndex(null,
+                PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
+        boolean enumeration = true;
+        try {
+            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, physicalDisk, 100);
+            if (!objectItems.getInstances().isEmpty()) {
+                List<String> instances = objectItems.getInstances();
+                PerfCounter counter;
+                for (int i = 0; i < instances.size(); i++) {
+                    String instance = instances.get(i);
+                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Reads/sec");
+                    diskReadsCounterMap.put(instance, counter);
+                    if (!PerfDataUtil.addCounterToQuery(counter)) {
+                        throw new PdhException(0);
+                    }
+
+                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Read Bytes/sec");
+                    diskReadBytesCounterMap.put(instance, counter);
+                    if (!PerfDataUtil.addCounterToQuery(counter)) {
+                        throw new PdhException(0);
+                    }
+
+                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Writes/sec");
+                    diskWritesCounterMap.put(instance, counter);
+                    if (!PerfDataUtil.addCounterToQuery(counter)) {
+                        throw new PdhException(0);
+                    }
+
+                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Write Bytes/sec");
+                    diskWriteBytesCounterMap.put(instance, counter);
+                    if (!PerfDataUtil.addCounterToQuery(counter)) {
+                        throw new PdhException(0);
+                    }
+
+                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "% Disk Time");
+                    diskXferTimeCounterMap.put(instance, counter);
+                    if (!PerfDataUtil.addCounterToQuery(counter)) {
+                        throw new PdhException(0);
+                    }
+                }
+            }
+        } catch (PdhException e) {
+            LOG.warn("Unable to enumerate performance counter instances for {}.", physicalDisk);
+            enumeration = false;
+        }
+        if (!enumeration) {
+            PerfDataUtil.removeAllCounters(PHYSICAL_DISK);
+            diskReadsCounterMap = null;
+            diskReadBytesCounterMap = null;
+            diskWritesCounterMap = null;
+            diskWriteBytesCounterMap = null;
+            diskXferTimeCounterMap = null;
+
+            physicalDiskQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfDisk_PhysicalDisk",
+                    PhysicalDiskProperty.class);
+        }
+    }
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String index = null;
@@ -201,48 +274,118 @@ public class WindowsDisks implements Disks {
             xferTimeMap.clear();
             timeStampMap.clear();
         }
+        // If WMI query is not null, don't use counters
+        if (physicalDiskQuery != null) {
+            WmiResult<PhysicalDiskProperty> result = WmiUtil.queryWMI(physicalDiskQuery);
+            for (int i = 0; i < result.getResultCount(); i++) {
+                String name = getIndexFromName(result.getString(PhysicalDiskProperty.NAME, i));
+                if ((index != null && !index.equals(name)) || TOTAL_INSTANCE.equals(name)) {
+                    continue;
+                }
+                readMap.put(name, result.getInteger(PhysicalDiskProperty.DISKREADSPERSEC, i).longValue());
+                readByteMap.put(name, ParseUtil
+                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.DISKREADBYTESPERSEC, i), 0L));
+                writeMap.put(name, result.getInteger(PhysicalDiskProperty.DISKWRITESPERSEC, i).longValue());
+                writeByteMap.put(name, ParseUtil
+                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.DISKWRITEBYTESPERSEC, i), 0L));
+                xferTimeMap.put(name,
+                        ParseUtil.parseLongOrDefault(result.getString(PhysicalDiskProperty.PERCENTDISKTIME, i), 0L)
+                                / 10000L);
+                long timestamp = ParseUtil
+                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.TIMESTAMP_SYS100NS, i), 0L);
+                timeStampMap.put(name,
+                        timestamp > 0 ? PerfDataUtil.filetimeToUtcMs(timestamp, false) : System.currentTimeMillis());
+            }
+            return;
+        }
         // Fetch the instance names
         PdhEnumObjectItems objectItems;
         try {
-            objectItems = PdhUtil.PdhEnumObjectItems(null, null, physicalDiskPerfObject, 100);
+            objectItems = PdhUtil.PdhEnumObjectItems(null, null, PHYSICAL_DISK_LOCALIZED, 100);
         } catch (PdhException e) {
-            LOG.error("Unable to enumerate instances for {}.", physicalDiskPerfObject);
+            LOG.error("Unable to enumerate instances for {}.", PHYSICAL_DISK_LOCALIZED);
             return;
         }
         List<String> instances = objectItems.getInstances();
-        instances.remove("_Total");
-        // At this point we have a list of strings that PDH understands. Fetch
-        // the counters.
-        // Although the field names say "PerSec" this is the Raw Data/counters
-        // from which the associated fields are populated in the Formatted Data
-        for (String i : instances) {
-            String name = ParseUtil.whitespaces.split(i)[0];
-            String readString = String.format(PDH_DISK_READS_FORMAT, i);
-            if (!PerfDataUtil.isCounter(readString)) {
-                PerfDataUtil.addCounter(readString);
+        instances.remove(TOTAL_INSTANCE);
+
+        Set<String> unseenInstances = new HashSet<>(diskReadsCounterMap.keySet());
+
+        for (String instance : instances) {
+            unseenInstances.remove(instance);
+
+            // If not in the map, add it
+            if (!diskReadsCounterMap.containsKey(instance)) {
+                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Reads/sec");
+                diskReadsCounterMap.put(instance, counter);
+                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                    diskReadsCounterMap.remove(instance);
+                }
             }
-            String readBytesString = String.format(PDH_DISK_READ_BYTES_FORMAT, i);
-            if (!PerfDataUtil.isCounter(readBytesString)) {
-                PerfDataUtil.addCounter(readBytesString);
+
+            if (!diskReadBytesCounterMap.containsKey(instance)) {
+                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Read Bytes/sec");
+                diskReadBytesCounterMap.put(instance, counter);
+                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                    diskReadBytesCounterMap.remove(instance);
+                }
             }
-            String writeString = String.format(PDH_DISK_WRITES_FORMAT, i);
-            if (!PerfDataUtil.isCounter(writeString)) {
-                PerfDataUtil.addCounter(writeString);
+
+            if (!diskWritesCounterMap.containsKey(instance)) {
+                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Writes/sec");
+                diskWritesCounterMap.put(instance, counter);
+                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                    diskWritesCounterMap.remove(instance);
+                }
             }
-            String writeBytesString = String.format(PDH_DISK_WRITE_BYTES_FORMAT, i);
-            if (!PerfDataUtil.isCounter(writeBytesString)) {
-                PerfDataUtil.addCounter(writeBytesString);
+
+            if (!diskWriteBytesCounterMap.containsKey(instance)) {
+                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "Disk Write Bytes/sec");
+                diskWriteBytesCounterMap.put(instance, counter);
+                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                    diskWriteBytesCounterMap.remove(instance);
+                }
             }
-            String xferTimeString = String.format(PDH_DISK_TIME_FORMAT, i);
-            if (!PerfDataUtil.isCounter(xferTimeString)) {
-                PerfDataUtil.addCounter(xferTimeString);
+
+            if (!diskXferTimeCounterMap.containsKey(instance)) {
+                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, "% Disk Time");
+                diskXferTimeCounterMap.put(instance, counter);
+                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                    diskXferTimeCounterMap.remove(instance);
+                }
             }
-            readMap.put(name, PerfDataUtil.queryCounter(readString));
-            readByteMap.put(name, PerfDataUtil.queryCounter(readBytesString));
-            writeMap.put(name, PerfDataUtil.queryCounter(writeString));
-            writeByteMap.put(name, PerfDataUtil.queryCounter(writeBytesString));
-            xferTimeMap.put(name, PerfDataUtil.queryCounter(xferTimeString) / 10000L);
-            timeStampMap.put(name, PerfDataUtil.queryCounterTimestamp(xferTimeString));
+        }
+        // Update all the counters
+        long timestamp = PerfDataUtil.updateQuery(PHYSICAL_DISK);
+        // Update the maps
+        for (String instance : instances) {
+            String name = getIndexFromName(instance);
+            if (index != null && !index.equals(name)) {
+                continue;
+            }
+            readMap.put(name, PerfDataUtil.queryCounter(diskReadsCounterMap.get(instance)));
+            readByteMap.put(name, PerfDataUtil.queryCounter(diskReadBytesCounterMap.get(instance)));
+            writeMap.put(name, PerfDataUtil.queryCounter(diskWritesCounterMap.get(instance)));
+            writeByteMap.put(name, PerfDataUtil.queryCounter(diskWriteBytesCounterMap.get(instance)));
+            xferTimeMap.put(name, PerfDataUtil.queryCounter(diskXferTimeCounterMap.get(instance)) / 10000L);
+            timeStampMap.put(name, timestamp);
+        }
+        // We've added any new counters; now remove old ones
+        for (String instance : unseenInstances) {
+            PerfCounter counter = diskReadsCounterMap.get(instance);
+            PerfDataUtil.removeCounterFromQuery(counter);
+
+            counter = diskReadBytesCounterMap.get(instance);
+            PerfDataUtil.removeCounterFromQuery(counter);
+
+            counter = diskWritesCounterMap.get(instance);
+            PerfDataUtil.removeCounterFromQuery(counter);
+
+            counter = diskWriteBytesCounterMap.get(instance);
+            PerfDataUtil.removeCounterFromQuery(counter);
+
+            counter = diskXferTimeCounterMap.get(instance);
+            PerfDataUtil.removeCounterFromQuery(counter);
         }
     }
 
@@ -296,5 +439,19 @@ public class WindowsDisks implements Disks {
                             hwPartitionQueryMap.getInteger(DiskPartitionProperty.DISKINDEX, i),
                             hwPartitionQueryMap.getInteger(DiskPartitionProperty.INDEX, i), logicalDrive));
         }
+    }
+
+    /**
+     * Parse a drive name like "0 C:" to just the index "0"
+     * 
+     * @param string
+     *            A drive name to parse
+     * @return The first space-delimited value
+     */
+    private static String getIndexFromName(String s) {
+        if (s.isEmpty()) {
+            return s;
+        }
+        return s.split("\\s")[0];
     }
 }
