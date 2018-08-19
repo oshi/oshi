@@ -33,6 +33,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -55,10 +56,19 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private static final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WbemcliUtil.createQuery("Win32_LogicalDisk",
+    private final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WbemcliUtil.createQuery("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
-    private static final String HANDLE_COUNT_COUNTER = "\\Process(_Total)\\Handle Count";
+    /*
+     * For handle counts
+     */
+    enum HandleCountProperty {
+        HANDLECOUNT;
+    }
+
+    // Only one of these will be used
+    private PerfCounter handleCountCounter = null;
+    private WmiQuery<HandleCountProperty> handleCountQuery = null;
 
     private static final long MAX_WINDOWS_HANDLES;
     static {
@@ -75,7 +85,15 @@ public class WindowsFileSystem implements FileSystem {
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
+        initPdhCounters();
+    }
 
+    private void initPdhCounters() {
+        this.handleCountCounter = PerfDataUtil.createCounter("Process", "_Total", "Handle Count");
+        if (!PerfDataUtil.addCounterToQuery(handleCountCounter)) {
+            this.handleCountCounter = null;
+            this.handleCountQuery = WbemcliUtil.createQuery("Win32_Process", HandleCountProperty.class);
+        }
     }
 
     /**
@@ -244,10 +262,18 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        if (!PerfDataUtil.isCounter(HANDLE_COUNT_COUNTER)) {
-            PerfDataUtil.addCounter(HANDLE_COUNT_COUNTER);
+        // Try PDH if counter exists
+        if (handleCountCounter != null) {
+            PerfDataUtil.updateQuery(this.handleCountCounter);
+            return PerfDataUtil.queryCounter(this.handleCountCounter);
         }
-        return PerfDataUtil.queryCounter(HANDLE_COUNT_COUNTER);
+        // Use WMI instead
+        WmiResult<HandleCountProperty> result = WmiUtil.queryWMI(this.handleCountQuery);
+        long descriptors = 0L;
+        for (int i = 0; i < result.getResultCount(); i++) {
+            descriptors += result.getInteger(HandleCountProperty.HANDLECOUNT, i);
+        }
+        return descriptors;
     }
 
     @Override

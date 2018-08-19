@@ -24,8 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +32,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR; // NOSONAR
 import com.sun.jna.platform.win32.Pdh;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
-import com.sun.jna.platform.win32.WinBase.FILETIME;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
+import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
@@ -49,6 +48,11 @@ import oshi.jna.platform.windows.PdhUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class PerfDataUtil {
+    /**
+     * Instance to generate the PerfCounter class.
+     */
+    public static final PerfDataUtil INSTANCE = new PerfDataUtil();
+
     private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);
 
     private static final DWORD_PTR PZERO = new DWORD_PTR(0);
@@ -59,14 +63,27 @@ public class PerfDataUtil {
     private static final String HEX_ERROR_FMT = "0x%08X";
     private static final String LOG_COUNTER_NOT_EXISTS = "Counter does not exist: {}";
 
-    // Maps to hold pointers to the relevant counter information
-    private static final Map<String, HANDLEByReference> counterMap = new HashMap<>();
-    private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
-    private static final Set<String> disabledCounters = new HashSet<>();
+    // PDH timestamps are 1601 epoch, local time
+    // Constants to convert to UTC millis
+    private static final long EPOCH_DIFF = 11644473600000L;
+    private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());
 
-    // Regexp to match PDH counter string
-    // Format is \Path(Instance)\Counter or \Path\Counter
-    private static Pattern COUNTER_PATTERN = Pattern.compile("\\\\(.*?)(\\(.*\\))?\\\\(.*)");
+    // Maps to hold pointers to the relevant counter information
+    private static final Map<PerfCounter, HANDLEByReference> counterMap = new HashMap<>();
+    private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
+    private static final Set<String> disabledQueries = new HashSet<>();
+
+    public class PerfCounter {
+        private String object;
+        private String instance;
+        private String counter;
+
+        public PerfCounter(String objectName, String instanceName, String counterName) {
+            object = objectName;
+            instance = instanceName;
+            counter = counterName;
+        }
+    }
 
     private PerfDataUtil() {
         // Set up hook to close all queries on shutdown
@@ -79,210 +96,203 @@ public class PerfDataUtil {
     }
 
     /**
-     * Translate an English counter path to its locale-specific string
+     * Create a Performance Counter
      * 
-     * @param englishPath
-     *            The english path of the counter
-     * @return The path of the counter in the machine's locale
+     * @param object
+     *            The object/path for the counter
+     * @param instance
+     *            The instance of the counter, or null if no instance
+     * @param counter
+     *            The counter name
+     * @return A PerfCounter object encapsulating the object, instance, and
+     *         counter
      */
-    private static String localizeCounterPath(String englishPath) {
-        Matcher match = COUNTER_PATTERN.matcher(englishPath);
-        if (match.matches()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append('\\');
-            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(1))));
-            if (match.group(2) != null) {
-                sb.append(match.group(2));
-            }
-            sb.append('\\');
-            sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(match.group(3))));
-            return sb.toString();
-        }
-        return englishPath;
-    }
-
-    /**
-     * Report if a performance counter is being monitored
-     * 
-     * @param counterString
-     *            The counter to monitor
-     * @return True if the counter already exists
-     */
-    public static boolean isCounter(String counterString) {
-        return counterMap.containsKey(counterString);
+    public static PerfCounter createCounter(String object, String instance, String counter) {
+        return INSTANCE.new PerfCounter(object, instance, counter);
     }
 
     /**
      * Begin monitoring a Performance Data counter
      * 
-     * @param counterString
-     *            The counter to monitor
-     * @return True if the counter has been successfully added or already exists
+     * @param counter
+     *            A PerfCounter object
+     * @return True if the counter was successfully added.
      */
-    public static boolean addCounter(String counterString) {
-        if (queryMap.containsKey(counterString)) {
-            LOG.warn("Counter already exists: {}", counterString);
-            return true;
-        }
-        HANDLEByReference q = new HANDLEByReference();
-        if (openQuery(q)) {
-            HANDLEByReference p = new HANDLEByReference();
-            addCounter(q, localizeCounterPath(counterString), p);
-            counterMap.put(counterString, p);
-            queryMap.put(counterString, q);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Begin monitoring a 2D array of Performance Data counters
-     * 
-     * @param name
-     *            A unique name that will always correspond to the same String
-     *            array
-     * @param counterStringArray
-     *            A 2D array of string counter names to monitor
-     * @return True if the counters have been successfully added or already
-     *         exist
-     */
-    public static boolean addCounter2DArray(String name, String[][] counterStringArray) {
-        if (queryMap.containsKey(name)) {
-            LOG.warn("Counters already exists: {}", name);
-            return true;
-        }
-        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {
-            LOG.error("This array has a zero dimension: {}", name);
+    public static boolean addCounterToQuery(PerfCounter counter) {
+        HANDLEByReference q = openQuery(counter.object);
+        if (q == null) {
+            LOG.error("Failed to open a query for PDH object: {}", counter.object);
             return false;
         }
-        HANDLEByReference q = new HANDLEByReference();
-        if (openQuery(q)) {
-            for (int i = 0; i < counterStringArray.length; i++) {
-                for (int j = 0; j < counterStringArray[i].length; j++) {
-                    if (counterStringArray[i][j] != null) {
-                        HANDLEByReference p = new HANDLEByReference();
-                        addCounter(q, counterStringArray[i][j], p);
-                        counterMap.put(counterStringArray[i][j], p);
-                    }
-                }
-            }
-            queryMap.put(name, q);
+        HANDLEByReference p = new HANDLEByReference();
+        String path = localizeCounterPath(counter);
+        if (addCounter(q, path, p)) {
+            counterMap.put(counter, p);
             return true;
         }
+        LOG.warn("Failed to add a counter for PDH: {}", path);
         return false;
-    }
-
-    /**
-     * Stop monitoring all Performance Data counters and release their resources
-     */
-    public static void removeAllCounters() {
-        Iterator<Entry<String, HANDLEByReference>> it = queryMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, HANDLEByReference> entry = it.next();
-            PDH.PdhCloseQuery(entry.getValue().getValue());
-            counterMap.remove(entry.getKey());
-            disabledCounters.remove(entry.getKey());
-            it.remove();
-        }
     }
 
     /**
      * Stop monitoring a Performance Data counter
      * 
-     * @param counterString
-     *            The counter to stop monitoring
+     * @param counter
+     *            A PerfCounter object
+     * @return True if the counter was successfully removed.
      */
-    public static void removeCounter(String counterString) {
-        if (queryMap.containsKey(counterString)) {
-            PDH.PdhCloseQuery(queryMap.get(counterString).getValue());
-            counterMap.remove(counterString);
-            queryMap.remove(counterString);
-            disabledCounters.remove(counterString);
-        } else {
-            LOG.warn(LOG_COUNTER_NOT_EXISTS, counterString);
+    public static boolean removeCounterFromQuery(PerfCounter counter) {
+        if (counterMap.containsKey(counter)) {
+            return (WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue()));
         }
+        return false;
+    }
+
+    /**
+     * Update a counter, and all other counters on that object
+     * 
+     * @param counter
+     *            The counter whose object to update counters on
+     * @return The timestamp for the update of all the counters, in milliseconds
+     *         since the epoch, or 0 if the update failed
+     */
+    public static long updateQuery(PerfCounter counter) {
+        if (disabledQueries.contains(counter.object)) {
+            return 0L;
+        }
+        if (!queryMap.containsKey(counter.object) || !counterMap.containsKey(counter)) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error(LOG_COUNTER_NOT_EXISTS, localizeCounterPath(counter));
+            }
+            return 0L;
+        }
+        long timestamp = updateQueryTimestamp(queryMap.get(counter.object));
+        if (timestamp == 0L) {
+            LOG.error("Disabling future updates for {}.", counter.object);
+            disabledQueries.add(counter.object);
+            return 0L;
+        }
+        return timestamp;
+    }
+
+    /**
+     * Update all counters on an object
+     * 
+     * @param queryKey
+     *            The counter object to update counters on
+     * @return The timestamp for the update of all the counters, in milliseconds
+     *         since the epoch, or 0 if the update failed
+     */
+    public static long updateQuery(String queryKey) {
+        if (disabledQueries.contains(queryKey) || !queryMap.containsKey(queryKey)) {
+            return 0L;
+        }
+        return updateQueryTimestamp(queryMap.get(queryKey));
     }
 
     /**
      * Query the raw counter value of a Performance Data counter. Further
      * mathematical manipulation/conversion is left to the caller.
      * 
-     * @param counterString
+     * @param counter
      *            The counter to query
      * @return The raw value of the counter
      */
-    public static long queryCounter(String counterString) {
-        if (!queryMap.containsKey(counterString)) {
-            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);
+    public static long queryCounter(PerfCounter counter) {
+        if (!queryMap.containsKey(counter.object) || !counterMap.containsKey(counter)) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error(LOG_COUNTER_NOT_EXISTS, localizeCounterPath(counter));
+            }
             return 0;
         }
-        if (!disabledCounters.contains(counterString) && !updateCounters(queryMap.get(counterString))) {
-            LOG.error("Disabling future updates for {}. Call removeCounter and addCounter again to reset.",
-                    counterString);
-            disabledCounters.add(counterString);
-            return 0L;
-        }
-        return queryCounter(counterMap.get(counterString));
+        return queryCounter(counterMap.get(counter));
     }
 
     /**
-     * Get the timestamp of a raw counter value of a Performance Data counter.
-     * Does not update the counter, and should normally be called after querying
-     * the counter.
+     * Stop monitoring Performance Data counters for a particular queryKey and
+     * release their resources
      * 
-     * @param counterString
-     *            The counter to query
-     * @return The raw value of the counter
+     * @param queryKey
+     *            The counter object to remove counters from
      */
-    public static long queryCounterTimestamp(String counterString) {
-        if (!queryMap.containsKey(counterString)) {
-            LOG.error(LOG_COUNTER_NOT_EXISTS, counterString);
-            return 0;
-        }
-        return queryCounterTimestamp(counterMap.get(counterString)).toDWordLong().longValue() / 10000L;
-    }
-
-    /**
-     * Query the raw counter value of an array of Performance Data counters.
-     * Further mathematical manipulation/conversion is left to the caller.
-     * 
-     * @param name
-     *            A unique name that will always correspond to the same String
-     *            array
-     * @param counterStringArray
-     *            A 2D array of string counter names to monitor
-     * @return The raw values of the counters corresponding to the string
-     */
-    public static long[][] queryCounter2DArray(String name, String[][] counterStringArray) {
-        if (!queryMap.containsKey(name)) {
-            LOG.error(LOG_COUNTER_NOT_EXISTS, name);
-            return new long[0][0];
-        }
-        if (counterStringArray.length == 0 || counterStringArray[0].length == 0) {
-            LOG.error("This array has a zero dimension: {}", name);
-            return new long[0][0];
-        }
-        updateCounters(queryMap.get(name));
-        long[][] values = new long[counterStringArray.length][counterStringArray[0].length];
-        for (int i = 0; i < counterStringArray.length; i++) {
-            for (int j = 0; j < counterStringArray[i].length; j++) {
-                if (counterStringArray[i][j] != null) {
-                    values[i][j] = queryCounter(counterMap.get(counterStringArray[i][j]));
-                }
+    public static void removeAllCounters(String queryKey) {
+        // Remove counters from query
+        Iterator<Entry<PerfCounter, HANDLEByReference>> it = counterMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<PerfCounter, HANDLEByReference> entry = it.next();
+            if (entry.getKey().object.equals(queryKey)) {
+                PDH.PdhRemoveCounter(entry.getValue().getValue());
+                it.remove();
             }
         }
-        return values;
+        // Remove query
+        HANDLEByReference query = queryMap.get(queryKey);
+        PDH.PdhCloseQuery(query.getValue());
+        queryMap.remove(queryKey);
+        disabledQueries.remove(queryKey);
+    }
+
+    /**
+     * Open a query for the given string, or confirm a query is already open for
+     * that string. Multiple counters may be added to this string, but will all
+     * be queried at the same time.
+     * 
+     * @param objectName
+     *            String to associate with the counter. Normally the English PDH
+     *            object name.
+     * @return A handle to the query, or null if an error occurred.
+     */
+    private static HANDLEByReference openQuery(String objectName) {
+        if (queryMap.containsKey(objectName)) {
+            return queryMap.get(objectName);
+        }
+        HANDLEByReference q = new HANDLEByReference();
+        if (openQuery(q)) {
+            queryMap.put(objectName, q);
+            return q;
+        }
+        return null;
+    }
+
+    /**
+     * Translate a counter to its locale-specific string
+     * 
+     * counter A Counter object with the object, counter, and (optional)
+     * instance
+     * 
+     * @return A string representing the complete counter
+     */
+    private static String localizeCounterPath(PerfCounter counter) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\\');
+        sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(counter.object)));
+        if (counter.instance != null) {
+            sb.append('(').append(counter.instance).append(')');
+        }
+        sb.append('\\');
+        sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(counter.counter)));
+        return sb.toString();
+    }
+
+    /**
+     * Stop monitoring all Performance Data counters and release their resources
+     */
+    public static void removeAllCounters() {
+        Set<String> queries = new HashSet<>(queryMap.keySet());
+        for (String query : queries) {
+            removeAllCounters(query);
+        }
     }
 
     /**
      * Open a pdh query
      * 
-     * @param p
+     * @param q
      *            pointer to the query
      * @return true if successful
      */
-    private static boolean openQuery(HANDLEByReference p) {
-        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, p);
+    private static boolean openQuery(HANDLEByReference q) {
+        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, q);
         if (pdhOpenQueryError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
             LOG.error("Failed to open PDH Query. Error code: {}", String.format(HEX_ERROR_FMT, pdhOpenQueryError));
         }
@@ -298,31 +308,15 @@ public class PerfDataUtil {
      *            String name of the PerfMon counter
      * @param p
      *            Pointer to the counter
+     * @return
      */
-    private static void addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
+    private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
         int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
         if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
             LOG.error("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format(HEX_ERROR_FMT, pdhAddCounterError));
         }
-    }
-
-    /**
-     * Update counters to values since the last call
-     * 
-     * @param query
-     *            The query whose counters to update
-     * @return True if successful
-     */
-    private static boolean updateCounters(WinNT.HANDLEByReference query) {
-        int ret = PDH.PdhCollectQueryData(query.getValue());
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to update counters. Error code: {}", String.format(HEX_ERROR_FMT, ret));
-            }
-            return false;
-        }
-        return true;
+        return pdhAddCounterError == WinError.ERROR_SUCCESS;
     }
 
     /**
@@ -344,21 +338,37 @@ public class PerfDataUtil {
     }
 
     /**
-     * Get timestamp of pdh counter
+     * Update a query and get the timestamp
      * 
-     * @param counter
-     *            The counter to get the value of
-     * @return FILETIME value of the counter. This is in 100-ns increments and
-     *         uses the 1601 Epoch.
+     * @param query
+     *            The query to update all counters in
+     * @return The update timestamp of the first counter in the query
      */
-    private static FILETIME queryCounterTimestamp(WinNT.HANDLEByReference counter) {
-        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
+    private static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
+        LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
+        int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
+                LOG.warn("Failed to update counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
             }
-            return new FILETIME();
+            return 0;
         }
-        return counterValue.TimeStamp;
+        // Perf Counter timestamp is in local time
+        return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);
+    }
+
+    /**
+     * Convert a long representing filetime (100-ns since 1601 epoch) to ms
+     * since 1970 epoch
+     * 
+     * @param filetime
+     *            A 64-bit value equivalent to FILETIME
+     * @param local
+     *            True if converting from a local filetime (PDH counter); false
+     *            if already UTC (WMI PerfRawData classes)
+     * @return Equivalent milliseconds since the epoch
+     */
+    public static long filetimeToUtcMs(long filetime, boolean local) {
+        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);
     }
 }

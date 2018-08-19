@@ -28,6 +28,11 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.COM.COMUtils;
+
+import oshi.jna.platform.windows.Ole32;
 import oshi.jna.platform.windows.Wbemcli;
 import oshi.jna.platform.windows.Wbemcli.IEnumWbemClassObject;
 import oshi.jna.platform.windows.Wbemcli.IWbemServices;
@@ -67,8 +72,25 @@ public class WmiUtil {
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
 
-    // Private constructor
+    // Track initialization of COM and Security
+    private static boolean comInitialized = false;
+    private static boolean securityInitialized = false;
+
+    /**
+     * Private constructor so this class can't be instantiated from the outside.
+     * Also initializes COM and sets up hooks to uninit if necessary.
+     */
     private WmiUtil() {
+        // Initialize COM
+        initCOM();
+
+        // Set up hook to uninit on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                unInitCOM();
+            }
+        });
     }
 
     /**
@@ -137,8 +159,8 @@ public class WmiUtil {
         try {
             // Initialize COM if not already done. Needed if COM was previously
             // initialized externally but is no longer initialized.
-            if (!WbemcliUtil.isComInitialized()) {
-                WbemcliUtil.initCOM();
+            if (!isComInitialized()) {
+                initCOM();
             }
 
             // Connect to the server
@@ -228,6 +250,76 @@ public class WmiUtil {
                 iter.remove();
             }
         }
+    }
+
+    /**
+     * Initializes COM library and sets security to impersonate the local user
+     */
+    public static void initCOM() {
+        HRESULT hres = null;
+        // Step 1: --------------------------------------------------
+        // Initialize COM. ------------------------------------------
+        if (!isComInitialized()) {
+            hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
+            switch (hres.intValue()) {
+            // Successful local initialization
+            case COMUtils.S_OK:
+                comInitialized = true;
+                break;
+            // COM was already initialized
+            case COMUtils.S_FALSE:
+            case WinError.RPC_E_CHANGED_MODE:
+                break;
+            // Any other results is an error
+            default:
+                throw new Wbemcli.WbemcliException("Failed to initialize COM library.", hres.intValue());
+            }
+        }
+        // Step 2: --------------------------------------------------
+        // Set general COM security levels --------------------------
+        if (!isSecurityInitialized()) {
+            hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,
+                    Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
+            // If security already initialized we get RPC_E_TOO_LATE
+            // This can be safely ignored
+            if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
+                Ole32.INSTANCE.CoUninitialize();
+                throw new Wbemcli.WbemcliException("Failed to initialize security.", hres.intValue());
+            }
+            securityInitialized = true;
+        }
+    }
+
+    /**
+     * UnInitializes COM library if it was initialized by the {@link #initCOM()}
+     * method. Otherwise, does nothing.
+     */
+    public static void unInitCOM() {
+        if (isComInitialized()) {
+            Ole32.INSTANCE.CoUninitialize();
+            comInitialized = false;
+        }
+    }
+
+    /**
+     * COM may already have been initialized outside this class. This boolean is
+     * a flag whether this class initialized it, to avoid uninitializing later
+     * and killing the external initialization
+     * 
+     * @return Returns whether this class initialized COM
+     */
+    public static boolean isComInitialized() {
+        return comInitialized;
+    }
+
+    /**
+     * Security only needs to be initialized once. This boolean identifies
+     * whether that has happened.
+     * 
+     * @return Returns the securityInitialized.
+     */
+    public static boolean isSecurityInitialized() {
+        return securityInitialized;
     }
 
     /**
