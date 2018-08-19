@@ -39,8 +39,6 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
-import oshi.jna.platform.windows.PdhUtil;
-
 /**
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
@@ -125,12 +123,11 @@ public class PerfDataUtil {
             return false;
         }
         HANDLEByReference p = new HANDLEByReference();
-        String path = localizeCounterPath(counter);
+        String path = counterPath(counter);
         if (addCounter(q, path, p)) {
             counterMap.put(counter, p);
             return true;
         }
-        LOG.warn("Failed to add a counter for PDH: {}", path);
         return false;
     }
 
@@ -162,7 +159,7 @@ public class PerfDataUtil {
         }
         if (!queryMap.containsKey(counter.object) || !counterMap.containsKey(counter)) {
             if (LOG.isErrorEnabled()) {
-                LOG.error(LOG_COUNTER_NOT_EXISTS, localizeCounterPath(counter));
+                LOG.error(LOG_COUNTER_NOT_EXISTS, counterPath(counter));
             }
             return 0L;
         }
@@ -201,7 +198,7 @@ public class PerfDataUtil {
     public static long queryCounter(PerfCounter counter) {
         if (!queryMap.containsKey(counter.object) || !counterMap.containsKey(counter)) {
             if (LOG.isErrorEnabled()) {
-                LOG.error(LOG_COUNTER_NOT_EXISTS, localizeCounterPath(counter));
+                LOG.error(LOG_COUNTER_NOT_EXISTS, counterPath(counter));
             }
             return 0;
         }
@@ -255,22 +252,20 @@ public class PerfDataUtil {
     }
 
     /**
-     * Translate a counter to its locale-specific string
+     * Build a counter path
      * 
      * counter A Counter object with the object, counter, and (optional)
      * instance
      * 
      * @return A string representing the complete counter
      */
-    private static String localizeCounterPath(PerfCounter counter) {
+    private static String counterPath(PerfCounter counter) {
         StringBuilder sb = new StringBuilder();
-        sb.append('\\');
-        sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(counter.object)));
+        sb.append('\\').append(counter.object);
         if (counter.instance != null) {
             sb.append('(').append(counter.instance).append(')');
         }
-        sb.append('\\');
-        sb.append(PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(counter.counter)));
+        sb.append('\\').append(counter.counter);
         return sb.toString();
     }
 
@@ -313,7 +308,7 @@ public class PerfDataUtil {
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
         int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
         if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
-            LOG.error("Failed to add PDH Counter: {}, Error code: {}", path,
+            LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format(HEX_ERROR_FMT, pdhAddCounterError));
         }
         return pdhAddCounterError == WinError.ERROR_SUCCESS;

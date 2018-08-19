@@ -42,12 +42,12 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         SERIALNUMBER;
     }
 
-    enum CsProductProperty {
+    enum ComputerSystemProductProperty {
         IDENTIFYINGNUMBER;
     }
 
-    private static final WmiQuery<CsProductProperty> IDENTIFYINGNUMBER_QUERY = WbemcliUtil.createQuery("Win32_Csproduct",
-            CsProductProperty.class);
+    private static final WmiQuery<ComputerSystemProductProperty> IDENTIFYINGNUMBER_QUERY = WbemcliUtil
+            .createQuery("Win32_ComputerSystemProduct", ComputerSystemProductProperty.class);
 
     private String systemSerialNumber = "";
 
@@ -82,9 +82,9 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         }
         // If the above doesn't work, this might
         if (!"".equals(this.systemSerialNumber)) {
-            WmiResult<CsProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
+            WmiResult<ComputerSystemProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
             if (identifyingNumber.getResultCount() > 0) {
-                this.systemSerialNumber = identifyingNumber.getString(CsProductProperty.IDENTIFYINGNUMBER, 0);
+                this.systemSerialNumber = identifyingNumber.getString(ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
             }
         }
         // Nothing worked. Default.
