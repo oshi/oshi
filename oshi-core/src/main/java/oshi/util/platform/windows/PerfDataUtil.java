@@ -307,7 +307,7 @@ public class PerfDataUtil {
      */
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
         int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
-        if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isErrorEnabled()) {
+        if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isWarnEnabled()) {
             LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format(HEX_ERROR_FMT, pdhAddCounterError));
         }

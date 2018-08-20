@@ -171,7 +171,7 @@ public class WmiUtil {
 
             result = WbemcliUtil.enumerateProperties(enumerator, query.getPropertyEnum(), wmiTimeout);
             enumerator.Release();
-        } catch (WbemcliException e) {
+        } catch (Wbemcli.WbemcliException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
                 switch (e.getErrorCode()) {

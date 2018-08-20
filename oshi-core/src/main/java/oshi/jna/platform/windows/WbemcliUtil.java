@@ -40,7 +40,6 @@ import oshi.jna.platform.windows.Wbemcli.IEnumWbemClassObject;
 import oshi.jna.platform.windows.Wbemcli.IWbemClassObject;
 import oshi.jna.platform.windows.Wbemcli.IWbemLocator;
 import oshi.jna.platform.windows.Wbemcli.IWbemServices;
-import oshi.jna.platform.windows.Wbemcli.WbemcliException;
 
 /**
  * Utility class providing access to Windows Management Interface (WMI) via COM.
@@ -55,9 +54,6 @@ public class WbemcliUtil {
      * The default namespace for most WMI queries.
      */
     public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
-
-    // Constant for WMI used often.
-    private static final BSTR WQL = OleAuto.INSTANCE.SysAllocString("WQL");
 
     /**
      * Enum containing the property used for WMI Namespace query.
@@ -347,18 +343,6 @@ public class WbemcliUtil {
     }
 
     /**
-     * Private construtor for cleanup hook
-     */
-    private WbemcliUtil() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                OleAuto.INSTANCE.SysFreeString(WQL);
-            }
-        });
-    }
-
-    /**
      * Create a WMI Query
      * 
      * @param <T>
@@ -433,7 +417,8 @@ public class WbemcliUtil {
         try {
             return queryWMI(query, Wbemcli.WBEM_INFINITE);
         } catch (TimeoutException e) {
-            throw new WbemcliException("Got a WMI timeout when infinite wait was specified. This should never happen.",
+            throw new Wbemcli.WbemcliException(
+                    "Got a WMI timeout when infinite wait was specified. This should never happen.",
                     Wbemcli.WBEM_INFINITE);
         }
     }
@@ -459,7 +444,7 @@ public class WbemcliUtil {
     public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query, int timeout) throws TimeoutException {
         // Idiot check
         if (query.getPropertyEnum().getEnumConstants().length < 1) {
-            throw new WbemcliException("The query's property enum has no values.",
+            throw new Wbemcli.WbemcliException("The query's property enum has no values.",
                     query.getPropertyEnum().getEnumConstants().length);
         }
 
@@ -518,7 +503,8 @@ public class WbemcliUtil {
         // information
         loc.Release();
         if (COMUtils.FAILED(hres)) {
-            throw new WbemcliException(String.format("Could not connect to namespace %s.", namespace), hres.intValue());
+            throw new Wbemcli.WbemcliException(String.format("Could not connect to namespace %s.", namespace),
+                    hres.intValue());
         }
 
         // Step 5: --------------------------------------------------
@@ -527,7 +513,7 @@ public class WbemcliUtil {
                 Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE);
         if (COMUtils.FAILED(hres)) {
             new IWbemServices(pSvc.getValue()).Release();
-            throw new WbemcliException("Could not set proxy blanket.", hres.intValue());
+            throw new Wbemcli.WbemcliException("Could not set proxy blanket.", hres.intValue());
         }
         return new IWbemServices(pSvc.getValue());
     }
@@ -560,12 +546,14 @@ public class WbemcliUtil {
         // Send the query. The flags allow us to return immediately and begin
         // enumerating in the forward direction as results come in.
         BSTR queryStr = OleAuto.INSTANCE.SysAllocString(sb.toString().replaceAll("\\\\", "\\\\\\\\"));
-        HRESULT hres = svc.ExecQuery(WQL, queryStr,
+        BSTR wql = OleAuto.INSTANCE.SysAllocString("WQL");
+        HRESULT hres = svc.ExecQuery(wql, queryStr,
                 Wbemcli.WBEM_FLAG_FORWARD_ONLY | Wbemcli.WBEM_FLAG_RETURN_IMMEDIATELY, null, pEnumerator);
         OleAuto.INSTANCE.SysFreeString(queryStr);
+        OleAuto.INSTANCE.SysFreeString(wql);
         if (COMUtils.FAILED(hres)) {
             svc.Release();
-            throw new WbemcliException(String.format("Query '%s' failed.", sb.toString()), hres.intValue());
+            throw new Wbemcli.WbemcliException(String.format("Query '%s' failed.", sb.toString()), hres.intValue());
         }
         return new IEnumWbemClassObject(pEnumerator.getValue());
     }
@@ -616,7 +604,7 @@ public class WbemcliUtil {
             }
             // Other exceptions here.
             if (COMUtils.FAILED(hres)) {
-                throw new WbemcliException("Failed to enumerate results.", hres.intValue());
+                throw new Wbemcli.WbemcliException("Failed to enumerate results.", hres.intValue());
             }
 
             VARIANT.ByReference pVal = new VARIANT.ByReference();
