@@ -1,11 +1,14 @@
-3.8.0 (in progress)
+3.9.0 (in progress)
+================
+* Your contribution here.
+
+3.8.0 (08/20/2018)
 ================
 * [#580](https://github.com/oshi/oshi/pull/580): Windows process uptime wasn't updating. - [@dbwiddis](https://github.com/dbwiddis).
 * [#585](https://github.com/oshi/oshi/pull/585): Fix WMI type mapping and BSTR allocation. - [@dbwiddis](https://github.com/dbwiddis).
 * [#586](https://github.com/oshi/oshi/pull/586): Add PerfDataUtil.removeAllCounters. - [@dbwiddis](https://github.com/dbwiddis).
 * [#587](https://github.com/oshi/oshi/pull/587): Localize PDH instance enumeration. - [@dbwiddis](https://github.com/dbwiddis).
 * [#588](https://github.com/oshi/oshi/pull/588): WMI backup for all PDH Counters. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.7.2 (08/01/2018)
 ================
