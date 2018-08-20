@@ -1,6 +1,6 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](http://search.maven.org/#search|ga|1|com.github.oshi)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
 [![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
@@ -29,7 +29,7 @@ for their support of Open Source projects including OSHI.
 
 Essentials
 ----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
+* [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
