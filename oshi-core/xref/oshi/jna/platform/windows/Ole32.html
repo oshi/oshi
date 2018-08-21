@@ -27,10 +27,10 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.jna.platform.windows;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WTypes.BSTR;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HRESULT;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WTypes.LPOLESTR;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HRESULT;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.SECURITY_DESCRIPTOR;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.win32.W32APIOptions;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
@@ -129,7 +129,7 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     *         E_OUT_OF_MEMORY Out of memory.</em>
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     HRESULT CoInitializeSecurity(Pointer pSecDesc, NativeLong cAuthSvc, Pointer asAuthSvc, Pointer pReserved1,
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     HRESULT CoInitializeSecurity(SECURITY_DESCRIPTOR pSecDesc, <strong class="jxr_keyword">int</strong> cAuthSvc, Pointer asAuthSvc, Pointer pReserved1,
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">int</strong> dwAuthnLevel, <strong class="jxr_keyword">int</strong> dwImpLevel, Pointer pAuthList, <strong class="jxr_keyword">int</strong> dwCapabilities, Pointer pReserved3);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
@@ -245,7 +245,7 @@
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>     HRESULT CoSetProxyBlanket(Pointer pProxy, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">int</strong> dwAuthnSvc, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>             <strong class="jxr_keyword">int</strong> dwAuthzSvc, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             BSTR pServerPrincName, <em class="jxr_comment">// OLECHAR</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             LPOLESTR pServerPrincName, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>             <strong class="jxr_keyword">int</strong> dwAuthnLevel, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">int</strong> dwImpLevel, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>             Pointer pAuthInfo, <em class="jxr_comment">// RPC_AUTH_IDENTITY_HANDLE</em>

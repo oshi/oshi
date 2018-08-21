@@ -26,745 +26,353 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.util.platform.windows;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.EnumMap;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.Map.Entry;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeoutException;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Iterator;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeoutException;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinError;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HRESULT;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.COMUtils;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong; <em class="jxr_comment">// NOSONAR</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.OleAuto;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Variant;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Variant.VARIANT;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WTypes.BSTR;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinError;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HRESULT;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.COMUtils;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.LongByReference;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Ole32;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.COM.EnumWbemClassObject;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.COM.WbemClassObject;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.COM.WbemLocator;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.COM.WbemServices;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * Utility class providing access to Windows Management Interface (WMI) via COM.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a> {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WmiUtil.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Ole32;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wbemcli;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wbemcli.IEnumWbemClassObject;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wbemcli.IWbemServices;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wbemcli.WbemcliException;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * Helper class for WMI</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * Instance to generate the WmiConnection class.</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a> INSTANCE = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a>();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WmiUtil.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_comment">// Global timeout for WMI queries</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> wmiTimeout = Wbemcli.WBEM_INFINITE;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> connectionCacheTimeout = 300_000;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * Private instance to generate the WmiQuery class.</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a> INSTANCE = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a>();
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * The default namespace for most WMI queries.</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DEFAULT_NAMESPACE = <span class="jxr_string">"ROOT&#92;&#92;CIMV2"</span>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">// Cache namespaces</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; hasNamespaceCache = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; hasNotNamespaceCache = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <em class="jxr_comment">// Cache open WMI namespace connections</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, WmiConnection&gt; connectionCache = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> nextCacheClear = System.currentTimeMillis() + connectionCacheTimeout;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_comment">// Cache failed wmi classes</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; failedWmiClassNames = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">// Not a built in manespace, failed connections are normal and don't need</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_comment">// error logging</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OHM_NAMESPACE = <span class="jxr_string">"ROOT&#92;&#92;OpenHardwareMonitor"</span>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_comment">// Constants for WMI used often</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> BSTR WQL = <strong class="jxr_keyword">new</strong> BSTR(<span class="jxr_string">"WQL"</span>);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> NativeLong ZERO = <strong class="jxr_keyword">new</strong> NativeLong(0L);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> NativeLong ONE = <strong class="jxr_keyword">new</strong> NativeLong(1L);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> NativeLong ASYNCH_FORWARD_FLAGS = <strong class="jxr_keyword">new</strong> NativeLong(
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_comment">// COM may already have been initialized outside this class. Keep this</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_comment">// boolean as a flag whether we need to un-initialize it</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> comInitialized = false;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_comment">// Security only needs to be initialized once</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> securityInitialized = false;
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_comment">// Cache open WMI namespace connections</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, WmiConnection&gt; connectionCache = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; hasNamespaceCache = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; hasNotNamespaceCache = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> enum <a href="../../../../oshi/util/platform/windows/WmiUtil.html">NamespaceProperty</a> {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          NAME;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> WmiQuery&lt;NamespaceProperty&gt; NAMESPACE_QUERY = createQuery(<span class="jxr_string">"ROOT"</span>, <span class="jxr_string">"__NAMESPACE"</span>,
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              NamespaceProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * Helper class wrapping information required for a WMI query.</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_comment">// Track initialization of COM and Security</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> comInitialized = false;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> securityInitialized = false;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * Private constructor so this class can't be instantiated from the outside.</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * Also initializes COM and sets up hooks to uninit if necessary.</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a>() {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// Initialize COM</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          initCOM();
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// Set up hook to uninit on shutdown</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          Runtime.getRuntime().addShutdownHook(<strong class="jxr_keyword">new</strong> Thread() {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              @Override
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> run() {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  unInitCOM();
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          });
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * Determine if WMI has the requested namespace. Some namespaces only exist</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * on newer versions of Windows.</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     * @param namespace</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     *            The namespace to test</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * @return true if the namespace exists, false otherwise</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> WmiQuery&lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">private</strong> String nameSpace;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">private</strong> String wmiClassName;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">private</strong> Class&lt;T&gt; propertyEnum;
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">         * Instantiate a WmiQuery.</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">         * </em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">         * @param nameSpace</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">         *            The WMI namespace to use.</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">         * @param wmiClassName</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">         *            The WMI class to use. Optionally include a WQL WHERE</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">         *            clause with filters results to properties matching the</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">         *            input.</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">         * @param propertyEnum</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">         *            An enum implementing WmiProperty for type mapping.</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiQuery</a>(String nameSpace, String wmiClassName, Class&lt;T&gt; propertyEnum) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">this</strong>.nameSpace = nameSpace;
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">this</strong>.wmiClassName = wmiClassName;
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">this</strong>.propertyEnum = propertyEnum;
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">         * @return The enum containing the properties</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">public</strong> Class&lt;T&gt; getPropertyEnum() {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> propertyEnum;
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         }
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">         * @return The namespace</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">public</strong> String getNameSpace() {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">return</strong> nameSpace;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasNamespace(String namespace) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">if</strong> (hasNamespaceCache.contains(namespace)) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (hasNotNamespaceCache.contains(namespace)) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> WbemcliUtil.hasNamespace(namespace);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * Helper class for WMI connection caching</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> staleAfter;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../oshi/jna/platform/windows/Wbemcli.html">IWbemServices</a> svc;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a>(<a href="../../../../oshi/jna/platform/windows/Wbemcli.html">IWbemServices</a> svc) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">this</strong>.svc = svc;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             refresh();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/jna/platform/windows/Wbemcli.html">IWbemServices</a> getService() {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.svc;
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isStale() {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">return</strong> System.currentTimeMillis() &gt; staleAfter;
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> refresh() {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">this</strong>.staleAfter = System.currentTimeMillis() + connectionCacheTimeout;
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">this</strong>.svc.Release();
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">         * @param nameSpace</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">         *            The namespace to set</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setNameSpace(String nameSpace) {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">this</strong>.nameSpace = nameSpace;
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">         * @return The class name</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">public</strong> String getWmiClassName() {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">return</strong> wmiClassName;
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">         * @param wmiClassName</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">         *            The classname to set</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWmiClassName(String wmiClassName) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">this</strong>.wmiClassName = wmiClassName;
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * Query WMI for values, with no timeout.</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     *            an enum</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * @param query</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     *            A WmiQuery object encapsulating the namespace, class, and</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     *            properties</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @return a WmiResult object containing the query results, wrapping an</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     *         EnumMap</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; WmiResult&lt;T&gt; queryWMI(WmiQuery&lt;T&gt; query) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.<strong class="jxr_keyword">new</strong> WmiResult&lt;&gt;(query.getPropertyEnum());
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">if</strong> (failedWmiClassNames.contains(query.getWmiClassName())) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             <em class="jxr_comment">// Initialize COM if not already done. Needed if COM was previously</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <em class="jxr_comment">// initialized externally but is no longer initialized.</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">if</strong> (!isComInitialized()) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 initCOM();
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             }
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * Helper class wrapping an EnumMap containing the results of a query.</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> WmiResult&lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">private</strong> Map&lt;T, List&lt;Object&gt;&gt; propertyMap;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">private</strong> Map&lt;T, Integer&gt; vtTypeMap;
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> resultCount = 0;
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">         * @param propertyEnum</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">         *            The enum associated with this map</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiResult</a>(Class&lt;T&gt; propertyEnum) {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>             propertyMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             vtTypeMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">for</strong> (T type : propertyEnum.getEnumConstants()) {
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 propertyMap.put(type, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 vtTypeMap.put(type, Variant.VT_NULL);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         }
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">         * Gets a String value from the WmiResult. This is the return type when</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">         * the WMI result is mapped to a BSTR, including results of UINT64 and</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">         * DATETIME type which must be further parsed by the user.</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">         * </em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">         * @param property</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">         *            The property (column) to fetch</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">         * @param index</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">         *            The index (row) to fetch</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">         * @return The String containing the specified value.</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">public</strong> String getString(T property, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             Object o = <strong class="jxr_keyword">this</strong>.propertyMap.get(property).get(index);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 <strong class="jxr_keyword">return</strong> <span class="jxr_string">"unknown"</span>;
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (vtTypeMap.get(property).equals(Variant.VT_BSTR)) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">return</strong> (String) o;
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>                     property.name() + <span class="jxr_string">" is not a String type. Type is: "</span> + vtTypeMap.get(property));
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         }
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">         * Gets an Integer value from the WmiResult. This is the return type</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">         * when the WMI result is mapped to a VT_I4 (4-byte integer) value,</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">         * including results of UINT32, UINT16, and BOOLEAN. If an unsigned</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">         * result is desired, it may require further processing by the user.</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">         * </em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">         * @param property</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">         *            The property (column) to fetch</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">         * @param index</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">         *            The index (row) to fetch</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">         * @return The Integer containing the specified value.</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">public</strong> Integer getInteger(T property, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             Object o = <strong class="jxr_keyword">this</strong>.propertyMap.get(property).get(index);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (vtTypeMap.get(property).equals(Variant.VT_I4)) {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 <strong class="jxr_keyword">return</strong> (Integer) o;
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                     property.name() + <span class="jxr_string">" is not an Integer type. Type is: "</span> + vtTypeMap.get(property));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         }
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">         * Gets a Float value from the WmiResult. This is the return type when</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">         * the WMI result is mapped to a VT_R4 (4-byte real) value, including</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">         * results of FLOAT.</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">         * </em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">         * @param property</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">         *            The property (column) to fetch</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">         * @param index</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">         *            The index (row) to fetch</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">         * @return The Float containing the specified value.</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">public</strong> Float getFloat(T property, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             Object o = <strong class="jxr_keyword">this</strong>.propertyMap.get(property).get(index);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>             <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 <strong class="jxr_keyword">return</strong> 0f;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (vtTypeMap.get(property).equals(Variant.VT_R4)) {
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 <strong class="jxr_keyword">return</strong> (Float) o;
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             }
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>                     property.name() + <span class="jxr_string">" is not a Float type. Type is: "</span> + vtTypeMap.get(property));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             <em class="jxr_comment">// Connect to the server</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = connectToNamespace(query.getNameSpace());
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <em class="jxr_comment">// Send query</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <a href="../../../../oshi/jna/platform/windows/Wbemcli.html">IEnumWbemClassObject</a> enumerator = WbemcliUtil.selectProperties(conn.getService(), query);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             result = WbemcliUtil.enumerateProperties(enumerator, query.getPropertyEnum(), wmiTimeout);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             enumerator.Release();
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         } <strong class="jxr_keyword">catch</strong> (Wbemcli.WbemcliException e) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             <em class="jxr_comment">// Ignore any exceptions with OpenHardwareMonitor</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">if</strong> (!OHM_NAMESPACE.equals(query.getNameSpace())) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 <strong class="jxr_keyword">switch</strong> (e.getErrorCode()) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 <strong class="jxr_keyword">case</strong> Wbemcli.WBEM_E_INVALID_NAMESPACE:
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                     LOG.error(<span class="jxr_string">"WMI Failed connecting to namespace {}"</span>, query.getNameSpace());
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                 <strong class="jxr_keyword">case</strong> Wbemcli.WBEM_E_INVALID_CLASS:
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                     LOG.warn(<span class="jxr_string">"WMI class {} not found, ignoring further requests."</span>, query.getWmiClassName());
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     failedWmiClassNames.add(query.getWmiClassName());
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 <strong class="jxr_keyword">case</strong> Wbemcli.WBEM_E_INVALID_QUERY:
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                     LOG.error(<span class="jxr_string">"Invalid Query: SELECT {} FROM {}."</span>, query.getPropertyEnum().getEnumConstants(),
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                             query.getWmiClassName());
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                     <em class="jxr_comment">// Any other errors</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                     LOG.error(e.getMessage());
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             }
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         } <strong class="jxr_keyword">catch</strong> (TimeoutException e) {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>             T[] props = query.getPropertyEnum().getEnumConstants();
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"SELECT "</span>);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             sb.append(props[0].name());
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; props.length; i++) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 sb.append(',').append(props[i].name());
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             sb.append(<span class="jxr_string">" FROM "</span>).append(query.getWmiClassName());
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             LOG.error(<span class="jxr_string">"WMI query timed out after {} ms: {}"</span>, wmiTimeout, sb);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * Find an existing open connection to a namespace if one exists, otherwise</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * set up a new one</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     * @param namespace</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     *            The namespace to connect to</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     * @return The new or cached connection if successful; null if connection</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     *         failed</em>
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> connectToNamespace(String namespace) {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <em class="jxr_comment">// Every once in a while clear any other stale connections</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">if</strong> (System.currentTimeMillis() &gt; nextCacheClear) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             closeStaleConnections();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             nextCacheClear = System.currentTimeMillis() + connectionCacheTimeout;
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <em class="jxr_comment">// Check if connection already open</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">if</strong> (connectionCache.containsKey(namespace)) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = connectionCache.get(namespace);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">if</strong> (conn.isStale()) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 <em class="jxr_comment">// Connection expired. Close it.</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>                 conn.close();
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>                 connectionCache.remove(namespace);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 <strong class="jxr_keyword">return</strong> conn;
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             }
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <em class="jxr_comment">// Connect to the server</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <a href="../../../../oshi/jna/platform/windows/Wbemcli.html">IWbemServices</a> svc = WbemcliUtil.connectServer(namespace);
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = INSTANCE.<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a>(svc);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// Add to cache</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         connectionCache.put(namespace, conn);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">return</strong> conn;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * Closes WMI connections that haven't been used recently, freeing up</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * resources.</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> closeStaleConnections() {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">for</strong> (Iterator&lt;Map.Entry&lt;String, WmiConnection&gt;&gt; iter = connectionCache.entrySet().iterator(); iter.hasNext();) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             Map.Entry&lt;String, WmiConnection&gt; entry = iter.next();
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">if</strong> (entry.getValue().isStale()) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 entry.getValue().close();
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 iter.remove();
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             }
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>         }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">         * Adds a value to the WmiResult at the next index for that property</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">         * </em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">         * @param vtType</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">         *            The Variant type of this object</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">         * @param property</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">         *            The property (column) to store</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">         * @param o</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">         *            The object to store</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> add(<strong class="jxr_keyword">int</strong> vtType, T property, Object o) {
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <strong class="jxr_keyword">this</strong>.propertyMap.get(property).add(o);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">if</strong> (vtType != Variant.VT_NULL &amp;&amp; <strong class="jxr_keyword">this</strong>.vtTypeMap.get(property).equals(Variant.VT_NULL)) {
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 <strong class="jxr_keyword">this</strong>.vtTypeMap.put(property, vtType);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">         * @return The number of results in each mapped list</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getResultCount() {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.resultCount;
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         }
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">         * Increment the result count by one.</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> incrementResultCount() {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">this</strong>.resultCount++;
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         }
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * Helper class for WMI connection caching</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <em class="jxr_comment">// Connection invalid after this long</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> STALE_CONNECTION = 300_000L;
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * Initializes COM library and sets security to impersonate the local user</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> initCOM() {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         HRESULT hres = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <em class="jxr_comment">// Step 1: --------------------------------------------------</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <em class="jxr_comment">// Initialize COM. ------------------------------------------</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">if</strong> (!isComInitialized()) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             hres = Ole32.INSTANCE.CoInitializeEx(<strong class="jxr_keyword">null</strong>, Ole32.COINIT_MULTITHREADED);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">switch</strong> (hres.intValue()) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <em class="jxr_comment">// Successful local initialization</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">case</strong> COMUtils.S_OK:
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 comInitialized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             <em class="jxr_comment">// COM was already initialized</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">case</strong> COMUtils.S_FALSE:
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">case</strong> WinError.RPC_E_CHANGED_MODE:
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             <em class="jxr_comment">// Any other results is an error</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> Wbemcli.WbemcliException(<span class="jxr_string">"Failed to initialize COM library."</span>, hres.intValue());
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <em class="jxr_comment">// Step 2: --------------------------------------------------</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <em class="jxr_comment">// Set general COM security levels --------------------------</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">if</strong> (!isSecurityInitialized()) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             hres = Ole32.INSTANCE.CoInitializeSecurity(<strong class="jxr_keyword">null</strong>, -1, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                     Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, <strong class="jxr_keyword">null</strong>, Ole32.EOAC_NONE, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <em class="jxr_comment">// If security already initialized we get RPC_E_TOO_LATE</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>             <em class="jxr_comment">// This can be safely ignored</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 Ole32.INSTANCE.CoUninitialize();
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> Wbemcli.WbemcliException(<span class="jxr_string">"Failed to initialize security."</span>, hres.intValue());
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             securityInitialized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> 
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> staleAfter;
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../oshi/jna/platform/windows/COM/WbemServices.html">WbemServices</a> svc;
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a>(PointerByReference pSvc) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>             <strong class="jxr_keyword">this</strong>.svc = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/COM/WbemServices.html">WbemServices</a>(pSvc.getValue());
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>             refresh();
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/jna/platform/windows/COM/WbemServices.html">WbemServices</a> getService() {
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.svc;
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isStale() {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>             <strong class="jxr_keyword">return</strong> System.currentTimeMillis() &gt; staleAfter;
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> refresh() {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             <strong class="jxr_keyword">this</strong>.staleAfter = STALE_CONNECTION + System.currentTimeMillis();
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>             <strong class="jxr_keyword">this</strong>.svc.Release();
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         }
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> 
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * Private constructor so this class can't be instantiated from the outside.</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * Also initializes COM and sets up hooks to uninit if necessary.</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiUtil</a>() {
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// Initialize COM</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">if</strong> (!initCOM()) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>             unInitCOM();
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// Set up hook to uninit on shutdown</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         Runtime.getRuntime().addShutdownHook(<strong class="jxr_keyword">new</strong> Thread() {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>             @Override
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> run() {
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 unInitCOM();
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>             }
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         });
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>     }
-<a class="jxr_linenumber" name="L335" href="#L335">335</a> 
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">     * Create a WMI Query</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * UnInitializes COM library if it was initialized by the {@link #initCOM()}</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * method. Otherwise, does nothing.</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> unInitCOM() {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (isComInitialized()) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             Ole32.INSTANCE.CoUninitialize();
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             comInitialized = false;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     * COM may already have been initialized outside this class. This boolean is</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * a flag whether this class initialized it, to avoid uninitializing later</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     * and killing the external initialization</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     * @return Returns whether this class initialized COM</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isComInitialized() {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">return</strong> comInitialized;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> 
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * Security only needs to be initialized once. This boolean identifies</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     * whether that has happened.</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * @return Returns the securityInitialized.</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isSecurityInitialized() {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">return</strong> securityInitialized;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">     * Gets the current WMI timeout. WMI queries will fail if they take longer</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">     * than this number of milliseconds. A value of -1 is infinite (no timeout).</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">     * @return Returns the current value of wmiTimeout.</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getWmiTimeout() {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">return</strong> wmiTimeout;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">     * Sets the WMI timeout. WMI queries will fail if they take longer than this</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">     * number of milliseconds.</em>
 <a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">     *            an enum implementing WmiProperty</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">     * @param nameSpace</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">     *            The WMI Namespace to use</em>
-<a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     * @param wmiClassName</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     *            The WMI Class to use. May include a WHERE clause with</em>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     *            filtering conditions.</em>
-<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">     * @param propertyEnum</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">     *            An Enum implementing WmiProperty that contains the properties</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a> <em class="jxr_javadoccomment">     *            and types to query</em>
-<a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     * @return A WmiQuery object wrapping the parameters</em>
-<a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; WmiQuery&lt;T&gt; createQuery(String nameSpace, String wmiClassName,
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>             Class&lt;T&gt; propertyEnum) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">return</strong> INSTANCE.<strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(nameSpace, wmiClassName, propertyEnum);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>     }
-<a class="jxr_linenumber" name="L355" href="#L355">355</a> 
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">     * Create a WMI Query in the default namespace</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     *            an enum implementing WmiProperty</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @param wmiClassName</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *            The WMI Class to use. May include a WHERE clause with</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     *            filtering conditions.</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     * @param propertyEnum</em>
-<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">     *            An Enum implementing WmiProperty that contains the properties</em>
-<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     *            and types to query</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">     * @return A WmiQuery object wrapping the parameters</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; WmiQuery&lt;T&gt; createQuery(String wmiClassName, Class&lt;T&gt; propertyEnum) {
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">return</strong> createQuery(DEFAULT_NAMESPACE, wmiClassName, propertyEnum);
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>     }
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> 
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     * Determine if WMI has the requested namespace. Some namespaces only exist</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     * on newer versions of Windows.</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">     * @param namespace</em>
-<a class="jxr_linenumber" name="L378" href="#L378">378</a> <em class="jxr_javadoccomment">     *            The namespace to test</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a> <em class="jxr_javadoccomment">     * @return true if the namespace exists, false otherwise</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasNamespace(String namespace) {
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <strong class="jxr_keyword">if</strong> (hasNamespaceCache.contains(namespace)) {
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (hasNotNamespaceCache.contains(namespace)) {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         }
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         WmiResult&lt;NamespaceProperty&gt; namespaces = queryWMI(NAMESPACE_QUERY);
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; namespaces.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>             <strong class="jxr_keyword">if</strong> (namespace.equals(namespaces.getString(NamespaceProperty.NAME, i))) {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>             }
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>     }
-<a class="jxr_linenumber" name="L395" href="#L395">395</a> 
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">     * Query WMI for values, with no timeout.</em>
-<a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">     * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_javadoccomment">     *            an enum implementing WmiProperty</em>
-<a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_javadoccomment">     * @param query</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">     *            A WmiQuery object encapsulating the namespace, class,</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">     *            properties, and timeout</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     * @return a WmiResult object containing the query results, wrapping an</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     *         EnumMap</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; WmiResult&lt;T&gt; queryWMI(WmiQuery&lt;T&gt; query) {
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>             <strong class="jxr_keyword">return</strong> queryWMI(query, EnumWbemClassObject.WBEM_INFINITE);
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         } <strong class="jxr_keyword">catch</strong> (TimeoutException e) {
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>             LOG.error(<span class="jxr_string">"Got a WMI timeout when infinite wait specified. This should never happen."</span>, e);
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>             <strong class="jxr_keyword">return</strong> INSTANCE.<strong class="jxr_keyword">new</strong> WmiResult&lt;&gt;(query.getPropertyEnum());
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         }
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">     * Query WMI for values, with a specified timeout.</em>
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     *            an enum implementing WmiProperty</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">     * @param query</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">     *            A WmiQuery object encapsulating the namespace, class,</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">     *            properties, and timeout</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     * @param timeout</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     *            Number of milliseconds to wait for results before timing out.</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     *            If {@link EnumWbemClassObject#WBEM_INFINITE} (-1), will always</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     *            wait for results. If a timeout occurs, throws a</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     *            {@link TimeoutException}.</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * @return a WmiResult object containing the query results, wrapping an</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     *         EnumMap</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">     * @throws TimeoutException</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">     *             if the query times out before completion</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; WmiResult&lt;T&gt; queryWMI(WmiQuery&lt;T&gt; query, <strong class="jxr_keyword">int</strong> timeout) <strong class="jxr_keyword">throws</strong> TimeoutException {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         <em class="jxr_comment">// Idiot check</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">if</strong> (query.getPropertyEnum().getEnumConstants().length &lt; 1) {
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"The query's property enum has no values."</span>);
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         }
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <em class="jxr_comment">// Set up empty map</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         WmiResult&lt;T&gt; values = INSTANCE.<strong class="jxr_keyword">new</strong> WmiResult&lt;&gt;(query.getPropertyEnum());
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <em class="jxr_comment">// Initialize COM if not already done</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>         <strong class="jxr_keyword">if</strong> (!comInitialized &amp;&amp; !initCOM()) {
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>             unInitCOM();
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>             <strong class="jxr_keyword">return</strong> values;
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         }
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <em class="jxr_comment">// Connect to the server</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = connectToNamespace(query.getNameSpace());
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         <strong class="jxr_keyword">if</strong> (conn == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>             <strong class="jxr_keyword">return</strong> values;
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         }
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> 
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <em class="jxr_comment">// Send query</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         PointerByReference pEnumerator = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">if</strong> (!selectProperties(conn.getService(), pEnumerator, query)) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>             conn.close();
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             <strong class="jxr_keyword">return</strong> values;
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         }
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <a href="../../../../oshi/jna/platform/windows/COM/EnumWbemClassObject.html">EnumWbemClassObject</a> enumerator = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/COM/EnumWbemClassObject.html">EnumWbemClassObject</a>(pEnumerator.getValue());
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             enumerateProperties(values, enumerator, query.getPropertyEnum(), timeout);
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         } <strong class="jxr_keyword">catch</strong> (TimeoutException e) {
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> TimeoutException(e.getMessage());
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <em class="jxr_comment">// Cleanup</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             enumerator.Release();
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         }
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">return</strong> values;
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>     }
-<a class="jxr_linenumber" name="L472" href="#L472">472</a> 
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">     * Below methods ported from: Getting WMI Data from Local Computer</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">     * https://docs.microsoft.com/en-us/windows/desktop/WmiSdk/example--getting-</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">     * wmi-data-from-the-local-computer</em>
-<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_javadoccomment">     * Steps 1 - 7 in the comments correspond to the above link. Steps 1 through</em>
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> <em class="jxr_javadoccomment">     * 5 contain all the steps required to set up and connect to WMI, and steps</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_javadoccomment">     * 6 and 7 are where data is queried and received.</em>
-<a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">     * Initializes COM library and sets security to impersonate the local user</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">     * @return true if COM successfully initialized</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> initCOM() {
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <em class="jxr_comment">// Step 1: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <em class="jxr_comment">// Initialize COM. ------------------------------------------</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         HRESULT hres = Ole32.INSTANCE.CoInitializeEx(<strong class="jxr_keyword">null</strong>, Ole32.COINIT_MULTITHREADED);
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres)) {
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>             <strong class="jxr_keyword">if</strong> (hres.intValue() == WinError.RPC_E_CHANGED_MODE) {
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>                 <em class="jxr_comment">// Com already initialized, ignore error</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 LOG.debug(<span class="jxr_string">"COM already initialized."</span>);
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>                 securityInitialized = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>             }
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 LOG.error(String.format(<span class="jxr_string">"Failed to initialize COM library. Error code = 0x%08x"</span>, hres.intValue()));
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>             }
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         }
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         comInitialized = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">if</strong> (securityInitialized) {
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             <em class="jxr_comment">// Only run CoInitializeSecuirty once</em>
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         }
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         <em class="jxr_comment">// Step 2: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <em class="jxr_comment">// Set general COM security levels --------------------------</em>
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>         hres = Ole32.INSTANCE.CoInitializeSecurity(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">new</strong> NativeLong(-1), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>                 Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, <strong class="jxr_keyword">null</strong>, Ole32.EOAC_NONE, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>         <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>                 LOG.error(String.format(<span class="jxr_string">"Failed to initialize security. Error code = 0x%08x"</span>, hres.intValue()));
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>             }
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>             Ole32.INSTANCE.CoUninitialize();
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         }
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>         securityInitialized = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     }
-<a class="jxr_linenumber" name="L522" href="#L522">522</a> 
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L524" href="#L524">524</a> <em class="jxr_javadoccomment">     * Find an existing open connection to a namespace if one exists, otherwise</em>
-<a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">     * set up a new one</em>
-<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">     * @param namespace</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">     *            The namespace to connect to</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * @return The new or cached connection if successful; null if connection</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     *         failed</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> connectToNamespace(String namespace) {
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <em class="jxr_comment">// Every once in a while clear any other stale connections</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">if</strong> (System.currentTimeMillis() &gt; nextCacheClear) {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>             closeStaleConnections();
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>             nextCacheClear = System.currentTimeMillis() + WmiConnection.STALE_CONNECTION;
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         <em class="jxr_comment">// Check if connection already open</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">if</strong> (connectionCache.containsKey(namespace)) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>             <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = connectionCache.get(namespace);
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">if</strong> (conn.isStale()) {
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>                 <em class="jxr_comment">// Connection expired. Close it.</em>
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 conn.close();
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>                 connectionCache.remove(namespace);
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>                 <strong class="jxr_keyword">return</strong> conn;
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>             }
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         }
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <em class="jxr_comment">// Connect to the server</em>
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         PointerByReference pSvc = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">if</strong> (!connectServer(namespace, pSvc)) {
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         }
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a> conn = INSTANCE.<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/util/platform/windows/WmiUtil.html">WmiConnection</a>(pSvc);
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <em class="jxr_comment">// Add to cache</em>
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         connectionCache.put(namespace, conn);
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">return</strong> conn;
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a> 
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">     * Obtains a locator to the WMI server and connects to the specified</em>
-<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">     * namespace</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     * @param namespace</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     *            The namespace to connect to</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * @param pSvc</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     *            A pointer to receive an indirect to the WMI service</em>
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * @return true if successful; pSvc will contain an indirect pointer to the</em>
-<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     *         WMI service for future IWbemServices calls</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> connectServer(String namespace, PointerByReference pSvc) {
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <em class="jxr_comment">// Step 3: ---------------------------------------------------</em>
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <em class="jxr_comment">// Obtain the initial locator to WMI -------------------------</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         <a href="../../../../oshi/jna/platform/windows/COM/WbemLocator.html">WbemLocator</a> loc = WbemLocator.create();
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">if</strong> (loc == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <em class="jxr_comment">// Step 4: -----------------------------------------------------</em>
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <em class="jxr_comment">// Connect to WMI through the IWbemLocator::ConnectServer method</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>         <em class="jxr_comment">// Connect to the namespace with the current user and obtain pointer</em>
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>         <em class="jxr_comment">// pSvc to make IWbemServices calls.</em>
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>         HRESULT hres = loc.ConnectServer(<strong class="jxr_keyword">new</strong> BSTR(namespace), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, pSvc);
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>         <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres)) {
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>             <em class="jxr_comment">// Don't error on OpenHardwareMonitor</em>
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>             <strong class="jxr_keyword">if</strong> (!OHM_NAMESPACE.equals(namespace) &amp;&amp; LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>                 LOG.error(String.format(<span class="jxr_string">"Could not connect to namespace %s. Error code = 0x%08x"</span>, namespace,
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>                         hres.intValue()));
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>             }
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>             loc.Release();
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>             unInitCOM();
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>         }
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>         LOG.debug(<span class="jxr_string">"Connected to {} WMI namespace"</span>, namespace);
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>         loc.Release();
-<a class="jxr_linenumber" name="L595" href="#L595">595</a> 
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>         <em class="jxr_comment">// Step 5: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <em class="jxr_comment">// Set security levels on the proxy -------------------------</em>
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>         hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>                 Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, <strong class="jxr_keyword">null</strong>, Ole32.EOAC_NONE);
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres)) {
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>                 LOG.error(String.format(<span class="jxr_string">"Could not set proxy blanket. Error code = 0x%08x"</span>, hres.intValue()));
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>             }
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/COM/WbemServices.html">WbemServices</a>(pSvc.getValue()).Release();
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>             unInitCOM();
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>         }
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>         LOG.debug(<span class="jxr_string">"Proxy blanket set."</span>);
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>     }
-<a class="jxr_linenumber" name="L611" href="#L611">611</a> 
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L613" href="#L613">613</a> <em class="jxr_javadoccomment">     * Selects properties from WMI. Returns immediately, even while results are</em>
-<a class="jxr_linenumber" name="L614" href="#L614">614</a> <em class="jxr_javadoccomment">     * being retrieved; results may begun to be enumerated in the forward</em>
-<a class="jxr_linenumber" name="L615" href="#L615">615</a> <em class="jxr_javadoccomment">     * direction only.</em>
-<a class="jxr_linenumber" name="L616" href="#L616">616</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L617" href="#L617">617</a> <em class="jxr_javadoccomment">     * @param svc</em>
-<a class="jxr_linenumber" name="L618" href="#L618">618</a> <em class="jxr_javadoccomment">     *            A WbemServices object to make the calls</em>
-<a class="jxr_linenumber" name="L619" href="#L619">619</a> <em class="jxr_javadoccomment">     * @param pEnumerator</em>
-<a class="jxr_linenumber" name="L620" href="#L620">620</a> <em class="jxr_javadoccomment">     *            An enumerator to receive the results of the query</em>
-<a class="jxr_linenumber" name="L621" href="#L621">621</a> <em class="jxr_javadoccomment">     * @param query</em>
-<a class="jxr_linenumber" name="L622" href="#L622">622</a> <em class="jxr_javadoccomment">     *            A WmiQuery object encapsulating the details of the query</em>
-<a class="jxr_linenumber" name="L623" href="#L623">623</a> <em class="jxr_javadoccomment">     * @return True if successful. The enumerator will allow enumeration of</em>
-<a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">     *         results of the query</em>
-<a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; <strong class="jxr_keyword">boolean</strong> selectProperties(<a href="../../../../oshi/jna/platform/windows/COM/WbemServices.html">WbemServices</a> svc, PointerByReference pEnumerator,
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>             WmiQuery&lt;T&gt; query) {
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>         <em class="jxr_comment">// Step 6: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>         <em class="jxr_comment">// Use the IWbemServices pointer to make requests of WMI ----</em>
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>         T[] props = query.getPropertyEnum().getEnumConstants();
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"SELECT "</span>);
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>         <em class="jxr_comment">// We earlier checked for at least one enum constant</em>
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>         sb.append(props[0].name());
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; props.length; i++) {
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>             sb.append(',').append(props[i].name());
-<a class="jxr_linenumber" name="L636" href="#L636">636</a>         }
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>         sb.append(<span class="jxr_string">" FROM "</span>).append(query.getWmiClassName());
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>         LOG.debug(<span class="jxr_string">"Query: {}"</span>, sb);
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>         <em class="jxr_comment">// Send the query. The flags allow us to return immediately and begin</em>
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>         <em class="jxr_comment">// enumerating in the forward direction as results come in.</em>
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>         HRESULT hres = svc.ExecQuery(WQL, <strong class="jxr_keyword">new</strong> BSTR(sb.toString().replaceAll(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;&#92;&#92;&#92;&#92;&#92;&#92;"</span>)), ASYNCH_FORWARD_FLAGS,
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>                 <strong class="jxr_keyword">null</strong>, pEnumerator);
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>         <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres)) {
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>                 LOG.error(String.format(<span class="jxr_string">"Query '%s' failed. Error code = 0x%08x"</span>, sb, hres.intValue()));
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>             }
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>             svc.Release();
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>             unInitCOM();
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>         }
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>         LOG.debug(<span class="jxr_string">"Query succeeded."</span>);
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>     }
-<a class="jxr_linenumber" name="L654" href="#L654">654</a> 
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L656" href="#L656">656</a> <em class="jxr_javadoccomment">     * Enumerate the results of a WMI query. This method is called while results</em>
-<a class="jxr_linenumber" name="L657" href="#L657">657</a> <em class="jxr_javadoccomment">     * are still being retrieved and may iterate in the forward direction only.</em>
-<a class="jxr_linenumber" name="L658" href="#L658">658</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L659" href="#L659">659</a> <em class="jxr_javadoccomment">     * @param values</em>
-<a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">     *            A WmiResult object encapsulating an EnumMap which will hold</em>
-<a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">     *            the results.</em>
-<a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">     * @param enumerator</em>
-<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">     *            The enumerator with the results</em>
-<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">     * @param propertyEnum</em>
-<a class="jxr_linenumber" name="L665" href="#L665">665</a> <em class="jxr_javadoccomment">     *            The enum containing the properties to enumerate, which are the</em>
-<a class="jxr_linenumber" name="L666" href="#L666">666</a> <em class="jxr_javadoccomment">     *            keys to the WmiResult map</em>
-<a class="jxr_linenumber" name="L667" href="#L667">667</a> <em class="jxr_javadoccomment">     * @param timeout</em>
-<a class="jxr_linenumber" name="L668" href="#L668">668</a> <em class="jxr_javadoccomment">     *            Number of milliseconds to wait for results before timing out.</em>
-<a class="jxr_linenumber" name="L669" href="#L669">669</a> <em class="jxr_javadoccomment">     *            If {@link EnumWbemClassObject#WBEM_INFINITE} (-1), will always</em>
-<a class="jxr_linenumber" name="L670" href="#L670">670</a> <em class="jxr_javadoccomment">     *            wait for results.</em>
-<a class="jxr_linenumber" name="L671" href="#L671">671</a> <em class="jxr_javadoccomment">     * @throws TimeoutException</em>
-<a class="jxr_linenumber" name="L672" href="#L672">672</a> <em class="jxr_javadoccomment">     *             if the query times out before completion</em>
-<a class="jxr_linenumber" name="L673" href="#L673">673</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L674" href="#L674">674</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; <strong class="jxr_keyword">void</strong> enumerateProperties(WmiResult&lt;T&gt; values, <a href="../../../../oshi/jna/platform/windows/COM/EnumWbemClassObject.html">EnumWbemClassObject</a> enumerator,
-<a class="jxr_linenumber" name="L675" href="#L675">675</a>             Class&lt;T&gt; propertyEnum, <strong class="jxr_keyword">int</strong> timeout) <strong class="jxr_keyword">throws</strong> TimeoutException {
-<a class="jxr_linenumber" name="L676" href="#L676">676</a>         <em class="jxr_comment">// Step 7: -------------------------------------------------</em>
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>         <em class="jxr_comment">// Get the data from the query in step 6 -------------------</em>
-<a class="jxr_linenumber" name="L678" href="#L678">678</a>         PointerByReference pclsObj = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L679" href="#L679">679</a>         LongByReference uReturn = <strong class="jxr_keyword">new</strong> LongByReference(0L);
-<a class="jxr_linenumber" name="L680" href="#L680">680</a>         Map&lt;T, BSTR&gt; bstrMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L681" href="#L681">681</a>         <strong class="jxr_keyword">for</strong> (T property : propertyEnum.getEnumConstants()) {
-<a class="jxr_linenumber" name="L682" href="#L682">682</a>             bstrMap.put(property, <strong class="jxr_keyword">new</strong> BSTR(property.name()));
-<a class="jxr_linenumber" name="L683" href="#L683">683</a>         }
-<a class="jxr_linenumber" name="L684" href="#L684">684</a>         <strong class="jxr_keyword">while</strong> (enumerator.getPointer() != Pointer.NULL) {
-<a class="jxr_linenumber" name="L685" href="#L685">685</a>             <em class="jxr_comment">// Enumerator will be released by calling method so no need to</em>
-<a class="jxr_linenumber" name="L686" href="#L686">686</a>             <em class="jxr_comment">// release it here.</em>
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>             HRESULT hres = enumerator.Next(<strong class="jxr_keyword">new</strong> NativeLong(timeout), ONE, pclsObj, uReturn);
-<a class="jxr_linenumber" name="L688" href="#L688">688</a>             <em class="jxr_comment">// Warn user of timeout and abort. This should never happen if</em>
-<a class="jxr_linenumber" name="L689" href="#L689">689</a>             <em class="jxr_comment">// timeout is set to infinite.</em>
-<a class="jxr_linenumber" name="L690" href="#L690">690</a>             <strong class="jxr_keyword">if</strong> (hres.intValue() == EnumWbemClassObject.WBEM_S_TIMEDOUT) {
-<a class="jxr_linenumber" name="L691" href="#L691">691</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> TimeoutException(<span class="jxr_string">"No results after "</span> + timeout + <span class="jxr_string">" ms."</span>);
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>             }
-<a class="jxr_linenumber" name="L693" href="#L693">693</a>             <em class="jxr_comment">// Requested 1; if 0 objects returned, we're done</em>
-<a class="jxr_linenumber" name="L694" href="#L694">694</a>             <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres) || 0L == uReturn.getValue()
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>                     || hres.intValue() == EnumWbemClassObject.WBEM_S_NO_MORE_DATA) {
-<a class="jxr_linenumber" name="L696" href="#L696">696</a>                 LOG.debug(<span class="jxr_string">"Returned {} results."</span>, values.getResultCount());
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L698" href="#L698">698</a>             }
-<a class="jxr_linenumber" name="L699" href="#L699">699</a> 
-<a class="jxr_linenumber" name="L700" href="#L700">700</a>             VARIANT.ByReference pVal = <strong class="jxr_keyword">new</strong> VARIANT.ByReference();
-<a class="jxr_linenumber" name="L701" href="#L701">701</a> 
-<a class="jxr_linenumber" name="L702" href="#L702">702</a>             <em class="jxr_comment">// Get the value of the properties</em>
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>             <a href="../../../../oshi/jna/platform/windows/COM/WbemClassObject.html">WbemClassObject</a> clsObj = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/COM/WbemClassObject.html">WbemClassObject</a>(pclsObj.getValue());
-<a class="jxr_linenumber" name="L704" href="#L704">704</a>             <strong class="jxr_keyword">for</strong> (T property : propertyEnum.getEnumConstants()) {
-<a class="jxr_linenumber" name="L705" href="#L705">705</a>                 clsObj.Get(bstrMap.get(property), ZERO, pVal, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L706" href="#L706">706</a>                 <strong class="jxr_keyword">int</strong> type = (pVal.getValue() == <strong class="jxr_keyword">null</strong> ? Variant.VT_NULL : pVal.getVarType()).intValue();
-<a class="jxr_linenumber" name="L707" href="#L707">707</a>                 <strong class="jxr_keyword">switch</strong> (type) {
-<a class="jxr_linenumber" name="L708" href="#L708">708</a>                 <strong class="jxr_keyword">case</strong> Variant.VT_BSTR:
-<a class="jxr_linenumber" name="L709" href="#L709">709</a>                     values.add(type, property, pVal.stringValue());
-<a class="jxr_linenumber" name="L710" href="#L710">710</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L711" href="#L711">711</a>                 <strong class="jxr_keyword">case</strong> Variant.VT_I4:
-<a class="jxr_linenumber" name="L712" href="#L712">712</a>                     values.add(type, property, pVal.intValue());
-<a class="jxr_linenumber" name="L713" href="#L713">713</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L714" href="#L714">714</a>                 <strong class="jxr_keyword">case</strong> Variant.VT_R4:
-<a class="jxr_linenumber" name="L715" href="#L715">715</a>                     values.add(type, property, pVal.floatValue());
-<a class="jxr_linenumber" name="L716" href="#L716">716</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L717" href="#L717">717</a>                 <strong class="jxr_keyword">case</strong> Variant.VT_NULL:
-<a class="jxr_linenumber" name="L718" href="#L718">718</a>                     values.add(type, property, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L719" href="#L719">719</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L720" href="#L720">720</a>                 <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L721" href="#L721">721</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Unimplemented Variant type: "</span> + type);
-<a class="jxr_linenumber" name="L722" href="#L722">722</a>                 }
-<a class="jxr_linenumber" name="L723" href="#L723">723</a>                 OleAuto.INSTANCE.VariantClear(pVal);
-<a class="jxr_linenumber" name="L724" href="#L724">724</a>             }
-<a class="jxr_linenumber" name="L725" href="#L725">725</a>             clsObj.Release();
-<a class="jxr_linenumber" name="L726" href="#L726">726</a> 
-<a class="jxr_linenumber" name="L727" href="#L727">727</a>             values.incrementResultCount();
-<a class="jxr_linenumber" name="L728" href="#L728">728</a>         }
-<a class="jxr_linenumber" name="L729" href="#L729">729</a>     }
-<a class="jxr_linenumber" name="L730" href="#L730">730</a> 
-<a class="jxr_linenumber" name="L731" href="#L731">731</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L732" href="#L732">732</a> <em class="jxr_javadoccomment">     * UnInitializes COM library if it was initialized by the {@link #initCOM()}</em>
-<a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">     * method. Otherwise, does nothing.</em>
-<a class="jxr_linenumber" name="L734" href="#L734">734</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> unInitCOM() {
-<a class="jxr_linenumber" name="L736" href="#L736">736</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, WmiConnection&gt; entry : connectionCache.entrySet()) {
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>             entry.getValue().close();
-<a class="jxr_linenumber" name="L738" href="#L738">738</a>         }
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>         connectionCache.clear();
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>         <strong class="jxr_keyword">if</strong> (comInitialized) {
-<a class="jxr_linenumber" name="L741" href="#L741">741</a>             Ole32.INSTANCE.CoUninitialize();
-<a class="jxr_linenumber" name="L742" href="#L742">742</a>             comInitialized = false;
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>         }
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>     }
-<a class="jxr_linenumber" name="L745" href="#L745">745</a> 
-<a class="jxr_linenumber" name="L746" href="#L746">746</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L747" href="#L747">747</a> <em class="jxr_javadoccomment">     * Closes WMI connections that haven't been used recently, freeing up</em>
-<a class="jxr_linenumber" name="L748" href="#L748">748</a> <em class="jxr_javadoccomment">     * resources.</em>
-<a class="jxr_linenumber" name="L749" href="#L749">749</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> closeStaleConnections() {
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>         <strong class="jxr_keyword">for</strong> (Iterator&lt;Map.Entry&lt;String, WmiConnection&gt;&gt; iter = connectionCache.entrySet().iterator(); iter.hasNext();) {
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>             Map.Entry&lt;String, WmiConnection&gt; entry = iter.next();
-<a class="jxr_linenumber" name="L753" href="#L753">753</a>             <strong class="jxr_keyword">if</strong> (entry.getValue().isStale()) {
-<a class="jxr_linenumber" name="L754" href="#L754">754</a>                 entry.getValue().close();
-<a class="jxr_linenumber" name="L755" href="#L755">755</a>                 iter.remove();
-<a class="jxr_linenumber" name="L756" href="#L756">756</a>             }
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>         }
-<a class="jxr_linenumber" name="L758" href="#L758">758</a>     }
-<a class="jxr_linenumber" name="L759" href="#L759">759</a> }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     * @param wmiTimeout</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">     *            The wmiTimeout to set, in milliseconds. To disable timeouts,</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">     *            set timeout as -1 (infinite).</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> setWmiTimeout(<strong class="jxr_keyword">int</strong> wmiTimeout) {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         WmiUtil.wmiTimeout = wmiTimeout;
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     }
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> <em class="jxr_javadoccomment">     * Gets the connection cache timeout. WMI connections will be released if</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     * older than this number of milliseconds.</em>
+<a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">     * @return Returns the connectionCacheTimeout.</em>
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getConnectionCacheTimeout() {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> connectionCacheTimeout;
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * Sets the connection cache timeout. WMI connections will be released if</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * older than this number of milliseconds.</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @param connectionCacheTimeout</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *            The connectionCacheTimeout to set.</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> setConnectionCacheTimeout(<strong class="jxr_keyword">int</strong> connectionCacheTimeout) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         WmiUtil.connectionCacheTimeout = connectionCacheTimeout;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     }
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
