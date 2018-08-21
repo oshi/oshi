@@ -19,10 +19,10 @@
 package oshi.jna.platform.windows;
 
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.WTypes.LPOLESTR;
 import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.WinNT.SECURITY_DESCRIPTOR;
 import com.sun.jna.win32.W32APIOptions;
 
 /**
@@ -121,7 +121,7 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
      *
      *         E_OUT_OF_MEMORY Out of memory.
      */
-    HRESULT CoInitializeSecurity(Pointer pSecDesc, NativeLong cAuthSvc, Pointer asAuthSvc, Pointer pReserved1,
+    HRESULT CoInitializeSecurity(SECURITY_DESCRIPTOR pSecDesc, int cAuthSvc, Pointer asAuthSvc, Pointer pReserved1,
             int dwAuthnLevel, int dwImpLevel, Pointer pAuthList, int dwCapabilities, Pointer pReserved3);
 
     /**
@@ -237,7 +237,7 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
     HRESULT CoSetProxyBlanket(Pointer pProxy, //
             int dwAuthnSvc, //
             int dwAuthzSvc, //
-            BSTR pServerPrincName, // OLECHAR
+            LPOLESTR pServerPrincName, //
             int dwAuthnLevel, //
             int dwImpLevel, //
             Pointer pAuthInfo, // RPC_AUTH_IDENTITY_HANDLE
