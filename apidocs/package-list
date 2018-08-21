@@ -12,7 +12,6 @@ oshi.jna.platform.unix
 oshi.jna.platform.unix.freebsd
 oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
-oshi.jna.platform.windows.COM
 oshi.json
 oshi.json.hardware
 oshi.json.hardware.impl

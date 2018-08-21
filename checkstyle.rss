@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
-      <title>File: 233,
-             Errors: 6200,
+      <title>File: 230,
+             Errors: 6413,
              Warnings: 0,
              Infos: 0
       </title>
@@ -251,7 +251,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  52
                 </td>
               </tr>
                           <tr>
@@ -350,20 +350,6 @@ under the License.
                 </td>
                 <td>
                   2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.COM.WbemLocator.java">oshi/jna/platform/windows/COM/WbemLocator.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  33
                 </td>
               </tr>
                           <tr>
@@ -676,20 +662,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.COM.package-info.java">oshi/jna/platform/windows/COM/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.OperatingSystem.java">oshi/json/software/os/OperatingSystem.java</a>
                 </td>
                 <td>
@@ -755,7 +727,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  53
+                  66
                 </td>
               </tr>
                           <tr>
@@ -998,6 +970,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.Wbemcli.java">oshi/jna/platform/windows/Wbemcli.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  99
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PerfDataUtil.java">oshi/util/platform/windows/PerfDataUtil.java</a>
                 </td>
                 <td>
@@ -1007,7 +993,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  90
+                  102
                 </td>
               </tr>
                           <tr>
@@ -1068,20 +1054,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.COM.EnumWbemClassObject.java">oshi/jna/platform/windows/COM/EnumWbemClassObject.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  22
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.HWDiskStore.java">oshi/json/hardware/HWDiskStore.java</a>
                 </td>
                 <td>
@@ -1119,7 +1091,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  71
+                  141
                 </td>
               </tr>
                           <tr>
@@ -1301,7 +1273,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  24
                 </td>
               </tr>
                           <tr>
@@ -1400,20 +1372,6 @@ under the License.
                 </td>
                 <td>
                   3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.COM.WbemServices.java">oshi/jna/platform/windows/COM/WbemServices.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
                 </td>
               </tr>
                           <tr>
@@ -1525,7 +1483,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  97
+                  145
                 </td>
               </tr>
                           <tr>
@@ -1721,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  132
+                  64
                 </td>
               </tr>
                           <tr>
@@ -1880,6 +1838,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.WbemcliUtil.java">oshi/jna/platform/windows/WbemcliUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  107
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdBaseboard.java">oshi/hardware/platform/unix/freebsd/FreeBsdBaseboard.java</a>
                 </td>
                 <td>
@@ -1959,7 +1931,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  37
                 </td>
               </tr>
                           <tr>
@@ -2706,20 +2678,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.COM.WbemClassObject.java">oshi/jna/platform/windows/COM/WbemClassObject.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.UsbDeviceImpl.java">oshi/json/hardware/impl/UsbDeviceImpl.java</a>
                 </td>
                 <td>
@@ -2827,7 +2785,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  116
+                  117
                 </td>
               </tr>
                           <tr>
@@ -3275,7 +3233,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  78
+                  71
                 </td>
               </tr>
                           <tr>
