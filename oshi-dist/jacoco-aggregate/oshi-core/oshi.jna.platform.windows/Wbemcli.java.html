@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Wbemcli.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Wbemcli.java</span></div><h1>Wbemcli.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.jna.platform.windows;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.WString;
+import com.sun.jna.platform.win32.Guid.CLSID;
+import com.sun.jna.platform.win32.Guid.GUID;
+import com.sun.jna.platform.win32.Variant.VARIANT;
+import com.sun.jna.platform.win32.WTypes;
+import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.COM.COMUtils;
+import com.sun.jna.platform.win32.COM.Unknown;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+/**
+ * This header is used by Remote Desktop Services. It contains programming
+ * interfaces for enumerating and querying Common Information Model (CIM)
+ * objects.
+ */
+public interface Wbemcli {
+
+    public static final int WBEM_FLAG_RETURN_IMMEDIATELY = 0x00000010;
+    public static final int WBEM_FLAG_FORWARD_ONLY = 0x00000020;
+    public static final int WBEM_INFINITE = 0xFFFFFFFF;
+
+    // Non-error constants
+    // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-non-error-constants
+    public static final int WBEM_S_NO_ERROR = 0x0;
+    public static final int WBEM_S_FALSE = 0x1;
+    public static final int WBEM_S_TIMEDOUT = 0x40004;
+    public static final int WBEM_S_NO_MORE_DATA = 0x40005;
+
+    // Error constants
+    // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-error-constants
+    public static final int WBEM_E_INVALID_NAMESPACE = 0x8004100e;
+    public static final int WBEM_E_INVALID_CLASS = 0x80041010;
+    public static final int WBEM_E_INVALID_QUERY = 0x80041017;
+
+    /**
+     * Holds a row of results of a WMI query
+     */
+    class IWbemClassObject extends Unknown {
+
+        public IWbemClassObject(Pointer pvInstance) {
+<span class="nc" id="L64">            super(pvInstance);</span>
+<span class="nc" id="L65">        }</span>
+
+        public HRESULT Get(WString wszName, int lFlags, VARIANT.ByReference pVal, IntByReference pvtType,
+                IntByReference plFlavor) {
+            // Get is 5th method of IWbemClassObjectVtbl in WbemCli.h
+<span class="nc" id="L70">            return (HRESULT) _invokeNativeObject(4,</span>
+<span class="nc" id="L71">                    new Object[] { getPointer(), wszName, lFlags, pVal, pvtType, plFlavor }, HRESULT.class);</span>
+        }
+    }
+
+    /**
+     * Iterates to the next row of results of a WMI query
+     */
+    class IEnumWbemClassObject extends Unknown {
+
+        public IEnumWbemClassObject(Pointer pvInstance) {
+<span class="nc" id="L81">            super(pvInstance);</span>
+<span class="nc" id="L82">        }</span>
+
+        public HRESULT Next(int lTimeOut, int uCount, PointerByReference ppObjects, IntByReference puReturned) {
+            // Next is 5th method of IEnumWbemClassObjectVtbl in
+            // WbemCli.h
+<span class="nc" id="L87">            return (HRESULT) _invokeNativeObject(4,</span>
+<span class="nc" id="L88">                    new Object[] { getPointer(), lTimeOut, uCount, ppObjects, puReturned }, HRESULT.class);</span>
+        }
+    }
+
+    /**
+     * Locates and connects to a WMI namespace
+     */
+    class IWbemLocator extends Unknown {
+<span class="nc" id="L96">        public static final CLSID CLSID_WbemLocator = new CLSID(&quot;4590f811-1d3a-11d0-891f-00aa004b2e24&quot;);</span>
+<span class="nc" id="L97">        public static final GUID IID_IWbemLocator = new GUID(&quot;dc12a687-737f-11cf-884d-00aa004b2e24&quot;);</span>
+
+        private IWbemLocator(Pointer pvInstance) {
+<span class="nc" id="L100">            super(pvInstance);</span>
+<span class="nc" id="L101">        }</span>
+
+        public static IWbemLocator create() {
+<span class="nc" id="L104">            PointerByReference pbr = new PointerByReference();</span>
+
+<span class="nc" id="L106">            HRESULT hres = Ole32.INSTANCE.CoCreateInstance(CLSID_WbemLocator, null, WTypes.CLSCTX_INPROC_SERVER,</span>
+                    IID_IWbemLocator, pbr);
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (COMUtils.FAILED(hres)) {</span>
+<span class="nc" id="L109">                throw new Wbemcli.WbemcliException(&quot;Failed to create WbemLocator object.&quot;, hres.intValue());</span>
+            }
+
+<span class="nc" id="L112">            return new IWbemLocator(pbr.getValue());</span>
+        }
+
+        public HRESULT ConnectServer(BSTR strNetworkResource, BSTR strUser, BSTR strPassword, BSTR strLocale,
+                int lSecurityFlags, BSTR strAuthority, Pointer pCtx, PointerByReference ppNamespace) {
+            // ConnectServier is 4th method of IWbemLocatorVtbl in WbemCli.h
+<span class="nc" id="L118">            return (HRESULT) _invokeNativeObject(3, new Object[] { getPointer(), strNetworkResource, strUser,</span>
+<span class="nc" id="L119">                    strPassword, strLocale, lSecurityFlags, strAuthority, pCtx, ppNamespace }, HRESULT.class);</span>
+        }
+    }
+
+    /**
+     * Executes a WMI Query
+     */
+    class IWbemServices extends Unknown {
+
+        public IWbemServices(Pointer pvInstance) {
+<span class="nc" id="L129">            super(pvInstance);</span>
+<span class="nc" id="L130">        }</span>
+
+        public HRESULT ExecQuery(BSTR strQueryLanguage, BSTR strQuery, int lFlags, Pointer pCtx,
+                PointerByReference ppEnum) {
+            // ExecQuery is 21st method of IWbemServicesVtbl in WbemCli.h
+<span class="nc" id="L135">            return (HRESULT) _invokeNativeObject(20,</span>
+<span class="nc" id="L136">                    new Object[] { getPointer(), strQueryLanguage, strQuery, lFlags, pCtx, ppEnum }, HRESULT.class);</span>
+        }
+    }
+
+    /**
+     * Exception encountered in this class
+     */
+    @SuppressWarnings(&quot;serial&quot;)
+    class WbemcliException extends RuntimeException {
+        private final int errorCode;
+
+        /**
+         * Creates a new exception
+         * 
+         * @param message
+         *            The message to display. The error code will be appended to
+         *            this message.
+         * @param error
+         *            The error code.
+         */
+        public WbemcliException(String message, int error) {
+<span class="nc" id="L157">            super(String.format(&quot;%s Error code 0x%08x&quot;, message, error));</span>
+<span class="nc" id="L158">            this.errorCode = error;</span>
+<span class="nc" id="L159">        }</span>
+
+        /**
+         * @return Returns the errorCode.
+         */
+        public int getErrorCode() {
+<span class="nc" id="L165">            return errorCode;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
