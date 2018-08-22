@@ -130,7 +130,15 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, double arg1) {
-        this.builder.add(arg0, arg1);
+        // The JSON standard, in its infinite (pun intended) wisdom, decided not
+        // to allow infinity or NaN as valid doubles and specifies they should
+        // be null. This loses information. The default behavior of Jackson is
+        // to represent them as Strings. We'll go with the popular choice.
+        if (Double.isNaN(arg1) || Double.isInfinite(arg1)) {
+            this.builder.add(arg0, String.format("%f", arg1));
+        } else {
+            this.builder.add(arg0, arg1);
+        }
         return this;
     }
 
