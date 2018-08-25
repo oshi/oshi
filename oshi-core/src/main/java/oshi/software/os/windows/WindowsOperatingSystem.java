@@ -217,7 +217,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);
+                    this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
                 }
             }
         }
@@ -436,13 +436,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = commandLineProcs.getInteger(ProcessProperty.PROCESSID, p);
+                int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
                 if (this.processMap.containsKey(pid)) {
                     OSProcess proc = this.processMap.get(pid);
-                    proc.setCommandLine(commandLineProcs.getString(ProcessProperty.COMMANDLINE, p));
+                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
                 }
             }
         }

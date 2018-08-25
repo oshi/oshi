@@ -211,18 +211,18 @@ public class WindowsFileSystem implements FileSystem {
         WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
-            free = ParseUtil.parseLongOrDefault(drives.getString(LogicalDiskProperty.FREESPACE, i), 0L);
-            total = ParseUtil.parseLongOrDefault(drives.getString(LogicalDiskProperty.SIZE, i), 0L);
-            String description = drives.getString(LogicalDiskProperty.DESCRIPTION, i);
-            String name = drives.getString(LogicalDiskProperty.NAME, i);
-            int type = drives.getInteger(LogicalDiskProperty.DRIVETYPE, i);
+            free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+            total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
+            String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+            String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+            int type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
             String volume;
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
-                volume = drives.getString(LogicalDiskProperty.PROVIDERNAME, i);
+                volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
                 String[] split = volume.split("\\\\");
                 if (split.length > 1 && split[split.length - 1].length() > 0) {
                     description = split[split.length - 1];
@@ -230,7 +230,7 @@ public class WindowsFileSystem implements FileSystem {
             }
 
             fs.add(new OSFileStore(String.format("%s (%s)", description, name), volume, name + "\\", getDriveType(name),
-                    drives.getString(LogicalDiskProperty.FILESYSTEM, i), "", free, total));
+                    WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), "", free, total));
         }
 
         return fs;
@@ -271,7 +271,7 @@ public class WindowsFileSystem implements FileSystem {
         WmiResult<HandleCountProperty> result = WmiUtil.queryWMI(this.handleCountQuery);
         long descriptors = 0L;
         for (int i = 0; i < result.getResultCount(); i++) {
-            descriptors += result.getInteger(HandleCountProperty.HANDLECOUNT, i);
+            descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
         }
         return descriptors;
     }

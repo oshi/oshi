@@ -40,7 +40,6 @@ import oshi.jna.platform.windows.PdhUtil.PdhException;
 import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
-import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
@@ -159,7 +158,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
-            setProcessorID(processorId.getString(ProcessorProperty.PROCESSORID, 0));
+            setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
         }
     }
 
@@ -317,10 +316,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         } else {
             WmiResult<SystemTickCountProperty> result = WmiUtil.queryWMI(this.systemTickCountQuery);
             if (result.getResultCount() > 0) {
-                ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(
-                        result.getString(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0), 0L) / 10000L;
-                ticks[TickType.SOFTIRQ.getIndex()] = ParseUtil
-                        .parseLongOrDefault(result.getString(SystemTickCountProperty.PERCENTDPCTIME, 0), 0L) / 10000L;
+                ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,
+                        0) / 10000L;
+                ticks[TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTDPCTIME,
+                        0) / 10000L;
             }
         }
 
@@ -370,18 +369,18 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks = new long[this.logicalProcessorCount][TickType.values().length];
             WmiResult<ProcessorTickCountProperty> result = WmiUtil.queryWMI(this.processorTickCountQuery);
             for (int cpu = 0; cpu < result.getResultCount() && cpu < this.logicalProcessorCount; cpu++) {
-                ticks[cpu][TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(
-                        result.getString(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME, cpu), 0L);
-                ticks[cpu][TickType.USER.getIndex()] = ParseUtil
-                        .parseLongOrDefault(result.getString(ProcessorTickCountProperty.PERCENTUSERTIME, cpu), 0L);
-                ticks[cpu][TickType.IRQ.getIndex()] = ParseUtil
-                        .parseLongOrDefault(result.getString(ProcessorTickCountProperty.PERCENTINTERRUPTTIME, cpu), 0L);
-                ticks[cpu][TickType.SOFTIRQ.getIndex()] = ParseUtil
-                        .parseLongOrDefault(result.getString(ProcessorTickCountProperty.PERCENTDPCTIME, cpu), 0L);
+                ticks[cpu][TickType.SYSTEM.getIndex()] = WmiUtil.getUint64(result,
+                        ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME, cpu);
+                ticks[cpu][TickType.USER.getIndex()] = WmiUtil.getUint64(result,
+                        ProcessorTickCountProperty.PERCENTUSERTIME, cpu);
+                ticks[cpu][TickType.IRQ.getIndex()] = WmiUtil.getUint64(result,
+                        ProcessorTickCountProperty.PERCENTINTERRUPTTIME, cpu);
+                ticks[cpu][TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result,
+                        ProcessorTickCountProperty.PERCENTDPCTIME, cpu);
                 // Fetch total processor ticks
                 // Later decrement by system + user
-                ticks[cpu][TickType.IDLE.getIndex()] = ParseUtil
-                        .parseLongOrDefault(result.getString(ProcessorTickCountProperty.PERCENTPROCESSORTIME, cpu), 0L);
+                ticks[cpu][TickType.IDLE.getIndex()] = WmiUtil.getUint64(result,
+                        ProcessorTickCountProperty.PERCENTPROCESSORTIME, cpu);
             }
         }
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
@@ -438,7 +437,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         WmiResult<ContextSwitchProperty> result = WmiUtil.queryWMI(this.contextSwitchQuery);
         if (result.getResultCount() > 0) {
-            return result.getInteger(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0) / 10000L;
+            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0) / 10000L;
         }
         return 0L;
     }
@@ -454,7 +453,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         WmiResult<InterruptsProperty> result = WmiUtil.queryWMI(this.interruptsQuery);
         if (result.getResultCount() > 0) {
-            return result.getInteger(InterruptsProperty.INTERRUPTSPERSEC, 0);
+            return WmiUtil.getUint32(result, InterruptsProperty.INTERRUPTSPERSEC, 0);
         }
         return 0L;
     }

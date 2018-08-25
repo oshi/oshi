@@ -30,9 +30,9 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.jna.platform.windows.IPHlpAPI.IP_ADDR_STRING;
+import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.software.common.AbstractNetworkParams;
@@ -56,15 +56,16 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     }
 
     private static final String NETROUTE_BASE_CLASS = "MSFT_NetRoute";
-    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = WbemcliUtil.createQuery("ROOT\\StandardCimv2", null,
-            NetRouteProperty.class);
+    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = WbemcliUtil.createQuery("ROOT\\StandardCimv2",
+            null, NetRouteProperty.class);
 
     enum IP4RouteProperty {
         NEXTHOP, METRIC1;
     }
 
     private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";
-    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = WbemcliUtil.createQuery(null, IP4RouteProperty.class);
+    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = WbemcliUtil.createQuery(null,
+            IP4RouteProperty.class);
 
     /**
      * {@inheritDoc}
@@ -150,13 +151,13 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         int index = 0;
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < vals.getResultCount(); i++) {
-            int metric = vals.getInteger(NetRouteProperty.ROUTEMETRIC, i);
+            int metric = WmiUtil.getUint32(vals, NetRouteProperty.ROUTEMETRIC, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return vals.getString(NetRouteProperty.NEXTHOP, index);
+        return WmiUtil.getString(vals, NetRouteProperty.NEXTHOP, index);
     }
 
     private String getNextHopWin7(String dest) {
@@ -170,13 +171,13 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         int index = 0;
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < vals.getResultCount(); i++) {
-            int metric = vals.getInteger(IP4RouteProperty.METRIC1, i);
+            int metric = WmiUtil.getSint32(vals, IP4RouteProperty.METRIC1, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return vals.getString(IP4RouteProperty.NEXTHOP, index);
+        return WmiUtil.getString(vals, IP4RouteProperty.NEXTHOP, index);
     }
 
     private String parseIpv6Route() {
