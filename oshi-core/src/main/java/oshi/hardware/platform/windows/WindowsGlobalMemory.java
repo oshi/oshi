@@ -121,8 +121,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 } else {
                     WmiResult<PageSwapProperty> result = WmiUtil.queryWMI(this.pageSwapsQuery);
                     if (result.getResultCount() > 0) {
-                        this.swapPagesIn = result.getInteger(PageSwapProperty.PAGESINPUTPERSEC, 0);
-                        this.swapPagesOut = result.getInteger(PageSwapProperty.PAGESOUTPUTPERSEC, 0);
+                        this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
+                        this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
                     }
                 }
             }
@@ -143,7 +143,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             } else {
                 WmiResult<PagingPercentProperty> result = WmiUtil.queryWMI(this.pagingPercentQuery);
                 if (result.getResultCount() > 0) {
-                    this.swapUsed = result.getInteger(PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;
+                    this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;
                 }
             }
         }

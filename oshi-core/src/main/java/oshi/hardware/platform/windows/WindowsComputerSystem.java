@@ -60,8 +60,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
-            setManufacturer(win32ComputerSystem.getString(ComputerSystemProperty.MANUFACTURER, 0));
-            setModel(win32ComputerSystem.getString(ComputerSystemProperty.MODEL, 0));
+            setManufacturer(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0));
+            setModel(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0));
         }
 
         setSerialNumber(getSystemSerialNumber());
@@ -78,13 +78,14 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 BiosProperty.class);
         WmiResult<BiosProperty> serialNumber = WmiUtil.queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {
-            this.systemSerialNumber = serialNumber.getString(BiosProperty.SERIALNUMBER, 0);
+            this.systemSerialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
         }
         // If the above doesn't work, this might
         if (!"".equals(this.systemSerialNumber)) {
             WmiResult<ComputerSystemProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
             if (identifyingNumber.getResultCount() > 0) {
-                this.systemSerialNumber = identifyingNumber.getString(ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+                this.systemSerialNumber = WmiUtil.getString(identifyingNumber,
+                        ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
             }
         }
         // Nothing worked. Default.

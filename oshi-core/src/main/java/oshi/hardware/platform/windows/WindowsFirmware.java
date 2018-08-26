@@ -42,20 +42,16 @@ final class WindowsFirmware extends AbstractFirmware {
     }
 
     private void init() {
-        WmiQuery<BiosProperty> biosQuery = WbemcliUtil.createQuery("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
+        WmiQuery<BiosProperty> biosQuery = WbemcliUtil.createQuery("Win32_BIOS where PrimaryBIOS=true",
+                BiosProperty.class);
 
         WmiResult<BiosProperty> win32BIOS = WmiUtil.queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {
-            setManufacturer(win32BIOS.getString(BiosProperty.MANUFACTURER, 0));
-            setName(win32BIOS.getString(BiosProperty.NAME, 0));
-            setDescription(win32BIOS.getString(BiosProperty.DESCRIPTION, 0));
-            setVersion(win32BIOS.getString(BiosProperty.VERSION, 0));
-
-            String releaseDate = win32BIOS.getString(BiosProperty.RELEASEDATE, 0);
-            StringBuilder sb = new StringBuilder(releaseDate.substring(0, 4));
-            sb.append('-').append(releaseDate.substring(4, 6));
-            sb.append('-').append(releaseDate.substring(6, 8));
-            setReleaseDate(sb.toString());
+            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
+            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));
+            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));
+            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));
+            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));
         }
     }
 }
