@@ -81,7 +81,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             this.systemSerialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
         }
         // If the above doesn't work, this might
-        if (!"".equals(this.systemSerialNumber)) {
+        if ("".equals(this.systemSerialNumber)) {
             WmiResult<ComputerSystemProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
             if (identifyingNumber.getResultCount() > 0) {
                 this.systemSerialNumber = WmiUtil.getString(identifyingNumber,
@@ -89,7 +89,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             }
         }
         // Nothing worked. Default.
-        if (!"".equals(this.systemSerialNumber)) {
+        if ("".equals(this.systemSerialNumber)) {
             this.systemSerialNumber = "unknown";
         }
         return this.systemSerialNumber;
