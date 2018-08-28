@@ -1,6 +1,7 @@
 3.9.0 (in progress)
 ================
 * [#592](https://github.com/oshi/oshi/pull/592): Test for non-numeric doubles in JSON parsing. - [@dbwiddis](https://github.com/dbwiddis).
+* [#597](https://github.com/oshi/oshi/pull/597): Fix Windows serialnumber fallback bug. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.8.0 (08/20/2018)
