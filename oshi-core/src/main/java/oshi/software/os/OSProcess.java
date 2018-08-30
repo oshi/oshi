@@ -269,9 +269,6 @@ public class OSProcess implements Serializable {
      * @return Returns the number of milliseconds since the process started.
      */
     public long getUpTime() {
-        if (this.upTime < this.kernelTime + this.userTime) {
-            return this.kernelTime + this.userTime;
-        }
         return this.upTime;
     }
 
