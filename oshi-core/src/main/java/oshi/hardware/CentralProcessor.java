@@ -46,8 +46,7 @@ public interface CentralProcessor extends Serializable {
         NICE(1),
         /**
          * CPU utilization that occurred while executing at the system level
-         * (kernel). Also includes CPU time which the hypervisor dedicated for
-         * other guests in the system (steal).
+         * (kernel).
          */
         SYSTEM(2),
         /**
