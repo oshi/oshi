@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class ExecutingCommand {
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
-            LOG.trace("Couldn't run command {}: {}", cmdToRunWithArgs, e);
+            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e);
             return new ArrayList<>(0);
         }
 
@@ -79,10 +80,10 @@ public class ExecutingCommand {
             }
             p.waitFor();
         } catch (IOException e) {
-            LOG.trace("Problem reading output from {}: {}", cmdToRunWithArgs, e);
+            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e);
             return new ArrayList<>(0);
         } catch (InterruptedException ie) {
-            LOG.trace("Interrupted while reading output from {}: {}", cmdToRunWithArgs, ie);
+            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), ie);
             Thread.currentThread().interrupt();
         }
         return sa;

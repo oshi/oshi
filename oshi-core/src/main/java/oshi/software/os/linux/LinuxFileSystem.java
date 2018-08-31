@@ -115,7 +115,7 @@ public class LinuxFileSystem implements FileSystem {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
-        if (uuidDir != null && uuidDir.listFiles() != null) {
+        if (uuidDir.listFiles() != null) {
             for (File uuid : uuidDir.listFiles()) {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) as key
