@@ -109,7 +109,12 @@ public class WmiUtil {
         } else if (hasNotNamespaceCache.contains(namespace)) {
             return false;
         }
-        return WbemcliUtil.hasNamespace(namespace);
+        if (WbemcliUtil.hasNamespace(namespace)) {
+            hasNamespaceCache.add(namespace);
+            return true;
+        }
+        hasNotNamespaceCache.add(namespace);
+        return false;
     }
 
     /**

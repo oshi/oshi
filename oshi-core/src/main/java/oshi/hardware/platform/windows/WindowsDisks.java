@@ -438,7 +438,7 @@ public class WindowsDisks implements Disks {
     /**
      * Parse a drive name like "0 C:" to just the index "0"
      * 
-     * @param string
+     * @param s
      *            A drive name to parse
      * @return The first space-delimited value
      */

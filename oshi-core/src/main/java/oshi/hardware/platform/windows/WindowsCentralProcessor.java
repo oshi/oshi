@@ -449,7 +449,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long getInterrupts() {
         if (this.interruptsQuery == null) {
             refreshTickCounters();
-            return PerfDataUtil.queryCounter(this.interruptsPerSecCounter) / 10000L;
+            return PerfDataUtil.queryCounter(this.interruptsPerSecCounter);
         }
         WmiResult<InterruptsProperty> result = WmiUtil.queryWMI(this.interruptsQuery);
         if (result.getResultCount() > 0) {
