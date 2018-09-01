@@ -121,8 +121,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 } else {
 <span class="nc" id="L122">                    WmiResult&lt;PageSwapProperty&gt; result = WmiUtil.queryWMI(this.pageSwapsQuery);</span>
 <span class="nc bnc" id="L123" title="All 2 branches missed.">                    if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L124">                        this.swapPagesIn = result.getInteger(PageSwapProperty.PAGESINPUTPERSEC, 0);</span>
-<span class="nc" id="L125">                        this.swapPagesOut = result.getInteger(PageSwapProperty.PAGESOUTPUTPERSEC, 0);</span>
+<span class="nc" id="L124">                        this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);</span>
+<span class="nc" id="L125">                        this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);</span>
                     }
                 }
             }
@@ -143,7 +143,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
             } else {
 <span class="nc" id="L144">                WmiResult&lt;PagingPercentProperty&gt; result = WmiUtil.queryWMI(this.pagingPercentQuery);</span>
 <span class="nc bnc" id="L145" title="All 2 branches missed.">                if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L146">                    this.swapUsed = result.getInteger(PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;</span>
+<span class="nc" id="L146">                    this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;</span>
                 }
             }
         }

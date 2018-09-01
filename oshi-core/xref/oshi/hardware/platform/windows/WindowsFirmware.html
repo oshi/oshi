@@ -50,23 +50,19 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init() {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          WmiQuery&lt;BiosProperty&gt; biosQuery = WbemcliUtil.createQuery(<span class="jxr_string">"Win32_BIOS where PrimaryBIOS=true"</span>, BiosProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">if</strong> (win32BIOS.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              setManufacturer(win32BIOS.getString(BiosProperty.MANUFACTURER, 0));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              setName(win32BIOS.getString(BiosProperty.NAME, 0));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>              setDescription(win32BIOS.getString(BiosProperty.DESCRIPTION, 0));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              setVersion(win32BIOS.getString(BiosProperty.VERSION, 0));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              String releaseDate = win32BIOS.getString(BiosProperty.RELEASEDATE, 0);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(releaseDate.substring(0, 4));
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              sb.append('-').append(releaseDate.substring(4, 6));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              sb.append('-').append(releaseDate.substring(6, 8));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              setReleaseDate(sb.toString());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          WmiQuery&lt;BiosProperty&gt; biosQuery = WbemcliUtil.createQuery(<span class="jxr_string">"Win32_BIOS where PrimaryBIOS=true"</span>,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  BiosProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">if</strong> (win32BIOS.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

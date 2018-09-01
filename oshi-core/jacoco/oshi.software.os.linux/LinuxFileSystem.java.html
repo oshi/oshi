@@ -115,7 +115,7 @@ import oshi.util.ParseUtil;
         // Map uuids with device path as key
 <span class="nc" id="L116">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L117">        File uuidDir = new File(&quot;/dev/disk/by-uuid&quot;);</span>
-<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (uuidDir != null &amp;&amp; uuidDir.listFiles() != null) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (uuidDir.listFiles() != null) {</span>
 <span class="nc bnc" id="L119" title="All 2 branches missed.">            for (File uuid : uuidDir.listFiles()) {</span>
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) as key

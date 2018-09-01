@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>                  USBControllerProperty.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          WmiResult&lt;USBControllerProperty&gt; usbController = WmiUtil.queryWMI(usbControllerQuery);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; usbController.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              controllerDeviceIdList.add(usbController.getString(USBControllerProperty.PNPDEVICEID, i));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              controllerDeviceIdList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
@@ -192,9 +192,9 @@
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>             WmiResult&lt;PnPEntityProperty&gt; pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pnpEntity.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 String pnpDeviceID = pnpEntity.getString(PnPEntityProperty.PNPDEVICEID, i);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 String name = pnpEntity.getString(PnPEntityProperty.NAME, i);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 String vendor = pnpEntity.getString(PnPEntityProperty.MANUFACTURER, i);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                 <a href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html">WindowsUsbDevice</a> device = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html">WindowsUsbDevice</a>(name, vendor, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">""</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html">WindowsUsbDevice</a>[0]);
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>                 usbDeviceCache.put(pnpDeviceID, device);
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>                 LOG.debug(<span class="jxr_string">"Adding {} to USB device cache."</span>, pnpDeviceID);
@@ -203,11 +203,11 @@
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>             DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             WmiResult&lt;DiskDriveProperty&gt; serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; serialNumber.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 String pnpDeviceID = serialNumber.getString(DiskDriveProperty.PNPDEVICEID, i);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>                 <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(pnpDeviceID)) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>                     <a href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html">WindowsUsbDevice</a> device = usbDeviceCache.get(pnpDeviceID);
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>                     device.serialNumber = <a href="../../../../oshi/util/ParseUtil.html">ParseUtil</a>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>                             .hexStringToString(serialNumber.getString(DiskDriveProperty.SERIALNUMBER, i));
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                             .hexStringToString(WmiUtil.getString(serialNumber, DiskDriveProperty.SERIALNUMBER, i));
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>                 }
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         }

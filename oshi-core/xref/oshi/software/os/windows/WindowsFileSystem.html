@@ -219,18 +219,18 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> 
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             free = ParseUtil.parseLongOrDefault(drives.getString(LogicalDiskProperty.FREESPACE, i), 0L);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             total = ParseUtil.parseLongOrDefault(drives.getString(LogicalDiskProperty.SIZE, i), 0L);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>             String description = drives.getString(LogicalDiskProperty.DESCRIPTION, i);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             String name = drives.getString(LogicalDiskProperty.NAME, i);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">int</strong> type = drives.getInteger(LogicalDiskProperty.DRIVETYPE, i);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">int</strong> type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>             String volume;
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">if</strong> (type != 4) {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                 <strong class="jxr_keyword">char</strong>[] chrVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + <span class="jxr_string">"&#92;&#92;"</span>, chrVolume, BUFSIZE);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                 volume = <strong class="jxr_keyword">new</strong> String(chrVolume).trim();
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 volume = drives.getString(LogicalDiskProperty.PROVIDERNAME, i);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                 String[] split = volume.split(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>);
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>                     description = split[split.length - 1];
@@ -238,7 +238,7 @@
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>             }
 <a class="jxr_linenumber" name="L231" href="#L231">231</a> 
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>             fs.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, description, name), volume, name + <span class="jxr_string">"&#92;&#92;"</span>, getDriveType(name),
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                     drives.getString(LogicalDiskProperty.FILESYSTEM, i), <span class="jxr_string">""</span>, free, total));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                     WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), <span class="jxr_string">""</span>, free, total));
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         }
 <a class="jxr_linenumber" name="L235" href="#L235">235</a> 
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">return</strong> fs;
@@ -279,7 +279,7 @@
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>         WmiResult&lt;HandleCountProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.handleCountQuery);
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">long</strong> descriptors = 0L;
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>             descriptors += result.getInteger(HandleCountProperty.HANDLECOUNT, i);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> descriptors;
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
