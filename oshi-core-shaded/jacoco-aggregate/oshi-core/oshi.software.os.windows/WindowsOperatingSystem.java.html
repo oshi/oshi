@@ -217,7 +217,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         BitnessProperty.class);
 <span class="nc" id="L218">                WmiResult&lt;BitnessProperty&gt; bitnessMap = WmiUtil.queryWMI(bitnessQuery);</span>
 <span class="nc bnc" id="L219" title="All 2 branches missed.">                if (bitnessMap.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L220">                    this.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);</span>
+<span class="nc" id="L220">                    this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);</span>
                 }
             }
         }
@@ -436,13 +436,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L436">            WmiResult&lt;ProcessProperty&gt; commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);</span>
 
 <span class="nc bnc" id="L438" title="All 2 branches missed.">            for (int p = 0; p &lt; commandLineProcs.getResultCount(); p++) {</span>
-<span class="nc" id="L439">                int pid = commandLineProcs.getInteger(ProcessProperty.PROCESSID, p);</span>
+<span class="nc" id="L439">                int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);</span>
                 // This should always be true because emptyCommandLines was
                 // built from a subset of the cache, but just in case, protect
                 // against dereferencing null
 <span class="nc bnc" id="L443" title="All 2 branches missed.">                if (this.processMap.containsKey(pid)) {</span>
 <span class="nc" id="L444">                    OSProcess proc = this.processMap.get(pid);</span>
-<span class="nc" id="L445">                    proc.setCommandLine(commandLineProcs.getString(ProcessProperty.COMMANDLINE, p));</span>
+<span class="nc" id="L445">                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));</span>
                 }
             }
         }
