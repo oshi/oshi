@@ -42,21 +42,17 @@ final class WindowsFirmware extends AbstractFirmware {
 <span class="nc" id="L42">    }</span>
 
     private void init() {
-<span class="nc" id="L45">        WmiQuery&lt;BiosProperty&gt; biosQuery = WbemcliUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
+<span class="nc" id="L45">        WmiQuery&lt;BiosProperty&gt; biosQuery = WbemcliUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;,</span>
+                BiosProperty.class);
 
-<span class="nc" id="L47">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L49">            setManufacturer(win32BIOS.getString(BiosProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L50">            setName(win32BIOS.getString(BiosProperty.NAME, 0));</span>
-<span class="nc" id="L51">            setDescription(win32BIOS.getString(BiosProperty.DESCRIPTION, 0));</span>
-<span class="nc" id="L52">            setVersion(win32BIOS.getString(BiosProperty.VERSION, 0));</span>
-
-<span class="nc" id="L54">            String releaseDate = win32BIOS.getString(BiosProperty.RELEASEDATE, 0);</span>
-<span class="nc" id="L55">            StringBuilder sb = new StringBuilder(releaseDate.substring(0, 4));</span>
-<span class="nc" id="L56">            sb.append('-').append(releaseDate.substring(4, 6));</span>
-<span class="nc" id="L57">            sb.append('-').append(releaseDate.substring(6, 8));</span>
-<span class="nc" id="L58">            setReleaseDate(sb.toString());</span>
+<span class="nc" id="L48">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L50">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L51">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
+<span class="nc" id="L52">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
+<span class="nc" id="L53">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
+<span class="nc" id="L54">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
         }
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L56">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

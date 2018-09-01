@@ -130,8 +130,16 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, double arg1) {
-<span class="fc" id="L133">        this.builder.add(arg0, arg1);</span>
-<span class="fc" id="L134">        return this;</span>
+        // The JSON standard, in its infinite (pun intended) wisdom, decided not
+        // to allow infinity or NaN as valid doubles and specifies they should
+        // be null. This loses information. The default behavior of Jackson is
+        // to represent them as Strings. We'll go with the popular choice.
+<span class="fc bfc" id="L137" title="All 4 branches covered.">        if (Double.isNaN(arg1) || Double.isInfinite(arg1)) {</span>
+<span class="fc" id="L138">            this.builder.add(arg0, String.format(&quot;%f&quot;, arg1));</span>
+        } else {
+<span class="fc" id="L140">            this.builder.add(arg0, arg1);</span>
+        }
+<span class="fc" id="L142">        return this;</span>
     }
 
     /**
@@ -139,8 +147,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, boolean arg1) {
-<span class="fc" id="L142">        this.builder.add(arg0, arg1);</span>
-<span class="fc" id="L143">        return this;</span>
+<span class="fc" id="L150">        this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L151">        return this;</span>
     }
 
     /**
@@ -148,12 +156,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, JsonObjectBuilder arg1) {
-<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (arg1 == null) {</span>
-<span class="fc" id="L152">            this.builder.addNull(arg0);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (arg1 == null) {</span>
+<span class="fc" id="L160">            this.builder.addNull(arg0);</span>
         } else {
-<span class="nc" id="L154">            this.builder.add(arg0, arg1);</span>
+<span class="nc" id="L162">            this.builder.add(arg0, arg1);</span>
         }
-<span class="fc" id="L156">        return this;</span>
+<span class="fc" id="L164">        return this;</span>
     }
 
     /**
@@ -161,12 +169,12 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder add(String arg0, JsonArrayBuilder arg1) {
-<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (arg1 == null) {</span>
-<span class="fc" id="L165">            this.builder.addNull(arg0);</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (arg1 == null) {</span>
+<span class="fc" id="L173">            this.builder.addNull(arg0);</span>
         } else {
-<span class="fc" id="L167">            this.builder.add(arg0, arg1);</span>
+<span class="fc" id="L175">            this.builder.add(arg0, arg1);</span>
         }
-<span class="fc" id="L169">        return this;</span>
+<span class="fc" id="L177">        return this;</span>
     }
 
     /**
@@ -174,8 +182,8 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObjectBuilder addNull(String arg0) {
-<span class="fc" id="L177">        this.builder.addNull(arg0);</span>
-<span class="fc" id="L178">        return this;</span>
+<span class="fc" id="L185">        this.builder.addNull(arg0);</span>
+<span class="fc" id="L186">        return this;</span>
     }
 
     /**
@@ -183,7 +191,7 @@ public class NullAwareJsonObjectBuilder implements JsonObjectBuilder {
      */
     @Override
     public JsonObject build() {
-<span class="fc" id="L186">        return this.builder.build();</span>
+<span class="fc" id="L194">        return this.builder.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

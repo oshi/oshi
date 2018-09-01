@@ -63,10 +63,10 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
-<span class="nc" id="L66">            int suiteMask = versionInfo.getInteger(OSVersionProperty.SUITEMASK, 0);</span>
+<span class="nc" id="L66">            int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);</span>
 <span class="nc" id="L67">            setVersion(parseVersion(versionInfo, suiteMask));</span>
 <span class="nc" id="L68">            setCodeName(parseCodeName(suiteMask));</span>
-<span class="nc" id="L69">            setBuildNumber(versionInfo.getString(OSVersionProperty.BUILDNUMBER, 0));</span>
+<span class="nc" id="L69">            setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));</span>
 <span class="nc" id="L70">            LOG.debug(&quot;Initialized OSVersionInfoEx&quot;);</span>
         }
 <span class="nc" id="L72">    }</span>
@@ -85,14 +85,14 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-<span class="nc" id="L88">        String[] verSplit = (versionInfo.getString(OSVersionProperty.VERSION, 0)).split(&quot;\\D&quot;);</span>
+<span class="nc" id="L88">        String[] verSplit = (WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0)).split(&quot;\\D&quot;);</span>
 <span class="nc bnc" id="L89" title="All 2 branches missed.">        int major = verSplit.length &gt; 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;</span>
 <span class="nc bnc" id="L90" title="All 2 branches missed.">        int minor = verSplit.length &gt; 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;</span>
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-<span class="nc" id="L94">        boolean ntWorkstation = versionInfo.getInteger(OSVersionProperty.PRODUCTTYPE, 0)</span>
-<span class="nc" id="L95">                .equals(WinNT.VER_NT_WORKSTATION);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,</span>
+                0) == WinNT.VER_NT_WORKSTATION;
 <span class="nc bnc" id="L96" title="All 2 branches missed.">        if (major == 10) {</span>
 <span class="nc bnc" id="L97" title="All 2 branches missed.">            if (minor == 0) {</span>
 <span class="nc bnc" id="L98" title="All 2 branches missed.">                version = ntWorkstation ? &quot;10&quot; : &quot;Server 2016&quot;;</span>
@@ -124,7 +124,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             }
         }
 
-<span class="nc" id="L127">        String sp = versionInfo.getString(OSVersionProperty.CSDVERSION, 0);</span>
+<span class="nc" id="L127">        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);</span>
 <span class="nc bnc" id="L128" title="All 4 branches missed.">        if (!sp.isEmpty() &amp;&amp; !&quot;unknown&quot;.equals(sp)) {</span>
 <span class="nc" id="L129">            version = version + &quot; &quot; + sp.replace(&quot;Service Pack &quot;, &quot;SP&quot;);</span>
         }
