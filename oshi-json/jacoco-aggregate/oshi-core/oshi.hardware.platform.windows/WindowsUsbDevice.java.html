@@ -61,7 +61,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 USBControllerProperty.class);
 <span class="nc" id="L62">        WmiResult&lt;USBControllerProperty&gt; usbController = WmiUtil.queryWMI(usbControllerQuery);</span>
 <span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i = 0; i &lt; usbController.getResultCount(); i++) {</span>
-<span class="nc" id="L64">            controllerDeviceIdList.add(usbController.getString(USBControllerProperty.PNPDEVICEID, i));</span>
+<span class="nc" id="L64">            controllerDeviceIdList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));</span>
         }
     }
 
@@ -184,9 +184,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L184">            PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);</span>
 <span class="nc" id="L185">            WmiResult&lt;PnPEntityProperty&gt; pnpEntity = WmiUtil.queryWMI(PNPENTITY_QUERY);</span>
 <span class="nc bnc" id="L186" title="All 2 branches missed.">            for (int i = 0; i &lt; pnpEntity.getResultCount(); i++) {</span>
-<span class="nc" id="L187">                String pnpDeviceID = pnpEntity.getString(PnPEntityProperty.PNPDEVICEID, i);</span>
-<span class="nc" id="L188">                String name = pnpEntity.getString(PnPEntityProperty.NAME, i);</span>
-<span class="nc" id="L189">                String vendor = pnpEntity.getString(PnPEntityProperty.MANUFACTURER, i);</span>
+<span class="nc" id="L187">                String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);</span>
+<span class="nc" id="L188">                String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);</span>
+<span class="nc" id="L189">                String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);</span>
 <span class="nc" id="L190">                WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, &quot;&quot;, new WindowsUsbDevice[0]);</span>
 <span class="nc" id="L191">                usbDeviceCache.put(pnpDeviceID, device);</span>
 <span class="nc" id="L192">                LOG.debug(&quot;Adding {} to USB device cache.&quot;, pnpDeviceID);</span>
@@ -195,11 +195,11 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L195">            DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);</span>
 <span class="nc" id="L196">            WmiResult&lt;DiskDriveProperty&gt; serialNumber = WmiUtil.queryWMI(DISKDRIVE_QUERY);</span>
 <span class="nc bnc" id="L197" title="All 2 branches missed.">            for (int i = 0; i &lt; serialNumber.getResultCount(); i++) {</span>
-<span class="nc" id="L198">                String pnpDeviceID = serialNumber.getString(DiskDriveProperty.PNPDEVICEID, i);</span>
+<span class="nc" id="L198">                String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);</span>
 <span class="nc bnc" id="L199" title="All 2 branches missed.">                if (usbDeviceCache.containsKey(pnpDeviceID)) {</span>
 <span class="nc" id="L200">                    WindowsUsbDevice device = usbDeviceCache.get(pnpDeviceID);</span>
 <span class="nc" id="L201">                    device.serialNumber = ParseUtil</span>
-<span class="nc" id="L202">                            .hexStringToString(serialNumber.getString(DiskDriveProperty.SERIALNUMBER, i));</span>
+<span class="nc" id="L202">                            .hexStringToString(WmiUtil.getString(serialNumber, DiskDriveProperty.SERIALNUMBER, i));</span>
                 }
             }
         }

@@ -42,14 +42,15 @@ public class WindowsBaseboard extends AbstractBaseboard {
 <span class="nc" id="L42">    }</span>
 
     private void init() {
-<span class="nc" id="L45">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = WbemcliUtil.createQuery(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
-<span class="nc" id="L46">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L48">            setManufacturer(win32BaseBoard.getString(BaseboardProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L49">            setModel(win32BaseBoard.getString(BaseboardProperty.MODEL, 0));</span>
-<span class="nc" id="L50">            setVersion(win32BaseBoard.getString(BaseboardProperty.VERSION, 0));</span>
-<span class="nc" id="L51">            setSerialNumber(win32BaseBoard.getString(BaseboardProperty.SERIALNUMBER, 0));</span>
+<span class="nc" id="L45">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = WbemcliUtil.createQuery(&quot;Win32_BaseBoard&quot;,</span>
+                BaseboardProperty.class);
+<span class="nc" id="L47">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L49">            setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L50">            setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));</span>
+<span class="nc" id="L51">            setVersion(WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0));</span>
+<span class="nc" id="L52">            setSerialNumber(WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));</span>
         }
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

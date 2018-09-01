@@ -46,46 +46,45 @@ public interface CentralProcessor extends Serializable {
 <span class="fc" id="L46">        NICE(1),</span>
         /**
          * CPU utilization that occurred while executing at the system level
-         * (kernel). Also includes CPU time which the hypervisor dedicated for
-         * other guests in the system (steal).
+         * (kernel).
          */
-<span class="fc" id="L52">        SYSTEM(2),</span>
+<span class="fc" id="L51">        SYSTEM(2),</span>
         /**
          * Time that the CPU or CPUs were idle and the system did not have an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L57">        IDLE(3),</span>
+<span class="fc" id="L56">        IDLE(3),</span>
         /**
          * Time that the CPU or CPUs were idle during which the system had an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L62">        IOWAIT(4),</span>
+<span class="fc" id="L61">        IOWAIT(4),</span>
         /**
          * Time that the CPU used to service hardware IRQs
          */
-<span class="fc" id="L66">        IRQ(5),</span>
+<span class="fc" id="L65">        IRQ(5),</span>
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L70">        SOFTIRQ(6),</span>
+<span class="fc" id="L69">        SOFTIRQ(6),</span>
         /**
          * Time which the hypervisor dedicated for other guests in the system.
          * Only supported on Linux.
          */
-<span class="fc" id="L75">        STEAL(7);</span>
+<span class="fc" id="L74">        STEAL(7);</span>
 
         private int index;
 
-<span class="fc" id="L79">        TickType(int value) {</span>
-<span class="fc" id="L80">            this.index = value;</span>
-<span class="fc" id="L81">        }</span>
+<span class="fc" id="L78">        TickType(int value) {</span>
+<span class="fc" id="L79">            this.index = value;</span>
+<span class="fc" id="L80">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays,
          *         which matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L88">            return index;</span>
+<span class="fc" id="L87">            return index;</span>
         }
     }
 

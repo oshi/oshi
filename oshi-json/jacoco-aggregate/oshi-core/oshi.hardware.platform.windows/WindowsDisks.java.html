@@ -227,19 +227,19 @@ import oshi.util.platform.windows.WmiUtil;
 
 <span class="nc bnc" id="L228" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.getResultCount(); i++) {</span>
 <span class="nc" id="L229">            HWDiskStore ds = new HWDiskStore();</span>
-<span class="nc" id="L230">            ds.setName(vals.getString(DiskDriveProperty.NAME, i));</span>
-<span class="nc" id="L231">            ds.setModel(String.format(&quot;%s %s&quot;, vals.getString(DiskDriveProperty.MODEL, i),</span>
-<span class="nc" id="L232">                    vals.getString(DiskDriveProperty.MANUFACTURER, i)).trim());</span>
+<span class="nc" id="L230">            ds.setName(WmiUtil.getString(vals, DiskDriveProperty.NAME, i));</span>
+<span class="nc" id="L231">            ds.setModel(String.format(&quot;%s %s&quot;, WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),</span>
+<span class="nc" id="L232">                    WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim());</span>
             // Most vendors store serial # as a hex string; convert
-<span class="nc" id="L234">            ds.setSerial(ParseUtil.hexStringToString(vals.getString(DiskDriveProperty.SERIALNUMBER, i)));</span>
-<span class="nc" id="L235">            String index = vals.getInteger(DiskDriveProperty.INDEX, i).toString();</span>
+<span class="nc" id="L234">            ds.setSerial(ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)));</span>
+<span class="nc" id="L235">            String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));</span>
 <span class="nc" id="L236">            ds.setReads(MapUtil.getOrDefault(readMap, index, 0L));</span>
 <span class="nc" id="L237">            ds.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));</span>
 <span class="nc" id="L238">            ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));</span>
 <span class="nc" id="L239">            ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));</span>
 <span class="nc" id="L240">            ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
 <span class="nc" id="L241">            ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
-<span class="nc" id="L242">            ds.setSize(ParseUtil.parseLongOrDefault(vals.getString(DiskDriveProperty.SIZE, i), 0L));</span>
+<span class="nc" id="L242">            ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));</span>
             // Get partitions
 <span class="nc" id="L244">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L245">            List&lt;String&gt; partList = driveToPartitionMap.get(ds.getName());</span>
@@ -278,181 +278,175 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc bnc" id="L278" title="All 2 branches missed.">        if (physicalDiskQuery != null) {</span>
 <span class="nc" id="L279">            WmiResult&lt;PhysicalDiskProperty&gt; result = WmiUtil.queryWMI(physicalDiskQuery);</span>
 <span class="nc bnc" id="L280" title="All 2 branches missed.">            for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
-<span class="nc" id="L281">                String name = getIndexFromName(result.getString(PhysicalDiskProperty.NAME, i));</span>
+<span class="nc" id="L281">                String name = getIndexFromName(WmiUtil.getString(result, PhysicalDiskProperty.NAME, i));</span>
 <span class="nc bnc" id="L282" title="All 6 branches missed.">                if ((index != null &amp;&amp; !index.equals(name)) || TOTAL_INSTANCE.equals(name)) {</span>
 <span class="nc" id="L283">                    continue;</span>
                 }
-<span class="nc" id="L285">                readMap.put(name, result.getInteger(PhysicalDiskProperty.DISKREADSPERSEC, i).longValue());</span>
-<span class="nc" id="L286">                readByteMap.put(name, ParseUtil</span>
-<span class="nc" id="L287">                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.DISKREADBYTESPERSEC, i), 0L));</span>
-<span class="nc" id="L288">                writeMap.put(name, result.getInteger(PhysicalDiskProperty.DISKWRITESPERSEC, i).longValue());</span>
-<span class="nc" id="L289">                writeByteMap.put(name, ParseUtil</span>
-<span class="nc" id="L290">                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.DISKWRITEBYTESPERSEC, i), 0L));</span>
-<span class="nc" id="L291">                xferTimeMap.put(name,</span>
-<span class="nc" id="L292">                        ParseUtil.parseLongOrDefault(result.getString(PhysicalDiskProperty.PERCENTDISKTIME, i), 0L)</span>
-                                / 10000L);
-<span class="nc" id="L294">                long timestamp = ParseUtil</span>
-<span class="nc" id="L295">                        .parseLongOrDefault(result.getString(PhysicalDiskProperty.TIMESTAMP_SYS100NS, i), 0L);</span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">                timeStampMap.put(name,</span>
-<span class="nc" id="L297">                        timestamp &gt; 0 ? PerfDataUtil.filetimeToUtcMs(timestamp, false) : System.currentTimeMillis());</span>
+<span class="nc" id="L285">                readMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKREADSPERSEC, i));</span>
+<span class="nc" id="L286">                readByteMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.DISKREADBYTESPERSEC, i));</span>
+<span class="nc" id="L287">                writeMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKWRITESPERSEC, i));</span>
+<span class="nc" id="L288">                writeByteMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.DISKWRITEBYTESPERSEC, i));</span>
+<span class="nc" id="L289">                xferTimeMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.PERCENTDISKTIME, i) / 10000L);</span>
+<span class="nc" id="L290">                long timestamp = WmiUtil.getUint64(result, PhysicalDiskProperty.TIMESTAMP_SYS100NS, i);</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">                timeStampMap.put(name,</span>
+<span class="nc" id="L292">                        timestamp &gt; 0 ? PerfDataUtil.filetimeToUtcMs(timestamp, false) : System.currentTimeMillis());</span>
             }
-<span class="nc" id="L299">            return;</span>
+<span class="nc" id="L294">            return;</span>
         }
         // Fetch the instance names
         PdhEnumObjectItems objectItems;
         try {
-<span class="nc" id="L304">            objectItems = PdhUtil.PdhEnumObjectItems(null, null, PHYSICAL_DISK_LOCALIZED, 100);</span>
-<span class="nc" id="L305">        } catch (PdhException e) {</span>
-<span class="nc" id="L306">            LOG.error(&quot;Unable to enumerate instances for {}.&quot;, PHYSICAL_DISK_LOCALIZED);</span>
-<span class="nc" id="L307">            return;</span>
-<span class="nc" id="L308">        }</span>
-<span class="nc" id="L309">        List&lt;String&gt; instances = objectItems.getInstances();</span>
-<span class="nc" id="L310">        instances.remove(TOTAL_INSTANCE);</span>
+<span class="nc" id="L299">            objectItems = PdhUtil.PdhEnumObjectItems(null, null, PHYSICAL_DISK_LOCALIZED, 100);</span>
+<span class="nc" id="L300">        } catch (PdhException e) {</span>
+<span class="nc" id="L301">            LOG.error(&quot;Unable to enumerate instances for {}.&quot;, PHYSICAL_DISK_LOCALIZED);</span>
+<span class="nc" id="L302">            return;</span>
+<span class="nc" id="L303">        }</span>
+<span class="nc" id="L304">        List&lt;String&gt; instances = objectItems.getInstances();</span>
+<span class="nc" id="L305">        instances.remove(TOTAL_INSTANCE);</span>
 
-<span class="nc" id="L312">        Set&lt;String&gt; unseenInstances = new HashSet&lt;&gt;(diskReadsCounterMap.keySet());</span>
+<span class="nc" id="L307">        Set&lt;String&gt; unseenInstances = new HashSet&lt;&gt;(diskReadsCounterMap.keySet());</span>
 
-<span class="nc bnc" id="L314" title="All 2 branches missed.">        for (String instance : instances) {</span>
-<span class="nc" id="L315">            unseenInstances.remove(instance);</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        for (String instance : instances) {</span>
+<span class="nc" id="L310">            unseenInstances.remove(instance);</span>
 
             // If not in the map, add it
-<span class="nc bnc" id="L318" title="All 2 branches missed.">            if (!diskReadsCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L319">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Reads/sec&quot;);</span>
-<span class="nc" id="L320">                diskReadsCounterMap.put(instance, counter);</span>
-<span class="nc bnc" id="L321" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L322">                    diskReadsCounterMap.remove(instance);</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            if (!diskReadsCounterMap.containsKey(instance)) {</span>
+<span class="nc" id="L314">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Reads/sec&quot;);</span>
+<span class="nc" id="L315">                diskReadsCounterMap.put(instance, counter);</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L317">                    diskReadsCounterMap.remove(instance);</span>
                 }
             }
 
-<span class="nc bnc" id="L326" title="All 2 branches missed.">            if (!diskReadBytesCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L327">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Read Bytes/sec&quot;);</span>
-<span class="nc" id="L328">                diskReadBytesCounterMap.put(instance, counter);</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L330">                    diskReadBytesCounterMap.remove(instance);</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            if (!diskReadBytesCounterMap.containsKey(instance)) {</span>
+<span class="nc" id="L322">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Read Bytes/sec&quot;);</span>
+<span class="nc" id="L323">                diskReadBytesCounterMap.put(instance, counter);</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L325">                    diskReadBytesCounterMap.remove(instance);</span>
                 }
             }
 
-<span class="nc bnc" id="L334" title="All 2 branches missed.">            if (!diskWritesCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L335">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Writes/sec&quot;);</span>
-<span class="nc" id="L336">                diskWritesCounterMap.put(instance, counter);</span>
-<span class="nc bnc" id="L337" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L338">                    diskWritesCounterMap.remove(instance);</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">            if (!diskWritesCounterMap.containsKey(instance)) {</span>
+<span class="nc" id="L330">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Writes/sec&quot;);</span>
+<span class="nc" id="L331">                diskWritesCounterMap.put(instance, counter);</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L333">                    diskWritesCounterMap.remove(instance);</span>
                 }
             }
 
-<span class="nc bnc" id="L342" title="All 2 branches missed.">            if (!diskWriteBytesCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L343">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Write Bytes/sec&quot;);</span>
-<span class="nc" id="L344">                diskWriteBytesCounterMap.put(instance, counter);</span>
-<span class="nc bnc" id="L345" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L346">                    diskWriteBytesCounterMap.remove(instance);</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">            if (!diskWriteBytesCounterMap.containsKey(instance)) {</span>
+<span class="nc" id="L338">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;Disk Write Bytes/sec&quot;);</span>
+<span class="nc" id="L339">                diskWriteBytesCounterMap.put(instance, counter);</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L341">                    diskWriteBytesCounterMap.remove(instance);</span>
                 }
             }
 
-<span class="nc bnc" id="L350" title="All 2 branches missed.">            if (!diskXferTimeCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L351">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Disk Time&quot;);</span>
-<span class="nc" id="L352">                diskXferTimeCounterMap.put(instance, counter);</span>
-<span class="nc bnc" id="L353" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L354">                    diskXferTimeCounterMap.remove(instance);</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">            if (!diskXferTimeCounterMap.containsKey(instance)) {</span>
+<span class="nc" id="L346">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Disk Time&quot;);</span>
+<span class="nc" id="L347">                diskXferTimeCounterMap.put(instance, counter);</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L349">                    diskXferTimeCounterMap.remove(instance);</span>
                 }
             }
-<span class="nc" id="L357">        }</span>
+<span class="nc" id="L352">        }</span>
         // Update all the counters
-<span class="nc" id="L359">        long timestamp = PerfDataUtil.updateQuery(PHYSICAL_DISK);</span>
+<span class="nc" id="L354">        long timestamp = PerfDataUtil.updateQuery(PHYSICAL_DISK);</span>
         // Update the maps
-<span class="nc bnc" id="L361" title="All 2 branches missed.">        for (String instance : instances) {</span>
-<span class="nc" id="L362">            String name = getIndexFromName(instance);</span>
-<span class="nc bnc" id="L363" title="All 4 branches missed.">            if (index != null &amp;&amp; !index.equals(name)) {</span>
-<span class="nc" id="L364">                continue;</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">        for (String instance : instances) {</span>
+<span class="nc" id="L357">            String name = getIndexFromName(instance);</span>
+<span class="nc bnc" id="L358" title="All 4 branches missed.">            if (index != null &amp;&amp; !index.equals(name)) {</span>
+<span class="nc" id="L359">                continue;</span>
             }
-<span class="nc" id="L366">            readMap.put(name, PerfDataUtil.queryCounter(diskReadsCounterMap.get(instance)));</span>
-<span class="nc" id="L367">            readByteMap.put(name, PerfDataUtil.queryCounter(diskReadBytesCounterMap.get(instance)));</span>
-<span class="nc" id="L368">            writeMap.put(name, PerfDataUtil.queryCounter(diskWritesCounterMap.get(instance)));</span>
-<span class="nc" id="L369">            writeByteMap.put(name, PerfDataUtil.queryCounter(diskWriteBytesCounterMap.get(instance)));</span>
-<span class="nc" id="L370">            xferTimeMap.put(name, PerfDataUtil.queryCounter(diskXferTimeCounterMap.get(instance)) / 10000L);</span>
-<span class="nc" id="L371">            timeStampMap.put(name, timestamp);</span>
-<span class="nc" id="L372">        }</span>
+<span class="nc" id="L361">            readMap.put(name, PerfDataUtil.queryCounter(diskReadsCounterMap.get(instance)));</span>
+<span class="nc" id="L362">            readByteMap.put(name, PerfDataUtil.queryCounter(diskReadBytesCounterMap.get(instance)));</span>
+<span class="nc" id="L363">            writeMap.put(name, PerfDataUtil.queryCounter(diskWritesCounterMap.get(instance)));</span>
+<span class="nc" id="L364">            writeByteMap.put(name, PerfDataUtil.queryCounter(diskWriteBytesCounterMap.get(instance)));</span>
+<span class="nc" id="L365">            xferTimeMap.put(name, PerfDataUtil.queryCounter(diskXferTimeCounterMap.get(instance)) / 10000L);</span>
+<span class="nc" id="L366">            timeStampMap.put(name, timestamp);</span>
+<span class="nc" id="L367">        }</span>
         // We've added any new counters; now remove old ones
-<span class="nc bnc" id="L374" title="All 2 branches missed.">        for (String instance : unseenInstances) {</span>
-<span class="nc" id="L375">            PerfCounter counter = diskReadsCounterMap.get(instance);</span>
-<span class="nc" id="L376">            PerfDataUtil.removeCounterFromQuery(counter);</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        for (String instance : unseenInstances) {</span>
+<span class="nc" id="L370">            PerfCounter counter = diskReadsCounterMap.get(instance);</span>
+<span class="nc" id="L371">            PerfDataUtil.removeCounterFromQuery(counter);</span>
 
-<span class="nc" id="L378">            counter = diskReadBytesCounterMap.get(instance);</span>
-<span class="nc" id="L379">            PerfDataUtil.removeCounterFromQuery(counter);</span>
+<span class="nc" id="L373">            counter = diskReadBytesCounterMap.get(instance);</span>
+<span class="nc" id="L374">            PerfDataUtil.removeCounterFromQuery(counter);</span>
 
-<span class="nc" id="L381">            counter = diskWritesCounterMap.get(instance);</span>
-<span class="nc" id="L382">            PerfDataUtil.removeCounterFromQuery(counter);</span>
+<span class="nc" id="L376">            counter = diskWritesCounterMap.get(instance);</span>
+<span class="nc" id="L377">            PerfDataUtil.removeCounterFromQuery(counter);</span>
 
-<span class="nc" id="L384">            counter = diskWriteBytesCounterMap.get(instance);</span>
-<span class="nc" id="L385">            PerfDataUtil.removeCounterFromQuery(counter);</span>
+<span class="nc" id="L379">            counter = diskWriteBytesCounterMap.get(instance);</span>
+<span class="nc" id="L380">            PerfDataUtil.removeCounterFromQuery(counter);</span>
 
-<span class="nc" id="L387">            counter = diskXferTimeCounterMap.get(instance);</span>
-<span class="nc" id="L388">            PerfDataUtil.removeCounterFromQuery(counter);</span>
-<span class="nc" id="L389">        }</span>
-<span class="nc" id="L390">    }</span>
+<span class="nc" id="L382">            counter = diskXferTimeCounterMap.get(instance);</span>
+<span class="nc" id="L383">            PerfDataUtil.removeCounterFromQuery(counter);</span>
+<span class="nc" id="L384">        }</span>
+<span class="nc" id="L385">    }</span>
 
     private void populatePartitionMaps() {
-<span class="nc" id="L393">        driveToPartitionMap.clear();</span>
-<span class="nc" id="L394">        partitionToLogicalDriveMap.clear();</span>
-<span class="nc" id="L395">        partitionMap.clear();</span>
+<span class="nc" id="L388">        driveToPartitionMap.clear();</span>
+<span class="nc" id="L389">        partitionToLogicalDriveMap.clear();</span>
+<span class="nc" id="L390">        partitionMap.clear();</span>
         // For Regexp matching DeviceIDs
         Matcher mAnt;
         Matcher mDep;
 
         // Map drives to partitions
-<span class="nc" id="L401">        WmiResult&lt;DriveToPartitionProperty&gt; drivePartitionMap = WmiUtil.queryWMI(DRIVE_TO_PARTITION_QUERY);</span>
-<span class="nc bnc" id="L402" title="All 2 branches missed.">        for (int i = 0; i &lt; drivePartitionMap.getResultCount(); i++) {</span>
-<span class="nc" id="L403">            mAnt = DEVICE_ID.matcher(drivePartitionMap.getString(DriveToPartitionProperty.ANTECEDENT, i));</span>
-<span class="nc" id="L404">            mDep = DEVICE_ID.matcher(drivePartitionMap.getString(DriveToPartitionProperty.DEPENDENT, i));</span>
-<span class="nc bnc" id="L405" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
-<span class="nc" id="L406">                MapUtil.createNewListIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;))</span>
-<span class="nc" id="L407">                        .add(mDep.group(1));</span>
+<span class="nc" id="L396">        WmiResult&lt;DriveToPartitionProperty&gt; drivePartitionMap = WmiUtil.queryWMI(DRIVE_TO_PARTITION_QUERY);</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">        for (int i = 0; i &lt; drivePartitionMap.getResultCount(); i++) {</span>
+<span class="nc" id="L398">            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));</span>
+<span class="nc" id="L399">            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));</span>
+<span class="nc bnc" id="L400" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L401">                MapUtil.createNewListIfAbsent(driveToPartitionMap, mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;))</span>
+<span class="nc" id="L402">                        .add(mDep.group(1));</span>
             }
         }
 
         // Map partitions to logical disks
-<span class="nc" id="L412">        WmiResult&lt;DriveToPartitionProperty&gt; diskPartitionMap = WmiUtil.queryWMI(DISK_TO_PARTITION_QUERY);</span>
-<span class="nc bnc" id="L413" title="All 2 branches missed.">        for (int i = 0; i &lt; diskPartitionMap.getResultCount(); i++) {</span>
-<span class="nc" id="L414">            mAnt = DEVICE_ID.matcher(diskPartitionMap.getString(DriveToPartitionProperty.ANTECEDENT, i));</span>
-<span class="nc" id="L415">            mDep = DEVICE_ID.matcher(diskPartitionMap.getString(DriveToPartitionProperty.DEPENDENT, i));</span>
-<span class="nc bnc" id="L416" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
-<span class="nc" id="L417">                partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + &quot;\\&quot;);</span>
+<span class="nc" id="L407">        WmiResult&lt;DriveToPartitionProperty&gt; diskPartitionMap = WmiUtil.queryWMI(DISK_TO_PARTITION_QUERY);</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">        for (int i = 0; i &lt; diskPartitionMap.getResultCount(); i++) {</span>
+<span class="nc" id="L409">            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.ANTECEDENT, i));</span>
+<span class="nc" id="L410">            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.DEPENDENT, i));</span>
+<span class="nc bnc" id="L411" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L412">                partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + &quot;\\&quot;);</span>
             }
         }
 
         // Next, get all partitions and create objects
-<span class="nc" id="L422">        WmiResult&lt;DiskPartitionProperty&gt; hwPartitionQueryMap = WmiUtil.queryWMI(PARTITION_QUERY);</span>
-<span class="nc bnc" id="L423" title="All 2 branches missed.">        for (int i = 0; i &lt; hwPartitionQueryMap.getResultCount(); i++) {</span>
-<span class="nc" id="L424">            String deviceID = hwPartitionQueryMap.getString(DiskPartitionProperty.DEVICEID, i);</span>
-<span class="nc" id="L425">            String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, &quot;&quot;);</span>
-<span class="nc" id="L426">            String uuid = &quot;&quot;;</span>
-<span class="nc bnc" id="L427" title="All 2 branches missed.">            if (!logicalDrive.isEmpty()) {</span>
+<span class="nc" id="L417">        WmiResult&lt;DiskPartitionProperty&gt; hwPartitionQueryMap = WmiUtil.queryWMI(PARTITION_QUERY);</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">        for (int i = 0; i &lt; hwPartitionQueryMap.getResultCount(); i++) {</span>
+<span class="nc" id="L419">            String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);</span>
+<span class="nc" id="L420">            String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, &quot;&quot;);</span>
+<span class="nc" id="L421">            String uuid = &quot;&quot;;</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">            if (!logicalDrive.isEmpty()) {</span>
                 // Get matching volume for UUID
-<span class="nc" id="L429">                char[] volumeChr = new char[BUFSIZE];</span>
-<span class="nc" id="L430">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);</span>
-<span class="nc" id="L431">                uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), &quot;&quot;);</span>
+<span class="nc" id="L424">                char[] volumeChr = new char[BUFSIZE];</span>
+<span class="nc" id="L425">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);</span>
+<span class="nc" id="L426">                uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), &quot;&quot;);</span>
             }
-<span class="nc" id="L433">            partitionMap.put(deviceID,</span>
-<span class="nc" id="L434">                    new HWPartition(hwPartitionQueryMap.getString(DiskPartitionProperty.NAME, i),</span>
-<span class="nc" id="L435">                            hwPartitionQueryMap.getString(DiskPartitionProperty.TYPE, i),</span>
-<span class="nc" id="L436">                            hwPartitionQueryMap.getString(DiskPartitionProperty.DESCRIPTION, i), uuid,</span>
-<span class="nc" id="L437">                            ParseUtil.parseLongOrDefault(hwPartitionQueryMap.getString(DiskPartitionProperty.SIZE, i),</span>
-                                    0L),
-<span class="nc" id="L439">                            hwPartitionQueryMap.getInteger(DiskPartitionProperty.DISKINDEX, i),</span>
-<span class="nc" id="L440">                            hwPartitionQueryMap.getInteger(DiskPartitionProperty.INDEX, i), logicalDrive));</span>
+<span class="nc" id="L428">            partitionMap.put(deviceID,</span>
+<span class="nc" id="L429">                    new HWPartition(WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),</span>
+<span class="nc" id="L430">                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),</span>
+<span class="nc" id="L431">                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,</span>
+<span class="nc" id="L432">                            WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),</span>
+<span class="nc" id="L433">                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),</span>
+<span class="nc" id="L434">                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i), logicalDrive));</span>
         }
-<span class="nc" id="L442">    }</span>
+<span class="nc" id="L436">    }</span>
 
     /**
      * Parse a drive name like &quot;0 C:&quot; to just the index &quot;0&quot;
      * 
-     * @param string
+     * @param s
      *            A drive name to parse
      * @return The first space-delimited value
      */
     private static String getIndexFromName(String s) {
-<span class="nc bnc" id="L452" title="All 2 branches missed.">        if (s.isEmpty()) {</span>
-<span class="nc" id="L453">            return s;</span>
+<span class="nc bnc" id="L446" title="All 2 branches missed.">        if (s.isEmpty()) {</span>
+<span class="nc" id="L447">            return s;</span>
         }
-<span class="nc" id="L455">        return s.split(&quot;\\s&quot;)[0];</span>
+<span class="nc" id="L449">        return s.split(&quot;\\s&quot;)[0];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
