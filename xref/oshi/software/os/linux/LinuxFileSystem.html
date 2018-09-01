@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <em class="jxr_comment">// Map uuids with device path as key</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         Map&lt;String, String&gt; uuidMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         File uuidDir = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/dev/disk/by-uuid"</span>);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">if</strong> (uuidDir != <strong class="jxr_keyword">null</strong> &amp;&amp; uuidDir.listFiles() != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">if</strong> (uuidDir.listFiles() != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">for</strong> (File uuid : uuidDir.listFiles()) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>                 <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                     <em class="jxr_comment">// Store UUID as value with path (e.g., /dev/sda1) as key</em>

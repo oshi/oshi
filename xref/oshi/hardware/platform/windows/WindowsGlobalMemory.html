@@ -129,8 +129,8 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>                     WmiResult&lt;PageSwapProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.pageSwapsQuery);
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                     <strong class="jxr_keyword">if</strong> (result.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                         <strong class="jxr_keyword">this</strong>.swapPagesIn = result.getInteger(PageSwapProperty.PAGESINPUTPERSEC, 0);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                         <strong class="jxr_keyword">this</strong>.swapPagesOut = result.getInteger(PageSwapProperty.PAGESOUTPUTPERSEC, 0);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                         <strong class="jxr_keyword">this</strong>.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                         <strong class="jxr_keyword">this</strong>.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>                     }
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             }
@@ -151,7 +151,7 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                 WmiResult&lt;PagingPercentProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.pagingPercentQuery);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                 <strong class="jxr_keyword">if</strong> (result.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     <strong class="jxr_keyword">this</strong>.swapUsed = result.getInteger(PagingPercentProperty.PERCENTUSAGE, 0) * <strong class="jxr_keyword">this</strong>.pageSize;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     <strong class="jxr_keyword">this</strong>.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * <strong class="jxr_keyword">this</strong>.pageSize;
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                 }
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>             }
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         }

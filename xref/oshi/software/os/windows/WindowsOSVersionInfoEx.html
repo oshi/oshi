@@ -71,10 +71,10 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// Guaranteed that versionInfo is not null and lists non-empty</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// before calling the parse*() methods</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">int</strong> suiteMask = versionInfo.getInteger(OSVersionProperty.SUITEMASK, 0);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">int</strong> suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              setVersion(parseVersion(versionInfo, suiteMask));
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              setCodeName(parseCodeName(suiteMask));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              setBuildNumber(versionInfo.getString(OSVersionProperty.BUILDNUMBER, 0));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              LOG.debug(<span class="jxr_string">"Initialized OSVersionInfoEx"</span>);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
@@ -93,14 +93,14 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// Version is major.minor.build. Parse the version string for</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// major/minor and get the build number separately</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          String[] verSplit = (versionInfo.getString(OSVersionProperty.VERSION, 0)).split(<span class="jxr_string">"&#92;&#92;D"</span>);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          String[] verSplit = (WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0)).split(<span class="jxr_string">"&#92;&#92;D"</span>);
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">int</strong> major = verSplit.length &gt; 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">int</strong> minor = verSplit.length &gt; 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          <em class="jxr_comment">// see</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">boolean</strong> ntWorkstation = versionInfo.getInteger(OSVersionProperty.PRODUCTTYPE, 0)
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  .equals(WinNT.VER_NT_WORKSTATION);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">boolean</strong> ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  0) == WinNT.VER_NT_WORKSTATION;
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">if</strong> (major == 10) {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">if</strong> (minor == 0) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                  version = ntWorkstation ? <span class="jxr_string">"10"</span> : <span class="jxr_string">"Server 2016"</span>;
@@ -132,7 +132,7 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>             }
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         }
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         String sp = versionInfo.getString(OSVersionProperty.CSDVERSION, 0);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">if</strong> (!sp.isEmpty() &amp;&amp; !<span class="jxr_string">"unknown"</span>.equals(sp)) {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             version = version + <span class="jxr_string">" "</span> + sp.replace(<span class="jxr_string">"Service Pack "</span>, <span class="jxr_string">"SP"</span>);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         }

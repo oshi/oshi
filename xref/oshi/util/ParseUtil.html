@@ -120,525 +120,527 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">if</strong> (matcher.find() &amp;&amp; matcher.groupCount() == 3) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>             <em class="jxr_comment">// Regexp enforces #(.#) format so no test for NFE required</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">return</strong> value &lt; 0d ? -1L : value.longValue();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">return</strong> -1L;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a value</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @param i</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     *            Default integer if not parsable</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * @return value or the given default if not parsable</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parseLastInt(String s, <strong class="jxr_keyword">int</strong> i) {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> Integer.parseInt(parseLastString(s));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">return</strong> i;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a value</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @param li</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     *            Default long integer if not parsable</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     * @return value or the given default if not parsable</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseLastLong(String s, <strong class="jxr_keyword">long</strong> li) {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             <strong class="jxr_keyword">return</strong> Long.parseLong(parseLastString(s));
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">return</strong> li;
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a string</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     * @return last space-delimited element</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String parseLastString(String s) {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         String[] ss = whitespaces.split(s);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">if</strong> (ss.length &lt; 1) {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">return</strong> s;
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">return</strong> ss[ss.length - 1];
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * Parse a byte aray into a string of hexadecimal digits including leading</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * zeros</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * @param bytes</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     *            The byte array to represent</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @return A string of hex characters corresponding to the bytes. The string</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     *         is upper case.</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String byteArrayToHexString(byte[] bytes) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">// Solution copied from https://stackoverflow.com/questions/9655181</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">char</strong>[] hexChars = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[bytes.length * 2];
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; bytes.length; j++) {
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">int</strong> v = bytes[j] &amp; 0xFF;
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             hexChars[j * 2] = HEX_ARRAY[v &gt;&gt;&gt; 4];
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             hexChars[j * 2 + 1] = HEX_ARRAY[v &amp; 0x0F];
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         }
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(hexChars);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     * Parse a string of hexadecimal digits into a byte array</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * @param digits</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     *            The string to be parsed</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     * @return a byte array with each pair of characters converted to a byte, or</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     *         empty array if the string is not valid hex</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] hexStringToByteArray(String digits) {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">int</strong> len = digits.length();
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <em class="jxr_comment">// Check if string is valid hex</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">if</strong> (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             LOG.warn(<span class="jxr_string">"Invalid hexadecimal string: {}"</span>, digits);
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> byte[0];
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         }
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         byte[] data = <strong class="jxr_keyword">new</strong> byte[len / 2];
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i += 2) {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>             data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     | Character.digit(digits.charAt(i + 1), 16));
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         }
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">return</strong> data;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     * Parse a human readable string into a byte array, truncating or padding</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">     * with zeros (if necessary) so the array has the specified length.</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * @param text</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     *            The string to be parsed</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">     * @param length</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     *            Length of the returned array.</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     * @return A byte array of specified length, with each of the first length</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     *         characters converted to a byte. If length is longer than the</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     *         provided string length, will be filled with zeroes.</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] stringToByteArray(String text, <strong class="jxr_keyword">int</strong> length) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">return</strong> Arrays.copyOf(text.getBytes(), length);
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * Convert a long value to a byte array using Big Endian, truncating or</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * padding with zeros (if necessary) so the array has the specified length.</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @param value</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     *            The value to be converted</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * @param valueSize</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     *            Number of bytes representing the value</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * @param length</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     *            Number of bytes to return</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * @return A byte array of specified length representing the long in the</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     *         first valueSize bytes</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] longToByteArray(<strong class="jxr_keyword">long</strong> value, <strong class="jxr_keyword">int</strong> valueSize, <strong class="jxr_keyword">int</strong> length) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">long</strong> val = value;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">// Convert the long to 8-byte BE representation</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         byte[] b = <strong class="jxr_keyword">new</strong> byte[8];
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             b[i] = (byte) val;
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             val &gt;&gt;&gt;= 8;
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <em class="jxr_comment">// Then copy the rightmost valueSize bytes</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <em class="jxr_comment">// e.g., for an integer we want rightmost 4 bytes</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">return</strong> Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     }
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * Convert a string to an integer representation.</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * @param str</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     *            A human readable string</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @param size</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     *            Number of characters to convert to the long. May not exceed 8.</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * @return An integer representing the string where each character is</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     *         treated as a byte</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> strToLong(String str, <strong class="jxr_keyword">int</strong> size) {
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">return</strong> byteArrayToLong(str.getBytes(), size);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     }
-<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * Convert a byte array to its integer representation.</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     * @param bytes</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     *            An array of bytes no smaller than the size to be converted</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     * @param size</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     *            Number of bytes to convert to the long. May not exceed 8.</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * @return An integer representing the byte array as a 64-bit number</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> byteArrayToLong(byte[] bytes, <strong class="jxr_keyword">int</strong> size) {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (size &gt; 8) {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Can't convert more than 8 bytes."</span>);
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">if</strong> (size &gt; bytes.length) {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Size can't be larger than array length."</span>);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">long</strong> total = 0L;
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> total;
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     * Convert a byte array to its floating point representation.</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * @param bytes</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *            An array of bytes no smaller than the size to be converted</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @param size</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *            Number of bytes to convert to the float. May not exceed 8.</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @param fpBits</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *            Number of bits representing the decimal</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @return A float; the integer portion representing the byte array as an</em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     *         integer shifted by the bits specified in fpBits; with the</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     *         remaining bits used as a decimal</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">float</strong> byteArrayToFloat(byte[] bytes, <strong class="jxr_keyword">int</strong> size, <strong class="jxr_keyword">int</strong> fpBits) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">return</strong> byteArrayToLong(bytes, size) / (<strong class="jxr_keyword">float</strong>) (1 &lt;&lt; fpBits);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>     }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     * Convert an unsigned integer to a long value. The method assumes that all</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     * bits in the specified integer value are 'data' bits, including the</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * most-significant bit which Java normally considers a sign bit. The method</em>
-<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * must be used only when it is certain that the integer value represents an</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     * unsigned integer, for example when the integer is returned by JNA library</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * in a structure which holds unsigned integers.</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * @param unsignedValue</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     *            The unsigned integer value to convert.</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @return The unsigned integer value widened to a long.</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> unsignedIntToLong(<strong class="jxr_keyword">int</strong> unsignedValue) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// use standard Java widening conversion to long which does</em>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// sign-extension,</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// then drop any copies of the sign bit, to prevent the value being</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// considered a negative one by Java if it is set</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">long</strong> longValue = (<strong class="jxr_keyword">long</strong>) unsignedValue;
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">return</strong> longValue &amp; 0xffffffffL;
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a> <em class="jxr_javadoccomment">     * Parses a string of hex digits to a string where each pair of hex digits</em>
-<a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_javadoccomment">     * represents an ASCII character</em>
-<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">     * @param hexString</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     *            A sequence of hex digits</em>
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     * @return The corresponding string if valid hex; otherwise the original</em>
-<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">     *         hexString</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String hexStringToString(String hexString) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <em class="jxr_comment">// Odd length strings won't parse, return</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">if</strong> (hexString.length() % 2 &gt; 0) {
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>             <strong class="jxr_keyword">return</strong> hexString;
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         }
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">int</strong> charAsInt;
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> pos = 0; pos &lt; hexString.length(); pos += 2) {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>                 charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                 <strong class="jxr_keyword">if</strong> (charAsInt &lt; 32 || charAsInt &gt; 127) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                     <strong class="jxr_keyword">return</strong> hexString;
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 }
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 sb.append((<strong class="jxr_keyword">char</strong>) charAsInt);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             }
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>             LOG.trace(DEFAULT_LOG_MSG, hexString, e);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             <em class="jxr_comment">// Hex failed to parse, just return the existing string</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             <strong class="jxr_keyword">return</strong> hexString;
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         }
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>     }
-<a class="jxr_linenumber" name="L364" href="#L364">364</a> 
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to an int. If it fails, returns the default</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     * @param defaultInt</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     * @return The parsed int, or the default if parsing failed</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parseIntOrDefault(String s, <strong class="jxr_keyword">int</strong> defaultInt) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>             <strong class="jxr_keyword">return</strong> Integer.parseInt(s);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>             <strong class="jxr_keyword">return</strong> defaultInt;
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>         }
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>     }
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> 
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to a long. If it fails, returns the default</em>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">     * @return The parsed long, or the default if parsing failed</em>
-<a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseLongOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">return</strong> Long.parseLong(s);
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>             <strong class="jxr_keyword">return</strong> defaultLong;
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         }
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     }
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to an "unsigned" long. If it fails, returns</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">     * the default</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_javadoccomment">     * @return The parsed long containing the same 64 bits that an unsigned long</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> <em class="jxr_javadoccomment">     *         would contain (which may produce a negative value)</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseUnsignedLongOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>             <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">new</strong> BigInteger(s)).longValue();
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>             <strong class="jxr_keyword">return</strong> defaultLong;
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         }
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>     }
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> 
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to a double. If it fails, returns the default</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * @param defaultDouble</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * @return The parsed double, or the default if parsing failed</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> parseDoubleOrDefault(String s, <strong class="jxr_keyword">double</strong> defaultDouble) {
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <strong class="jxr_keyword">return</strong> Double.parseDouble(s);
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">return</strong> defaultDouble;
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     }
-<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * of milliseconds. If it fails, returns the default.</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     * @return The parsed number of seconds, or the default if parsing fails</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseDHMSOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         Matcher m = DHMS.matcher(s);
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>             <strong class="jxr_keyword">long</strong> milliseconds = 0L;
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">if</strong> (m.group(1) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>                 milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>             }
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>             <strong class="jxr_keyword">if</strong> (m.group(2) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>                 milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>             }
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>             milliseconds += 1000 * parseDoubleOrDefault(<span class="jxr_string">"0."</span> + m.group(5), 0d);
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <strong class="jxr_keyword">return</strong> milliseconds;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">return</strong> defaultLong;
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>     }
-<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_javadoccomment">     * Attempts to parse a UUID. If it fails, returns the default.</em>
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_javadoccomment">     * @param defaultStr</em>
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">     * @return The parsed UUID, or the default if parsing fails</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String parseUuidOrDefault(String s, String defaultStr) {
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         Matcher m = UUID_PATTERN.matcher(s.toLowerCase());
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>             <strong class="jxr_keyword">return</strong> m.group(1);
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         }
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">return</strong> defaultStr;
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     }
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">     * Parses a string key = 'value' (string)</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a> <em class="jxr_javadoccomment">     * @param line</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">     *            The entire string</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">     * @return the value contained between single tick marks</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getSingleQuoteStringValue(String line) {
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         String[] split = line.split(<span class="jxr_string">"'"</span>);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         }
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <strong class="jxr_keyword">return</strong> split[1];
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>     }
-<a class="jxr_linenumber" name="L498" href="#L498">498</a> 
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">     * integer value of the first set of one or more consecutive digits</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">     * @param line</em>
-<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_javadoccomment">     *            The entire string</em>
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">     * @return the value of first integer if any; 0 otherwise</em>
-<a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getFirstIntValue(String line) {
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         <strong class="jxr_keyword">return</strong> getNthIntValue(line, 1);
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>     }
-<a class="jxr_linenumber" name="L510" href="#L510">510</a> 
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">     * integer value of the nth set of one or more consecutive digits</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * @param line</em>
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     *            The entire string</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">     * @param n</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">     *            Which set of integers to return</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     * @return the value of nth integer if any; 0 otherwise</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getNthIntValue(String line, <strong class="jxr_keyword">int</strong> n) {
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <em class="jxr_comment">// Split the string by non-digits,</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <strong class="jxr_keyword">if</strong> (split.length &gt;= n) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>             <strong class="jxr_keyword">return</strong> parseIntOrDefault(split[n - 1], 0);
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>     }
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> 
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * Removes all matching sub strings from the string. More efficient than</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     * regexp.</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">     * @param original</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">     *            source String to remove from</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">     * @param toRemove</em>
-<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">     *            the sub string to be removed</em>
-<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">     * @return The string with all matching substrings removed</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String removeMatchingString(<strong class="jxr_keyword">final</strong> String original, <strong class="jxr_keyword">final</strong> String toRemove) {
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">if</strong> (original == <strong class="jxr_keyword">null</strong> || original.isEmpty() || toRemove == <strong class="jxr_keyword">null</strong> || toRemove.isEmpty())
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>             <strong class="jxr_keyword">return</strong> original;
-<a class="jxr_linenumber" name="L543" href="#L543">543</a> 
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">int</strong> matchIndex = original.indexOf(toRemove, 0);
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">if</strong> (matchIndex == -1)
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>             <strong class="jxr_keyword">return</strong> original;
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         StringBuilder buffer = <strong class="jxr_keyword">new</strong> StringBuilder(original.length() - toRemove.length());
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">int</strong> currIndex = 0;
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>             buffer.append(original.substring(currIndex, matchIndex));
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>             currIndex = matchIndex + toRemove.length();
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>             matchIndex = original.indexOf(toRemove, currIndex);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         } <strong class="jxr_keyword">while</strong> (matchIndex != -1);
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> 
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         buffer.append(original.substring(currIndex));
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">return</strong> buffer.toString();
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a> 
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">     * Parses a delimited string to an array of longs. Optimized for processing</em>
-<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">     * predictable-length arrays such as outputs of reliably formatted Linux</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     * proc or sys filesystem, minimizing new object creation. Users should</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     * perform other sanity checks of data.</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * The indices parameters are referenced assuming the length as specified,</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     * and leading characters are ignored. For example, if the string is "foo 12</em>
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2</em>
-<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     * is 5.</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
-<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     * @param indices</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">     *            An array indicating which indexes should be populated in the</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     *            final array; other values will be skipped. This idex is</em>
-<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_javadoccomment">     *            zero-referenced assuming the rightmost delimited fields of the</em>
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> <em class="jxr_javadoccomment">     *            string contain the array.</em>
-<a class="jxr_linenumber" name="L578" href="#L578">578</a> <em class="jxr_javadoccomment">     * @param length</em>
-<a class="jxr_linenumber" name="L579" href="#L579">579</a> <em class="jxr_javadoccomment">     *            The total number of elements in the string array. It is</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     *            permissible for the string to have more elements than this;</em>
-<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     *            leading elements will be ignored.</em>
-<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * @param delimiter</em>
-<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     *            The character to delimit by</em>
-<a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">     * @return If successful, an array of parsed longs. If parsing errors</em>
-<a class="jxr_linenumber" name="L585" href="#L585">585</a> <em class="jxr_javadoccomment">     *         occurred, will be an array of zeros.</em>
-<a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] parseStringToLongArray(String s, <strong class="jxr_keyword">int</strong>[] indices, <strong class="jxr_keyword">int</strong> length, <strong class="jxr_keyword">char</strong> delimiter) {
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>         <strong class="jxr_keyword">long</strong>[] parsed = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>         <em class="jxr_comment">// Iterate from right-to-left of String</em>
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <em class="jxr_comment">// Fill right to left of result array using index array</em>
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <strong class="jxr_keyword">int</strong> charIndex = s.length() - 1;
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <strong class="jxr_keyword">int</strong> parsedIndex = indices.length - 1;
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">int</strong> stringIndex = length - 1;
-<a class="jxr_linenumber" name="L594" href="#L594">594</a> 
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>         <strong class="jxr_keyword">int</strong> power = 0;
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>         <strong class="jxr_keyword">int</strong> c;
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <strong class="jxr_keyword">boolean</strong> delimCurrent = false;
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>         <strong class="jxr_keyword">while</strong> (charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>             c = s.charAt(charIndex--);
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>             <strong class="jxr_keyword">if</strong> (c == delimiter) {
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>                 <strong class="jxr_keyword">if</strong> (!delimCurrent) {
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>                     power = 0;
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>                     <strong class="jxr_keyword">if</strong> (indices[parsedIndex] == stringIndex--) {
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>                         parsedIndex--;
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>                     }
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>                     delimCurrent = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>                 }
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (indices[parsedIndex] != stringIndex || c == '+') {
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 <em class="jxr_comment">// Doesn't impact parsing, ignore</em>
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>                 delimCurrent = false;
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (c &gt;= '0' &amp;&amp; c &lt;= '9') {
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 <strong class="jxr_keyword">if</strong> (power &gt; 18) {
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>                     LOG.error(<span class="jxr_string">"Number is too big for a long parsing string '{}' to long array"</span>, s);
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>                 }
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>                 parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>                 delimCurrent = false;
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (c == '-') {
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 parsed[parsedIndex] *= -1L;
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>                 delimCurrent = false;
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 <em class="jxr_comment">// error on everything else</em>
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>                 LOG.error(<span class="jxr_string">"Illegal character parsing string '{}' to long array: {}"</span>, s, s.charAt(charIndex));
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>             }
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>         }
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>         <strong class="jxr_keyword">if</strong> (parsedIndex &gt; 0) {
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>             LOG.error(<span class="jxr_string">"Not enough fields in string '{}' parsing to long array: {}"</span>, s, indices.length - parsedIndex);
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>         }
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>         <strong class="jxr_keyword">return</strong> parsed;
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>     }
-<a class="jxr_linenumber" name="L633" href="#L633">633</a> }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">double</strong> value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">if</strong> (value &gt;= 0d) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">long</strong>) value;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> -1L;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a value</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * @param i</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     *            Default integer if not parsable</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return value or the given default if not parsable</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parseLastInt(String s, <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">return</strong> Integer.parseInt(parseLastString(s));
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             <strong class="jxr_keyword">return</strong> i;
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a value</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     * @param li</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     *            Default long integer if not parsable</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * @return value or the given default if not parsable</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseLastLong(String s, <strong class="jxr_keyword">long</strong> li) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <strong class="jxr_keyword">return</strong> Long.parseLong(parseLastString(s));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">return</strong> li;
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * Parse the last element of a space-delimited string to a string</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     * @return last space-delimited element</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String parseLastString(String s) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         String[] ss = whitespaces.split(s);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">if</strong> (ss.length &lt; 1) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">return</strong> ss[ss.length - 1];
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * Parse a byte aray into a string of hexadecimal digits including leading</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * zeros</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @param bytes</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     *            The byte array to represent</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * @return A string of hex characters corresponding to the bytes. The string</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     *         is upper case.</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String byteArrayToHexString(byte[] bytes) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <em class="jxr_comment">// Solution copied from https://stackoverflow.com/questions/9655181</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">char</strong>[] hexChars = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[bytes.length * 2];
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; bytes.length; j++) {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             <strong class="jxr_keyword">int</strong> v = bytes[j] &amp; 0xFF;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             hexChars[j * 2] = HEX_ARRAY[v &gt;&gt;&gt; 4];
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             hexChars[j * 2 + 1] = HEX_ARRAY[v &amp; 0x0F];
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(hexChars);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     }
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * Parse a string of hexadecimal digits into a byte array</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     * @param digits</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     *            The string to be parsed</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * @return a byte array with each pair of characters converted to a byte, or</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *         empty array if the string is not valid hex</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] hexStringToByteArray(String digits) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">int</strong> len = digits.length();
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <em class="jxr_comment">// Check if string is valid hex</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">if</strong> (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             LOG.warn(<span class="jxr_string">"Invalid hexadecimal string: {}"</span>, digits);
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> byte[0];
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         byte[] data = <strong class="jxr_keyword">new</strong> byte[len / 2];
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i += 2) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     | Character.digit(digits.charAt(i + 1), 16));
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">return</strong> data;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     * Parse a human readable string into a byte array, truncating or padding</em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * with zeros (if necessary) so the array has the specified length.</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">     * @param text</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     *            The string to be parsed</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     * @param length</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     *            Length of the returned array.</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     * @return A byte array of specified length, with each of the first length</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     *         characters converted to a byte. If length is longer than the</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     *         provided string length, will be filled with zeroes.</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] stringToByteArray(String text, <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <strong class="jxr_keyword">return</strong> Arrays.copyOf(text.getBytes(), length);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * Convert a long value to a byte array using Big Endian, truncating or</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * padding with zeros (if necessary) so the array has the specified length.</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * @param value</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     *            The value to be converted</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * @param valueSize</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     *            Number of bytes representing the value</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * @param length</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     *            Number of bytes to return</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     * @return A byte array of specified length representing the long in the</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     *         first valueSize bytes</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] longToByteArray(<strong class="jxr_keyword">long</strong> value, <strong class="jxr_keyword">int</strong> valueSize, <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">long</strong> val = value;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <em class="jxr_comment">// Convert the long to 8-byte BE representation</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         byte[] b = <strong class="jxr_keyword">new</strong> byte[8];
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>             b[i] = (byte) val;
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             val &gt;&gt;&gt;= 8;
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <em class="jxr_comment">// Then copy the rightmost valueSize bytes</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <em class="jxr_comment">// e.g., for an integer we want rightmost 4 bytes</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">return</strong> Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * Convert a string to an integer representation.</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @param str</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     *            A human readable string</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * @param size</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     *            Number of characters to convert to the long. May not exceed 8.</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * @return An integer representing the string where each character is</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     *         treated as a byte</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> strToLong(String str, <strong class="jxr_keyword">int</strong> size) {
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> byteArrayToLong(str.getBytes(), size);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     * Convert a byte array to its integer representation.</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     * @param bytes</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     *            An array of bytes no smaller than the size to be converted</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * @param size</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     *            Number of bytes to convert to the long. May not exceed 8.</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * @return An integer representing the byte array as a 64-bit number</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> byteArrayToLong(byte[] bytes, <strong class="jxr_keyword">int</strong> size) {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">if</strong> (size &gt; 8) {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Can't convert more than 8 bytes."</span>);
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">if</strong> (size &gt; bytes.length) {
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Size can't be larger than array length."</span>);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">long</strong> total = 0L;
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>             total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">return</strong> total;
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     }
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * Convert a byte array to its floating point representation.</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @param bytes</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *            An array of bytes no smaller than the size to be converted</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @param size</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *            Number of bytes to convert to the float. May not exceed 8.</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @param fpBits</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     *            Number of bits representing the decimal</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * @return A float; the integer portion representing the byte array as an</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     *         integer shifted by the bits specified in fpBits; with the</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">     *         remaining bits used as a decimal</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">float</strong> byteArrayToFloat(byte[] bytes, <strong class="jxr_keyword">int</strong> size, <strong class="jxr_keyword">int</strong> fpBits) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">return</strong> byteArrayToLong(bytes, size) / (<strong class="jxr_keyword">float</strong>) (1 &lt;&lt; fpBits);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * Convert an unsigned integer to a long value. The method assumes that all</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * bits in the specified integer value are 'data' bits, including the</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     * most-significant bit which Java normally considers a sign bit. The method</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * must be used only when it is certain that the integer value represents an</em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * unsigned integer, for example when the integer is returned by JNA library</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * in a structure which holds unsigned integers.</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @param unsignedValue</em>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     *            The unsigned integer value to convert.</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">     * @return The unsigned integer value widened to a long.</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> unsignedIntToLong(<strong class="jxr_keyword">int</strong> unsignedValue) {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// use standard Java widening conversion to long which does</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// sign-extension,</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <em class="jxr_comment">// then drop any copies of the sign bit, to prevent the value being</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <em class="jxr_comment">// considered a negative one by Java if it is set</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">long</strong> longValue = (<strong class="jxr_keyword">long</strong>) unsignedValue;
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">return</strong> longValue &amp; 0xffffffffL;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">     * Parses a string of hex digits to a string where each pair of hex digits</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">     * represents an ASCII character</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     * @param hexString</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">     *            A sequence of hex digits</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">     * @return The corresponding string if valid hex; otherwise the original</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">     *         hexString</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String hexStringToString(String hexString) {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// Odd length strings won't parse, return</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">if</strong> (hexString.length() % 2 &gt; 0) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             <strong class="jxr_keyword">return</strong> hexString;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         }
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">int</strong> charAsInt;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> pos = 0; pos &lt; hexString.length(); pos += 2) {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 <strong class="jxr_keyword">if</strong> (charAsInt &lt; 32 || charAsInt &gt; 127) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                     <strong class="jxr_keyword">return</strong> hexString;
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                 }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                 sb.append((<strong class="jxr_keyword">char</strong>) charAsInt);
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>             }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             LOG.trace(DEFAULT_LOG_MSG, hexString, e);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             <em class="jxr_comment">// Hex failed to parse, just return the existing string</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>             <strong class="jxr_keyword">return</strong> hexString;
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         }
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to an int. If it fails, returns the default</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     * @param defaultInt</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     * @return The parsed int, or the default if parsing failed</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parseIntOrDefault(String s, <strong class="jxr_keyword">int</strong> defaultInt) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             <strong class="jxr_keyword">return</strong> Integer.parseInt(s);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">return</strong> defaultInt;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> 
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to a long. If it fails, returns the default</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_javadoccomment">     * @return The parsed long, or the default if parsing failed</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseLongOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>             <strong class="jxr_keyword">return</strong> Long.parseLong(s);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>             <strong class="jxr_keyword">return</strong> defaultLong;
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     }
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to an "unsigned" long. If it fails, returns</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     * the default</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">     * @return The parsed long containing the same 64 bits that an unsigned long</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">     *         would contain (which may produce a negative value)</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseUnsignedLongOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>             <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">new</strong> BigInteger(s)).longValue();
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>             <strong class="jxr_keyword">return</strong> defaultLong;
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         }
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     }
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     * Attempts to parse a string to a double. If it fails, returns the default</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * @param defaultDouble</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     * @return The parsed double, or the default if parsing failed</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> parseDoubleOrDefault(String s, <strong class="jxr_keyword">double</strong> defaultDouble) {
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             <strong class="jxr_keyword">return</strong> Double.parseDouble(s);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException e) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             LOG.trace(DEFAULT_LOG_MSG, s, e);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             <strong class="jxr_keyword">return</strong> defaultDouble;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>     }
+<a class="jxr_linenumber" name="L440" href="#L440">440</a> 
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">     * of milliseconds. If it fails, returns the default.</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     * @param defaultLong</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">     * @return The parsed number of seconds, or the default if parsing fails</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseDHMSOrDefault(String s, <strong class="jxr_keyword">long</strong> defaultLong) {
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         Matcher m = DHMS.matcher(s);
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>             <strong class="jxr_keyword">long</strong> milliseconds = 0L;
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             <strong class="jxr_keyword">if</strong> (m.group(1) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>                 milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>             }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             <strong class="jxr_keyword">if</strong> (m.group(2) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>                 milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             }
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>             milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             milliseconds += 1000 * parseDoubleOrDefault(<span class="jxr_string">"0."</span> + m.group(5), 0d);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> milliseconds;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">return</strong> defaultLong;
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> 
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_javadoccomment">     * Attempts to parse a UUID. If it fails, returns the default.</em>
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">     * @param defaultStr</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">     *            The value to return if parsing fails</em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">     * @return The parsed UUID, or the default if parsing fails</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String parseUuidOrDefault(String s, String defaultStr) {
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         Matcher m = UUID_PATTERN.matcher(s.toLowerCase());
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>             <strong class="jxr_keyword">return</strong> m.group(1);
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         }
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">return</strong> defaultStr;
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>     }
+<a class="jxr_linenumber" name="L485" href="#L485">485</a> 
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a> <em class="jxr_javadoccomment">     * Parses a string key = 'value' (string)</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">     * @param line</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> <em class="jxr_javadoccomment">     *            The entire string</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a> <em class="jxr_javadoccomment">     * @return the value contained between single tick marks</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getSingleQuoteStringValue(String line) {
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         String[] split = line.split(<span class="jxr_string">"'"</span>);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         }
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <strong class="jxr_keyword">return</strong> split[1];
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>     }
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">     * integer value of the first set of one or more consecutive digits</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">     * @param line</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">     *            The entire string</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">     * @return the value of first integer if any; 0 otherwise</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getFirstIntValue(String line) {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         <strong class="jxr_keyword">return</strong> getNthIntValue(line, 1);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     }
+<a class="jxr_linenumber" name="L512" href="#L512">512</a> 
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * integer value of the nth set of one or more consecutive digits</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">     * @param line</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">     *            The entire string</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">     * @param n</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">     *            Which set of integers to return</em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">     * @return the value of nth integer if any; 0 otherwise</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getNthIntValue(String line, <strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <em class="jxr_comment">// Split the string by non-digits,</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <strong class="jxr_keyword">if</strong> (split.length &gt;= n) {
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>             <strong class="jxr_keyword">return</strong> parseIntOrDefault(split[n - 1], 0);
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         }
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     }
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> 
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     * Removes all matching sub strings from the string. More efficient than</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">     * regexp.</em>
+<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">     * @param original</em>
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">     *            source String to remove from</em>
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">     * @param toRemove</em>
+<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">     *            the sub string to be removed</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">     * @return The string with all matching substrings removed</em>
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String removeMatchingString(<strong class="jxr_keyword">final</strong> String original, <strong class="jxr_keyword">final</strong> String toRemove) {
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <strong class="jxr_keyword">if</strong> (original == <strong class="jxr_keyword">null</strong> || original.isEmpty() || toRemove == <strong class="jxr_keyword">null</strong> || toRemove.isEmpty())
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <strong class="jxr_keyword">return</strong> original;
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> 
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">int</strong> matchIndex = original.indexOf(toRemove, 0);
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">if</strong> (matchIndex == -1)
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>             <strong class="jxr_keyword">return</strong> original;
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> 
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         StringBuilder buffer = <strong class="jxr_keyword">new</strong> StringBuilder(original.length() - toRemove.length());
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">int</strong> currIndex = 0;
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>             buffer.append(original.substring(currIndex, matchIndex));
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>             currIndex = matchIndex + toRemove.length();
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>             matchIndex = original.indexOf(toRemove, currIndex);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         } <strong class="jxr_keyword">while</strong> (matchIndex != -1);
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> 
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         buffer.append(original.substring(currIndex));
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <strong class="jxr_keyword">return</strong> buffer.toString();
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     * Parses a delimited string to an array of longs. Optimized for processing</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     * predictable-length arrays such as outputs of reliably formatted Linux</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     * proc or sys filesystem, minimizing new object creation. Users should</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * perform other sanity checks of data.</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * The indices parameters are referenced assuming the length as specified,</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     * and leading characters are ignored. For example, if the string is "foo 12</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     * 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">     * is 5.</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">     *            The string to parse</em>
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     * @param indices</em>
+<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_javadoccomment">     *            An array indicating which indexes should be populated in the</em>
+<a class="jxr_linenumber" name="L577" href="#L577">577</a> <em class="jxr_javadoccomment">     *            final array; other values will be skipped. This idex is</em>
+<a class="jxr_linenumber" name="L578" href="#L578">578</a> <em class="jxr_javadoccomment">     *            zero-referenced assuming the rightmost delimited fields of the</em>
+<a class="jxr_linenumber" name="L579" href="#L579">579</a> <em class="jxr_javadoccomment">     *            string contain the array.</em>
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     * @param length</em>
+<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     *            The total number of elements in the string array. It is</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     *            permissible for the string to have more elements than this;</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     *            leading elements will be ignored.</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">     * @param delimiter</em>
+<a class="jxr_linenumber" name="L585" href="#L585">585</a> <em class="jxr_javadoccomment">     *            The character to delimit by</em>
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">     * @return If successful, an array of parsed longs. If parsing errors</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">     *         occurred, will be an array of zeros.</em>
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] parseStringToLongArray(String s, <strong class="jxr_keyword">int</strong>[] indices, <strong class="jxr_keyword">int</strong> length, <strong class="jxr_keyword">char</strong> delimiter) {
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <strong class="jxr_keyword">long</strong>[] parsed = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <em class="jxr_comment">// Iterate from right-to-left of String</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <em class="jxr_comment">// Fill right to left of result array using index array</em>
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">int</strong> charIndex = s.length() - 1;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         <strong class="jxr_keyword">int</strong> parsedIndex = indices.length - 1;
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>         <strong class="jxr_keyword">int</strong> stringIndex = length - 1;
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> 
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <strong class="jxr_keyword">int</strong> power = 0;
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         <strong class="jxr_keyword">int</strong> c;
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>         <strong class="jxr_keyword">boolean</strong> delimCurrent = false;
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">while</strong> (charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>             c = s.charAt(charIndex--);
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>             <strong class="jxr_keyword">if</strong> (c == delimiter) {
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>                 <strong class="jxr_keyword">if</strong> (!delimCurrent) {
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>                     power = 0;
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>                     <strong class="jxr_keyword">if</strong> (indices[parsedIndex] == stringIndex--) {
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>                         parsedIndex--;
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>                     }
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>                     delimCurrent = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 }
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (indices[parsedIndex] != stringIndex || c == '+') {
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                 <em class="jxr_comment">// Doesn't impact parsing, ignore</em>
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 delimCurrent = false;
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (c &gt;= '0' &amp;&amp; c &lt;= '9') {
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                 <strong class="jxr_keyword">if</strong> (power &gt; 18) {
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>                     LOG.error(<span class="jxr_string">"Number is too big for a long parsing string '{}' to long array"</span>, s);
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>                 }
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>                 parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 delimCurrent = false;
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (c == '-') {
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>                 parsed[parsedIndex] *= -1L;
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 delimCurrent = false;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>                 <em class="jxr_comment">// error on everything else</em>
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 LOG.error(<span class="jxr_string">"Illegal character parsing string '{}' to long array: {}"</span>, s, s.charAt(charIndex));
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>             }
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>         }
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>         <strong class="jxr_keyword">if</strong> (parsedIndex &gt; 0) {
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>             LOG.error(<span class="jxr_string">"Not enough fields in string '{}' parsing to long array: {}"</span>, s, indices.length - parsedIndex);
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[indices.length];
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>         }
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>         <strong class="jxr_keyword">return</strong> parsed;
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>     }
+<a class="jxr_linenumber" name="L635" href="#L635">635</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

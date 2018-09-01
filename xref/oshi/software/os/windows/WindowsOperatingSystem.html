@@ -225,7 +225,7 @@
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>                         BitnessProperty.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>                 WmiResult&lt;BitnessProperty&gt; bitnessMap = WmiUtil.queryWMI(bitnessQuery);
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                 <strong class="jxr_keyword">if</strong> (bitnessMap.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     <strong class="jxr_keyword">this</strong>.bitness = bitnessMap.getInteger(BitnessProperty.ADDRESSWIDTH, 0);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     <strong class="jxr_keyword">this</strong>.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                 }
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>             }
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>         }
@@ -444,13 +444,13 @@
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>             WmiResult&lt;ProcessProperty&gt; commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
 <a class="jxr_linenumber" name="L437" href="#L437">437</a> 
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> p = 0; p &lt; commandLineProcs.getResultCount(); p++) {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 <strong class="jxr_keyword">int</strong> pid = commandLineProcs.getInteger(ProcessProperty.PROCESSID, p);
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 <strong class="jxr_keyword">int</strong> pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>                 <em class="jxr_comment">// This should always be true because emptyCommandLines was</em>
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>                 <em class="jxr_comment">// built from a subset of the cache, but just in case, protect</em>
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>                 <em class="jxr_comment">// against dereferencing null</em>
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>                 <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.processMap.containsKey(pid)) {
 <a class="jxr_linenumber" name="L444" href="#L444">444</a>                     <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">this</strong>.processMap.get(pid);
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     proc.setCommandLine(commandLineProcs.getString(ProcessProperty.COMMANDLINE, p));
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>                 }
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>             }
 <a class="jxr_linenumber" name="L448" href="#L448">448</a>         }
