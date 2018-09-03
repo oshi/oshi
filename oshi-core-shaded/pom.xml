@@ -101,6 +101,19 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<version>3.5.0</version>
+				<configuration>
+				<bnd><![CDATA[
+					Export-Package: oshi.*;-noimport:=true
+					Import-Package: com.sun.management.*;optional:=true, !org.slf4j.*, *
+					Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+					-snapshot: SNAPSHOT
+				]]></bnd>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
