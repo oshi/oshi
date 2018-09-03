@@ -275,8 +275,8 @@
 					<version>3.5.0</version>
 					<configuration>
 					<bnd><![CDATA[
-						Export-Package: oshi.*
-                                                Import-Package: com.sun.jna.*
+						Export-Package: oshi.*;-noimport:=true
+						Import-Package: com.sun.management.*;optional:=true, *
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
 					]]></bnd>
