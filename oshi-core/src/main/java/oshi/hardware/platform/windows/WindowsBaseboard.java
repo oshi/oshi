@@ -19,7 +19,6 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
@@ -42,8 +41,7 @@ public class WindowsBaseboard extends AbstractBaseboard {
     }
 
     private void init() {
-        WmiQuery<BaseboardProperty> baseboardQuery = WbemcliUtil.createQuery("Win32_BaseBoard",
-                BaseboardProperty.class);
+        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
         WmiResult<BaseboardProperty> win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);
         if (win32BaseBoard.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));

@@ -18,10 +18,7 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -36,7 +33,6 @@ import com.sun.jna.platform.win32.COM.COMUtils;
 
 import oshi.jna.platform.windows.Ole32;
 import oshi.jna.platform.windows.Wbemcli;
-import oshi.jna.platform.windows.Wbemcli.IEnumWbemClassObject;
 import oshi.jna.platform.windows.Wbemcli.IWbemServices;
 import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
@@ -64,15 +60,13 @@ public class WmiUtil {
     private static Set<String> hasNamespaceCache = new HashSet<>();
     private static Set<String> hasNotNamespaceCache = new HashSet<>();
 
-    // Cache open WMI namespace connections
-    private static Map<String, WmiConnection> connectionCache = new HashMap<>();
-    private static long nextCacheClear = System.currentTimeMillis() + connectionCacheTimeout;
-
     // Cache failed wmi classes
     private static Set<String> failedWmiClassNames = new HashSet<>();
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
 
     // Track initialization of COM and Security
     private static boolean comInitialized = false;
@@ -170,17 +164,7 @@ public class WmiUtil {
                 initCOM();
             }
 
-            // Connect to the server
-            WmiConnection conn = connectToNamespace(query.getNameSpace());
-
-            // Send query
-            IEnumWbemClassObject enumerator = WbemcliUtil.selectProperties(conn.getService(), query);
-
-            try {
-                result = WbemcliUtil.enumerateProperties(enumerator, query.getPropertyEnum(), wmiTimeout);
-            } finally {
-                enumerator.Release();
-            }
+            result = query.execute(wmiTimeout);
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
@@ -222,8 +206,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_STRING) {
             return getStr(result, property, index);
         }
-        throw new ClassCastException(property.name() + " is not a String type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -239,10 +223,11 @@ public class WmiUtil {
      */
     public static <T extends Enum<T>> String getDateString(WmiResult<T> result, T property, int index) {
         if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {
-            return getStr(result, property, index);
+            String date = getStr(result, property, index);
+            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);
         }
-        throw new ClassCastException(property.name() + " is not a DateTime type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "DateTime",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -260,8 +245,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {
             return getStr(result, property, index);
         }
-        throw new ClassCastException(property.name() + " is not a Reference type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Reference",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     private static <T extends Enum<T>> String getStr(WmiResult<T> result, T property, int index) {
@@ -271,8 +256,8 @@ public class WmiUtil {
         } else if (result.getVtType(property) == Variant.VT_BSTR) {
             return (String) o;
         }
-        throw new ClassCastException(property.name() + " is not a type that maps to String. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String-mapped",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -295,8 +280,8 @@ public class WmiUtil {
         } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 && result.getVtType(property) == Variant.VT_BSTR) {
             return ParseUtil.parseLongOrDefault((String) o, 0L);
         }
-        throw new ClassCastException(property.name() + " is not a UINT64 type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT64",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -316,8 +301,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(property.name() + " is not a UINT32 type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -336,8 +321,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
             return getInt(result, property, index) & 0xFFFFFFFFL;
         }
-        throw new ClassCastException(property.name() + " is not a UINT32 type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -357,8 +342,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(property.name() + " is not a SINT32 type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "SINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -378,8 +363,8 @@ public class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(property.name() + " is not a UINT16 type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT16",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     private static <T extends Enum<T>> int getInt(WmiResult<T> result, T property, int index) {
@@ -389,8 +374,8 @@ public class WmiUtil {
         } else if (result.getVtType(property) == Variant.VT_I4) {
             return (int) o;
         }
-        throw new ClassCastException(property.name() + " is not a type that maps to 32-bit integer. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "32-bit integer",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -411,56 +396,8 @@ public class WmiUtil {
         } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 && result.getVtType(property) == Variant.VT_R4) {
             return (float) o;
         }
-        throw new ClassCastException(property.name() + " is not a Float type. CIM Type is "
-                + result.getCIMType(property) + " and VT type is " + result.getVtType(property));
-    }
-
-    /**
-     * Find an existing open connection to a namespace if one exists, otherwise
-     * set up a new one
-     * 
-     * @param namespace
-     *            The namespace to connect to
-     * @return The new or cached connection if successful; null if connection
-     *         failed
-     */
-    private static WmiConnection connectToNamespace(String namespace) {
-        // Every once in a while clear any other stale connections
-        if (System.currentTimeMillis() > nextCacheClear) {
-            closeStaleConnections();
-            nextCacheClear = System.currentTimeMillis() + connectionCacheTimeout;
-        }
-        // Check if connection already open
-        if (connectionCache.containsKey(namespace)) {
-            WmiConnection conn = connectionCache.get(namespace);
-            if (conn.isStale()) {
-                // Connection expired. Close it.
-                conn.close();
-                connectionCache.remove(namespace);
-            } else {
-                return conn;
-            }
-        }
-        // Connect to the server
-        IWbemServices svc = WbemcliUtil.connectServer(namespace);
-        WmiConnection conn = INSTANCE.new WmiConnection(svc);
-        // Add to cache
-        connectionCache.put(namespace, conn);
-        return conn;
-    }
-
-    /**
-     * Closes WMI connections that haven't been used recently, freeing up
-     * resources.
-     */
-    private static void closeStaleConnections() {
-        for (Iterator<Map.Entry<String, WmiConnection>> iter = connectionCache.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<String, WmiConnection> entry = iter.next();
-            if (entry.getValue().isStale()) {
-                entry.getValue().close();
-                iter.remove();
-            }
-        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
@@ -553,26 +490,5 @@ public class WmiUtil {
      */
     public static void setWmiTimeout(int wmiTimeout) {
         WmiUtil.wmiTimeout = wmiTimeout;
-    }
-
-    /**
-     * Gets the connection cache timeout. WMI connections will be released if
-     * older than this number of milliseconds.
-     * 
-     * @return Returns the connectionCacheTimeout.
-     */
-    public static int getConnectionCacheTimeout() {
-        return connectionCacheTimeout;
-    }
-
-    /**
-     * Sets the connection cache timeout. WMI connections will be released if
-     * older than this number of milliseconds.
-     * 
-     * @param connectionCacheTimeout
-     *            The connectionCacheTimeout to set.
-     */
-    public static void setConnectionCacheTimeout(int connectionCacheTimeout) {
-        WmiUtil.connectionCacheTimeout = connectionCacheTimeout;
     }
 }

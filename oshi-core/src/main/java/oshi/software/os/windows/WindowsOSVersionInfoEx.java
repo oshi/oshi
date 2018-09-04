@@ -28,7 +28,6 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinUser;
 
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.software.common.AbstractOSVersionInfoEx;
@@ -52,8 +51,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private void init() {
         // Populate a key-value map from WMI
-        WmiQuery<OSVersionProperty> osVersionQuery = WbemcliUtil.createQuery("Win32_OperatingSystem",
-                OSVersionProperty.class);
+        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
         WmiResult<OSVersionProperty> versionInfo = WmiUtil.queryWMI(osVersionQuery);
         if (versionInfo.getResultCount() < 1) {
             LOG.warn("No version data available.");
