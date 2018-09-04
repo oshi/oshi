@@ -433,11 +433,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long getContextSwitches() {
         if (this.contextSwitchQuery == null) {
             PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);
-            return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter) / 10000L;
+            return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter);
         }
         WmiResult<ContextSwitchProperty> result = WmiUtil.queryWMI(this.contextSwitchQuery);
         if (result.getResultCount() > 0) {
-            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0) / 10000L;
+            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0);
         }
         return 0L;
     }
