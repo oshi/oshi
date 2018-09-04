@@ -1,6 +1,7 @@
 3.9.0 (in progress)
 ================
 * [#605](https://github.com/oshi/oshi/pull/605): Update OSGi imports. - [@dbwiddis](https://github.com/dbwiddis).
+* [#608](https://github.com/oshi/oshi/pull/608): Fix Windows context swith count bug. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.8.1 (09/01/2018)
