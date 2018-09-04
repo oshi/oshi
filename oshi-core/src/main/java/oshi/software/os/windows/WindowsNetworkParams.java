@@ -32,7 +32,6 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.jna.platform.windows.IPHlpAPI.IP_ADDR_STRING;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.software.common.AbstractNetworkParams;
@@ -56,16 +55,15 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     }
 
     private static final String NETROUTE_BASE_CLASS = "MSFT_NetRoute";
-    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = WbemcliUtil.createQuery("ROOT\\StandardCimv2",
-            null, NetRouteProperty.class);
+    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = new WmiQuery<>("ROOT\\StandardCimv2", null,
+            NetRouteProperty.class);
 
     enum IP4RouteProperty {
         NEXTHOP, METRIC1;
     }
 
     private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";
-    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = WbemcliUtil.createQuery(null,
-            IP4RouteProperty.class);
+    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = new WmiQuery<>(null, IP4RouteProperty.class);
 
     /**
      * {@inheritDoc}

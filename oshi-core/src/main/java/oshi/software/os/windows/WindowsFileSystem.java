@@ -26,7 +26,6 @@ import java.util.Map;
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinNT;
 
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.software.os.FileSystem;
@@ -56,7 +55,7 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = WbemcliUtil.createQuery("Win32_LogicalDisk",
+    private final transient WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = new WmiQuery<>("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
     /*
@@ -67,8 +66,8 @@ public class WindowsFileSystem implements FileSystem {
     }
 
     // Only one of these will be used
-    private PerfCounter handleCountCounter = null;
-    private WmiQuery<HandleCountProperty> handleCountQuery = null;
+    private transient PerfCounter handleCountCounter = null;
+    private transient WmiQuery<HandleCountProperty> handleCountQuery = null;
 
     private static final long MAX_WINDOWS_HANDLES;
     static {
@@ -92,7 +91,7 @@ public class WindowsFileSystem implements FileSystem {
         this.handleCountCounter = PerfDataUtil.createCounter("Process", "_Total", "Handle Count");
         if (!PerfDataUtil.addCounterToQuery(handleCountCounter)) {
             this.handleCountCounter = null;
-            this.handleCountQuery = WbemcliUtil.createQuery("Win32_Process", HandleCountProperty.class);
+            this.handleCountQuery = new WmiQuery<>("Win32_Process", HandleCountProperty.class);
         }
     }
 

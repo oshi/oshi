@@ -19,7 +19,6 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractFirmware;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
@@ -42,8 +41,7 @@ final class WindowsFirmware extends AbstractFirmware {
     }
 
     private void init() {
-        WmiQuery<BiosProperty> biosQuery = WbemcliUtil.createQuery("Win32_BIOS where PrimaryBIOS=true",
-                BiosProperty.class);
+        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
 
         WmiResult<BiosProperty> win32BIOS = WmiUtil.queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {

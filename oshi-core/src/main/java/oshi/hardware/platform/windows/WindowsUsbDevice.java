@@ -37,7 +37,6 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.jna.platform.windows.Cfgmgr32Util;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.MapUtil;
@@ -57,7 +56,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static List<String> controllerDeviceIdList = new ArrayList<>();
     static {
         // One time lookup of USB Controller PnP Device IDs which don't change
-        WmiQuery<USBControllerProperty> usbControllerQuery = WbemcliUtil.createQuery("Win32_USBController",
+        WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>("Win32_USBController",
                 USBControllerProperty.class);
         WmiResult<USBControllerProperty> usbController = WmiUtil.queryWMI(usbControllerQuery);
         for (int i = 0; i < usbController.getResultCount(); i++) {
@@ -70,16 +69,14 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     private static final String PNPENTITY_BASE_CLASS = "Win32_PnPEntity";
-    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = WbemcliUtil.createQuery(null,
-            PnPEntityProperty.class);
+    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = new WmiQuery<>(null, PnPEntityProperty.class);
 
     enum DiskDriveProperty {
         PNPDEVICEID, SERIALNUMBER;
     }
 
     private static final String DISKDRIVE_BASE_CLASS = "Win32_DiskDrive";
-    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = WbemcliUtil.createQuery(null,
-            DiskDriveProperty.class);
+    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = new WmiQuery<>(null, DiskDriveProperty.class);
 
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");

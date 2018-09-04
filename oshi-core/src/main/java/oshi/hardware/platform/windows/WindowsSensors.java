@@ -25,7 +25,6 @@ import oshi.hardware.Sensors;
 import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -44,30 +43,29 @@ public class WindowsSensors implements Sensors {
         IDENTIFIER;
     }
 
-    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = WbemcliUtil
-            .createQuery(WmiUtil.OHM_NAMESPACE, "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = WbemcliUtil
-            .createQuery(WmiUtil.OHM_NAMESPACE, "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
+    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+            "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
+    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+            "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
     }
 
-    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = WbemcliUtil.createQuery(WmiUtil.OHM_NAMESPACE,
-            null, OhmSensorProperty.class);
+    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
+            OhmSensorProperty.class);
 
     enum FanProperty {
         DESIREDSPEED;
     }
 
-    private static final WmiQuery<FanProperty> FAN_QUERY = WbemcliUtil.createQuery("Win32_Fan", FanProperty.class);
+    private static final WmiQuery<FanProperty> FAN_QUERY = new WmiQuery<>("Win32_Fan", FanProperty.class);
 
     enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    private static final WmiQuery<VoltProperty> VOLT_QUERY = WbemcliUtil.createQuery("Win32_Processor",
-            VoltProperty.class);
+    private static final WmiQuery<VoltProperty> VOLT_QUERY = new WmiQuery<>("Win32_Processor", VoltProperty.class);
 
     /*
      * For temperature query
@@ -108,7 +106,7 @@ public class WindowsSensors implements Sensors {
         }
         if (!enumeration || !PerfDataUtil.addCounterToQuery(this.thermalZoneCounter)) {
             this.thermalZoneCounter = null;
-            this.thermalZoneQuery = WbemcliUtil.createQuery("Win32_PerfRawData_Counters_ThermalZoneInformation",
+            this.thermalZoneQuery = new WmiQuery<>("Win32_PerfRawData_Counters_ThermalZoneInformation",
                     ThermalZoneProperty.class);
         }
     }
