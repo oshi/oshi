@@ -38,7 +38,6 @@ import oshi.hardware.HWPartition;
 import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.MapUtil;
@@ -85,24 +84,24 @@ public class WindowsDisks implements Disks {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
-    private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = WbemcliUtil.createQuery("Win32_DiskDrive",
+    private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = new WmiQuery<>("Win32_DiskDrive",
             DiskDriveProperty.class);
 
     enum DriveToPartitionProperty {
         ANTECEDENT, DEPENDENT;
     }
 
-    private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = WbemcliUtil
-            .createQuery("Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
-    private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = WbemcliUtil
-            .createQuery("Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
+    private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = new WmiQuery<>(
+            "Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
+    private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = new WmiQuery<>(
+            "Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
     enum DiskPartitionProperty {
         DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
     }
 
-    private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = WbemcliUtil
-            .createQuery("Win32_DiskPartition", DiskPartitionProperty.class);
+    private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = new WmiQuery<>("Win32_DiskPartition",
+            DiskPartitionProperty.class);
 
     /*
      * For disk query
@@ -174,8 +173,7 @@ public class WindowsDisks implements Disks {
             diskWriteBytesCounterMap = null;
             diskXferTimeCounterMap = null;
 
-            physicalDiskQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfDisk_PhysicalDisk",
-                    PhysicalDiskProperty.class);
+            physicalDiskQuery = new WmiQuery<>("Win32_PerfRawData_PerfDisk_PhysicalDisk", PhysicalDiskProperty.class);
         }
     }
 

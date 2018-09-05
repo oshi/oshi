@@ -37,7 +37,6 @@ import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.PdhUtil.PdhEnumObjectItems;
 import oshi.jna.platform.windows.PdhUtil.PdhException;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -154,8 +153,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             setCpu64(false);
         }
 
-        WmiQuery<ProcessorProperty> processorIdQuery = WbemcliUtil.createQuery("Win32_Processor",
-                ProcessorProperty.class);
+        WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiUtil.queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
             setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
@@ -169,8 +167,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         this.contextSwitchesPerSecCounter = PerfDataUtil.createCounter("System", null, "Context Switches/sec");
         if (!PerfDataUtil.addCounterToQuery(this.contextSwitchesPerSecCounter)) {
             this.contextSwitchesPerSecCounter = null;
-            this.contextSwitchQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_System",
-                    ContextSwitchProperty.class);
+            this.contextSwitchQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_System", ContextSwitchProperty.class);
         }
 
         boolean enumeration = true;
@@ -256,16 +253,16 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             this.softIrqTickCounter = null;
             this.interruptsPerSecCounter = null;
 
-            processorTickCountQuery = WbemcliUtil.createQuery(
-                    "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", ProcessorTickCountProperty.class);
-            systemTickCountQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            processorTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
+                    ProcessorTickCountProperty.class);
+            systemTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     SystemTickCountProperty.class);
-            interruptsQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     InterruptsProperty.class);
         }
         // REMOVE
-        processorTickCountQuery = WbemcliUtil.createQuery(
-                "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", ProcessorTickCountProperty.class);
+        processorTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
+                ProcessorTickCountProperty.class);
     }
 
     /**

@@ -54,7 +54,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_BLOCK;
@@ -85,7 +84,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
-    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = WbemcliUtil.createQuery(null, ProcessProperty.class);
+    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = new WmiQuery<>(null, ProcessProperty.class);
 
     /*
      * Registry variables to persist
@@ -213,8 +212,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
-                WmiQuery<BitnessProperty> bitnessQuery = WbemcliUtil.createQuery("Win32_Processor",
-                        BitnessProperty.class);
+                WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);

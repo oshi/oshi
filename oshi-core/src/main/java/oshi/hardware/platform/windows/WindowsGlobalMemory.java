@@ -26,7 +26,6 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -86,13 +85,13 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 || !PerfDataUtil.addCounterToQuery(pagesOutputPerSecCounter)) {
             this.pagesInputPerSecCounter = null;
             this.pagesOutputPerSecCounter = null;
-            this.pageSwapsQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_Memory", PageSwapProperty.class);
+            this.pageSwapsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Memory", PageSwapProperty.class);
         }
 
         this.pagingPercentUsageCounter = PerfDataUtil.createCounter("Paging File", "_Total", "% Usage");
         if (!PerfDataUtil.addCounterToQuery(pagingPercentUsageCounter)) {
             this.pagingPercentUsageCounter = null;
-            this.pagingPercentQuery = WbemcliUtil.createQuery("Win32_PerfRawData_PerfOS_PagingFile",
+            this.pagingPercentQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_PagingFile",
                     PagingPercentProperty.class);
         }
     }
