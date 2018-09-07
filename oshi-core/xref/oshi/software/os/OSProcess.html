@@ -569,7 +569,20 @@
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>         }
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.cpuPercent;
 <a class="jxr_linenumber" name="L563" href="#L563">563</a>     }
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> }
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> 
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>     @Override
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         StringBuilder builder = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"OSProcess@"</span>);
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>         builder.append(Integer.toHexString(hashCode()));
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         builder.append(<span class="jxr_string">"[processID="</span>).append(processID);
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>         builder.append(<span class="jxr_string">", name="</span>).append(name);
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>         builder.append(<span class="jxr_string">"]"</span>);
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">return</strong> builder.toString();
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
