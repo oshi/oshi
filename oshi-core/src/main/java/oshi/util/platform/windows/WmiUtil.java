@@ -144,7 +144,7 @@ public class WmiUtil {
      * Query WMI for values, with no timeout.
      * 
      * @param <T>
-     *            an enum
+     *            The enum type containing the property keys
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
@@ -194,6 +194,8 @@ public class WmiUtil {
     /**
      * Gets a String value from a WmiResult
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -213,6 +215,8 @@ public class WmiUtil {
     /**
      * Gets a Date value from a WmiResult as a String
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -233,6 +237,8 @@ public class WmiUtil {
     /**
      * Gets a Reference value from a WmiResult as a String
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -265,6 +271,8 @@ public class WmiUtil {
      * while the CIM type is unsigned, the return type is signed and the parsing
      * will exclude any return values above Long.MAX_VALUE.
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -289,6 +297,8 @@ public class WmiUtil {
      * is unsigned, the return type is signed and requires further processing by
      * the user if unsigned values are desired.
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -309,6 +319,8 @@ public class WmiUtil {
      * Gets an UINT32 value from a WmiResult as a long, preserving the
      * unsignedness.
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -330,6 +342,8 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by
      * the user if unsigned values are desired.
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -351,6 +365,8 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by
      * the user if unsigned values are desired.
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -381,6 +397,8 @@ public class WmiUtil {
     /**
      * Gets a Float value from a WmiResult
      * 
+     * @param <T>
+     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property

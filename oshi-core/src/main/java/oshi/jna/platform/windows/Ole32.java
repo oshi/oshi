@@ -720,7 +720,6 @@ public interface Ole32 extends com.sun.jna.platform.win32.Ole32 {
      *         function returns the results of calling the IRunnableObject::Run
      *         method.
      *         <p>
-     *         <p>
      *         For more information on using this function, see
      *         IRunnableObject::Run.
      */

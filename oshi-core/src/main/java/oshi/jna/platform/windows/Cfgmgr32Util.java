@@ -52,6 +52,7 @@ public abstract class Cfgmgr32Util {
      *            local machine.
      * @return The device instance ID string.
      * @throws Cfgmgr32Exception
+     *             if the buffer couldn't be allocated
      */
     public static String CM_Get_Device_ID(int devInst) throws Cfgmgr32Exception {
         int charToBytes = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
