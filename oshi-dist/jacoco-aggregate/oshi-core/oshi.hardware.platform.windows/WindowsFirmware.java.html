@@ -19,7 +19,6 @@
 package oshi.hardware.platform.windows;
 
 import oshi.hardware.common.AbstractFirmware;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
@@ -33,26 +32,25 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L36">    enum BiosProperty {</span>
-<span class="nc" id="L37">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
+<span class="nc" id="L35">    enum BiosProperty {</span>
+<span class="nc" id="L36">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
     }
 
-<span class="nc" id="L40">    WindowsFirmware() {</span>
-<span class="nc" id="L41">        init();</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L39">    WindowsFirmware() {</span>
+<span class="nc" id="L40">        init();</span>
+<span class="nc" id="L41">    }</span>
 
     private void init() {
-<span class="nc" id="L45">        WmiQuery&lt;BiosProperty&gt; biosQuery = WbemcliUtil.createQuery(&quot;Win32_BIOS where PrimaryBIOS=true&quot;,</span>
-                BiosProperty.class);
+<span class="nc" id="L44">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
 
-<span class="nc" id="L48">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L50">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L51">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
-<span class="nc" id="L52">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
-<span class="nc" id="L53">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
-<span class="nc" id="L54">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
+<span class="nc" id="L46">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiUtil.queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L48">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L49">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
+<span class="nc" id="L50">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
+<span class="nc" id="L51">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
+<span class="nc" id="L52">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
         }
-<span class="nc" id="L56">    }</span>
+<span class="nc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
