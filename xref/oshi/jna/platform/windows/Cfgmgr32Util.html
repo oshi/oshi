@@ -60,47 +60,48 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     *            local machine.</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @return The device instance ID string.</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * @throws Cfgmgr32Exception</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CM_Get_Device_ID(<strong class="jxr_keyword">int</strong> devInst) <strong class="jxr_keyword">throws</strong> Cfgmgr32Exception {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">int</strong> charToBytes = Boolean.getBoolean(<span class="jxr_string">"w32.ascii"</span>) ? 1 : Native.WCHAR_SIZE;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Get Device ID character count</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          IntByReference pulLen = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">int</strong> ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(pulLen, devInst, 0);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// Add one to length to allow null terminator</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Memory buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <em class="jxr_comment">// Zero the buffer (including the extra character)</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          buffer.clear();
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// Fetch the buffer specifying only the current length</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// In the unlikely event the device id changes this might not be big</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// enough, try again. This happens rarely enough one retry should be</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// sufficient.</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (ret == Cfgmgr32.CR_BUFFER_SMALL) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(pulLen, devInst, 0);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              buffer.clear();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// If we still aren't successful throw an exception</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// Convert buffer to Java String</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">if</strong> (charToBytes == 1) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">return</strong> buffer.getString(0);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">return</strong> buffer.getWideString(0);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *             if the buffer couldn't be allocated</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CM_Get_Device_ID(<strong class="jxr_keyword">int</strong> devInst) <strong class="jxr_keyword">throws</strong> Cfgmgr32Exception {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">int</strong> charToBytes = Boolean.getBoolean(<span class="jxr_string">"w32.ascii"</span>) ? 1 : Native.WCHAR_SIZE;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <em class="jxr_comment">// Get Device ID character count</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          IntByReference pulLen = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">int</strong> ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(pulLen, devInst, 0);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Add one to length to allow null terminator</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Memory buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Zero the buffer (including the extra character)</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          buffer.clear();
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// Fetch the buffer specifying only the current length</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// In the unlikely event the device id changes this might not be big</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// enough, try again. This happens rarely enough one retry should be</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <em class="jxr_comment">// sufficient.</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">if</strong> (ret == Cfgmgr32.CR_BUFFER_SMALL) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID_Size(pulLen, devInst, 0);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              buffer.clear();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <em class="jxr_comment">// If we still aren't successful throw an exception</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <em class="jxr_comment">// Convert buffer to Java String</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (charToBytes == 1) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">return</strong> buffer.getString(0);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">return</strong> buffer.getWideString(0);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
