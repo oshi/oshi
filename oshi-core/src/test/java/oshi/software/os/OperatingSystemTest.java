@@ -39,11 +39,9 @@ public class OperatingSystemTest {
 
     /**
      * Test operating system
-     * 
-     * @throws CloneNotSupportedException
      */
     @Test
-    public void testOperatingSystem() throws CloneNotSupportedException {
+    public void testOperatingSystem() {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os.getFamily());
