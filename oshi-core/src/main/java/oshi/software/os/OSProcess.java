@@ -561,4 +561,17 @@ public class OSProcess implements Serializable {
         }
         return this.cpuPercent;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("OSProcess@");
+        builder.append(Integer.toHexString(hashCode()));
+        builder.append("[processID=").append(processID);
+        builder.append(", name=").append(name);
+        builder.append("]");
+        return builder.toString();
+    }
 }
