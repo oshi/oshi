@@ -529,75 +529,83 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      * {@inheritDoc}
      */
     @Override
+    public String toString() {
+<span class="nc" id="L533">        return this.osProcess.toString();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON(Properties properties) {
-<span class="fc" id="L533">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="pc bpc" id="L534" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
-<span class="fc" id="L535">            json.add(&quot;name&quot;, getName());</span>
+<span class="fc" id="L541">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.name&quot;)) {</span>
+<span class="fc" id="L543">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="pc bpc" id="L537" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
-<span class="fc" id="L538">            json.add(&quot;path&quot;, getPath());</span>
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.path&quot;)) {</span>
+<span class="fc" id="L546">            json.add(&quot;path&quot;, getPath());</span>
         }
-<span class="pc bpc" id="L540" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
-<span class="fc" id="L541">            json.add(&quot;commandLine&quot;, getCommandLine());</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.commandLine&quot;)) {</span>
+<span class="fc" id="L549">            json.add(&quot;commandLine&quot;, getCommandLine());</span>
         }
-<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.currentWorkingDirectory&quot;)) {</span>
-<span class="fc" id="L544">            json.add(&quot;currentWorkingDirectory&quot;, getCurrentWorkingDirectory());</span>
+<span class="pc bpc" id="L551" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.currentWorkingDirectory&quot;)) {</span>
+<span class="fc" id="L552">            json.add(&quot;currentWorkingDirectory&quot;, getCurrentWorkingDirectory());</span>
         }
-<span class="pc bpc" id="L546" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
-<span class="fc" id="L547">            json.add(&quot;user&quot;, getUser());</span>
+<span class="pc bpc" id="L554" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.user&quot;)) {</span>
+<span class="fc" id="L555">            json.add(&quot;user&quot;, getUser());</span>
         }
-<span class="pc bpc" id="L549" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userID&quot;)) {</span>
-<span class="fc" id="L550">            json.add(&quot;userID&quot;, getUserID());</span>
+<span class="pc bpc" id="L557" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userID&quot;)) {</span>
+<span class="fc" id="L558">            json.add(&quot;userID&quot;, getUserID());</span>
         }
-<span class="pc bpc" id="L552" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.group&quot;)) {</span>
-<span class="fc" id="L553">            json.add(&quot;group&quot;, getGroup());</span>
+<span class="pc bpc" id="L560" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.group&quot;)) {</span>
+<span class="fc" id="L561">            json.add(&quot;group&quot;, getGroup());</span>
         }
-<span class="pc bpc" id="L555" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.groupID&quot;)) {</span>
-<span class="fc" id="L556">            json.add(&quot;groupID&quot;, getGroupID());</span>
+<span class="pc bpc" id="L563" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.groupID&quot;)) {</span>
+<span class="fc" id="L564">            json.add(&quot;groupID&quot;, getGroupID());</span>
         }
-<span class="pc bpc" id="L558" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
-<span class="fc" id="L559">            json.add(&quot;state&quot;, getState().name());</span>
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.state&quot;)) {</span>
+<span class="fc" id="L567">            json.add(&quot;state&quot;, getState().name());</span>
         }
-<span class="pc bpc" id="L561" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
-<span class="fc" id="L562">            json.add(&quot;processID&quot;, getProcessID());</span>
+<span class="pc bpc" id="L569" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.processID&quot;)) {</span>
+<span class="fc" id="L570">            json.add(&quot;processID&quot;, getProcessID());</span>
         }
-<span class="pc bpc" id="L564" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
-<span class="fc" id="L565">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.parentProcessID&quot;)) {</span>
+<span class="fc" id="L573">            json.add(&quot;parentProcessID&quot;, getParentProcessID());</span>
         }
-<span class="pc bpc" id="L567" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
-<span class="fc" id="L568">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
+<span class="pc bpc" id="L575" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.threadCount&quot;)) {</span>
+<span class="fc" id="L576">            json.add(&quot;threadCount&quot;, getThreadCount());</span>
         }
-<span class="pc bpc" id="L570" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
-<span class="fc" id="L571">            json.add(&quot;priority&quot;, getPriority());</span>
+<span class="pc bpc" id="L578" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.priority&quot;)) {</span>
+<span class="fc" id="L579">            json.add(&quot;priority&quot;, getPriority());</span>
         }
-<span class="pc bpc" id="L573" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
-<span class="fc" id="L574">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.virtualSize&quot;)) {</span>
+<span class="fc" id="L582">            json.add(&quot;virtualSize&quot;, getVirtualSize());</span>
         }
-<span class="pc bpc" id="L576" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
-<span class="fc" id="L577">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
+<span class="pc bpc" id="L584" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.residentSetSize&quot;)) {</span>
+<span class="fc" id="L585">            json.add(&quot;residentSetSize&quot;, getResidentSetSize());</span>
         }
-<span class="pc bpc" id="L579" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
-<span class="fc" id="L580">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.kernelTime&quot;)) {</span>
+<span class="fc" id="L588">            json.add(&quot;kernelTime&quot;, getKernelTime());</span>
         }
-<span class="pc bpc" id="L582" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
-<span class="fc" id="L583">            json.add(&quot;userTime&quot;, getUserTime());</span>
+<span class="pc bpc" id="L590" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.userTime&quot;)) {</span>
+<span class="fc" id="L591">            json.add(&quot;userTime&quot;, getUserTime());</span>
         }
-<span class="pc bpc" id="L585" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
-<span class="fc" id="L586">            json.add(&quot;upTime&quot;, getUpTime());</span>
+<span class="pc bpc" id="L593" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.upTime&quot;)) {</span>
+<span class="fc" id="L594">            json.add(&quot;upTime&quot;, getUpTime());</span>
         }
-<span class="pc bpc" id="L588" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
-<span class="fc" id="L589">            json.add(&quot;startTime&quot;, getStartTime());</span>
+<span class="pc bpc" id="L596" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.startTime&quot;)) {</span>
+<span class="fc" id="L597">            json.add(&quot;startTime&quot;, getStartTime());</span>
         }
-<span class="pc bpc" id="L591" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesRead&quot;)) {</span>
-<span class="fc" id="L592">            json.add(&quot;bytesRead&quot;, getBytesRead());</span>
+<span class="pc bpc" id="L599" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesRead&quot;)) {</span>
+<span class="fc" id="L600">            json.add(&quot;bytesRead&quot;, getBytesRead());</span>
         }
-<span class="pc bpc" id="L594" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesWritten&quot;)) {</span>
-<span class="fc" id="L595">            json.add(&quot;bytesWritten&quot;, getBytesWritten());</span>
+<span class="pc bpc" id="L602" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.bytesWritten&quot;)) {</span>
+<span class="fc" id="L603">            json.add(&quot;bytesWritten&quot;, getBytesWritten());</span>
         }
-<span class="pc bpc" id="L597" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.handles&quot;)) {</span>
-<span class="fc" id="L598">            json.add(&quot;handles&quot;, getOpenFiles());</span>
+<span class="pc bpc" id="L605" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.processes.handles&quot;)) {</span>
+<span class="fc" id="L606">            json.add(&quot;handles&quot;, getOpenFiles());</span>
         }
-<span class="fc" id="L600">        return json.build();</span>
+<span class="fc" id="L608">        return json.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
