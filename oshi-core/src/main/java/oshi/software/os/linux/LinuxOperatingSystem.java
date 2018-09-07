@@ -95,15 +95,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
     static {
         for (ProcPidStat stat : ProcPidStat.values()) {
-            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
+            // The PROC_PID_STAT enum indices are 1-indexed.
+            // Subtract one to get a zero-based index
+            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
         }
     }
 
-    // There are 52 elements in /proc/pid/stat output. To make the orders behave
-    // like 0-indexed array indices, which the parsing method assumes, length is
-    // one bigger. The method will return when all of the enum indices have been
-    // iterated.
-    private static final int PROC_PID_STAT_LENGTH = 53;
+    // 2.6 Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
+    // Since we parse a proc/pid value as part of jiffy calculation, we can
+    // count the length there to set this value
+    private static int procPidStatLength = 52;
 
     private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
@@ -156,11 +157,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         String youngestPid = "";
         for (File pid : pids) {
             List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()), false);
-            if (!stat.isEmpty()) {
-                String[] split = ParseUtil.whitespaces.split(stat.get(0));
-                if (split.length >= 22) {
-                    youngestJiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
+            if (!stat.isEmpty() && stat.get(0).contains(")")) {
+                String procPidStat = stat.get(0);
+                // 2nd elment is process name and may contain spaces, but is
+                // within parenthesis. Split from the ')' index.
+                int parenIndex = procPidStat.lastIndexOf(')');
+                String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));
+                if (split.length >= 21) {
+                    // ')' is split index 0 but stat element 2.
+                    // We want element 22 so it will be at index 20 of the split
+                    youngestJiffies = ParseUtil.parseLongOrDefault(split[20], 0L);
                     youngestPid = pid.getName();
+                    // Add 1 to account for pid that didn't make the split
+                    procPidStatLength = split.length + 1;
                     break;
                 }
             }
@@ -271,7 +280,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // We can get name and status more easily from /proc/pid/status which we
         // call later, so just get the numeric bits here
         proc.setProcessID(pid);
-        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
         proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
         proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
         proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);
@@ -358,7 +367,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static int getParentPidFromProcFile(int pid) {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
-        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 
