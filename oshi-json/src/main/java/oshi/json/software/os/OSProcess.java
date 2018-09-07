@@ -529,6 +529,14 @@ public class OSProcess extends AbstractOshiJsonObject implements OshiJsonObject 
      * {@inheritDoc}
      */
     @Override
+    public String toString() {
+        return this.osProcess.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.processes.name")) {
