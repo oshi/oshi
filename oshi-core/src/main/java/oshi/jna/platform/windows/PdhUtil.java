@@ -65,11 +65,11 @@ public abstract class PdhUtil {
         }
 
         // Can't allocate 0 memory
-        if (pcchNameBufferSize.getValue().intValue() < 1) {
+        if (pcchNameBufferSize.getValue().longValue() < 1) {
             return "";
         }
         // Allocate buffer and call again
-        Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+        Memory mem = new Memory(pcchNameBufferSize.getValue().longValue() * CHAR_TO_BYTES);
         result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
 
         if (result != WinError.ERROR_SUCCESS) {
@@ -158,12 +158,12 @@ public abstract class PdhUtil {
         Memory mszCounterList = null;
         Memory mszInstanceList = null;
 
-        if (pcchCounterListLength.getValue().intValue() > 0) {
-            mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);
+        if (pcchCounterListLength.getValue().longValue() > 0) {
+            mszCounterList = new Memory(pcchCounterListLength.getValue().longValue() * CHAR_TO_BYTES);
         }
 
-        if (pcchInstanceListLength.getValue().intValue() > 0) {
-            mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);
+        if (pcchInstanceListLength.getValue().longValue() > 0) {
+            mszInstanceList = new Memory(pcchInstanceListLength.getValue().longValue() * CHAR_TO_BYTES);
         }
 
         result = Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,

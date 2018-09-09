@@ -115,7 +115,7 @@ public class LinuxSensors implements Sensors {
         }
         // If temp1_input doesn't exist, iterate over temp2..temp6_input
         // and average
-        int sum = 0;
+        long sum = 0;
         int count = 0;
         for (int i = 2; i <= 6; i++) {
             millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));

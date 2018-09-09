@@ -65,7 +65,7 @@ public abstract class Cfgmgr32Util {
         }
 
         // Add one to length to allow null terminator
-        Memory buffer = new Memory((pulLen.getValue() + 1) * charToBytes);
+        Memory buffer = new Memory(((long) pulLen.getValue() + 1) * charToBytes);
         // Zero the buffer (including the extra character)
         buffer.clear();
         // Fetch the buffer specifying only the current length
@@ -78,7 +78,7 @@ public abstract class Cfgmgr32Util {
             if (ret != Cfgmgr32.CR_SUCCESS) {
                 throw new Cfgmgr32Exception(ret);
             }
-            buffer = new Memory((pulLen.getValue() + 1) * charToBytes);
+            buffer = new Memory(((long) pulLen.getValue() + 1) * charToBytes);
             buffer.clear();
             ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
         }
