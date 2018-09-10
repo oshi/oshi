@@ -136,17 +136,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Initializes tick arrays
      */
     protected synchronized void initTicks() {
-        // Per-processor ticks
         this.prevProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
         this.curProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
-        updateProcessorTicks();
-
-        // Solaris relies on procTicks init before system ticks
-        // System ticks
         this.prevTicks = new long[TickType.values().length];
         this.curTicks = new long[TickType.values().length];
-        updateSystemTicks();
-
     }
 
     /**
