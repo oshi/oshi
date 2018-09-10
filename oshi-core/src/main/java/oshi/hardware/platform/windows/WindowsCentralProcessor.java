@@ -260,9 +260,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     InterruptsProperty.class);
         }
-        // REMOVE
-        processorTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
-                ProcessorTickCountProperty.class);
     }
 
     /**
