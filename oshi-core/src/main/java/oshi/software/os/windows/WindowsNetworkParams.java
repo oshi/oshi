@@ -149,7 +149,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         int index = 0;
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < vals.getResultCount(); i++) {
-            int metric = WmiUtil.getUint32(vals, NetRouteProperty.ROUTEMETRIC, i);
+            int metric = WmiUtil.getUint16(vals, NetRouteProperty.ROUTEMETRIC, i);
             if (metric < min) {
                 min = metric;
                 index = i;

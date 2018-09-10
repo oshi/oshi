@@ -1,5 +1,6 @@
 3.9.0 (in progress)
 ================
+* [#614](https://github.com/oshi/oshi/pull/614): Remove unneeded debug query and fix a WMI cast error - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.8.2 (09/07/2018)
