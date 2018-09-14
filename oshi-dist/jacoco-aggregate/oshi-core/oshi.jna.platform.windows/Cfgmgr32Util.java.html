@@ -65,7 +65,7 @@ import com.sun.jna.ptr.IntByReference;
         }
 
         // Add one to length to allow null terminator
-<span class="nc" id="L68">        Memory buffer = new Memory((pulLen.getValue() + 1) * charToBytes);</span>
+<span class="nc" id="L68">        Memory buffer = new Memory(((long) pulLen.getValue() + 1) * charToBytes);</span>
         // Zero the buffer (including the extra character)
 <span class="nc" id="L70">        buffer.clear();</span>
         // Fetch the buffer specifying only the current length
@@ -78,7 +78,7 @@ import com.sun.jna.ptr.IntByReference;
 <span class="nc bnc" id="L78" title="All 2 branches missed.">            if (ret != Cfgmgr32.CR_SUCCESS) {</span>
 <span class="nc" id="L79">                throw new Cfgmgr32Exception(ret);</span>
             }
-<span class="nc" id="L81">            buffer = new Memory((pulLen.getValue() + 1) * charToBytes);</span>
+<span class="nc" id="L81">            buffer = new Memory(((long) pulLen.getValue() + 1) * charToBytes);</span>
 <span class="nc" id="L82">            buffer.clear();</span>
 <span class="nc" id="L83">            ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);</span>
         }
