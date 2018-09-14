@@ -65,11 +65,11 @@ import com.sun.jna.platform.win32.WinReg;
         }
 
         // Can't allocate 0 memory
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (pcchNameBufferSize.getValue().intValue() &lt; 1) {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (pcchNameBufferSize.getValue().longValue() &lt; 1) {</span>
 <span class="nc" id="L69">            return &quot;&quot;;</span>
         }
         // Allocate buffer and call again
-<span class="nc" id="L72">        Memory mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc" id="L72">        Memory mem = new Memory(pcchNameBufferSize.getValue().longValue() * CHAR_TO_BYTES);</span>
 <span class="nc" id="L73">        result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);</span>
 
 <span class="nc bnc" id="L75" title="All 2 branches missed.">        if (result != WinError.ERROR_SUCCESS) {</span>
@@ -158,12 +158,12 @@ import com.sun.jna.platform.win32.WinReg;
 <span class="nc" id="L158">        Memory mszCounterList = null;</span>
 <span class="nc" id="L159">        Memory mszInstanceList = null;</span>
 
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (pcchCounterListLength.getValue().intValue() &gt; 0) {</span>
-<span class="nc" id="L162">            mszCounterList = new Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (pcchCounterListLength.getValue().longValue() &gt; 0) {</span>
+<span class="nc" id="L162">            mszCounterList = new Memory(pcchCounterListLength.getValue().longValue() * CHAR_TO_BYTES);</span>
         }
 
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (pcchInstanceListLength.getValue().intValue() &gt; 0) {</span>
-<span class="nc" id="L166">            mszInstanceList = new Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (pcchInstanceListLength.getValue().longValue() &gt; 0) {</span>
+<span class="nc" id="L166">            mszInstanceList = new Memory(pcchInstanceListLength.getValue().longValue() * CHAR_TO_BYTES);</span>
         }
 
 <span class="nc" id="L169">        result = Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,</span>

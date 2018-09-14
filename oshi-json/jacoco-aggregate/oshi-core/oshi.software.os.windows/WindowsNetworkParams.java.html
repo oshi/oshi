@@ -149,7 +149,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L149">        int index = 0;</span>
 <span class="nc" id="L150">        int min = Integer.MAX_VALUE;</span>
 <span class="nc bnc" id="L151" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.getResultCount(); i++) {</span>
-<span class="nc" id="L152">            int metric = WmiUtil.getUint32(vals, NetRouteProperty.ROUTEMETRIC, i);</span>
+<span class="nc" id="L152">            int metric = WmiUtil.getUint16(vals, NetRouteProperty.ROUTEMETRIC, i);</span>
 <span class="nc bnc" id="L153" title="All 2 branches missed.">            if (metric &lt; min) {</span>
 <span class="nc" id="L154">                min = metric;</span>
 <span class="nc" id="L155">                index = i;</span>
