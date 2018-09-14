@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Add one to length to allow null terminator</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Memory buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Memory buffer = <strong class="jxr_keyword">new</strong> Memory(((<strong class="jxr_keyword">long</strong>) pulLen.getValue() + 1) * charToBytes);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Zero the buffer (including the extra character)</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          buffer.clear();
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// Fetch the buffer specifying only the current length</em>
@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">if</strong> (ret != Cfgmgr32.CR_SUCCESS) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Cfgmgr32Util.html">Cfgmgr32Exception</a>(ret);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              buffer = <strong class="jxr_keyword">new</strong> Memory((pulLen.getValue() + 1) * charToBytes);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              buffer = <strong class="jxr_keyword">new</strong> Memory(((<strong class="jxr_keyword">long</strong>) pulLen.getValue() + 1) * charToBytes);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              buffer.clear();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              ret = Cfgmgr32.INSTANCE.CM_Get_Device_ID(devInst, buffer, pulLen.getValue(), 0);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          }

@@ -468,7 +468,7 @@
 <a class="jxr_linenumber" name="L460" href="#L460">460</a>             }
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>             milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
 <a class="jxr_linenumber" name="L462" href="#L462">462</a>             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             milliseconds += 1000 * parseDoubleOrDefault(<span class="jxr_string">"0."</span> + m.group(5), 0d);
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             milliseconds += (<strong class="jxr_keyword">long</strong>) (1000 * parseDoubleOrDefault(<span class="jxr_string">"0."</span> + m.group(5), 0d));
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> milliseconds;
 <a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
 <a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">return</strong> defaultLong;

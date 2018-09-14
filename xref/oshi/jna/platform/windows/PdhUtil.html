@@ -73,11 +73,11 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Can't allocate 0 memory</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (pcchNameBufferSize.getValue().intValue() &lt; 1) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (pcchNameBufferSize.getValue().longValue() &lt; 1) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// Allocate buffer and call again</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Memory mem = <strong class="jxr_keyword">new</strong> Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Memory mem = <strong class="jxr_keyword">new</strong> Memory(pcchNameBufferSize.getValue().longValue() * CHAR_TO_BYTES);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (result != WinError.ERROR_SUCCESS) {
@@ -166,12 +166,12 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         Memory mszCounterList = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         Memory mszInstanceList = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">if</strong> (pcchCounterListLength.getValue().intValue() &gt; 0) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             mszCounterList = <strong class="jxr_keyword">new</strong> Memory(pcchCounterListLength.getValue().intValue() * CHAR_TO_BYTES);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">if</strong> (pcchCounterListLength.getValue().longValue() &gt; 0) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             mszCounterList = <strong class="jxr_keyword">new</strong> Memory(pcchCounterListLength.getValue().longValue() * CHAR_TO_BYTES);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">if</strong> (pcchInstanceListLength.getValue().intValue() &gt; 0) {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             mszInstanceList = <strong class="jxr_keyword">new</strong> Memory(pcchInstanceListLength.getValue().intValue() * CHAR_TO_BYTES);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">if</strong> (pcchInstanceListLength.getValue().longValue() &gt; 0) {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             mszInstanceList = <strong class="jxr_keyword">new</strong> Memory(pcchInstanceListLength.getValue().longValue() * CHAR_TO_BYTES);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> 
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>         result = Pdh.INSTANCE.PdhEnumObjectItems(szDataSource, szMachineName, szObjectName, mszCounterList,
