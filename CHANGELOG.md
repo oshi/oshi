@@ -1,21 +1,18 @@
 3.9.0 (in progress)
 ================
-* [#614](https://github.com/oshi/oshi/pull/614): Remove unneeded debug query and fix a WMI cast error - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
-3.8.2 (09/07/2018)
-================
-* [#605](https://github.com/oshi/oshi/pull/605): Update OSGi imports. - [@dbwiddis](https://github.com/dbwiddis).
-* [#608](https://github.com/oshi/oshi/pull/608): Fix Windows context swith count bug. - [@dbwiddis](https://github.com/dbwiddis).
-* [#611](https://github.com/oshi/oshi/pull/611): Fix proc stat parsing on older Linux distros. - [@dbwiddis](https://github.com/dbwiddis).
-* [#612](https://github.com/oshi/oshi/pull/612): OSProcess toString. - [@dbwiddis](https://github.com/dbwiddis).
-
-3.8.1 (09/01/2018)
+3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018)
 ================
 * [#592](https://github.com/oshi/oshi/pull/592): Test for non-numeric doubles in JSON parsing. - [@dbwiddis](https://github.com/dbwiddis).
 * [#597](https://github.com/oshi/oshi/pull/597): Fix Windows serialnumber fallback bug. - [@dbwiddis](https://github.com/dbwiddis).
 * [#603](https://github.com/oshi/oshi/pull/603): Fix Process Uptime bug. - [@anitakosman](https://github.com/anitakosman).
 * [#604](https://github.com/oshi/oshi/pull/604): Fix Windows interrupt count bug. - [@dbwiddis](https://github.com/dbwiddis).
+* [#605](https://github.com/oshi/oshi/pull/605): Update OSGi imports. - [@dbwiddis](https://github.com/dbwiddis).
+* [#608](https://github.com/oshi/oshi/pull/608): Fix Windows context swith count bug. - [@dbwiddis](https://github.com/dbwiddis).
+* [#611](https://github.com/oshi/oshi/pull/611): Fix proc stat parsing on older Linux distros. - [@dbwiddis](https://github.com/dbwiddis).
+* [#612](https://github.com/oshi/oshi/pull/612): OSProcess toString. - [@dbwiddis](https://github.com/dbwiddis).
+* [#614](https://github.com/oshi/oshi/pull/614): Remove unneeded debug query and fix a WMI cast error - [@dbwiddis](https://github.com/dbwiddis).
 
 3.8.0 (08/20/2018)
 ================
@@ -25,16 +22,13 @@
 * [#587](https://github.com/oshi/oshi/pull/587): Localize PDH instance enumeration. - [@dbwiddis](https://github.com/dbwiddis).
 * [#588](https://github.com/oshi/oshi/pull/588): WMI backup for all PDH Counters. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.7.2 (08/01/2018)
+3.7.1 (07/28/2018), 3.7.2 (08/01/2018)
 ================
+* [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
 * [#573](https://github.com/oshi/oshi/pull/573): Don't get PDH swap stats if no swap. - [@dbwiddis](https://github.com/dbwiddis).
 * [#574](https://github.com/oshi/oshi/pull/574): Suppress repeat updates of failed PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
 * [#575](https://github.com/oshi/oshi/pull/575): Replace WMI value types with Variant types. - [@dbwiddis](https://github.com/dbwiddis).
 * [#577](https://github.com/oshi/oshi/pull/577): Get Windows temperature from PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
-
-3.7.1 (07/28/2018)
-================
-* [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.7.0 (07/28/2018)
 ================
@@ -46,15 +40,12 @@
 * [#567](https://github.com/oshi/oshi/pull/567): Cache USB devices. - [@dbwiddis](https://github.com/dbwiddis).
 * [#569](https://github.com/oshi/oshi/pull/569): Remove threetenbp dependency. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.6.2 (7/10/18)
-================
-* [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
-* [#547](https://github.com/oshi/oshi/pull/547): Remove DataTypeConverter dependency so OSHI builds on Java 9+ - [@dbwiddis](https://github.com/dbwiddis).
-
-3.6.1 (6/28/2018)
+3.6.1 (6/28/2018), 3.6.2 (7/10/18)
 ================
 * [#527](https://github.com/oshi/oshi/pull/527): Correct process information caching and command line retrieval under Windows - [@dustin-johnson](https://github.com/dustin-johnson).
 * [#533](https://github.com/oshi/oshi/pull/533): Filter to CPU zone if multiple Windows Thermal sensors. - [@dbwiddis](https://github.com/dbwiddis).
+* [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
+* [#547](https://github.com/oshi/oshi/pull/547): Remove DataTypeConverter dependency so OSHI builds on Java 9+ - [@dbwiddis](https://github.com/dbwiddis).
 
 3.6.0 (6/20/2018)
 ================

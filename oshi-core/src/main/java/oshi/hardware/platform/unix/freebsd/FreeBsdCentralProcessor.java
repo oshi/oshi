@@ -219,11 +219,11 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p.getLong(offset * cpu + (long) Libc.CP_USER * Libc.UINT64_SIZE); // lgtm[java/evaluation-to-constant]
-            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(offset * cpu + (long) Libc.CP_NICE * Libc.UINT64_SIZE);
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(offset * cpu + (long) Libc.CP_SYS * Libc.UINT64_SIZE);
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(offset * cpu + (long) Libc.CP_INTR * Libc.UINT64_SIZE);
-            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(offset * cpu + (long) Libc.CP_IDLE * Libc.UINT64_SIZE);
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE)); // lgtm[java/evaluation-to-constant]
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE));
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE));
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE));
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE));
         }
         return ticks;
     }
