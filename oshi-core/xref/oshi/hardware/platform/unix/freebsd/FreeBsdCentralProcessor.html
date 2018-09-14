@@ -227,11 +227,11 @@
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         }
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// p now points to the data; need to copy each element</em>
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; <strong class="jxr_keyword">this</strong>.logicalProcessorCount; cpu++) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             ticks[cpu][TickType.USER.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             ticks[cpu][TickType.NICE.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>             ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             ticks[cpu][TickType.USER.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) (offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE)); <em class="jxr_comment">// lgtm[java/evaluation-to-constant]</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             ticks[cpu][TickType.NICE.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) (offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE));
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) (offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE));
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) (offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE));
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((<strong class="jxr_keyword">long</strong>) (offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE));
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
