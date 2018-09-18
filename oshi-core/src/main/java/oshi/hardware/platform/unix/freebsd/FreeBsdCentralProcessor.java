@@ -208,22 +208,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         // Allocate memory for array of CPTime
-        int offset = new CpTime().size();
-        int size = offset * this.logicalProcessorCount;
-        Pointer p = new Memory(size);
+        long size = new CpTime().size();
+        long arraySize = size * this.logicalProcessorCount;
+        Pointer p = new Memory(arraySize);
         String name = "kern.cp_times";
         // Fetch
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {
+        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference((int) arraySize), null, 0)) {
             LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
             return ticks;
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE)); // lgtm[java/evaluation-to-constant]
-            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE));
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE));
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE));
-            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE));
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong(size * cpu + Libc.CP_USER * Libc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(size * cpu + Libc.CP_NICE * Libc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(size * cpu + Libc.CP_SYS * Libc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + Libc.CP_INTR * Libc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(size * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE); // lgtm
         }
         return ticks;
     }
