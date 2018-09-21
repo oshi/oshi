@@ -23,10 +23,4 @@ public interface SoundCard {
      */
     String getCodec();
 
-    /**
-     * Retrieves all the sound cards currently contained in our machine
-     * @return
-     */
-    SoundCard[] getDevices();
-
 }
