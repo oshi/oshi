@@ -9,13 +9,11 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     private String name;
     private String codec;
-    private SoundCard[] devices;
 
-    public AbstractSoundCard(String kernelVersion, String name, String codec, SoundCard[] devices) {
+    public AbstractSoundCard(String kernelVersion, String name, String codec) {
         this.kernelVersion = kernelVersion;
         this.name = name;
         this.codec = codec;
-        this.devices = devices;
     }
 
     @Override
@@ -43,15 +41,6 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     public void setCodec(String codec) {
         this.codec = codec;
-    }
-
-    @Override
-    public SoundCard[] getDevices() {
-        return devices;
-    }
-
-    public void setDevices(SoundCard[] devices) {
-        this.devices = devices;
     }
 
 
