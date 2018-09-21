@@ -104,9 +104,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     // Jiffies per second, used for process time counters.
     private static final long USER_HZ = calcHz();
-    // Boot time in MS
+    // Boot time in MS. Two rounding adjustments are included:
+    // Proc Uptime rounds to nearest 10ms so uptime may be 5ms too small.
+    // Additionally the cast by truncation could lose another half ms.
     private static final long BOOT_TIME = System.currentTimeMillis()
-            - (long) (1000 * ProcUtil.getSystemUptimeSeconds());
+            - (long) (1000 * (ProcUtil.getSystemUptimeSeconds() + 0.0055));
 
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
