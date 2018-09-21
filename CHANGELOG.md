@@ -1,5 +1,6 @@
 3.9.0 (in progress)
 ================
+* [#626](https://github.com/oshi/oshi/pull/626): Fix calculation of Hz on Linux - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018)
