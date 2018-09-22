@@ -114,6 +114,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
 
     @Override
     public SoundCard[] getSoundCards() {
-        return LinuxSoundCard.getLinuxSoundCards().toArray(new SoundCard[0]);
+        return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }

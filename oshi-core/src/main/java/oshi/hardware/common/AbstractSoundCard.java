@@ -5,8 +5,6 @@ import oshi.hardware.SoundCard;
 public abstract class AbstractSoundCard implements SoundCard {
 
     private String kernelVersion;
-
-
     private String name;
     private String codec;
 
@@ -43,5 +41,17 @@ public abstract class AbstractSoundCard implements SoundCard {
         this.codec = codec;
     }
 
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SOUND CARDS DRIVER VERSION : " + kernelVersion);
+        builder.append("\n");
+        builder.append("NAME  ---: " + name);
+        builder.append("\n");
+        builder.append("CODEC ---: " + codec);
+        builder.append("\n");
+        return builder.toString();
+    }
 
 }
