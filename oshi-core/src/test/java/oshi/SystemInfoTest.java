@@ -1,18 +1,18 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
- *
+ * <p>
  * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
  * enrico.bianchi[at]gmail[dot]com
- *
+ * <p>
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
@@ -20,6 +20,7 @@ package oshi;
 
 import static org.junit.Assert.assertFalse;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,20 +28,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.Baseboard;
-import oshi.hardware.CentralProcessor;
+import oshi.hardware.*;
 import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Display;
-import oshi.hardware.Firmware;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWPartition;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
+import oshi.hardware.platform.linux.LinuxPowerSourceUpdated;
+import oshi.hardware.platform.linux.LinuxSoundCard;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -68,8 +59,7 @@ public class SystemInfoTest {
     /**
      * The main method, demonstrating use of classes.
      *
-     * @param args
-     *            the arguments
+     * @param args the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE
@@ -83,48 +73,10 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
-        System.out.println(os);
+        for (SoundCard soundCard : hal.getSoundCards()) {
+            System.out.println(soundCard.toString());
+        }
 
-        LOG.info("Checking computer system...");
-        printComputerSystem(hal.getComputerSystem());
-
-        LOG.info("Checking Processor...");
-        printProcessor(hal.getProcessor());
-
-        LOG.info("Checking Memory...");
-        printMemory(hal.getMemory());
-
-        LOG.info("Checking CPU...");
-        printCpu(hal.getProcessor());
-
-        LOG.info("Checking Processes...");
-        printProcesses(os, hal.getMemory());
-
-        LOG.info("Checking Sensors...");
-        printSensors(hal.getSensors());
-
-        LOG.info("Checking Power sources...");
-        printPowerSources(hal.getPowerSources());
-
-        LOG.info("Checking Disks...");
-        printDisks(hal.getDiskStores());
-
-        LOG.info("Checking File System...");
-        printFileSystem(os.getFileSystem());
-
-        LOG.info("Checking Network interfaces...");
-        printNetworkInterfaces(hal.getNetworkIFs());
-
-        LOG.info("Checking Network parameterss...");
-        printNetworkParameters(os.getNetworkParams());
-
-        // hardware: displays
-        LOG.info("Checking Displays...");
-        printDisplays(hal.getDisplays());
-
-        // hardware: USB devices
-        LOG.info("Checking USB Devices...");
-        printUsbDevices(hal.getUsbDevices(true));
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
@@ -336,4 +288,11 @@ public class SystemInfoTest {
             System.out.println(usbDevice.toString());
         }
     }
+
+    private static void printPowerSourceUpdated() {
+
+
+        LinuxPowerSourceUpdated.foo();
+    }
+
 }
