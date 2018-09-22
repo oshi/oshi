@@ -140,7 +140,7 @@ public class PerfDataUtil {
      */
     public static boolean removeCounterFromQuery(PerfCounter counter) {
         if (counterMap.containsKey(counter)) {
-            return (WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue()));
+            return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue());
         }
         return false;
     }

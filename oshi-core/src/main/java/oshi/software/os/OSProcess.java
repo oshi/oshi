@@ -570,8 +570,7 @@ public class OSProcess implements Serializable {
         StringBuilder builder = new StringBuilder("OSProcess@");
         builder.append(Integer.toHexString(hashCode()));
         builder.append("[processID=").append(processID);
-        builder.append(", name=").append(name);
-        builder.append("]");
+        builder.append(", name=").append(name).append(']');
         return builder.toString();
     }
 }
