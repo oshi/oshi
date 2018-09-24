@@ -104,11 +104,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     // Jiffies per second, used for process time counters.
     private static final long USER_HZ = calcHz();
-    // Boot time in MS. Two rounding adjustments are included:
-    // Proc Uptime rounds to nearest 10ms so uptime may be 5ms too small.
-    // Additionally the cast by truncation could lose another half ms.
+    // Boot time in MS. Cast/truncation is effectively rounding. Boot time could
+    // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
     private static final long BOOT_TIME = System.currentTimeMillis()
-            - (long) (1000 * (ProcUtil.getSystemUptimeSeconds() + 0.0055));
+            - 10L * (long) (100 * ProcUtil.getSystemUptimeSeconds() + 0.5);
 
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
@@ -175,8 +174,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             path = buf.getString(0).substring(0, size);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
-        long now = System.currentTimeMillis();
         // See man proc for how to parse /proc/[pid]/stat
+        long now = System.currentTimeMillis();
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
         // A race condition may leave us with an empty string
         if (stat.isEmpty()) {
@@ -195,6 +194,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / USER_HZ);
         proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);
         proc.setStartTime(BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ);
+        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
+        // started within 5ms of boot it is possible to get negative uptime.
+        if (proc.getStartTime() >= now) {
+            proc.setStartTime(now - 1);
+        }
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
