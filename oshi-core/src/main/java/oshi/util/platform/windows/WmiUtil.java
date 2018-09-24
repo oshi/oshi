@@ -33,7 +33,6 @@ import com.sun.jna.platform.win32.COM.COMUtils;
 
 import oshi.jna.platform.windows.Ole32;
 import oshi.jna.platform.windows.Wbemcli;
-import oshi.jna.platform.windows.Wbemcli.IWbemServices;
 import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
@@ -54,7 +53,6 @@ public class WmiUtil {
 
     // Global timeout for WMI queries
     private static int wmiTimeout = Wbemcli.WBEM_INFINITE;
-    private static int connectionCacheTimeout = 300_000;
 
     // Cache namespaces
     private static Set<String> hasNamespaceCache = new HashSet<>();
@@ -109,35 +107,6 @@ public class WmiUtil {
         }
         hasNotNamespaceCache.add(namespace);
         return false;
-    }
-
-    /**
-     * Helper class for WMI connection caching
-     */
-    public class WmiConnection {
-        private long staleAfter;
-        private IWbemServices svc;
-
-        WmiConnection(IWbemServices svc) {
-            this.svc = svc;
-            refresh();
-        }
-
-        public IWbemServices getService() {
-            return this.svc;
-        }
-
-        public boolean isStale() {
-            return System.currentTimeMillis() > staleAfter;
-        }
-
-        public void refresh() {
-            this.staleAfter = System.currentTimeMillis() + connectionCacheTimeout;
-        }
-
-        public void close() {
-            this.svc.Release();
-        }
     }
 
     /**

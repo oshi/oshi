@@ -40,43 +40,43 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public interface Wbemcli {
 
-    public static final int WBEM_FLAG_RETURN_IMMEDIATELY = 0x00000010;
-    public static final int WBEM_FLAG_FORWARD_ONLY = 0x00000020;
-    public static final int WBEM_INFINITE = 0xFFFFFFFF;
+    int WBEM_FLAG_RETURN_IMMEDIATELY = 0x00000010;
+    int WBEM_FLAG_FORWARD_ONLY = 0x00000020;
+    int WBEM_INFINITE = 0xFFFFFFFF;
 
     // Non-error constants
     // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-non-error-constants
-    public static final int WBEM_S_NO_ERROR = 0x0;
-    public static final int WBEM_S_FALSE = 0x1;
-    public static final int WBEM_S_TIMEDOUT = 0x40004;
-    public static final int WBEM_S_NO_MORE_DATA = 0x40005;
+    int WBEM_S_NO_ERROR = 0x0;
+    int WBEM_S_FALSE = 0x1;
+    int WBEM_S_TIMEDOUT = 0x40004;
+    int WBEM_S_NO_MORE_DATA = 0x40005;
 
     // Error constants
     // https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-error-constants
-    public static final int WBEM_E_INVALID_NAMESPACE = 0x8004100e;
-    public static final int WBEM_E_INVALID_CLASS = 0x80041010;
-    public static final int WBEM_E_INVALID_QUERY = 0x80041017;
+    int WBEM_E_INVALID_NAMESPACE = 0x8004100e;
+    int WBEM_E_INVALID_CLASS = 0x80041010;
+    int WBEM_E_INVALID_QUERY = 0x80041017;
 
     // CIM Types
-    public static final int CIM_ILLEGAL = 0xfff;
-    public static final int CIM_EMPTY = 0;
-    public static final int CIM_SINT8 = 16;
-    public static final int CIM_UINT8 = 17;
-    public static final int CIM_SINT16 = 2;
-    public static final int CIM_UINT16 = 18;
-    public static final int CIM_SINT32 = 3;
-    public static final int CIM_UINT32 = 19;
-    public static final int CIM_SINT64 = 20;
-    public static final int CIM_UINT64 = 21;
-    public static final int CIM_REAL32 = 4;
-    public static final int CIM_REAL64 = 5;
-    public static final int CIM_BOOLEAN = 11;
-    public static final int CIM_STRING = 8;
-    public static final int CIM_DATETIME = 101;
-    public static final int CIM_REFERENCE = 102;
-    public static final int CIM_CHAR16 = 103;
-    public static final int CIM_OBJECT = 13;
-    public static final int CIM_FLAG_ARRAY = 0x2000;
+    int CIM_ILLEGAL = 0xfff;
+    int CIM_EMPTY = 0;
+    int CIM_SINT8 = 16;
+    int CIM_UINT8 = 17;
+    int CIM_SINT16 = 2;
+    int CIM_UINT16 = 18;
+    int CIM_SINT32 = 3;
+    int CIM_UINT32 = 19;
+    int CIM_SINT64 = 20;
+    int CIM_UINT64 = 21;
+    int CIM_REAL32 = 4;
+    int CIM_REAL64 = 5;
+    int CIM_BOOLEAN = 11;
+    int CIM_STRING = 8;
+    int CIM_DATETIME = 101;
+    int CIM_REFERENCE = 102;
+    int CIM_CHAR16 = 103;
+    int CIM_OBJECT = 13;
+    int CIM_FLAG_ARRAY = 0x2000;
 
     /**
      * Contains and manipulates both WMI class definitions and class object

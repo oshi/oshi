@@ -29,6 +29,7 @@ import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.mac.SystemB.XswUsage;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -75,8 +76,8 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
                 return;
             }
             this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;
-            this.swapPagesIn = this.vmStats.pageins;
-            this.swapPagesOut = this.vmStats.pageouts;
+            this.swapPagesIn = ParseUtil.unsignedIntToLong(this.vmStats.pageins);
+            this.swapPagesOut = ParseUtil.unsignedIntToLong(this.vmStats.pageouts);
             this.lastUpdateAvail = now;
         }
     }

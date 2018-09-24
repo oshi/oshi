@@ -237,12 +237,13 @@ public class EdidUtil {
      */
     public static String toString(byte[] edid) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  Manuf. ID=").append(EdidUtil.getManufacturerID(edid)).append(", Product ID=")
-                .append(EdidUtil.getProductID(edid)).append(", ")
-                .append(EdidUtil.isDigital(edid) ? "Digital" : "Analog").append(", Serial=")
-                .append(EdidUtil.getSerialNo(edid)).append(", ManufDate=")
-                .append(EdidUtil.getWeek(edid) * 12 / 52 + 1 + "/").append(EdidUtil.getYear(edid)).append(", EDID v")
-                .append(EdidUtil.getVersion(edid));
+        sb.append("  Manuf. ID=").append(EdidUtil.getManufacturerID(edid));
+        sb.append(", Product ID=").append(EdidUtil.getProductID(edid));
+        sb.append(", ").append(EdidUtil.isDigital(edid) ? "Digital" : "Analog");
+        sb.append(", Serial=").append(EdidUtil.getSerialNo(edid));
+        sb.append(", ManufDate=").append(EdidUtil.getWeek(edid) * 12 / 52 + 1).append('/')
+                .append(EdidUtil.getYear(edid));
+        sb.append(", EDID v").append(EdidUtil.getVersion(edid));
         int hSize = EdidUtil.getHcm(edid);
         int vSize = EdidUtil.getVcm(edid);
         sb.append(String.format("%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
