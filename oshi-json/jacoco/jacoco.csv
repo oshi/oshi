@@ -80,7 +80,7 @@ oshi-json,oshi.software.os,OSUser,17,0,0,0,7,0,5,0,5,0
 oshi-json,oshi.software.os,OperatingSystem.ProcessSort,0,74,0,0,0,2,0,1,0,1
 oshi-json,oshi.software.os,OSProcess.State,0,74,0,0,0,8,0,1,0,1
 oshi-json,oshi.software.os,OSFileStore,3,93,0,0,2,38,1,19,1,19
-oshi-json,oshi.software.os,OSProcess,32,207,1,1,6,80,2,46,1,46
+oshi-json,oshi.software.os,OSProcess,30,207,1,1,5,80,2,46,1,46
 oshi-json,oshi.hardware.common,AbstractUsbDevice,156,0,8,0,26,0,14,0,10,0
 oshi-json,oshi.hardware.common,AbstractGlobalMemory,69,0,4,0,24,0,10,0,8,0
 oshi-json,oshi.hardware.common,AbstractBaseboard,43,0,0,0,18,0,9,0,9,0
@@ -131,10 +131,9 @@ oshi-json,oshi.json.hardware,HWDiskStore.new Object() {...},5,35,0,0,0,1,0,1,0,1
 oshi-json,oshi.software.os.linux,LinuxFileSystem,421,0,42,0,67,0,28,0,7,0
 oshi-json,oshi.software.os.linux,LinuxOSVersionInfoEx,468,0,90,0,100,0,54,0,9,0
 oshi-json,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
-oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1322,0,172,0,274,0,123,0,23,0
+oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1215,0,160,0,247,0,117,0,23,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},37,0,12,0,4,0,8,0,2,0
-oshi-json,oshi.software.os.linux,LinuxOperatingSystem.new Comparator() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
 oshi-json,oshi.software.os.linux,LinuxUserGroupInfo.GroupsCache,84,0,10,0,22,0,8,0,3,0
 oshi-json,oshi.software.os.linux,LinuxUserGroupInfo,22,0,0,0,5,0,4,0,4,0
@@ -150,7 +149,7 @@ oshi-json,oshi.json.hardware.impl,DisplayImpl,37,0,2,0,10,0,5,0,4,0
 oshi-json,oshi.json.hardware.impl,FirmwareImpl,92,0,10,0,22,0,13,0,8,0
 oshi-json,oshi.json.hardware.impl,UsbDeviceImpl,159,0,18,0,33,0,18,0,9,0
 oshi-json,oshi.json.hardware.impl,HardwareAbstractionLayerImpl,614,0,48,0,93,0,35,0,11,0
-oshi-json,oshi.util.platform.linux,ProcUtil,43,0,4,0,11,0,5,0,3,0
+oshi-json,oshi.util.platform.linux,ProcUtil,112,0,12,0,29,0,11,0,5,0
 oshi-json,oshi.util.platform.linux,ProcUtil.new FileFilter() {...},9,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.util.platform.unix.freebsd,BsdSysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-json,oshi.util.platform.mac,IOKitUtil,251,0,40,0,76,0,32,0,12,0
@@ -181,7 +180,7 @@ oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,58,0,4,0,14,0,5
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdNetworks,70,0,2,0,13,0,3,0,2,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdComputerSystem,117,0,18,0,33,0,12,0,3,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdDisks,561,0,66,0,122,0,38,0,5,0
-oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,648,0,66,0,126,0,45,0,12,0
+oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,655,0,66,0,126,0,45,0,12,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,64,0,8,0,18,0,14,0,10,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,66,0,4,0,16,0,6,0,4,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdGlobalMemory,74,0,2,0,18,0,4,0,3,0
@@ -203,9 +202,9 @@ oshi-json,oshi.hardware.platform.linux,LinuxFirmware,136,0,24,0,29,0,14,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},24,0,4,0,2,0,4,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,38,0,22,0,3,0
-oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,625,0,95,0,138,0,62,0,12,0
+oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,578,0,89,0,128,0,59,0,12,0
 oshi-json,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,64,0,8,0,18,0,14,0,10,0
-oshi-json,oshi.hardware.platform.linux,LinuxDisks,413,0,28,0,88,0,20,0,6,0
+oshi-json,oshi.hardware.platform.linux,LinuxDisks,412,0,28,0,91,0,20,0,6,0
 oshi-json,oshi.hardware.platform.linux,LinuxGlobalMemory,263,0,39,0,65,0,29,0,5,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisks.UdevStat,70,0,0,0,6,0,3,0,3,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,24,0,9,0,3,0
@@ -268,7 +267,7 @@ oshi-json,oshi.jna.platform.mac,SystemB.IFmsgHdr2,52,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.jna.platform.mac,SystemB.Statfs,91,0,0,0,7,0,2,0,2,0
 oshi-json,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.util,Util,27,13,2,0,8,5,2,2,1,2
-oshi-json,oshi.util,EdidUtil,548,0,23,0,64,0,31,0,17,0
+oshi-json,oshi.util,EdidUtil,553,0,23,0,65,0,31,0,17,0
 oshi-json,oshi.util,FormatUtil,395,43,41,3,62,10,31,4,10,3
 oshi-json,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-json,oshi.util,StringUtil,40,0,4,0,7,0,4,0,2,0

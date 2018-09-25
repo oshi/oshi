@@ -140,7 +140,7 @@ public class PerfDataUtil {
      */
     public static boolean removeCounterFromQuery(PerfCounter counter) {
 <span class="nc bnc" id="L142" title="All 2 branches missed.">        if (counterMap.containsKey(counter)) {</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            return (WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue()));</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue());</span>
         }
 <span class="nc" id="L145">        return false;</span>
     }
