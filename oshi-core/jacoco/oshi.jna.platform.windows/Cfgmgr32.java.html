@@ -32,14 +32,14 @@ import com.sun.jna.win32.W32APIOptions;
 public interface Cfgmgr32 extends Library {
 <span class="nc" id="L33">    Cfgmgr32 INSTANCE = Native.loadLibrary(&quot;Cfgmgr32&quot;, Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
 
-    final static int CR_SUCCESS = 0;
-    final static int CR_BUFFER_SMALL = 0x0000001A;
+    int CR_SUCCESS = 0;
+    int CR_BUFFER_SMALL = 0x0000001A;
 
-    final static int CM_LOCATE_DEVNODE_NORMAL = 0;
-    final static int CM_LOCATE_DEVNODE_PHANTOM = 1;
-    final static int CM_LOCATE_DEVNODE_CANCELREMOVE = 2;
-    final static int CM_LOCATE_DEVNODE_NOVALIDATION = 4;
-    final static int CM_LOCATE_DEVNODE_BITS = 7;
+    int CM_LOCATE_DEVNODE_NORMAL = 0;
+    int CM_LOCATE_DEVNODE_PHANTOM = 1;
+    int CM_LOCATE_DEVNODE_CANCELREMOVE = 2;
+    int CM_LOCATE_DEVNODE_NOVALIDATION = 4;
+    int CM_LOCATE_DEVNODE_BITS = 7;
 
     /**
      * The CM_Locate_DevNode function obtains a device instance handle to the
@@ -185,5 +185,4 @@ public interface Cfgmgr32 extends Library {
      */
     int CM_Get_Device_ID_Size(IntByReference pulLen, int dnDevInst, int ulFlags);
 }
-
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
