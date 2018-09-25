@@ -148,7 +148,7 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> removeCounterFromQuery(<a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a> counter) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">if</strong> (counterMap.containsKey(counter)) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <strong class="jxr_keyword">return</strong> (WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue()));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <strong class="jxr_keyword">return</strong> WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(counterMap.get(counter).getValue());
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
