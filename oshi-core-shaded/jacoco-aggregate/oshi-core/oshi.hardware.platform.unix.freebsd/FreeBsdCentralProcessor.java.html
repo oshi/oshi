@@ -208,22 +208,22 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L208">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
 
         // Allocate memory for array of CPTime
-<span class="nc" id="L211">        int offset = new CpTime().size();</span>
-<span class="nc" id="L212">        int size = offset * this.logicalProcessorCount;</span>
-<span class="nc" id="L213">        Pointer p = new Memory(size);</span>
+<span class="nc" id="L211">        long size = new CpTime().size();</span>
+<span class="nc" id="L212">        long arraySize = size * this.logicalProcessorCount;</span>
+<span class="nc" id="L213">        Pointer p = new Memory(arraySize);</span>
 <span class="nc" id="L214">        String name = &quot;kern.cp_times&quot;;</span>
         // Fetch
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference(size), null, 0)) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference((int) arraySize), null, 0)) {</span>
 <span class="nc" id="L217">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
 <span class="nc" id="L218">            return ticks;</span>
         }
         // p now points to the data; need to copy each element
 <span class="nc bnc" id="L221" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L222">            ticks[cpu][TickType.USER.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_USER * Libc.UINT64_SIZE)); // lgtm[java/evaluation-to-constant]</span>
-<span class="nc" id="L223">            ticks[cpu][TickType.NICE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_NICE * Libc.UINT64_SIZE));</span>
-<span class="nc" id="L224">            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_SYS * Libc.UINT64_SIZE));</span>
-<span class="nc" id="L225">            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_INTR * Libc.UINT64_SIZE));</span>
-<span class="nc" id="L226">            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong((long) (offset * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE));</span>
+<span class="nc" id="L222">            ticks[cpu][TickType.USER.getIndex()] = p.getLong(size * cpu + Libc.CP_USER * Libc.UINT64_SIZE); // lgtm</span>
+<span class="nc" id="L223">            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(size * cpu + Libc.CP_NICE * Libc.UINT64_SIZE); // lgtm</span>
+<span class="nc" id="L224">            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(size * cpu + Libc.CP_SYS * Libc.UINT64_SIZE); // lgtm</span>
+<span class="nc" id="L225">            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + Libc.CP_INTR * Libc.UINT64_SIZE); // lgtm</span>
+<span class="nc" id="L226">            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(size * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE); // lgtm</span>
         }
 <span class="nc" id="L228">        return ticks;</span>
     }
