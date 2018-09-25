@@ -66,6 +66,7 @@ public class FreeBsdDisks implements Disks {
             // In KB
             diskStore.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
             diskStore.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
+            diskStore.setQueueLength((long) (ParseUtil.parseDoubleOrDefault(split[5], 0d)));
             // In seconds, multiply for ms
             diskStore.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
             diskStore.setTimeStamp(timeStamp);
@@ -106,6 +107,7 @@ public class FreeBsdDisks implements Disks {
             // In KB
             store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
             store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
+            store.setQueueLength((long) (ParseUtil.parseDoubleOrDefault(split[5], 0d)));
             // In seconds, multiply for ms
             store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
             store.setTimeStamp(timeStamp);

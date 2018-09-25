@@ -54,6 +54,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     private long readBytes;
     private long writes;
     private long writeBytes;
+    private long queueLength;
     private long transferTime;
     private HWPartition[] partitions;
     private long timeStamp;
@@ -84,6 +85,8 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            Number of writes to the disk
      * @param writeBytes
      *            Number of bytes written to the disk
+     * @param queueLength
+     *            Number of I/O operations currently in progress
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
      * @param partitions
@@ -92,7 +95,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {
+                       long writeBytes, long queueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
         setName(name);
         setModel(model);
         setSerial(serial);
@@ -101,6 +104,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         setReadBytes(readBytes);
         setWrites(writes);
         setWriteBytes(writeBytes);
+        setQueueLength(queueLength);
         setTransferTime(transferTime);
         setPartitions(partitions);
         setTimeStamp(timeStamp);
@@ -119,24 +123,24 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     public boolean updateDiskStats() {
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
-        case WINDOWS:
-            diskFound = WindowsDisks.updateDiskStats(this);
-            break;
-        case LINUX:
-            diskFound = LinuxDisks.updateDiskStats(this);
-            break;
-        case MACOSX:
-            diskFound = MacDisks.updateDiskStats(this);
-            break;
-        case SOLARIS:
-            diskFound = SolarisDisks.updateDiskStats(this);
-            break;
-        case FREEBSD:
-            diskFound = FreeBsdDisks.updateDiskStats(this);
-            break;
-        default:
-            LOG.error("Unsupported platform. No update performed.");
-            break;
+            case WINDOWS:
+                diskFound = WindowsDisks.updateDiskStats(this);
+                break;
+            case LINUX:
+                diskFound = LinuxDisks.updateDiskStats(this);
+                break;
+            case MACOSX:
+                diskFound = MacDisks.updateDiskStats(this);
+                break;
+            case SOLARIS:
+                diskFound = SolarisDisks.updateDiskStats(this);
+                break;
+            case FREEBSD:
+                diskFound = FreeBsdDisks.updateDiskStats(this);
+                break;
+            default:
+                LOG.error("Unsupported platform. No update performed.");
+                break;
         }
         return diskFound;
     }
@@ -195,6 +199,13 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      */
     public long getWriteBytes() {
         return this.writeBytes;
+    }
+
+    /**
+     * @return the lenght of the disk queue (#I/O's in progress)
+     */
+    public long getQueueLength() {
+        return this.queueLength;
     }
 
     /**
@@ -281,6 +292,12 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     public void setWriteBytes(long writeBytes) {
         this.writeBytes = writeBytes;
     }
+
+    /**
+     * @param queueLength
+     *            the lenght of the disk queue (#I/O's in progress) to set
+     */
+    public void setQueueLength(long queueLength) { this.queueLength = queueLength; }
 
     /**
      * @param transferTime
