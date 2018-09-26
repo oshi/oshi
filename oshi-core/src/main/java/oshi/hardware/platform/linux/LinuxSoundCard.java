@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Sound card data obtained via /proc/asound directory
+ *
+ * @author BilalAM
+ */
+
 public class LinuxSoundCard extends AbstractSoundCard {
 
     private static final String SC_PATH = "/proc/asound/";
@@ -29,12 +35,12 @@ public class LinuxSoundCard extends AbstractSoundCard {
 
 
     /**
-     * Method to find all the card folders contained in the asound folder denoting the cards
+     * Method to find all the card folders contained in the <b>asound</b> folder denoting the cards
      * currently contained in our machine.
      *
      * @return : A list of files starting with 'card'
      */
-    public static List<File> getCardFolders() {
+    private static List<File> getCardFolders() {
         File cardsDirectory = new File(SC_PATH);
         List<File> cardFolders = new ArrayList<>();
         for (File card : Objects.requireNonNull(cardsDirectory.listFiles())) {
@@ -64,6 +70,18 @@ public class LinuxSoundCard extends AbstractSoundCard {
     }
 
 
+    /**
+     * Retrieves the codec of the sound card contained in the <b>codec</b> file.
+     * The name of the codec is always the first line of that file.
+     * <br>
+     * <b>Working</b>
+     * <br>
+     * This converts the codec file into key value pairs using the {@link FileUtil} class and then
+     * returns the value of the <b>Codec</b> key.
+     *
+     * @param file The sound card file
+     * @return The name of the codec
+     */
     private static String getCardCodec(File file) {
         File codecFile = Objects.requireNonNull(file.listFiles(
                 (dir, name)
@@ -73,6 +91,16 @@ public class LinuxSoundCard extends AbstractSoundCard {
 
     }
 
+
+    /**
+     * Retrieves the name of the sound card by :
+     * <ol>
+     *     <li>Reading the <b>id</b> file and comparing each id with the card id present in the <b>cards</b> file</li>
+     *     <li>If the id and the card name matches , then it assigns that name to {@literal cardName}</li>
+     * </ol>
+     * @param file The soundcard File.
+     * @return The name of the sound card.
+     */
     private static String getCardName(File file) {
         String cardName = "Not Found..";
         Map<String, String> cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + "/" + CARDS_FILE, ":");
@@ -86,6 +114,11 @@ public class LinuxSoundCard extends AbstractSoundCard {
         return cardName;
     }
 
+
+    /**
+     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the sound cards.
+     * @return List of {@link LinuxSoundCard} objects.
+     */
     public static List<LinuxSoundCard> getSoundCards() {
         List<LinuxSoundCard> soundCards = new ArrayList<>();
         for (File cardFile : getCardFolders()) {
