@@ -55,7 +55,8 @@ public class LinuxSoundCard extends AbstractSoundCard {
     private static String getSoundCardVersion() {
         String driverVersion = "not available";
         try {
-            driverVersion = Files.readAllLines(Paths.get(new File(SC_PATH + "version").toURI())).get(0);
+            //driverVersion = Files.readAllLines(Paths.get(new File(SC_PATH + "version").toURI())).get(0);
+            driverVersion = FileUtil.getStringFromFile(SC_PATH + "version");
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
