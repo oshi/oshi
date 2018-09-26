@@ -20,7 +20,6 @@ package oshi;
 
 import static org.junit.Assert.assertFalse;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.*;
 import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.platform.linux.LinuxPowerSourceUpdated;
-import oshi.hardware.platform.linux.LinuxSoundCard;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -73,10 +70,7 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
-        for (SoundCard soundCard : hal.getSoundCards()) {
-            System.out.println(soundCard.toString());
-        }
-
+        printSoundCards(hal.getSoundCards());
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
@@ -289,10 +283,10 @@ public class SystemInfoTest {
         }
     }
 
-    private static void printPowerSourceUpdated() {
-
-
-        LinuxPowerSourceUpdated.foo();
+    private static void printSoundCards(SoundCard[] cards){
+        System.out.println("Sound Cards");
+        for(SoundCard card : cards){
+            System.out.println(card.toString());
+        }
     }
-
 }
