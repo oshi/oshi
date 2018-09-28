@@ -224,7 +224,9 @@ public class PerfDataUtil {
         }
         // Remove query
         HANDLEByReference query = queryMap.get(queryKey);
-        PDH.PdhCloseQuery(query.getValue());
+        if (query != null) {
+            PDH.PdhCloseQuery(query.getValue());
+        }
         queryMap.remove(queryKey);
         disabledQueries.remove(queryKey);
     }
