@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Sound card data obtained via /proc/asound directory
@@ -57,10 +56,14 @@ public class LinuxSoundCard extends AbstractSoundCard {
         private static List<File> getCardFolders() {
                 File cardsDirectory = new File(SC_PATH);
                 List<File> cardFolders = new ArrayList<>();
-                for (File card : Objects.requireNonNull(cardsDirectory.listFiles())) {
-                        if (card.getName().startsWith(CARD_FOLDER) && card.isDirectory()) {
-                                cardFolders.add(card);
+                try {
+                        for (File card : cardsDirectory.listFiles()) {
+                                if (card.getName().startsWith(CARD_FOLDER) && card.isDirectory()) {
+                                        cardFolders.add(card);
+                                }
                         }
+                }catch (Exception e){
+                        System.out.println(e.getMessage());
                 }
                 return cardFolders;
         }
