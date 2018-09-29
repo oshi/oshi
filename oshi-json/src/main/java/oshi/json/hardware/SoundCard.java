@@ -16,12 +16,14 @@
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
-package oshi.hardware;
+package oshi.json.hardware;
+
+import oshi.json.json.OshiJsonObject;
 
 /**
  * @author BilalAM
  */
-public interface SoundCard {
+public interface SoundCard extends OshiJsonObject {
 
     /**
      * Retrieves the driver version currently in use in machine
@@ -43,5 +45,4 @@ public interface SoundCard {
      * @return The name of the codec of the sound card
      */
     String getCodec();
-
 }

@@ -36,6 +36,7 @@ import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;
 import oshi.json.hardware.Sensors;
+import oshi.json.hardware.SoundCard;
 import oshi.json.hardware.UsbDevice;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
@@ -193,6 +194,19 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
             usbDevices[i] = new UsbDeviceImpl(usbs[i]);
         }
         return usbDevices;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SoundCard[] getSoundCards() {
+        oshi.hardware.SoundCard[] cards = this.hal.getSoundCards();
+        SoundCard[] soundCards = new SoundCard[cards.length];
+        for (int i = 0; i < cards.length; i++) {
+            soundCards[i] = new SoundCardImpl(cards[i]);
+        }
+        return soundCards;
     }
 
     /**

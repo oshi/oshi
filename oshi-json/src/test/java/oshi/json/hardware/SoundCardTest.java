@@ -16,32 +16,32 @@
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
-package oshi.hardware;
+package oshi.json.hardware;
+
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
+import oshi.json.SystemInfo;
 
 /**
+ * Test SoundCard
+ *
  * @author BilalAM
  */
-public interface SoundCard {
+public class SoundCardTest {
 
     /**
-     * Retrieves the driver version currently in use in machine
-     * 
-     * @return The current and complete name of the driver version
+     * Testing sound cards , each attribute.
      */
-    String getDriverVersion();
-
-    /**
-     * Retrieves the full name of the card.
-     * 
-     * @return The name of the card.
-     */
-    String getName();
-
-    /**
-     * Retrieves the codec of the Sound card
-     * 
-     * @return The name of the codec of the sound card
-     */
-    String getCodec();
+    @Test
+    public void testSoundCards() {
+        SystemInfo info = new SystemInfo();
+        for (SoundCard soundCard : info.getHardware().getSoundCards()) {
+            assertNotNull(soundCard.getCodec());
+            assertNotNull(soundCard.getDriverVersion());
+            assertNotNull(soundCard.getName());
+        }
+    }
 
 }

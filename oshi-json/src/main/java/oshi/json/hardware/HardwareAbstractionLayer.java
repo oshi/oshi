@@ -116,4 +116,13 @@ public interface HardwareAbstractionLayer extends OshiJsonObject {
      *         none are present
      */
     UsbDevice[] getUsbDevices(boolean tree);
+
+    /**
+     * Instantiates an array of {@link SoundCard} objects, representing the
+     * Sound cards.
+     *
+     * @return An array of SoundCard objects or an empty array if none are
+     *         present.
+     */
+    SoundCard[] getSoundCards();
 }
