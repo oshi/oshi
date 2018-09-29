@@ -21,7 +21,7 @@ package oshi.hardware.common;
 import oshi.hardware.SoundCard;
 
 /**
- *  An abstract Sound Card
+ * An abstract Sound Card
  *
  * @author BilalAM
  */

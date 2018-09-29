@@ -69,7 +69,8 @@ public class SystemInfoTest {
     /**
      * The main method, demonstrating use of classes.
      *
-     * @param args the arguments
+     * @param args
+     *            the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE
@@ -340,9 +341,9 @@ public class SystemInfoTest {
         }
     }
 
-    private static void printSoundCards(SoundCard[] cards){
+    private static void printSoundCards(SoundCard[] cards) {
         System.out.println("Sound Cards:");
-        for(SoundCard card : cards){
+        for (SoundCard card : cards) {
             System.out.println(card.toString());
         }
     }

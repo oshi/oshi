@@ -1,6 +1,8 @@
 3.9.0 (in progress)
 ================
+* [#630](https://github.com/oshi/oshi/pull/630): Add Sound Card list. - [@bilalAM](https://github.com/bilalAM).
 * Your contribution here.
+
 3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018), 3.8.4 (09/24/2018)
 ================
 * [#592](https://github.com/oshi/oshi/pull/592): Test for non-numeric doubles in JSON parsing. - [@dbwiddis](https://github.com/dbwiddis).
