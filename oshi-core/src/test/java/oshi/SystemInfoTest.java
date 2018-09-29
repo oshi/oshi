@@ -1,18 +1,18 @@
 /**
  * Oshi (https://github.com/oshi/oshi)
- * <p>
+ *
  * Copyright (c) 2010 - 2018 The Oshi Project Team
- * <p>
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * <p>
+ *
  * Maintainers:
  * dblock[at]dblock[dot]org
  * widdis[at]gmail[dot]com
  * enrico.bianchi[at]gmail[dot]com
- * <p>
+ *
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
@@ -27,8 +27,21 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.*;
+import oshi.hardware.Baseboard;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
+import oshi.hardware.Firmware;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.hardware.UsbDevice;
+import oshi.hardware.SoundCard;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -70,6 +83,50 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
+        System.out.println(os);
+
+        LOG.info("Checking computer system...");
+        printComputerSystem(hal.getComputerSystem());
+
+        LOG.info("Checking Processor...");
+        printProcessor(hal.getProcessor());
+
+        LOG.info("Checking Memory...");
+        printMemory(hal.getMemory());
+
+        LOG.info("Checking CPU...");
+        printCpu(hal.getProcessor());
+
+        LOG.info("Checking Processes...");
+        printProcesses(os, hal.getMemory());
+
+        LOG.info("Checking Sensors...");
+        printSensors(hal.getSensors());
+
+        LOG.info("Checking Power sources...");
+        printPowerSources(hal.getPowerSources());
+
+        LOG.info("Checking Disks...");
+        printDisks(hal.getDiskStores());
+
+        LOG.info("Checking File System...");
+        printFileSystem(os.getFileSystem());
+
+        LOG.info("Checking Network interfaces...");
+        printNetworkInterfaces(hal.getNetworkIFs());
+
+        LOG.info("Checking Network parameterss...");
+        printNetworkParameters(os.getNetworkParams());
+
+        // hardware: displays
+        LOG.info("Checking Displays...");
+        printDisplays(hal.getDisplays());
+
+        // hardware: USB devices
+        LOG.info("Checking USB Devices...");
+        printUsbDevices(hal.getUsbDevices(true));
+
+        LOG.info("Checking Sound Cards...");
         printSoundCards(hal.getSoundCards());
     }
 
@@ -284,7 +341,7 @@ public class SystemInfoTest {
     }
 
     private static void printSoundCards(SoundCard[] cards){
-        System.out.println("Sound Cards");
+        System.out.println("Sound Cards:");
         for(SoundCard card : cards){
             System.out.println(card.toString());
         }
