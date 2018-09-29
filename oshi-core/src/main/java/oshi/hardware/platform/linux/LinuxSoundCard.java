@@ -56,15 +56,17 @@ public class LinuxSoundCard extends AbstractSoundCard {
         private static List<File> getCardFolders() {
                 File cardsDirectory = new File(SC_PATH);
                 List<File> cardFolders = new ArrayList<>();
-                try {
-                        for (File card : cardsDirectory.listFiles()) {
+                File[] allContents = cardsDirectory.listFiles();
+                if (allContents != null) {
+                        for (File card : allContents) {
                                 if (card.getName().startsWith(CARD_FOLDER) && card.isDirectory()) {
                                         cardFolders.add(card);
                                 }
                         }
-                }catch (Exception e){
-                        System.out.println(e.getMessage());
+                } else {
+                        LOG.warn("Warning: No Audio Cards Found !");
                 }
+
                 return cardFolders;
         }
 
