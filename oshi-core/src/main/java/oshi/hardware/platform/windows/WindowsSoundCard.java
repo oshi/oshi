@@ -4,25 +4,43 @@ import oshi.hardware.common.AbstractSoundCard;
 import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.util.platform.windows.WmiUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author : BilalAM
  */
 public class WindowsSoundCard extends AbstractSoundCard {
 
-    enum AudioCardCaption {
+    enum AudioCardName {
         MANUFACTURER, NAME
     }
 
-    private static final WbemcliUtil.WmiQuery<AudioCardCaption> AUDIO_CARD_QUERY =
-            new WbemcliUtil.WmiQuery<>("Win32_SoundDevice", AudioCardCaption.class);
+    private static final String AUDIO_CARD = "Win32_SoundDevice";
+    private static final WbemcliUtil.WmiQuery<AudioCardName> AUDIO_CARD_QUERY =
+            new WbemcliUtil.WmiQuery<>(AUDIO_CARD, AudioCardName.class);
+    private static final WbemcliUtil.WmiResult<AudioCardName> AUDIO_CARD_QUERY_RESULT = WmiUtil.queryWMI(AUDIO_CARD_QUERY);
+
 
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     private static String getAudioCardCompleteName() {
-        WbemcliUtil.WmiResult<AudioCardCaption> r = WmiUtil.queryWMI(AUDIO_CARD_QUERY);
-        return String.valueOf(r.getValue(AudioCardCaption.MANUFACTURER, 0)) + " " + String.valueOf(r.getValue(AudioCardCaption.NAME, 0));
+        return String.valueOf(AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.MANUFACTURER, 0)) + " " + String.valueOf(AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.NAME, 0));
+    }
+
+
+    public List<WindowsSoundCard> getSoundCards() {
+        List<WindowsSoundCard> cards = new ArrayList<>();
+        for (int i = 0; i < AUDIO_CARD_QUERY_RESULT.getResultCount(); i++) {
+            cards.add(new WindowsSoundCard(null, getAudioCardCompleteName(), null));
+        }
+        return cards;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getAudioCardCompleteName());
     }
 
 }
