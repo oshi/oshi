@@ -59,7 +59,7 @@ public class WindowsSoundCard extends AbstractSoundCard {
     public static List<WindowsSoundCard> getSoundCards() {
         List<WindowsSoundCard> cards = new ArrayList<>();
         for (int i = 0; i < AUDIO_CARD_QUERY_RESULT.getResultCount(); i++) {
-            cards.add(new WindowsSoundCard(getAudioCardKernelVersion(i), getAudioCardCompleteName(i), "bla bla"));
+            cards.add(new WindowsSoundCard(getAudioCardKernelVersion(i), getAudioCardCompleteName(i), "bla"));
         }
         return cards;
     }
