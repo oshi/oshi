@@ -18,16 +18,10 @@
  */
 package oshi.hardware.platform.linux;
 
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Display;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
+import oshi.hardware.*;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+
+import java.util.Arrays;
 
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
@@ -115,5 +109,10 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return LinuxUsbDevice.getUsbDevices(tree);
+    }
+
+    @Override
+    public SoundCard[] getSoundCards() {
+        return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }

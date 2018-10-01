@@ -41,6 +41,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.SoundCard;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -125,6 +126,9 @@ public class SystemInfoTest {
         // hardware: USB devices
         LOG.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
+
+        LOG.info("Checking Sound Cards...");
+        printSoundCards(hal.getSoundCards());
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
@@ -334,6 +338,13 @@ public class SystemInfoTest {
         System.out.println("USB Devices:");
         for (UsbDevice usbDevice : usbDevices) {
             System.out.println(usbDevice.toString());
+        }
+    }
+
+    private static void printSoundCards(SoundCard[] cards) {
+        System.out.println("Sound Cards:");
+        for (SoundCard card : cards) {
+            System.out.println(card.toString());
         }
     }
 }

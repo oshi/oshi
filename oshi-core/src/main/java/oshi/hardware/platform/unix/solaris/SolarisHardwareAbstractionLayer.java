@@ -18,15 +18,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Display;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
+import oshi.hardware.*;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
@@ -115,5 +107,10 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return SolarisUsbDevice.getUsbDevices(tree);
+    }
+
+    @Override
+    public SoundCard[] getSoundCards() {
+        return new SoundCard[0];
     }
 }

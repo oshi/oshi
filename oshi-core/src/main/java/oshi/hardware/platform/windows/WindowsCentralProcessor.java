@@ -27,6 +27,7 @@ import com.sun.jna.Native; //NOSONAR
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
@@ -63,9 +64,23 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Save Windows version info for 32 bit/64 bit branch later
     private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
+    // Localize the "Processor" counter string. English counter names should
+    // normally be in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
+    // NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
+    // delete the 009 index. In this case we can assume English must be the
+    // language and continue. We may still fail to match the name if the
+    // assumption is wrong but it's better than nothing.
     private static final String PROCESSOR = "Processor";
-    private static final String PROCESSOR_LOCALIZED = PdhUtil.PdhLookupPerfNameByIndex(null,
-            PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
+    private static final String PROCESSOR_LOCALIZED;
+    static {
+        String localized;
+        try {
+            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
+        } catch (Win32Exception e) {
+            localized = PROCESSOR;
+        }
+        PROCESSOR_LOCALIZED = localized;
+    }
     private static final String TOTAL_INSTANCE = "_Total";
 
     /*
