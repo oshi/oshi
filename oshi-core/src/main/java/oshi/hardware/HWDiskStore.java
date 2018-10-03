@@ -97,7 +97,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * @param writeBytes
      *            Number of bytes written to the disk
      * @param currentQueueLength
-     *            Number of I/O operations currently in progress
+     *            Number of uncompleted read+write I/O operations issued to disk queue
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
      * @param partitions
