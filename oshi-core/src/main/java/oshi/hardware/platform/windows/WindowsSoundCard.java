@@ -20,7 +20,6 @@ package oshi.hardware.platform.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.util.FileUtil;
@@ -136,11 +135,4 @@ public class WindowsSoundCard extends AbstractSoundCard {
         }
         return cards;
     }
-
-    public static void main(String[] args) {
-        for (SoundCard cards : getSoundCards()) {
-            System.out.println(cards.toString());
-        }
-    }
-
 }
