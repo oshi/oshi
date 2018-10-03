@@ -378,7 +378,7 @@ public class MacDisks implements Disks {
                 if (size <= 0) {
                     continue;
                 }
-                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
+                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L, 0L,
                         new HWPartition[0], 0L);
 
                 updateDiskStats(diskStore, session);

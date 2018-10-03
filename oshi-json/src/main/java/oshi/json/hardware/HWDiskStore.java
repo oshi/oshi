@@ -73,6 +73,8 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            Number of writes to the disk
      * @param writeBytes
      *            Number of bytes written to the disk
+     * @param queueLength
+     *            Number of I/O outstanding operations (waiting + running)
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
      * @param partitions
@@ -81,7 +83,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {
+            long writeBytes, long queueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
         oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];
         for (int i = 0; i < partitions.length; i++) {
             parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),
@@ -89,14 +91,14 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
                     partitions[i].getMinor(), partitions[i].getMountPoint());
         }
         this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
-                writeBytes, transferTime, parts, timeStamp);
+                writeBytes, queueLength, transferTime, parts, timeStamp);
     }
 
     /**
      * Create a new HWDiskStore with default/empty values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
+        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
     }
 
     /**
@@ -185,6 +187,13 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      */
     public long getWriteBytes() {
         return this.hwDiskStore.getWriteBytes();
+    }
+
+    /**
+     * @return the length of the disk queue (#I/O's in progress)
+     */
+    public long getQueueLength() {
+        return this.hwDiskStore.getQueueLength();
     }
 
     /**
@@ -281,6 +290,12 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     }
 
     /**
+     * @param queueLength
+     *            the length of the disk queue (#I/O's in progress) to set
+     */
+    public void setQueueLength(long queueLength) { this.hwDiskStore.setQueueLength(queueLength); }
+
+    /**
      * @param transferTime
      *            milliseconds spent reading or writing to set
      */
@@ -340,7 +355,10 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
             json.add("writeBytes", this.hwDiskStore.getWriteBytes());
         }
-        if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.queueLength")) {
+            json.add("queueLength", this.hwDiskStore.getQueueLength());
+        }
+        if (PropertiesUtil.getBoolean(properties, "hardware.disks.transferTime")) {
             json.add("transferTime", this.hwDiskStore.getTransferTime());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions")) {
