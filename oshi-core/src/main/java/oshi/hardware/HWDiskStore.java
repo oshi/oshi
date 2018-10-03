@@ -63,7 +63,18 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
+        name = "";
+        model = "";
+        serial = "";
+        size = 0L;
+        reads = 0L;
+        readBytes = 0L;
+        writes = 0L;
+        writeBytes = 0L;
+        currentQueueLength = 0L;
+        transferTime = 0L;
+        partitions = new HWPartition[0];
+        timeStamp = 0L;
     }
 
     /**

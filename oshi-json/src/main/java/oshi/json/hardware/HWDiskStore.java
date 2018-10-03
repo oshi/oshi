@@ -90,15 +90,26 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
                     partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),
                     partitions[i].getMinor(), partitions[i].getMountPoint());
         }
-        this.hwDiskStore = new oshi.hardware.HWDiskStore(name, model, serial, size, reads, readBytes, writes,
-                writeBytes, currentQueueLength, transferTime, parts, timeStamp);
+        this.hwDiskStore = new oshi.hardware.HWDiskStore();
+        this.hwDiskStore.setName(name);
+        this.hwDiskStore.setModel(model);
+        this.hwDiskStore.setSerial(serial);
+        this.hwDiskStore.setSize(size);
+        this.hwDiskStore.setReads(reads);
+        this.hwDiskStore.setReadBytes(readBytes);
+        this.hwDiskStore.setWrites(writes);
+        this.hwDiskStore.setWriteBytes(writeBytes);
+        this.hwDiskStore.setCurrentQueueLength(currentQueueLength);
+        this.hwDiskStore.setTransferTime(transferTime);
+        this.hwDiskStore.setPartitions(parts);
+        this.hwDiskStore.setTimeStamp(timeStamp);
     }
 
     /**
      * Create a new HWDiskStore with default/empty values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
+        this.hwDiskStore = new oshi.hardware.HWDiskStore();
     }
 
     /**
