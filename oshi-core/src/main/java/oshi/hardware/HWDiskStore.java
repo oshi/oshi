@@ -107,18 +107,18 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
             long writeBytes, long currentQueueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
-        setName(name);
-        setModel(model);
-        setSerial(serial);
-        setSize(size);
-        setReads(reads);
-        setReadBytes(readBytes);
-        setWrites(writes);
-        setWriteBytes(writeBytes);
-        setCurrentQueueLength(currentQueueLength);
-        setTransferTime(transferTime);
-        setPartitions(partitions);
-        setTimeStamp(timeStamp);
+        this.name = name;
+        this.model = model;
+        this.serial = serial;
+        this.size = size;
+        this.reads = reads;
+        this.readBytes = readBytes;
+        this.writes = writes;
+        this.writeBytes = writeBytes;
+        this.currentQueueLength = currentQueueLength;
+        this.transferTime = transferTime;
+        this.partitions = partitions;
+        this.timeStamp = timeStamp;
     }
 
     /**
