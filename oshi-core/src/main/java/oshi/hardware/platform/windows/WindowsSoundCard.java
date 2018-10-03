@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.jna.platform.windows.WbemcliUtil;
-import oshi.util.FileUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 import java.util.ArrayList;
@@ -35,26 +34,17 @@ import java.util.List;
  */
 public class WindowsSoundCard extends AbstractSoundCard {
 
-    enum AudioCardName {
-        MANUFACTURER, NAME
+    enum SoundCardName {
+        MANUFACTURER, NAME;
     }
 
-    enum AudioCardKernel {
-        DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME
+    enum SoundCardKernel {
+        DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
-    private static WbemcliUtil.WmiQuery<AudioCardName> AUDIO_CARD_QUERY;
-    private static final String AUDIO_CARD = "Win32_SoundDevice";
-    private static WbemcliUtil.WmiQuery<AudioCardKernel> AUDIO_CARD_KERNAL_QUERY;
-    private static WbemcliUtil.WmiResult<AudioCardName> AUDIO_CARD_QUERY_RESULT;
-    private static WbemcliUtil.WmiResult<AudioCardKernel> AUDIO_CARD_KERNEL_QUERY_RESULT;
-
-    static {
-        AUDIO_CARD_QUERY =
-                new WbemcliUtil.WmiQuery<>(AUDIO_CARD, AudioCardName.class);
-        AUDIO_CARD_QUERY_RESULT = WmiUtil.queryWMI(AUDIO_CARD_QUERY);
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsSoundCard.class);
+    private static WbemcliUtil.WmiQuery<SoundCardName> AUDIO_CARD_QUERY = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",SoundCardName.class);
+    private static WbemcliUtil.WmiResult<SoundCardName> AUDIO_CARD_QUERY_RESULT = WmiUtil.queryWMI(AUDIO_CARD_QUERY);
 
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
@@ -72,7 +62,8 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return The audio card name
      */
     private static String getAudioCardCompleteName(int index) {
-        return String.valueOf(AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.MANUFACTURER, index)) + " " + String.valueOf(AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.NAME, index));
+        return WmiUtil.getString(AUDIO_CARD_QUERY_RESULT,SoundCardName.MANUFACTURER,index) + " " +
+                WmiUtil.getString(AUDIO_CARD_QUERY_RESULT,SoundCardName.NAME,index);
     }
 
     /**
@@ -82,7 +73,7 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return  The audio card name.
      */
     private static String getAudioCardName(int index) {
-        return String.valueOf(AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.NAME, index));
+        return WmiUtil.getString(AUDIO_CARD_QUERY_RESULT,SoundCardName.NAME,index);
     }
 
     /**
@@ -101,21 +92,19 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return  The 'complete' name of the driver.
      */
     private static String getAudioCardKernelVersion(int index) {
-        String audioCardKernel = "";
+        String audioCardKernel;
 
-        AUDIO_CARD_KERNAL_QUERY = new WbemcliUtil.WmiQuery<>("Win32_PnPSignedDriver WHERE DeviceName=\""
-                + AUDIO_CARD_QUERY_RESULT.getValue(AudioCardName.NAME, index)
-                + "\"", AudioCardKernel.class);
-        AUDIO_CARD_KERNEL_QUERY_RESULT = WmiUtil.queryWMI(AUDIO_CARD_KERNAL_QUERY);
-        if (AUDIO_CARD_KERNEL_QUERY_RESULT.getResultCount() == 0) {
-            LOG.warn("No drivers found...");
-        } else {
-            audioCardKernel =
-                    String.valueOf(AUDIO_CARD_KERNEL_QUERY_RESULT.getValue(AudioCardKernel.DRIVERPROVIDERNAME, index)) + " "
-                            + String.valueOf(AUDIO_CARD_KERNEL_QUERY_RESULT.getValue(AudioCardKernel.DEVICENAME, index)) + " "
-                            + String.valueOf(AUDIO_CARD_KERNEL_QUERY_RESULT.getValue(AudioCardKernel.DRIVERNAME, index)) + " "
-                            + String.valueOf(AUDIO_CARD_KERNEL_QUERY_RESULT.getValue(AudioCardKernel.DRIVERVERSION, index));
-        }
+        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>("Win32_PnPSignedDriver WHERE DeviceName=\""
+                + AUDIO_CARD_QUERY_RESULT.getValue(SoundCardName.NAME, index)
+                + "\"", SoundCardKernel.class);
+        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = WmiUtil.queryWMI(cardKernelQuery);
+
+        audioCardKernel =
+                WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, index) + " "
+                        + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, index) + " "
+                        + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERNAME, index) + " "
+                        + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERVERSION, index);
+
         return audioCardKernel;
     }
 
@@ -126,12 +115,8 @@ public class WindowsSoundCard extends AbstractSoundCard {
      */
     public static List<WindowsSoundCard> getSoundCards() {
         List<WindowsSoundCard> cards = new ArrayList<>();
-        if (AUDIO_CARD_QUERY_RESULT.getResultCount() == 0) {
-            LOG.warn("No Sound Cards Found...");
-        } else {
-            for (int i = 0; i < AUDIO_CARD_QUERY_RESULT.getResultCount(); i++) {
-                cards.add(new WindowsSoundCard(getAudioCardKernelVersion(i), getAudioCardCompleteName(i), getAudioCardName(i)));
-            }
+        for (int i = 0; i < AUDIO_CARD_QUERY_RESULT.getResultCount(); i++) {
+            cards.add(new WindowsSoundCard(getAudioCardKernelVersion(i), getAudioCardCompleteName(i), getAudioCardName(i)));
         }
         return cards;
     }
