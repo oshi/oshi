@@ -133,7 +133,7 @@ public class DisksTest {
             disk.setReadBytes(789L);
             disk.setWrites(101112L);
             disk.setWriteBytes(131415L);
-            disk.setQueueLength(161718L);
+            disk.setCurrentQueueLength(161718L);
             disk.setTransferTime(192021L);
             disk.setTimeStamp(timeStamp);
 

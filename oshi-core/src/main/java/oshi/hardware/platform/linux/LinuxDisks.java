@@ -210,7 +210,7 @@ public class LinuxDisks implements Disks {
         store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
         store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
-        store.setQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
+        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
     }
 }

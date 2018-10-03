@@ -245,7 +245,7 @@ public class WindowsDisks implements Disks {
             ds.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
             ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
-            ds.setQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
+            ds.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
             ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));

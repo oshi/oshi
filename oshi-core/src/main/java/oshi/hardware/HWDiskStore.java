@@ -54,7 +54,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     private long readBytes;
     private long writes;
     private long writeBytes;
-    private long queueLength;
+    private long currentQueueLength;
     private long transferTime;
     private HWPartition[] partitions;
     private long timeStamp;
@@ -85,7 +85,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            Number of writes to the disk
      * @param writeBytes
      *            Number of bytes written to the disk
-     * @param queueLength
+     * @param currentQueueLength
      *            Number of I/O operations currently in progress
      * @param transferTime
      *            milliseconds spent reading or writing to the disk
@@ -95,7 +95,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      *            milliseconds since the epoch
      */
     public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long queueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
+            long writeBytes, long currentQueueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
         setName(name);
         setModel(model);
         setSerial(serial);
@@ -104,7 +104,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         setReadBytes(readBytes);
         setWrites(writes);
         setWriteBytes(writeBytes);
-        setQueueLength(queueLength);
+        setCurrentQueueLength(currentQueueLength);
         setTransferTime(transferTime);
         setPartitions(partitions);
         setTimeStamp(timeStamp);
@@ -204,8 +204,8 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     /**
      * @return the length of the disk queue (#I/O's in progress)
      */
-    public long getQueueLength() {
-        return this.queueLength;
+    public long getCurrentQueueLength() {
+        return this.currentQueueLength;
     }
 
     /**
@@ -294,10 +294,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
-     * @param queueLength
+     * @param currentQueueLength
      *            the length of the disk queue (#I/O's in progress) to set
      */
-    public void setQueueLength(long queueLength) { this.queueLength = queueLength; }
+    public void setCurrentQueueLength(long currentQueueLength) { this.currentQueueLength = currentQueueLength; }
 
     /**
      * @param transferTime
