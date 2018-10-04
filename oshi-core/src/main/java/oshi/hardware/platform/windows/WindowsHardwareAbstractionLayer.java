@@ -118,6 +118,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public SoundCard[] getSoundCards() {
-        return new SoundCard[0];
+        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }
