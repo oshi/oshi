@@ -18,15 +18,16 @@
  */
 package oshi.hardware.platform.linux;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.hardware.common.AbstractSoundCard;
-import oshi.util.FileUtil;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.FileUtil;
 
 /**
  * Sound card data obtained via /proc/asound directory
@@ -64,9 +65,8 @@ public class LinuxSoundCard extends AbstractSoundCard {
                 }
             }
         } else {
-            LOG.warn("Warning: No Audio Cards Found !");
+            LOG.warn("No Audio Cards Found");
         }
-
         return cardFolders;
     }
 
@@ -79,13 +79,8 @@ public class LinuxSoundCard extends AbstractSoundCard {
      *         machine
      */
     private static String getSoundCardVersion() {
-        String driverVersion = "not available";
-        try {
-            driverVersion = FileUtil.getStringFromFile(SC_PATH + "version");
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-        return driverVersion;
+        String driverVersion = FileUtil.getStringFromFile(SC_PATH + "version");
+        return driverVersion.isEmpty() ? "not available" : driverVersion;
     }
 
     /**
@@ -102,6 +97,10 @@ public class LinuxSoundCard extends AbstractSoundCard {
      */
     private static String getCardCodec(File cardDir) {
         String cardCodec = "";
+        File[] cardFiles = cardDir.listFiles();
+        if (cardFiles == null) {
+            return "";
+        }
         for (File file : cardDir.listFiles()) {
             if (file.getName().startsWith("codec")) {
                 cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), ":").get("Codec");
