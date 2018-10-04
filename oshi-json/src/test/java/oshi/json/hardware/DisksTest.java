@@ -75,7 +75,7 @@ public class DisksTest {
             assertTrue(disk.getReadBytes() >= 0);
             assertTrue(disk.getWrites() >= 0);
             assertTrue(disk.getWriteBytes() >= 0);
-            assertTrue(disk.getQueueLength() >= 0);
+            assertTrue(disk.getCurrentQueueLength() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
 
@@ -145,7 +145,7 @@ public class DisksTest {
             assertEquals(789L, disk.getReadBytes());
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
-            assertEquals(161718L, disk.getQueueLength());
+            assertEquals(161718L, disk.getCurrentQueueLength());
             assertEquals(192021L, disk.getTransferTime());
             assertEquals(timeStamp, disk.getTimeStamp());
 

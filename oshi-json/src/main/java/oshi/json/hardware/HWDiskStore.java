@@ -159,7 +159,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     /**
      * @return the length of the disk queue (#I/O's in progress)
      */
-    public long getQueueLength() {
+    public long getCurrentQueueLength() {
         return this.hwDiskStore.getCurrentQueueLength();
     }
 
