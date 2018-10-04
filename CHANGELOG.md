@@ -2,6 +2,7 @@
 ================
 * [#630](https://github.com/oshi/oshi/pull/630): Add Sound Card list. - [@bilalAM](https://github.com/bilalAM).
 * [#636](https://github.com/oshi/oshi/pull/636): Catch exception when english counters missing. - [@dbwiddis](https://github.com/dbwiddis).
+* [#639](https://github.com/oshi/oshi/pull/639): Implement QueueLength metric in HWDiskStore. - [@Space2Man](https://github.com/Space2Man).
 * Your contribution here.
 
 3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018), 3.8.4 (09/24/2018)
