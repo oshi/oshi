@@ -46,64 +46,49 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
 
-    private String model;
-    private String name;
-    private String serial;
-    private long size;
-    private long reads;
-    private long readBytes;
-    private long writes;
-    private long writeBytes;
-    private long transferTime;
-    private HWPartition[] partitions;
-    private long timeStamp;
+    private String model = "";
+    private String name = "";
+    private String serial = "";
+    private long size = 0L;
+    private long reads = 0L;
+    private long readBytes = 0L;
+    private long writes = 0L;
+    private long writeBytes = 0L;
+    private long currentQueueLength = 0L;
+    private long transferTime = 0L;
+    private HWPartition[] partitions = new HWPartition[0];
+    private long timeStamp = 0L;
 
     /**
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        this("", "", "", 0L, 0L, 0L, 0L, 0L, 0L, new HWPartition[0], 0L);
     }
 
     /**
-     * Create an object with all values
+     * Copy constructor
      *
-     * @param name
-     *            Name of the disk (e.g., /dev/disk1)
-     * @param model
-     *            Model of the disk
-     * @param serial
-     *            Disk serial number, if available
-     * @param size
-     *            Disk capacity in bytes
-     * @param reads
-     *            Number of reads from the disk
-     * @param readBytes
-     *            Number of bytes read from the disk
-     * @param writes
-     *            Number of writes to the disk
-     * @param writeBytes
-     *            Number of bytes written to the disk
-     * @param transferTime
-     *            milliseconds spent reading or writing to the disk
-     * @param partitions
-     *            Partitions on this disk
-     * @param timeStamp
-     *            milliseconds since the epoch
      */
-    public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long transferTime, HWPartition[] partitions, long timeStamp) {
-        setName(name);
-        setModel(model);
-        setSerial(serial);
-        setSize(size);
-        setReads(reads);
-        setReadBytes(readBytes);
-        setWrites(writes);
-        setWriteBytes(writeBytes);
-        setTransferTime(transferTime);
-        setPartitions(partitions);
-        setTimeStamp(timeStamp);
+    public HWDiskStore(HWDiskStore diskStore) {
+        HWPartition[] partsOrig = diskStore.getPartitions();
+        HWPartition[] partsCopy = new HWPartition[partsOrig.length];
+        for (int i = 0; i < partsOrig.length; i++) {
+            partsCopy[i] = new HWPartition(partsOrig[i].getIdentification(), partsOrig[i].getName(),
+                    partsOrig[i].getType(), partsOrig[i].getUuid(), partsOrig[i].getSize(), partsOrig[i].getMajor(),
+                    partsOrig[i].getMinor(), partsOrig[i].getMountPoint());
+        }
+        this.name = diskStore.name;
+        this.model = diskStore.model;
+        this.serial = diskStore.serial;
+        this.size = diskStore.size;
+        this.reads = diskStore.reads;
+        this.readBytes = diskStore.readBytes;
+        this.writes = diskStore.writes;
+        this.writeBytes = diskStore.writeBytes;
+        this.currentQueueLength = diskStore.currentQueueLength;
+        this.transferTime = diskStore.transferTime;
+        this.partitions = partsCopy;
+        this.timeStamp = diskStore.timeStamp;
     }
 
     /**
@@ -198,6 +183,15 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * @return the length of the disk queue (#I/O's in progress). Includes I/O
+     *         requests that have been issued to the device driver but have not
+     *         yet completed. Not supported on macOS.
+     */
+    public long getCurrentQueueLength() {
+        return this.currentQueueLength;
+    }
+
+    /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
@@ -280,6 +274,14 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      */
     public void setWriteBytes(long writeBytes) {
         this.writeBytes = writeBytes;
+    }
+
+    /**
+     * @param currentQueueLength
+     *            the length of the disk queue (#I/O's in progress) to set
+     */
+    public void setCurrentQueueLength(long currentQueueLength) {
+        this.currentQueueLength = currentQueueLength;
     }
 
     /**

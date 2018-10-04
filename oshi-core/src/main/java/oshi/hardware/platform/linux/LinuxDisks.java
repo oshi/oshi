@@ -55,7 +55,7 @@ public class LinuxDisks implements Disks {
     enum UdevStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order. Use 0-ordered index here
-        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), ACTIVE_MS(9);
+        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
 
         private int order;
 
@@ -210,6 +210,7 @@ public class LinuxDisks implements Disks {
         store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
         store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
+        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
     }
 }

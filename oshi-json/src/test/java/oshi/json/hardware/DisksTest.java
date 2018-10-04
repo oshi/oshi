@@ -75,6 +75,7 @@ public class DisksTest {
             assertTrue(disk.getReadBytes() >= 0);
             assertTrue(disk.getWrites() >= 0);
             assertTrue(disk.getWriteBytes() >= 0);
+            assertTrue(disk.getCurrentQueueLength() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
 
@@ -132,7 +133,8 @@ public class DisksTest {
             disk.setReadBytes(789L);
             disk.setWrites(101112L);
             disk.setWriteBytes(131415L);
-            disk.setTransferTime(161718L);
+            disk.setCurrentQueueLength(161718L);
+            disk.setTransferTime(192021L);
             disk.setTimeStamp(timeStamp);
 
             assertEquals("name", disk.getName());
@@ -143,7 +145,8 @@ public class DisksTest {
             assertEquals(789L, disk.getReadBytes());
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
-            assertEquals(161718L, disk.getTransferTime());
+            assertEquals(161718L, disk.getCurrentQueueLength());
+            assertEquals(192021L, disk.getTransferTime());
             assertEquals(timeStamp, disk.getTimeStamp());
 
             for (HWPartition partition : disk.getPartitions()) {
