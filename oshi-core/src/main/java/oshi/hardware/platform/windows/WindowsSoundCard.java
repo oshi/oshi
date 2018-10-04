@@ -121,7 +121,11 @@ public class WindowsSoundCard extends AbstractSoundCard {
 
     /**
      * Returns the sound cards..
-     *
+     * <br>
+     * NOTE : The reason why the codec name is same as the card name is because windows does not provide
+     * the name of the codec chip but sometimes the name of the card returned is infact the name of the codec
+     * chip also.
+     * Example : Realtek ALC887 HD Audio Device
      * @return List of sound cards
      */
     public static List<WindowsSoundCard> getSoundCards() {
