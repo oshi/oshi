@@ -66,47 +66,29 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
-     * Create an object with all values
+     * Copy constructor
      *
-     * @param name
-     *            Name of the disk (e.g., /dev/disk1)
-     * @param model
-     *            Model of the disk
-     * @param serial
-     *            Disk serial number, if available
-     * @param size
-     *            Disk capacity in bytes
-     * @param reads
-     *            Number of reads from the disk
-     * @param readBytes
-     *            Number of bytes read from the disk
-     * @param writes
-     *            Number of writes to the disk
-     * @param writeBytes
-     *            Number of bytes written to the disk
-     * @param currentQueueLength
-     *            Number of uncompleted read+write I/O operations issued to disk queue
-     * @param transferTime
-     *            milliseconds spent reading or writing to the disk
-     * @param partitions
-     *            Partitions on this disk
-     * @param timeStamp
-     *            milliseconds since the epoch
      */
-    public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long currentQueueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
-        this.name = name;
-        this.model = model;
-        this.serial = serial;
-        this.size = size;
-        this.reads = reads;
-        this.readBytes = readBytes;
-        this.writes = writes;
-        this.writeBytes = writeBytes;
-        this.currentQueueLength = currentQueueLength;
-        this.transferTime = transferTime;
-        this.partitions = partitions;
-        this.timeStamp = timeStamp;
+    public HWDiskStore(HWDiskStore diskStore) {
+        HWPartition[] partsOrig = diskStore.getPartitions();
+        HWPartition[] partsCopy = new HWPartition[partsOrig.length];
+        for (int i = 0; i < partsOrig.length; i++) {
+            partsCopy[i] = new HWPartition(partsOrig[i].getIdentification(), partsOrig[i].getName(),
+                    partsOrig[i].getType(), partsOrig[i].getUuid(), partsOrig[i].getSize(), partsOrig[i].getMajor(),
+                    partsOrig[i].getMinor(), partsOrig[i].getMountPoint());
+        }
+        this.name = diskStore.name;
+        this.model = diskStore.model;
+        this.serial = diskStore.serial;
+        this.size = diskStore.size;
+        this.reads = diskStore.reads;
+        this.readBytes = diskStore.readBytes;
+        this.writes = diskStore.writes;
+        this.writeBytes = diskStore.writeBytes;
+        this.currentQueueLength = diskStore.currentQueueLength;
+        this.transferTime = diskStore.transferTime;
+        this.partitions = partsCopy;
+        this.timeStamp = diskStore.timeStamp;
     }
 
     /**

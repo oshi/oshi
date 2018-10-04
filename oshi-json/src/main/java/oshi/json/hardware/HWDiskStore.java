@@ -37,7 +37,7 @@ import oshi.json.util.PropertiesUtil;
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
  * optical, or mechanical changes to a surface layer of one or more rotating
- * disks or flash storage such as a removable or solid state drive. In constrast
+ * disks or flash storage such as a removable or solid state drive. In contrast
  * to a File System, defining the way an Operating system uses the storage, the
  * Disk Store represents the hardware which a FileSystem uses for its File
  * Stores.
@@ -55,61 +55,17 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     private oshi.hardware.HWDiskStore hwDiskStore;
 
     /**
-     * Create an object with all values
-     *
-     * @param name
-     *            Name of the disk (e.g., /dev/disk1)
-     * @param model
-     *            Model of the disk
-     * @param serial
-     *            Disk serial number, if available
-     * @param size
-     *            Disk capacity in bytes
-     * @param reads
-     *            Number of reads from the disk
-     * @param readBytes
-     *            Number of bytes read from the disk
-     * @param writes
-     *            Number of writes to the disk
-     * @param writeBytes
-     *            Number of bytes written to the disk
-     * @param currentQueueLength
-     *            Number of I/O outstanding operations (waiting + running)
-     * @param transferTime
-     *            milliseconds spent reading or writing to the disk
-     * @param partitions
-     *            Partitions on this disk
-     * @param timeStamp
-     *            milliseconds since the epoch
-     */
-    public HWDiskStore(String name, String model, String serial, long size, long reads, long readBytes, long writes,
-            long writeBytes, long currentQueueLength, long transferTime, HWPartition[] partitions, long timeStamp) {
-        oshi.hardware.HWPartition[] parts = new oshi.hardware.HWPartition[partitions.length];
-        for (int i = 0; i < partitions.length; i++) {
-            parts[i] = new oshi.hardware.HWPartition(partitions[i].getIdentification(), partitions[i].getName(),
-                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),
-                    partitions[i].getMinor(), partitions[i].getMountPoint());
-        }
-        this.hwDiskStore = new oshi.hardware.HWDiskStore();
-        this.hwDiskStore.setName(name);
-        this.hwDiskStore.setModel(model);
-        this.hwDiskStore.setSerial(serial);
-        this.hwDiskStore.setSize(size);
-        this.hwDiskStore.setReads(reads);
-        this.hwDiskStore.setReadBytes(readBytes);
-        this.hwDiskStore.setWrites(writes);
-        this.hwDiskStore.setWriteBytes(writeBytes);
-        this.hwDiskStore.setCurrentQueueLength(currentQueueLength);
-        this.hwDiskStore.setTransferTime(transferTime);
-        this.hwDiskStore.setPartitions(parts);
-        this.hwDiskStore.setTimeStamp(timeStamp);
-    }
-
-    /**
      * Create a new HWDiskStore with default/empty values
      */
     public HWDiskStore() {
         this.hwDiskStore = new oshi.hardware.HWDiskStore();
+    }
+
+    /**
+     * Create json diskStore from hardware diskStore
+     */
+    public HWDiskStore(oshi.hardware.HWDiskStore diskStore) {
+        this.hwDiskStore = new oshi.hardware.HWDiskStore(diskStore);
     }
 
     /**

@@ -123,17 +123,7 @@ public class HardwareAbstractionLayerImpl extends AbstractOshiJsonObject impleme
         oshi.hardware.HWDiskStore[] ds = this.hal.getDiskStores();
         HWDiskStore[] diskStores = new HWDiskStore[ds.length];
         for (int i = 0; i < ds.length; i++) {
-            HWPartition[] partitions = new HWPartition[ds[i].getPartitions().length];
-            for (int j = 0; j < partitions.length; j++) {
-                partitions[j] = new HWPartition(ds[i].getPartitions()[j].getIdentification(),
-                        ds[i].getPartitions()[j].getName(), ds[i].getPartitions()[j].getType(),
-                        ds[i].getPartitions()[j].getUuid(), ds[i].getPartitions()[j].getSize(),
-                        ds[i].getPartitions()[j].getMajor(), ds[i].getPartitions()[j].getMinor(),
-                        ds[i].getPartitions()[j].getMountPoint());
-            }
-            diskStores[i] = new HWDiskStore(ds[i].getName(), ds[i].getModel(), ds[i].getSerial(), ds[i].getSize(),
-                    ds[i].getReads(), ds[i].getReadBytes(), ds[i].getWrites(), ds[i].getWriteBytes(),
-                    ds[i].getCurrentQueueLength(), ds[i].getTransferTime(), partitions, ds[i].getTimeStamp());
+            diskStores[i] = new HWDiskStore(ds[i]);
         }
         return diskStores;
     }
