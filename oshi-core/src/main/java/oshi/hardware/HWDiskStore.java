@@ -46,35 +46,23 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
 
-    private String model;
-    private String name;
-    private String serial;
-    private long size;
-    private long reads;
-    private long readBytes;
-    private long writes;
-    private long writeBytes;
-    private long currentQueueLength;
-    private long transferTime;
-    private HWPartition[] partitions;
-    private long timeStamp;
+    private String model = "";
+    private String name = "";
+    private String serial = "";
+    private long size = 0L;
+    private long reads = 0L;
+    private long readBytes = 0L;
+    private long writes = 0L;
+    private long writeBytes = 0L;
+    private long currentQueueLength = 0L;
+    private long transferTime = 0L;
+    private HWPartition[] partitions = new HWPartition[0];
+    private long timeStamp = 0L;
 
     /**
      * Create an object with empty/default values
      */
     public HWDiskStore() {
-        name = "";
-        model = "";
-        serial = "";
-        size = 0L;
-        reads = 0L;
-        readBytes = 0L;
-        writes = 0L;
-        writeBytes = 0L;
-        currentQueueLength = 0L;
-        transferTime = 0L;
-        partitions = new HWPartition[0];
-        timeStamp = 0L;
     }
 
     /**
