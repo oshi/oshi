@@ -358,36 +358,37 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 // Full path
                 try {
                     proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
-                } catch (Win32Exception e) {
-                    LOG.warn("Failed to set path on PID {}. It may have terminated.", proc.getProcessID());
-                }
-
-                final HANDLEByReference phToken = new HANDLEByReference();
-                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-                    proc.setUser(account.name);
-                    proc.setUserID(account.sidString);
-                    // Fetching group information incurs ~10ms latency per
-                    // process. Skip for full process list
-                    if (pids != null) {
-                        Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-                        // get groups
-                        groupList.clear();
-                        groupIDList.clear();
-                        for (Account a : accounts) {
-                            groupList.add(a.name);
-                            groupIDList.add(a.sidString);
+                    final HANDLEByReference phToken = new HANDLEByReference();
+                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
+                            phToken)) {
+                        Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                        proc.setUser(account.name);
+                        proc.setUserID(account.sidString);
+                        // Fetching group information incurs ~10ms latency per
+                        // process. Skip for full process list
+                        if (pids != null) {
+                            Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
+                            // get groups
+                            groupList.clear();
+                            groupIDList.clear();
+                            for (Account a : accounts) {
+                                groupList.add(a.name);
+                                groupIDList.add(a.sidString);
+                            }
+                            proc.setGroup(FormatUtil.join(",", groupList));
+                            proc.setGroupID(FormatUtil.join(",", groupIDList));
                         }
-                        proc.setGroup(FormatUtil.join(",", groupList));
-                        proc.setGroupID(FormatUtil.join(",", groupIDList));
+                    } else {
+                        int error = Kernel32.INSTANCE.GetLastError();
+                        // Access denied errors are common. Fail silently.
+                        if (error != WinError.ERROR_ACCESS_DENIED) {
+                            LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
+                                    Kernel32.INSTANCE.GetLastError());
+                        }
                     }
-                } else {
-                    int error = Kernel32.INSTANCE.GetLastError();
-                    // Access denied errors are common. Fail silently.
-                    if (error != WinError.ERROR_ACCESS_DENIED) {
-                        LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
-                                Kernel32.INSTANCE.GetLastError());
-                    }
+                } catch (Win32Exception e) {
+                    LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}",
+                            proc.getProcessID(), e.getMessage());
                 }
             }
             Kernel32.INSTANCE.CloseHandle(pHandle);
