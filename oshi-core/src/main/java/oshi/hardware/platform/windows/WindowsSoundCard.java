@@ -115,7 +115,12 @@ public class WindowsSoundCard extends AbstractSoundCard {
      *     match then we create our SoundCard object
      *     </li>
      * </ul>
-     * @return List of sound cards.
+     * <br>
+     * NOTE : The reason why the codec name is same as the card name is because windows does not provide
+     * the name of the codec chip but sometimes the name of the card returned is infact the name of the codec
+     * chip also.
+     * Example : Realtek ALC887 HD Audio Device
+     * @return List of sound cards
      */
     public static List<WindowsSoundCard> getSoundCards() {
         WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(driverQueryClause, SoundCardKernel.class);
