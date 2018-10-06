@@ -54,6 +54,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Pdh;
+import oshi.jna.platform.windows.PdhUtil;
 import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
 import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.jna.platform.windows.WinPerf.PERF_COUNTER_BLOCK;
@@ -123,35 +124,61 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private void initRegistry() {
         // Get the title indices
-        DWORDByReference index = new DWORDByReference();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Process", index);
-        processIndex = index.getValue().intValue();
+        int priorityBaseIndex;
+        int elapsedTimeIndex;
+        int idProcessIndex;
+        int creatingProcessIdIndex;
+        int ioReadIndex;
+        int ioWriteIndex;
+        int workingSetPrivateIndex;
+        try {
+            processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Process");
+            priorityBaseIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Priority Base");
+            elapsedTimeIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Elapsed Time");
+            idProcessIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("ID Process");
+            creatingProcessIdIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Creating Process ID");
+            ioReadIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("IO Read Bytes/sec");
+            ioWriteIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("IO Write Bytes/sec");
+            workingSetPrivateIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Working Set - Private");
+        } catch (Win32Exception e) {
+            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
+            DWORDByReference index = new DWORDByReference();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Process", index);
+            processIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Priority Base", index);
+            priorityBaseIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Elapsed Time", index);
+            elapsedTimeIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "ID Process", index);
+            idProcessIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Creating Process ID", index);
+            creatingProcessIdIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Read Bytes/sec", index);
+            ioReadIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Write Bytes/sec", index);
+            ioWriteIndex = index.getValue().intValue();
+            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Working Set - Private", index);
+            workingSetPrivateIndex = index.getValue().intValue();
+        }
         processIndexStr = Integer.toString(processIndex);
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Priority Base", index);
-        int priorityBaseIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Elapsed Time", index);
-        int elapsedTimeIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "ID Process", index);
-        int idProcessIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Creating Process ID", index);
-        int creatingProcessIdIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Read Bytes/sec", index);
-        int ioReadIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Write Bytes/sec", index);
-        int ioWriteIndex = index.getValue().intValue();
-        Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Working Set - Private", index);
-        int workingSetPrivateIndex = index.getValue().intValue();
 
         // now load the Process registry to match up the offsets
         // Sequentially increase the buffer until everything fits.
         // Save this buffer size for later use
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                processIndexStr, 0, null, pPerfData, lpcbData)) {
+        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
+                lpcbData);
+        if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
+            LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
+            return;
+        }
+        while (ret == WinError.ERROR_MORE_DATA) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
+            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
+                    lpcbData);
         }
 
         PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
@@ -456,11 +483,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Sequentially increase the buffer until everything fits.
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        while (WinError.ERROR_MORE_DATA == Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA,
-                processIndexStr, 0, null, pPerfData, lpcbData)) {
+        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
+                lpcbData);
+        if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
+            LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
+            return;
+        }
+        while (ret == WinError.ERROR_MORE_DATA) {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
+            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
+                    lpcbData);
         }
 
         PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));

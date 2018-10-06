@@ -77,6 +77,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         try {
             localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
         } catch (Win32Exception e) {
+            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
             localized = PROCESSOR;
         }
         PROCESSOR_LOCALIZED = localized;
