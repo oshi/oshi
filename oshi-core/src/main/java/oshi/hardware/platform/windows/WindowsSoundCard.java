@@ -33,10 +33,6 @@ import oshi.util.platform.windows.WmiUtil;
  * @author : BilalAM
  */
 public class WindowsSoundCard extends AbstractSoundCard {
-    public WindowsSoundCard(String kernelVersion, String name, String codec) {
-        super(kernelVersion, name, codec);
-    }
-
     enum SoundCardName {
         MANUFACTURER, NAME;
     }
@@ -66,6 +62,10 @@ public class WindowsSoundCard extends AbstractSoundCard {
         DRIVER_QUERY = createClause();
     }
 
+    public WindowsSoundCard(String kernelVersion, String name, String codec) {
+        super(kernelVersion, name, codec);
+    }
+
     /**
      * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
      * attributes from our map.
@@ -76,11 +76,11 @@ public class WindowsSoundCard extends AbstractSoundCard {
      */
     private static String createClause() {
         StringBuilder sb = new StringBuilder("Win32_PnPSignedDriver");
-        boolean isEnd = false;
+        boolean first = true;
         for (String key : NAME_MAP.keySet()) {
-            if (!isEnd) {
+            if (first) {
                 sb.append(" WHERE");
-                isEnd = true;
+                first = false;
             } else {
                 sb.append(" OR");
             }
