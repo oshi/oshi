@@ -26,10 +26,11 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
-<span class="nc" id="L32">public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L33">public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -38,10 +39,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public ComputerSystem getComputerSystem() {
-<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
-<span class="nc" id="L42">            this.computerSystem = new MacComputerSystem();</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
+<span class="nc" id="L43">            this.computerSystem = new MacComputerSystem();</span>
         }
-<span class="nc" id="L44">        return this.computerSystem;</span>
+<span class="nc" id="L45">        return this.computerSystem;</span>
     }
 
     /**
@@ -49,10 +50,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L53">            this.processor = new MacCentralProcessor();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L54">            this.processor = new MacCentralProcessor();</span>
         }
-<span class="nc" id="L55">        return this.processor;</span>
+<span class="nc" id="L56">        return this.processor;</span>
     }
 
     /**
@@ -60,10 +61,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L64">            this.memory = new MacGlobalMemory();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L65">            this.memory = new MacGlobalMemory();</span>
         }
-<span class="nc" id="L66">        return this.memory;</span>
+<span class="nc" id="L67">        return this.memory;</span>
     }
 
     /**
@@ -71,7 +72,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L74">        return MacPowerSource.getPowerSources();</span>
+<span class="nc" id="L75">        return MacPowerSource.getPowerSources();</span>
     }
 
     /**
@@ -79,7 +80,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L82">        return new MacDisks().getDisks();</span>
+<span class="nc" id="L83">        return new MacDisks().getDisks();</span>
     }
 
     /**
@@ -87,7 +88,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L90">        return MacDisplay.getDisplays();</span>
+<span class="nc" id="L91">        return MacDisplay.getDisplays();</span>
     }
 
     /**
@@ -95,10 +96,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L99">            this.sensors = new MacSensors();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L100">            this.sensors = new MacSensors();</span>
         }
-<span class="nc" id="L101">        return this.sensors;</span>
+<span class="nc" id="L102">        return this.sensors;</span>
     }
 
     /**
@@ -106,7 +107,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L109">        return new MacNetworks().getNetworks();</span>
+<span class="nc" id="L110">        return new MacNetworks().getNetworks();</span>
     }
 
     /**
@@ -114,7 +115,19 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L117">        return MacUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L118">        return MacUsbDevice.getUsbDevices(tree);</span>
+    }
+
+    /**
+     * Instantiates an array of {@link SoundCard} objects, representing the
+     * Sound cards.
+     *
+     * @return An array of SoundCard objects or an empty array if none are
+     *         present.
+     */
+    @Override
+    public SoundCard[] getSoundCards() {
+<span class="nc" id="L130">        return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
