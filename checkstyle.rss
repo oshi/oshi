@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
-      <title>File: 230,
-             Errors: 6501,
+      <title>File: 237,
+             Errors: 6617,
              Warnings: 0,
              Infos: 0
       </title>
@@ -111,7 +111,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -139,7 +139,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  75
+                  57
                 </td>
               </tr>
                           <tr>
@@ -335,7 +335,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  17
                 </td>
               </tr>
                           <tr>
@@ -382,6 +382,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxSoundCard.java">oshi/hardware/platform/linux/LinuxSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdNetworks.java">oshi/hardware/platform/unix/freebsd/FreeBsdNetworks.java</a>
                 </td>
                 <td>
@@ -396,6 +410,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractSoundCard.java">oshi/hardware/common/AbstractSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  27
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxDisks.java">oshi/hardware/platform/linux/LinuxDisks.java</a>
                 </td>
                 <td>
@@ -405,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  58
+                  61
                 </td>
               </tr>
                           <tr>
@@ -676,6 +704,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.SoundCard.java">oshi/hardware/SoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OSProcess.java">oshi/software/os/OSProcess.java</a>
                 </td>
                 <td>
@@ -699,7 +741,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  45
                 </td>
               </tr>
                           <tr>
@@ -811,7 +853,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -1063,7 +1105,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  62
+                  49
                 </td>
               </tr>
                           <tr>
@@ -1091,7 +1133,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  132
+                  133
                 </td>
               </tr>
                           <tr>
@@ -1446,6 +1488,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSoundCard.java">oshi/hardware/platform/mac/MacSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.Udev.java">oshi/jna/platform/linux/Udev.java</a>
                 </td>
                 <td>
@@ -1483,7 +1539,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  141
+                  151
                 </td>
               </tr>
                           <tr>
@@ -1497,7 +1553,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  80
+                  79
                 </td>
               </tr>
                           <tr>
@@ -1903,7 +1959,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -1918,6 +1974,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.SoundCardImpl.java">oshi/json/hardware/impl/SoundCardImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
                 </td>
               </tr>
                           <tr>
@@ -2016,6 +2086,20 @@ under the License.
                 </td>
                 <td>
                   2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.SoundCard.java">oshi/json/hardware/SoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
                 </td>
               </tr>
                           <tr>
@@ -2491,7 +2575,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -2785,7 +2869,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  117
+                  130
                 </td>
               </tr>
                           <tr>
@@ -2855,7 +2939,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  22
                 </td>
               </tr>
                           <tr>
@@ -2926,6 +3010,20 @@ under the License.
                 </td>
                 <td>
                   2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsSoundCard.java">oshi/hardware/platform/windows/WindowsSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
                 </td>
               </tr>
                           <tr>

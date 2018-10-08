@@ -386,20 +386,23 @@
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>                 <strong class="jxr_keyword">if</strong> (size &lt;= 0) {
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>                 }
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>                         <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWPartition.html">HWPartition</a>[0], 0L);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 updateDiskStats(diskStore, session);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 result.add(diskStore);
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             }
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         }
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <em class="jxr_comment">// Close DA session</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         CfUtil.release(session);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         Collections.sort(result);
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[result.size()]);
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a> 
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> }
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>();
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                 diskStore.setName(bsdName);
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                 diskStore.setModel(model.trim());
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 diskStore.setSerial(serial.trim());
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 diskStore.setSize(size);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 updateDiskStats(diskStore, session);
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 result.add(diskStore);
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             }
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         }
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <em class="jxr_comment">// Close DA session</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         CfUtil.release(session);
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         Collections.sort(result);
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[result.size()]);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

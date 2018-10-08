@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      enum <a href="../../../../oshi/hardware/platform/linux/LinuxDisks.html">UdevStat</a> {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// The parsing implementation in ParseUtil requires these to be declared</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <em class="jxr_comment">// in increasing order. Use 0-ordered index here</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), ACTIVE_MS(9);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> order;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
@@ -218,9 +218,10 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>         store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
