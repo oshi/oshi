@@ -18,7 +18,16 @@
  */
 package oshi.hardware.platform.mac;
 
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
@@ -118,6 +127,6 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
      */
     @Override
     public SoundCard[] getSoundCards() {
-        return new SoundCard[0];
+        return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }
