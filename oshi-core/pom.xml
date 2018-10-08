@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.9.0-SNAPSHOT</version>
+		<version>3.9.0</version>
 	</parent>
 
 	<artifactId>oshi-core</artifactId>
@@ -37,7 +37,7 @@
 		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
 		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
 		<url>https://github.com/oshi/oshi.git</url>
-		<tag>HEAD</tag>
+		<tag>oshi-parent-3.9.0</tag>
 	</scm>
 
 	<dependencies>
