@@ -378,17 +378,20 @@ import oshi.util.platform.mac.IOKitUtil;
 <span class="nc bnc" id="L378" title="All 2 branches missed.">                if (size &lt;= 0) {</span>
 <span class="nc" id="L379">                    continue;</span>
                 }
-<span class="nc" id="L381">                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,</span>
-                        new HWPartition[0], 0L);
+<span class="nc" id="L381">                HWDiskStore diskStore = new HWDiskStore();</span>
+<span class="nc" id="L382">                diskStore.setName(bsdName);</span>
+<span class="nc" id="L383">                diskStore.setModel(model.trim());</span>
+<span class="nc" id="L384">                diskStore.setSerial(serial.trim());</span>
+<span class="nc" id="L385">                diskStore.setSize(size);</span>
 
-<span class="nc" id="L384">                updateDiskStats(diskStore, session);</span>
-<span class="nc" id="L385">                result.add(diskStore);</span>
+<span class="nc" id="L387">                updateDiskStats(diskStore, session);</span>
+<span class="nc" id="L388">                result.add(diskStore);</span>
             }
-<span class="nc" id="L387">        }</span>
+<span class="nc" id="L390">        }</span>
         // Close DA session
-<span class="nc" id="L389">        CfUtil.release(session);</span>
-<span class="nc" id="L390">        Collections.sort(result);</span>
-<span class="nc" id="L391">        return result.toArray(new HWDiskStore[result.size()]);</span>
+<span class="nc" id="L392">        CfUtil.release(session);</span>
+<span class="nc" id="L393">        Collections.sort(result);</span>
+<span class="nc" id="L394">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
 
 }
