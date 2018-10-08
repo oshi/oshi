@@ -66,13 +66,17 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String toString() {
-        String output = "SOUND CARDS DRIVER VERSION : " + kernelVersion;
-        output += '\n';
-        output += "NAME  ---: " + name;
-        output += '\n';
-        output += "CODEC ---: " + codec;
-        output += '\n';
-        return output;
+        StringBuilder builder = new StringBuilder();
+        builder.append("SoundCard@");
+        builder.append(Integer.toHexString(hashCode()));
+        builder.append(" [kernelVersion=");
+        builder.append(kernelVersion);
+        builder.append(", name=");
+        builder.append(name);
+        builder.append(", codec=");
+        builder.append(codec);
+        builder.append(']');
+        return builder.toString();
     }
 
 }
